@@ -17,6 +17,11 @@ function withPrefix(prefixPath: string, routes: RouteConfigEntry[]): RouteConfig
   return [...prefix(prefixPath, routes)];
 }
 
+type MenuDinamic ={
+    isDinamic: boolean;
+    dinamicId: string;    
+}
+
 
 export interface IMenuItem {
     path?: string;
@@ -26,6 +31,7 @@ export interface IMenuItem {
     icon?: string;
     target?: string;
     active?: boolean;
+    dinamic_id?: string;
   }
   
 export type IMenuConfig = {
@@ -67,10 +73,16 @@ const MenuConfig = {
           },
         },
     },
+    anuncios: {
+        label: "Anúncios",
+        status: "red",
+        path: "/anuncios",
+        dinamic_id: "anuncio_id",
+    }
 } satisfies IMenuConfig;
 
 
-export function createMenuRoutes(): RouteConfigEntry[] {
+export function createMenuRoutes(basePath: string = "interno"): RouteConfigEntry[] {
     const routes: RouteConfigEntry[] = [];
     
     function processMenuItem(key: string, item: IMenuItem, parentPath: string[] = []): RouteConfigEntry[] {
@@ -82,7 +94,19 @@ export function createMenuRoutes(): RouteConfigEntry[] {
                 itemRoutes.push(index("routes/inicio/route.tsx"));
             } else {
                 const routeName = item.path.replace(/^\//, '');
-                itemRoutes.push(route(routeName, `routes/${key}/route.tsx`));
+                console.log("routeName", routeName);
+                
+                if (item.dinamic_id) {
+                    // Para rotas dinâmicas, cria DUAS rotas:
+                    // 1. Rota estática (lista)
+                    itemRoutes.push(route(routeName, `routes/${key}/route.tsx`));
+                    
+                    // 2. Rota dinâmica (item específico)
+                    const dynamicPath = `${routeName}/:${item.dinamic_id}`;
+                    itemRoutes.push(route(dynamicPath, `routes/${key}/[${item.dinamic_id}]/route.tsx`));
+                } else {
+                    itemRoutes.push(route(routeName, `routes/${key}/route.tsx`));
+                }
             }
         }
         
@@ -113,10 +137,7 @@ export function createMenuRoutes(): RouteConfigEntry[] {
     return routes;
 }
 
-
-
-
 export default [
     index("routes/home.tsx"),
-    layout("src/components/layouts/MenuLayout.tsx", createMenuRoutes())
+    layout("src/components/layouts/MenuLayout.tsx", withPrefix("interno", createMenuRoutes()))
 ] satisfies RouteConfig;
