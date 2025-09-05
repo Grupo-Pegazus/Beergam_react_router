@@ -82,7 +82,7 @@ const MenuConfig = {
 } satisfies IMenuConfig;
 
 
-export function createMenuRoutes(basePath: string = "interno"): RouteConfigEntry[] {
+export function createMenuRoutes(): RouteConfigEntry[] {
     const routes: RouteConfigEntry[] = [];
     
     function processMenuItem(key: string, item: IMenuItem, parentPath: string[] = []): RouteConfigEntry[] {
