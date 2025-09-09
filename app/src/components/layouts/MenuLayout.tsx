@@ -1,17 +1,11 @@
 import { Outlet } from "react-router";
-import { useRouteHierarchy } from "~/hooks/useRouteHierarchy";
-import { internal_routes } from "~/routes";
+// import { all_routes } from "~/routes";
+import { createMenuRoutes } from "~/routes";
 export default function MenuLayout() {
-    const hierarchy = useRouteHierarchy();
-  
-    console.log("📍 Rota atual:", hierarchy.current);
-    console.log("👨‍👦‍👦 Ancestrais:", hierarchy.ancestors);
-    console.log("👶 Filhos:", hierarchy.children);
-    console.log("👫 Irmãos:", hierarchy.siblings);
-    console.log("🌳 Hierarquia completa:", hierarchy.getFullHierarchy());
+    createMenuRoutes();
   return <div>
     <h1>MenuLayout</h1>
-    <p>{JSON.stringify(hierarchy)}</p>
+    {/* <p>{JSON.stringify(all_routes)}</p> */}
     <Outlet />
   </div>;
 }
