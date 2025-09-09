@@ -19,8 +19,8 @@ export function HydrateFallback() {
     const resultado = AnuncioSchema.safeParse(anuncio);
     
     if (!resultado.success) {
-        return <AnuncioPage error={true} isLoading={false} anuncio={null} />;
+        return <AnuncioPage error={true} anuncio={null} />;
     }
     
-    return <AnuncioPage error={false} isLoading={false} anuncio={resultado.data} />;
+    return <AnuncioPage error={false} anuncio={resultado.data} />;
   }

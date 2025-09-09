@@ -1,25 +1,7 @@
 import { type RouteConfig, index, route, prefix, layout,type RouteConfigEntry } from "@react-router/dev/routes";
 
-
-interface IMenuRoute {
-    label: string
-    routes: RouteConfigEntry[]
-}
-
-class MenuRoute implements IMenuRoute {
-    constructor(public label: string, public routes: RouteConfigEntry[]) {
-    }
-}
-
-
-
 function withPrefix(prefixPath: string, routes: RouteConfigEntry[]): RouteConfigEntry[] {
   return [...prefix(prefixPath, routes)];
-}
-
-type MenuDinamic ={
-    isDinamic: boolean;
-    dinamicId: string;    
 }
 
 
