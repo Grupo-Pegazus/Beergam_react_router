@@ -1,4 +1,4 @@
-import { type IMenuItem, getIcon } from "../../typings";
+import { type IMenuItem, getIcon, getRelativePath } from "../../typings";
 import styles from "./index.module.css";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
@@ -9,6 +9,7 @@ interface IMenuItemProps {
   activeState: {
     activeItems: IMenuItem[];
   };
+  relativePath?: string;
 }
 
 interface IMenuItemWrapperProps {
@@ -55,6 +56,7 @@ export default function MenuItem({
   item,
   fatherOpen,
   activeState,
+  relativePath,
 }: IMenuItemProps) {
   const [open, setOpen] = useState(fatherOpen || false);
   const [canChangeDisplay, setChangeDisplay] = useState(true);
@@ -86,7 +88,7 @@ export default function MenuItem({
         isDropDown={!!item.dropdown}
         open={open}
         setOpen={(params) => setOpen(params.open)}
-        path={item.path}
+        path={relativePath ? relativePath : item.path}
         isSelected={isSelected}
         target={item.target}
       >
@@ -109,6 +111,7 @@ export default function MenuItem({
               key={key}
               item={dropdownItem}
               activeState={activeState}
+              relativePath={getRelativePath(dropdownItem.path)}
             />
           ))}
         </ul>

@@ -56,6 +56,7 @@ export const MenuConfig = {
         status: "red",
         path: "/anuncios",
         dinamic_id: "anuncio_id",
+        icon: "bag",
     }
 } satisfies IMenuConfig;
 
@@ -161,3 +162,32 @@ export const isItemActive = (
   // Item é ativo se for o próprio item ou um dos pais
   return itemKey === activeItem?.path || parentKeys.includes(itemKey);
 };
+
+export const getRelativePath = (itemKey: string | undefined): string | undefined => {
+    if (!itemKey) return undefined;
+    const findItemPath = (
+      menu: IMenuConfig,
+      targetKey: string,
+      parentPath: string[] = []
+    ): string | undefined => {
+      for (const [key, item] of Object.entries(menu)) {
+        const currentPath = [...parentPath, key];
+        
+        // Se encontrou o item procurado
+        if (key === targetKey) {
+          return "/interno/" + currentPath.join("/");
+        }
+        
+        // Se tem dropdown, procura recursivamente
+        if (item.dropdown) {
+          const found = findItemPath(item.dropdown, targetKey, currentPath);
+          if (found) {
+            return found;
+          }
+        }
+      }
+      return undefined;
+    };
+    
+    return findItemPath(MenuConfig, itemKey);
+  };
