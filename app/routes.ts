@@ -1,68 +1,8 @@
 import { type RouteConfig, index, route, prefix, layout,type RouteConfigEntry } from "@react-router/dev/routes";
-
+import { type IMenuItem, MenuConfig } from "./features/menu/typings";
 function withPrefix(prefixPath: string, routes: RouteConfigEntry[]): RouteConfigEntry[] {
   return [...prefix(prefixPath, routes)];
 }
-
-
-export interface IMenuItem {
-    path?: string;
-    label: string;
-    status: string;
-    dropdown?: Record<string, IMenuItem>;
-    icon?: string;
-    target?: string;
-    active?: boolean;
-    dinamic_id?: string;
-  }
-  
-export type IMenuConfig = {
-    [key: string]: IMenuItem;
-};
-
-const MenuConfig = {
-    inicio: {
-        label: "Início",
-        status: "green",
-        icon: "home",
-        path: "/",
-    },
-    atendimento: {
-        label: "Atendimento",
-        status: "yellow",
-        icon: "chat",
-        dropdown: {
-          mercado_livre: {
-            label: "Mercado Livre",
-            status: "yellow",
-            dropdown: {
-              perguntas_ml: {
-                label: "Perguntas",
-                status: "yellow",
-                path: "/perguntas",
-              },
-              reclamacoes_ml: {
-                label: "Reclamações",
-                status: "red",
-                path: "/reclamacoes",
-              },
-              mensagens_ml: {
-                label: "Mensagens",
-                status: "red",
-                path: "/mensagens",
-              },
-            },
-          },
-        },
-    },
-    anuncios: {
-        label: "Anúncios",
-        status: "red",
-        path: "/anuncios",
-        dinamic_id: "anuncio_id",
-    }
-} satisfies IMenuConfig;
-
 
 export function createMenuRoutes(): RouteConfigEntry[] {
     const routes: RouteConfigEntry[] = [];

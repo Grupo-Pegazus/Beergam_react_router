@@ -1,4 +1,4 @@
-import { type AnuncioBase, AnuncioSchema } from "../typing";
+import { type AnuncioBase, AnuncioSchema } from "../../typings";
 import { Skeleton, Stack } from "@mui/material";
 
 interface AnuncioCardProps {
