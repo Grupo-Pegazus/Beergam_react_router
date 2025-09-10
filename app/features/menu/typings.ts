@@ -115,6 +115,7 @@ export class AllowedViews {
 export const getIcon = (iconName: keyof typeof Svg) => Svg[iconName];
 
 // Função para encontrar o item ativo e seus pais
+// Função para encontrar o item ativo e seus pais
 export const findActiveItemAndParents = (
   menuConfig: IMenuConfig,
   currentPath: string,
@@ -126,8 +127,9 @@ export const findActiveItemAndParents = (
     parentKey?: string,
   ): IMenuItem | null => {
     for (const [key, item] of Object.entries(menu)) {
-      // Se encontrou o item ativo
-      if (item.path === currentPath) {
+      // Se encontrou o item ativo - compara com o caminho relativo
+      const relativePath = getRelativePath(key);
+      if (relativePath === currentPath) {
         if (parentKey) parentKeys.push(parentKey);
         return item;
       }
@@ -163,31 +165,36 @@ export const isItemActive = (
   return itemKey === activeItem?.path || parentKeys.includes(itemKey);
 };
 
+
+export const DEFAULT_INTERNAL_PATH = "/interno";
+
 export const getRelativePath = (itemKey: string | undefined): string | undefined => {
-    if (!itemKey) return undefined;
-    const findItemPath = (
-      menu: IMenuConfig,
-      targetKey: string,
-      parentPath: string[] = []
-    ): string | undefined => {
-      for (const [key, item] of Object.entries(menu)) {
-        const currentPath = [...parentPath, key];
-        
-        // Se encontrou o item procurado
-        if (key === targetKey) {
-          return "/interno/" + currentPath.join("/");
-        }
-        
-        // Se tem dropdown, procura recursivamente
-        if (item.dropdown) {
-          const found = findItemPath(item.dropdown, targetKey, currentPath);
-          if (found) {
-            return found;
-          }
+  if (!itemKey) return undefined;
+
+  const findItemPath = (
+    menu: IMenuConfig,
+    targetKey: string,
+    parentPath: string[] = []
+  ): string | undefined => {
+    for (const [key, item] of Object.entries(menu)) {
+      const currentPath = [...parentPath, key];
+
+      // Se encontrou o item procurado
+      if (key === targetKey) {
+        const leafSegment = (item.path ?? key).replace(/^\/+/, "");
+        return DEFAULT_INTERNAL_PATH + "/" + [...parentPath, leafSegment].join("/");
+      }
+
+      // Se tem dropdown, procura recursivamente
+      if (item.dropdown) {
+        const found = findItemPath(item.dropdown, targetKey, currentPath);
+        if (found) {
+          return found;
         }
       }
-      return undefined;
-    };
-    
-    return findItemPath(MenuConfig, itemKey);
+    }
+    return undefined;
   };
+
+  return findItemPath(MenuConfig, itemKey);
+};

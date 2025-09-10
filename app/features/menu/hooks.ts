@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router";
 import {
   findActiveItemAndParents,
+  getRelativePath,
   type IMenuConfig,
   type IMenuItem,
 } from "./typings";
@@ -36,7 +37,8 @@ export const useActiveMenu = (menuConfig: IMenuConfig) => {
   }, [location.pathname, menuConfig]);
 
   const isItemActive = (itemKey: string): boolean => {
-    return activeState.activeItems.some((item) => item.path === itemKey);
+    const relativePath = getRelativePath(itemKey);
+    return relativePath === location.pathname;
   };
 
   return { currentPath: location.pathname, activeState, isItemActive };

@@ -11,6 +11,7 @@ import {
 export default function Menu() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { activeState } = useActiveMenu(MenuHanlder.getMenu());
+  console.log("activeState", activeState);
   return (
     <div
       onMouseEnter={() => setMenuOpen(true)}

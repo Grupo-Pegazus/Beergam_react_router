@@ -16,7 +16,6 @@ export function createMenuRoutes(): RouteConfigEntry[] {
                 itemRoutes.push(index("routes/inicio/route.tsx"));
             } else {
                 const routeName = item.path.replace(/^\//, '');
-                console.log("routeName", routeName);
                 
                 if (item.dinamic_id) {
                     // Para rotas dinâmicas, cria DUAS rotas:
@@ -55,7 +54,6 @@ export function createMenuRoutes(): RouteConfigEntry[] {
         routes.push(...itemRoutes);
     });
     
-    console.log("🎯 Rotas criadas:", routes);
     return routes;
 }
 

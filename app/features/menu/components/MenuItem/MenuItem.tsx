@@ -1,4 +1,4 @@
-import { type IMenuItem, getIcon, getRelativePath } from "../../typings";
+import { type IMenuItem, getIcon, getRelativePath, DEFAULT_INTERNAL_PATH } from "../../typings";
 import styles from "./index.module.css";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
@@ -88,7 +88,7 @@ export default function MenuItem({
         isDropDown={!!item.dropdown}
         open={open}
         setOpen={(params) => setOpen(params.open)}
-        path={relativePath ? relativePath : item.path}
+        path={relativePath ? relativePath : DEFAULT_INTERNAL_PATH + item.path}
         isSelected={isSelected}
         target={item.target}
       >
@@ -111,7 +111,7 @@ export default function MenuItem({
               key={key}
               item={dropdownItem}
               activeState={activeState}
-              relativePath={getRelativePath(dropdownItem.path)}
+              relativePath={getRelativePath(key)}
             />
           ))}
         </ul>
