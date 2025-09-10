@@ -1,8 +1,12 @@
-import { type IMenuItem, getIcon, getRelativePath, DEFAULT_INTERNAL_PATH } from "../../typings";
-import styles from "./index.module.css";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
-import React from "react";
+import {
+  DEFAULT_INTERNAL_PATH,
+  type IMenuItem,
+  getIcon,
+  getRelativePath,
+} from "../../typings";
+import styles from "../index.module.css";
 interface IMenuItemProps {
   item: IMenuItem;
   fatherOpen?: boolean;
@@ -93,7 +97,11 @@ export default function MenuItem({
         target={item.target}
       >
         {item.icon && (
-          <div className={styles.menuIconContainer}>{getIcon(item.icon)()}</div>
+          <>
+            <div className={styles.menuIconContainer}>
+              {getIcon(item.icon)()}
+            </div>
+          </>
         )}
         <div className={styles.menuStatus + " " + styles[item.status]}></div>
         <span>{item.label}</span>

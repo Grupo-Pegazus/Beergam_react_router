@@ -1,17 +1,12 @@
-import {  useState } from "react";
-import MenuItem from "../MenuItem/MenuItem";
-import styles from "./index.module.css";
+import { useState } from "react";
 import { UsuarioTeste } from "../../../auth/user/typings";
 import { useActiveMenu } from "../../hooks";
-import {
-  MenuHanlder,
-  type IMenuItem,
-  MenuConfig,
-} from "../../typings";
+import { MenuConfig, MenuHanlder, type IMenuItem } from "../../typings";
+import MenuItem from "../MenuItem/MenuItem";
+import styles from "../index.module.css";
 export default function Menu() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { activeState } = useActiveMenu(MenuHanlder.getMenu());
-  console.log("activeState", activeState);
   return (
     <div
       onMouseEnter={() => setMenuOpen(true)}
