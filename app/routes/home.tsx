@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { setUser } from "~/features/auth/redux";
@@ -11,9 +12,11 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
+  const [userName, setUserName] = useState<string>("Jorge");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   function setUserFromInicio() {
+    UsuarioTeste.nome = userName;
     dispatch(setUser(JSON.parse(JSON.stringify(UsuarioTeste))));
     navigate("/interno");
   }
@@ -21,6 +24,11 @@ export default function Home() {
   return (
     <>
       <h1>Home</h1>
+      <input
+        type="text"
+        value={userName}
+        onChange={(e) => setUserName(e.target.value)}
+      />
       <button onClick={setUserFromInicio}>Setar usuário</button>
     </>
   );

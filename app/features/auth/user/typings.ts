@@ -1,4 +1,4 @@
-import { AllowedViews, getDefaultViews } from "../../menu/typings";
+import { getDefaultViews, type MenuState } from "../../menu/typings";
 export interface IValidacao {
   valid: boolean;
   message: string | string[];
@@ -250,6 +250,7 @@ export interface IBaseUsuario {
   senha: string;
   user_type: UserType;
   conta_ml?: IContaML;
+  allowed_views: MenuState;
 }
 
 export interface IUsuario extends IBaseUsuario {
@@ -261,7 +262,6 @@ export interface IUsuario extends IBaseUsuario {
   referal_code: string;
   faturamento: FaixaFaturamentoKeys;
   conheceu_beergam: ComoConheceuKeys;
-  allowed_views: AllowedViews;
 }
 
 interface IContaML {
@@ -290,7 +290,7 @@ class Usuario implements IUsuario {
   referal_code: string;
   faturamento: FaixaFaturamentoKeys;
   conheceu_beergam: ComoConheceuKeys;
-  allowed_views: AllowedViews;
+  allowed_views: MenuState;
   conta_ml?: ContaML;
   constructor(usuario: IUsuario) {
     this.nome = usuario.nome;
@@ -495,9 +495,7 @@ export const UsuarioTeste = new Usuario({
   referal_code: "12345678901",
   faturamento: "ATE_10_MIL",
   conheceu_beergam: "ANUNCIO_FACEBOOK",
-  allowed_views: {
-    ...getDefaultViews(),
-  },
+  allowed_views: { ...getDefaultViews(), inicio: { active: true } },
   senha: "1234567890",
   user_type: "master",
   conta_ml: ContaMlTeste,

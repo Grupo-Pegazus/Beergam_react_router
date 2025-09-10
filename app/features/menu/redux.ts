@@ -1,6 +1,7 @@
 // app/features/menu/redux.ts
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { getDefaultViews, type MenuKeys, type MenuState } from "./typings";
+import { type MenuKeys, type MenuState } from "./typings";
+import { getDefaultViews } from "./utils";
 
 const initialState: MenuState = {
   ...getDefaultViews(),

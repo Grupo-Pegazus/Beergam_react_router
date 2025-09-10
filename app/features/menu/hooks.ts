@@ -1,11 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
-import {
-  findActiveItemAndParents,
-  getRelativePath,
-  type IMenuConfig,
-  type IMenuItem,
-} from "./typings";
+import { type IMenuConfig, type IMenuItem } from "./typings";
+import { findActiveItemAndParents, getRelativePath } from "./utils";
 
 export const useActiveMenu = (menuConfig: IMenuConfig) => {
   const location = useLocation();
