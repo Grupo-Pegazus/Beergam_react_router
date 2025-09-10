@@ -1,12 +1,16 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { type RootState } from "~/store";
 import { UsuarioTeste } from "../../../auth/user/typings";
 import { useActiveMenu } from "../../hooks";
 import { MenuConfig, MenuHanlder, type IMenuItem } from "../../typings";
 import MenuItem from "../MenuItem/MenuItem";
 import styles from "../index.module.css";
 export default function Menu() {
+  const user = useSelector((state: RootState) => state.auth.user);
   const [menuOpen, setMenuOpen] = useState(false);
   const { activeState } = useActiveMenu(MenuHanlder.getMenu());
+  console.log("user:", user);
   return (
     <div
       onMouseEnter={() => setMenuOpen(true)}
@@ -53,7 +57,7 @@ export default function Menu() {
             <p className={styles.userInfoContaMl}>
               {UsuarioTeste.conta_ml?.nome}
             </p>
-            <p>{UsuarioTeste.nome}</p>
+            <p>{user?.nome}</p>
           </div>
         </div>
       </div>

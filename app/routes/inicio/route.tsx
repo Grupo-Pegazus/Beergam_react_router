@@ -1,4 +1,4 @@
-import type { Route } from "../+types/home";
+import type { Route } from ".react-router/types/app/routes/inicio/+types/route";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -8,5 +8,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Inicio() {
-  return <h1>Página de Início</h1>;
+  return (
+    <>
+      <h1>Página de Início</h1>
+    </>
+  );
 }

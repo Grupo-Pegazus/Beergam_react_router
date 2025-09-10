@@ -100,7 +100,7 @@ function validateCPF(cpf: string) {
   let Soma = 0;
   let Resto;
 
-  let strCPF = String(cpf).replace(/\D/g, "");
+  const strCPF = String(cpf).replace(/\D/g, "");
   if (strCPF.length !== 11) return false;
 
   if (
@@ -190,7 +190,7 @@ function validateCNPJ(cnpj: string) {
     soma += parseInt(cnpj.charAt(i)) * pesosPrimeiroDigito[i];
   }
   let resto = soma % 11;
-  let digito1 = resto < 2 ? 0 : 11 - resto;
+  const digito1 = resto < 2 ? 0 : 11 - resto;
 
   // Verifica se o primeiro dígito está correto
   if (parseInt(cnpj.charAt(12)) !== digito1) return false;
@@ -201,7 +201,7 @@ function validateCNPJ(cnpj: string) {
     soma += parseInt(cnpj.charAt(i)) * pesosSegundoDigito[i];
   }
   resto = soma % 11;
-  let digito2 = resto < 2 ? 0 : 11 - resto;
+  const digito2 = resto < 2 ? 0 : 11 - resto;
 
   // Verifica se o segundo dígito está correto
   if (parseInt(cnpj.charAt(13)) !== digito2) return false;
@@ -245,14 +245,14 @@ export class Telefone {
 
 export type UserType = "master" | "colaborador" | "beergam_master";
 
-interface IBaseUsuario {
+export interface IBaseUsuario {
   nome: string;
   senha: string;
   user_type: UserType;
   conta_ml?: IContaML;
 }
 
-interface IUsuario extends IBaseUsuario {
+export interface IUsuario extends IBaseUsuario {
   email: string;
   cpf: string | null;
   cnpj: string | null;
@@ -310,7 +310,7 @@ class Usuario implements IUsuario {
   validarUsuario(
     usuario: IUsuario,
     final: boolean = false,
-    documento: "cpf" | "cnpj" = "cpf",
+    documento: "cpf" | "cnpj" = "cpf"
   ): IValidacao {
     const erros: string[] = [];
     const nome = this.validarNome(usuario.nome, final);
@@ -331,7 +331,7 @@ class Usuario implements IUsuario {
     }
     const whatsapp = new Telefone(usuario.whatsapp).validarTelefone(
       usuario.whatsapp,
-      final,
+      final
     );
     if (!whatsapp.valid) {
       erros.push(whatsapp.message as string);
@@ -344,7 +344,7 @@ class Usuario implements IUsuario {
     }
     const cnpj = new CNPJ(usuario.cnpj ?? "").validarCNPJ(
       usuario.cnpj ?? "",
-      final,
+      final
     );
     if (!cnpj.valid && documento === "cnpj") {
       erros.push(cnpj.message as string);
