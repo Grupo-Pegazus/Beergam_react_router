@@ -1,5 +1,5 @@
-import { getAnuncio } from "~/features/anuncios/components/service";	
-import { type AnuncioBase, AnuncioSchema } from "~/features/anuncios/components/typing";
+import { getAnuncio } from "~/features/anuncios/service";	
+import { type AnuncioBase, AnuncioSchema } from "~/features/anuncios/typings";
 import AnuncioPage from "./page";
 export async function clientLoader({
     params,

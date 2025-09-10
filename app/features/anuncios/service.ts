@@ -1,4 +1,4 @@
-import type { AnuncioBase } from "./typing";
+import type { AnuncioBase } from "./typings";
 
 const anuncios = {
     "1": {
