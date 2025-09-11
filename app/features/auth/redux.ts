@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import type { MenuState } from "../menu/typings";
 import { type IBaseUsuario, type IUsuario } from "./user/typings";
 
 export interface IAuthState {
@@ -22,8 +23,13 @@ const authSlice = createSlice({
     setUser: (state, action: PayloadAction<IBaseUsuario | IUsuario>) => {
       state.user = action.payload;
     },
+    setUserViews: (state, action: PayloadAction<MenuState>) => {
+      if (state.user) {
+        state.user.allowed_views = action.payload;
+      }
+    },
   },
 });
 
-export const { setUser } = authSlice.actions;
+export const { setUser, setUserViews } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,10 +1,11 @@
 import { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { setUserViews } from "~/features/auth/redux";
 import { type RootState } from "~/store";
 import { UsuarioTeste } from "../../../auth/user/typings";
 import { useActiveMenu } from "../../hooks";
 import { closeMany } from "../../redux";
-import { MenuHanlder } from "../../typings";
+import { MenuHanlder, type MenuState } from "../../typings";
 import styles from "../index.module.css";
 import MenuItem from "../MenuItem/MenuItem";
 export default function Menu() {
@@ -12,7 +13,6 @@ export default function Menu() {
   const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
   const openMap = useSelector((s: RootState) => s.menu.open);
-
   // calcula apenas as chaves abertas
   const openKeys = useMemo(
     () =>
@@ -25,7 +25,20 @@ export default function Menu() {
   const handleMouseLeave = useCallback(() => {
     if (openKeys.length) dispatch(closeMany(openKeys));
   }, [dispatch, openKeys]);
-
+  const handleChangeView = () => {
+    dispatch(
+      setUserViews({
+        inicio: { active: false },
+        atendimento: { active: true },
+        anuncios: { active: true },
+      })
+    );
+  };
+  const menu = useMemo(() => {
+    return MenuHanlder.setMenu(
+      user?.allowed_views ?? (MenuHanlder.getMenu() as unknown as MenuState)
+    );
+  }, [user?.allowed_views]);
   return (
     <div onMouseLeave={handleMouseLeave} className={styles.hierarchyMenu}>
       <div className={styles.menuHeader + " " + styles.menuPadding}>
@@ -81,12 +94,12 @@ export default function Menu() {
             activeState={activeState}
           />
         ))} */}
-        {Object.entries(MenuHanlder.getMenu()).map(([key, item]) => (
+        {Object.entries(menu).map(([key, item]) => (
           <MenuItem key={key} item={item} itemKey={key} parentKey="" />
         ))}
       </ul>
       <div style={{ marginTop: "auto" }} className={styles.logoutBtn}>
-        <button>
+        <button onClick={handleChangeView}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
