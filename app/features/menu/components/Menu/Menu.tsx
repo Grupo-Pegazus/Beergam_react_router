@@ -3,7 +3,8 @@ import { useSelector } from "react-redux";
 import { type RootState } from "~/store";
 import { UsuarioTeste } from "../../../auth/user/typings";
 import { useActiveMenu } from "../../hooks";
-import { MenuHanlder } from "../../typings";
+import { MenuConfig, MenuHanlder, type IMenuItem } from "../../typings";
+import MenuItem from "../MenuItem/MenuItem";
 import styles from "../index.module.css";
 export default function Menu() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -61,14 +62,14 @@ export default function Menu() {
       </div>
       <ul className={styles.menuItems + " " + styles.menuPadding}>
         {JSON.stringify(user?.allowed_views)}
-        {/* {Object.values(MenuConfig).map((item: IMenuItem) => (
+        {Object.values(MenuConfig).map((item: IMenuItem) => (
           <MenuItem
             key={item.label}
             item={item}
             fatherOpen={menuOpen}
             activeState={activeState}
           />
-        ))} */}
+        ))}
       </ul>
       <div style={{ marginTop: "auto" }} className={styles.logoutBtn}>
         <button>

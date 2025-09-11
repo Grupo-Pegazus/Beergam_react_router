@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
-import {
-  DEFAULT_INTERNAL_PATH,
-  type IMenuItem,
-  getIcon,
-  getRelativePath,
-} from "../../typings";
+import { type IMenuItem } from "../../typings";
+import { DEFAULT_INTERNAL_PATH, getIcon, getRelativePath } from "../../utils";
 import styles from "../index.module.css";
 interface IMenuItemProps {
   item: IMenuItem;
