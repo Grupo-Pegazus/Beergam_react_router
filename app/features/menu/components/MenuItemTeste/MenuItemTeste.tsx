@@ -1,8 +1,10 @@
 import { Profiler } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router";
 import { type RootState } from "~/store";
 import { toggleOpen } from "../../redux";
 import { type IMenuItem } from "../../typings";
+import { getRelativePath } from "../../utils";
 
 type Props = {
   item: IMenuItem;
@@ -23,7 +25,28 @@ export default function MenuItemTeste({ item, itemKey, parentKey }: Props) {
     (s: RootState) => s.menu.open[currentKey] ?? false
   );
 
+  const isCurrentSelected = useSelector(
+    (s: RootState) => s.menu.currentSelected[currentKey] ?? false
+  );
+
   if (!isVisible) return null;
+
+  type ActionProps = {
+    item: IMenuItem;
+    onToggle: () => void;
+  };
+
+  function MenuItemActionWrapper({ item, onToggle }: ActionProps) {
+    if (item.path) {
+      return <Link to={getRelativePath(itemKey) ?? "/"}>{item.label}</Link>;
+    }
+    return (
+      <button onClick={onToggle}>
+        {item.label}
+        {item.dropdown ? (isOpen ? "▲" : "▼") : null}
+      </button>
+    );
+  }
 
   return (
     <Profiler
@@ -33,10 +56,11 @@ export default function MenuItemTeste({ item, itemKey, parentKey }: Props) {
       }}
     >
       <li>
-        <button onClick={() => dispatch(toggleOpen({ path: currentKey }))}>
-          {item.label} {item.dropdown ? (isOpen ? "▲" : "▼") : null}
-        </button>
-
+        <MenuItemActionWrapper
+          item={item}
+          onToggle={() => dispatch(toggleOpen({ path: currentKey }))}
+        />
+        <p>{isCurrentSelected ? "true" : "false"}</p>
         {item.dropdown && isOpen && (
           <ul>
             {Object.entries(item.dropdown).map(([childKey, child]) => (

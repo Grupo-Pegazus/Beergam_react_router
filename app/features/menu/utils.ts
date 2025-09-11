@@ -105,3 +105,38 @@ export const getRelativePath = (
 
   return findItemPath(MenuConfig, itemKey);
 };
+
+export type KeyPathResult = {
+  keyChain: string[]; // ["atendimento","mercado_livre","perguntas_ml"]
+  dotPath: string | null; // "atendimento.mercado_livre.perguntas_ml"
+  parentDotPaths: string[]; // ["atendimento","atendimento.mercado_livre"]
+};
+
+export const findKeyPathByRoute = (
+  menu: IMenuConfig,
+  currentPath: string
+): KeyPathResult => {
+  const chain: string[] = [];
+
+  const dfs = (node: IMenuConfig, acc: string[]): boolean => {
+    for (const [key, item] of Object.entries(node)) {
+      const rel = getRelativePath(key);
+      if (rel === currentPath) {
+        chain.push(...acc, key);
+        return true;
+      }
+      if (item.dropdown && dfs(item.dropdown, [...acc, key])) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const found = dfs(menu, []);
+  const dotPath = found ? chain.join(".") : null;
+  const parentDotPaths = found
+    ? chain.slice(0, -1).map((_, i) => chain.slice(0, i + 1).join("."))
+    : [];
+
+  return { keyChain: chain, dotPath, parentDotPaths };
+};

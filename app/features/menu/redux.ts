@@ -43,9 +43,18 @@ export const menuSlice = createSlice({
     ) => {
       state.currentSelected[action.payload.path] = action.payload.value;
     },
+    setSelectedOnly: (state, action: PayloadAction<{ path: string }>) => {
+      state.currentSelected = {};
+      state.currentSelected[action.payload.path] = true;
+    },
   },
 });
 
-export const { setMenuActive, toggleOpen, setOpen, setCurrentSelected } =
-  menuSlice.actions;
+export const {
+  setMenuActive,
+  toggleOpen,
+  setOpen,
+  setCurrentSelected,
+  setSelectedOnly,
+} = menuSlice.actions;
 export default menuSlice.reducer;
