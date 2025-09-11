@@ -1,11 +1,11 @@
 import { Profiler } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { type RootState } from "~/store";
 import { toggleOpen } from "../../redux";
 import { type IMenuItem } from "../../typings";
 import { getIcon, getRelativePath } from "../../utils";
-
+import styles from "../index.module.css";
 type Props = {
   item: IMenuItem;
   itemKey: string; // chave local (ex: "atendimento")
@@ -14,6 +14,7 @@ type Props = {
 
 export default function MenuItemTeste({ item, itemKey, parentKey }: Props) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const currentKey = parentKey ? `${parentKey}.${itemKey}` : itemKey;
 
   const isVisible = useSelector(
@@ -31,23 +32,12 @@ export default function MenuItemTeste({ item, itemKey, parentKey }: Props) {
 
   if (!isVisible) return null;
 
-  type ActionProps = {
-    item: IMenuItem;
-    onToggle: () => void;
-    children: React.ReactNode;
-  };
-
-  function MenuItemActionWrapper({ item, onToggle, children }: ActionProps) {
-    if (item.path) {
-      return <Link to={getRelativePath(itemKey) ?? "/"}>{children}</Link>;
+  const handleClick = (e: React.MouseEvent) => {
+    if (!item.path) {
+      e.preventDefault();
+      dispatch(toggleOpen({ path: currentKey }));
     }
-    return (
-      <button onClick={onToggle}>
-        {children}
-        {item.dropdown ? (isOpen ? "▲" : "▼") : null}
-      </button>
-    );
-  }
+  };
 
   return (
     <Profiler
@@ -56,15 +46,20 @@ export default function MenuItemTeste({ item, itemKey, parentKey }: Props) {
         console.log("renderizei o ", itemKey);
       }}
     >
-      <li>
-        <MenuItemActionWrapper
-          item={item}
-          onToggle={() => dispatch(toggleOpen({ path: currentKey }))}
+      <li className={styles.menuItem}>
+        <Link
+          to={getRelativePath(itemKey) ?? "#"}
+          onClick={handleClick}
+          className={
+            styles.menuBtn +
+            " " +
+            (isCurrentSelected ? " " + styles.selected : "")
+          }
         >
           {item.icon && <div>{getIcon(item.icon)()}</div>}
-          {item.label}
-        </MenuItemActionWrapper>
-        <p>{isCurrentSelected ? "true" : "false"}</p>
+          <span>{item.label}</span>
+          {item.dropdown ? (isOpen ? "▲" : "▼") : null}
+        </Link>
         {item.dropdown && isOpen && (
           <ul>
             {Object.entries(item.dropdown).map(([childKey, child]) => (
