@@ -5,8 +5,8 @@ import { UsuarioTeste } from "../../../auth/user/typings";
 import { useActiveMenu } from "../../hooks";
 import { closeMany } from "../../redux";
 import { MenuHanlder } from "../../typings";
-import MenuItemTeste from "../MenuItemTeste/MenuItemTeste";
 import styles from "../index.module.css";
+import MenuItem from "../MenuItem/MenuItem";
 export default function Menu() {
   useActiveMenu(MenuHanlder.getMenu()); //Gerencia o estado do Menu baseado na rota
   const user = useSelector((state: RootState) => state.auth.user);
@@ -82,7 +82,7 @@ export default function Menu() {
           />
         ))} */}
         {Object.entries(MenuHanlder.getMenu()).map(([key, item]) => (
-          <MenuItemTeste key={key} item={item} itemKey={key} parentKey="" />
+          <MenuItem key={key} item={item} itemKey={key} parentKey="" />
         ))}
       </ul>
       <div style={{ marginTop: "auto" }} className={styles.logoutBtn}>

@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router";
+import { type RootState } from "~/store";
+import { toggleOpen } from "../../redux";
 import { type IMenuItem } from "../../typings";
 import { DEFAULT_INTERNAL_PATH, getIcon, getRelativePath } from "../../utils";
 import styles from "../index.module.css";
+
 interface IMenuItemProps {
   item: IMenuItem;
-  fatherOpen?: boolean;
-  activeState: {
-    activeItems: IMenuItem[];
-  };
-  relativePath?: string;
+  itemKey: string; // ex: "atendimento"
+  parentKey: string; // ex: "atendimento.mercado_livre"
 }
 
 interface IMenuItemWrapperProps {
@@ -52,43 +53,32 @@ function MenuItemWrapper({
   );
 }
 
-export default function MenuItem({
-  item,
-  fatherOpen,
-  activeState,
-  relativePath,
-}: IMenuItemProps) {
-  const [open, setOpen] = useState(fatherOpen || false);
-  const [canChangeDisplay, setChangeDisplay] = useState(true);
-  const isSelected = activeState.activeItems.some((i) => i == item);
-  if (item.active === undefined) {
-    item.active = true;
-  }
-  useEffect(() => {
-    if (!open) {
-      window.setTimeout(() => {
-        setChangeDisplay(true);
-      }, 300);
-    } else {
-      setChangeDisplay(false);
-    }
-  }, [open]);
+export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
+  const dispatch = useDispatch();
+  const currentKey = parentKey ? `${parentKey}.${itemKey}` : itemKey;
 
-  // Propaga o estado do pai para os filhos apenas quando o pai fechar
-  useEffect(() => {
-    if (fatherOpen !== undefined && !fatherOpen) {
-      setOpen(fatherOpen);
-    }
-  }, [fatherOpen]);
-  return item.active ? (
+  const isVisible = useSelector(
+    (s: RootState) =>
+      s.menu.views[itemKey as keyof typeof s.menu.views]?.active ?? true
+  );
+  const open = useSelector((s: RootState) => s.menu.open[currentKey] ?? false);
+  const isSelected = useSelector(
+    (s: RootState) => s.menu.currentSelected[currentKey] ?? false
+  );
+
+  if (!isVisible) return <></>;
+
+  return item.active !== false ? (
     <li
       className={`${item.dropdown ? styles.subNav : ""} ${open ? styles.open : ""} ${styles.menuItem}`}
     >
       <MenuItemWrapper
         isDropDown={!!item.dropdown}
         open={open}
-        setOpen={(params) => setOpen(params.open)}
-        path={relativePath ? relativePath : DEFAULT_INTERNAL_PATH + item.path}
+        setOpen={() => dispatch(toggleOpen({ path: currentKey }))}
+        path={
+          getRelativePath(itemKey) ?? DEFAULT_INTERNAL_PATH + (item.path || "")
+        }
         isSelected={isSelected}
         target={item.target}
       >
@@ -107,15 +97,14 @@ export default function MenuItem({
           className={
             styles.biggerLine + " " + (open ? styles.opening : styles.close)
           }
-          style={{ display: canChangeDisplay ? "none" : "block" }}
+          style={{ display: open ? "block" : "none" }}
         >
           {Object.entries(item.dropdown).map(([key, dropdownItem]) => (
             <MenuItem
-              fatherOpen={open} // Passa o estado atual para os filhos
               key={key}
               item={dropdownItem}
-              activeState={activeState}
-              relativePath={getRelativePath(key)}
+              itemKey={key}
+              parentKey={currentKey}
             />
           ))}
         </ul>
