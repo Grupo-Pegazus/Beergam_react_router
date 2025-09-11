@@ -47,6 +47,11 @@ export const menuSlice = createSlice({
       state.currentSelected = {};
       state.currentSelected[action.payload.path] = true;
     },
+    closeMany: (state, action: PayloadAction<string[]>) => {
+      for (const key of action.payload) {
+        if (state.open[key]) state.open[key] = false;
+      }
+    },
   },
 });
 
@@ -56,5 +61,6 @@ export const {
   setOpen,
   setCurrentSelected,
   setSelectedOnly,
+  closeMany,
 } = menuSlice.actions;
 export default menuSlice.reducer;

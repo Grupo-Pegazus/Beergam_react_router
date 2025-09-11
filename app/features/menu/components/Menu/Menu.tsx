@@ -1,22 +1,33 @@
-import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useCallback, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { type RootState } from "~/store";
 import { UsuarioTeste } from "../../../auth/user/typings";
 import { useActiveMenu } from "../../hooks";
+import { closeMany } from "../../redux";
 import { MenuHanlder } from "../../typings";
 import MenuItemTeste from "../MenuItemTeste/MenuItemTeste";
 import styles from "../index.module.css";
 export default function Menu() {
+  useActiveMenu(MenuHanlder.getMenu()); //Gerencia o estado do Menu baseado na rota
   const user = useSelector((state: RootState) => state.auth.user);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const { activeState } = useActiveMenu(MenuHanlder.getMenu());
+  const dispatch = useDispatch();
+  const openMap = useSelector((s: RootState) => s.menu.open);
+
+  // calcula apenas as chaves abertas
+  const openKeys = useMemo(
+    () =>
+      Object.entries(openMap)
+        .filter(([, v]) => v)
+        .map(([k]) => k),
+    [openMap]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    if (openKeys.length) dispatch(closeMany(openKeys));
+  }, [dispatch, openKeys]);
 
   return (
-    <div
-      // onMouseEnter={() => setMenuOpen(true)}
-      // onMouseLeave={() => setMenuOpen(false)}
-      className={styles.hierarchyMenu}
-    >
+    <div onMouseLeave={handleMouseLeave} className={styles.hierarchyMenu}>
       <div className={styles.menuHeader + " " + styles.menuPadding}>
         <div className={styles.arrow}>
           <svg

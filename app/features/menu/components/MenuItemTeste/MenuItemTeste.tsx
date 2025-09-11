@@ -4,7 +4,7 @@ import { Link } from "react-router";
 import { type RootState } from "~/store";
 import { toggleOpen } from "../../redux";
 import { type IMenuItem } from "../../typings";
-import { getRelativePath } from "../../utils";
+import { getIcon, getRelativePath } from "../../utils";
 
 type Props = {
   item: IMenuItem;
@@ -34,15 +34,16 @@ export default function MenuItemTeste({ item, itemKey, parentKey }: Props) {
   type ActionProps = {
     item: IMenuItem;
     onToggle: () => void;
+    children: React.ReactNode;
   };
 
-  function MenuItemActionWrapper({ item, onToggle }: ActionProps) {
+  function MenuItemActionWrapper({ item, onToggle, children }: ActionProps) {
     if (item.path) {
-      return <Link to={getRelativePath(itemKey) ?? "/"}>{item.label}</Link>;
+      return <Link to={getRelativePath(itemKey) ?? "/"}>{children}</Link>;
     }
     return (
       <button onClick={onToggle}>
-        {item.label}
+        {children}
         {item.dropdown ? (isOpen ? "▲" : "▼") : null}
       </button>
     );
@@ -59,7 +60,10 @@ export default function MenuItemTeste({ item, itemKey, parentKey }: Props) {
         <MenuItemActionWrapper
           item={item}
           onToggle={() => dispatch(toggleOpen({ path: currentKey }))}
-        />
+        >
+          {item.icon && <div>{getIcon(item.icon)()}</div>}
+          {item.label}
+        </MenuItemActionWrapper>
         <p>{isCurrentSelected ? "true" : "false"}</p>
         {item.dropdown && isOpen && (
           <ul>
