@@ -62,7 +62,6 @@ export default function Menu() {
         </div>
       </div>
       <ul className={styles.menuItems + " " + styles.menuPadding}>
-        {JSON.stringify(user?.allowed_views)}
         {/* {Object.values(MenuHanlder.getMenu()).map((item: IMenuItem) => (
           <MenuItem
             key={item.label}

@@ -84,20 +84,17 @@ export const getRelativePath = (
     for (const [key, item] of Object.entries(menu)) {
       const currentPath = [...parentPath, key];
 
-      // Se encontrou o item procurado
       if (key === targetKey) {
         const leafSegment = (item.path ?? key).replace(/^\/+/, "");
-        return (
-          DEFAULT_INTERNAL_PATH + "/" + [...parentPath, leafSegment].join("/")
-        );
+        const segments = [...parentPath, leafSegment].filter(Boolean);
+        return segments.length === 0
+          ? DEFAULT_INTERNAL_PATH
+          : DEFAULT_INTERNAL_PATH + "/" + segments.join("/");
       }
 
-      // Se tem dropdown, procura recursivamente
       if (item.dropdown) {
         const found = findItemPath(item.dropdown, targetKey, currentPath);
-        if (found) {
-          return found;
-        }
+        if (found) return found;
       }
     }
     return undefined;
