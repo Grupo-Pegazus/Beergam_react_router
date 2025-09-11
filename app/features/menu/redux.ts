@@ -3,8 +3,18 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { type MenuKeys, type MenuState } from "./typings";
 import { getDefaultViews } from "./utils";
 
-const initialState: MenuState = {
-  ...getDefaultViews(),
+type OpenMap = Record<string, boolean>;
+type CurrentSelectedMap = Record<string, boolean>;
+interface MenuSliceState {
+  views: MenuState; // controla acesso/visibilidade (allowed_views)
+  open: OpenMap; // controla aberturas por chave
+  currentSelected: CurrentSelectedMap; // controla seleção por chave
+}
+
+const initialState: MenuSliceState = {
+  views: getDefaultViews(),
+  open: {},
+  currentSelected: {},
 };
 
 export const menuSlice = createSlice({
@@ -15,10 +25,27 @@ export const menuSlice = createSlice({
       state,
       action: PayloadAction<{ key: MenuKeys; active: boolean }>
     ) => {
-      state[action.payload.key].active = action.payload.active;
+      state.views[action.payload.key].active = action.payload.active;
+    },
+    toggleOpen: (state, action: PayloadAction<{ path: string }>) => {
+      const key = action.payload.path; // ex: "atendimento.mercado_livre"
+      state.open[key] = !state.open[key];
+    },
+    setOpen: (
+      state,
+      action: PayloadAction<{ path: string; value: boolean }>
+    ) => {
+      state.open[action.payload.path] = action.payload.value;
+    },
+    setCurrentSelected: (
+      state,
+      action: PayloadAction<{ path: string; value: boolean }>
+    ) => {
+      state.currentSelected[action.payload.path] = action.payload.value;
     },
   },
 });
 
-export const { setMenuActive } = menuSlice.actions;
+export const { setMenuActive, toggleOpen, setOpen, setCurrentSelected } =
+  menuSlice.actions;
 export default menuSlice.reducer;

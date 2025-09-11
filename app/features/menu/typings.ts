@@ -10,6 +10,8 @@ export interface IMenuItem {
   target?: string;
   active?: boolean;
   dinamic_id?: string;
+  isOpen?: boolean;
+  currentSelected?: boolean;
 }
 
 export type IMenuConfig = {
@@ -63,7 +65,25 @@ export const MenuConfig = {
 export class MenuClass {
   config: IMenuConfig;
   constructor(config: IMenuConfig) {
-    this.config = config;
+    this.config = this.applyDefaults(config);
+  }
+  private applyDefaults(config: IMenuConfig): IMenuConfig {
+    const withDefaults = (item: IMenuItem): IMenuItem => {
+      const dropdown = item.dropdown
+        ? Object.fromEntries(
+            Object.entries(item.dropdown).map(([k, v]) => [k, withDefaults(v)])
+          )
+        : undefined;
+      return {
+        ...item,
+        isOpen: item.isOpen ?? false,
+        currentSelected: item.currentSelected ?? false,
+        dropdown,
+      };
+    };
+    return Object.fromEntries(
+      Object.entries(config).map(([k, v]) => [k, withDefaults(v)])
+    );
   }
   setMenu(views: MenuState) {
     for (const key in this.config) {

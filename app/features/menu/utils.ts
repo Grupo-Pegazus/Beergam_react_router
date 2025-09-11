@@ -20,7 +20,6 @@ export function getDefaultViews() {
 export const getIcon = (iconName: keyof typeof Svg) => Svg[iconName];
 
 // Função para encontrar o item ativo e seus pais
-// Função para encontrar o item ativo e seus pais
 export const findActiveItemAndParents = (
   menuConfig: IMenuConfig,
   currentPath: string

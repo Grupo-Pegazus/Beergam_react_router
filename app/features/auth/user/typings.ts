@@ -1,4 +1,5 @@
-import { getDefaultViews, type MenuState } from "../../menu/typings";
+import { type MenuState } from "../../menu/typings";
+import { getDefaultViews } from "../../menu/utils";
 export interface IValidacao {
   valid: boolean;
   message: string | string[];

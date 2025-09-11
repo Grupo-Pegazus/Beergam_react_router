@@ -3,17 +3,18 @@ import { useSelector } from "react-redux";
 import { type RootState } from "~/store";
 import { UsuarioTeste } from "../../../auth/user/typings";
 import { useActiveMenu } from "../../hooks";
-import { MenuConfig, MenuHanlder, type IMenuItem } from "../../typings";
-import MenuItem from "../MenuItem/MenuItem";
+import { MenuHanlder } from "../../typings";
+import MenuItemTeste from "../MenuItemTeste/MenuItemTeste";
 import styles from "../index.module.css";
 export default function Menu() {
   const user = useSelector((state: RootState) => state.auth.user);
   const [menuOpen, setMenuOpen] = useState(false);
   const { activeState } = useActiveMenu(MenuHanlder.getMenu());
+
   return (
     <div
-      onMouseEnter={() => setMenuOpen(true)}
-      onMouseLeave={() => setMenuOpen(false)}
+      // onMouseEnter={() => setMenuOpen(true)}
+      // onMouseLeave={() => setMenuOpen(false)}
       className={styles.hierarchyMenu}
     >
       <div className={styles.menuHeader + " " + styles.menuPadding}>
@@ -62,13 +63,16 @@ export default function Menu() {
       </div>
       <ul className={styles.menuItems + " " + styles.menuPadding}>
         {JSON.stringify(user?.allowed_views)}
-        {Object.values(MenuConfig).map((item: IMenuItem) => (
+        {/* {Object.values(MenuHanlder.getMenu()).map((item: IMenuItem) => (
           <MenuItem
             key={item.label}
             item={item}
             fatherOpen={menuOpen}
             activeState={activeState}
           />
+        ))} */}
+        {Object.entries(MenuHanlder.getMenu()).map(([key, item]) => (
+          <MenuItemTeste key={key} item={item} itemKey={key} parentKey="" />
         ))}
       </ul>
       <div style={{ marginTop: "auto" }} className={styles.logoutBtn}>
