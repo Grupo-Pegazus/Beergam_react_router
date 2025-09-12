@@ -11,6 +11,7 @@ import { Provider } from "react-redux";
 import type { Route } from "./+types/root";
 import "./app.css";
 import store from "./store";
+import { PersistWrapper } from "./store/components/PersistWrapper";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -46,7 +47,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <Provider store={store}>
-      <Outlet />
+      <PersistWrapper>
+        <Outlet />
+      </PersistWrapper>
     </Provider>
   );
 }
