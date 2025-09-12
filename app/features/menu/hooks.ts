@@ -1,45 +1,32 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { useLocation } from "react-router";
-import {
-  findActiveItemAndParents,
-  getRelativePath,
-  type IMenuConfig,
-  type IMenuItem,
-} from "./typings";
+import { setCurrentSelected, setSelectedOnly } from "./redux"; // actions do slice
+import { type IMenuConfig } from "./typings";
+import { findKeyPathByRoute, getRelativePath } from "./utils";
 
 export const useActiveMenu = (menuConfig: IMenuConfig) => {
   const location = useLocation();
-  const [activeState, setActiveState] = useState<{
-    activeItems: IMenuItem[];
-  }>({ activeItems: [] });
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const updateActiveState = () => {
-      const path = location.pathname;
-      const result = findActiveItemAndParents(menuConfig, path);
-      const parents: IMenuItem[] = [];
-      let level: Record<string, IMenuItem> = menuConfig;
-      for (const key of result.parentKeys) {
-        const parent = level[key];
-        if (parent) {
-          parents.push(parent);
-          level = parent.dropdown ?? {};
-        }
-      }
-      setActiveState({
-        activeItems: result.activeItem
-          ? [...parents, result.activeItem]
-          : parents,
-      });
-    };
+    const path = location.pathname;
 
-    updateActiveState();
-  }, [location.pathname, menuConfig]);
+    // Redux: abre pais e marca selecionados (pais + atual)
+    const { dotPath, parentDotPaths } = findKeyPathByRoute(menuConfig, path);
+
+    if (dotPath) {
+      dispatch(setSelectedOnly({ path: dotPath })); // limpa e marca o atual
+      for (const p of parentDotPaths) {
+        dispatch(setCurrentSelected({ path: p, value: true })); // marca cada pai
+      }
+    }
+  }, [location.pathname, menuConfig, dispatch]);
 
   const isItemActive = (itemKey: string): boolean => {
     const relativePath = getRelativePath(itemKey);
     return relativePath === location.pathname;
   };
 
-  return { currentPath: location.pathname, activeState, isItemActive };
+  return { currentPath: location.pathname, isItemActive };
 };

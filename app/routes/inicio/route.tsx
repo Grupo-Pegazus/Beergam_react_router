@@ -1,5 +1,6 @@
-import type { Route } from "../+types/home";
-
+import type { Route } from ".react-router/types/app/routes/inicio/+types/route";
+import { useSelector } from "react-redux";
+import { type RootState } from "~/store";
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "Beergam | Início" },
@@ -8,5 +9,11 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Inicio() {
-  return <h1>Página de Início</h1>;
+  const user = useSelector((state: RootState) => state.auth.user);
+  return (
+    <>
+      <h1>Página de Início</h1>
+      <p>Olá, {user?.nome}</p>
+    </>
+  );
 }
