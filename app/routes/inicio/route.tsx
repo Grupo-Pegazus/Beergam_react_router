@@ -13,7 +13,7 @@ export default function Inicio() {
   return (
     <>
       <h1>Página de Início</h1>
-      <p>Olá, {user?.nome}</p>
+      <p>Olá, {user?.name}</p>
     </>
   );
 }

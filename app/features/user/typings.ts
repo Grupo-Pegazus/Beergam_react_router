@@ -307,6 +307,13 @@ const AllowedViewsSchema = z.record(
 
 export type UserType = "master" | "colaborador" | "beergam_master";
 
+export interface IBaseUsuario {
+  name: string;
+  user_type: UserType;
+  conta_marketplace?: IContaMarketPlace;
+  allowed_views: MenuState;
+}
+
 export interface IUsuario extends IBaseUsuario {
   email: string;
   cpf: string | null;
@@ -316,13 +323,6 @@ export interface IUsuario extends IBaseUsuario {
   referal_code: string;
   faturamento: FaixaFaturamentoKeys;
   conheceu_beergam: ComoConheceuKeys;
-}
-
-export interface IBaseUsuario {
-  nome: string;
-  user_type: UserType;
-  conta_marketplace?: IContaMarketPlace;
-  allowed_views: MenuState;
 }
 
 // const UserPasswordSchema = z
@@ -345,14 +345,14 @@ export interface IBaseUsuario {
 //   });
 
 const BaseUserSchema = z.object({
-  nome: z.string().min(3).max(30),
+  name: z.string().min(3).max(30),
   user_type: z.enum(["master", "colaborador", "beergam_master"]),
   conta_marketplace: ContaMarketplaceSchema,
   allowed_views: AllowedViewsSchema,
 }) satisfies z.ZodType<IBaseUsuario>;
 
 const NewUser: IBaseUsuario = {
-  nome: "a123456789",
+  name: "a123456789",
   allowed_views: {
     inicio: { active: true },
     atendimento: { active: true },
