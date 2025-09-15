@@ -76,10 +76,10 @@ export default function Menu() {
           ></div>
         </div>
         <div className={styles.userInfo}>
-          <img src={UsuarioTeste.conta_ml?.image} alt="Sua Conta ML" />
+          <img src={UsuarioTeste.conta_marketplace?.image} alt="Sua Conta ML" />
           <div className={styles.userInfoText}>
             <p className={styles.userInfoContaMl}>
-              {UsuarioTeste.conta_ml?.nome}
+              {UsuarioTeste.conta_marketplace?.nome}
             </p>
             <p>{user?.nome}</p>
           </div>

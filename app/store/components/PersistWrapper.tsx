@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import type { RootState } from "..";
 
 interface PersistWrapperProps {
@@ -9,7 +8,6 @@ interface PersistWrapperProps {
 
 export function PersistWrapper({ children, onRehydrate }: PersistWrapperProps) {
   const [isRehydrated, setIsRehydrated] = useState(false);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     // Simular processo de rehidratação

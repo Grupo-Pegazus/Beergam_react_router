@@ -103,14 +103,13 @@ export const MenuHanlder = new MenuClass(MenuConfig);
 
 export type MenuKeys = keyof typeof MenuConfig;
 
-export interface View
-  extends Record<
-    MenuKeys,
-    {
-      //Se quiser colocar mais coisas no allowed_views do usuário bastar adicionar nessa tipagem
-      active: boolean;
-    }
-  > {}
+export type View = Record<
+  MenuKeys,
+  {
+    //Se quiser colocar mais coisas no allowed_views do usuário bastar adicionar nessa tipagem
+    active: boolean;
+  }
+>;
 export type MenuState = {
   [K in MenuKeys]: View[K];
 };

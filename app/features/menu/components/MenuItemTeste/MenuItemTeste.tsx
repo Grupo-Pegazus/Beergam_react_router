@@ -1,6 +1,6 @@
 import { Profiler } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { type RootState } from "~/store";
 import { toggleOpen } from "../../redux";
 import { type IMenuItem } from "../../typings";
@@ -14,7 +14,6 @@ type Props = {
 
 export default function MenuItemTeste({ item, itemKey, parentKey }: Props) {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const currentKey = parentKey ? `${parentKey}.${itemKey}` : itemKey;
 
   const isVisible = useSelector(

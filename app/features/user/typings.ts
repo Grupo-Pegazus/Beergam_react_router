@@ -1,10 +1,5 @@
 import { z } from "zod";
 import { MenuConfig, type MenuKeys, type MenuState } from "../menu/typings";
-// export interface SellerContas {
-//   account_name: string;
-//   conta_ml_hash: string;
-//   account_image: string;
-// }
 
 z.config({
   customError: (iss) => {
@@ -294,10 +289,14 @@ type AvailableMarketPlace = "ml" | "magalu" | "shopee";
 interface IContaMarketPlace {
   id: string;
   marketplace: AvailableMarketPlace;
+  nome: string;
+  image: string;
 }
 const ContaMarketplaceSchema = z.object({
   id: z.string(),
   marketplace: z.enum(["ml", "magalu", "shopee"]),
+  nome: z.string(),
+  image: z.string(),
 }) satisfies z.ZodType<IContaMarketPlace>;
 const AllowedViewsSchema = z.record(
   z.enum(Object.keys(MenuConfig) as [MenuKeys, ...MenuKeys[]]),
@@ -326,33 +325,34 @@ export interface IBaseUsuario {
   allowed_views: MenuState;
 }
 
-const UserPasswordSchema = z
-  .string()
-  .min(8)
-  .max(30)
-  .refine((senha: string) => {
-    if (!/[A-Z]/.test(senha)) {
-      return { message: "A senha deve ter pelo menos uma letra maiúscula" };
-    }
-    if (!/[a-z]/.test(senha)) {
-      return { message: "A senha deve ter pelo menos uma letra minúscula" };
-    }
-    if (!/\d/.test(senha)) {
-      return { message: "A senha deve ter pelo menos um número" };
-    }
-    if (!/[!@#$%^&*]/.test(senha)) {
-      return { message: "A senha deve ter pelo menos um caractere especial" };
-    }
-  });
+// const UserPasswordSchema = z
+//   .string()
+//   .min(8)
+//   .max(30)
+//   .refine((senha: string) => {
+//     if (!/[A-Z]/.test(senha)) {
+//       return { message: "A senha deve ter pelo menos uma letra maiúscula" };
+//     }
+//     if (!/[a-z]/.test(senha)) {
+//       return { message: "A senha deve ter pelo menos uma letra minúscula" };
+//     }
+//     if (!/\d/.test(senha)) {
+//       return { message: "A senha deve ter pelo menos um número" };
+//     }
+//     if (!/[!@#$%^&*]/.test(senha)) {
+//       return { message: "A senha deve ter pelo menos um caractere especial" };
+//     }
+//   });
 
 const BaseUserSchema = z.object({
-  nome: z.string().min(10).max(30),
+  nome: z.string().min(3).max(30),
   user_type: z.enum(["master", "colaborador", "beergam_master"]),
   conta_marketplace: ContaMarketplaceSchema,
   allowed_views: AllowedViewsSchema,
 }) satisfies z.ZodType<IBaseUsuario>;
+
 const NewUser: IBaseUsuario = {
-  nome: "a",
+  nome: "a123456789",
   allowed_views: {
     inicio: { active: true },
     atendimento: { active: true },
@@ -362,8 +362,9 @@ const NewUser: IBaseUsuario = {
   conta_marketplace: {
     id: "1",
     marketplace: "ml",
+    nome: "Mercado Livre",
+    image: "https://mla-s2-p.mlstatic.com/869034-MLA80043982303_102024-O.jpg",
   },
 };
 
-const NewUserObject = BaseUserSchema.safeParse(NewUser);
-console.log(NewUserObject);
+export const UsuarioTeste = BaseUserSchema.parse(NewUser);
