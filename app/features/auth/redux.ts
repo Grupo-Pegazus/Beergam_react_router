@@ -20,10 +20,19 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<IBaseUsuario | IUsuario>) => {
+    login(state, action: PayloadAction<IBaseUsuario | IUsuario>) {
       state.user = action.payload;
+      state.success = true;
+      state.loading = false;
+      state.error = null;
     },
-    setUserViews: (state, action: PayloadAction<MenuState>) => {
+    logout(state) {
+      state.user = null;
+      state.success = false;
+      state.loading = false;
+      state.error = null;
+    },
+    setUserViews(state, action: PayloadAction<MenuState>) {
       if (state.user) {
         state.user.allowed_views = action.payload;
       }
@@ -31,5 +40,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, setUserViews } = authSlice.actions;
+export const { login, logout, setUserViews } = authSlice.actions;
 export default authSlice.reducer;
