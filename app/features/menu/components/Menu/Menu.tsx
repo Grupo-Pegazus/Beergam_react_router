@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserViews } from "~/features/auth/redux";
 import { type RootState } from "~/store";
-import { UsuarioTeste } from "../../../auth/user/typings";
+import { UsuarioTeste } from "../../../user/typings";
 import { useActiveMenu } from "../../hooks";
 import { closeMany } from "../../redux";
 import { MenuHanlder, type MenuState } from "../../typings";

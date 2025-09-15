@@ -1,13 +1,6 @@
 import { z } from "zod";
 export type UserType = "master" | "colaborador" | "beergam_master";
 
-type AvailableMarketPlace = "ml" | "magalu" | "shopee";
-interface IContaMarketPlace {
-    id: string;
-    marketplace: AvailableMarketPlace;
-}
-
-
 export type FaixaFaturamentoKeys =
   | "ATE_10_MIL"
   | "DE_10_A_30_MIL"
@@ -73,23 +66,49 @@ interface IBaseUsuario {
 }
 
 interface IUsuarioMaster extends IBaseUsuario {
-    user_type: "master";
-    faixa_faturamento: FaixaFaturamentoKeys;
-    como_conheceu: ComoConheceuKeys;
+  user_type: "master";
+  faixa_faturamento: FaixaFaturamentoKeys;
+  como_conheceu: ComoConheceuKeys;
 }
 
 const baseUserSchema = z.object({
-    nome: z.string(),
-    senha: z.string(),
-    user_type: z.enum(["master", "colaborador", "beergam_master"]),
-    conta_marketplace: z.object({
-        id: z.string(),
-        marketplace: z.enum(["ml", "magalu", "shopee"]),
-    }),
+  nome: z.string(),
+  senha: z.string(),
+  user_type: z.enum(["master", "colaborador", "beergam_master"]),
+  conta_marketplace: z.object({
+    id: z.string(),
+    marketplace: z.enum(["ml", "magalu", "shopee"]),
+  }),
 }) satisfies z.ZodType<IBaseUsuario>;
 
 const masterUserSchema = baseUserSchema.extend({
-    user_type: z.literal("master"),
-    faixa_faturamento: z.enum(["ATE_10_MIL", "DE_10_A_30_MIL", "DE_30_A_100_MIL", "DE_100_A_300_MIL", "DE_300_A_500_MIL", "DE_500_A_1_MIL", "MAIS_DE_1_MI"]),
-    como_conheceu: z.enum(["ANUNCIO_FACEBOOK", "ANUNCIO_INSTAGRAM", "ANUNCIO_YOUTUBE", "GOOGLE_BUSCA", "INFLUENCIADOR", "AMIGO_INDICOU", "EVENTO_PRESENCIAL_ONLINE", "PODCAST", "WHATSAPP", "TELEGRAM", "GRUPO_OU_COMUNIDADE_ONLINE", "MATÉRIA_EM_BLOG_OU_SITE", "LINKEDIN", "E_MAIL_MARKETING", "FACULDADE_CURSO", "JA_CONHECIA_A_MARCA", "OUTROS"]),
+  user_type: z.literal("master"),
+  faixa_faturamento: z.enum([
+    "ATE_10_MIL",
+    "DE_10_A_30_MIL",
+    "DE_30_A_100_MIL",
+    "DE_100_A_300_MIL",
+    "DE_300_A_500_MIL",
+    "DE_500_A_1_MIL",
+    "MAIS_DE_1_MI",
+  ]),
+  como_conheceu: z.enum([
+    "ANUNCIO_FACEBOOK",
+    "ANUNCIO_INSTAGRAM",
+    "ANUNCIO_YOUTUBE",
+    "GOOGLE_BUSCA",
+    "INFLUENCIADOR",
+    "AMIGO_INDICOU",
+    "EVENTO_PRESENCIAL_ONLINE",
+    "PODCAST",
+    "WHATSAPP",
+    "TELEGRAM",
+    "GRUPO_OU_COMUNIDADE_ONLINE",
+    "MATÉRIA_EM_BLOG_OU_SITE",
+    "LINKEDIN",
+    "E_MAIL_MARKETING",
+    "FACULDADE_CURSO",
+    "JA_CONHECIA_A_MARCA",
+    "OUTROS",
+  ]),
 }) satisfies z.ZodType<IUsuarioMaster>;

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { setUser } from "~/features/auth/redux";
-import { UsuarioTeste } from "~/features/auth/user/typings";
+import { UsuarioTeste } from "~/features/user/typings";
 import type { Route } from "./+types/home";
 export function meta({}: Route.MetaArgs) {
   return [

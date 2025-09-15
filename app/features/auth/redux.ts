@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { MenuState } from "../menu/typings";
-import { type IBaseUsuario, type IUsuario } from "./user/typings";
+import { type IBaseUsuario, type IUsuario } from "../user/typings";
 
 export interface IAuthState {
   loading: boolean;

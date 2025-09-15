@@ -3,9 +3,6 @@ import type { RootState } from "./root-reducer";
 // Chave para armazenar o estado no localStorage
 const PERSIST_KEY = "beergam:persist";
 
-// Chaves dos slices que devem ser persistidos
-const PERSIST_WHITELIST: (keyof RootState)[] = ["auth", "menu"];
-
 /**
  * Salva o estado no localStorage
  */
