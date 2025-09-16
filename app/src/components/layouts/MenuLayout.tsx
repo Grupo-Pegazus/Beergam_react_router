@@ -1,15 +1,12 @@
-import { useSelector } from "react-redux";
-import { Navigate, Outlet } from "react-router";
+import { Navigate, Outlet, useRouteLoaderData } from "react-router";
 import Menu from "~/features/menu/components/Menu/Menu";
-import { createMenuRoutes } from "~/routes";
-import type { RootState } from "~/store";
+
 export default function MenuLayout() {
-  createMenuRoutes();
-  const authState = useSelector((state: RootState) => state.auth);
-  console.log(authState);
-  if (!authState.success || !authState.user) {
-    return <Navigate to="/login" replace />;
-  }
+  const rootData = useRouteLoaderData("root") as { userInfo?: any } | undefined;
+  const userInfo = rootData?.userInfo;
+
+  if (!userInfo) return <Navigate to="/login" replace />;
+
   return (
     <div style={{ display: "flex" }}>
       <Menu />

@@ -6,17 +6,21 @@ class AuthService {
     this.apiClient = apiClient;
   }
   async login(email: string, password: string) {
-    const response = await this.apiClient.post("/v1/auth/login", {
-      email: email,
-      password: password,
-    });
-    if (response.status === 200) {
-      console.log("response.data.user_data", response.data.data.user_data);
-      return { success: true, data: response.data.data.user_data };
+    try {
+      const response = await this.apiClient.post("/v1/auth/login", {
+        email,
+        password,
+      });
+      if (response.status === 200) {
+        return { success: true, data: response.data.data.user_data };
+      }
+      return { success: false, error: response.data.message };
+    } catch (err: any) {
+      const status = err?.response?.status ?? 500;
+      const message = err?.response?.data?.message ?? "Falha de autenticação";
+      return { success: false, error: message, status };
     }
-    return { success: false, data: {} };
   }
   async logout() {}
 }
-
 export const authService = new AuthService(apiClient);
