@@ -1,13 +1,13 @@
 import { AnuncioCard } from "~/features/anuncios/components/AnuncioCard/AnuncioCard";
-import { type AnuncioBase } from "~/features/anuncios/components/typing";
+import { type AnuncioBase } from "~/features/anuncios/typings";
 
 interface AnuncioPageProps {
     error: boolean;
-    isLoading: boolean;
+    isLoading?: boolean;
     anuncio: AnuncioBase | null;
 }
 
-export default function AnuncioPage({ error, isLoading, anuncio }: AnuncioPageProps) {
+export default function AnuncioPage({ error, isLoading = false, anuncio }: AnuncioPageProps) {
     if (error) {
         return <div>Anúncio não encontrado</div>;
     }

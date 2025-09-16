@@ -1,4 +1,4 @@
-import { type AnuncioBase, AnuncioSchema } from "../typing";
+import { type AnuncioBase, AnuncioSchema } from "../../typings";
 import { Skeleton, Stack } from "@mui/material";
 
 interface AnuncioCardProps {
@@ -25,7 +25,7 @@ export function AnuncioCard({ anuncio, isLoading }: AnuncioCardProps) {
                 <p>{`R$ ${anuncioValidado.price.toFixed(2).replace('.', ',')}`}</p>
             </div>
         );
-    } catch (error) {
+    } catch {
         return (
             <div>
                 <h2>Não foi possível validar o anúncio</h2>

@@ -1,14 +1,14 @@
-import {
-  isRouteErrorResponse,
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-} from "react-router";
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
+import { useEffect } from "react";
+import { Provider, useDispatch } from "react-redux";
+import { useLoaderData } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
+import { login as loginAction } from "./features/auth/redux";
+import { getSession } from "./sessions";
+import store from "./store";
+import "./zod";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -22,6 +22,12 @@ export const links: Route.LinksFunction = () => [
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   },
 ];
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get("Cookie"));
+  const userInfo = session.get("userInfo") ?? null;
+  return { userInfo };
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -41,35 +47,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
-  return <Outlet />;
+function BootstrapAuth() {
+  const { userInfo } = useLoaderData<typeof loader>() ?? {};
+  const dispatch = useDispatch();
+  console.log("userInfo do bootstrap", userInfo);
+  useEffect(() => {
+    if (userInfo) {
+      dispatch(loginAction(userInfo));
+    }
+  }, [dispatch, userInfo]);
+  return null;
 }
 
-export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
-  let stack: string | undefined;
-
-  if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
-  }
-
+export default function App() {
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+    <Provider store={store}>
+      <BootstrapAuth />
+      {/* <PersistWrapper>
+        <Outlet />
+      </PersistWrapper> */}
+      <Outlet />
+    </Provider>
   );
 }
