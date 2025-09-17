@@ -62,9 +62,11 @@ export default function Input({
         max={max}
         disabled={disabled}
       />
-      {error?.message && error?.error && (
-        <span className="text-xs text-red-500 mt-1">{error.message}</span>
-      )}
+      <span
+        className={`text-xs text-red-500 h-2.5 mt-1 ${error?.error ? "opacity-100" : "opacity-0"}`}
+      >
+        {error?.message || ""}
+      </span>
     </>
   );
 }

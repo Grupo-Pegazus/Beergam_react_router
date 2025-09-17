@@ -14,7 +14,7 @@ z.config({
           : "valor muito pequeno";
       case "too_big":
         return iss.maximum !== undefined
-          ? `O Campo ${iss.path?.join(".")} está inválido, valor informado ${iss.maximum}`
+          ? `O Campo ${iss.path?.join(".")} precisa ser menor que ${iss.maximum} caracteres`
           : "valor muito grande";
       case "invalid_format":
         return `O Campo ${iss.path?.join(".")} está inválido, valor informado ${iss.format}`;

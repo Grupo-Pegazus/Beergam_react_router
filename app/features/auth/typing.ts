@@ -10,7 +10,11 @@ export interface ColaboradorUserForm {
   pin: string;
   password: string;
 }
-const UserPinSchema = z.string().min(8).max(8);
+const UserPinSchema = z
+  .string()
+  .refine((pin) => pin.length === 8, {
+    message: "Pin deve ter exatamente 8 caracteres.",
+  });
 const UserEmailSchema = z.email("E-mail inválido.");
 const UserPasswordSchema = z
   .string()

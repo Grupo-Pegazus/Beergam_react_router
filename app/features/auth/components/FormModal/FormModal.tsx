@@ -1,8 +1,13 @@
-import { useEffect, useReducer, useState } from "react";
+import { useReducer, useState } from "react";
 import { Form, Link } from "react-router";
 import { z } from "zod";
 import { Fields } from "~/src/components/utils/_fields";
-import { MasterUserFormSchema, type MasterUserForm } from "../../typing";
+import {
+  type ColaboradorUserForm,
+  ColaboradorUserFormSchema,
+  type MasterUserForm,
+  MasterUserFormSchema,
+} from "../../typing";
 
 type TFormType = "login" | "register";
 type TUserType = "master" | "colaborador";
@@ -37,16 +42,16 @@ function FormHelpNavigation({ formType }: FormModalProps) {
 function ButtonChangeUserType({
   currentUserType,
   userType,
-  setCurrentUserType,
+  callback,
 }: {
   currentUserType: TUserType;
   userType: TUserType;
-  setCurrentUserType: (userType: TUserType) => void;
+  callback: (userType: TUserType) => void;
 }) {
   return (
     <button
       className={`relative text-beergam-blue-primary cursor-pointer hover:text-beergam-orange after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-beergam-orange font-medium after:transition-all after:duration-300 ${currentUserType === userType ? "after:opacity-100 text-beergam-orange" : "after:opacity-0"}`}
-      onClick={() => setCurrentUserType(userType)}
+      onClick={() => callback(userType)}
     >
       {userType === "master" ? "Empregador" : "Colaborador"}
     </button>
@@ -66,13 +71,33 @@ export default function FormModal({
     },
     { email: "", password: "" } as MasterUserForm
   );
+  const [ColaboradorUserInfo, setColaboradorUserInfo] = useReducer(
+    (state: ColaboradorUserForm, action: Partial<ColaboradorUserForm>) => {
+      return { ...state, ...action };
+    },
+    { master_pin: "", pin: "", password: "" } as ColaboradorUserForm
+  );
   const parseMasterUserResult = MasterUserFormSchema.safeParse(MasterUserInfo);
-  const fieldErrors = parseMasterUserResult.success
-    ? { properties: { email: { errors: [""] }, password: { errors: [""] } } }
+  const masterFieldErrors = parseMasterUserResult.success
+    ? {
+        properties: { email: { errors: [""] }, password: { errors: [""] } },
+      }
     : z.treeifyError(parseMasterUserResult.error);
-  useEffect(() => {
+  const parseColaboradorUserResult =
+    ColaboradorUserFormSchema.safeParse(ColaboradorUserInfo);
+  const colaboradorFieldErrors = parseColaboradorUserResult.success
+    ? {
+        properties: {
+          master_pin: { errors: [""] },
+          pin: { errors: [""] },
+          password: { errors: [""] },
+        },
+      }
+    : z.treeifyError(parseColaboradorUserResult.error);
+  function ChangeUserType(userType: TUserType) {
+    setCurrentUserType(userType);
     setIsSubmited(false);
-  }, [MasterUserInfo]);
+  }
   return (
     <div className="flex flex-col gap-4 bg-beergam-white rounded-4xl w-2/6 mx-auto p-8">
       <div className="flex justify-between items-center">
@@ -85,64 +110,170 @@ export default function FormModal({
         <ButtonChangeUserType
           currentUserType={currentUserType}
           userType="master"
-          setCurrentUserType={setCurrentUserType}
+          callback={ChangeUserType}
         />
         <ButtonChangeUserType
           currentUserType={currentUserType}
           userType="colaborador"
-          setCurrentUserType={setCurrentUserType}
+          callback={ChangeUserType}
         />
       </div>
-      <Form method="post" className="flex flex-col gap-4">
-        <Fields.wrapper>
-          <Fields.label
-            text="ENTRE COM SEU ENDEREÇO DE E-MAIL"
-            tailWindClasses="!text-beergam-gray-light"
-          />
-          <Fields.input
-            type="text"
-            name="email"
-            placeholder="Email"
-            value={MasterUserInfo.email}
-            onChange={(e) =>
-              setMasterUserInfo({ email: e.target.value as string })
+      <Form
+        method="post"
+        className="flex flex-col gap-4"
+        onSubmit={(e) => {
+          if (currentUserType == "master") {
+            if (!parseMasterUserResult.success) {
+              e.preventDefault();
+              setIsSubmited(true);
             }
-            error={
-              MasterUserInfo.email.length === 0
-                ? {
-                    message: "Por favor, preencha o e-mail.",
-                    error: isSubmited && true,
-                  }
-                : fieldErrors.properties?.email?.errors?.[0]
-                  ? {
-                      message: fieldErrors.properties.email.errors[0],
-                      error: true,
-                    }
-                  : { message: "", error: false }
+          } else {
+            console.log(parseColaboradorUserResult);
+            if (!parseColaboradorUserResult.success) {
+              e.preventDefault();
+              setIsSubmited(true);
             }
-          />
-        </Fields.wrapper>
-        <Fields.wrapper>
-          <Fields.label
-            text="INSIRA SUA SENHA DE ACESSO"
-            tailWindClasses="!text-beergam-gray-light"
-          />
-          <Fields.input
-            type="password"
-            name="password"
-            placeholder="Senha"
-            value={MasterUserInfo.password}
-            onChange={(e) =>
-              setMasterUserInfo({ password: e.target.value as string })
-            }
-          />
-          {/* {fieldErrors?.password && fieldErrors.password.length >= 0 && (
+          }
+        }}
+      >
+        {currentUserType == "master" ? (
+          <>
+            <Fields.wrapper>
+              <Fields.label
+                text="ENTRE COM SEU ENDEREÇO DE E-MAIL"
+                tailWindClasses="!text-beergam-gray-light"
+              />
+              <Fields.input
+                type="text"
+                name="email"
+                placeholder="Email"
+                value={MasterUserInfo.email}
+                onChange={(e) =>
+                  setMasterUserInfo({ email: e.target.value as string })
+                }
+                error={
+                  MasterUserInfo.email.length > 0
+                    ? masterFieldErrors.properties?.email?.errors?.[0]
+                      ? {
+                          message: masterFieldErrors.properties.email.errors[0],
+                          error: true,
+                        }
+                      : { message: "", error: false }
+                    : isSubmited
+                      ? {
+                          message: "Por favor, preencha o e-mail.",
+                          error: true,
+                        }
+                      : { message: "", error: false }
+                }
+              />
+            </Fields.wrapper>
+            <Fields.wrapper>
+              <Fields.label
+                text="INSIRA SUA SENHA DE ACESSO"
+                tailWindClasses="!text-beergam-gray-light"
+              />
+              <Fields.input
+                type="password"
+                name="password"
+                placeholder="Senha"
+                value={MasterUserInfo.password}
+                onChange={(e) =>
+                  setMasterUserInfo({ password: e.target.value as string })
+                }
+                error={
+                  MasterUserInfo.password.length === 0 && isSubmited
+                    ? {
+                        message: "Por favor, preencha a senha.",
+                        error: true,
+                      }
+                    : { message: "", error: false }
+                }
+              />
+              {/* {masterFieldErrors?.password && masterFieldErrors.password.length >= 0 && (
             <span className="text-xs text-red-500 mt-1">
-              {fieldErrors.password[0]}
+              {masterFieldErrors.password[0]}
             </span>
           )} */}
-        </Fields.wrapper>
-        <button type="submit">Enviar</button>
+            </Fields.wrapper>
+          </>
+        ) : (
+          <>
+            <Fields.wrapper>
+              <Fields.label
+                text="INSIRA O PIN DO EMPREGADOR"
+                tailWindClasses="!text-beergam-gray-light"
+              />
+              <Fields.input
+                type="text"
+                name="master_pin"
+                placeholder="Pin do Empregador"
+                value={ColaboradorUserInfo.master_pin}
+                onChange={(e) =>
+                  setColaboradorUserInfo({
+                    master_pin: e.target.value as string,
+                  })
+                }
+                error={
+                  isSubmited &&
+                  colaboradorFieldErrors.properties?.master_pin?.errors?.[0]
+                    ? {
+                        message:
+                          colaboradorFieldErrors.properties.master_pin
+                            .errors[0],
+                        error: true,
+                      }
+                    : { message: "", error: false }
+                }
+              />
+            </Fields.wrapper>
+            <Fields.wrapper>
+              <Fields.label
+                text="INSIRA O SEU PIN"
+                tailWindClasses="!text-beergam-gray-light"
+              />
+              <Fields.input
+                type="text"
+                name="pin"
+                placeholder="Pin"
+                value={ColaboradorUserInfo.pin}
+                onChange={(e) =>
+                  setColaboradorUserInfo({
+                    pin: e.target.value as string,
+                  })
+                }
+                error={
+                  isSubmited &&
+                  colaboradorFieldErrors.properties?.pin?.errors?.[0]
+                    ? {
+                        message:
+                          colaboradorFieldErrors.properties.pin.errors[0],
+                        error: true,
+                      }
+                    : { message: "", error: false }
+                }
+              />
+            </Fields.wrapper>
+            <Fields.wrapper>
+              <Fields.label
+                text="INSIRA SUA SENHA DE ACESSO"
+                tailWindClasses="!text-beergam-gray-light"
+              />
+              <Fields.input
+                type="password"
+                name="password"
+                placeholder="Senha"
+                value={ColaboradorUserInfo.password}
+                onChange={(e) =>
+                  setColaboradorUserInfo({
+                    password: e.target.value as string,
+                  })
+                }
+              />
+            </Fields.wrapper>
+          </>
+        )}
+        <button type="submit">Enviar {isSubmited ? "true" : "false"}</button>
       </Form>
       {actionError?.error && (
         <p className="text-red-500">{actionError.message}</p>
