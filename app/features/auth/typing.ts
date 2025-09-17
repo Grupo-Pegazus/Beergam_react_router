@@ -11,22 +11,13 @@ export interface ColaboradorUserForm {
   password: string;
 }
 const UserPinSchema = z.string().min(8).max(8);
-const UserEmailSchema = z.email();
-const UserPasswordSchema = z.string().refine((password) => {
-  if (!/[A-Z]/.test(password)) {
-    return { message: "A senha deve conter pelo menos uma letra maiúscula." };
-  }
-  if (!/[a-z]/.test(password)) {
-    return { message: "A senha deve conter pelo menos uma letra minúscula." };
-  }
-  if (!/\d/.test(password)) {
-    return { message: "A senha deve conter pelo menos um número." };
-  }
-  if (!/[!@#$%^&*]/.test(password)) {
-    return { message: "A senha deve conter pelo menos um caractere especial." };
-  }
-  return true;
-});
+const UserEmailSchema = z.email("E-mail inválido.");
+const UserPasswordSchema = z
+  .string()
+  .regex(/[A-Z]/, "A senha deve conter pelo menos uma letra maiúscula.")
+  .regex(/[a-z]/, "A senha deve conter pelo menos uma letra minúscula.")
+  .regex(/\d/, "A senha deve conter pelo menos um número.")
+  .regex(/[!@#$%^&*]/, "A senha deve conter pelo menos um caractere especial.");
 
 export const MasterUserFormSchema = z.object({
   email: UserEmailSchema,

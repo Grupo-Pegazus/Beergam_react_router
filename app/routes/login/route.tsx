@@ -58,7 +58,13 @@ export default function LoginRoute() {
           <button type="submit">Entrar</button>
         </div>
       </Form> */}
-      <LoginPage />
+      <LoginPage
+        actionError={
+          actionData?.error
+            ? { error: true, message: actionData.error }
+            : { error: false, message: "" }
+        }
+      />
     </>
   );
 }

@@ -1,9 +1,14 @@
+interface InputError {
+  message: string;
+  error: boolean;
+}
+
 interface InputProps {
   placeholder?: string;
   required?: boolean;
   value: string | number;
   type?: string;
-  error?: boolean;
+  error?: InputError;
   onChange?: (params: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (params: React.ChangeEvent<HTMLInputElement>) => void;
   onFocus?: (params: React.ChangeEvent<HTMLInputElement>) => void;
@@ -29,11 +34,11 @@ export default function Input({
   max,
   disabled,
 }: InputProps) {
-  const isValid = required && value && !error;
+  const isValid = required && value && !error?.error;
 
   const baseClasses =
     "w-full px-3 py-2.5 border border-black/20 rounded text-sm bg-white text-[#1e1f21] transition-colors duration-200 outline-none";
-  const errorClasses = error ? "border-red-500" : "";
+  const errorClasses = error?.error ? "border-red-500" : "";
   const successClasses = isValid ? "border-green-500" : "";
   const focusClasses = "focus:border-[#ff8a00]";
   const disabledClasses = disabled
@@ -41,20 +46,25 @@ export default function Input({
     : "";
 
   return (
-    <input
-      type={type}
-      value={value}
-      placeholder={placeholder}
-      required={required}
-      className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses}`}
-      onChange={onChange}
-      onBlur={onBlur}
-      onFocus={onFocus}
-      name={name}
-      style={style}
-      min={min}
-      max={max}
-      disabled={disabled}
-    />
+    <>
+      <input
+        type={type}
+        value={value}
+        placeholder={placeholder}
+        required={required}
+        className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses}`}
+        onChange={onChange}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        name={name}
+        style={style}
+        min={min}
+        max={max}
+        disabled={disabled}
+      />
+      {error?.message && error?.error && (
+        <span className="text-xs text-red-500 mt-1">{error.message}</span>
+      )}
+    </>
   );
 }
