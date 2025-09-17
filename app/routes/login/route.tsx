@@ -1,8 +1,8 @@
-import { Form, redirect, useActionData, useLoaderData } from "react-router";
+import { redirect, useActionData, useLoaderData } from "react-router";
 import { authService } from "~/features/auth/service";
 import { commitSession, getSession } from "~/sessions";
 import type { Route } from "./+types/route";
-
+import LoginPage from "./page";
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   const userInfo = session.get("userInfo") ?? null;
@@ -26,20 +26,20 @@ export async function action({ request }: Route.ActionArgs) {
   const session = await getSession();
   session.set("userInfo", response.data);
 
-  return redirect("/", {
+  return redirect("/interno", {
     headers: {
       "Set-Cookie": await commitSession(session),
     },
   });
 }
 
-export default function LoginPage() {
+export default function LoginRoute() {
   const { userInfo } = useLoaderData<typeof loader>() ?? {};
   const actionData = useActionData() as { error?: string } | undefined;
 
   return (
     <>
-      <h1>Login</h1>
+      {/* <h1>Login</h1>
       {userInfo ? <p>Logado como: {userInfo?.name}</p> : null}
       {actionData?.error ? (
         <p style={{ color: "red" }}>{actionData.error}</p>
@@ -57,7 +57,8 @@ export default function LoginPage() {
           <input type="password" name="password" placeholder="Senha" required />
           <button type="submit">Entrar</button>
         </div>
-      </Form>
+      </Form> */}
+      <LoginPage />
     </>
   );
 }

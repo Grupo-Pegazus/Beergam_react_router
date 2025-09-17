@@ -1,6 +1,8 @@
+@import url("https://fonts.cdnfonts.com/css/satoshi");
+@import "tailwindcss";
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-display: "Satoshi", "comic-sans";
+  --default-font-family: "Satoshi";
   /* Cores customizadas seguindo o padrão do Tailwind */
   --color-beergam-orange: #ff8a00;
   --color-beergam-orange-dark: #bf6800;
@@ -22,7 +24,9 @@
   --color-beergam-white: #fff;
   --color-beergam-black: #000;
   --color-beergam-black-blue: #11263c;
+
   --color-beergam-gray: #8c8c8d;
+  --color-beergam-gray-light: #b2b2bf;
 }
 /* 
 html,
@@ -33,4 +37,11 @@ body {
     color-scheme: dark;
   }
 } */
-@import "tailwindcss";
+
+* {
+  @apply transition-all duration-300;
+}
+
+h1 {
+  @apply text-4xl font-bold;
+}
