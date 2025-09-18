@@ -131,13 +131,13 @@ export default function FormModal({
     }
     return true;
   }
-  const modalHeight = currentUserType === "master" ? "h-7/12" : "h-4/6";
+  const modalHeight = currentUserType === "master" ? "h-[524px]" : "h-[629px]";
   return (
     <div
-      className={`flex relative z-10 flex-col gap-4 bg-beergam-white rounded-4xl w-2/6  mx-auto p-8 transition-height ${modalHeight}`}
+      className={`flex relative z-10 flex-col gap-4 bg-beergam-white rounded-4xl min-w-2/6 max-w-[36rem]  mx-auto p-8 transition-height ${modalHeight}`}
     >
       <div className="flex justify-between items-center">
-        <h1 className="text-beergam-blue-primary !text-6xl">Bem vindo</h1>
+        <h1 className="text-beergam-blue-primary">Bem vindo</h1>
         <div className="flex flex-col gap-2">
           <FormHelpNavigation formType={formType} />
         </div>

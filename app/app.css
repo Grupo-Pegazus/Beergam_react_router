@@ -43,7 +43,7 @@ body {
 }
 
 h1 {
-  @apply text-4xl font-bold;
+  @apply text-4xl font-bold lg:text-4xl  xl:text-5xl 2xl:text-6xl;
 }
 button {
   cursor: pointer;
