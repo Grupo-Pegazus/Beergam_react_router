@@ -4,6 +4,7 @@ import calendar from "~/src/img/auth/calendar.webp";
 import card from "~/src/img/auth/card.webp";
 import graph from "~/src/img/auth/graph.webp";
 import world_bg from "~/src/img/auth/world_bg.webp";
+import beergam_flower_logo from "~/src/img/beergam_flower_logo.webp";
 interface ActionData {
   error: boolean;
   message: string;
@@ -36,6 +37,13 @@ export default function LoginPage({
 }) {
   return (
     <div className="flex justify-center items-center h-screen bg-gradient-to-b from-beergam-orange-light to-beergam-orange to-65%">
+      <data className="absolute top-2 left-2 w-30 h-30">
+        <img
+          src={beergam_flower_logo}
+          alt="beergam_flower_logo"
+          className="w-full h-full object-contain"
+        />
+      </data>
       <div className="absolute top-0 left-0 max-w-screen max-h-screen overflow-hidden w-full h-full opacity-50">
         <div className="absolute top-0 left-0 w-3/4 max-w-6xl object-contain">
           <img
@@ -44,7 +52,7 @@ export default function LoginPage({
             className="w-full h-full max-w-screen-xl max-h-screen-2xl object-cover"
           />
         </div>
-        <div className="absolute max-h-[60rem] max-w-80 w-[16%] h-10/12 right-0 top-1/2 -translate-y-1/2">
+        <div className="absolute max-h-[60rem] opacity-0 max-w-80 w-[16%] h-10/12 right-0 top-1/2 -translate-y-1/2 sm:opacity-100">
           <div className="absolute right-[-30%] top-[-35%] w-[190%] h-[45%] skew-x-[15deg] skew-y-[10deg]">
             <img
               src={graph}

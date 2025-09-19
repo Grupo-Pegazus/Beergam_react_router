@@ -18,6 +18,7 @@
 
   --color-beergam-yellow: #ffd143;
   --color-beergam-red: #de7272;
+  --color-beergam-red-primary: #bd362f;
   --color-beergam-red-light: #ffe5e5;
   --color-beergam-red-dark: #ff0000;
   --color-beergam-green: #87de72;
@@ -54,4 +55,8 @@ button {
 
 .transition-height {
   transition: height 250ms ease;
+}
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
 }

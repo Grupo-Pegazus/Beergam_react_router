@@ -1,3 +1,5 @@
+import { useState } from "react";
+import Svg from "~/src/assets/svgs";
 interface InputError {
   message: string;
   error: boolean;
@@ -44,29 +46,42 @@ export default function Input({
   const disabledClasses = disabled
     ? "bg-gray-50 cursor-not-allowed border-gray-300 text-slate-500"
     : "";
-
+  const [showPassword, setShowPassword] = useState(false);
   return (
     <>
-      <input
-        type={type}
-        value={value}
-        placeholder={placeholder}
-        required={required}
-        className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses}`}
-        onChange={onChange}
-        onBlur={onBlur}
-        onFocus={onFocus}
-        name={name}
-        style={style}
-        min={min}
-        max={max}
-        disabled={disabled}
-      />
-      <span
+      <div className="relative w-full">
+        <input
+          type={
+            type === "password" ? (showPassword ? "text" : "password") : type
+          }
+          value={value}
+          placeholder={placeholder}
+          required={required}
+          className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses} ${type === "password" ? "pr-10" : ""}`}
+          onChange={onChange}
+          onBlur={onBlur}
+          onFocus={onFocus}
+          name={name}
+          style={style}
+          min={min}
+          max={max}
+          disabled={disabled}
+        />
+        {type === "password" && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+          >
+            {showPassword ? <Svg.eye /> : <Svg.eye_slash />}
+          </button>
+        )}
+      </div>
+      <p
         className={`text-xs text-red-500 h-2.5 mt-1 ${error?.error ? "opacity-100" : "opacity-0"}`}
       >
         {error?.message || ""}
-      </span>
+      </p>
     </>
   );
 }

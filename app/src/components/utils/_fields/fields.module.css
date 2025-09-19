@@ -49,7 +49,10 @@
     color: #1e1f21;
     transition: border-color 0.2s;
     outline: none;
-
+    &::-ms-reveal,
+    &::-ms-clear {
+      display: none;
+    }
     &.inputError {
       border: 1px solid red !important;
     }

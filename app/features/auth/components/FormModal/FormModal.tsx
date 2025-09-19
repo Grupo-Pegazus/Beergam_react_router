@@ -2,12 +2,14 @@ import { useEffect, useReducer, useState } from "react";
 import { Form, Link } from "react-router";
 import { z } from "zod";
 import { Fields } from "~/src/components/utils/_fields";
+import beergam_flower_logo from "~/src/img/beergam_flower_logo.webp";
 import {
   type ColaboradorUserForm,
   ColaboradorUserFormSchema,
   type MasterUserForm,
   MasterUserFormSchema,
 } from "../../typing";
+import FormError from "../FormError/FormError";
 
 type TFormType = "login" | "register";
 type TUserType = "master" | "colaborador";
@@ -25,7 +27,7 @@ interface FormModalProps {
 
 function FormHelpNavigation({ formType }: FormModalProps) {
   return (
-    <div className="flex flex-col gap-0.5">
+    <div className="flex flex-row gap-2 sm:flex-col sm:gap-0.5">
       <label className="text-beergam-gray font-medium" htmlFor="">
         {formType === "login" ? "Sem conta?" : "Já tem conta?"}
       </label>
@@ -102,12 +104,15 @@ export default function FormModal({
     setIsSubmited(false);
     setStateActionError(null);
   }
+  const [errorTrigger, setErrorTrigger] = useState(0);
   useEffect(() => {
     setStateActionError(actionError || null);
+    if (actionError) {
+      setErrorTrigger((prev) => prev + 1);
+    }
   }, [actionError]);
   type MasterResult = ReturnType<typeof MasterUserFormSchema.safeParse>;
   type ColabResult = ReturnType<typeof ColaboradorUserFormSchema.safeParse>;
-
   function HandleSubmit(
     userResult: MasterResult | ColabResult,
     userType: TUserType
@@ -115,11 +120,17 @@ export default function FormModal({
     let onlyPasswordError = true;
     if (!userResult.success) {
       if (userType === "master") {
+        if (MasterUserInfo.password.length === 0) {
+          return false;
+        }
         onlyPasswordError =
           !masterFieldErrors.properties?.email?.errors?.[0] &&
           !!masterFieldErrors.properties?.password?.errors?.[0];
       }
       if (userType === "colaborador") {
+        if (ColaboradorUserInfo.password.length === 0) {
+          return false;
+        }
         onlyPasswordError =
           !colaboradorFieldErrors.properties?.master_pin?.errors?.[0] &&
           !colaboradorFieldErrors.properties?.pin?.errors?.[0] &&
@@ -131,14 +142,22 @@ export default function FormModal({
     }
     return true;
   }
-  const modalHeight = currentUserType === "master" ? "h-[524px]" : "h-[629px]";
+  const modalHeight =
+    currentUserType === "master" ? "sm:h-[490px]" : "sm:h-[595px]"; //524px e 629px
   return (
     <div
-      className={`flex relative z-10 flex-col gap-4 bg-beergam-white rounded-4xl w-[90%]  mx-auto p-8 transition-height ${modalHeight} sm:w-1/3 sm:max-w-[32rem]`}
+      className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-white h-full w-[100%] mx-auto p-8 transition-height ${modalHeight} sm:w-2/3 sm:max-w-[32rem] sm:rounded-4xl`}
     >
+      <div className="block w-16 h-16 sm:hidden">
+        <img
+          src={beergam_flower_logo}
+          alt="beergam_flower_logo"
+          className="w-full h-full object-contain"
+        />
+      </div>
       <div className="flex justify-between items-center">
         <h1 className="text-beergam-blue-primary">Bem vindo</h1>
-        <div className="flex flex-col gap-2">
+        <div className="hidden flex-col gap-2 sm:flex">
           <FormHelpNavigation formType={formType} />
         </div>
       </div>
@@ -170,30 +189,6 @@ export default function FormModal({
             return;
           }
           setIsSubmited(false);
-          // if (currentUserType == "master") {
-          //   if (!parseMasterUserResult.success) {
-          //     const onlyPasswordError =
-          //       !masterFieldErrors.properties?.email?.errors?.[0] &&
-          //       !!masterFieldErrors.properties?.password?.errors?.[0];
-
-          //     if (!onlyPasswordError) {
-          //       e.preventDefault();
-          //       setIsSubmited(true);
-          //     }
-          //   }
-          // } else {
-          //   if (!parseColaboradorUserResult.success) {
-          //     const onlyPasswordError =
-          //       !colaboradorFieldErrors.properties?.master_pin?.errors?.[0] &&
-          //       !colaboradorFieldErrors.properties?.pin?.errors?.[0] &&
-          //       !!colaboradorFieldErrors.properties?.password?.errors?.[0];
-
-          //     if (!onlyPasswordError) {
-          //       e.preventDefault();
-          //       setIsSubmited(true);
-          //     }
-          //   }
-          // }
         }}
       >
         {currentUserType == "master" ? (
@@ -329,6 +324,14 @@ export default function FormModal({
                     password: e.target.value as string,
                   })
                 }
+                error={
+                  ColaboradorUserInfo.password.length === 0 && isSubmited
+                    ? {
+                        message: "Por favor, preencha a senha.",
+                        error: true,
+                      }
+                    : { message: "", error: false }
+                }
               />
             </Fields.wrapper>
           </>
@@ -339,15 +342,18 @@ export default function FormModal({
         >
           Esqueceu sua senha?
         </button>
+        <div className="flex gap-2 sm:hidden">
+          <FormHelpNavigation formType={formType} />
+        </div>
         <button
           type="submit"
           className="p-2 rounded-2xl bg-beergam-blue-primary text-beergam-white hover:bg-beergam-orange"
         >
-          Enviar
+          Entrar
         </button>
       </Form>
       {stateActionError?.error && !isSubmited && (
-        <p className="text-red-500">{stateActionError.message}</p>
+        <FormError error={stateActionError.message} trigger={errorTrigger} />
       )}
     </div>
   );

@@ -17,7 +17,7 @@ class AuthService {
       return { success: false, error: response.data.message };
     } catch (err: any) {
       const status = err?.response?.status ?? 500;
-      const message = err?.response?.data?.message ?? "Falha de autenticação";
+      const message = err?.response?.data?.message ?? "Erro no Servidor";
       return { success: false, error: message, status };
     }
   }

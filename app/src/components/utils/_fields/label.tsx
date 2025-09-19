@@ -18,7 +18,7 @@ function Label({
   return (
     <div className={`flex items-start gap-4`}>
       <label
-        className={`font-medium text-beergam-gray ${tailWindClasses || ""}`}
+        className={`font-medium text-sm text-beergam-gray ${tailWindClasses || ""} sm:text-base`}
         style={styleLabel}
       >
         {text}
