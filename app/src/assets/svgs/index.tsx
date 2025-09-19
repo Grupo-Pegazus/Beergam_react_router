@@ -1,18 +1,21 @@
-import HomeIcon from "./HomeIcon";
-import BagIcon from "./BagIcon";
-import GraphIcon from "./GraphIcon";
-import ChatIcon from "./ChatIcon";
-import CardIcon from "./CardIcon";
-import GlobeIcon from "./GlobeIcon";
+import AlertIcon from "./AlertIcon";
 import ArrowPathIcon from "./ArrowPathIcon";
-import InBoxStackIcon from "./InBoxStackIcon";
+import BagIcon from "./BagIcon";
+import BuildingLibrary from "./BuildingLibrary";
 import CalculatorIcon from "./Calculator";
-import PhoneIcon from "./PhoneIcon";
+import CardIcon from "./CardIcon";
+import ChatIcon from "./ChatIcon";
+import ClockIcon from "./ClockIcon";
 import Cog8Tooth from "./Cog8Tooth";
 import CurrencyDollar from "./CurrencyDollar";
-import BuildingLibrary from "./BuildingLibrary";
-import ClockIcon from "./ClockIcon";
 import DollyIcon from "./DollyIcon";
+import Eye from "./Eye";
+import EyeSlash from "./EyeSlash";
+import GlobeIcon from "./GlobeIcon";
+import GraphIcon from "./GraphIcon";
+import HomeIcon from "./HomeIcon";
+import InBoxStackIcon from "./InBoxStackIcon";
+import PhoneIcon from "./PhoneIcon";
 const Svg = {
   home: HomeIcon,
   bag: BagIcon,
@@ -29,6 +32,9 @@ const Svg = {
   building_library: BuildingLibrary,
   clock: ClockIcon,
   dolly: DollyIcon,
+  alert: AlertIcon,
+  eye: Eye,
+  eye_slash: EyeSlash,
 };
 
 export default Svg;
