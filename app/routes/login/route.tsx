@@ -1,4 +1,5 @@
 import { redirect, useActionData, useLoaderData } from "react-router";
+import type { ApiResponse } from "~/features/apiClient/typings";
 import { authService } from "~/features/auth/service";
 import { commitSession, getSession } from "~/sessions";
 import type { Route } from "./+types/route";
@@ -17,14 +18,10 @@ export async function action({ request }: Route.ActionArgs) {
   const response = await authService.login(email as string, password as string);
 
   if (!response.success) {
-    return Response.json(
-      { error: response.error ?? "Não foi possível autenticar" },
-      { status: response.status ?? 401 }
-    );
+    return Response.json(response);
   }
 
   const session = await getSession();
-  session.set("userInfo", response.data);
 
   return redirect("/interno", {
     headers: {
@@ -35,36 +32,11 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function LoginRoute() {
   const { userInfo } = useLoaderData<typeof loader>() ?? {};
-  const actionData = useActionData() as { error?: string } | undefined;
+  const actionResponse = useActionData() as ApiResponse<any>;
 
   return (
     <>
-      {/* <h1>Login</h1>
-      {userInfo ? <p>Logado como: {userInfo?.name}</p> : null}
-      {actionData?.error ? (
-        <p style={{ color: "red" }}>{actionData.error}</p>
-      ) : null}
-      <Form method="post">
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 8,
-            maxWidth: 320,
-          }}
-        >
-          <input type="email" name="email" placeholder="Email" required />
-          <input type="password" name="password" placeholder="Senha" required />
-          <button type="submit">Entrar</button>
-        </div>
-      </Form> */}
-      <LoginPage
-        actionError={
-          actionData?.error
-            ? { error: true, message: actionData.error }
-            : { error: false, message: "" }
-        }
-      />
+      <LoginPage actionResponse={actionResponse} />
     </>
   );
 }

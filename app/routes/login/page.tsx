@@ -1,3 +1,4 @@
+import type { ApiResponse } from "~/features/apiClient/typings";
 import FormModal from "~/features/auth/components/FormModal/FormModal";
 import QuestionMark from "~/src/assets/svgs/QuestionMark";
 import calendar from "~/src/img/auth/calendar.webp";
@@ -5,11 +6,6 @@ import card from "~/src/img/auth/card.webp";
 import graph from "~/src/img/auth/graph.webp";
 import world_bg from "~/src/img/auth/world_bg.webp";
 import beergam_flower_logo from "~/src/img/beergam_flower_logo.webp";
-interface ActionData {
-  error: boolean;
-  message: string;
-}
-
 function CardComponent({ title, value }: { title: string; value: string }) {
   return (
     <div className="relative w-full max-w-44 h-26 group">
@@ -31,9 +27,9 @@ function CardComponent({ title, value }: { title: string; value: string }) {
 }
 
 export default function LoginPage({
-  actionError,
+  actionResponse,
 }: {
-  actionError: ActionData;
+  actionResponse: ApiResponse<any>;
 }) {
   return (
     <div className="flex justify-center items-center h-screen bg-gradient-to-b from-beergam-orange-light to-beergam-orange to-65%">
@@ -78,18 +74,9 @@ export default function LoginPage({
           <div className="absolute right-[35%] bottom-[8%] w-[55%] max-w-44 h-[35%] skew-x-[15deg] skew-y-[10deg]">
             <img src={card} alt="" />
           </div>
-          {/* <div className="absolute right-50 bottom-80 w-3xs skew-x-[15deg] skew-y-[10deg]">
-            <CardComponent title="Impressões" value="126.1k" />
-          </div>
-          <div className="absolute right-44 bottom-50 w-3xs skew-x-[15deg] skew-y-[10deg]">
-            <CardComponent title="Cliques" value="4.4k" />
-          </div>
-          <div className="absolute right-[9.5rem] bottom-20 w-3xs skew-x-[15deg] skew-y-[10deg]">
-            <CardComponent title="CTR" value="3,47%" />
-          </div> */}
         </div>
       </div>
-      <FormModal formType="login" actionError={actionError} />
+      <FormModal formType="login" actionResponse={actionResponse} />
     </div>
   );
 }

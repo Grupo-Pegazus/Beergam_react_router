@@ -1,26 +1,35 @@
-import type { AxiosInstance } from "axios";
-import { apiClient } from "../apiClient/client";
+import { typedApiClient } from "../apiClient/typedClient";
+import type { ApiResponse } from "../apiClient/typings";
+
+// Tipagem para os dados de usuário retornados pelo login
+interface UserData {
+  id: string;
+  email: string;
+  name: string;
+}
+
 class AuthService {
-  private readonly apiClient: AxiosInstance;
-  constructor(apiClient: AxiosInstance) {
-    this.apiClient = apiClient;
-  }
-  async login(email: string, password: string) {
+  async login(email: string, password: string): Promise<ApiResponse<UserData>> {
     try {
-      const response = await this.apiClient.post("/v1/auth/login", {
+      const response = await typedApiClient.post<UserData>("/v1/auth/login", {
         email,
         password,
       });
-      if (response.status === 200) {
-        return { success: true, data: response.data.data.user_data };
-      }
-      return { success: false, error: response.data.message };
-    } catch (err: any) {
-      const status = err?.response?.status ?? 500;
-      const message = err?.response?.data?.message ?? "Erro no Servidor";
-      return { success: false, error: message, status };
+      return response;
+    } catch (error) {
+      return {
+        success: false,
+        data: {} as UserData,
+        message: "Erro",
+        error_code: 500,
+        error_fields: {},
+      };
     }
   }
-  async logout() {}
+
+  async logout(): Promise<ApiResponse<null>> {
+    return await typedApiClient.post<null>("/v1/auth/logout");
+  }
 }
-export const authService = new AuthService(apiClient);
+
+export const authService = new AuthService();

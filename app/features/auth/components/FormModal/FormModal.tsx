@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useState } from "react";
 import { Form, Link } from "react-router";
 import { z } from "zod";
+import type { ApiResponse } from "~/features/apiClient/typings";
 import { Fields } from "~/src/components/utils/_fields";
 import beergam_flower_logo from "~/src/img/beergam_flower_logo.webp";
 import {
@@ -22,7 +23,7 @@ interface ActionData {
 interface FormModalProps {
   formType: TFormType;
   userType?: TUserType;
-  actionError?: ActionData;
+  actionResponse?: ApiResponse<any>;
 }
 
 function FormHelpNavigation({ formType }: FormModalProps) {
@@ -63,7 +64,7 @@ function ButtonChangeUserType({
 export default function FormModal({
   formType,
   userType = "master",
-  actionError,
+  actionResponse,
 }: FormModalProps) {
   const [currentUserType, setCurrentUserType] = useState<TUserType>(userType);
   const [isSubmited, setIsSubmited] = useState(false);
@@ -79,9 +80,8 @@ export default function FormModal({
     },
     { master_pin: "", pin: "", password: "" } as ColaboradorUserForm
   );
-  const [stateActionError, setStateActionError] = useState<ActionData | null>(
-    actionError || null
-  );
+  const [stateActionError, setStateActionError] =
+    useState<ApiResponse<any> | null>(actionResponse || null);
   const parseMasterUserResult = MasterUserFormSchema.safeParse(MasterUserInfo);
   const masterFieldErrors = parseMasterUserResult.success
     ? {
@@ -106,11 +106,11 @@ export default function FormModal({
   }
   const [errorTrigger, setErrorTrigger] = useState(0);
   useEffect(() => {
-    setStateActionError(actionError || null);
-    if (actionError) {
+    setStateActionError(actionResponse || null);
+    if (actionResponse) {
       setErrorTrigger((prev) => prev + 1);
     }
-  }, [actionError]);
+  }, [actionResponse]);
   type MasterResult = ReturnType<typeof MasterUserFormSchema.safeParse>;
   type ColabResult = ReturnType<typeof ColaboradorUserFormSchema.safeParse>;
   function HandleSubmit(
@@ -352,8 +352,12 @@ export default function FormModal({
           Entrar
         </button>
       </Form>
-      {stateActionError?.error && !isSubmited && (
-        <FormError error={stateActionError.message} trigger={errorTrigger} />
+      {!stateActionError?.success && !isSubmited && (
+        <FormError
+          error={stateActionError?.message ?? ""}
+          error_code={stateActionError?.error_code ?? 0}
+          trigger={errorTrigger}
+        />
       )}
     </div>
   );

@@ -3,9 +3,11 @@ import Svg from "~/src/assets/svgs";
 
 export default function FormError({
   error,
+  error_code,
   trigger,
 }: {
   error: string;
+  error_code: number;
   trigger?: number;
 }) {
   const [opacity, setOpacity] = useState<string>("opacity-0");
@@ -35,10 +37,15 @@ export default function FormError({
 
   return (
     <div
-      className={`text-beergam-white flex gap-2 items-center bg-beergam-red-primary p-2 rounded-[5px] transition-opacity duration-300 ${opacity} fixed top-2 right-2 ${opacity}`}
+      className={`text-beergam-white flex flex-col gap-2 bg-beergam-red-primary p-2 rounded-[5px] transition-opacity duration-300 ${opacity} fixed top-2 right-2 ${opacity}`}
     >
-      <Svg.alert />
-      <p>{error}</p>
+      <div className="flex gap-2 items-center">
+        <Svg.alert />
+        <p>{error}</p>
+      </div>
+      <p className="text-[10px]">
+        <u>Error code: {error_code}</u>
+      </p>
     </div>
   );
 }
