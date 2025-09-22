@@ -2,29 +2,6 @@ import { z } from "zod";
 import { TelefoneSchema } from "~/utils/typings/Telefone";
 import { MenuConfig, type MenuKeys, type MenuState } from "../menu/typings";
 
-z.config({
-  customError: (iss) => {
-    switch (iss.code) {
-      case "invalid_type":
-        return `O Campo ${iss.path?.join(".")} está inválido, esperado ${iss.expected}`;
-      case "invalid_value":
-        return `O Campo ${iss.path?.join(".")} está inválido, esperado: ${iss.values.join(", ")}`;
-      case "too_small":
-        return iss.minimum !== undefined
-          ? `O Campo ${iss.path?.join(".")} precisa ser maior que ${iss.minimum} caracteres`
-          : "valor muito pequeno";
-      case "too_big":
-        return iss.maximum !== undefined
-          ? `O Campo ${iss.path?.join(".")} precisa ser menor que ${iss.maximum} caracteres`
-          : "valor muito grande";
-      case "invalid_format":
-        return `O Campo ${iss.path?.join(".")} está inválido, valor informado ${iss.format}`;
-      default:
-        return "entrada inválida";
-    }
-  },
-});
-
 export type FaixaFaturamentoKeys =
   | "ATE_10_MIL"
   | "DE_10_A_30_MIL"
@@ -317,8 +294,8 @@ export interface IBaseUsuario {
 
 export interface IUsuario extends IBaseUsuario {
   email: string;
-  cpf: string | null;
-  cnpj: string | null;
+  cpf?: string | null;
+  cnpj?: string | null;
   whatsapp: string;
   personal_reference_code?: string;
   referal_code?: string;
@@ -326,27 +303,11 @@ export interface IUsuario extends IBaseUsuario {
   conheceu_beergam: ComoConheceuKeys;
 }
 
-// const UserPasswordSchema = z
-//   .string()
-//   .min(8)
-//   .max(30)
-//   .refine((senha: string) => {
-//     if (!/[A-Z]/.test(senha)) {
-//       return { message: "A senha deve ter pelo menos uma letra maiúscula" };
-//     }
-//     if (!/[a-z]/.test(senha)) {
-//       return { message: "A senha deve ter pelo menos uma letra minúscula" };
-//     }
-//     if (!/\d/.test(senha)) {
-//       return { message: "A senha deve ter pelo menos um número" };
-//     }
-//     if (!/[!@#$%^&*]/.test(senha)) {
-//       return { message: "A senha deve ter pelo menos um caractere especial" };
-//     }
-//   });
-
 const BaseUserSchema = z.object({
-  name: z.string().min(3).max(30),
+  name: z
+    .string()
+    .min(3, "Nome precisa ter 3 caracteres")
+    .max(30, "Nome não pode ter mais de 30 caracteres"),
   user_type: z.enum(["master", "colaborador", "beergam_master"]),
   conta_marketplace: ContaMarketplaceSchema,
   allowed_views: AllowedViewsSchema,
@@ -371,8 +332,8 @@ const NewUser: IBaseUsuario = {
 export const UsuarioTeste = BaseUserSchema.parse(NewUser);
 export const UserSchema = BaseUserSchema.extend({
   email: z.email("Email inválido"),
-  cpf: z.string().min(11).max(11),
-  cnpj: z.string().min(14).max(14),
+  cpf: z.string().min(11).max(11).optional(),
+  cnpj: z.string().min(14).max(14).optional(),
   whatsapp: TelefoneSchema,
   personal_reference_code: z.string().min(11).max(11).optional(),
   referal_code: z.string().min(11).max(11).optional().optional(),

@@ -17,6 +17,7 @@ type UserDocuments = "CPF" | "CNPJ";
 export default function FormModal() {
   const [currentDocument, setCurrentDocument] = useState<UserDocuments>("CPF");
   const [password, setPassword] = useState("");
+  const [isSubmited, setIsSubmited] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const documentToValidate = currentDocument == "CPF" ? CPFSchema : CNPJSchema;
   const [UserInfo, setUserInfo] = useReducer(
@@ -28,10 +29,9 @@ export default function FormModal() {
       user_type: "master",
       allowed_views: { inicio: { active: true } },
       email: "",
-      cpf: "",
-      cnpj: "",
+      cpf: undefined,
+      cnpj: undefined,
       whatsapp: "",
-      personal_reference_code: "",
       referal_code: "",
       faturamento: "" as FaixaFaturamentoKeys,
       conheceu_beergam: "" as ComoConheceuKeys,
@@ -68,16 +68,19 @@ export default function FormModal() {
     : z.treeifyError(passwordResult.error);
   const docValue = currentDocument === "CPF" ? UserInfo.cpf : UserInfo.cnpj;
   const docResult = documentToValidate.safeParse(docValue);
-  const docError =
-    docValue?.length === 0
-      ? undefined
-      : docResult.success
-        ? { message: "", error: false }
-        : {
-            message: `${currentDocument} inválido	`,
-            error: true,
-          };
-
+  const docError = docResult.success
+    ? { message: "", error: false }
+    : {
+        message: `${currentDocument} inválido	`,
+        error: true,
+      };
+  function HandleSubmit(): boolean {
+    console.log("UserResult:", UserFieldErrors);
+    if (!UserSchema.safeParse(UserInfo).success) {
+      return false;
+    }
+    return true;
+  }
   return (
     <div className="h-full bg-beergam-white p-8 rounded-xl gap-4 flex flex-col">
       <h1 className="text-beergam-blue-primary">Cadastre-se</h1>
@@ -95,7 +98,7 @@ export default function FormModal() {
             value={UserInfo.email}
             onChange={(e) => setUserInfo({ email: e.target.value as string })}
             error={
-              UserInfo.email.length > 0
+              UserInfo.email.length > 0 || isSubmited
                 ? UserFieldErrors.properties?.email?.errors?.[0]
                   ? {
                       message: UserFieldErrors.properties.email.errors[0],
@@ -115,7 +118,7 @@ export default function FormModal() {
             value={UserInfo.name}
             onChange={(e) => setUserInfo({ name: e.target.value as string })}
             error={
-              UserInfo.name.length > 0
+              UserInfo.name.length > 0 || isSubmited
                 ? UserFieldErrors.properties?.name?.errors?.[0]
                   ? {
                       message: UserFieldErrors.properties.name.errors[0],
@@ -145,7 +148,11 @@ export default function FormModal() {
           <Fields.input
             value={docValue ?? ""}
             placeholder="Documento"
-            error={docError}
+            error={
+              (docValue?.length && docValue.length > 0) || isSubmited
+                ? docError
+                : { error: false, message: "" }
+            }
             onChange={(e) =>
               setUserInfo({
                 [currentDocument === "CPF" ? "cpf" : "cnpj"]: e.target
@@ -166,7 +173,9 @@ export default function FormModal() {
             error={
               password.length > 0 && passwordError.errors?.[0]
                 ? { error: true, message: passwordError.errors?.[0] }
-                : { error: false, message: "" }
+                : password.length == 0 && isSubmited
+                  ? { error: true, message: "Por favor, preencha a senha" }
+                  : { error: false, message: "" }
             }
           ></Fields.input>
         </Fields.wrapper>
@@ -210,7 +219,7 @@ export default function FormModal() {
               setUserInfo({ whatsapp: e.target.value as string })
             }
             error={
-              UserInfo.whatsapp.length > 0
+              UserInfo.whatsapp.length > 0 || isSubmited
                 ? UserFieldErrors.properties?.whatsapp?.errors?.[0]
                   ? {
                       error: true,
@@ -254,7 +263,18 @@ export default function FormModal() {
           ></Fields.select>
         </Fields.wrapper>
       </div>
-      <button className="p-2 rounded-2xl bg-beergam-orange text-beergam-white roundend hover:bg-beergam-blue-primary">
+      <button
+        onClick={() => {
+          const result = HandleSubmit();
+          console.log("resultado:", result);
+          if (!result) {
+            setIsSubmited(true);
+            return;
+          }
+          setIsSubmited(false);
+        }}
+        className="p-2 rounded-2xl bg-beergam-orange text-beergam-white roundend hover:bg-beergam-blue-primary"
+      >
         Criar conta grátis
       </button>
       {UserInfo.personal_reference_code == "14_DIAS_FREE" && (
