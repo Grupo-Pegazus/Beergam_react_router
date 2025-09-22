@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TelefoneSchema } from "~/utils/typings/Telefone";
 import { MenuConfig, type MenuKeys, type MenuState } from "../menu/typings";
 
 z.config({
@@ -319,8 +320,8 @@ export interface IUsuario extends IBaseUsuario {
   cpf: string | null;
   cnpj: string | null;
   whatsapp: string;
-  referred_code: string;
-  referal_code: string;
+  personal_reference_code?: string;
+  referal_code?: string;
   faturamento: FaixaFaturamentoKeys;
   conheceu_beergam: ComoConheceuKeys;
 }
@@ -368,3 +369,20 @@ const NewUser: IBaseUsuario = {
 };
 
 export const UsuarioTeste = BaseUserSchema.parse(NewUser);
+export const UserSchema = BaseUserSchema.extend({
+  email: z.email("Email inválido"),
+  cpf: z.string().min(11).max(11),
+  cnpj: z.string().min(14).max(14),
+  whatsapp: TelefoneSchema,
+  personal_reference_code: z.string().min(11).max(11).optional(),
+  referal_code: z.string().min(11).max(11).optional().optional(),
+  faturamento: z.enum(
+    Object.keys(FaixaFaturamento) as [
+      FaixaFaturamentoKeys,
+      ...FaixaFaturamentoKeys[],
+    ]
+  ),
+  conheceu_beergam: z.enum(
+    Object.keys(ComoConheceu) as [ComoConheceuKeys, ...ComoConheceuKeys[]]
+  ),
+}) satisfies z.ZodType<IUsuario>;

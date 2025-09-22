@@ -40,9 +40,11 @@ export default function Input({
 
   const baseClasses =
     "w-full px-3 py-2.5 border border-black/20 rounded text-sm bg-white text-[#1e1f21] transition-colors duration-200 outline-none";
-  const errorClasses = error?.error ? "border-red-500" : "";
+  const errorClasses = error?.error
+    ? "border-red-500 focus:border-red-500"
+    : "";
   const successClasses = isValid ? "border-green-500" : "";
-  const focusClasses = "focus:border-[#ff8a00]";
+  const focusClasses = "focus:border-[#ff8a00] outline-beergam-orange";
   const disabledClasses = disabled
     ? "bg-gray-50 cursor-not-allowed border-gray-300 text-slate-500"
     : "";

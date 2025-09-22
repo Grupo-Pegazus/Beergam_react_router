@@ -10,10 +10,10 @@ export default function RegistroPage({
   return (
     <PageLayout pageType="registro">
       <div className="w-full flex flex-col justify-between h-lvh sm:flex-row-reverse">
-        <div className="w-full sm:w-2/5">
+        <div className="w-full sm:w-2/3">
           <FormModal />
         </div>
-        <div className="w-full sm:w-3/4">
+        <div className="w-full sm:w-[60%]">
           <h2>Dados do Usuário</h2>
         </div>
       </div>
