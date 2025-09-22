@@ -12,31 +12,24 @@ import {
 } from "../../typing";
 import FormError from "../FormError/FormError";
 
-type TFormType = "login" | "register";
 type TUserType = "master" | "colaborador";
 
-interface ActionData {
-  error: boolean;
-  message: string;
-}
-
 interface FormModalProps {
-  formType: TFormType;
   userType?: TUserType;
   actionResponse?: ApiResponse<any>;
 }
 
-function FormHelpNavigation({ formType }: FormModalProps) {
+function FormHelpNavigation() {
   return (
     <div className="flex flex-row gap-2 sm:flex-col sm:gap-0.5">
       <label className="text-beergam-gray font-medium" htmlFor="">
-        {formType === "login" ? "Sem conta?" : "Já tem conta?"}
+        Sem conta?
       </label>
       <Link
         className="text-beergam-blue-primary hover:text-beergam-orange font-medium"
-        to={formType === "login" ? "/register" : "/login"}
+        to={"/registro"}
       >
-        {formType === "login" ? "Cadastre-se" : "Entrar"}
+        Cadastre-se
       </Link>
     </div>
   );
@@ -62,7 +55,6 @@ function ButtonChangeUserType({
 }
 
 export default function FormModal({
-  formType,
   userType = "master",
   actionResponse,
 }: FormModalProps) {
@@ -146,7 +138,7 @@ export default function FormModal({
     currentUserType === "master" ? "sm:h-[490px]" : "sm:h-[595px]"; //524px e 629px
   return (
     <div
-      className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-white h-full w-[100%] mx-auto p-8 transition-height ${modalHeight} sm:w-2/3 sm:max-w-[32rem] sm:rounded-4xl`}
+      className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-white h-full w-[100%] mx-auto my-auto p-8 transition-height ${modalHeight} sm:w-2/3 sm:max-w-[32rem] sm:rounded-4xl`}
     >
       <div className="block w-16 h-16 sm:hidden">
         <img
@@ -158,7 +150,7 @@ export default function FormModal({
       <div className="flex justify-between items-center">
         <h1 className="text-beergam-blue-primary">Bem vindo</h1>
         <div className="hidden flex-col gap-2 sm:flex">
-          <FormHelpNavigation formType={formType} />
+          <FormHelpNavigation />
         </div>
       </div>
       <div className="flex gap-2.5">
@@ -343,7 +335,7 @@ export default function FormModal({
           Esqueceu sua senha?
         </button>
         <div className="flex gap-2 sm:hidden">
-          <FormHelpNavigation formType={formType} />
+          <FormHelpNavigation />
         </div>
         <button
           type="submit"

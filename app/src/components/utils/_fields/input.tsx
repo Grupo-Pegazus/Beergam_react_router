@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type HTMLInputTypeAttribute } from "react";
 import Svg from "~/src/assets/svgs";
 interface InputError {
   message: string;
@@ -9,7 +9,7 @@ interface InputProps {
   placeholder?: string;
   required?: boolean;
   value: string | number;
-  type?: string;
+  type?: HTMLInputTypeAttribute;
   error?: InputError;
   onChange?: (params: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (params: React.ChangeEvent<HTMLInputElement>) => void;

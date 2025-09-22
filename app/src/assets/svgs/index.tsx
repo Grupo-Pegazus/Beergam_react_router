@@ -16,6 +16,7 @@ import GraphIcon from "./GraphIcon";
 import HomeIcon from "./HomeIcon";
 import InBoxStackIcon from "./InBoxStackIcon";
 import PhoneIcon from "./PhoneIcon";
+import QuestionMark from "./QuestionMark";
 const Svg = {
   home: HomeIcon,
   bag: BagIcon,
@@ -35,6 +36,7 @@ const Svg = {
   alert: AlertIcon,
   eye: Eye,
   eye_slash: EyeSlash,
+  question_mark: QuestionMark,
 };
 
 export default Svg;
