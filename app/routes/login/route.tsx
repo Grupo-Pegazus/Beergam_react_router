@@ -1,6 +1,7 @@
 import { redirect, useActionData, useLoaderData } from "react-router";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { authService } from "~/features/auth/service";
+import { UserSchema, type IUsuario } from "~/features/user/typings";
 import { commitSession, getSession } from "~/sessions";
 import type { Route } from "./+types/route";
 import LoginPage from "./page";
@@ -9,6 +10,15 @@ export async function loader({ request }: Route.LoaderArgs) {
   const userInfo = session.get("userInfo") ?? null;
   return { userInfo };
 }
+
+const errorResponse = {
+  success: false,
+  data: {} as IUsuario,
+  message:
+    "Erro ao transformar informações do usuário. Tente novamente em alguns instantes.",
+  error_code: 500,
+  error_fields: {},
+};
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
@@ -22,6 +32,9 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   const session = await getSession();
+  if (!UserSchema.safeParse(response.data).success) {
+    return Response.json(errorResponse);
+  }
 
   return redirect("/interno", {
     headers: {
