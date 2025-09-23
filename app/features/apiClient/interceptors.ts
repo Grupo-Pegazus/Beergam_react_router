@@ -8,15 +8,12 @@ export async function setupAuthInterceptor(client: AxiosInstance) {
   //     return config;
   //   });
 
-  // client.interceptors.response.use(async (response) => {
-  //   if (response.data.data.status_code == 3001) {
-  //     dispatch(logout());
-  //     return response;
-  //   } //Colocar o status code de JWT inválido ou expirado sla
-  //   return response;
-  // });
-  client.interceptors.request.use(async (config) => {
-    const acess_token = config.headers.get("Set-Cookie");
-    return config;
+  client.interceptors.response.use(async (response) => {
+    console.log("response do interceptor", response);
+    return response;
   });
+  // client.interceptors.request.use(async (config) => {
+  //   const acess_token = config.headers.get("Set-Cookie");
+  //   return config;
+  // });
 }

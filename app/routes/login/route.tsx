@@ -1,7 +1,7 @@
 import { redirect, useActionData, useLoaderData } from "react-router";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { authService } from "~/features/auth/service";
-import { UserSchema, type IUsuario } from "~/features/user/typings";
+import { UserSchema } from "~/features/user/typings";
 import { commitSession, getSession } from "~/sessions";
 import type { Route } from "./+types/route";
 import LoginPage from "./page";
@@ -10,10 +10,14 @@ export async function loader({ request }: Route.LoaderArgs) {
   const userInfo = session.get("userInfo") ?? null;
   return { userInfo };
 }
-
+interface UserData {
+  id: string;
+  email: string;
+  name: string;
+}
 const errorResponse = {
   success: false,
-  data: {} as IUsuario,
+  data: {} as UserData,
   message:
     "Erro ao transformar informações do usuário. Tente novamente em alguns instantes.",
   error_code: 500,
@@ -30,9 +34,12 @@ export async function action({ request }: Route.ActionArgs) {
   if (!response.success) {
     return Response.json(response);
   }
-
+  console.log("response do route", response);
   const session = await getSession();
-  if (!UserSchema.safeParse(response.data).success) {
+  const user = UserSchema.safeParse(response.data);
+  if (!user.success) {
+    console.log("user invalido", user);
+    errorResponse.data = response.data;
     return Response.json(errorResponse);
   }
 
@@ -46,7 +53,6 @@ export async function action({ request }: Route.ActionArgs) {
 export default function LoginRoute() {
   const { userInfo } = useLoaderData<typeof loader>() ?? {};
   const actionResponse = useActionData() as ApiResponse<any>;
-
   return (
     <>
       <LoginPage actionResponse={actionResponse} />

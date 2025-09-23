@@ -264,6 +264,10 @@ export const ComoConheceu: Record<ComoConheceuKeys, string> = {
 // });
 type AvailableMarketPlace = "ml" | "magalu" | "shopee";
 
+enum UsuarioRoles {
+  MASTER = "MASTER",
+  COLAB = "COLAB",
+}
 interface IContaMarketPlace {
   id: string;
   marketplace: AvailableMarketPlace;
@@ -287,9 +291,9 @@ export type UserType = "master" | "colaborador" | "beergam_master";
 
 export interface IBaseUsuario {
   name: string;
-  user_type: UserType;
-  conta_marketplace?: IContaMarketPlace;
-  allowed_views: MenuState;
+  user_type: UsuarioRoles;
+  conta_marketplace?: IContaMarketPlace | null;
+  allowed_views?: MenuState;
 }
 
 export interface IUsuario extends IBaseUsuario {
@@ -298,9 +302,9 @@ export interface IUsuario extends IBaseUsuario {
   cnpj?: string | null;
   whatsapp: string;
   personal_reference_code?: string;
-  referal_code?: string;
-  faturamento: FaixaFaturamentoKeys;
-  conheceu_beergam: ComoConheceuKeys;
+  referal_code?: string | null;
+  faturamento?: FaixaFaturamentoKeys | null;
+  conheceu_beergam?: ComoConheceuKeys | null;
 }
 
 const BaseUserSchema = z.object({
@@ -308,9 +312,11 @@ const BaseUserSchema = z.object({
     .string()
     .min(3, "Nome precisa ter 3 caracteres")
     .max(30, "Nome não pode ter mais de 30 caracteres"),
-  user_type: z.enum(["master", "colaborador", "beergam_master"]),
-  conta_marketplace: ContaMarketplaceSchema,
-  allowed_views: AllowedViewsSchema,
+  user_type: z.enum(
+    Object.keys(UsuarioRoles) as [UsuarioRoles, ...UsuarioRoles[]]
+  ),
+  conta_marketplace: ContaMarketplaceSchema.nullable().nullish().optional(),
+  allowed_views: AllowedViewsSchema.optional(),
 }) satisfies z.ZodType<IBaseUsuario>;
 
 const NewUser: IBaseUsuario = {
@@ -320,7 +326,7 @@ const NewUser: IBaseUsuario = {
     atendimento: { active: true },
     anuncios: { active: true },
   },
-  user_type: "master",
+  user_type: UsuarioRoles.MASTER,
   conta_marketplace: {
     id: "1",
     marketplace: "ml",
@@ -336,14 +342,20 @@ export const UserSchema = BaseUserSchema.extend({
   cnpj: z.string().min(14).max(14).optional(),
   whatsapp: TelefoneSchema,
   personal_reference_code: z.string().min(11).max(11).optional(),
-  referal_code: z.string().min(11).max(11).optional().optional(),
-  faturamento: z.enum(
-    Object.keys(FaixaFaturamento) as [
-      FaixaFaturamentoKeys,
-      ...FaixaFaturamentoKeys[],
-    ]
-  ),
-  conheceu_beergam: z.enum(
-    Object.keys(ComoConheceu) as [ComoConheceuKeys, ...ComoConheceuKeys[]]
-  ),
+  referal_code: z.string().min(11).max(11).optional().nullable(),
+  faturamento: z
+    .enum(
+      Object.keys(FaixaFaturamento) as [
+        FaixaFaturamentoKeys,
+        ...FaixaFaturamentoKeys[],
+      ]
+    )
+    .optional()
+    .nullable(),
+  conheceu_beergam: z
+    .enum(
+      Object.keys(ComoConheceu) as [ComoConheceuKeys, ...ComoConheceuKeys[]]
+    )
+    .optional()
+    .nullable(),
 }) satisfies z.ZodType<IUsuario>;
