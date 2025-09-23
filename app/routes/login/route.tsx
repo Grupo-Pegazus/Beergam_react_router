@@ -42,6 +42,7 @@ export async function action({ request }: Route.ActionArgs) {
     errorResponse.data = response.data;
     return Response.json(errorResponse);
   }
+  session.set("userInfo", user.data);
 
   return redirect("/interno", {
     headers: {
