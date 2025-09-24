@@ -6,10 +6,9 @@ import { useLoaderData } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
 import { login as loginAction } from "./features/auth/redux";
-import { getSession } from "./sessions";
+import type { IUsuario } from "./features/user/typings";
 import store from "./store";
 import "./zod";
-
 export const links: Route.LinksFunction = () => [
   {
     rel: "stylesheet",
@@ -17,10 +16,21 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
-  const userInfo = session.get("userInfo") ?? null;
-  return { userInfo };
+// export async function loader({ request }: Route.LoaderArgs) {
+//   const session = await getSession(request.headers.get("Cookie"));
+//   const userInfo = session.get("userInfo") ?? null;
+//   return { userInfo };
+// }
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+  if (localStorage.getItem("userInfo")) {
+    return {
+      userInfo: JSON.parse(
+        localStorage.getItem("userInfo") as string
+      ) as IUsuario,
+    };
+  }
+  return { userInfo: null };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -42,7 +52,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 function BootstrapAuth() {
-  const { userInfo } = useLoaderData<typeof loader>() ?? {};
+  const { userInfo } = useLoaderData<typeof clientLoader>() ?? {};
+  console.log("userInfo do bootstrap", userInfo);
   const dispatch = useDispatch();
   useEffect(() => {
     if (userInfo) {

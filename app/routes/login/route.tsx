@@ -1,4 +1,4 @@
-import { redirect, useActionData, useLoaderData } from "react-router";
+import { redirect, useActionData } from "react-router";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { authService } from "~/features/auth/service";
 import { UserSchema } from "~/features/user/typings";
@@ -8,8 +8,15 @@ import LoginPage from "./page";
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   const userInfo = session.get("userInfo") ?? null;
-  return { userInfo };
+  console.log("userInfo do route", userInfo, request);
+  return { userInfo: "jorge" };
 }
+
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+  console.log("clientLoader do route", request);
+  return { userInfo: "jorge" };
+}
+
 interface UserData {
   id: string;
   email: string;
@@ -23,8 +30,6 @@ const errorResponse = {
   error_code: 500,
   error_fields: {},
 };
-
-
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();
   const email = formData.get("email");
@@ -53,7 +58,6 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     },
   });
 }
-
 export default function LoginRoute() {
   // const { userInfo } = useLoaderData<typeof loader>() ?? {};
   const actionResponse = useActionData() as ApiResponse<any>;
