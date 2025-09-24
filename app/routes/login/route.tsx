@@ -2,15 +2,16 @@ import { redirect, useActionData } from "react-router";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { authService } from "~/features/auth/service";
 import { UserSchema, type IUsuario } from "~/features/user/typings";
-import { commitSession, getSession } from "~/sessions";
+// import { commitSession, getSession } from "~/sessions";
+import { userCrypto } from "~/features/auth/utils";
 import type { Route } from "./+types/route";
 import LoginPage from "./page";
-export async function loader({ request }: Route.LoaderArgs) {
-  const session = await getSession(request.headers.get("Cookie"));
-  const userInfo = session.get("userInfo") ?? null;
-  console.log("userInfo do route", userInfo, request);
-  return { userInfo: "jorge" };
-}
+// export async function loader({ request }: Route.LoaderArgs) {
+//   const session = await getSession(request.headers.get("Cookie"));
+//   const userInfo = session.get("userInfo") ?? null;
+//   console.log("userInfo do route", userInfo, request);
+//   return { userInfo: "jorge" };
+// }
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   console.log("clientLoader do route", request);
@@ -42,20 +43,21 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   }
   console.log("response do route", response);
   console.log("request do route", request);
-  localStorage.setItem("userInfo", JSON.stringify(response.data));
-  const session = await getSession();
+
+  // const session = await getSession();
   const user = UserSchema.safeParse(response.data);
   if (!user.success) {
     console.log("user invalido", user);
     errorResponse.data = response.data;
     return Response.json(errorResponse);
   }
-  session.set("userInfo", user.data);
+  await userCrypto.encriptarDadosUsuario(user.data);
+  // session.set("userInfo", user.data);
 
   return redirect("/interno", {
-    headers: {
-      "Set-Cookie": await commitSession(session),
-    },
+    // headers: {
+    //   "Set-Cookie": await commitSession(session),
+    // },
   });
 }
 export default function LoginRoute() {

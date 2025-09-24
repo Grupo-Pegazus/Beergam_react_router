@@ -6,7 +6,7 @@ import { useLoaderData } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
 import { login as loginAction } from "./features/auth/redux";
-import type { IUsuario } from "./features/user/typings";
+import { userCrypto } from "./features/auth/utils";
 import store from "./store";
 import "./zod";
 export const links: Route.LinksFunction = () => [
@@ -23,14 +23,7 @@ export const links: Route.LinksFunction = () => [
 // }
 
 export async function clientLoader() {
-  if (localStorage.getItem("userInfo")) {
-    return {
-      userInfo: JSON.parse(
-        localStorage.getItem("userInfo") as string
-      ) as IUsuario,
-    };
-  }
-  return { userInfo: null };
+  return { userInfo: await userCrypto.recuperarDadosUsuario() };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
