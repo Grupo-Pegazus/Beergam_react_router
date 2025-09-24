@@ -110,7 +110,7 @@ export default function FormModal() {
           />
         </Fields.wrapper>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className={`fieldsContainer`}>
         <Fields.wrapper>
           <Fields.label text="NOME COMPLETO / RAZÃO SOCIAL"></Fields.label>
           <Fields.input
@@ -139,7 +139,7 @@ export default function FormModal() {
             onChange={(e) =>
               setCurrentDocument(e.target.value as UserDocuments)
             }
-            style={{ width: "100px", position: "absolute", top: "-30%" }}
+            tailWindClasses="!w-[100px] static lg:top-[-30%] lg:absolute"
           ></Fields.select>
           <Fields.label
             text="DOCUMENTO"
@@ -162,7 +162,7 @@ export default function FormModal() {
           ></Fields.input>
         </Fields.wrapper>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className={`fieldsContainer`}>
         <Fields.wrapper>
           <Fields.label text="DIGITE SUA SENHA" />
           <Fields.input
@@ -199,7 +199,7 @@ export default function FormModal() {
           ></Fields.input>
         </Fields.wrapper>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className={`fieldsContainer`}>
         <Fields.wrapper>
           <Fields.label text="CÓDIGO DE INDICAÇÃO" />
           <Fields.input
@@ -231,7 +231,7 @@ export default function FormModal() {
           ></Fields.input>
         </Fields.wrapper>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className={`fieldsContainer`}>
         <Fields.wrapper>
           <Fields.label text="COMO CONHECEU A BEERGAM" />
           <Fields.select
@@ -282,7 +282,7 @@ export default function FormModal() {
           Não pedimos cartão de crédito.
         </p>
       )}
-      <p className="text-beergam-gray font-medium">
+      <p className="text-beergam-gray text-center font-medium lg:text-left">
         Ao começar o teste gratuito, declaro que li e aceito os{" "}
         <Link
           to={"/termos-de-uso"}

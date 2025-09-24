@@ -53,7 +53,7 @@ h2 {
 p,
 label,
 a {
-  @apply text-[14px] xl:text-[12px] 2xl:text-[14px];
+  @apply text-[14px] lg:text-[12px] 2xl:text-[14px];
 }
 
 button {
@@ -66,4 +66,8 @@ button {
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
   display: none;
+}
+
+.fieldsContainer {
+  @apply grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-4;
 }

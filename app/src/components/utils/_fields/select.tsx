@@ -19,6 +19,7 @@ interface SelectProps {
   name?: string;
   children?: React.ReactNode;
   disabled?: boolean;
+  tailWindClasses?: string;
 }
 
 function Select({
@@ -33,6 +34,7 @@ function Select({
   textColor,
   children,
   disabled,
+  tailWindClasses,
 }: SelectProps) {
   const isValid = required && value && !error;
 
@@ -46,7 +48,7 @@ function Select({
 
   return (
     <div
-      className={`${wrapperBase} ${wrapperState}`}
+      className={`${wrapperBase} ${wrapperState} ${tailWindClasses}`}
       style={{
         ...style,
         backgroundColor: backgroundColor ? backgroundColor : undefined,

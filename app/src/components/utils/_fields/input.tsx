@@ -80,7 +80,7 @@ export default function Input({
         )}
       </div>
       <p
-        className={`text-xs text-red-500 h-2.5 mt-1 ${error?.error ? "opacity-100" : "opacity-0"}`}
+        className={`text-xs text-red-500 min-h-5 mt-1 lg:min-h-2.5 ${error?.error ? "opacity-100" : "opacity-0"}`}
       >
         {error?.message || ""}
       </p>
