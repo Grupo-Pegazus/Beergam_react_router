@@ -82,7 +82,7 @@ export default function FormModal() {
     return true;
   }
   return (
-    <div className="h-full shadow-lg/55 bg-beergam-white p-8 rounded-xl gap-4 flex flex-col">
+    <div className="h-full shadow-lg/55 bg-beergam-white p-8 rounded-tl-none rounded-tr-none rounded-xl gap-4 flex flex-col lg:rounded-tl-2xl lg:rounded-br-none">
       <h1 className="text-beergam-blue-primary">Cadastre-se</h1>
       <div>
         <Fields.wrapper>

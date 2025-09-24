@@ -167,8 +167,8 @@ export default function PageLayout({
   );
   return (
     <>
-      <div className="flex  h-screen bg-beergam-orange">
-        <data className="absolute top-2 left-2 w-30 h-30">
+      <div className="flex lg:h-screen bg-beergam-orange">
+        <data className="absolute top-2 left-2 w-30 h-30 z-10">
           <img
             src={beergam_flower_logo}
             alt="beergam_flower_logo"
