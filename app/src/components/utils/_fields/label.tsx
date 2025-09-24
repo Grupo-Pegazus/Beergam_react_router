@@ -19,7 +19,7 @@ function Label({
     <div className={`flex items-start gap-4`}>
       <label
         className={`font-medium text-sm text-beergam-gray ${tailWindClasses || ""} sm:text-base`}
-        style={styleLabel}
+        style={{ ...styleLabel, textTransform: "inherit" }}
       >
         {text}
         {required && <span className="text-red-500 ml-1">*</span>}

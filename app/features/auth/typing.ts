@@ -10,13 +10,11 @@ export interface ColaboradorUserForm {
   pin: string;
   password: string;
 }
-const UserPinSchema = z
-  .string()
-  .refine((pin) => pin.length === 8, {
-    message: "Pin deve ter exatamente 8 caracteres.",
-  });
+const UserPinSchema = z.string().refine((pin) => pin.length === 8, {
+  message: "Pin deve ter exatamente 8 caracteres.",
+});
 const UserEmailSchema = z.email("E-mail inválido.");
-const UserPasswordSchema = z
+export const UserPasswordSchema = z
   .string()
   .regex(/[A-Z]/, "A senha deve conter pelo menos uma letra maiúscula.")
   .regex(/[a-z]/, "A senha deve conter pelo menos uma letra minúscula.")

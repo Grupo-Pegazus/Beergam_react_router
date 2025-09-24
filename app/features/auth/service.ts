@@ -1,4 +1,4 @@
-import { typedApiClient } from "../apiClient/typedClient";
+import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
 
 // Tipagem para os dados de usuário retornados pelo login
@@ -17,10 +17,11 @@ class AuthService {
       });
       return response;
     } catch (error) {
+      console.error("error do login", error);
       return {
         success: false,
         data: {} as UserData,
-        message: "Erro",
+        message: "Erro ao fazer login. Tente novamente em alguns instantes.",
         error_code: 500,
         error_fields: {},
       };

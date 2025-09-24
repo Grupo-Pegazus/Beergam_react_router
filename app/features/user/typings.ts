@@ -1,28 +1,6 @@
 import { z } from "zod";
+import { TelefoneSchema } from "~/utils/typings/Telefone";
 import { MenuConfig, type MenuKeys, type MenuState } from "../menu/typings";
-
-z.config({
-  customError: (iss) => {
-    switch (iss.code) {
-      case "invalid_type":
-        return `O Campo ${iss.path?.join(".")} está inválido, esperado ${iss.expected}`;
-      case "invalid_value":
-        return `O Campo ${iss.path?.join(".")} está inválido, esperado: ${iss.values.join(", ")}`;
-      case "too_small":
-        return iss.minimum !== undefined
-          ? `O Campo ${iss.path?.join(".")} precisa ser maior que ${iss.minimum} caracteres`
-          : "valor muito pequeno";
-      case "too_big":
-        return iss.maximum !== undefined
-          ? `O Campo ${iss.path?.join(".")} precisa ser menor que ${iss.maximum} caracteres`
-          : "valor muito grande";
-      case "invalid_format":
-        return `O Campo ${iss.path?.join(".")} está inválido, valor informado ${iss.format}`;
-      default:
-        return "entrada inválida";
-    }
-  },
-});
 
 export type FaixaFaturamentoKeys =
   | "ATE_10_MIL"
@@ -286,6 +264,10 @@ export const ComoConheceu: Record<ComoConheceuKeys, string> = {
 // });
 type AvailableMarketPlace = "ml" | "magalu" | "shopee";
 
+enum UsuarioRoles {
+  MASTER = "MASTER",
+  COLAB = "COLAB",
+}
 interface IContaMarketPlace {
   id: string;
   marketplace: AvailableMarketPlace;
@@ -309,46 +291,32 @@ export type UserType = "master" | "colaborador" | "beergam_master";
 
 export interface IBaseUsuario {
   name: string;
-  user_type: UserType;
-  conta_marketplace?: IContaMarketPlace;
-  allowed_views: MenuState;
+  user_type: UsuarioRoles;
+  conta_marketplace?: IContaMarketPlace | null;
+  allowed_views?: MenuState;
 }
 
 export interface IUsuario extends IBaseUsuario {
   email: string;
-  cpf: string | null;
-  cnpj: string | null;
+  cpf?: string | null;
+  cnpj?: string | null;
   whatsapp: string;
-  referred_code: string;
-  referal_code: string;
-  faturamento: FaixaFaturamentoKeys;
-  conheceu_beergam: ComoConheceuKeys;
+  personal_reference_code?: string;
+  referal_code?: string | null;
+  faturamento?: FaixaFaturamentoKeys | null;
+  conheceu_beergam?: ComoConheceuKeys | null;
 }
 
-// const UserPasswordSchema = z
-//   .string()
-//   .min(8)
-//   .max(30)
-//   .refine((senha: string) => {
-//     if (!/[A-Z]/.test(senha)) {
-//       return { message: "A senha deve ter pelo menos uma letra maiúscula" };
-//     }
-//     if (!/[a-z]/.test(senha)) {
-//       return { message: "A senha deve ter pelo menos uma letra minúscula" };
-//     }
-//     if (!/\d/.test(senha)) {
-//       return { message: "A senha deve ter pelo menos um número" };
-//     }
-//     if (!/[!@#$%^&*]/.test(senha)) {
-//       return { message: "A senha deve ter pelo menos um caractere especial" };
-//     }
-//   });
-
 const BaseUserSchema = z.object({
-  name: z.string().min(3).max(30),
-  user_type: z.enum(["master", "colaborador", "beergam_master"]),
-  conta_marketplace: ContaMarketplaceSchema,
-  allowed_views: AllowedViewsSchema,
+  name: z
+    .string()
+    .min(3, "Nome precisa ter 3 caracteres")
+    .max(30, "Nome não pode ter mais de 30 caracteres"),
+  user_type: z.enum(
+    Object.keys(UsuarioRoles) as [UsuarioRoles, ...UsuarioRoles[]]
+  ),
+  conta_marketplace: ContaMarketplaceSchema.nullable().nullish().optional(),
+  allowed_views: AllowedViewsSchema.optional(),
 }) satisfies z.ZodType<IBaseUsuario>;
 
 const NewUser: IBaseUsuario = {
@@ -358,7 +326,7 @@ const NewUser: IBaseUsuario = {
     atendimento: { active: true },
     anuncios: { active: true },
   },
-  user_type: "master",
+  user_type: UsuarioRoles.MASTER,
   conta_marketplace: {
     id: "1",
     marketplace: "ml",
@@ -368,3 +336,26 @@ const NewUser: IBaseUsuario = {
 };
 
 export const UsuarioTeste = BaseUserSchema.parse(NewUser);
+export const UserSchema = BaseUserSchema.extend({
+  email: z.email("Email inválido"),
+  cpf: z.string().min(11).max(11).optional(),
+  cnpj: z.string().min(14).max(14).optional(),
+  whatsapp: TelefoneSchema,
+  personal_reference_code: z.string().min(11).max(11).optional(),
+  referal_code: z.string().min(11).max(11).optional().nullable(),
+  faturamento: z
+    .enum(
+      Object.keys(FaixaFaturamento) as [
+        FaixaFaturamentoKeys,
+        ...FaixaFaturamentoKeys[],
+      ]
+    )
+    .optional()
+    .nullable(),
+  conheceu_beergam: z
+    .enum(
+      Object.keys(ComoConheceu) as [ComoConheceuKeys, ...ComoConheceuKeys[]]
+    )
+    .optional()
+    .nullable(),
+}) satisfies z.ZodType<IUsuario>;

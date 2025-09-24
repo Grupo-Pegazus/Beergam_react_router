@@ -1,4 +1,4 @@
-import { typedApiClient } from "../apiClient/typedClient";
+import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
 import type { AnuncioBase } from "./typings";
 
