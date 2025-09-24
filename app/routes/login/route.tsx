@@ -24,7 +24,8 @@ const errorResponse = {
   error_fields: {},
 };
 
-export async function action({ request }: Route.ActionArgs) {
+
+export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
@@ -35,6 +36,8 @@ export async function action({ request }: Route.ActionArgs) {
     return Response.json(response);
   }
   console.log("response do route", response);
+  console.log("request do route", request);
+  localStorage.setItem("userInfo", JSON.stringify(response.data));
   const session = await getSession();
   const user = UserSchema.safeParse(response.data);
   if (!user.success) {
@@ -52,7 +55,7 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export default function LoginRoute() {
-  const { userInfo } = useLoaderData<typeof loader>() ?? {};
+  // const { userInfo } = useLoaderData<typeof loader>() ?? {};
   const actionResponse = useActionData() as ApiResponse<any>;
   return (
     <>
