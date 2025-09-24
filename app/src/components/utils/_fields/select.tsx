@@ -27,7 +27,6 @@ function Select({
   value,
   required,
   style,
-  icon,
   onChange,
   backgroundColor,
   name,
@@ -53,7 +52,7 @@ function Select({
         backgroundColor: backgroundColor ? backgroundColor : undefined,
       }}
     >
-      {/* <GrupoCampos.icon icon={icon} /> */}
+      {/* {icon && <GrupoCampos.icon icon={icon} />} */}
       <select
         className={[
           // base

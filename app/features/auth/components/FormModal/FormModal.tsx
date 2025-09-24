@@ -2,6 +2,7 @@ import { useEffect, useReducer, useState } from "react";
 import { Form, Link } from "react-router";
 import { z } from "zod";
 import type { ApiResponse } from "~/features/apiClient/typings";
+import type { IUsuario } from "~/features/user/typings";
 import { Fields } from "~/src/components/utils/_fields";
 import beergam_flower_logo from "~/src/img/beergam_flower_logo.webp";
 import {
@@ -16,7 +17,7 @@ type TUserType = "master" | "colaborador";
 
 interface FormModalProps {
   userType?: TUserType;
-  actionResponse?: ApiResponse<any>;
+  actionResponse?: ApiResponse<IUsuario | null>;
 }
 
 function FormHelpNavigation() {
@@ -73,7 +74,7 @@ export default function FormModal({
     { master_pin: "", pin: "", password: "" } as ColaboradorUserForm
   );
   const [stateActionError, setStateActionError] =
-    useState<ApiResponse<any> | null>(actionResponse || null);
+    useState<ApiResponse<IUsuario | null> | null>(actionResponse || null);
   const parseMasterUserResult = MasterUserFormSchema.safeParse(MasterUserInfo);
   const masterFieldErrors = parseMasterUserResult.success
     ? {

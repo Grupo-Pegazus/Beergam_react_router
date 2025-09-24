@@ -17,6 +17,7 @@ class AuthService {
       });
       return response;
     } catch (error) {
+      console.error("error do login", error);
       return {
         success: false,
         data: {} as UserData,

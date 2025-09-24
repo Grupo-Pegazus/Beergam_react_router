@@ -1,12 +1,7 @@
-import type { ApiResponse } from "~/features/apiClient/typings";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import FormModal from "./components/FormModal";
 
-export default function RegistroPage({
-  actionResponse,
-}: {
-  actionResponse: ApiResponse<any>;
-}) {
+export default function RegistroPage() {
   return (
     <PageLayout pageType="registro">
       <div className="w-full flex flex-col justify-between h-lvh sm:flex-row-reverse">

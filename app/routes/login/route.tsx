@@ -1,7 +1,7 @@
 import { redirect, useActionData } from "react-router";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { authService } from "~/features/auth/service";
-import { UserSchema } from "~/features/user/typings";
+import { UserSchema, type IUsuario } from "~/features/user/typings";
 import { commitSession, getSession } from "~/sessions";
 import type { Route } from "./+types/route";
 import LoginPage from "./page";
@@ -60,7 +60,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 }
 export default function LoginRoute() {
   // const { userInfo } = useLoaderData<typeof loader>() ?? {};
-  const actionResponse = useActionData() as ApiResponse<any>;
+  const actionResponse = useActionData() as ApiResponse<IUsuario | null>;
   return (
     <>
       <LoginPage actionResponse={actionResponse} />

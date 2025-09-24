@@ -22,7 +22,7 @@ export const links: Route.LinksFunction = () => [
 //   return { userInfo };
 // }
 
-export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+export async function clientLoader() {
   if (localStorage.getItem("userInfo")) {
     return {
       userInfo: JSON.parse(

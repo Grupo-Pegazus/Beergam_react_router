@@ -1,4 +1,5 @@
 import axios, {
+  AxiosError,
   type AxiosInstance,
   type AxiosRequestConfig,
   type AxiosResponse,
@@ -27,15 +28,15 @@ export class TypedApiClient {
         config
       );
       return response.data;
-    } catch (error: any) {
-      return this.handleError(error);
+    } catch (error: unknown) {
+      return this.handleError(error as AxiosError<ApiResponse<T>>);
     }
   }
 
   // Método POST tipado
   async post<T>(
     url: string,
-    data?: any,
+    data?: unknown,
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
     try {
@@ -45,15 +46,15 @@ export class TypedApiClient {
         config
       );
       return response.data;
-    } catch (error: any) {
-      return this.handleError(error);
+    } catch (error: unknown) {
+      return this.handleError(error as AxiosError<ApiResponse<T>>);
     }
   }
 
   // Método PUT tipado
   async put<T>(
     url: string,
-    data?: any,
+    data?: unknown,
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
     try {
@@ -63,8 +64,8 @@ export class TypedApiClient {
         config
       );
       return response.data;
-    } catch (error: any) {
-      return this.handleError(error);
+    } catch (error: unknown) {
+      return this.handleError(error as AxiosError<ApiResponse<T>>);
     }
   }
 
@@ -79,15 +80,15 @@ export class TypedApiClient {
         config
       );
       return response.data;
-    } catch (error: any) {
-      return this.handleError(error);
+    } catch (error: unknown) {
+      return this.handleError(error as AxiosError<ApiResponse<T>>);
     }
   }
 
   // Método PATCH tipado
   async patch<T>(
     url: string,
-    data?: any,
+    data?: unknown,
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
     try {
@@ -97,13 +98,16 @@ export class TypedApiClient {
         config
       );
       return response.data;
-    } catch (error: any) {
-      return this.handleError(error);
+    } catch (error: unknown) {
+      return this.handleError(error as AxiosError<ApiResponse<T>>);
     }
   }
 
   // Tratamento de erro padronizado
-  private handleError(error: any): ApiResponse<any> {
+  private handleError<T>(
+    error: AxiosError<ApiResponse<unknown>>
+  ): ApiResponse<T> {
+    console.log("error do handleError", error);
     console.error("Detalhes do erro:", {
       message: error.message,
       status: error?.response?.status,
@@ -118,7 +122,7 @@ export class TypedApiClient {
 
       return {
         success: false,
-        data: null,
+        data: {} as T,
         message,
         error_code: errorCode,
         error_fields: errorFields,
@@ -127,7 +131,7 @@ export class TypedApiClient {
     if (error.request) {
       return {
         success: false,
-        data: null,
+        data: {} as T,
         message: "Servidor não respondeu. Tente novamente em alguns instantes.",
         error_code: 503,
         error_fields: {},
@@ -135,7 +139,7 @@ export class TypedApiClient {
     }
     return {
       success: false,
-      data: null,
+      data: {} as T,
       message: "Erro inesperado. Tente novamente em alguns instantes.",
       error_code: 500,
       error_fields: {},
