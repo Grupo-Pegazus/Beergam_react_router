@@ -27,18 +27,8 @@ export default function FormModal() {
       return { ...state, ...action };
     },
     {
-      // name: "",
-      // user_type: "master",
-      // allowed_views: { inicio: { active: true } },
-      // email: "",
-      // cpf: undefined,
-      // cnpj: undefined,
-      // whatsapp: "",
-      // referal_code: "",
-      // profit_range: "" as Faixaprofit_rangeKeys,
-      // found_beergam: "" as ComoConheceuKeys,
       name: "",
-      user_type: UsuarioRoles.MASTER,
+      role: UsuarioRoles.MASTER,
       email: "",
       cpf: undefined,
       cnpj: undefined,
@@ -51,13 +41,12 @@ export default function FormModal() {
       conta_marketplace: undefined,
     } as IUsuario
   );
-
   const parseUserResult = UserSchema.safeParse(UserInfo);
   const UserFieldErrors = parseUserResult.success
     ? {
         properties: {
           name: { errors: [""] },
-          user_type: { errors: [""] },
+          role: { errors: [""] },
           allowed_views: { errors: [""] },
           email: { errors: [""] },
           cpf: { errors: [""] },
@@ -112,6 +101,23 @@ export default function FormModal() {
       className="h-full shadow-lg/55 bg-beergam-white p-8 rounded-tl-none rounded-tr-none rounded-xl gap-4 flex flex-col lg:rounded-tl-2xl lg:rounded-br-none"
     >
       <h1 className="text-beergam-blue-primary">Cadastre-se</h1>
+      <button
+        onClick={() => {
+          UserInfo.email = "teste@teste.com";
+          UserInfo.name = "Teste";
+          UserInfo.cpf = "52556894830";
+          UserInfo.cnpj = "12345678901234";
+          UserInfo.phone = "12345678901";
+          UserInfo.found_beergam = "ANUNCIO_FACEBOOK" as ComoConheceuKeys;
+          UserInfo.profit_range = "ATE_10_MIL" as Faixaprofit_rangeKeys;
+          UserInfo.personal_reference_code = "12345678901";
+          UserInfo.referal_code = "12345678901";
+          setPassword("1Ab!");
+          setConfirmPassword("1Ab!");
+        }}
+      >
+        AutoComplete
+      </button>
       <div>
         <Fields.wrapper>
           <Fields.label

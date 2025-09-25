@@ -88,7 +88,7 @@ export type UserType = "master" | "colaborador" | "beergam_master";
 
 export interface IBaseUsuario {
   name: string;
-  user_type: UsuarioRoles;
+  role: UsuarioRoles;
   conta_marketplace?: IContaMarketPlace | null;
   allowed_views?: MenuState;
 }
@@ -109,9 +109,7 @@ const BaseUserSchema = z.object({
     .string()
     .min(3, "Nome precisa ter 3 caracteres")
     .max(30, "Nome não pode ter mais de 30 caracteres"),
-  user_type: z.enum(
-    Object.keys(UsuarioRoles) as [UsuarioRoles, ...UsuarioRoles[]]
-  ),
+  role: z.enum(Object.keys(UsuarioRoles) as [UsuarioRoles, ...UsuarioRoles[]]),
   conta_marketplace: ContaMarketplaceSchema.nullable().nullish().optional(),
   allowed_views: AllowedViewsSchema.optional(),
 }) satisfies z.ZodType<IBaseUsuario>;
@@ -123,7 +121,7 @@ const NewUser: IBaseUsuario = {
     atendimento: { active: true },
     anuncios: { active: true },
   },
-  user_type: UsuarioRoles.MASTER,
+  role: UsuarioRoles.MASTER,
   conta_marketplace: {
     id: "1",
     marketplace: "ml",
@@ -132,14 +130,16 @@ const NewUser: IBaseUsuario = {
   },
 };
 
+const BeergamCodeSchema = z.string().min(10).max(10);
+
 export const UsuarioTeste = BaseUserSchema.parse(NewUser);
 export const UserSchema = BaseUserSchema.extend({
   email: z.email("Email inválido"),
   cpf: z.string().min(11).max(11).optional(),
   cnpj: z.string().min(14).max(14).optional(),
   phone: TelefoneSchema,
-  personal_reference_code: z.string().min(11).max(11).optional(),
-  referal_code: z.string().min(11).max(11).optional().nullable(),
+  personal_reference_code: BeergamCodeSchema.optional(),
+  referal_code: BeergamCodeSchema.optional().nullable(),
   profit_range: z
     .enum(
       Object.keys(Faixaprofit_range) as [

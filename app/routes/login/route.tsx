@@ -3,6 +3,7 @@ import type { ApiResponse } from "~/features/apiClient/typings";
 import { authService } from "~/features/auth/service";
 import { UserSchema, type IUsuario } from "~/features/user/typings";
 // import { commitSession, getSession } from "~/sessions";
+import { toast } from "react-hot-toast";
 import { userCrypto } from "~/features/auth/utils";
 import type { Route } from "./+types/route";
 import LoginPage from "./page";
@@ -40,6 +41,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   const response = await authService.login(email as string, password as string);
 
   if (!response.success) {
+    toast.error(response.message);
     return Response.json(response);
   }
   console.log("response do route", response);

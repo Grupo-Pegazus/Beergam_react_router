@@ -1,6 +1,8 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
 import { useEffect } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import { Toaster } from "react-hot-toast";
 import { Provider, useDispatch } from "react-redux";
 import { useLoaderData } from "react-router";
 import type { Route } from "./+types/root";
@@ -39,6 +41,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
+        <Toaster />
       </body>
     </html>
   );
@@ -60,10 +63,17 @@ export default function App() {
   return (
     <Provider store={store}>
       <BootstrapAuth />
+      <ErrorBoundary
+        fallback={<div>Error</div>}
+        onError={(error) => {
+          console.log("error capturado", error);
+        }}
+      >
+        <Outlet />
+      </ErrorBoundary>
       {/* <PersistWrapper>
         <Outlet />
       </PersistWrapper> */}
-      <Outlet />
     </Provider>
   );
 }

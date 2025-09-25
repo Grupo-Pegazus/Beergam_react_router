@@ -29,7 +29,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     profit_range: profit_range as string as Faixaprofit_rangeKeys,
     personal_reference_code: personal_reference_code as string,
     referal_code: referal_code as string,
-    user_type: UsuarioRoles.MASTER,
+    role: UsuarioRoles.MASTER,
   });
 }
 
