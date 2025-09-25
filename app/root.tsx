@@ -1,5 +1,6 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Toaster } from "react-hot-toast";
@@ -11,6 +12,7 @@ import { login as loginAction } from "./features/auth/redux";
 import { userCrypto } from "./features/auth/utils";
 import store from "./store";
 import "./zod";
+export const queryClient = new QueryClient();
 export const links: Route.LinksFunction = () => [
   {
     rel: "stylesheet",
@@ -69,7 +71,9 @@ export default function App() {
           console.log("error capturado", error);
         }}
       >
-        <Outlet />
+        <QueryClientProvider client={queryClient}>
+          <Outlet />
+        </QueryClientProvider>
       </ErrorBoundary>
       {/* <PersistWrapper>
         <Outlet />
