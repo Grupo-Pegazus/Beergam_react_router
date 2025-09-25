@@ -1,11 +1,16 @@
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
+import type { IUsuario } from "../user/typings";
 
 // Tipagem para os dados de usuário retornados pelo login
 interface UserData {
   id: string;
   email: string;
   name: string;
+}
+
+interface RegisterUser extends IUsuario {
+  password: string;
 }
 
 class AuthService {
@@ -27,7 +32,25 @@ class AuthService {
       };
     }
   }
-
+  async register(user: RegisterUser): Promise<ApiResponse<IUsuario>> {
+    try {
+      const response = await typedApiClient.post<IUsuario>(
+        "/v1/auth/register",
+        user
+      );
+      return response;
+    } catch (error) {
+      console.error("error do register", error);
+      return {
+        success: false,
+        data: {} as IUsuario,
+        message:
+          "Erro ao registrar usuário. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: {},
+      };
+    }
+  }
   async logout(): Promise<ApiResponse<null>> {
     return await typedApiClient.post<null>("/v1/auth/logout");
   }

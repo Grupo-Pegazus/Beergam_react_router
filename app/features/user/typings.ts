@@ -2,7 +2,7 @@ import { z } from "zod";
 import { TelefoneSchema } from "~/utils/typings/Telefone";
 import { MenuConfig, type MenuKeys, type MenuState } from "../menu/typings";
 
-export type FaixaFaturamentoKeys =
+export type Faixaprofit_rangeKeys =
   | "ATE_10_MIL"
   | "DE_10_A_30_MIL"
   | "DE_30_A_100_MIL"
@@ -11,7 +11,7 @@ export type FaixaFaturamentoKeys =
   | "DE_500_A_1_MIL"
   | "MAIS_DE_1_MI";
 
-export const FaixaFaturamento: Record<FaixaFaturamentoKeys, string> = {
+export const Faixaprofit_range: Record<Faixaprofit_rangeKeys, string> = {
   ATE_10_MIL: "Até 10.000 mil reais",
   DE_10_A_30_MIL: "De 10.000 á 30.000 mil reais",
   DE_30_A_100_MIL: "De 30.000 á 100.000 mil reais",
@@ -59,212 +59,9 @@ export const ComoConheceu: Record<ComoConheceuKeys, string> = {
   OUTROS: "Outros",
 };
 
-// class Usuario implements IUsuario {
-//   nome: string;
-//   user_type: "master";
-//   email: string;
-//   cpf: string | null;
-//   cnpj: string | null;
-//   whatsapp: string;
-//   referred_code: string;
-//   referal_code: string;
-//   faturamento: FaixaFaturamentoKeys;
-//   conheceu_beergam: ComoConheceuKeys;
-//   allowed_views: MenuState;
-//   conta_marketplace?: ContaML;
-//   constructor(usuario: IUsuario) {
-//     this.nome = usuario.nome;
-//     this.user_type = "master";
-//     this.email = usuario.email;
-//     this.cpf = usuario.cpf;
-//     this.cnpj = usuario.cnpj;
-//     this.whatsapp = usuario.whatsapp;
-//     this.referred_code = usuario.referred_code;
-//     this.referal_code = usuario.referal_code;
-//     this.faturamento = usuario.faturamento;
-//     this.conheceu_beergam = usuario.conheceu_beergam;
-//     this.allowed_views = usuario.allowed_views;
-//     this.conta_marketplace = new ContaML(
-//       usuario.conta_marketplace ?? { nome: "", image: "" }
-//     );
-//   }
-//   validarUsuario(
-//     usuario: IUsuario,
-//     final: boolean = false,
-//     documento: "cpf" | "cnpj" = "cpf"
-//   ) {
-//     const erros: string[] = [];
-//     const nome = this.validarNome(usuario.nome, final);
-//     const camposComErro = [];
-//     if (!nome.valid) {
-//       erros.push(nome.message as string);
-//       camposComErro.push("nome");
-//     }
-//     const email = this.validarEmail(usuario.email, final);
-//     if (!email.valid) {
-//       erros.push(email.message as string);
-//       camposComErro.push("email");
-//     }
-//     const cpf = new CPF(usuario.cpf ?? "").validarCPF(usuario.cpf ?? "", final);
-//     if (!cpf.valid && documento === "cpf") {
-//       erros.push(cpf.message as string);
-//       camposComErro.push("cpf");
-//     }
-//     if (!cnpj.valid && documento === "cnpj") {
-//       erros.push(cnpj.message as string);
-//       camposComErro.push("cnpj");
-//     }
-//     return {
-//       valid: erros.length === 0,
-//       message: erros.length === 0 ? "" : erros,
-//       camposComErro: camposComErro,
-//     };
-//   }
-//   validarNome(nome: string, final: boolean = false) {
-//     if (nome.length == 0 && !final) {
-//       return {
-//         valid: true,
-//         message: "",
-//       };
-//     }
-//     if (nome.length == 0 && final) {
-//       return {
-//         valid: false,
-//         message: "Nome é obrigatório",
-//       };
-//     }
-//     if (nome.length < 3) {
-//       return {
-//         valid: false,
-//         message: "Nome deve ter no mínimo 3 caracteres",
-//       };
-//     }
-//     if (nome.length > 20) {
-//       return {
-//         valid: false,
-//         message: "Nome deve ter no máximo 20 caracteres",
-//       };
-//     }
-//     return {
-//       valid: true,
-//       message: "",
-//     };
-//   }
-//   validarEmail(email: string, final: boolean = false) {
-//     if (email.length > 0 && !final) {
-//       return {
-//         valid: true,
-//         message: "",
-//       };
-//     }
-//     if (email.length == 0 && final) {
-//       return {
-//         valid: false,
-//         message: "Email é obrigatório",
-//       };
-//     }
-//     if (!email.includes("@")) {
-//       return {
-//         valid: false,
-//         message: "Email inválido",
-//       };
-//     }
-//     if (email.length < 3) {
-//       return {
-//         valid: false,
-//         message: "Email deve ter no mínimo 3 caracteres",
-//       };
-//     }
-//     if (email.length > 50) {
-//       return {
-//         valid: false,
-//         message: "Email deve ter no máximo 50 caracteres",
-//       };
-//     }
-//     return {
-//       valid: true,
-//       message: "",
-//     };
-//   }
-//   static validarSenha(senha: string, final: boolean = false) {
-//     if (senha.length > 0 && !final) {
-//       return {
-//         valid: true,
-//         message: "",
-//       };
-//     }
-
-//     if (!senha) {
-//       return {
-//         valid: false,
-//         message: "A senha não pode estar vazia.",
-//       };
-//     }
-
-//     if (senha.length < 8) {
-//       return {
-//         valid: false,
-//         message: "A senha deve ter pelo menos 8 caracteres.",
-//       };
-//     }
-
-//     if (!/[A-Z]/.test(senha)) {
-//       return {
-//         valid: false,
-//         message: "A senha deve conter pelo menos uma letra maiúscula.",
-//       };
-//     }
-
-//     if (!/[a-z]/.test(senha)) {
-//       return {
-//         valid: false,
-//         message: "A senha deve conter pelo menos uma letra minúscula.",
-//       };
-//     }
-
-//     if (!/\d/.test(senha)) {
-//       return {
-//         valid: false,
-//         message: "A senha deve conter pelo menos um número.",
-//       };
-//     }
-
-//     if (!/[!@#$%^&*]/.test(senha)) {
-//       return {
-//         valid: false,
-//         message: "A senha deve conter pelo menos um caractere especial",
-//       };
-//     }
-
-//     return {
-//       valid: true,
-//       message: "Senha válida",
-//     };
-//   }
-// }
-
-// const ContaMlTeste = new ContaML({
-//   nome: "Conta ML Teste",
-//   image: "https://mla-s2-p.mlstatic.com/869034-MLA80043982303_102024-O.jpg",
-// });
-
-// export const UsuarioTeste = new Usuario({
-//   nome: "Jorge",
-//   cnpj: "12345678901234",
-//   cpf: "12345678901",
-//   email: "jorge@gmail.com",
-//   whatsapp: "12345678901",
-//   referred_code: "12345678901",
-//   referal_code: "12345678901",
-//   faturamento: "ATE_10_MIL",
-//   conheceu_beergam: "ANUNCIO_FACEBOOK",
-//   allowed_views: { ...getDefaultViews(), inicio: { active: true } },
-//   user_type: "master",
-//   conta_marketplace: ContaMlTeste,
-// });
 type AvailableMarketPlace = "ml" | "magalu" | "shopee";
 
-enum UsuarioRoles {
+export enum UsuarioRoles {
   MASTER = "MASTER",
   COLAB = "COLAB",
 }
@@ -300,11 +97,11 @@ export interface IUsuario extends IBaseUsuario {
   email: string;
   cpf?: string | null;
   cnpj?: string | null;
-  whatsapp: string;
+  phone: string;
   personal_reference_code?: string;
   referal_code?: string | null;
-  faturamento?: FaixaFaturamentoKeys | null;
-  conheceu_beergam?: ComoConheceuKeys | null;
+  profit_range?: Faixaprofit_rangeKeys | null;
+  found_beergam?: ComoConheceuKeys | null;
 }
 
 const BaseUserSchema = z.object({
@@ -340,19 +137,19 @@ export const UserSchema = BaseUserSchema.extend({
   email: z.email("Email inválido"),
   cpf: z.string().min(11).max(11).optional(),
   cnpj: z.string().min(14).max(14).optional(),
-  whatsapp: TelefoneSchema,
+  phone: TelefoneSchema,
   personal_reference_code: z.string().min(11).max(11).optional(),
   referal_code: z.string().min(11).max(11).optional().nullable(),
-  faturamento: z
+  profit_range: z
     .enum(
-      Object.keys(FaixaFaturamento) as [
-        FaixaFaturamentoKeys,
-        ...FaixaFaturamentoKeys[],
+      Object.keys(Faixaprofit_range) as [
+        Faixaprofit_rangeKeys,
+        ...Faixaprofit_rangeKeys[],
       ]
     )
     .optional()
     .nullable(),
-  conheceu_beergam: z
+  found_beergam: z
     .enum(
       Object.keys(ComoConheceu) as [ComoConheceuKeys, ...ComoConheceuKeys[]]
     )

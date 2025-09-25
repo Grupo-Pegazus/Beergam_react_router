@@ -13,10 +13,10 @@ import LoginPage from "./page";
 //   return { userInfo: "jorge" };
 // }
 
-export async function clientLoader({ request }: Route.ClientLoaderArgs) {
-  console.log("clientLoader do route", request);
-  return { userInfo: "jorge" };
-}
+// export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+//   console.log("clientLoader do route", request);
+//   return { userInfo: "jorge" };
+// }
 
 interface UserData {
   id: string;
@@ -33,6 +33,7 @@ const errorResponse = {
 };
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();
+  console.log("formData do route", formData, request);
   const email = formData.get("email");
   const password = formData.get("password");
 

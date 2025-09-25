@@ -1,5 +1,5 @@
 import { loadAll } from "@tsparticles/all";
-import type { Container, ISourceOptions } from "@tsparticles/engine";
+import type { ISourceOptions } from "@tsparticles/engine";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { useEffect, useMemo, useState } from "react";
 import Svg from "~/src/assets/svgs";
@@ -45,9 +45,7 @@ export default function PageLayout({
       setInit(true);
     });
   }, []);
-  const particlesLoaded = async (container?: Container): Promise<void> => {
-    console.log(container);
-  };
+  const particlesLoaded = async (): Promise<void> => {};
   const options: ISourceOptions = useMemo(
     () => ({
       particles: {

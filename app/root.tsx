@@ -46,7 +46,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 function BootstrapAuth() {
   const { userInfo } = useLoaderData<typeof clientLoader>() ?? {};
-  console.log("userInfo do bootstrap", userInfo);
+  // console.log("userInfo do bootstrap", userInfo);
   const dispatch = useDispatch();
   useEffect(() => {
     if (userInfo) {
