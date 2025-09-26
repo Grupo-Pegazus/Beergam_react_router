@@ -3,7 +3,7 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { Toaster } from "react-hot-toast";
+import { ToastBar, Toaster } from "react-hot-toast";
 import { Provider, useDispatch } from "react-redux";
 import { useLoaderData } from "react-router";
 import type { Route } from "./+types/root";
@@ -43,7 +43,31 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
-        <Toaster />
+        <Toaster toastOptions={{ style: { maxWidth: "500px", width: "auto" } }}>
+          {(t) => (
+            <ToastBar toast={t}>
+              {({ icon, message }) => (
+                <>
+                  {icon}
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <div>{message}</div>
+                    {t.data?.additionalMessage && (
+                      <div
+                        style={{
+                          fontSize: "0.85em",
+                          opacity: 0.8,
+                          marginTop: "4px",
+                        }}
+                      >
+                        {t.data.additionalMessage}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </ToastBar>
+          )}
+        </Toaster>
       </body>
     </html>
   );

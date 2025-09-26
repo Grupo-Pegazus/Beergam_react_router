@@ -65,6 +65,11 @@ export enum UsuarioRoles {
   MASTER = "MASTER",
   COLAB = "COLAB",
 }
+export const UsuarioRolesKeys = Object.keys(UsuarioRoles) as [
+  UsuarioRoles,
+  ...UsuarioRoles[],
+];
+
 interface IContaMarketPlace {
   id: string;
   marketplace: AvailableMarketPlace;
@@ -83,8 +88,6 @@ const AllowedViewsSchema = z.record(
     active: z.boolean(),
   })
 );
-
-export type UserType = "master" | "colaborador" | "beergam_master";
 
 export interface IBaseUsuario {
   name: string;

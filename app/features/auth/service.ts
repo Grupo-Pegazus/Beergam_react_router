@@ -1,6 +1,6 @@
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
-import type { IUsuario } from "../user/typings";
+import { UsuarioRoles, type IUsuario } from "../user/typings";
 
 // Tipagem para os dados de usuário retornados pelo login
 interface UserData {
@@ -14,12 +14,20 @@ interface RegisterUser extends IUsuario {
 }
 
 class AuthService {
-  async login(email: string, password: string): Promise<ApiResponse<UserData>> {
+  async login(
+    email: string,
+    password: string,
+    type: UsuarioRoles
+  ): Promise<ApiResponse<UserData>> {
+    const role = type === UsuarioRoles.MASTER ? "master" : "colab";
     try {
-      const response = await typedApiClient.post<UserData>("/v1/auth/login", {
-        email,
-        password,
-      });
+      const response = await typedApiClient.post<UserData>(
+        `/v1/auth/${role}/login`,
+        {
+          email,
+          password,
+        }
+      );
       return response;
     } catch (error) {
       console.error("error do login", error);
