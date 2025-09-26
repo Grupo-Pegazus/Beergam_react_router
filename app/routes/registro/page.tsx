@@ -4,7 +4,7 @@ import FormModal from "./components/FormModal";
 export default function RegistroPage() {
   return (
     <PageLayout pageType="registro">
-      <div className="w-full flex flex-col justify-between h-lvh lg:flex-row-reverse">
+      <div className="w-full flex flex-col justify-between h-auto lg:flex-row-reverse lg:h-lvh">
         <div className="w-full lg:w-2/3">
           <FormModal />
         </div>
@@ -13,7 +13,7 @@ export default function RegistroPage() {
             <h2 className="!font-black">
               Gestão do seu E-Commerce grátis por 14 dias
             </h2>
-            <h3 className="font-medium w-2/3 mx-auto">
+            <h3 className="font-medium mx-auto lg:w-2/3">
               Controle todas as áreas do seu e-commerce em um só lugar e{" "}
               <span className="font-black">tome decisões com confiança</span>.
             </h3>

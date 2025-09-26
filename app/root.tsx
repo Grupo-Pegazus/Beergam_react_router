@@ -1,6 +1,9 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import { ToastBar, Toaster } from "react-hot-toast";
 import { Provider, useDispatch } from "react-redux";
 import { useLoaderData } from "react-router";
 import type { Route } from "./+types/root";
@@ -9,6 +12,7 @@ import { login as loginAction } from "./features/auth/redux";
 import { userCrypto } from "./features/auth/utils";
 import store from "./store";
 import "./zod";
+export const queryClient = new QueryClient();
 export const links: Route.LinksFunction = () => [
   {
     rel: "stylesheet",
@@ -39,6 +43,31 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
+        <Toaster toastOptions={{ style: { maxWidth: "500px", width: "auto" } }}>
+          {(t) => (
+            <ToastBar toast={t}>
+              {({ icon, message }) => (
+                <>
+                  {icon}
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <div>{message}</div>
+                    {t.data?.additionalMessage && (
+                      <div
+                        style={{
+                          fontSize: "0.85em",
+                          opacity: 0.8,
+                          marginTop: "4px",
+                        }}
+                      >
+                        {t.data.additionalMessage}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </ToastBar>
+          )}
+        </Toaster>
       </body>
     </html>
   );
@@ -46,7 +75,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 function BootstrapAuth() {
   const { userInfo } = useLoaderData<typeof clientLoader>() ?? {};
-  console.log("userInfo do bootstrap", userInfo);
+  // console.log("userInfo do bootstrap", userInfo);
   const dispatch = useDispatch();
   useEffect(() => {
     if (userInfo) {
@@ -60,10 +89,19 @@ export default function App() {
   return (
     <Provider store={store}>
       <BootstrapAuth />
+      <ErrorBoundary
+        fallback={<div>Error</div>}
+        onError={(error) => {
+          console.log("error capturado", error);
+        }}
+      >
+        <QueryClientProvider client={queryClient}>
+          <Outlet />
+        </QueryClientProvider>
+      </ErrorBoundary>
       {/* <PersistWrapper>
         <Outlet />
       </PersistWrapper> */}
-      <Outlet />
     </Provider>
   );
 }

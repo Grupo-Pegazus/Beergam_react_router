@@ -1,5 +1,5 @@
 import { loadAll } from "@tsparticles/all";
-import type { Container, ISourceOptions } from "@tsparticles/engine";
+import type { ISourceOptions } from "@tsparticles/engine";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { useEffect, useMemo, useState } from "react";
 import Svg from "~/src/assets/svgs";
@@ -45,9 +45,7 @@ export default function PageLayout({
       setInit(true);
     });
   }, []);
-  const particlesLoaded = async (container?: Container): Promise<void> => {
-    console.log(container);
-  };
+  const particlesLoaded = async (): Promise<void> => {};
   const options: ISourceOptions = useMemo(
     () => ({
       particles: {
@@ -167,8 +165,8 @@ export default function PageLayout({
   );
   return (
     <>
-      <div className="flex  h-screen bg-beergam-orange">
-        <data className="absolute top-2 left-2 w-30 h-30">
+      <div className="flex lg:h-screen bg-beergam-orange">
+        <data className="absolute top-2 left-2 w-30 h-30 z-10">
           <img
             src={beergam_flower_logo}
             alt="beergam_flower_logo"
