@@ -165,7 +165,7 @@ export default function PageLayout({
   );
   return (
     <>
-      <div className="flex lg:h-screen bg-beergam-orange">
+      <main className="flex min-h-full bg-beergam-orange">
         <data className="absolute top-2 left-2 w-30 h-30 z-10">
           <img
             src={beergam_flower_logo}
@@ -210,11 +210,11 @@ export default function PageLayout({
           </div>
         </div>
         <div
-          className={`w-full h-full z-50 ${pageType == "login" ? "flex items-center justify-center" : ""}`}
+          className={`w-full min-h-full z-50 ${pageType == "login" ? "flex items-center justify-center" : ""}`}
         >
           {children}
         </div>
-      </div>
+      </main>
       {init && (
         <Particles options={options} particlesLoaded={particlesLoaded} />
       )}

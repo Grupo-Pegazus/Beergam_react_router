@@ -75,3 +75,10 @@ input[type="password"]::-ms-clear {
 .fieldsContainer {
   @apply grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-4;
 }
+/* body {
+  @apply h-dvh;
+} */
+body,
+html {
+  height: 100%;
+}

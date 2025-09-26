@@ -98,10 +98,11 @@ export default function FormModal() {
         }
         setIsSubmited(false);
       }}
-      className="h-full shadow-lg/55 bg-beergam-white p-8 rounded-tl-none rounded-tr-none rounded-xl gap-4 flex flex-col lg:rounded-tl-2xl lg:rounded-br-none"
+      className="h-full overflow-y-auto shadow-lg/55 bg-beergam-white p-8 rounded-tl-none rounded-tr-none rounded-xl gap-4 flex flex-col lg:rounded-tl-2xl lg:rounded-br-none"
     >
       <h1 className="text-beergam-blue-primary">Cadastre-se</h1>
       <button
+        className="absolute right-2"
         onClick={() => {
           UserInfo.email = "teste@teste.com";
           UserInfo.name = "Teste";
@@ -120,10 +121,7 @@ export default function FormModal() {
       </button>
       <div>
         <Fields.wrapper>
-          <Fields.label
-            text="DIGITE SEU ENDEREÇO DE E-MAIL"
-            tailWindClasses="!text-beergam-gray-light capitalize"
-          />
+          <Fields.label text="DIGITE SEU ENDEREÇO DE E-MAIL" />
           <Fields.input
             type="text"
             name="email"
@@ -285,7 +283,7 @@ export default function FormModal() {
           ></Fields.select>
         </Fields.wrapper>
         <Fields.wrapper>
-          <Fields.label text="profit_range MENSAL" />
+          <Fields.label text="FATURAMENTO MENSAL" />
           <Fields.select
             value={UserInfo.profit_range ?? ""}
             options={Object.keys(Faixaprofit_range).map((key) => ({
