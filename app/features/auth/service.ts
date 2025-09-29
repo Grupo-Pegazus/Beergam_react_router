@@ -15,8 +15,9 @@ interface RegisterUser extends IUsuario {
 
 class AuthService {
   async login(
-    email: string,
-    password: string,
+    formInfo:
+      | { email: string; password: string }
+      | { master_pin: string; pin: string; password: string },
     type: UsuarioRoles
   ): Promise<ApiResponse<UserData>> {
     const role = type === UsuarioRoles.MASTER ? "master" : "colab";
@@ -24,8 +25,7 @@ class AuthService {
       const response = await typedApiClient.post<UserData>(
         `/v1/auth/${role}/login`,
         {
-          email,
-          password,
+          ...formInfo,
         }
       );
       return response;
@@ -43,7 +43,7 @@ class AuthService {
   async register(user: RegisterUser): Promise<ApiResponse<IUsuario>> {
     try {
       const response = await typedApiClient.post<IUsuario>(
-        "/v1/auth/register",
+        "/v1/auth/master/register",
         user
       );
       return response;

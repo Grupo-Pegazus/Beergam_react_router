@@ -1,6 +1,10 @@
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import FormModal from "./components/FormModal";
 
+// interface RegistroPageProps {
+//   actionData: ApiResponse | null;
+// }
+
 export default function RegistroPage() {
   return (
     <PageLayout pageType="registro">

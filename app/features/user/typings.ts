@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CPFSchema } from "~/utils/typings/CPF";
 import { TelefoneSchema } from "~/utils/typings/Telefone";
 import { MenuConfig, type MenuKeys, type MenuState } from "../menu/typings";
 
@@ -102,7 +103,7 @@ export interface IUsuario extends IBaseUsuario {
   cnpj?: string | null;
   phone: string;
   personal_reference_code?: string;
-  referal_code?: string | null;
+  referral_code?: string | null;
   profit_range?: Faixaprofit_rangeKeys | null;
   found_beergam?: ComoConheceuKeys | null;
 }
@@ -110,8 +111,15 @@ export interface IUsuario extends IBaseUsuario {
 const BaseUserSchema = z.object({
   name: z
     .string()
+    .regex(
+      /^[a-zA-Z0-9-\s]{3,20}$/,
+      "O nome deve ter entre 3 e 20 caracteres e conter apenas letras, números, espaços ou -."
+    )
+    .refine((value) => !/^\d+$/.test(value), {
+      message: "O nome não pode ser apenas números.",
+    })
     .min(3, "Nome precisa ter 3 caracteres")
-    .max(30, "Nome não pode ter mais de 30 caracteres"),
+    .max(20, "Nome não pode ter mais de 20 caracteres"),
   role: z.enum(Object.keys(UsuarioRoles) as [UsuarioRoles, ...UsuarioRoles[]]),
   conta_marketplace: ContaMarketplaceSchema.nullable().nullish().optional(),
   allowed_views: AllowedViewsSchema.optional(),
@@ -138,11 +146,11 @@ const BeergamCodeSchema = z.string().min(10).max(10);
 export const UsuarioTeste = BaseUserSchema.parse(NewUser);
 export const UserSchema = BaseUserSchema.extend({
   email: z.email("Email inválido"),
-  cpf: z.string().min(11).max(11).optional(),
+  cpf: CPFSchema.optional(),
   cnpj: z.string().min(14).max(14).optional(),
   phone: TelefoneSchema,
   personal_reference_code: BeergamCodeSchema.optional(),
-  referal_code: BeergamCodeSchema.optional().nullable(),
+  referral_code: BeergamCodeSchema.optional().nullable(),
   profit_range: z
     .enum(
       Object.keys(Faixaprofit_range) as [

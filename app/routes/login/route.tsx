@@ -1,6 +1,6 @@
 import { redirect } from "react-router";
 import { authService } from "~/features/auth/service";
-import { UserSchema, type UsuarioRoles } from "~/features/user/typings";
+import { UserSchema, UsuarioRoles } from "~/features/user/typings";
 // import { commitSession, getSession } from "~/sessions";
 import { toast } from "react-hot-toast";
 import { userCrypto } from "~/features/auth/utils";
@@ -31,14 +31,28 @@ const errorResponse = {
   error_code: 500,
   error_fields: {},
 };
+
+function FormSanitizer(formData: FormData, role: UsuarioRoles) {
+  if (role === UsuarioRoles.MASTER) {
+    return {
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+    };
+  }
+  return {
+    master_pin: formData.get("master_pin") as string,
+    pin: formData.get("pin") as string,
+    password: formData.get("password") as string,
+  };
+}
+
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();
-  const email = formData.get("email");
-  const password = formData.get("password");
   const role = formData.get("role");
-  // Crie uma Promise personalizada que rejeita quando success for false
+  const formInfo = FormSanitizer(formData, role as UsuarioRoles);
+
   const responsePromise = authService
-    .login(email as string, password as string, role as UsuarioRoles)
+    .login(formInfo, role as UsuarioRoles)
     .then((response) => {
       if (!response.success) {
         // Rejeita a Promise se o login falhar
