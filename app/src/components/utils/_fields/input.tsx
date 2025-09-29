@@ -1,9 +1,6 @@
 import { useState, type HTMLInputTypeAttribute } from "react";
 import Svg from "~/src/assets/svgs";
-interface InputError {
-  message: string;
-  error: boolean;
-}
+import { type InputError } from "./typings";
 
 interface InputProps {
   placeholder?: string;
