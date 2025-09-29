@@ -1,8 +1,7 @@
-import { useEffect, useReducer, useState } from "react";
+import { useReducer, useState } from "react";
 import { Form, Link } from "react-router";
 import { z } from "zod";
-import type { ApiResponse } from "~/features/apiClient/typings";
-import type { IUsuario } from "~/features/user/typings";
+import { UsuarioRoles } from "~/features/user/typings";
 import { Fields } from "~/src/components/utils/_fields";
 import beergam_flower_logo from "~/src/img/beergam_flower_logo.webp";
 import {
@@ -11,13 +10,9 @@ import {
   type MasterUserForm,
   MasterUserFormSchema,
 } from "../../typing";
-import FormError from "../FormError/FormError";
-
-type TUserType = "master" | "colaborador";
 
 interface FormModalProps {
-  userType?: TUserType;
-  actionResponse?: ApiResponse<IUsuario | null>;
+  userType?: UsuarioRoles;
 }
 
 function FormHelpNavigation() {
@@ -41,25 +36,25 @@ function ButtonChangeUserType({
   userType,
   callback,
 }: {
-  currentUserType: TUserType;
-  userType: TUserType;
-  callback: (userType: TUserType) => void;
+  currentUserType: UsuarioRoles;
+  userType: UsuarioRoles;
+  callback: (userType: UsuarioRoles) => void;
 }) {
   return (
     <button
       className={`relative text-beergam-blue-primary cursor-pointer hover:text-beergam-orange after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-beergam-orange font-medium after:transition-all after:duration-300 ${currentUserType === userType ? "after:opacity-100 text-beergam-orange" : "after:opacity-0"}`}
       onClick={() => callback(userType)}
     >
-      {userType === "master" ? "Empregador" : "Colaborador"}
+      {userType === UsuarioRoles.MASTER ? "Empregador" : "Colaborador"}
     </button>
   );
 }
 
 export default function FormModal({
-  userType = "master",
-  actionResponse,
+  userType = UsuarioRoles.MASTER,
 }: FormModalProps) {
-  const [currentUserType, setCurrentUserType] = useState<TUserType>(userType);
+  const [currentUserType, setCurrentUserType] =
+    useState<UsuarioRoles>(userType);
   const [isSubmited, setIsSubmited] = useState(false);
   const [MasterUserInfo, setMasterUserInfo] = useReducer(
     (state: MasterUserForm, action: Partial<MasterUserForm>) => {
@@ -73,8 +68,6 @@ export default function FormModal({
     },
     { master_pin: "", pin: "", password: "" } as ColaboradorUserForm
   );
-  const [stateActionError, setStateActionError] =
-    useState<ApiResponse<IUsuario | null> | null>(actionResponse || null);
   const parseMasterUserResult = MasterUserFormSchema.safeParse(MasterUserInfo);
   const masterFieldErrors = parseMasterUserResult.success
     ? {
@@ -92,27 +85,21 @@ export default function FormModal({
         },
       }
     : z.treeifyError(parseColaboradorUserResult.error);
-  function ChangeUserType(userType: TUserType) {
+  function ChangeUserType(userType: UsuarioRoles) {
     setCurrentUserType(userType);
     setIsSubmited(false);
-    setStateActionError(null);
   }
-  const [errorTrigger, setErrorTrigger] = useState(0);
-  useEffect(() => {
-    setStateActionError(actionResponse || null);
-    if (actionResponse) {
-      setErrorTrigger((prev) => prev + 1);
-    }
-  }, [actionResponse]);
   type MasterResult = ReturnType<typeof MasterUserFormSchema.safeParse>;
   type ColabResult = ReturnType<typeof ColaboradorUserFormSchema.safeParse>;
   function HandleSubmit(
     userResult: MasterResult | ColabResult,
-    userType: TUserType
+    userType: UsuarioRoles
   ) {
+    const isLoading = localStorage.getItem("loginLoading") == "true";
+    if (isLoading) return false;
     let onlyPasswordError = true;
     if (!userResult.success) {
-      if (userType === "master") {
+      if (userType === UsuarioRoles.MASTER) {
         if (MasterUserInfo.password.length === 0) {
           return false;
         }
@@ -120,7 +107,7 @@ export default function FormModal({
           !masterFieldErrors.properties?.email?.errors?.[0] &&
           !!masterFieldErrors.properties?.password?.errors?.[0];
       }
-      if (userType === "colaborador") {
+      if (userType === UsuarioRoles.COLAB) {
         if (ColaboradorUserInfo.password.length === 0) {
           return false;
         }
@@ -133,10 +120,11 @@ export default function FormModal({
         return false;
       }
     }
+    localStorage.setItem("loginLoading", "true");
     return true;
   }
   const modalHeight =
-    currentUserType === "master" ? "sm:h-[490px]" : "sm:h-[595px]"; //524px e 629px
+    currentUserType === UsuarioRoles.MASTER ? "sm:h-[490px]" : "sm:h-[595px]"; //524px e 629px
   return (
     <div
       className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-white h-full w-[100%] mx-auto my-auto p-8 transition-height ${modalHeight} sm:w-2/3 sm:max-w-[32rem] sm:rounded-4xl`}
@@ -157,12 +145,12 @@ export default function FormModal({
       <div className="flex gap-2.5">
         <ButtonChangeUserType
           currentUserType={currentUserType}
-          userType="master"
+          userType={UsuarioRoles.MASTER}
           callback={ChangeUserType}
         />
         <ButtonChangeUserType
           currentUserType={currentUserType}
-          userType="colaborador"
+          userType={UsuarioRoles.COLAB}
           callback={ChangeUserType}
         />
       </div>
@@ -171,7 +159,7 @@ export default function FormModal({
         className="flex flex-col gap-4"
         onSubmit={(e) => {
           const result = HandleSubmit(
-            currentUserType === "master"
+            currentUserType === UsuarioRoles.MASTER
               ? parseMasterUserResult
               : parseColaboradorUserResult,
             currentUserType
@@ -184,7 +172,8 @@ export default function FormModal({
           setIsSubmited(false);
         }}
       >
-        {currentUserType == "master" ? (
+        <input type="hidden" name="role" value={currentUserType} />
+        {currentUserType == UsuarioRoles.MASTER ? (
           <>
             <Fields.wrapper>
               <Fields.label
@@ -345,13 +334,6 @@ export default function FormModal({
           Entrar
         </button>
       </Form>
-      {!stateActionError?.success && !isSubmited && (
-        <FormError
-          error={stateActionError?.message ?? ""}
-          error_code={stateActionError?.error_code ?? 0}
-          trigger={errorTrigger}
-        />
-      )}
     </div>
   );
 }

@@ -1,16 +1,14 @@
-import type { ApiResponse } from "~/features/apiClient/typings";
+import { useEffect } from "react";
 import FormModal from "~/features/auth/components/FormModal/FormModal";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
-import type { IUsuario } from "~/features/user/typings";
 
-export default function LoginPage({
-  actionResponse,
-}: {
-  actionResponse: ApiResponse<IUsuario | null>;
-}) {
+export default function LoginPage() {
+  useEffect(() => {
+    localStorage.removeItem("loginLoading");
+  }, []);
   return (
     <PageLayout>
-      <FormModal actionResponse={actionResponse} />
+      <FormModal />
     </PageLayout>
   );
 }

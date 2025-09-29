@@ -19,7 +19,11 @@ export const UserPasswordSchema = z
   .regex(/[A-Z]/, "A senha deve conter pelo menos uma letra maiúscula.")
   .regex(/[a-z]/, "A senha deve conter pelo menos uma letra minúscula.")
   .regex(/\d/, "A senha deve conter pelo menos um número.")
-  .regex(/[!@#$%^&*]/, "A senha deve conter pelo menos um caractere especial.");
+  .regex(/[!@#$%^&*]/, "A senha deve conter pelo menos um caractere especial.")
+  .refine(
+    (pass) => pass.length >= 8,
+    "A senha deve ter pelo menos 8 caracteres."
+  );
 
 export const MasterUserFormSchema = z.object({
   email: UserEmailSchema,

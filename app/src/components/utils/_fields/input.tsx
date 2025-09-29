@@ -1,9 +1,6 @@
 import { useState, type HTMLInputTypeAttribute } from "react";
 import Svg from "~/src/assets/svgs";
-interface InputError {
-  message: string;
-  error: boolean;
-}
+import { type InputError } from "./typings";
 
 interface InputProps {
   placeholder?: string;
@@ -80,7 +77,7 @@ export default function Input({
         )}
       </div>
       <p
-        className={`text-xs text-red-500 h-2.5 mt-1 ${error?.error ? "opacity-100" : "opacity-0"}`}
+        className={`text-xs text-red-500 min-h-5 mt-1 lg:min-h-[16px] 2xl:min-h-5  ${error?.error ? "opacity-100" : "opacity-0"}`}
       >
         {error?.message || ""}
       </p>
