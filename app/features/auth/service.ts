@@ -1,26 +1,67 @@
-import type { AxiosInstance } from "axios";
-import { apiClient } from "../apiClient/client";
+import { typedApiClient } from "../apiClient/client";
+import type { ApiResponse } from "../apiClient/typings";
+import { UsuarioRoles, type IUsuario } from "../user/typings";
+
+// Tipagem para os dados de usuário retornados pelo login
+interface UserData {
+  id: string;
+  email: string;
+  name: string;
+}
+
+interface RegisterUser extends IUsuario {
+  password: string;
+}
+
 class AuthService {
-  private readonly apiClient: AxiosInstance;
-  constructor(apiClient: AxiosInstance) {
-    this.apiClient = apiClient;
-  }
-  async login(email: string, password: string) {
+  async login(
+    formInfo:
+      | { email: string; password: string }
+      | { master_pin: string; pin: string; password: string },
+    type: UsuarioRoles
+  ): Promise<ApiResponse<UserData>> {
+    const role = type === UsuarioRoles.MASTER ? "master" : "colab";
     try {
-      const response = await this.apiClient.post("/v1/auth/login", {
-        email,
-        password,
-      });
-      if (response.status === 200) {
-        return { success: true, data: response.data.data.user_data };
-      }
-      return { success: false, error: response.data.message };
-    } catch (err: any) {
-      const status = err?.response?.status ?? 500;
-      const message = err?.response?.data?.message ?? "Falha de autenticação";
-      return { success: false, error: message, status };
+      const response = await typedApiClient.post<UserData>(
+        `/v1/auth/${role}/login`,
+        {
+          ...formInfo,
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error("error do login", error);
+      return {
+        success: false,
+        data: {} as UserData,
+        message: "Erro ao fazer login. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: {},
+      };
     }
   }
-  async logout() {}
+  async register(user: RegisterUser): Promise<ApiResponse<IUsuario>> {
+    try {
+      const response = await typedApiClient.post<IUsuario>(
+        "/v1/auth/master/register",
+        user
+      );
+      return response;
+    } catch (error) {
+      console.error("error do register", error);
+      return {
+        success: false,
+        data: {} as IUsuario,
+        message:
+          "Erro ao registrar usuário. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: {},
+      };
+    }
+  }
+  async logout(): Promise<ApiResponse<null>> {
+    return await typedApiClient.post<null>("/v1/auth/logout");
+  }
 }
-export const authService = new AuthService(apiClient);
+
+export const authService = new AuthService();

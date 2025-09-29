@@ -1,6 +1,8 @@
+@import url("https://fonts.cdnfonts.com/css/satoshi");
+@import "tailwindcss";
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-display: "Satoshi", "comic-sans";
+  --default-font-family: "Satoshi";
   /* Cores customizadas seguindo o padrão do Tailwind */
   --color-beergam-orange: #ff8a00;
   --color-beergam-orange-dark: #bf6800;
@@ -16,13 +18,16 @@
 
   --color-beergam-yellow: #ffd143;
   --color-beergam-red: #de7272;
+  --color-beergam-red-primary: #bd362f;
   --color-beergam-red-light: #ffe5e5;
   --color-beergam-red-dark: #ff0000;
   --color-beergam-green: #87de72;
   --color-beergam-white: #fff;
   --color-beergam-black: #000;
   --color-beergam-black-blue: #11263c;
+
   --color-beergam-gray: #8c8c8d;
+  --color-beergam-gray-light: #b2b2bf;
 }
 /* 
 html,
@@ -33,4 +38,47 @@ body {
     color-scheme: dark;
   }
 } */
-@import "tailwindcss";
+
+* {
+  @apply transition-all duration-300;
+}
+
+h1 {
+  @apply text-4xl font-bold lg:text-4xl  xl:text-5xl 2xl:text-6xl;
+}
+h2 {
+  @apply text-2xl lg:text-2xl font-bold xl:text-3xl 2xl:text-4xl;
+}
+
+h3 {
+  @apply text-lg lg:text-sm xl:text-xl 2xl:text-2xl;
+}
+
+p,
+label,
+a {
+  @apply text-[14px] lg:text-[12px] 2xl:text-[14px];
+}
+
+button {
+  cursor: pointer;
+}
+
+.transition-height {
+  transition: height 250ms ease;
+}
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+.fieldsContainer {
+  @apply grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-4;
+}
+/* body {
+  @apply h-dvh;
+} */
+body,
+html {
+  height: 100%;
+}

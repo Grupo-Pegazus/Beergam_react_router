@@ -1,0 +1,84 @@
+import { toast } from "react-hot-toast";
+import type { ApiResponse } from "~/features/apiClient/typings";
+import { authService } from "~/features/auth/service";
+import type {
+  ComoConheceuKeys,
+  Faixaprofit_rangeKeys,
+  IUsuario,
+} from "~/features/user/typings";
+import { UsuarioRoles } from "~/features/user/typings";
+import type { Route } from "./+types/route";
+import RegistroPage from "./page";
+export async function clientAction({ request }: Route.ClientActionArgs) {
+  const formData = await request.formData();
+  const email = formData.get("email");
+  const name = formData.get("name");
+  const password = formData.get("password");
+  const cpf = formData.get("cpf") || null;
+  const cnpj = formData.get("cnpj") || null;
+  const telefone = formData.get("whatsapp");
+  const found_beergam = formData.get("found_beergam");
+  const profit_range = formData.get("profit_range");
+  const referral_code = formData.get("referral_code");
+  const responsePromise = authService
+    .register({
+      email: email as string,
+      name: name as string,
+      password: password as string,
+      cpf: cpf as string,
+      cnpj: cnpj as string,
+      phone: telefone as string,
+      role: UsuarioRoles.MASTER,
+      found_beergam: found_beergam as string as ComoConheceuKeys | null,
+      profit_range: profit_range as string as Faixaprofit_rangeKeys,
+      referral_code: referral_code as string | null,
+    })
+    .then((response) => {
+      if (!response.success) {
+        const errorObj = new Error(response.message);
+        Object.assign(errorObj, { ...response });
+        throw errorObj;
+      }
+      return response;
+    });
+  toast.promise(responsePromise, {
+    loading: "Carregando...",
+    success: (msg: ApiResponse<IUsuario>) => {
+      window.setTimeout(() => {
+        window.location.href = "/interno";
+      }, 1000);
+      return <p>{msg.message}</p>;
+    },
+    error: (err: ApiResponse<IUsuario>) => (
+      <div>
+        <p className="text-nowrap">{`${err.message || ""}`}</p>
+        {err.error_fields && Object.keys(err.error_fields).length > 0 && (
+          <ul className="list-disc">
+            {Object.keys(err.error_fields).map((field) => (
+              <li className="font-bold" key={field}>
+                <p>{err?.error_fields?.[field]?.join(", ")}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p>
+          <u>Código: {err.error_code}</u>
+        </p>
+      </div>
+    ),
+  });
+  let response = null;
+  try {
+    console.log("response do await responsePromise", response);
+    response = await responsePromise;
+    return response;
+  } catch (error) {
+    console.log("error do await responsePromise", error);
+    response = error;
+    return response;
+  }
+}
+
+export default function RegistroRoute() {
+  return <RegistroPage />;
+}

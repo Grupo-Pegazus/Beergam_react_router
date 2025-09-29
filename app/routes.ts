@@ -80,6 +80,7 @@ export function createMenuRoutes(): RouteConfigEntry[] {
 export default [
   index("routes/home.tsx"),
   route("login", "routes/login/route.tsx"),
+  route("registro", "routes/registro/route.tsx"),
   layout(
     "src/components/layouts/MenuLayout.tsx",
     withPrefix("interno", createMenuRoutes())
