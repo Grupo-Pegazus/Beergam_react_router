@@ -193,9 +193,9 @@ export default function FormModal() {
       }}
       className="h-full overflow-y-auto shadow-lg/55 bg-beergam-white p-8 rounded-tl-none rounded-tr-none rounded-xl gap-4 flex flex-col lg:rounded-tl-2xl lg:rounded-br-none"
     >
-      <p>{JSON.stringify(actionData?.error_fields)}</p>
+      {/* <p>{JSON.stringify(actionData?.error_fields)}</p> */}
       <h1 className="text-beergam-blue-primary">Cadastre-se</h1>
-      <button
+      {/* <button
         type="button"
         className="absolute right-2"
         onClick={() => {
@@ -213,7 +213,7 @@ export default function FormModal() {
         }}
       >
         AutoComplete
-      </button>
+      </button> */}
       <div>
         <Fields.wrapper>
           <Fields.label text="DIGITE SEU ENDEREÇO DE E-MAIL" />
