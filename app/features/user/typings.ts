@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CNPJSchema } from "~/utils/typings/CNPJ";
 import { CPFSchema } from "~/utils/typings/CPF";
 import { TelefoneSchema } from "~/utils/typings/Telefone";
 import { MenuConfig, type MenuKeys, type MenuState } from "../menu/typings";
@@ -146,8 +147,8 @@ const BeergamCodeSchema = z.string().min(10).max(10);
 export const UsuarioTeste = BaseUserSchema.parse(NewUser);
 export const UserSchema = BaseUserSchema.extend({
   email: z.email("Email inválido"),
-  cpf: CPFSchema.optional(),
-  cnpj: z.string().min(14).max(14).optional(),
+  cpf: CPFSchema.optional().nullable(),
+  cnpj: CNPJSchema.optional().nullable(),
   phone: TelefoneSchema,
   personal_reference_code: BeergamCodeSchema.optional(),
   referral_code: BeergamCodeSchema.optional().nullable(),

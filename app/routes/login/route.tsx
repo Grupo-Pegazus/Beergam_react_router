@@ -91,6 +91,9 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     if (!user.success) {
       console.log("user invalido", user);
       errorResponse.data = response.data;
+      toast.error(
+        "Erro ao transformar informações do usuário. Tente novamente em alguns instantes."
+      );
       return Response.json(errorResponse);
     }
     await userCrypto.encriptarDadosUsuario(user.data);

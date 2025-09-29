@@ -98,16 +98,22 @@ export default function FormModal() {
     if (UserInfo.referral_code == "") {
       UserInfo.referral_code = null;
     }
+    if (currentDocument === "CPF") {
+      UserInfo.cnpj = undefined;
+    } else {
+      UserInfo.cpf = undefined;
+    }
     if (!UserSchema.safeParse(UserInfo).success) {
+      console.log(UserSchema.safeParse(UserInfo));
+      console.log("UserInfo invalido", UserInfo);
       return false;
     }
     if (!ConfirmPasswordSchema.safeParse(confirmPassword).success) {
+      console.log("ConfirmPasswordSchema invalido", confirmPassword);
       return false;
     }
     if (!UserPasswordSchema.safeParse(password).success) {
-      return false;
-    }
-    if (!parseUserResult.success) {
+      console.log("UserPasswordSchema invalido", password);
       return false;
     }
     return true;
@@ -150,6 +156,9 @@ export default function FormModal() {
         }
         return ActionValidation(name);
       case "documento":
+        console.log("docValue", docValue);
+        console.log("docError", docError);
+        console.log("isSubmited", isSubmited);
         if ((docValue?.length && docValue.length > 0) || isSubmited) {
           if (docError.error) {
             return docError;
@@ -314,8 +323,9 @@ export default function FormModal() {
             placeholder="Código de Indicação"
             name="referral_code"
             onChange={(e) =>
-              setUserInfo({ referral_code: e.target.value as string })
+              InputOnChange("referral_code", e.target.value as string)
             }
+            error={InputValidation("referral_code")}
           ></Fields.input>
         </Fields.wrapper>
         <Fields.wrapper>
