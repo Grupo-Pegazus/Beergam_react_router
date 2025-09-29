@@ -107,7 +107,6 @@ export class TypedApiClient {
   private handleError<T>(
     error: AxiosError<ApiResponse<unknown>>
   ): ApiResponse<T> {
-    console.log("error do handleError", error);
     console.error("Detalhes do erro:", {
       message: error.message,
       status: error?.response?.status,
