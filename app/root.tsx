@@ -9,7 +9,7 @@ import { useLoaderData } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
 import { login as loginAction } from "./features/auth/redux";
-import { userCrypto } from "./features/auth/utils";
+import { cryptoUser } from "./features/auth/utils";
 import store from "./store";
 import "./zod";
 export const queryClient = new QueryClient();
@@ -27,7 +27,7 @@ export const links: Route.LinksFunction = () => [
 // }
 
 export async function clientLoader() {
-  return { userInfo: await userCrypto.recuperarDadosUsuario() };
+  return { userInfo: await cryptoUser.recuperarDados() };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {

@@ -3,7 +3,7 @@ import { authService } from "~/features/auth/service";
 import { UserSchema, UsuarioRoles } from "~/features/user/typings";
 // import { commitSession, getSession } from "~/sessions";
 import { toast } from "react-hot-toast";
-import { userCrypto } from "~/features/auth/utils";
+import { cryptoUser } from "~/features/auth/utils";
 import type { Route } from "./+types/route";
 import LoginPage from "./page";
 // export async function loader({ request }: Route.LoaderArgs) {
@@ -96,7 +96,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       );
       return Response.json(errorResponse);
     }
-    await userCrypto.encriptarDadosUsuario(user.data);
+    await cryptoUser.encriptarDados(user.data);
     // session.set("userInfo", user.data);
 
     return redirect("/interno", {

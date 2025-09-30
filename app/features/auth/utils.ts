@@ -1,8 +1,33 @@
+// import type { BaseMarketPlace } from "../marketplace/typings";
 import type { IUsuario } from "../user/typings";
 
-class UserCrypto {
-  // Função para encriptografar dados do usuário
-  async encriptarDadosUsuario(dados: IUsuario): Promise<void> {
+// type AvailableData = IUsuario | BaseMarketPlace; //Tipos de dados que podem ser criptografados
+
+class Crypto<T> {
+  private sessionName: string;
+  private localStorageName: string;
+  constructor(sessionName: string, localStorageName: string) {
+    this.sessionName = sessionName;
+    this.localStorageName = localStorageName;
+  }
+  protected arrayBufferToBase64(buffer: ArrayBuffer): string {
+    const bytes = new Uint8Array(buffer);
+    let binary = "";
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  }
+
+  protected base64ToArrayBuffer(base64: string): ArrayBuffer {
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
+  async encriptarDados(dados: T): Promise<void> {
     // Gerar uma chave para criptografia
     const chave = await window.crypto.subtle.generateKey(
       {
@@ -35,24 +60,25 @@ class UserCrypto {
 
     // Armazenar a chave em um local seguro (ex: sessionStorage)
     sessionStorage.setItem(
-      "userEncryptionKey",
+      this.sessionName,
       this.arrayBufferToBase64(chaveExportada)
     );
 
     localStorage.setItem(
-      "userInfo",
+      this.localStorageName,
       this.arrayBufferToBase64(dadosCriptografados)
     );
-    localStorage.setItem("userInfoIV", this.arrayBufferToBase64(iv.buffer));
+    localStorage.setItem(
+      this.localStorageName + "IV",
+      this.arrayBufferToBase64(iv.buffer)
+    );
   }
-
-  // Função para descriptografar dados do usuário
-  private async descriptografarDadosUsuario(
+  protected async descriptografarDados(
     dadosCriptografados: ArrayBuffer,
     iv: Uint8Array
-  ): Promise<IUsuario> {
+  ): Promise<T> {
     // Recuperar a chave armazenada
-    const chaveBase64 = sessionStorage.getItem("userEncryptionKey");
+    const chaveBase64 = sessionStorage.getItem(this.sessionName);
     if (!chaveBase64) {
       throw new Error("Chave de criptografia não encontrada");
     }
@@ -85,30 +111,12 @@ class UserCrypto {
 
     return JSON.parse(dadosTexto);
   }
-
-  // Funções auxiliares para converter entre ArrayBuffer e Base64
-  private arrayBufferToBase64(buffer: ArrayBuffer): string {
-    const bytes = new Uint8Array(buffer);
-    let binary = "";
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary);
-  }
-
-  private base64ToArrayBuffer(base64: string): ArrayBuffer {
-    const binaryString = atob(base64);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes.buffer;
-  }
-
-  async recuperarDadosUsuario(): Promise<IUsuario | null> {
+  async recuperarDados(): Promise<T | null> {
     try {
-      const dadosCriptografadosBase64 = localStorage.getItem("userInfo");
-      const ivBase64 = localStorage.getItem("userInfoIV");
+      const dadosCriptografadosBase64 = localStorage.getItem(
+        this.localStorageName
+      );
+      const ivBase64 = localStorage.getItem(this.localStorageName + "IV");
 
       if (!dadosCriptografadosBase64 || !ivBase64) {
         return null;
@@ -119,14 +127,20 @@ class UserCrypto {
       );
       const iv = new Uint8Array(this.base64ToArrayBuffer(ivBase64));
 
-      return await this.descriptografarDadosUsuario(dadosCriptografados, iv);
+      return await this.descriptografarDados(dadosCriptografados, iv);
     } catch (error) {
-      console.error("Erro ao recuperar dados do usuário:", error);
-      localStorage.removeItem("userInfo");
-      localStorage.removeItem("userInfoIV");
+      console.error("Erro ao recuperar dados:", error);
+      localStorage.removeItem(this.localStorageName);
+      localStorage.removeItem(this.localStorageName + "IV");
       return null;
     }
   }
 }
 
-export const userCrypto = new UserCrypto();
+class CryptoUser extends Crypto<IUsuario> {
+  constructor() {
+    super("userEncryptionKey", "userInfo");
+  }
+}
+
+export const cryptoUser = new CryptoUser();
