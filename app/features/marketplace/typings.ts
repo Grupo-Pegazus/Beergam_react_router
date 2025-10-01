@@ -5,6 +5,17 @@ export enum MarketplaceType {
   SHOPEE = "shopee",
 }
 
+export const MarketplaceTypeLabel: Record<MarketplaceType, string> = {
+  [MarketplaceType.MELI]: "Mercado Livre",
+  [MarketplaceType.SHOPEE]: "Shopee",
+};
+
+export interface MarketplaceVisualInfo {
+  value: MarketplaceType;
+  label: string;
+  image: string;
+}
+
 export enum MarketplaceStatusParse {
   PENDING = "pending",
   PROCESSING = "processing",

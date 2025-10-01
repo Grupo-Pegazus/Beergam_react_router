@@ -12,12 +12,17 @@ function MarketplaceTypeBadge(marketplace_type: MarketplaceType) {
 }
 interface MarketplaceCardProps {
   marketplace?: BaseMarketPlace;
+  onCardClick?: () => void;
 }
-export default function MarketplaceCard({ marketplace }: MarketplaceCardProps) {
+export default function MarketplaceCard({
+  marketplace,
+  onCardClick,
+}: MarketplaceCardProps) {
   console.log("marketplace recebido", marketplace);
   return (
     <button
-      className={`flex justify-center items-center relative mb-4 p-8 shadow-lg/55 rounded-2xl flex-col gap-2 ${marketplace ? "bg-beergam-white" : "bg-beergam-blue-primary"} hover:shadow-lg/10`}
+      className={`group flex justify-center items-center relative mb-4 p-8 shadow-lg/55 rounded-2xl flex-col gap-2 border-2 ${marketplace ? "bg-beergam-white border-transparent" : "bg-beergam-blue-primary/75 border-dashed border-beergam-white"} hover:opacity-75`}
+      onClick={onCardClick}
     >
       {marketplace ? (
         <>
@@ -37,9 +42,8 @@ export default function MarketplaceCard({ marketplace }: MarketplaceCardProps) {
         </>
       ) : (
         <>
-          {console.log("MÃE TEM CAFÉ?")}
           <h2 className="text-beergam-white">Adicionar loja</h2>
-          <Svg.plus_circle />
+          <Svg.plus_circle width={100} tailWindClasses="stroke-beergam-white" />
         </>
       )}
     </button>

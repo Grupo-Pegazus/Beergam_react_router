@@ -1,3 +1,4 @@
+import { useState } from "react";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import MarketplaceCard from "~/features/marketplace/components/MarketplaceDard";
 import jsonMock from "~/features/marketplace/mock.json";
@@ -10,6 +11,8 @@ import {
 import Svg from "~/src/assets/svgs";
 import { Fields } from "~/src/components/utils/_fields";
 import Hint from "~/src/components/utils/Hint";
+import Modal from "~/src/components/utils/Modal";
+import CreateMarketplaceModal from "./components/CreateMarketplaceModal";
 interface ChoosenAccountPageProps {
   marketplacesAccounts: BaseMarketPlace[] | null;
   isLoading?: boolean;
@@ -19,6 +22,10 @@ export default function ChoosenAccountPage({
   isLoading = false,
 }: ChoosenAccountPageProps) {
   console.log("jsonMock", jsonMock);
+  const [abrirModal, setAbrirModal] = useState(false);
+  function handleAbrirModal({ abrir }: { abrir: boolean }) {
+    setAbrirModal(abrir);
+  }
   return (
     console.log("marketplacesAccounts", marketplacesAccounts),
     (
@@ -77,9 +84,17 @@ export default function ChoosenAccountPage({
                 );
               })
             )}
-            <MarketplaceCard />
+            <MarketplaceCard
+              onCardClick={() => handleAbrirModal({ abrir: true })}
+            />
           </div>
         </div>
+        <Modal
+          abrir={abrirModal}
+          onClose={() => handleAbrirModal({ abrir: false })}
+        >
+          <CreateMarketplaceModal />
+        </Modal>
       </PageLayout>
     )
   );
