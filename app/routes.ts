@@ -81,8 +81,11 @@ export default [
   index("routes/home.tsx"),
   route("login", "routes/login/route.tsx"),
   route("registro", "routes/registro/route.tsx"),
-  layout(
-    "src/components/layouts/MenuLayout.tsx",
-    withPrefix("interno", createMenuRoutes())
-  ),
+  layout("features/auth/components/AuthLayout/AuthLayout.tsx", [
+    route("choosen_account", "routes/choosen_account/route.tsx"),
+    layout(
+      "features/menu/components/layout/MenuLayout.tsx",
+      withPrefix("interno", createMenuRoutes())
+    ),
+  ]),
 ] satisfies RouteConfig;

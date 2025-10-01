@@ -8,6 +8,7 @@ interface InputProps {
   value: string | number;
   type?: HTMLInputTypeAttribute;
   error?: InputError;
+  hasError?: boolean;
   onChange?: (params: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (params: React.ChangeEvent<HTMLInputElement>) => void;
   onFocus?: (params: React.ChangeEvent<HTMLInputElement>) => void;
@@ -24,6 +25,7 @@ export default function Input({
   required,
   value,
   type,
+  hasError = true,
   onChange,
   onBlur,
   name,
@@ -76,11 +78,13 @@ export default function Input({
           </button>
         )}
       </div>
-      <p
-        className={`text-xs text-red-500 min-h-5 mt-1 lg:min-h-[16px] 2xl:min-h-5  ${error?.error ? "opacity-100" : "opacity-0"}`}
-      >
-        {error?.message || ""}
-      </p>
+      {hasError && (
+        <p
+          className={`text-xs text-red-500 min-h-5 mt-1 lg:min-h-[16px] 2xl:min-h-5  ${error?.error ? "opacity-100" : "opacity-0"}`}
+        >
+          {error?.message || ""}
+        </p>
+      )}
     </>
   );
 }

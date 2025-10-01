@@ -15,7 +15,9 @@ import GlobeIcon from "./GlobeIcon";
 import GraphIcon from "./GraphIcon";
 import HomeIcon from "./HomeIcon";
 import InBoxStackIcon from "./InBoxStackIcon";
+import InformationCircle from "./InformationCircle";
 import PhoneIcon from "./PhoneIcon";
+import PlusCircle from "./PlusCircle";
 import QuestionMark from "./QuestionMark";
 const Svg = {
   home: HomeIcon,
@@ -37,6 +39,8 @@ const Svg = {
   eye: Eye,
   eye_slash: EyeSlash,
   question_mark: QuestionMark,
+  information_circle: InformationCircle,
+  plus_circle: PlusCircle,
 };
 
 export default Svg;

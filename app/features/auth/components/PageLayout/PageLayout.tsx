@@ -28,14 +28,12 @@ function CardComponent({ title, value }: { title: string; value: string }) {
   );
 }
 
-type TPageType = "login" | "registro";
-
 export default function PageLayout({
   children,
-  pageType = "login",
+  tailwindClassName,
 }: {
   children: React.ReactNode;
-  pageType?: TPageType;
+  tailwindClassName?: string;
 }) {
   const [init, setInit] = useState(false);
   useEffect(() => {
@@ -209,9 +207,7 @@ export default function PageLayout({
             </div>
           </div>
         </div>
-        <div
-          className={`w-full min-h-full z-50 ${pageType == "login" ? "flex items-center justify-center" : ""}`}
-        >
+        <div className={`w-full min-h-full z-50 ${tailwindClassName}`}>
           {children}
         </div>
       </main>

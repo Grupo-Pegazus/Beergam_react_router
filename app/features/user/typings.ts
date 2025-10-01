@@ -61,7 +61,7 @@ export const ComoConheceu: Record<ComoConheceuKeys, string> = {
   OUTROS: "Outros",
 };
 
-type AvailableMarketPlace = "ml" | "magalu" | "shopee";
+// type AvailableMarketPlace = "ml" | "magalu" | "shopee";
 
 export enum UsuarioRoles {
   MASTER = "MASTER",
@@ -72,18 +72,6 @@ export const UsuarioRolesKeys = Object.keys(UsuarioRoles) as [
   ...UsuarioRoles[],
 ];
 
-interface IContaMarketPlace {
-  id: string;
-  marketplace: AvailableMarketPlace;
-  nome: string;
-  image: string;
-}
-const ContaMarketplaceSchema = z.object({
-  id: z.string(),
-  marketplace: z.enum(["ml", "magalu", "shopee"]),
-  nome: z.string(),
-  image: z.string(),
-}) satisfies z.ZodType<IContaMarketPlace>;
 const AllowedViewsSchema = z.record(
   z.enum(Object.keys(MenuConfig) as [MenuKeys, ...MenuKeys[]]),
   z.object({
@@ -94,7 +82,6 @@ const AllowedViewsSchema = z.record(
 export interface IBaseUsuario {
   name: string;
   role: UsuarioRoles;
-  conta_marketplace?: IContaMarketPlace | null;
   allowed_views?: MenuState;
 }
 
@@ -122,7 +109,6 @@ const BaseUserSchema = z.object({
     .min(3, "Nome precisa ter 3 caracteres")
     .max(20, "Nome não pode ter mais de 20 caracteres"),
   role: z.enum(Object.keys(UsuarioRoles) as [UsuarioRoles, ...UsuarioRoles[]]),
-  conta_marketplace: ContaMarketplaceSchema.nullable().nullish().optional(),
   allowed_views: AllowedViewsSchema.optional(),
 }) satisfies z.ZodType<IBaseUsuario>;
 
@@ -134,12 +120,6 @@ const NewUser: IBaseUsuario = {
     anuncios: { active: true },
   },
   role: UsuarioRoles.MASTER,
-  conta_marketplace: {
-    id: "1",
-    marketplace: "ml",
-    nome: "Mercado Livre",
-    image: "https://mla-s2-p.mlstatic.com/869034-MLA80043982303_102024-O.jpg",
-  },
 };
 
 const BeergamCodeSchema = z.string().min(10).max(10);

@@ -51,12 +51,14 @@ h2 {
 }
 
 h3 {
-  @apply text-lg lg:text-sm xl:text-xl 2xl:text-2xl;
+  @apply text-lg font-medium lg:text-sm xl:text-xl 2xl:text-2xl;
 }
 
 p,
 label,
-a {
+a,
+input,
+select {
   @apply text-[14px] lg:text-[12px] 2xl:text-[14px];
 }
 
@@ -65,7 +67,7 @@ button {
 }
 
 .transition-height {
-  transition: height 250ms ease;
+  transition: height 200ms ease;
 }
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
