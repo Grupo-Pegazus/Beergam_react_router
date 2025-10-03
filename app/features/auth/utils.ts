@@ -1,7 +1,7 @@
 // import type { BaseMarketPlace } from "../marketplace/typings";
-import type { IUsuario } from "../user/typings";
+import type { IUser } from "../user/typings/User";
 
-// type AvailableData = IUsuario | BaseMarketPlace; //Tipos de dados que podem ser criptografados
+// type AvailableData = IUser | BaseMarketPlace; //Tipos de dados que podem ser criptografados
 
 class Crypto<T> {
   private sessionName: string;
@@ -137,7 +137,7 @@ class Crypto<T> {
   }
 }
 
-class CryptoUser extends Crypto<IUsuario> {
+class CryptoUser extends Crypto<IUser> {
   constructor() {
     super("userEncryptionKey", "userInfo");
   }

@@ -1,17 +1,17 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { MenuState } from "../menu/typings";
-import { type IBaseUsuario, type IUsuario } from "../user/typings";
+import { type IBaseUsuario, type IUser } from "../user/typings/User";
 
 export interface IAuthState {
   loading: boolean;
-  user: IBaseUsuario | IUsuario | null;
+  user: IBaseUsuario | IUser | null;
   error: string | null;
   success: boolean;
 }
 
 const initialState: IAuthState = {
   loading: false,
-  user: {} as IBaseUsuario | IUsuario | null,
+  user: {} as IBaseUsuario | IUser | null,
   error: null,
   success: false,
 };
@@ -20,7 +20,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login(state, action: PayloadAction<IBaseUsuario | IUsuario>) {
+    login(state, action: PayloadAction<IBaseUsuario | IUser>) {
       state.user = action.payload;
       state.success = true;
       state.loading = false;

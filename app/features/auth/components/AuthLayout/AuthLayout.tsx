@@ -1,9 +1,9 @@
 import { Navigate, Outlet, useRouteLoaderData } from "react-router";
-import type { IUsuario } from "~/features/user/typings";
+import type { IUser } from "~/features/user/typings/User";
 
 export default function AuthLayout() {
   const rootData = useRouteLoaderData("root") as
-    | { userInfo?: IUsuario }
+    | { userInfo?: IUser }
     | undefined;
   const userInfo = rootData?.userInfo;
 

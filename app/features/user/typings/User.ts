@@ -165,7 +165,7 @@ export interface IUserDetails {
   sub_count?: number | null;
   colabs?: IBaseUser[] | object | null;
 }
-export interface IUsuario extends IBaseUser {
+export interface IUser extends IBaseUser {
   details: IUserDetails;
 }
 
@@ -197,7 +197,7 @@ export const UserDetailsSchema = z.object({
 
 export const UserSchema = BaseUserSchema.extend({
   details: UserDetailsSchema,
-}) satisfies z.ZodType<IUsuario>;
+}) satisfies z.ZodType<IUser>;
 
 // const NewUser: IBaseUsuario = {
 //   name: "a123456789",
@@ -233,7 +233,7 @@ export const UserSchema = BaseUserSchema.extend({
 //     )
 //     .optional()
 //     .nullable(),
-// }) satisfies z.ZodType<IUsuario>;
+// }) satisfies z.ZodType<IUser>;
 
 // const UserDetailsSchema = z.object({
 //   email: z.email("Email inválido"),

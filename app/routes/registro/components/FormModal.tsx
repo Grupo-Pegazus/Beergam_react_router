@@ -13,8 +13,8 @@ import {
   UsuarioRoles,
   type ComoConheceuKeys,
   type Faixaprofit_rangeKeys,
-  type IUsuario,
-} from "~/features/user/typings";
+  type IUser,
+} from "~/features/user/typings/User";
 import { Fields } from "~/src/components/utils/_fields";
 import type { InputError } from "~/src/components/utils/_fields/typings";
 import type { clientAction } from "../route";
@@ -40,7 +40,7 @@ export default function FormModal() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const documentToValidate = currentDocument == "CPF" ? CPFSchema : CNPJSchema;
   const [UserInfo, setUserInfo] = useReducer(
-    (state: IUsuario, action: Partial<IUsuario>) => {
+    (state: IUser, action: Partial<IUser>) => {
       return { ...state, ...action };
     },
     {
@@ -56,7 +56,7 @@ export default function FormModal() {
       referral_code: undefined,
       allowed_views: getDefaultViews(),
       conta_marketplace: undefined,
-    } as IUsuario
+    } as IUser
   );
   const parseUserResult = UserSchema.safeParse(UserInfo);
   const UserFieldErrors = parseUserResult.success

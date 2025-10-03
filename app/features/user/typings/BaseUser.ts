@@ -15,10 +15,16 @@ export const UserRolesKeys = Object.keys(UserRoles) as [
   ...UserRoles[],
 ];
 
+export enum UserStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+}
+
 export interface IBaseUser {
   name: string;
   role: UserRoles;
   allowed_views?: MenuState;
+  status: UserStatus;
   marketplace_accounts?: BaseMarketPlace[] | null;
   pin?: string | null;
   master_pin?: string | null;
@@ -39,6 +45,6 @@ export const BaseUserSchema = z.object({
   role: z.enum(Object.keys(UserRoles) as [UserRoles, ...UserRoles[]]),
   pin: z.string().optional().nullable(),
   master_pin: z.string().optional().nullable(),
-  //   allowed_views: AllowedViewsSchema.optional(),
+  status: z.enum(Object.keys(UserStatus) as [UserStatus, ...UserStatus[]]),
   marketplace_accounts: z.array(BaseMarketPlaceSchema).optional().nullable(),
 }) satisfies z.ZodType<IBaseUser>;

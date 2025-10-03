@@ -1,7 +1,7 @@
 import { useReducer, useState } from "react";
 import { Form, Link } from "react-router";
 import { z } from "zod";
-import { UsuarioRoles } from "~/features/user/typings";
+import { UserRoles } from "~/features/user/typings/BaseUser";
 import { Fields } from "~/src/components/utils/_fields";
 import beergam_flower_logo from "~/src/img/beergam_flower_logo.webp";
 import {
@@ -12,7 +12,7 @@ import {
 } from "../../typing";
 
 interface FormModalProps {
-  userType?: UsuarioRoles;
+  userType?: UserRoles;
 }
 
 function FormHelpNavigation() {
@@ -36,25 +36,24 @@ function ButtonChangeUserType({
   userType,
   callback,
 }: {
-  currentUserType: UsuarioRoles;
-  userType: UsuarioRoles;
-  callback: (userType: UsuarioRoles) => void;
+  currentUserType: UserRoles;
+  userType: UserRoles;
+  callback: (userType: UserRoles) => void;
 }) {
   return (
     <button
       className={`relative text-beergam-blue-primary cursor-pointer hover:text-beergam-orange after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-beergam-orange font-medium after:transition-all after:duration-300 ${currentUserType === userType ? "after:opacity-100 text-beergam-orange" : "after:opacity-0"}`}
       onClick={() => callback(userType)}
     >
-      {userType === UsuarioRoles.MASTER ? "Empregador" : "Colaborador"}
+      {userType === UserRoles.MASTER ? "Empregador" : "Colaborador"}
     </button>
   );
 }
 
 export default function FormModal({
-  userType = UsuarioRoles.MASTER,
+  userType = UserRoles.MASTER,
 }: FormModalProps) {
-  const [currentUserType, setCurrentUserType] =
-    useState<UsuarioRoles>(userType);
+  const [currentUserType, setCurrentUserType] = useState<UserRoles>(userType);
   const [isSubmited, setIsSubmited] = useState(false);
   const [MasterUserInfo, setMasterUserInfo] = useReducer(
     (state: MasterUserForm, action: Partial<MasterUserForm>) => {
@@ -85,7 +84,7 @@ export default function FormModal({
         },
       }
     : z.treeifyError(parseColaboradorUserResult.error);
-  function ChangeUserType(userType: UsuarioRoles) {
+  function ChangeUserType(userType: UserRoles) {
     setCurrentUserType(userType);
     setIsSubmited(false);
   }
@@ -93,13 +92,13 @@ export default function FormModal({
   type ColabResult = ReturnType<typeof ColaboradorUserFormSchema.safeParse>;
   function HandleSubmit(
     userResult: MasterResult | ColabResult,
-    userType: UsuarioRoles
+    userType: UserRoles
   ) {
     const isLoading = localStorage.getItem("loginLoading") == "true";
     if (isLoading) return false;
     let onlyPasswordError = true;
     if (!userResult.success) {
-      if (userType === UsuarioRoles.MASTER) {
+      if (userType === UserRoles.MASTER) {
         if (MasterUserInfo.password.length === 0) {
           return false;
         }
@@ -107,7 +106,7 @@ export default function FormModal({
           !masterFieldErrors.properties?.email?.errors?.[0] &&
           !!masterFieldErrors.properties?.password?.errors?.[0];
       }
-      if (userType === UsuarioRoles.COLAB) {
+      if (userType === UserRoles.COLAB) {
         if (ColaboradorUserInfo.password.length === 0) {
           return false;
         }
@@ -124,7 +123,7 @@ export default function FormModal({
     return true;
   }
   const modalHeight =
-    currentUserType === UsuarioRoles.MASTER ? "sm:h-[490px]" : "sm:h-[595px]"; //524px e 629px
+    currentUserType === UserRoles.MASTER ? "sm:h-[490px]" : "sm:h-[595px]"; //524px e 629px
   return (
     <div
       className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-white h-full w-[100%] mx-auto my-auto p-8 transition-height ${modalHeight} sm:w-2/3 sm:max-w-[32rem] sm:rounded-4xl`}
@@ -145,12 +144,12 @@ export default function FormModal({
       <div className="flex gap-2.5">
         <ButtonChangeUserType
           currentUserType={currentUserType}
-          userType={UsuarioRoles.MASTER}
+          userType={UserRoles.MASTER}
           callback={ChangeUserType}
         />
         <ButtonChangeUserType
           currentUserType={currentUserType}
-          userType={UsuarioRoles.COLAB}
+          userType={UserRoles.COLAB}
           callback={ChangeUserType}
         />
       </div>
@@ -159,7 +158,7 @@ export default function FormModal({
         className="flex flex-col gap-4"
         onSubmit={(e) => {
           const result = HandleSubmit(
-            currentUserType === UsuarioRoles.MASTER
+            currentUserType === UserRoles.MASTER
               ? parseMasterUserResult
               : parseColaboradorUserResult,
             currentUserType
@@ -173,7 +172,7 @@ export default function FormModal({
         }}
       >
         <input type="hidden" name="role" value={currentUserType} />
-        {currentUserType == UsuarioRoles.MASTER ? (
+        {currentUserType == UserRoles.MASTER ? (
           <>
             <Fields.wrapper>
               <Fields.label

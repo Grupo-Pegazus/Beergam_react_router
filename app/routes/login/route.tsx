@@ -1,6 +1,7 @@
 import { redirect } from "react-router";
 import { authService } from "~/features/auth/service";
-import { UserSchema, UsuarioRoles } from "~/features/user/typings";
+import { UserRoles, type IBaseUser } from "~/features/user/typings/BaseUser";
+import { UserSchema, type IUser } from "~/features/user/typings/User";
 // import { commitSession, getSession } from "~/sessions";
 import { toast } from "react-hot-toast";
 import { cryptoUser } from "~/features/auth/utils";
@@ -17,23 +18,17 @@ import LoginPage from "./page";
 //   console.log("clientLoader do route", request);
 //   return { userInfo: "jorge" };
 // }
-
-interface UserData {
-  id: string;
-  email: string;
-  name: string;
-}
 const errorResponse = {
   success: false,
-  data: {} as UserData,
+  data: {} as IUser | IBaseUser,
   message:
     "Erro ao transformar informações do usuário. Tente novamente em alguns instantes.",
   error_code: 500,
   error_fields: {},
 };
 
-function FormSanitizer(formData: FormData, role: UsuarioRoles) {
-  if (role === UsuarioRoles.MASTER) {
+function FormSanitizer(formData: FormData, role: UserRoles) {
+  if (role === UserRoles.MASTER) {
     return {
       email: formData.get("email") as string,
       password: formData.get("password") as string,
@@ -49,10 +44,10 @@ function FormSanitizer(formData: FormData, role: UsuarioRoles) {
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.formData();
   const role = formData.get("role");
-  const formInfo = FormSanitizer(formData, role as UsuarioRoles);
+  const formInfo = FormSanitizer(formData, role as UserRoles);
 
   const responsePromise = authService
-    .login(formInfo, role as UsuarioRoles)
+    .login(formInfo, role as UserRoles)
     .then((response) => {
       if (!response.success) {
         // Rejeita a Promise se o login falhar
@@ -96,14 +91,10 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       );
       return Response.json(errorResponse);
     }
-    await cryptoUser.encriptarDados(user.data);
+    await cryptoUser.encriptarDados(user.data as IUser);
     // session.set("userInfo", user.data);
 
-    return redirect("/interno", {
-      // headers: {
-      //   "Set-Cookie": await commitSession(session),
-      // },
-    });
+    return redirect("/interno", {});
   } catch (error) {
     console.error("Erro no login:", error);
     return Response.json({
@@ -111,7 +102,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       message: error instanceof Error ? error.message : "Erro ao fazer login",
       error_code: 500,
       error_fields: {},
-      data: {} as UserData,
+      data: {} as IUser | IBaseUser,
     });
   }
 }
