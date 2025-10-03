@@ -2,7 +2,6 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { ErrorBoundary } from "react-error-boundary";
 import { Toaster } from "react-hot-toast";
 import { Provider, useDispatch } from "react-redux";
 import { useLoaderData } from "react-router";
@@ -11,6 +10,8 @@ import "./app.css";
 import { login as loginAction } from "./features/auth/redux";
 import { userCrypto } from "./features/auth/utils";
 import store from "./store";
+import * as Sentry from "@sentry/react-router";
+import { isRouteErrorResponse } from "react-router";
 import "./zod";
 export const queryClient = new QueryClient();
 export const links: Route.LinksFunction = () => [
@@ -20,6 +21,40 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  let message = "Oops!";
+  let details = "An unexpected error occurred.";
+  let stack: string | undefined;
+
+  if (isRouteErrorResponse(error)) {
+    message = error.status === 404 ? "404" : "Error";
+    details =
+      error.status === 404
+        ? "The requested page could not be found."
+        : error.statusText || details;
+  } else if (error && error instanceof Error) {
+    // Só captura exceções com Sentry em produção
+    if (process.env.NODE_ENV === 'production') {
+      Sentry.captureException(error);
+    }
+    if (import.meta.env.DEV) {
+      details = error.message;
+      stack = error.stack;
+    }
+  }
+
+  return (
+    <main>
+      <h1>{message}</h1>
+      <p>{details}</p>
+      {stack && (
+        <pre>
+          <code>{stack}</code>
+        </pre>
+      )}
+    </main>
+  );
+}
 // export async function loader({ request }: Route.LoaderArgs) {
 //   const session = await getSession(request.headers.get("Cookie"));
 //   const userInfo = session.get("userInfo") ?? null;
@@ -89,16 +124,9 @@ export default function App() {
   return (
     <Provider store={store}>
       <BootstrapAuth />
-      <ErrorBoundary
-        fallback={<div>Error</div>}
-        onError={(error) => {
-          console.log("error capturado", error);
-        }}
-      >
-        <QueryClientProvider client={queryClient}>
-          <Outlet />
-        </QueryClientProvider>
-      </ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <Outlet />
+      </QueryClientProvider>
       {/* <PersistWrapper>
         <Outlet />
       </PersistWrapper> */}
