@@ -1,7 +1,6 @@
 import { useState } from "react";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import MarketplaceCard from "~/features/marketplace/components/MarketplaceDard";
-import jsonMock from "~/features/marketplace/mock.json";
 import {
   MarketplaceOrderParseStatus,
   MarketplaceStatusParse,
@@ -21,7 +20,6 @@ export default function ChoosenAccountPage({
   marketplacesAccounts,
   isLoading = false,
 }: ChoosenAccountPageProps) {
-  console.log("jsonMock", jsonMock);
   const [abrirModal, setAbrirModal] = useState(false);
   function handleAbrirModal({ abrir }: { abrir: boolean }) {
     setAbrirModal(abrir);
@@ -52,22 +50,18 @@ export default function ChoosenAccountPage({
             </div>
             <div className="flex gap-4 items-center">
               <button className="bg-beergam-blue-primary hover:bg-beergam-orange text-beergam-white px-4 py-2 rounded-md flex items-center gap-2">
-                <Svg.in_box_stack />
-                <p>Gerenciar Lojas</p>
-              </button>
-              <button className="bg-beergam-blue-primary hover:bg-beergam-orange text-beergam-white px-4 py-2 rounded-md flex items-center gap-2">
                 <Svg.cog_8_tooth />
                 <p>Gerenciar Perfil</p>
               </button>
             </div>
           </header>
-          <div className="w-3/4 grid grid-cols-4 gap-4">
+          <div className="w-3/4 grid grid-cols-2 gap-4 lg:grid-cols-4">
             {isLoading ? (
               <div>
                 <h1>Carregando... AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</h1>
               </div>
             ) : (
-              jsonMock.data?.map((item) => {
+              marketplacesAccounts?.map((item) => {
                 const marketplace: BaseMarketPlace = {
                   marketplace_name: item.marketplace_name,
                   marketplace_image: item.marketplace_image,
@@ -93,7 +87,7 @@ export default function ChoosenAccountPage({
           abrir={abrirModal}
           onClose={() => handleAbrirModal({ abrir: false })}
         >
-          <CreateMarketplaceModal />
+          <CreateMarketplaceModal marketplacesAccounts={marketplacesAccounts} />
         </Modal>
       </PageLayout>
     )

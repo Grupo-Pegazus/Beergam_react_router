@@ -10,6 +10,7 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import { login as loginAction } from "./features/auth/redux";
 import { cryptoUser } from "./features/auth/utils";
+import type { IUser } from "./features/user/typings/User";
 import store from "./store";
 import "./zod";
 export const queryClient = new QueryClient();
@@ -27,7 +28,7 @@ export const links: Route.LinksFunction = () => [
 // }
 
 export async function clientLoader() {
-  return { userInfo: await cryptoUser.recuperarDados() };
+  return { userInfo: await cryptoUser.recuperarDados<IUser>() };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -75,7 +76,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 function BootstrapAuth() {
   const { userInfo } = useLoaderData<typeof clientLoader>() ?? {};
-  // console.log("userInfo do bootstrap", userInfo);
   const dispatch = useDispatch();
   useEffect(() => {
     if (userInfo) {

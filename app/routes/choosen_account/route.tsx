@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
+// import jsonMock from "~/features/marketplace/mock.json";
 import { marketplaceService } from "~/features/marketplace/service";
+import type { BaseMarketPlace } from "~/features/marketplace/typings";
 import ChoosenAccountPage from "./page";
-
 export default function ChoosenAccountRoute() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["marketplacesAccounts"],
@@ -22,6 +23,10 @@ export default function ChoosenAccountRoute() {
     return <div>Erro ao buscar contas de marketplace</div>;
   }
   if (data?.success) {
-    return <ChoosenAccountPage marketplacesAccounts={data.data} />;
+    return (
+      <ChoosenAccountPage
+        marketplacesAccounts={data?.data as BaseMarketPlace[]}
+      />
+    );
   }
 }

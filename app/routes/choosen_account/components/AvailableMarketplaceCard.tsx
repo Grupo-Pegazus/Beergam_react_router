@@ -9,8 +9,7 @@ export default function AvailableMarketplaceCard({
   marketplace,
   available,
 }: AvailableMarketplaceCardProps) {
-  const random = Math.random();
-  const isAvailable = random > 0.5;
+  const isAvailable = available;
   return (
     <div className="relative group">
       <div

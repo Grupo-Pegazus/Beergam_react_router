@@ -5,6 +5,7 @@ import BuildingLibrary from "./BuildingLibrary";
 import CalculatorIcon from "./Calculator";
 import CardIcon from "./CardIcon";
 import ChatIcon from "./ChatIcon";
+import CircleX from "./CircleX";
 import ClockIcon from "./ClockIcon";
 import Cog8Tooth from "./Cog8Tooth";
 import CurrencyDollar from "./CurrencyDollar";
@@ -16,9 +17,12 @@ import GraphIcon from "./GraphIcon";
 import HomeIcon from "./HomeIcon";
 import InBoxStackIcon from "./InBoxStackIcon";
 import InformationCircle from "./InformationCircle";
+import LockClosed from "./LockClosed";
 import PhoneIcon from "./PhoneIcon";
 import PlusCircle from "./PlusCircle";
 import QuestionMark from "./QuestionMark";
+import Trash from "./Trash";
+import X from "./X";
 const Svg = {
   home: HomeIcon,
   bag: BagIcon,
@@ -41,6 +45,10 @@ const Svg = {
   question_mark: QuestionMark,
   information_circle: InformationCircle,
   plus_circle: PlusCircle,
+  trash: Trash,
+  circle_x: CircleX,
+  x: X,
+  lock_closed: LockClosed,
 };
 
 export default Svg;

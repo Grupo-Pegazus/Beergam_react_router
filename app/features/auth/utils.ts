@@ -111,7 +111,7 @@ class Crypto<T> {
 
     return JSON.parse(dadosTexto);
   }
-  async recuperarDados(): Promise<T | null> {
+  async recuperarDados<T>(): Promise<T | null> {
     try {
       const dadosCriptografadosBase64 = localStorage.getItem(
         this.localStorageName
@@ -127,7 +127,7 @@ class Crypto<T> {
       );
       const iv = new Uint8Array(this.base64ToArrayBuffer(ivBase64));
 
-      return await this.descriptografarDados(dadosCriptografados, iv);
+      return (await this.descriptografarDados(dadosCriptografados, iv)) as T;
     } catch (error) {
       console.error("Erro ao recuperar dados:", error);
       localStorage.removeItem(this.localStorageName);

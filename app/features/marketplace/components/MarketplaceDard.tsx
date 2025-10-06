@@ -39,11 +39,16 @@ export default function MarketplaceCard({
             className="max-w-44 max-h-44 object-cover rounded-2xl"
           />
           <h3>{marketplace.marketplace_name}</h3>
+          <div className="absolute z-[-10] flex items-end justify-center gap-2 bottom-0 opacity-0 group-hover:opacity-100 h-full group-hover:bottom-[-50px]">
+            <button className="bg-beergam-red-primary opacity-75 w-10 h-10 rounded-full hover:opacity-100 flex items-center justify-center">
+              <Svg.trash tailWindClasses="stroke-beergam-white w-6 h-6" />
+            </button>
+          </div>
         </>
       ) : (
         <>
-          <h2 className="text-beergam-white">Adicionar loja</h2>
-          <Svg.plus_circle width={100} tailWindClasses="stroke-beergam-white" />
+          <h2 className="text-beergam-white">Adicionar Lojas</h2>
+          <Svg.plus_circle tailWindClasses="stroke-beergam-white w-14 lg:w-20" />
         </>
       )}
     </button>

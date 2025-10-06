@@ -2,7 +2,6 @@ import { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserViews } from "~/features/auth/redux";
 import { type RootState } from "~/store";
-import { UsuarioTeste } from "../../../user/typings";
 import { useActiveMenu } from "../../hooks";
 import { closeMany } from "../../redux";
 import { MenuHanlder, type MenuState } from "../../typings";
@@ -76,12 +75,12 @@ export default function Menu() {
           ></div>
         </div>
         <div className={styles.userInfo}>
-          <img src={UsuarioTeste.conta_marketplace?.image} alt="Sua Conta ML" />
+          {/* <img src={UsuarioTeste.conta_marketplace?.image} alt="Sua Conta ML" /> */}
           <div className={styles.userInfoText}>
-            <p className={styles.userInfoContaMl}>
+            {/* <p className={styles.userInfoContaMl}>
               {UsuarioTeste.conta_marketplace?.nome}
-            </p>
-            <p>{user?.nome}</p>
+            </p> */}
+            {/* <p>{user?.nome}</p> */}
           </div>
         </div>
       </div>

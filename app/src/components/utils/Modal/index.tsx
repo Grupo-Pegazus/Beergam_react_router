@@ -73,7 +73,11 @@ function Modal({
             style={styleSair}
           >
             {!iconVoltar ? (
-              <Svg.clock />
+              <Svg.x
+                width={24}
+                height={24}
+                tailWindClasses="hover:text-beergam-orange"
+              />
             ) : (
               <i className="fa-solid fa-arrow-left"></i>
             )}
