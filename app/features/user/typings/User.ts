@@ -136,6 +136,24 @@ export enum CurrentBilling {
 
 type MarketplaceSells = number | null;
 
+export interface PlanBenefits {
+  ML_accounts: number;
+  colab_accounts: number;
+}
+
+export interface Plan {
+  display_name: string;
+  price: number;
+  benefits: PlanBenefits;
+}
+
+export interface Subscription {
+  start_date: Date;
+  end_date: Date;
+  free_trial_until: Date;
+  plan: Plan;
+}
+
 export interface IUserDetails {
   email: string;
   cpf?: string | null;
@@ -164,12 +182,35 @@ export interface IUserDetails {
   sells_own_site?: MarketplaceSells;
   sub_count?: number | null;
   colabs?: IBaseUser[] | object | null;
+  subscriptions?: Subscription[] | null;
 }
 export interface IUser extends IBaseUser {
   details: IUserDetails;
 }
 
 const BeergamCodeSchema = z.string().min(10).max(10);
+
+export const PlanBenefitsSchema = z.object({
+  ML_accounts: z.number(),
+  colab_accounts: z.number(),
+}) satisfies z.ZodType<PlanBenefits>;
+
+export const PlanSchema = z.object({
+  display_name: z.string(),
+  price: z.number(),
+  benefits: PlanBenefitsSchema,
+}) satisfies z.ZodType<Plan>;
+
+const DateCoerced = z.coerce
+  .date()
+  .refine((d) => !isNaN(d.getTime()), "Data inválida");
+
+const SubscriptionSchema = z.object({
+  start_date: DateCoerced,
+  end_date: DateCoerced,
+  free_trial_until: DateCoerced,
+  plan: PlanSchema,
+});
 
 export const UserDetailsSchema = z.object({
   email: z.email("Email inválido"),
@@ -193,6 +234,7 @@ export const UserDetailsSchema = z.object({
     )
     .optional()
     .nullable(),
+  subscriptions: z.array(SubscriptionSchema).optional().nullable(),
 }) satisfies z.ZodType<IUserDetails>;
 
 export const UserSchema = BaseUserSchema.extend({
