@@ -24,7 +24,7 @@ class AuthService {
     const role = type === UserRoles.MASTER ? UserRoles.MASTER : UserRoles.COLAB;
     try {
       const response = await typedApiClient.post<IUser | IBaseUser>(
-        `/v1/auth/${role}/login`,
+        `/v1/auth/${role.toLowerCase()}/login`,
         {
           ...formInfo,
         }
