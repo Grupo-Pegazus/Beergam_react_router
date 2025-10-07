@@ -11,7 +11,7 @@ function withPrefix(
   prefixPath: string,
   routes: RouteConfigEntry[]
 ): RouteConfigEntry[] {
-  return [...prefix(prefixPath, routes)];
+  return prefix(prefixPath, routes);
 }
 
 export function createMenuRoutes(): RouteConfigEntry[] {
@@ -81,11 +81,15 @@ export default [
   index("routes/home.tsx"),
   route("login", "routes/login/route.tsx"),
   route("registro", "routes/registro/route.tsx"),
-  layout("features/auth/components/AuthLayout/AuthLayout.tsx", [
-    route("choosen_account", "routes/choosen_account/route.tsx"),
-    layout(
-      "features/menu/components/layout/MenuLayout.tsx",
-      withPrefix("interno", createMenuRoutes())
-    ),
-  ]),
+  layout(
+    "features/auth/components/AuthLayout/AuthLayout.tsx",
+    withPrefix("interno", [
+      route("choosen_account", "routes/choosen_account/route.tsx"),
+      route("perfil", "routes/perfil/route.tsx"),
+      layout(
+        "features/menu/components/layout/MenuLayout.tsx",
+        createMenuRoutes()
+      ),
+    ])
+  ),
 ] satisfies RouteConfig;
