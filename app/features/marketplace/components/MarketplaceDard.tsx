@@ -18,11 +18,10 @@ export default function MarketplaceCard({
   marketplace,
   onCardClick,
 }: MarketplaceCardProps) {
-  console.log("marketplace recebido", marketplace);
   return (
     <button
       className={`group flex justify-center items-center relative mb-4 p-8 shadow-lg/55 rounded-2xl flex-col gap-2 border-2 ${marketplace ? "bg-beergam-white border-transparent" : "bg-beergam-blue-primary/75 border-dashed border-beergam-white"} hover:opacity-75`}
-      onClick={onCardClick}
+      onClick={() => onCardClick?.()}
     >
       {marketplace ? (
         <>

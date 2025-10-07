@@ -5,7 +5,14 @@ export enum MarketplaceType {
   SHOPEE = "shopee",
 }
 
+export const MarketplaceTypeAvailable: Record<MarketplaceType, boolean> = {
+  //Aqui é definido se o marketplace está disponível ou não para todos os usuários e planos
+  [MarketplaceType.MELI]: true,
+  [MarketplaceType.SHOPEE]: false,
+};
+
 export const MarketplaceTypeLabel: Record<MarketplaceType, string> = {
+  //Serve para exibir o nome do marketplace de uma forma mais amigável
   [MarketplaceType.MELI]: "Mercado Livre",
   [MarketplaceType.SHOPEE]: "Shopee",
 };
@@ -14,6 +21,7 @@ export interface MarketplaceVisualInfo {
   value: MarketplaceType;
   label: string;
   image: string;
+  available: boolean;
 }
 
 export enum MarketplaceStatusParse {
@@ -55,3 +63,10 @@ export const BaseMarketPlaceSchema = z.object({
     ]
   ),
 }) satisfies z.ZodType<BaseMarketPlace>;
+
+export interface IntegrationData {
+  app_id: string | null;
+  redirect_uri: string | null;
+  integration_url: string;
+  state: string;
+}

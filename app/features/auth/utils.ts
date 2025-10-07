@@ -6,6 +6,7 @@ import type { IUser } from "../user/typings/User";
 class Crypto<T> {
   private sessionName: string;
   private localStorageName: string;
+  private PLAIN_PREFIX = "PLAINTEXT:";
   constructor(sessionName: string, localStorageName: string) {
     this.sessionName = sessionName;
     this.localStorageName = localStorageName;
@@ -28,6 +29,23 @@ class Crypto<T> {
     return bytes.buffer;
   }
   async encriptarDados(dados: T): Promise<void> {
+    // Fallback: sem window/crypto.subtle salva em texto simples
+    if (
+      typeof window === "undefined" ||
+      !window.crypto ||
+      !window.crypto.subtle
+    ) {
+      localStorage.setItem(
+        this.localStorageName,
+        this.PLAIN_PREFIX + JSON.stringify(dados)
+      );
+      localStorage.removeItem(this.localStorageName + "IV");
+      if (typeof sessionStorage !== "undefined") {
+        sessionStorage.removeItem(this.sessionName);
+      }
+      return;
+    }
+
     // Gerar uma chave para criptografia
     const chave = await window.crypto.subtle.generateKey(
       {
@@ -77,6 +95,13 @@ class Crypto<T> {
     dadosCriptografados: ArrayBuffer,
     iv: Uint8Array
   ): Promise<T> {
+    if (
+      typeof window === "undefined" ||
+      !window.crypto ||
+      !window.crypto.subtle
+    ) {
+      throw new Error("WebCrypto indisponível");
+    }
     // Recuperar a chave armazenada
     const chaveBase64 = sessionStorage.getItem(this.sessionName);
     if (!chaveBase64) {
@@ -113,18 +138,33 @@ class Crypto<T> {
   }
   async recuperarDados<T>(): Promise<T | null> {
     try {
-      const dadosCriptografadosBase64 = localStorage.getItem(
-        this.localStorageName
-      );
-      const ivBase64 = localStorage.getItem(this.localStorageName + "IV");
-
-      if (!dadosCriptografadosBase64 || !ivBase64) {
+      const armazenado = localStorage.getItem(this.localStorageName);
+      if (!armazenado) {
         return null;
       }
 
-      const dadosCriptografados = this.base64ToArrayBuffer(
-        dadosCriptografadosBase64
-      );
+      // Fallback: valor salvo em texto simples
+      if (armazenado.startsWith(this.PLAIN_PREFIX)) {
+        const json = armazenado.slice(this.PLAIN_PREFIX.length);
+        return JSON.parse(json) as T;
+      }
+
+      const ivBase64 = localStorage.getItem(this.localStorageName + "IV");
+      if (!ivBase64) {
+        return null;
+      }
+
+      if (
+        typeof window === "undefined" ||
+        !window.crypto ||
+        !window.crypto.subtle
+      ) {
+        localStorage.removeItem(this.localStorageName);
+        localStorage.removeItem(this.localStorageName + "IV");
+        return null;
+      }
+
+      const dadosCriptografados = this.base64ToArrayBuffer(armazenado);
       const iv = new Uint8Array(this.base64ToArrayBuffer(ivBase64));
 
       return (await this.descriptografarDados(dadosCriptografados, iv)) as T;

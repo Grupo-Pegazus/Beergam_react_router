@@ -2,18 +2,45 @@ import { type MarketplaceVisualInfo } from "~/features/marketplace/typings";
 
 interface AvailableMarketplaceCardProps {
   marketplace: MarketplaceVisualInfo;
-  available: boolean;
+  onCardClick?: () => void;
+  isSelected?: boolean;
+}
+
+enum MarketplaceAvailable {
+  NOT_AVAILABLE = "Esse Marketplace ainda não está disponível.",
+  LIMIT_REACHED = "Você atingiu o limite de contas disponíveis.",
+}
+
+function isMarketplaceAvailable(marketplace: MarketplaceVisualInfo) {
+  let textToBeDisplayed = "";
+  if (!marketplace.available) {
+    textToBeDisplayed = MarketplaceAvailable.NOT_AVAILABLE;
+  }
+  return {
+    isAvailable: marketplace.available,
+    textToBeDisplayed,
+  };
 }
 
 export default function AvailableMarketplaceCard({
   marketplace,
-  available,
+  onCardClick,
+  isSelected = false,
 }: AvailableMarketplaceCardProps) {
-  const isAvailable = available;
+  const { isAvailable, textToBeDisplayed } =
+    isMarketplaceAvailable(marketplace);
+
   return (
-    <div className="relative group">
+    <div
+      className={`relative group`}
+      onClick={() => isAvailable && onCardClick?.()}
+      role="button"
+      tabIndex={0}
+    >
       <div
-        className={` relative flex flex-col gap-2 items-center justify-center p-4 rounded-md shadow-md ${!isAvailable ? "opacity-50" : ""}`}
+        className={`relative flex flex-col gap-2 items-center justify-center p-6 rounded-md shadow-md border-2 border-transparent ${isSelected ? "!border-beergam-orange" : ""} ${
+          !isAvailable ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+        }`}
       >
         <h3>{marketplace.label}</h3>
         <img
@@ -21,13 +48,14 @@ export default function AvailableMarketplaceCard({
           src={marketplace.image}
           alt={marketplace.label}
         />
-        <p>{isAvailable ? "Disponível" : "Indisponível"}</p>
+        {textToBeDisplayed === MarketplaceAvailable.NOT_AVAILABLE && (
+          <div className="absolute top-0 right-0 p-2 w-full h-full flex items-center justify-center bg-beergam-black/70 rounded-2xl">
+            <p className="text-beergam-white text-center">
+              {textToBeDisplayed}
+            </p>
+          </div>
+        )}
       </div>
-      {!isAvailable && (
-        <div className="opacity-0 absolute top-0 right-[-50%] w-40 p-2 text-beergam-white text-center rounded-2xl bg-black/70 group-hover:opacity-100">
-          <p>Troque seu plano para ter acesso a este marketplace</p>
-        </div>
-      )}
     </div>
   );
 }
