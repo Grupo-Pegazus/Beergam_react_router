@@ -1,6 +1,8 @@
 import React, { useReducer } from "react";
 import type { IBaseUser } from "~/features/user/typings/BaseUser";
 import {
+  CalcProfitProduct,
+  CalcTax,
   ComoConheceu,
   ProfitRange,
   type IUser,
@@ -8,10 +10,29 @@ import {
 import Svg from "~/src/assets/svgs";
 import { Fields } from "~/src/components/utils/_fields";
 import Hint from "~/src/components/utils/Hint";
+const EditingContext = React.createContext<boolean>(false);
 interface MinhaContaProps {
   user: IUser | IBaseUser | undefined;
 }
 export default function MinhaConta({ user }: MinhaContaProps) {
+  const editingInitialState = {
+    "Dados Pessoais": false,
+    "Dados Financeiros": false,
+  };
+  const [isEditing, setIsEditing] = useReducer(
+    (
+      state: typeof editingInitialState,
+      action:
+        | Partial<typeof editingInitialState>
+        | keyof typeof editingInitialState
+    ) => {
+      if (typeof action === "string") {
+        return { ...state, [action]: !state[action] };
+      }
+      return { ...state, ...action };
+    },
+    editingInitialState
+  );
   function CreateFields({
     //Função que cria os campos do formulário com algumas configurações por padrão, lógica de edição, etc.
     label,
@@ -19,7 +40,6 @@ export default function MinhaConta({ user }: MinhaContaProps) {
     canBeAlter = false,
     onChange,
     placeholder,
-    isEditing = false,
     selectOptions = null,
     hint = null,
   }: {
@@ -28,10 +48,17 @@ export default function MinhaConta({ user }: MinhaContaProps) {
     canBeAlter: boolean;
     onChange: (value: string) => void;
     placeholder?: string;
-    isEditing?: boolean;
-    selectOptions?: Array<{ value: string; label: string }> | null;
+    selectOptions?: Array<{ value: string | null; label: string }> | null;
     hint?: string | null;
   }) {
+    const isEditing = React.useContext(EditingContext);
+    if (value == null && selectOptions != null) {
+      console.log("value == null && selectOptions != null");
+      selectOptions = [
+        ...selectOptions,
+        { value: null, label: "Selecione uma opção" },
+      ];
+    }
     return (
       <Fields.wrapper>
         <div className="flex justify-between items-center gap-2">
@@ -86,10 +113,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
       </Fields.wrapper>
     );
   }
-  const editingInitialState = {
-    "Dados Pessoais": false,
-    "Dados Financeiros": false,
-  };
+
   function CreateFieldsSections({
     children,
     sectionTitle,
@@ -98,33 +122,35 @@ export default function MinhaConta({ user }: MinhaContaProps) {
     sectionTitle: keyof typeof editingInitialState;
   }) {
     return (
-      <div className="flex flex-col gap-4 mb-4">
-        <div className="flex items-center gap-4">
-          <h3 className="text-beergam-blue-primary uppercase">
-            {sectionTitle}
-          </h3>
-          <button
-            onClick={() =>
-              setIsEditing({ [sectionTitle]: !isEditing[sectionTitle] })
-            }
-          >
-            <div className="flex justify-center items-center gap-2 p-4 pt-1 pb-1 rounded-xl bg-beergam-blue-primary hover:bg-beergam-orange text-beergam-white">
-              <p>Editar {sectionTitle}</p>
-              {isEditing[sectionTitle] ? (
-                <Svg.x width={17} height={17} />
-              ) : (
-                <Svg.pencil width={17} height={17} />
-              )}
-            </div>
-          </button>
+      <EditingContext.Provider value={isEditing[sectionTitle]}>
+        <div className="flex flex-col gap-4 mb-4">
+          <div className="flex items-center gap-4">
+            <h3 className="text-beergam-blue-primary uppercase">
+              {sectionTitle}
+            </h3>
+            <button
+              onClick={() =>
+                setIsEditing({ [sectionTitle]: !isEditing[sectionTitle] })
+              }
+            >
+              <div className="flex justify-center items-center gap-2 p-4 pt-1 pb-1 rounded-xl bg-beergam-blue-primary hover:bg-beergam-orange text-beergam-white">
+                <p>Editar {sectionTitle}</p>
+                {isEditing[sectionTitle] ? (
+                  <Svg.x width={17} height={17} />
+                ) : (
+                  <Svg.pencil width={17} height={17} />
+                )}
+              </div>
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-4">{children}</div>
         </div>
-        <div className="grid grid-cols-2 gap-4">{children}</div>
-      </div>
+      </EditingContext.Provider>
     );
   }
+
   function GenerateFieldsBySection( //Função que gera os campos se baseando nas sessões
-    sectionTitle: keyof typeof editingInitialState,
-    editing: boolean
+    sectionTitle: keyof typeof editingInitialState
   ) {
     if (!user) return null;
     switch (sectionTitle) {
@@ -160,7 +186,6 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                   }
                   onChange={() => {}}
                   placeholder="Digite seu CPF"
-                  isEditing={editing}
                 />
                 <CreateFields
                   label="CNPJ"
@@ -171,7 +196,6 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                   }
                   onChange={() => {}}
                   placeholder="Digite seu CNPJ"
-                  isEditing={editing}
                 />
                 <CreateFields
                   label="CÓDIGO DE INDICAÇÃO"
@@ -185,7 +209,6 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                   value={user?.details?.found_beergam ?? null}
                   canBeAlter={true}
                   onChange={() => {}}
-                  isEditing={editing}
                   selectOptions={Object.keys(ComoConheceu).map((key) => ({
                     value: key,
                     label: ComoConheceu[key as keyof typeof ComoConheceu],
@@ -200,14 +223,12 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                     value: key,
                     label: ProfitRange[key as keyof typeof ProfitRange],
                   }))}
-                  isEditing={editing}
                 />
                 <CreateFields
                   label="PIN"
                   value={user?.pin ?? null}
                   canBeAlter={false}
                   onChange={() => {}}
-                  isEditing={editing}
                   hint="O PIN é usado para acessar o sistema de colaboradores."
                 />
               </>
@@ -215,7 +236,50 @@ export default function MinhaConta({ user }: MinhaContaProps) {
           </>
         );
       case "Dados Financeiros":
-        return <></>;
+        return (
+          <>
+            {"details" in user && (
+              <>
+                <CreateFields
+                  label="CÁLCULO DE LUCRO DO PRODUTO"
+                  value={user?.details?.calc_profit_product ?? null}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                  hint="O cálculo de lucro do produto mostra quanto você realmente ganha por venda, subtraindo do preço todos os custos (produto, frete, taxas, impostos e embalagem)."
+                  selectOptions={Object.keys(CalcProfitProduct).map((key) => ({
+                    value: key,
+                    label:
+                      CalcProfitProduct[key as keyof typeof CalcProfitProduct],
+                  }))}
+                />
+                <CreateFields
+                  label="CÁLCULO DE IMPOSTO"
+                  value={user?.details?.calc_tax ?? null}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                  hint="São diferentes formas de calcular a base tributária antes de aplicar a alíquota do imposto. "
+                  selectOptions={Object.keys(CalcTax).map((key) => ({
+                    value: key,
+                    label: CalcTax[key as keyof typeof CalcTax],
+                  }))}
+                />
+                <CreateFields
+                  label="PORCENTAGEM FIXA DE IMPOSTO"
+                  value={user?.details?.tax_percent_fixed ?? null}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                  hint="São diferentes formas de calcular a base tributária antes de aplicar a alíquota do imposto. "
+                />
+                <CreateFields
+                  label="NÚMERO DE FUNCIONÁRIOS"
+                  value={user?.details?.number_of_employees ?? null}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                />
+              </>
+            )}
+          </>
+        );
       default:
         return null;
     }
@@ -223,30 +287,13 @@ export default function MinhaConta({ user }: MinhaContaProps) {
   if (!user)
     return <div className="flex flex-col gap-4">Nenhum usuário encontrado</div>;
 
-  const [isEditing, setIsEditing] = useReducer(
-    (
-      state: typeof editingInitialState,
-      action:
-        | Partial<typeof editingInitialState>
-        | keyof typeof editingInitialState
-    ) => {
-      if (typeof action === "string") {
-        return { ...state, [action]: !state[action] };
-      }
-      return { ...state, ...action };
-    },
-    editingInitialState
-  );
   return (
     <>
       <CreateFieldsSections sectionTitle="Dados Pessoais">
-        {GenerateFieldsBySection("Dados Pessoais", isEditing["Dados Pessoais"])}
+        {GenerateFieldsBySection("Dados Pessoais")}
       </CreateFieldsSections>
       <CreateFieldsSections sectionTitle="Dados Financeiros">
-        {GenerateFieldsBySection(
-          "Dados Financeiros",
-          isEditing["Dados Financeiros"]
-        )}
+        {GenerateFieldsBySection("Dados Financeiros")}
       </CreateFieldsSections>
     </>
   );
