@@ -39,10 +39,10 @@ class Crypto<T> {
         this.localStorageName,
         this.PLAIN_PREFIX + JSON.stringify(dados)
       );
-      localStorage.removeItem(this.localStorageName + "IV");
-      if (typeof sessionStorage !== "undefined") {
-        sessionStorage.removeItem(this.sessionName);
-      }
+      // localStorage.removeItem(this.localStorageName + "IV");
+      // if (typeof sessionStorage !== "undefined") {
+      //   sessionStorage.removeItem(this.sessionName);
+      // }
       return;
     }
 
@@ -159,8 +159,8 @@ class Crypto<T> {
         !window.crypto ||
         !window.crypto.subtle
       ) {
-        localStorage.removeItem(this.localStorageName);
-        localStorage.removeItem(this.localStorageName + "IV");
+        // localStorage.removeItem(this.localStorageName);
+        // localStorage.removeItem(this.localStorageName + "IV");
         return null;
       }
 
@@ -170,8 +170,8 @@ class Crypto<T> {
       return (await this.descriptografarDados(dadosCriptografados, iv)) as T;
     } catch (error) {
       console.error("Erro ao recuperar dados:", error);
-      localStorage.removeItem(this.localStorageName);
-      localStorage.removeItem(this.localStorageName + "IV");
+      // localStorage.removeItem(this.localStorageName);
+      // localStorage.removeItem(this.localStorageName + "IV");
       return null;
     }
   }
