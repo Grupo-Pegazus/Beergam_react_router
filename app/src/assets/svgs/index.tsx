@@ -18,6 +18,7 @@ import HomeIcon from "./HomeIcon";
 import InBoxStackIcon from "./InBoxStackIcon";
 import InformationCircle from "./InformationCircle";
 import LockClosed from "./LockClosed";
+import Pencil from "./Pencil";
 import PhoneIcon from "./PhoneIcon";
 import PlusCircle from "./PlusCircle";
 import QuestionMark from "./QuestionMark";
@@ -49,6 +50,7 @@ const Svg = {
   circle_x: CircleX,
   x: X,
   lock_closed: LockClosed,
+  pencil: Pencil,
 };
 
 export default Svg;

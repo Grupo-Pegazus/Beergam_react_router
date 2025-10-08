@@ -28,19 +28,23 @@ function CardComponent({ title, value }: { title: string; value: string }) {
 export default function PageLayout({
   children,
   tailwindClassName,
+  showLogo = true,
 }: {
   children: React.ReactNode;
   tailwindClassName?: string;
+  showLogo?: boolean;
 }) {
   return (
     <>
       <main className="flex min-h-full bg-beergam-orange">
         <data className="absolute top-2 left-2 w-30 h-30 z-10">
-          <img
-            src={beergam_flower_logo}
-            alt="beergam_flower_logo"
-            className="w-full h-full object-contain"
-          />
+          {showLogo && (
+            <img
+              src={beergam_flower_logo}
+              alt="beergam_flower_logo"
+              className="w-full h-full object-contain"
+            />
+          )}
         </data>
         <div className="absolute top-0 left-0 max-w-screen max-h-screen overflow-hidden w-full h-full opacity-50">
           <div className="absolute top-0 left-0 w-3/4 max-w-6xl object-contain">

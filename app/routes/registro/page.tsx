@@ -7,7 +7,7 @@ import FormModal from "./components/FormModal";
 
 export default function RegistroPage() {
   return (
-    <PageLayout pageType="registro">
+    <PageLayout>
       <div className="w-full flex flex-col justify-between h-auto lg:flex-row-reverse lg:h-lvh">
         <div className="w-full lg:w-2/3">
           <FormModal />

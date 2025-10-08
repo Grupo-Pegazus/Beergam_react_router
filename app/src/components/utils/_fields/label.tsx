@@ -1,4 +1,5 @@
 import React from "react";
+import Hint from "../Hint";
 
 interface LabelProps {
   text: string;
@@ -6,6 +7,7 @@ interface LabelProps {
   info?: string;
   styleLabel?: React.CSSProperties;
   tailWindClasses?: string;
+  hint?: string;
 }
 
 function Label({
@@ -14,15 +16,17 @@ function Label({
   info,
   styleLabel,
   tailWindClasses,
+  hint,
 }: LabelProps) {
   return (
     <div className={`flex items-start gap-4`}>
       <label
-        className={`font-medium text-sm text-beergam-gray ${tailWindClasses || ""} sm:text-base`}
+        className={`font-medium text-sm text-beergam-gray ${tailWindClasses || ""} sm:text-base relative inline-flex items-center gap-2`}
         style={{ ...styleLabel, textTransform: "inherit" }}
       >
         {text}
         {required && <span className="text-red-500 ml-1">*</span>}
+        {hint && <Hint message={hint} />}
       </label>
 
       {info && <p className="text-xs text-[#858585]">*{info}</p>}

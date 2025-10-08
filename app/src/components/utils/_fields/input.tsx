@@ -17,6 +17,7 @@ interface InputProps {
   min?: number;
   max?: number;
   disabled?: boolean | undefined;
+  tailWindClasses?: string;
 }
 
 export default function Input({
@@ -34,6 +35,7 @@ export default function Input({
   min,
   max,
   disabled,
+  tailWindClasses,
 }: InputProps) {
   const isValid = required && value && !error?.error;
 
@@ -58,7 +60,7 @@ export default function Input({
           value={value}
           placeholder={placeholder}
           required={required}
-          className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses} ${type === "password" ? "pr-10" : ""}`}
+          className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses} ${type === "password" ? "pr-10" : ""} ${tailWindClasses}`}
           onChange={onChange}
           onBlur={onBlur}
           onFocus={onFocus}
