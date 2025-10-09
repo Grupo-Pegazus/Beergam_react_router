@@ -190,6 +190,7 @@ export const UserDetailsSchema = z.object({
   cpf: CPFSchema.optional().nullable(),
   cnpj: CNPJSchema.optional().nullable(),
   phone: TelefoneSchema,
+  secondary_phone: TelefoneSchema.optional().nullable(),
   personal_reference_code: BeergamCodeSchema.optional(),
   referral_code: BeergamCodeSchema.optional().nullable(),
   profit_range: z
@@ -201,6 +202,7 @@ export const UserDetailsSchema = z.object({
     .optional()
     .nullable(),
   subscriptions: z.array(SubscriptionSchema).optional().nullable(),
+  notify_newsletter: z.boolean().optional().nullable(),
 }) satisfies z.ZodType<IUserDetails>;
 
 export const UserSchema = BaseUserSchema.extend({

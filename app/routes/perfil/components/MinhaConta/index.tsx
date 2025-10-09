@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useReducer } from "react";
+import { z } from "zod";
 import type { IBaseUser } from "~/features/user/typings/BaseUser";
 import {
   CalcProfitProduct,
@@ -8,6 +9,7 @@ import {
   NumberOfEmployees,
   ProfitRange,
   Segment,
+  UserSchema,
   type IUser,
   type IUserDetails,
 } from "~/features/user/typings/User";
@@ -29,14 +31,31 @@ function deepEqual(obj1: unknown, obj2: unknown): boolean {
   const keys1 = Object.keys(obj1);
   const keys2 = Object.keys(obj2);
 
-  if (keys1.length !== keys2.length) return false;
+  // Criar um conjunto com todas as chaves únicas de ambos os objetos
+  const allKeys = new Set([...keys1, ...keys2]);
 
-  for (const key of keys1) {
-    if (
-      !keys2.includes(key) ||
-      !deepEqual(obj1[key as keyof typeof obj1], obj2[key as keyof typeof obj2])
-    )
+  for (const key of allKeys) {
+    const value1 = obj1[key as keyof typeof obj1];
+    const value2 = obj2[key as keyof typeof obj2];
+
+    // Se um campo não existe em um objeto, considere como null
+    const normalizedValue1 = keys1.includes(key) ? value1 : null;
+    const normalizedValue2 = keys2.includes(key) ? value2 : null;
+
+    // Se ambos são null, considere como iguais
+    if (normalizedValue1 === null && normalizedValue2 === null) {
+      continue;
+    }
+
+    // Se apenas um é null, são diferentes
+    if (normalizedValue1 === null || normalizedValue2 === null) {
       return false;
+    }
+
+    // Se nenhum é null, faça a comparação recursiva
+    if (!deepEqual(normalizedValue1, normalizedValue2)) {
+      return false;
+    }
   }
 
   return true;
@@ -64,6 +83,10 @@ export default function MinhaConta({ user }: MinhaContaProps) {
     },
     user
   );
+  const editedUserValidation = UserSchema.safeParse(editedUser);
+  const editedUserError = editedUserValidation.error
+    ? z.treeifyError(editedUserValidation.error)
+    : null;
   const usersAreEqual = useMemo(() => {
     if (!user || !editedUser) return false;
 
@@ -142,6 +165,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
       selectOptions = null,
       hint = null,
       type = "text",
+      error = null,
     }: {
       label: string;
       value: string | number | boolean | null;
@@ -155,6 +179,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
       }> | null;
       hint?: string | null;
       type?: "text" | "number" | "checkbox";
+      error?: { errors: string[] } | null;
     }) => {
       const isEditing = React.useContext(EditingContext);
       if (selectOptions != null) {
@@ -188,7 +213,14 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                   onChange={(e) => onChange?.(e.target.value)}
                   placeholder={placeholder}
                   tailWindClasses={inputClasses}
-                  hasError={false}
+                  hasError={true}
+                  error={{
+                    message: error?.errors[0] || "",
+                    error:
+                      error?.errors.length && error?.errors.length > 0
+                        ? true
+                        : false,
+                  }}
                   type={type}
                 />
               )
@@ -213,7 +245,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                 onChange={(e) => onChange?.(e.target.value)}
                 placeholder={placeholder}
                 tailWindClasses={inputClasses}
-                hasError={false}
+                hasError={true}
                 type={type}
               />
             )
@@ -301,6 +333,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                 label="NOME COMPLETO / RAZÃO SOCIAL"
                 value={user?.name ?? ""}
                 canBeAlter={false}
+                error={editedUserError?.properties?.name}
               />
               {"details" in editedUser && "details" in user && (
                 <>
@@ -308,11 +341,17 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                     label="EMAIL"
                     value={user?.details?.email ?? ""}
                     canBeAlter={false}
+                    error={
+                      editedUserError?.properties?.details?.properties?.email
+                    }
                   />
                   <CreateFields
                     label="TELEFONE"
                     value={user?.details?.phone ?? ""}
                     canBeAlter={false}
+                    error={
+                      editedUserError?.properties?.details?.properties?.phone
+                    }
                   />
                   <CreateFields
                     label="CPF"
@@ -324,6 +363,9 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                     placeholder="Digite seu CPF"
                     onChange={(value) =>
                       handleUserInfoChange(value, { details: { key: "cpf" } })
+                    }
+                    error={
+                      editedUserError?.properties?.details?.properties?.cpf
                     }
                   />
                   <CreateFields
@@ -337,12 +379,19 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                       handleUserInfoChange(value, { details: { key: "cnpj" } })
                     }
                     placeholder="Digite seu CNPJ"
+                    error={
+                      editedUserError?.properties?.details?.properties?.cnpj
+                    }
                   />
                   <CreateFields
                     label="CÓDIGO DE INDICAÇÃO"
                     value={user?.details?.personal_reference_code ?? ""}
                     canBeAlter={false}
                     hint="Compartilhe seu código de indicação para convidar novos usuários ao Beergam."
+                    error={
+                      editedUserError?.properties?.details?.properties
+                        ?.personal_reference_code
+                    }
                   />
                   <CreateFields
                     label="COMO CONHECEU A BEERGAM"
@@ -357,6 +406,10 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                       value: key,
                       label: ComoConheceu[key as keyof typeof ComoConheceu],
                     }))}
+                    error={
+                      editedUserError?.properties?.details?.properties
+                        ?.found_beergam
+                    }
                   />
                   <CreateFields
                     label="FATURAMENTO MENSAL"
@@ -371,6 +424,10 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                       value: key,
                       label: ProfitRange[key as keyof typeof ProfitRange],
                     }))}
+                    error={
+                      editedUserError?.properties?.details?.properties
+                        ?.profit_range
+                    }
                   />
                   <CreateFields
                     label="PIN"
@@ -378,6 +435,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                     canBeAlter={false}
                     onChange={() => {}}
                     hint="O PIN é usado para acessar o sistema de colaboradores."
+                    error={editedUserError?.properties?.pin}
                   />
                 </>
               )}
@@ -470,11 +528,11 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                   />
                   <CreateFields
                     label="EMITE NOTA FISCAL NO FLEX"
-                    value={editedUser?.details?.sells_shopee ?? false}
+                    value={editedUser?.details?.notify_newsletter ?? false}
                     canBeAlter={true}
                     onChange={(value) =>
                       handleUserInfoChange(value, {
-                        details: { key: "sells_shopee" },
+                        details: { key: "notify_newsletter" },
                       })
                     }
                     type="checkbox"
@@ -564,6 +622,10 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                       details: { key: "secondary_phone" },
                     })
                   }
+                  error={
+                    editedUserError?.properties?.details?.properties
+                      ?.secondary_phone
+                  }
                 />
                 <GenerateSubSections subSectionTitle="Dados coorporativos">
                   <CreateFields
@@ -585,6 +647,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                         details: { key: "foundation_date" },
                       })
                     }
+                    name="foundation_date"
                   />
                   <CreateFields
                     label="SEGMENTO"
@@ -676,7 +739,8 @@ export default function MinhaConta({ user }: MinhaContaProps) {
 
   return (
     <div className="w-full flex flex-col gap-4 mt-4 relative">
-      {/* {JSON.stringify(editedUser)}
+      {/* {JSON.stringify(editedUserError)}
+      {JSON.stringify(editedUser)}
       <p>-----------------</p>
       <p>user</p>
       {JSON.stringify(user)}
