@@ -9,11 +9,38 @@ import {
   ProfitRange,
   Segment,
   type IUser,
+  type IUserDetails,
 } from "~/features/user/typings/User";
 import Svg from "~/src/assets/svgs";
 import { Fields } from "~/src/components/utils/_fields";
 import Hint from "~/src/components/utils/Hint";
 const EditingContext = React.createContext<boolean>(false);
+function deepEqual(obj1: unknown, obj2: unknown): boolean {
+  if (obj1 === obj2) return true;
+
+  if (
+    typeof obj1 !== "object" ||
+    obj1 === null ||
+    typeof obj2 !== "object" ||
+    obj2 === null
+  )
+    return false;
+
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+
+  if (keys1.length !== keys2.length) return false;
+
+  for (const key of keys1) {
+    if (
+      !keys2.includes(key) ||
+      !deepEqual(obj1[key as keyof typeof obj1], obj2[key as keyof typeof obj2])
+    )
+      return false;
+  }
+
+  return true;
+}
 interface MinhaContaProps {
   user: IUser | IBaseUser | undefined;
 }
@@ -37,7 +64,15 @@ export default function MinhaConta({ user }: MinhaContaProps) {
     },
     user
   );
-  console.log("renderizei o pia");
+  const usersAreEqual = useMemo(() => {
+    if (!user || !editedUser) return false;
+
+    // Comparação rápida primeiro
+    if (user === editedUser) return true;
+
+    // Comparação profunda apenas se necessário
+    return deepEqual(user, editedUser);
+  }, [user, editedUser]);
   useEffect(() => {
     setEditedUser({ type: "reset" });
     console.log("mudei o user");
@@ -67,40 +102,35 @@ export default function MinhaConta({ user }: MinhaContaProps) {
     },
     []
   );
-
-  // Callbacks estáveis para os campos específicos
-  const handleEmailChange = useCallback(
-    (value: string) => {
-      if (user && "details" in user && user.details) {
-        editUserInformation({
-          details: { ...user!.details, email: value },
-        });
+  const handleUserInfoChange = useCallback(
+    (
+      value: string | null,
+      target: string | { details: { key: keyof IUserDetails } }
+    ) => {
+      if (!editedUser || !target) {
+        return;
       }
-    },
-    [editUserInformation, user]
-  );
-
-  const handleCpfChange = useCallback(
-    (value: string) => {
-      if (editedUser && "details" in editedUser && editedUser.details) {
+      if (typeof target == "string") {
+        if (value == "") {
+          value = null;
+        }
+        editUserInformation({ [target]: value });
+      }
+      if (typeof target == "object" && "details" in target && target.details) {
+        if (!("details" in editedUser)) {
+          return;
+        }
+        if (value == "") {
+          value = null;
+        }
         editUserInformation({
-          details: { ...editedUser!.details, cpf: value },
+          details: { ...editedUser?.details, [target.details.key]: value },
         });
       }
     },
     [editUserInformation, editedUser]
   );
 
-  const handleCnpjChange = useCallback(
-    (value: string) => {
-      if (user && "details" in user && user.details) {
-        editUserInformation({
-          details: { ...user!.details, cnpj: value },
-        });
-      }
-    },
-    [editUserInformation, user]
-  );
   const CreateFields = useCallback(
     ({
       //Função que cria os campos do formulário com algumas configurações por padrão, lógica de edição, etc.
@@ -116,18 +146,21 @@ export default function MinhaConta({ user }: MinhaContaProps) {
       label: string;
       value: string | number | boolean | null;
       canBeAlter: boolean;
-      onChange?: (value: string) => void;
+      onChange?: (value: string | null) => void;
       placeholder?: string;
-      selectOptions?: Array<{ value: string | null; label: string }> | null;
+      selectOptions?: Array<{
+        value: string | null;
+        label: string;
+        disabled?: boolean;
+      }> | null;
       hint?: string | null;
       type?: "text" | "number" | "checkbox";
     }) => {
       const isEditing = React.useContext(EditingContext);
-      if (value == null && selectOptions != null) {
-        console.log("value == null && selectOptions != null");
+      if (selectOptions != null) {
         selectOptions = [
           ...selectOptions,
-          { value: null, label: "Selecione uma opção" },
+          { value: null, label: "Selecione uma opção", disabled: true },
         ];
       }
       const inputClasses =
@@ -192,7 +225,25 @@ export default function MinhaConta({ user }: MinhaContaProps) {
     },
     []
   );
-
+  const GenerateSubSections = useCallback(
+    ({
+      subSectionTitle,
+      children,
+    }: {
+      subSectionTitle: string;
+      children: React.ReactNode;
+    }) => {
+      return (
+        <div className="col-span-3 flex flex-col gap-4">
+          <h4 className="text-beergam-blue-primary font-bold uppercase">
+            {subSectionTitle}
+          </h4>
+          <div className="grid grid-cols-3 gap-4">{children}</div>
+        </div>
+      );
+    },
+    []
+  );
   const CreateFieldsSections = useCallback(
     ({
       children,
@@ -241,22 +292,6 @@ export default function MinhaConta({ user }: MinhaContaProps) {
       //Função que gera os campos se baseando nas sessões
       sectionTitle: keyof typeof editingInitialState
     ) => {
-      function GenerateSubSections({
-        subSectionTitle,
-        children,
-      }: {
-        subSectionTitle: string;
-        children: React.ReactNode;
-      }) {
-        return (
-          <div className="col-span-3 flex flex-col gap-4">
-            <h4 className="text-beergam-blue-primary font-bold uppercase">
-              {subSectionTitle}
-            </h4>
-            <div className="grid grid-cols-3 gap-4">{children}</div>
-          </div>
-        );
-      }
       if (!editedUser || !user) return null;
       switch (sectionTitle) {
         case "Dados Pessoais":
@@ -273,13 +308,11 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                     label="EMAIL"
                     value={user?.details?.email ?? ""}
                     canBeAlter={false}
-                    onChange={handleEmailChange}
                   />
                   <CreateFields
                     label="TELEFONE"
                     value={user?.details?.phone ?? ""}
                     canBeAlter={false}
-                    onChange={() => {}}
                   />
                   <CreateFields
                     label="CPF"
@@ -288,8 +321,10 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                       user?.details?.cpf == null ||
                       user?.details?.cpf == undefined
                     }
-                    onChange={handleCpfChange}
                     placeholder="Digite seu CPF"
+                    onChange={(value) =>
+                      handleUserInfoChange(value, { details: { key: "cpf" } })
+                    }
                   />
                   <CreateFields
                     label="CNPJ"
@@ -298,21 +333,26 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                       user?.details?.cnpj == null ||
                       user?.details?.cnpj == undefined
                     }
-                    onChange={handleCnpjChange}
+                    onChange={(value) =>
+                      handleUserInfoChange(value, { details: { key: "cnpj" } })
+                    }
                     placeholder="Digite seu CNPJ"
                   />
                   <CreateFields
                     label="CÓDIGO DE INDICAÇÃO"
                     value={user?.details?.personal_reference_code ?? ""}
                     canBeAlter={false}
-                    onChange={() => {}}
                     hint="Compartilhe seu código de indicação para convidar novos usuários ao Beergam."
                   />
                   <CreateFields
                     label="COMO CONHECEU A BEERGAM"
-                    value={user?.details?.found_beergam ?? null}
+                    value={editedUser?.details?.found_beergam ?? null}
                     canBeAlter={true}
-                    onChange={() => {}}
+                    onChange={(value) =>
+                      handleUserInfoChange(value, {
+                        details: { key: "found_beergam" },
+                      })
+                    }
                     selectOptions={Object.keys(ComoConheceu).map((key) => ({
                       value: key,
                       label: ComoConheceu[key as keyof typeof ComoConheceu],
@@ -320,9 +360,13 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                   />
                   <CreateFields
                     label="FATURAMENTO MENSAL"
-                    value={user?.details?.profit_range ?? null}
+                    value={editedUser?.details?.profit_range ?? null}
                     canBeAlter={true}
-                    onChange={() => {}}
+                    onChange={(value) =>
+                      handleUserInfoChange(value, {
+                        details: { key: "profit_range" },
+                      })
+                    }
                     selectOptions={Object.keys(ProfitRange).map((key) => ({
                       value: key,
                       label: ProfitRange[key as keyof typeof ProfitRange],
@@ -342,13 +386,17 @@ export default function MinhaConta({ user }: MinhaContaProps) {
         case "Dados Financeiros":
           return (
             <>
-              {"details" in user && (
+              {"details" in editedUser && (
                 <>
                   <CreateFields
                     label="CÁLCULO DE LUCRO DO PRODUTO"
-                    value={user?.details?.calc_profit_product ?? null}
+                    value={editedUser?.details?.calc_profit_product ?? null}
                     canBeAlter={true}
-                    onChange={() => {}}
+                    onChange={(value) =>
+                      handleUserInfoChange(value, {
+                        details: { key: "calc_profit_product" },
+                      })
+                    }
                     hint="O cálculo de lucro do produto mostra quanto você realmente ganha por venda, subtraindo do preço todos os custos (produto, frete, taxas, impostos e embalagem)."
                     selectOptions={Object.keys(CalcProfitProduct).map(
                       (key) => ({
@@ -362,9 +410,13 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                   />
                   <CreateFields
                     label="CÁLCULO DE IMPOSTO"
-                    value={user?.details?.calc_tax ?? null}
+                    value={editedUser?.details?.calc_tax ?? null}
                     canBeAlter={true}
-                    onChange={() => {}}
+                    onChange={(value) =>
+                      handleUserInfoChange(value, {
+                        details: { key: "calc_tax" },
+                      })
+                    }
                     hint="São diferentes formas de calcular a base tributária antes de aplicar a alíquota do imposto. "
                     selectOptions={Object.keys(CalcTax).map((key) => ({
                       value: key,
@@ -373,17 +425,25 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                   />
                   <CreateFields
                     label="PORCENTAGEM FIXA DE IMPOSTO"
-                    value={user?.details?.tax_percent_fixed ?? null}
+                    value={editedUser?.details?.tax_percent_fixed ?? null}
                     canBeAlter={true}
-                    onChange={() => {}}
+                    onChange={(value) =>
+                      handleUserInfoChange(value, {
+                        details: { key: "tax_percent_fixed" },
+                      })
+                    }
                     hint="São diferentes formas de calcular a base tributária antes de aplicar a alíquota do imposto. "
                     type="number"
                   />
                   <CreateFields
                     label="NÚMERO DE FUNCIONÁRIOS"
-                    value={user?.details?.number_of_employees ?? null}
+                    value={editedUser?.details?.number_of_employees ?? null}
                     canBeAlter={true}
-                    onChange={() => {}}
+                    onChange={(value) =>
+                      handleUserInfoChange(value, {
+                        details: { key: "number_of_employees" },
+                      })
+                    }
                     selectOptions={Object.keys(NumberOfEmployees).map(
                       (key) => ({
                         value: key,
@@ -396,9 +456,13 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                   />
                   <CreateFields
                     label="FATURADOR ATUAL"
-                    value={user?.details?.current_billing ?? null}
+                    value={editedUser?.details?.current_billing ?? null}
                     canBeAlter={true}
-                    onChange={() => {}}
+                    onChange={(value) =>
+                      handleUserInfoChange(value, {
+                        details: { key: "current_billing" },
+                      })
+                    }
                     selectOptions={Object.keys(CurrentBilling).map((key) => ({
                       value: key,
                       label: CurrentBilling[key as keyof typeof CurrentBilling],
@@ -406,46 +470,70 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                   />
                   <CreateFields
                     label="EMITE NOTA FISCAL NO FLEX"
-                    value={user?.details?.sells_shopee ?? false}
+                    value={editedUser?.details?.sells_shopee ?? false}
                     canBeAlter={true}
-                    onChange={() => {}}
+                    onChange={(value) =>
+                      handleUserInfoChange(value, {
+                        details: { key: "sells_shopee" },
+                      })
+                    }
                     type="checkbox"
                   />
                   <GenerateSubSections subSectionTitle="VENDAS EM PLATAFORMAS">
                     <CreateFields
                       label="VENDAS NO MELI"
-                      value={user?.details?.sells_meli ?? null}
+                      value={editedUser?.details?.sells_meli ?? null}
                       canBeAlter={true}
-                      onChange={() => {}}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "sells_meli" },
+                        })
+                      }
                       type="number"
                     />
 
                     <CreateFields
                       label="VENDAS NO SHOPEE"
-                      value={user?.details?.sells_shopee ?? null}
+                      value={editedUser?.details?.sells_shopee ?? null}
                       canBeAlter={true}
-                      onChange={() => {}}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "sells_shopee" },
+                        })
+                      }
                       type="number"
                     />
                     <CreateFields
                       label="VENDAS NO AMAZON"
-                      value={user?.details?.sells_amazon ?? null}
+                      value={editedUser?.details?.sells_amazon ?? null}
                       canBeAlter={true}
-                      onChange={() => {}}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "sells_amazon" },
+                        })
+                      }
                       type="number"
                     />
                     <CreateFields
                       label="VENDAS NO SHEIN"
-                      value={user?.details?.sells_shein ?? null}
+                      value={editedUser?.details?.sells_shein ?? null}
                       canBeAlter={true}
-                      onChange={() => {}}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "sells_shein" },
+                        })
+                      }
                       type="number"
                     />
                     <CreateFields
                       label="VENDAS NO SITE PRÓPRIO"
-                      value={user?.details?.sells_own_site ?? null}
+                      value={editedUser?.details?.sells_own_site ?? null}
                       canBeAlter={true}
-                      onChange={() => {}}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "sells_own_site" },
+                        })
+                      }
                       type="number"
                     />
                   </GenerateSubSections>
@@ -455,38 +543,58 @@ export default function MinhaConta({ user }: MinhaContaProps) {
           );
         case "Informações Básicas":
           return (
-            "details" in user && (
+            "details" in editedUser && (
               <>
                 <CreateFields
                   label="REDE SOCIAL"
-                  value={null}
+                  value={editedUser?.details?.social_media ?? null}
                   canBeAlter={true}
-                  onChange={() => {}}
+                  onChange={(value) =>
+                    handleUserInfoChange(value, {
+                      details: { key: "social_media" },
+                    })
+                  }
                 />
                 <CreateFields
                   label="TELEFONE SECUNDÁRIO"
-                  value={null}
+                  value={editedUser?.details?.secondary_phone ?? null}
                   canBeAlter={true}
-                  onChange={() => {}}
+                  onChange={(value) =>
+                    handleUserInfoChange(value, {
+                      details: { key: "secondary_phone" },
+                    })
+                  }
                 />
                 <GenerateSubSections subSectionTitle="Dados coorporativos">
                   <CreateFields
                     label="SITE COORPORATIVO"
-                    value={null}
+                    value={editedUser?.details?.website ?? null}
                     canBeAlter={true}
-                    onChange={() => {}}
+                    onChange={(value) =>
+                      handleUserInfoChange(value, {
+                        details: { key: "website" },
+                      })
+                    }
                   />
                   <CreateFields
                     label="DATA DE FUNDAÇÃO"
-                    value={null}
+                    value={editedUser?.details?.foundation_date ?? null}
                     canBeAlter={true}
-                    onChange={() => {}}
+                    onChange={(value) =>
+                      handleUserInfoChange(value, {
+                        details: { key: "foundation_date" },
+                      })
+                    }
                   />
                   <CreateFields
                     label="SEGMENTO"
-                    value={null}
+                    value={editedUser?.details?.segment ?? null}
                     canBeAlter={true}
-                    onChange={() => {}}
+                    onChange={(value) =>
+                      handleUserInfoChange(value, {
+                        details: { key: "segment" },
+                      })
+                    }
                     selectOptions={Object.keys(Segment).map((key) => ({
                       value: key,
                       label: Segment[key as keyof typeof Segment],
@@ -567,7 +675,12 @@ export default function MinhaConta({ user }: MinhaContaProps) {
     return <div className="flex flex-col gap-4">Nenhum usuário encontrado</div>;
 
   return (
-    <div className="w-full flex flex-col gap-4 mt-4">
+    <div className="w-full flex flex-col gap-4 mt-4 relative">
+      {/* {JSON.stringify(editedUser)}
+      <p>-----------------</p>
+      <p>user</p>
+      {JSON.stringify(user)}
+      <p>{JSON.stringify(usersAreEqual)}</p> */}
       <CreateFieldsSections sectionTitle="Dados Pessoais">
         {dadosPessoaisSection}
       </CreateFieldsSections>
@@ -577,6 +690,33 @@ export default function MinhaConta({ user }: MinhaContaProps) {
       <CreateFieldsSections sectionTitle="Informações Básicas">
         {informacoesBasicasSection}
       </CreateFieldsSections>
+      <div
+        className={`sticky w-full bottom-0 left-0 right-0 flex justify-center items-center ${
+          usersAreEqual
+            ? "opacity-0 pointer-events-none"
+            : "opacity-100 pointer-events-auto"
+        }`}
+      >
+        <div className="bg-beergam-white shadow-lg/50 border-1 border-beergam-blue-primary p-4 rounded-2xl w-3/5 flex justify-between items-center">
+          <p className="text-beergam-blue-primary font-bold !text-lg">
+            Deseja salvar suas alterações?
+          </p>
+          <div className="flex gap-4">
+            <button
+              className="text-beergam-blue-primary"
+              onClick={() => setEditedUser({ type: "reset" })}
+            >
+              Redefinir
+            </button>
+            <button
+              className="bg-beergam-blue-primary !font-bold text-beergam-white p-2 rounded-2xl hover:bg-beergam-orange"
+              onClick={() => console.log("eba")}
+            >
+              Salvar alterações
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
