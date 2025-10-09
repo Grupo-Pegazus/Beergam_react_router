@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useReducer } from "react";
+import { Tooltip } from "react-tooltip";
 import { z } from "zod";
 import type { IBaseUser } from "~/features/user/typings/BaseUser";
 import {
@@ -229,7 +230,11 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                 {selectOptions.find((option) => option.value === value)?.label}
               </p>
             ) : (
-              <p>{value}</p>
+              <p
+                className={`${error?.errors.length && error?.errors.length > 0 ? "text-red-500" : ""}`}
+              >
+                {value}
+              </p>
             )
           ) : canBeAlter && isEditing ? (
             selectOptions ? (
@@ -773,11 +778,18 @@ export default function MinhaConta({ user }: MinhaContaProps) {
               Redefinir
             </button>
             <button
-              className="bg-beergam-blue-primary !font-bold text-beergam-white p-2 rounded-2xl hover:bg-beergam-orange"
+              data-tooltip-id="salvar-alteracoes"
+              className={`${editedUserError ? "bg-beergam-red !cursor-not-allowed" : "bg-beergam-blue-primary hover:bg-beergam-orange"} !font-bold text-beergam-white p-2 rounded-2xl`}
               onClick={() => console.log("eba")}
             >
               Salvar alterações
             </button>
+            {editedUserError && (
+              <Tooltip
+                id="salvar-alteracoes"
+                content="Você possui erros pendentes no formulário."
+              />
+            )}
           </div>
         </div>
       </div>
