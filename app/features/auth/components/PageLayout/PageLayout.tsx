@@ -36,7 +36,7 @@ export default function PageLayout({
 }) {
   return (
     <>
-      <main className="flex min-h-full bg-beergam-orange">
+      <main className="flex min-h-full bg-beergam-orange overflow-x-hidden">
         <data className="absolute top-2 left-2 w-30 h-30 z-10">
           {showLogo && (
             <img

@@ -44,9 +44,9 @@ export default function PerfilPage() {
   }
   return (
     <PageLayout showLogo={false}>
-      <div className="grid grid-cols-[1fr_1.6fr] w-full h-full">
+      <div className="grid grid-cols-[1fr_2.4fr] w-full h-full">
         <div className="p-6 flex flex-col items-end">
-          <div className="w-[60%] flex flex-col items-start">
+          <div className="w-[90%] flex flex-col items-start">
             <h3 className="uppercase text-beergam-white">
               CONFIGURAÇÕES DE USUÁRIO
             </h3>
@@ -59,7 +59,7 @@ export default function PerfilPage() {
             </nav>
           </div>
         </div>
-        <div className="bg-beergam-white p-6 rounded-2xl shadow-lg/55">
+        <div className="bg-beergam-white p-6 rounded-2xl shadow-lg/55 overflow-y-auto max-h-[100vh]">
           <h1 className="text-beergam-blue-primary mb-4">{activeButton}</h1>
           {changeNavigation()}
         </div>

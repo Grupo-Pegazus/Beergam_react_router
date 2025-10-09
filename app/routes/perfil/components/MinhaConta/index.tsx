@@ -4,7 +4,10 @@ import {
   CalcProfitProduct,
   CalcTax,
   ComoConheceu,
+  CurrentBilling,
+  NumberOfEmployees,
   ProfitRange,
+  Segment,
   type IUser,
 } from "~/features/user/typings/User";
 import Svg from "~/src/assets/svgs";
@@ -18,6 +21,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
   const editingInitialState = {
     "Dados Pessoais": false,
     "Dados Financeiros": false,
+    "Informações Básicas": false,
   };
   const [isEditing, setIsEditing] = useReducer(
     (
@@ -42,14 +46,16 @@ export default function MinhaConta({ user }: MinhaContaProps) {
     placeholder,
     selectOptions = null,
     hint = null,
+    type = "text",
   }: {
     label: string;
-    value: string | null;
+    value: string | number | boolean | null;
     canBeAlter: boolean;
     onChange: (value: string) => void;
     placeholder?: string;
     selectOptions?: Array<{ value: string | null; label: string }> | null;
     hint?: string | null;
+    type?: "text" | "number" | "checkbox";
   }) {
     const isEditing = React.useContext(EditingContext);
     if (value == null && selectOptions != null) {
@@ -59,11 +65,15 @@ export default function MinhaConta({ user }: MinhaContaProps) {
         { value: null, label: "Selecione uma opção" },
       ];
     }
+    const inputClasses =
+      type === "checkbox" ? "" : type === "number" ? "!w-36" : "!w-2/3";
     return (
       <Fields.wrapper>
         <div className="flex justify-between items-center gap-2">
           <Fields.label text={label} />
-          {hint && <Hint message={hint} />}
+          {hint && (
+            <Hint message={hint} anchorSelect={label.toLocaleLowerCase()} />
+          )}
         </div>
         {value ? (
           isEditing && canBeAlter ? (
@@ -72,15 +82,16 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 options={selectOptions}
-                tailWindClasses="!w-1/2"
+                tailWindClasses="!w-2/3"
               />
             ) : (
               <Fields.input
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
-                tailWindClasses="!w-1/2"
+                tailWindClasses={inputClasses}
                 hasError={false}
+                type={type}
               />
             )
           ) : selectOptions ? (
@@ -96,19 +107,20 @@ export default function MinhaConta({ user }: MinhaContaProps) {
               value={""}
               onChange={(e) => onChange(e.target.value)}
               options={selectOptions}
-              tailWindClasses="!w-1/2"
+              tailWindClasses="!w-2/3"
             />
           ) : (
             <Fields.input
               value={""}
               onChange={(e) => onChange(e.target.value)}
               placeholder={placeholder}
-              tailWindClasses="!w-1/2"
+              tailWindClasses={inputClasses}
               hasError={false}
+              type={type}
             />
           )
         ) : (
-          <h4>Você ainda não preencheu este campo.</h4>
+          <p>Você ainda não preencheu este campo.</p>
         )}
       </Fields.wrapper>
     );
@@ -125,7 +137,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
       <EditingContext.Provider value={isEditing[sectionTitle]}>
         <div className="flex flex-col gap-4 mb-4">
           <div className="flex items-center gap-4">
-            <h3 className="text-beergam-blue-primary uppercase">
+            <h3 className="text-beergam-blue-primary uppercase !font-bold">
               {sectionTitle}
             </h3>
             <button
@@ -143,7 +155,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
               </div>
             </button>
           </div>
-          <div className="grid grid-cols-2 gap-4">{children}</div>
+          <div className="grid grid-cols-3 gap-4">{children}</div>
         </div>
       </EditingContext.Provider>
     );
@@ -152,6 +164,22 @@ export default function MinhaConta({ user }: MinhaContaProps) {
   function GenerateFieldsBySection( //Função que gera os campos se baseando nas sessões
     sectionTitle: keyof typeof editingInitialState
   ) {
+    function GenerateSubSections({
+      subSectionTitle,
+      children,
+    }: {
+      subSectionTitle: string;
+      children: React.ReactNode;
+    }) {
+      return (
+        <div className="col-span-3 flex flex-col gap-4">
+          <h4 className="text-beergam-blue-primary font-bold uppercase">
+            {subSectionTitle}
+          </h4>
+          <div className="grid grid-cols-3 gap-4">{children}</div>
+        </div>
+      );
+    }
     if (!user) return null;
     switch (sectionTitle) {
       case "Dados Pessoais":
@@ -202,7 +230,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                   value={user?.details?.personal_reference_code ?? ""}
                   canBeAlter={false}
                   onChange={() => {}}
-                  hint="Compartilhe seu código de indicação para convidar novos usuários ao Beergam e aproveite benefícios exclusivos."
+                  hint="Compartilhe seu código de indicação para convidar novos usuários ao Beergam."
                 />
                 <CreateFields
                   label="COMO CONHECEU A BEERGAM"
@@ -215,7 +243,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                   }))}
                 />
                 <CreateFields
-                  label="FATURAMENTO POSTAL"
+                  label="FATURAMENTO MENSAL"
                   value={user?.details?.profit_range ?? null}
                   canBeAlter={true}
                   onChange={() => {}}
@@ -269,16 +297,164 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                   canBeAlter={true}
                   onChange={() => {}}
                   hint="São diferentes formas de calcular a base tributária antes de aplicar a alíquota do imposto. "
+                  type="number"
                 />
                 <CreateFields
                   label="NÚMERO DE FUNCIONÁRIOS"
                   value={user?.details?.number_of_employees ?? null}
                   canBeAlter={true}
                   onChange={() => {}}
+                  selectOptions={Object.keys(NumberOfEmployees).map((key) => ({
+                    value: key,
+                    label:
+                      NumberOfEmployees[key as keyof typeof NumberOfEmployees],
+                  }))}
                 />
+                <CreateFields
+                  label="FATURADOR ATUAL"
+                  value={user?.details?.current_billing ?? null}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                  selectOptions={Object.keys(CurrentBilling).map((key) => ({
+                    value: key,
+                    label: CurrentBilling[key as keyof typeof CurrentBilling],
+                  }))}
+                />
+                <CreateFields
+                  label="EMITE NOTA FISCAL NO FLEX"
+                  value={user?.details?.sells_shopee ?? false}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                  type="checkbox"
+                />
+                <GenerateSubSections subSectionTitle="VENDAS EM PLATAFORMAS">
+                  <CreateFields
+                    label="VENDAS NO MELI"
+                    value={user?.details?.sells_meli ?? null}
+                    canBeAlter={true}
+                    onChange={() => {}}
+                    type="number"
+                  />
+
+                  <CreateFields
+                    label="VENDAS NO SHOPEE"
+                    value={user?.details?.sells_shopee ?? null}
+                    canBeAlter={true}
+                    onChange={() => {}}
+                    type="number"
+                  />
+                  <CreateFields
+                    label="VENDAS NO AMAZON"
+                    value={user?.details?.sells_amazon ?? null}
+                    canBeAlter={true}
+                    onChange={() => {}}
+                    type="number"
+                  />
+                  <CreateFields
+                    label="VENDAS NO SHEIN"
+                    value={user?.details?.sells_shein ?? null}
+                    canBeAlter={true}
+                    onChange={() => {}}
+                    type="number"
+                  />
+                  <CreateFields
+                    label="VENDAS NO SITE PRÓPRIO"
+                    value={user?.details?.sells_own_site ?? null}
+                    canBeAlter={true}
+                    onChange={() => {}}
+                    type="number"
+                  />
+                </GenerateSubSections>
               </>
             )}
           </>
+        );
+      case "Informações Básicas":
+        return (
+          "details" in user && (
+            <>
+              <CreateFields
+                label="REDE SOCIAL"
+                value={null}
+                canBeAlter={true}
+                onChange={() => {}}
+              />
+              <CreateFields
+                label="TELEFONE SECUNDÁRIO"
+                value={null}
+                canBeAlter={true}
+                onChange={() => {}}
+              />
+              <GenerateSubSections subSectionTitle="Dados coorporativos">
+                <CreateFields
+                  label="SITE COORPORATIVO"
+                  value={null}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                />
+                <CreateFields
+                  label="DATA DE FUNDAÇÃO"
+                  value={null}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                />
+                <CreateFields
+                  label="SEGMENTO"
+                  value={null}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                  selectOptions={Object.keys(Segment).map((key) => ({
+                    value: key,
+                    label: Segment[key as keyof typeof Segment],
+                  }))}
+                />
+              </GenerateSubSections>
+              <GenerateSubSections subSectionTitle="Endereço completo">
+                <CreateFields
+                  label="CEP"
+                  value={null}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                />
+                <CreateFields
+                  label="Bairro"
+                  value={null}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                />
+                <CreateFields
+                  label="Cidade"
+                  value={null}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                />
+                <CreateFields
+                  label="Estado"
+                  value={null}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                />
+                <CreateFields
+                  label="Rua"
+                  value={null}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                />
+                <CreateFields
+                  label="Número"
+                  value={null}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                />
+                <CreateFields
+                  label="Complemento"
+                  value={null}
+                  canBeAlter={true}
+                  onChange={() => {}}
+                />
+              </GenerateSubSections>
+            </>
+          )
         );
       default:
         return null;
@@ -288,13 +464,16 @@ export default function MinhaConta({ user }: MinhaContaProps) {
     return <div className="flex flex-col gap-4">Nenhum usuário encontrado</div>;
 
   return (
-    <>
+    <div className="w-full flex flex-col gap-4 mt-4">
       <CreateFieldsSections sectionTitle="Dados Pessoais">
         {GenerateFieldsBySection("Dados Pessoais")}
       </CreateFieldsSections>
       <CreateFieldsSections sectionTitle="Dados Financeiros">
         {GenerateFieldsBySection("Dados Financeiros")}
       </CreateFieldsSections>
-    </>
+      <CreateFieldsSections sectionTitle="Informações Básicas">
+        {GenerateFieldsBySection("Informações Básicas")}
+      </CreateFieldsSections>
+    </div>
   );
 }

@@ -8,11 +8,11 @@ import { UserPasswordSchema } from "~/features/auth/typing";
 import { UserRoles, UserStatus } from "~/features/user/typings/BaseUser";
 import {
   ComoConheceu,
-  Faixaprofit_range,
+  ProfitRange,
   UserSchema,
   type ComoConheceuKeys,
-  type Faixaprofit_rangeKeys,
   type IUser,
+  type ProfitRangeKeys,
 } from "~/features/user/typings/User";
 import { Fields } from "~/src/components/utils/_fields";
 import type { InputError } from "~/src/components/utils/_fields/typings";
@@ -221,7 +221,7 @@ export default function FormModal() {
           UserInfo.cnpj = "12345678901234";
           UserInfo.phone = "12345678901";
           UserInfo.found_beergam = "ANUNCIO_FACEBOOK" as ComoConheceuKeys;
-          UserInfo.profit_range = "ATE_10_MIL" as Faixaprofit_rangeKeys;
+          UserInfo.profit_range = "ATE_10_MIL" as ProfitRangeKeys;
           UserInfo.personal_reference_code = "1234567890";
           UserInfo.referral_code = "1234567890";
           setPassword("123456Ab!");
@@ -446,9 +446,9 @@ export default function FormModal() {
             }
             options={[
               { value: "", label: "Selecione" },
-              ...Object.keys(Faixaprofit_range).map((key) => ({
+              ...Object.keys(ProfitRange).map((key) => ({
                 value: key,
-                label: Faixaprofit_range[key as Faixaprofit_rangeKeys],
+                label: ProfitRange[key as ProfitRangeKeys],
               })),
             ]}
             name="profit_range"
@@ -456,7 +456,7 @@ export default function FormModal() {
               setUserInfo({
                 details: {
                   ...UserInfo.details,
-                  profit_range: e.target.value as Faixaprofit_rangeKeys,
+                  profit_range: e.target.value as ProfitRangeKeys,
                 },
               })
             }

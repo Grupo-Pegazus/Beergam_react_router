@@ -147,7 +147,7 @@ export interface IUserDetails {
   calc_tax?: CalcTax | null;
   current_billing?: CurrentBilling | null;
   website?: string | null;
-  tax_percent_fixed?: string | null;
+  tax_percent_fixed?: number | null;
   sells_meli?: MarketplaceSells;
   sells_shopee?: MarketplaceSells;
   sells_amazon?: MarketplaceSells;

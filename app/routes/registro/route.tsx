@@ -4,8 +4,8 @@ import { authService } from "~/features/auth/service";
 import { UserRoles, UserStatus } from "~/features/user/typings/BaseUser";
 import type {
   ComoConheceuKeys,
-  Faixaprofit_rangeKeys,
   IUser,
+  ProfitRangeKeys,
 } from "~/features/user/typings/User";
 import type { Route } from "./+types/route";
 import RegistroPage from "./page";
@@ -32,7 +32,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
         cnpj: cnpj as string,
         phone: telefone as string,
         found_beergam: found_beergam as string as ComoConheceuKeys | null,
-        profit_range: profit_range as string as Faixaprofit_rangeKeys,
+        profit_range: profit_range as string as ProfitRangeKeys,
         referral_code: referral_code as string | null,
       },
     })
