@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useReducer } from "react";
+import { Form, useSubmit } from "react-router";
 import { Tooltip } from "react-tooltip";
 import { z } from "zod";
 import type { IBaseUser } from "~/features/user/typings/BaseUser";
@@ -17,50 +18,9 @@ import {
 import Svg from "~/src/assets/svgs";
 import { Fields } from "~/src/components/utils/_fields";
 import Hint from "~/src/components/utils/Hint";
+import { deepEqual, HandleSubmit } from "../../utils";
 const EditingContext = React.createContext<boolean>(false);
-function deepEqual(obj1: unknown, obj2: unknown): boolean {
-  if (obj1 === obj2) return true;
 
-  if (
-    typeof obj1 !== "object" ||
-    obj1 === null ||
-    typeof obj2 !== "object" ||
-    obj2 === null
-  )
-    return false;
-
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
-
-  // Criar um conjunto com todas as chaves únicas de ambos os objetos
-  const allKeys = new Set([...keys1, ...keys2]);
-
-  for (const key of allKeys) {
-    const value1 = obj1[key as keyof typeof obj1];
-    const value2 = obj2[key as keyof typeof obj2];
-
-    // Se um campo não existe em um objeto, considere como null
-    const normalizedValue1 = keys1.includes(key) ? value1 : null;
-    const normalizedValue2 = keys2.includes(key) ? value2 : null;
-
-    // Se ambos são null, considere como iguais
-    if (normalizedValue1 === null && normalizedValue2 === null) {
-      continue;
-    }
-
-    // Se apenas um é null, são diferentes
-    if (normalizedValue1 === null || normalizedValue2 === null) {
-      return false;
-    }
-
-    // Se nenhum é null, faça a comparação recursiva
-    if (!deepEqual(normalizedValue1, normalizedValue2)) {
-      return false;
-    }
-  }
-
-  return true;
-}
 interface MinhaContaProps {
   user: IUser | IBaseUser | undefined;
 }
@@ -84,6 +44,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
     },
     user
   );
+  const submit = useSubmit();
   const editedUserValidation = UserSchema.safeParse(editedUser);
   const editedUserError = editedUserValidation.error
     ? z.treeifyError(editedUserValidation.error)
@@ -309,7 +270,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                 <div className="flex justify-center items-center gap-2 p-4 pt-1 pb-1 rounded-xl bg-beergam-blue-primary hover:bg-beergam-orange text-beergam-white">
                   <p>Editar {sectionTitle}</p>
                   {editingValue ? (
-                    <Svg.x width={17} height={17} />
+                    <Svg.eye width={17} height={17} tailWindClasses="" />
                   ) : (
                     <Svg.pencil width={17} height={17} />
                   )}
@@ -743,7 +704,18 @@ export default function MinhaConta({ user }: MinhaContaProps) {
     return <div className="flex flex-col gap-4">Nenhum usuário encontrado</div>;
 
   return (
-    <div className="w-full flex flex-col gap-4 mt-4 relative">
+    <Form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!editedUserValidation.success) {
+          console.log("editedUserValidation invalido", editedUserValidation);
+          return;
+        }
+        HandleSubmit({ action: "Minha Conta", data: editedUser }, submit);
+      }}
+      method="post"
+      className="w-full flex flex-col gap-4 mt-4 relative"
+    >
       {/* {JSON.stringify(editedUserError)}
       {JSON.stringify(editedUser)}
       <p>-----------------</p>
@@ -778,6 +750,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
               Redefinir
             </button>
             <button
+              type="submit"
               data-tooltip-id="salvar-alteracoes"
               className={`${editedUserError ? "bg-beergam-red !cursor-not-allowed" : "bg-beergam-blue-primary hover:bg-beergam-orange"} !font-bold text-beergam-white p-2 rounded-2xl`}
               onClick={() => console.log("eba")}
@@ -793,6 +766,6 @@ export default function MinhaConta({ user }: MinhaContaProps) {
           </div>
         </div>
       </div>
-    </div>
+    </Form>
   );
 }

@@ -91,6 +91,7 @@ html {
 *::before,
 *::after {
   box-sizing: border-box;
+  overflow-anchor: none;
 }
 /* 3. Enable keyword animations */
 @media (prefers-reduced-motion: no-preference) {
