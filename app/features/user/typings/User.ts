@@ -4,6 +4,7 @@ import { CNPJSchema } from "~/utils/typings/CNPJ";
 import { CPFSchema } from "~/utils/typings/CPF";
 import { TelefoneSchema } from "~/utils/typings/Telefone";
 import { BaseUserSchema, type IBaseUser } from "./BaseUser";
+import { ColabSchema, type IColab } from "./Colab";
 export enum ProfitRange {
   ATE_10_MIL = "Até 10.000 mil reais",
   DE_10_A_30_MIL = "De 10.000 á 30.000 mil reais",
@@ -154,10 +155,10 @@ export interface IUserDetails {
   sells_shein?: MarketplaceSells;
   sells_own_site?: MarketplaceSells;
   sub_count?: number | null;
-  colabs?: IBaseUser[] | object | null;
   subscriptions?: Subscription[] | null;
 }
 export interface IUser extends IBaseUser {
+  colabs?: IColab[] | [];
   details: IUserDetails;
 }
 
@@ -207,4 +208,5 @@ export const UserDetailsSchema = z.object({
 
 export const UserSchema = BaseUserSchema.extend({
   details: UserDetailsSchema,
+  colabs: z.array(ColabSchema).default([]),
 }) satisfies z.ZodType<IUser>;
