@@ -1,5 +1,7 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
+import { createTheme, ThemeProvider } from "@mui/material";
+import { ptBR } from "@mui/material/locale";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
@@ -27,6 +29,8 @@ export const links: Route.LinksFunction = () => [
 //   return { userInfo };
 // }
 
+const theme = createTheme({}, ptBR);
+
 export async function clientLoader() {
   return { userInfo: await cryptoUser.recuperarDados<IUser>() };
 }
@@ -41,7 +45,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <ThemeProvider theme={theme}>{children}</ThemeProvider>
         <ScrollRestoration />
         <Scripts />
         <Toaster toastOptions={{ style: { maxWidth: "500px", width: "auto" } }}>
@@ -99,9 +103,6 @@ export default function App() {
           <Outlet />
         </QueryClientProvider>
       </ErrorBoundary>
-      {/* <PersistWrapper>
-        <Outlet />
-      </PersistWrapper> */}
     </Provider>
   );
 }
