@@ -14,10 +14,10 @@ export default function Hint({
         <Svg.information_circle
           width={17}
           height={17}
-          tailWindClasses="stroke-beergam-gray"
+          tailWindClasses="stroke-beergam-gray min-w-[17px] min-h-[17px]"
         />
       </a>
-      <Tooltip id={anchorSelect} content={message} />
+      <Tooltip id={anchorSelect} content={message} className="z-50" />
     </>
   );
 }

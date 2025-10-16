@@ -26,9 +26,13 @@ function Label({
       >
         {text}
         {required && <span className="text-red-500 ml-1">*</span>}
-        {hint && <Hint message={hint} />}
       </label>
-
+      {hint && (
+        <Hint
+          message={hint}
+          anchorSelect={text.toLocaleLowerCase() + "-tooltip"}
+        />
+      )}
       {info && <p className="text-xs text-[#858585]">*{info}</p>}
     </div>
   );

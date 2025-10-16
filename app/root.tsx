@@ -29,7 +29,22 @@ export const links: Route.LinksFunction = () => [
 //   return { userInfo };
 // }
 
-const theme = createTheme({}, ptBR);
+const theme = createTheme(
+  {
+    components: {
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            border: "1px solid #b2b2bf",
+            borderRadius: "8px",
+            padding: "16px",
+          },
+        },
+      },
+    },
+  },
+  ptBR
+);
 
 export async function clientLoader() {
   return { userInfo: await cryptoUser.recuperarDados<IUser>() };

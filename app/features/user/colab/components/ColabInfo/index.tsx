@@ -1,6 +1,5 @@
-import { Switch } from "@mui/material";
+import { Paper, Switch } from "@mui/material";
 import { useState } from "react";
-import { MenuHandler } from "~/features/menu/typings";
 import { UserStatus } from "~/features/user/typings/BaseUser";
 import { ColabLevel, type IColab } from "~/features/user/typings/Colab";
 import Svg from "~/src/assets/svgs";
@@ -55,8 +54,8 @@ export default function ColabInfo(colab: IColab) {
           Editar Colaborador
         </h3>
         <div className="grid grid-cols-[1fr_1.3fr] grid-rows-1 gap-4 2xl:grid-cols-[1fr_1.3fr]">
-          <div className="flex flex-col justify-between items-start gap-4">
-            <div className="flex items-stretch gap-2 w-full">
+          {/* <div className="flex flex-col justify-between items-start gap-4">
+            <div className="flex items-stretch gap-2 w-full border-1 border-beergam-gray-light p-2 rounded-md h-full">
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="min-w-20 min-h-20 mt-2.5 cursor-pointer group relative  rounded-full group hover:bg-beergam-orange/50 object-cover object-center bg-beergam-orange flex items-center justify-center">
                   <h2 className="text-white uppercase">
@@ -79,7 +78,7 @@ export default function ColabInfo(colab: IColab) {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2 w-full">
                 <Fields.wrapper>
                   <Fields.label text="NOME" />
                   <Fields.input value={colab.name} />
@@ -110,9 +109,65 @@ export default function ColabInfo(colab: IColab) {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
+          <Paper className="grid grid-rows-2 gap-4 border-1 border-beergam-gray-light rounded-md p-4">
+            <div className="grid grid-cols-[80px_1fr] gap-4 w-full">
+              <div className="w-full h-full max-h-[80px] bg-beergam-orange rounded-full flex items-center justify-center">
+                <h2 className="text-white uppercase">
+                  {colab.name.charAt(0).toUpperCase()}
+                </h2>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Fields.wrapper>
+                  <Fields.label text="NOME" />
+                  <Fields.input value={colab.name} />
+                </Fields.wrapper>
+                <Fields.wrapper>
+                  <Fields.label text="SENHA DE ACESSO" />
+                  <Fields.input value={"asdaokdokas"} type="password" />
+                </Fields.wrapper>
+              </div>
+            </div>
+            <div className="grid grid-cols-[80px_1fr] gird-rows-1 gap-2">
+              <Fields.wrapper className="justify-end items-end">
+                <Fields.label
+                  text="STATUS"
+                  hint="Acesso do colaborador ao sistema."
+                />
+                <Switch
+                  title="Ativar/Desativar colaborador"
+                  checked={colab.status === UserStatus.ACTIVE}
+                  onChange={(e) => {
+                    console.log(e.target.checked);
+                  }}
+                />
+              </Fields.wrapper>
+              <Fields.wrapper className="justify-end items-end">
+                <Fields.label
+                  text="NÍVEL"
+                  hint="O nível do colaborador é o nível de acesso que ele tem ao sistema."
+                />
+                <div className="grid grid-cols-2 gap-2 w-full">
+                  {Object.keys(ColabLevel).map((level) => (
+                    <button
+                      key={level}
+                      className={`text-white p-2 rounded-md hover:bg-beergam-orange ${level == colab.details.level ? "bg-beergam-orange" : "bg-beergam-gray-light"}`}
+                    >
+                      <p>
+                        {
+                          ColabLevel[
+                            level as unknown as keyof typeof ColabLevel
+                          ]
+                        }
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </Fields.wrapper>
+            </div>
+          </Paper>
 
-          <div className="flex flex-col">
+          <Paper className="flex flex-col border-1 border-beergam-gray-light rounded-md p-4">
             <Fields.label text="HORÁRIOS DE FUNCIONAMENTO" />
             <div className="grid grid-cols-2 gap-4">
               {colabDates.map((day) => (
@@ -130,26 +185,14 @@ export default function ColabInfo(colab: IColab) {
                 <p>Horário Comercial</p>
               </button>
             </div>
-          </div>
+          </Paper>
         </div>
-        <div className="grid grid-cols-1 gap-4">
+        <Paper className="grid grid-cols-1 gap-4 p-4 mt-4">
           <Fields.wrapper>
             <Fields.label text="ACESSOS" />
-            <div
-              className="grid gap-4"
-              style={{
-                gridTemplateColumns: `repeat(auto-fit, minmax(180px, 1fr))`,
-                width: "100%",
-              }}
-            >
-              {Object.values(MenuHandler.getMenu())
-                .filter((item) => !item.denyColabAccess)
-                .map((item) => (
-                  <ViewAccess key={item.label} {...item} />
-                ))}
-            </div>
+            <ViewAccess />
           </Fields.wrapper>
-        </div>
+        </Paper>
         <button className="sticky mt-2.5 bottom-0 left-0 right-0 bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange">
           Salvar Informações
         </button>
