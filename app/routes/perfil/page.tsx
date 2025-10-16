@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
+import type { IUser } from "~/features/user/typings/User";
 import { type RootState } from "~/store";
+import Colaboradores from "./components/Colaboradores";
 import MinhaConta from "./components/MinhaConta";
 export default function PerfilPage() {
   const [activeButton, setActiveButton] = useState<string>("Minha Conta");
@@ -11,6 +13,12 @@ export default function PerfilPage() {
     switch (activeButton) {
       case "Minha Conta":
         return <MinhaConta user={user} />;
+      case "Colaboradores":
+        return (
+          <Colaboradores
+            colabs={"colabs" in user ? ((user as IUser).colabs ?? []) : []}
+          />
+        );
       default:
         return <MinhaConta user={user} />;
     }

@@ -6,7 +6,7 @@ import {
   type RouteConfig,
   type RouteConfigEntry,
 } from "@react-router/dev/routes";
-import { type IMenuItem, MenuConfig } from "./features/menu/typings";
+import { type IMenuItem, MenuHandler } from "./features/menu/typings";
 function withPrefix(
   prefixPath: string,
   routes: RouteConfigEntry[]
@@ -69,10 +69,12 @@ export function createMenuRoutes(): RouteConfigEntry[] {
     return itemRoutes;
   }
 
-  Object.entries(MenuConfig).forEach(([key, item]) => {
-    const itemRoutes = processMenuItem(key, item);
-    routes.push(...itemRoutes);
-  });
+  Object.entries(MenuHandler.getMenu())
+    .filter(([key, item]) => item.launched)
+    .forEach(([key, item]) => {
+      const itemRoutes = processMenuItem(key, item);
+      routes.push(...itemRoutes);
+    });
 
   return routes;
 }

@@ -10,6 +10,7 @@ import ClockIcon from "./ClockIcon";
 import Cog8Tooth from "./Cog8Tooth";
 import CurrencyDollar from "./CurrencyDollar";
 import DollyIcon from "./DollyIcon";
+import ElipsisHorizontal from "./ElipsisHorizontal";
 import Eye from "./Eye";
 import EyeSlash from "./EyeSlash";
 import GlobeIcon from "./GlobeIcon";
@@ -51,6 +52,7 @@ const Svg = {
   x: X,
   lock_closed: LockClosed,
   pencil: Pencil,
+  elipsis_horizontal: ElipsisHorizontal,
 };
 
 export default Svg;

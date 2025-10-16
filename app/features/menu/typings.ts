@@ -12,6 +12,8 @@ export interface IMenuItem {
   dinamic_id?: string;
   isOpen?: boolean;
   currentSelected?: boolean;
+  denyColabAccess?: boolean; //Se o item é acessível para o colaborador
+  launched?: boolean; //Se o item foi lançado para o usuário
 }
 
 export type IMenuConfig = {
@@ -24,6 +26,20 @@ export const MenuConfig = {
     status: "green",
     icon: "home",
     path: "/",
+    launched: true,
+  },
+  vendas: {
+    label: "Vendas",
+    status: "yellow",
+    icon: "bag",
+    path: "/vendas",
+  },
+  anuncios: {
+    label: "Anúncios",
+    status: "red",
+    path: "/anuncios",
+    dinamic_id: "anuncio_id",
+    icon: "bag",
   },
   atendimento: {
     label: "Atendimento",
@@ -53,12 +69,62 @@ export const MenuConfig = {
       },
     },
   },
-  anuncios: {
-    label: "Anúncios",
+  despesas: {
+    label: "Despesas",
     status: "red",
-    path: "/anuncios",
-    dinamic_id: "anuncio_id",
+    path: "/despesas",
     icon: "bag",
+  },
+  rastreio: {
+    label: "Rastreio",
+    status: "yellow",
+    path: "/rastreio",
+    icon: "bag",
+  },
+  produtos: {
+    label: "Produtos",
+    status: "yellow",
+    path: "/produtos",
+    icon: "bag",
+  },
+  calculadora: {
+    label: "Calculadora",
+    status: "yellow",
+    path: "/calculadora",
+    icon: "bag",
+  },
+  lucratividade: {
+    label: "Lucratividade",
+    status: "yellow",
+    path: "/lucratividade",
+    icon: "bag",
+  },
+  networking: {
+    label: "Networking",
+    status: "yellow",
+    path: "/networking",
+    icon: "bag",
+    denyColabAccess: false,
+  },
+  suporte: {
+    label: "Suporte",
+    status: "yellow",
+    path: "/suporte",
+    icon: "bag",
+    denyColabAccess: true,
+  },
+  gestao_interna: {
+    label: "Gestão Interna",
+    status: "yellow",
+    path: "/gestao_interna",
+    icon: "bag",
+  },
+  configuracao: {
+    label: "Configuração",
+    status: "yellow",
+    path: "/configuracao",
+    icon: "bag",
+    denyColabAccess: true,
   },
 } satisfies IMenuConfig;
 
@@ -79,6 +145,8 @@ export class MenuClass {
         isOpen: item.isOpen ?? false,
         currentSelected: item.currentSelected ?? false,
         dropdown,
+        denyColabAccess: item.denyColabAccess ?? false,
+        launched: item.launched ?? false,
       };
     };
     return Object.fromEntries(
@@ -99,7 +167,7 @@ export class MenuClass {
   }
 }
 
-export const MenuHanlder = new MenuClass(MenuConfig);
+export const MenuHandler = new MenuClass(MenuConfig);
 
 export type MenuKeys = keyof typeof MenuConfig;
 

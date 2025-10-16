@@ -3,10 +3,17 @@ import { useReducer } from "react";
 import ColabInfo from "~/features/user/colab/components/ColabInfo";
 import ColabTable from "~/features/user/colab/components/ColabTable";
 import { type IColab } from "~/features/user/typings/Colab";
+import Svg from "~/src/assets/svgs";
 export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
+  // const availableActions = ["Editar", "Excluir"];
+  const availableActions = {
+    Editar: { icon: <Svg.pencil width={20} height={20} /> },
+    Excluir: { icon: <Svg.trash width={20} height={20} /> },
+    Visualizar: { icon: <Svg.eye width={20} height={20} /> },
+  };
   const initialColabState = {
     colab: null as IColab | null,
-    action: null as string | null,
+    action: null as keyof typeof availableActions | null,
   };
   const [currentColab, setCurrentColab] = useReducer(
     (state: typeof initialColabState, action: typeof initialColabState) => {
@@ -19,7 +26,8 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
           } else {
             return { ...state };
           }
-          break;
+        case "Visualizar":
+          return { ...state, ...action };
         default:
           return state;
       }
@@ -28,10 +36,23 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
   );
   return (
     <>
-      <p>Quantidade de colaboradores registrados: {colabs.length}</p>
-      <div className="flex flex-col gap-4">
-        <ColabTable colabs={colabs} setCurrentColab={setCurrentColab} />
-        {/* <p>{JSON.stringify(currentColab)}</p> */}
+      <div className="flex items-center justify-between pb-4">
+        <p>Quantidade de colaboradores registrados: {colabs.length}</p>
+        <button className="flex items-center gap-2 p-2 rounded-md bg-beergam-blue-primary hover:bg-beergam-orange text-beergam-white">
+          <p>Adicionar colaborador</p>
+          <Svg.plus_circle
+            width={20}
+            height={20}
+            tailWindClasses="stroke-beergam-white"
+          />
+        </button>
+      </div>
+      <div className="flex flex-col">
+        <ColabTable
+          availableActions={availableActions}
+          colabs={colabs}
+          setCurrentColab={setCurrentColab}
+        />
         {currentColab.colab && <ColabInfo {...currentColab.colab} />}
       </div>
     </>

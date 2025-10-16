@@ -1,8 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useReducer } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from "react";
 import { Form, useSubmit } from "react-router";
 import { Tooltip } from "react-tooltip";
 import { z } from "zod";
 import type { IBaseUser } from "~/features/user/typings/BaseUser";
+import type { IColab } from "~/features/user/typings/Colab";
 import {
   CalcProfitProduct,
   CalcTax,
@@ -22,7 +29,7 @@ import { deepEqual, HandleSubmit } from "../../utils";
 const EditingContext = React.createContext<boolean>(false);
 
 interface MinhaContaProps {
-  user: IUser | IBaseUser | undefined;
+  user: IUser | IColab | undefined;
 }
 export default function MinhaConta({ user }: MinhaContaProps) {
   const [editedUser, setEditedUser] = useReducer(
@@ -258,10 +265,18 @@ export default function MinhaConta({ user }: MinhaContaProps) {
         () => isEditing[sectionTitle],
         [isEditing, sectionTitle]
       );
-
+      const containerRef = useRef<HTMLDivElement>(null);
+      useEffect(() => {
+        if (editingValue) {
+          containerRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "end",
+          });
+        }
+      }, [editingValue]);
       return (
         <EditingContext.Provider value={editingValue}>
-          <div className="flex flex-col gap-4 mb-4">
+          <div ref={containerRef} className="flex flex-col gap-4 mb-4">
             <div className="flex items-center gap-4">
               <h3 className="text-beergam-blue-primary uppercase !font-bold">
                 {sectionTitle}

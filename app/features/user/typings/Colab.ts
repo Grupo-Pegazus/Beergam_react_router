@@ -3,7 +3,7 @@ import { BaseUserSchema, type IBaseUser } from "./BaseUser";
 
 export enum ColabLevel {
   ADMIN = "Administrador",
-  COLAB = "Colaborador",
+  NORMAL = "Normal",
 }
 
 interface IColabDetails {

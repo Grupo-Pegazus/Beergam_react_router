@@ -21,12 +21,8 @@ export default function ColabRow({
     <TableRow key={colab.pin}>
       <TableCell>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full object-cover object-center bg-beergam-orange">
-            {/* <img
-                      src={colab.avatar ?? skeletonUser}
-                      alt={colab.name}
-                      className={`w-full h-full object-cover object-center ${!colab.avatar ? "p-1" : ""}`}
-                    /> */}
+          <div className="w-8 h-8 rounded-full object-cover object-center bg-beergam-orange flex items-center justify-center">
+            <h4 className="text-white">{colab.name.charAt(0).toUpperCase()}</h4>
           </div>
           <p>{colab.name}</p>
         </div>
@@ -53,10 +49,12 @@ export default function ColabRow({
           onClick={() => setIsOpen(!isOpen)}
           onClose={() => setIsOpen(false)}
           sx={{
+            // backgroundColor: "green",
             position: "relative",
             display: "flex",
             alignItems: "start",
             justifyContent: "left",
+            paddingLeft: "5px",
             zIndex: 10 - index, //Tive que fazer isso apra a ação dos botões ficarem por cima de outros botões lol
             "& .MuiSpeedDial-fab": {
               backgroundColor: "var(--color-beergam-orange)",
@@ -65,17 +63,12 @@ export default function ColabRow({
             },
             "& .MuiSpeedDial-actions": {
               // backgroundColor: "pink",
-              position: "fixed",
-              top: `calc(20% + ${(index + 1) * 69}px)`,
-              right: {
-                xl: "148px",
-                lg: "96px",
-                sm: "96px",
-              },
+              position: "absolute",
+              left: "-2.5px",
               zIndex: 2000,
               paddingTop: "10px",
               bottom: "-120px",
-              height: "100px",
+              height: "150px",
             },
           }}
         >
@@ -93,7 +86,6 @@ export default function ColabRow({
           ))}
         </SpeedDial>
       </TableCell>
-      <p></p>
     </TableRow>
   );
 }

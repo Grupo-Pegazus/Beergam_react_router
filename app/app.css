@@ -114,13 +114,6 @@ svg {
   display: block;
   max-width: 100%;
 }
-/* 7. Inherit fonts for form controls */
-input,
-button,
-textarea,
-select {
-  font: inherit;
-}
 /* 8. Avoid text overflows */
 p,
 h1,

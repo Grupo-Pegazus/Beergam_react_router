@@ -4,11 +4,11 @@ import { setUserViews } from "~/features/auth/redux";
 import { type RootState } from "~/store";
 import { useActiveMenu } from "../../hooks";
 import { closeMany } from "../../redux";
-import { MenuHanlder, type MenuState } from "../../typings";
+import { MenuHandler, type MenuState } from "../../typings";
 import styles from "../index.module.css";
 import MenuItem from "../MenuItem/MenuItem";
 export default function Menu() {
-  useActiveMenu(MenuHanlder.getMenu()); //Gerencia o estado do Menu baseado na rota
+  useActiveMenu(MenuHandler.getMenu()); //Gerencia o estado do Menu baseado na rota
   const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
   const openMap = useSelector((s: RootState) => s.menu.open);
@@ -34,8 +34,8 @@ export default function Menu() {
     );
   };
   const menu = useMemo(() => {
-    return MenuHanlder.setMenu(
-      user?.allowed_views ?? (MenuHanlder.getMenu() as unknown as MenuState)
+    return MenuHandler.setMenu(
+      user?.allowed_views ?? (MenuHandler.getMenu() as unknown as MenuState)
     );
   }, [user?.allowed_views]);
   return (
@@ -85,7 +85,7 @@ export default function Menu() {
         </div>
       </div>
       <ul className={styles.menuItems + " " + styles.menuPadding}>
-        {/* {Object.values(MenuHanlder.getMenu()).map((item: IMenuItem) => (
+        {/* {Object.values(MenuHandler.getMenu()).map((item: IMenuItem) => (
           <MenuItem
             key={item.label}
             item={item}
