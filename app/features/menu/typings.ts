@@ -128,6 +128,51 @@ export const MenuConfig = {
   },
 } satisfies IMenuConfig;
 
+export const MenuViewExtraInfo: Record<
+  keyof typeof MenuConfig,
+  { description: string }
+> = {
+  inicio: {
+    description: "Área de início do sistema",
+  },
+  vendas: {
+    description: "Área de vendas do sistema",
+  },
+  anuncios: {
+    description: "Área de anúncios do sistema",
+  },
+  atendimento: {
+    description: "Área de atendimento do sistema",
+  },
+  despesas: {
+    description: "Área de despesas do sistema",
+  },
+  rastreio: {
+    description: "Área de rastreio do sistema",
+  },
+  produtos: {
+    description: "Área de produtos do sistema",
+  },
+  calculadora: {
+    description: "Área de calculadora do sistema",
+  },
+  lucratividade: {
+    description: "Área de lucratividade do sistema",
+  },
+  networking: {
+    description: "Área de networking do sistema",
+  },
+  suporte: {
+    description: "Área de suporte do sistema",
+  },
+  gestao_interna: {
+    description: "Área de gestão interna do sistema",
+  },
+  configuracao: {
+    description: "Área de configuração do sistema",
+  },
+};
+
 export class MenuClass {
   config: IMenuConfig;
   constructor(config: IMenuConfig) {
