@@ -13,7 +13,7 @@ interface IColabDetails {
 export const ColabDetailsSchema = z.object({
   level: z.enum(Object.keys(ColabLevel) as [ColabLevel, ...ColabLevel[]]),
 });
-
+console.log("testando");
 export interface IColab extends IBaseUser {
   details: IColabDetails;
 }
