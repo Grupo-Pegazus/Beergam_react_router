@@ -98,6 +98,9 @@ export default function FormModal() {
         error: true,
       };
   function HandleSubmit(): boolean {
+    UserInfo.updated_at = new Date();
+    UserInfo.created_at = new Date();
+    UserInfo.status = "ACTIVE" as UserStatus;
     if (UserInfo.details.referral_code == "") {
       UserInfo.details.referral_code = null;
     }
@@ -189,6 +192,25 @@ export default function FormModal() {
           }
         }
         return ActionValidation(name);
+      case "referral_code":
+        if (
+          (UserInfo.details.referral_code?.length &&
+            UserInfo.details.referral_code.length > 0) ||
+          isSubmited
+        ) {
+          if (
+            UserFieldErrors.properties?.details?.properties?.referral_code
+              ?.errors?.[0]
+          ) {
+            return {
+              message:
+                UserFieldErrors.properties.details.properties.referral_code
+                  .errors[0],
+              error: true,
+            };
+          }
+        }
+        return ActionValidation(name);
       default:
         return ActionValidation(name);
     }
@@ -209,25 +231,6 @@ export default function FormModal() {
     >
       {/* <p>{JSON.stringify(actionData?.error_fields)}</p> */}
       <h1 className="text-beergam-blue-primary">Cadastre-se</h1>
-      {/* <button
-        type="button"
-        className="absolute right-2"
-        onClick={() => {
-          UserInfo.email = "teste@teste.com";
-          UserInfo.name = "Teste";
-          UserInfo.cpf = "52556894830";
-          UserInfo.cnpj = "12345678901234";
-          UserInfo.phone = "12345678901";
-          UserInfo.found_beergam = "ANUNCIO_FACEBOOK" as ComoConheceuKeys;
-          UserInfo.profit_range = "ATE_10_MIL" as ProfitRangeKeys;
-          UserInfo.personal_reference_code = "1234567890";
-          UserInfo.referral_code = "1234567890";
-          setPassword("123456Ab!");
-          setConfirmPassword("123456Ab!");
-        }}
-      >
-        AutoComplete
-      </button> */}
       <div>
         <Fields.wrapper>
           <Fields.label text="DIGITE SEU ENDEREÇO DE E-MAIL" />
@@ -248,7 +251,7 @@ export default function FormModal() {
           />
         </Fields.wrapper>
       </div>
-      <div className={`fieldsContainer`}>
+      <div className={`fieldsContainer pt-4`}>
         <Fields.wrapper>
           <Fields.label text="NOME COMPLETO / RAZÃO SOCIAL"></Fields.label>
           <Fields.input
@@ -333,16 +336,6 @@ export default function FormModal() {
             type="password"
             placeholder="Confirmar Senha"
             onChange={(e) => setConfirmPassword(e.target.value)}
-            // error={
-            //   (password.length > 0 || confirmPassword.length > 0) &&
-
-            // }
-            // error={{
-            //   message: confirmPasswordResult.success
-            //     ? ""
-            //     : "As senhas não coincidem",
-            //   error: confirmPasswordResult.success ? false : true,
-            // }}
             error={
               confirmPasswordResult.success ? "" : "As senhas não coincidem"
             }
