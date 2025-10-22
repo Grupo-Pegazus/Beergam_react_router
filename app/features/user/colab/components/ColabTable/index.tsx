@@ -12,15 +12,23 @@ import {
 import { useState, type Dispatch } from "react";
 import { Fields } from "~/src/components/utils/_fields";
 import { UserStatus } from "../../../typings/BaseUser";
-import { ColabLevel, type IColab } from "../../../typings/Colab";
+import {
+  ColabLevel,
+  type ColabAction,
+  type IColab,
+} from "../../../typings/Colab";
 import ColabRow from "../ColabRow";
+
 export default function ColabTable({
   colabs,
   setCurrentColab,
   availableActions,
 }: {
   colabs: IColab[];
-  setCurrentColab: Dispatch<{ colab: IColab | null; action: string | null }>;
+  setCurrentColab: Dispatch<{
+    colab: IColab | null;
+    action: ColabAction | null;
+  }>;
   availableActions: Record<string, { icon: React.ReactNode }>;
 }) {
   const ROWS_PER_PAGE = 3;
@@ -28,7 +36,7 @@ export default function ColabTable({
   function handleAction(action: string, colab: IColab) {
     console.log("setando o colaborador ativo", colab);
     console.log("setCurrentColab.current", setCurrentColab);
-    setCurrentColab({ colab: colab, action: action });
+    setCurrentColab({ colab: colab, action: action as ColabAction });
     switch (action) {
       case "Excluir": {
         console.log("Excluindo o colaborador", colab.name);

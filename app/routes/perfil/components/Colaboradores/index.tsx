@@ -1,9 +1,10 @@
 // import ColabCard from "~/features/user/colab/components/ColabCard";
-import { useReducer } from "react";
+import { type Dispatch, useReducer } from "react";
 import ColabInfo from "~/features/user/colab/components/ColabInfo";
 import ColabTable from "~/features/user/colab/components/ColabTable";
-import { type IColab } from "~/features/user/typings/Colab";
+import { type ColabAction, type IColab } from "~/features/user/typings/Colab";
 import Svg from "~/src/assets/svgs";
+
 export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
   // const availableActions = ["Editar", "Excluir"];
   const availableActions = {
@@ -13,7 +14,7 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
   };
   const initialColabState = {
     colab: null as IColab | null,
-    action: null as keyof typeof availableActions | null,
+    action: null as ColabAction | null,
   };
   const [currentColab, setCurrentColab] = useReducer(
     (state: typeof initialColabState, action: typeof initialColabState) => {
@@ -51,7 +52,12 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
         <ColabTable
           availableActions={availableActions}
           colabs={colabs}
-          setCurrentColab={setCurrentColab}
+          setCurrentColab={
+            setCurrentColab as Dispatch<{
+              colab: IColab | null;
+              action: ColabAction | null;
+            }>
+          }
         />
         {currentColab.colab && <ColabInfo {...currentColab.colab} />}
       </div>
