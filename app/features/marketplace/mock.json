@@ -1,0 +1,53 @@
+{
+  "data": [
+    {
+      "created_at": "2025-09-29T16:53:18",
+      "updated_at": "2025-09-29T16:53:51",
+      "marketplace_shop_id": "1939294847",
+      "marketplace_name": "TESTUSER1349252872",
+      "marketplace_image": "https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2247726673.jpg",
+      "marketplace_type": "meli",
+      "user_pin": "BG_b6f78",
+      "status_parse": "COMPLETED",
+      "orders_parse_status": "FIFTEEN_DAYS",
+      "shipping_preferences": [
+        {
+          "mode": "me2",
+          "types": [
+            {
+              "type": "drop_off",
+              "status": "active",
+              "default": true,
+              "services": [21, 22, 23, 1031, 1041],
+              "carrier_pickup": []
+            }
+          ]
+        },
+        {
+          "mode": "custom",
+          "types": [
+            {
+              "type": "custom",
+              "status": "active",
+              "default": true,
+              "services": null,
+              "carrier_pickup": []
+            }
+          ]
+        },
+        {
+          "mode": "not_specified",
+          "types": [
+            {
+              "type": "not_specified",
+              "status": "active",
+              "default": true,
+              "services": null,
+              "carrier_pickup": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

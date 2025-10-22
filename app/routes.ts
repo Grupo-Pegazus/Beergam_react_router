@@ -6,12 +6,12 @@ import {
   type RouteConfig,
   type RouteConfigEntry,
 } from "@react-router/dev/routes";
-import { type IMenuItem, MenuConfig } from "./features/menu/typings";
+import { type IMenuItem, MenuHandler } from "./features/menu/typings";
 function withPrefix(
   prefixPath: string,
   routes: RouteConfigEntry[]
 ): RouteConfigEntry[] {
-  return [...prefix(prefixPath, routes)];
+  return prefix(prefixPath, routes);
 }
 
 export function createMenuRoutes(): RouteConfigEntry[] {
@@ -69,10 +69,12 @@ export function createMenuRoutes(): RouteConfigEntry[] {
     return itemRoutes;
   }
 
-  Object.entries(MenuConfig).forEach(([key, item]) => {
-    const itemRoutes = processMenuItem(key, item);
-    routes.push(...itemRoutes);
-  });
+  Object.entries(MenuHandler.getMenu())
+    .filter(([key, item]) => item.launched)
+    .forEach(([key, item]) => {
+      const itemRoutes = processMenuItem(key, item);
+      routes.push(...itemRoutes);
+    });
 
   return routes;
 }
@@ -82,7 +84,14 @@ export default [
   route("login", "routes/login/route.tsx"),
   route("registro", "routes/registro/route.tsx"),
   layout(
-    "src/components/layouts/MenuLayout.tsx",
-    withPrefix("interno", createMenuRoutes())
+    "features/auth/components/AuthLayout/AuthLayout.tsx",
+    withPrefix("interno", [
+      route("choosen_account", "routes/choosen_account/route.tsx"),
+      route("perfil", "routes/perfil/route.tsx"),
+      layout(
+        "features/menu/components/layout/MenuLayout.tsx",
+        createMenuRoutes()
+      ),
+    ])
   ),
 ] satisfies RouteConfig;

@@ -1,12 +1,12 @@
 import { toast } from "react-hot-toast";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { authService } from "~/features/auth/service";
+import { UserRoles, UserStatus } from "~/features/user/typings/BaseUser";
 import type {
   ComoConheceuKeys,
-  Faixaprofit_rangeKeys,
-  IUsuario,
-} from "~/features/user/typings";
-import { UsuarioRoles } from "~/features/user/typings";
+  IUser,
+  ProfitRangeKeys,
+} from "~/features/user/typings/User";
 import type { Route } from "./+types/route";
 import RegistroPage from "./page";
 export async function clientAction({ request }: Route.ClientActionArgs) {
@@ -22,16 +22,19 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   const referral_code = formData.get("referral_code");
   const responsePromise = authService
     .register({
-      email: email as string,
       name: name as string,
       password: password as string,
-      cpf: cpf as string,
-      cnpj: cnpj as string,
-      phone: telefone as string,
-      role: UsuarioRoles.MASTER,
-      found_beergam: found_beergam as string as ComoConheceuKeys | null,
-      profit_range: profit_range as string as Faixaprofit_rangeKeys,
-      referral_code: referral_code as string | null,
+      role: UserRoles.MASTER,
+      status: UserStatus.ACTIVE,
+      details: {
+        email: email as string,
+        cpf: cpf as string,
+        cnpj: cnpj as string,
+        phone: telefone as string,
+        found_beergam: found_beergam as string as ComoConheceuKeys | null,
+        profit_range: profit_range as string as ProfitRangeKeys,
+        referral_code: referral_code as string | null,
+      },
     })
     .then((response) => {
       if (!response.success) {
@@ -43,13 +46,13 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     });
   toast.promise(responsePromise, {
     loading: "Carregando...",
-    success: (msg: ApiResponse<IUsuario>) => {
+    success: (msg: ApiResponse<IUser>) => {
       window.setTimeout(() => {
         window.location.href = "/interno";
       }, 1000);
       return <p>{msg.message}</p>;
     },
-    error: (err: ApiResponse<IUsuario>) => (
+    error: (err: ApiResponse<IUser>) => (
       <div>
         <p className="text-nowrap">{`${err.message || ""}`}</p>
         {err.error_fields && Object.keys(err.error_fields).length > 0 && (
