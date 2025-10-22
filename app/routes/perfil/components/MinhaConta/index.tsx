@@ -12,13 +12,16 @@ import type { IColab } from "~/features/user/typings/Colab";
 import {
   CalcProfitProduct,
   CalcTax,
+  ComoConheceu,
   CurrentBilling,
   NumberOfEmployees,
+  ProfitRange,
   Segment,
   UserSchema,
   type IUser,
   type IUserDetails,
 } from "~/features/user/typings/User";
+import { isMaster } from "~/features/user/utils";
 import Svg from "~/src/assets/svgs";
 import { Fields } from "~/src/components/utils/_fields";
 import Hint from "~/src/components/utils/Hint";
@@ -322,289 +325,403 @@ export default function MinhaConta<T extends IUser | IColab>({
       sectionTitle: keyof typeof editingInitialState
     ) => {
       if (!editedUser || !user) return null;
-      switch (sectionTitle) {
-        case "Dados Pessoais":
-          return (
-            <>
-              <CreateFields
-                label="NOME / RAZÃO SOCIAL"
-                value={user?.name ?? ""}
-                canBeAlter={false}
-                error={editedUserError?.properties?.name}
-              />
-            </>
-          );
-        case "Dados Financeiros":
-          return (
-            <>
-              {"details" in editedUser && (
+      if (isMaster(editedUser)) {
+        switch (sectionTitle) {
+          case "Dados Pessoais":
+            return (
+              <>
+                <CreateFields
+                  label="NOME / RAZÃO SOCIAL"
+                  value={editedUser?.name ?? ""}
+                  canBeAlter={false}
+                  error={editedUserError?.properties?.name}
+                />
+                {"details" in editedUser && "details" in user && (
+                  <>
+                    <CreateFields
+                      label="EMAIL"
+                      value={editedUser?.details?.email ?? ""}
+                      canBeAlter={false}
+                      error={
+                        editedUserError?.properties?.details?.properties?.email
+                      }
+                    />
+                    <CreateFields
+                      label="TELEFONE"
+                      value={editedUser?.details?.phone ?? ""}
+                      canBeAlter={false}
+                      error={
+                        editedUserError?.properties?.details?.properties?.phone
+                      }
+                    />
+                    <CreateFields
+                      label="CPF"
+                      value={editedUser?.details?.cpf ?? null}
+                      canBeAlter={
+                        editedUser?.details?.cpf == null ||
+                        editedUser?.details?.cpf == undefined
+                      }
+                      placeholder="Digite seu CPF"
+                      onChange={(value) =>
+                        handleUserInfoChange(value, { details: { key: "cpf" } })
+                      }
+                      error={
+                        editedUserError?.properties?.details?.properties?.cpf
+                      }
+                      dataTooltipId="cpf-input"
+                    />
+                    <CreateFields
+                      label="CNPJ"
+                      value={editedUser?.details?.cnpj ?? null}
+                      canBeAlter={
+                        editedUser?.details?.cnpj == null ||
+                        editedUser?.details?.cnpj == undefined
+                      }
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "cnpj" },
+                        })
+                      }
+                      placeholder="Digite seu CNPJ"
+                      error={
+                        editedUserError?.properties?.details?.properties?.cnpj
+                      }
+                      dataTooltipId="cnpj-input"
+                    />
+                    <CreateFields
+                      label="CÓDIGO DE INDICAÇÃO"
+                      value={editedUser?.details?.personal_reference_code ?? ""}
+                      canBeAlter={false}
+                      hint="Compartilhe seu código de indicação para convidar novos usuários ao Beergam."
+                      error={
+                        editedUserError?.properties?.details?.properties
+                          ?.personal_reference_code
+                      }
+                    />
+                    <CreateFields
+                      label="COMO CONHECEU A BEERGAM"
+                      value={editedUser?.details?.found_beergam ?? null}
+                      canBeAlter={true}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "found_beergam" },
+                        })
+                      }
+                      selectOptions={Object.keys(ComoConheceu).map((key) => ({
+                        value: key,
+                        label: ComoConheceu[key as keyof typeof ComoConheceu],
+                      }))}
+                      error={
+                        editedUserError?.properties?.details?.properties
+                          ?.found_beergam
+                      }
+                    />
+                    <CreateFields
+                      label="FATURAMENTO MENSAL"
+                      value={editedUser?.details?.profit_range ?? null}
+                      canBeAlter={true}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "profit_range" },
+                        })
+                      }
+                      selectOptions={Object.keys(ProfitRange).map((key) => ({
+                        value: key,
+                        label: ProfitRange[key as keyof typeof ProfitRange],
+                      }))}
+                      error={
+                        editedUserError?.properties?.details?.properties
+                          ?.profit_range
+                      }
+                    />
+                    <CreateFields
+                      label="PIN"
+                      value={editedUser?.pin ?? null}
+                      canBeAlter={false}
+                      onChange={() => {}}
+                      hint="O PIN é usado para acessar o sistema de colaboradores."
+                      error={editedUserError?.properties?.pin}
+                    />
+                  </>
+                )}
+              </>
+            );
+          case "Dados Financeiros":
+            return (
+              <>
+                {"details" in editedUser && (
+                  <>
+                    <CreateFields
+                      label="CÁLCULO DE LUCRO DO PRODUTO"
+                      value={editedUser?.details?.calc_profit_product ?? null}
+                      canBeAlter={true}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "calc_profit_product" },
+                        })
+                      }
+                      hint="O cálculo de lucro do produto mostra quanto você realmente ganha por venda, subtraindo do preço todos os custos (produto, frete, taxas, impostos e embalagem)."
+                      selectOptions={Object.keys(CalcProfitProduct).map(
+                        (key) => ({
+                          value: key,
+                          label:
+                            CalcProfitProduct[
+                              key as keyof typeof CalcProfitProduct
+                            ],
+                        })
+                      )}
+                    />
+                    <CreateFields
+                      label="CÁLCULO DE IMPOSTO"
+                      value={editedUser?.details?.calc_tax ?? null}
+                      canBeAlter={true}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "calc_tax" },
+                        })
+                      }
+                      hint="São diferentes formas de calcular a base tributária antes de aplicar a alíquota do imposto. "
+                      selectOptions={Object.keys(CalcTax).map((key) => ({
+                        value: key,
+                        label: CalcTax[key as keyof typeof CalcTax],
+                      }))}
+                    />
+                    <CreateFields
+                      label="PORCENTAGEM FIXA DE IMPOSTO"
+                      value={editedUser?.details?.tax_percent_fixed ?? null}
+                      canBeAlter={true}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "tax_percent_fixed" },
+                        })
+                      }
+                      hint="São diferentes formas de calcular a base tributária antes de aplicar a alíquota do imposto. "
+                      type="number"
+                    />
+                    <CreateFields
+                      label="NÚMERO DE FUNCIONÁRIOS"
+                      value={editedUser?.details?.number_of_employees ?? null}
+                      canBeAlter={true}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "number_of_employees" },
+                        })
+                      }
+                      selectOptions={Object.keys(NumberOfEmployees).map(
+                        (key) => ({
+                          value: key,
+                          label:
+                            NumberOfEmployees[
+                              key as keyof typeof NumberOfEmployees
+                            ],
+                        })
+                      )}
+                    />
+                    <CreateFields
+                      label="FATURADOR ATUAL"
+                      value={editedUser?.details?.current_billing ?? null}
+                      canBeAlter={true}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "current_billing" },
+                        })
+                      }
+                      selectOptions={Object.keys(CurrentBilling).map((key) => ({
+                        value: key,
+                        label:
+                          CurrentBilling[key as keyof typeof CurrentBilling],
+                      }))}
+                    />
+                    <CreateFields
+                      label="EMITE NOTA FISCAL NO FLEX"
+                      value={editedUser?.details?.notify_newsletter ?? false}
+                      canBeAlter={true}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "notify_newsletter" },
+                        })
+                      }
+                      type="checkbox"
+                    />
+                    <GenerateSubSections subSectionTitle="VENDAS EM PLATAFORMAS">
+                      <CreateFields
+                        label="VENDAS NO MELI"
+                        value={editedUser?.details?.sells_meli ?? null}
+                        canBeAlter={true}
+                        onChange={(value) =>
+                          handleUserInfoChange(value, {
+                            details: { key: "sells_meli" },
+                          })
+                        }
+                        type="number"
+                      />
+
+                      <CreateFields
+                        label="VENDAS NO SHOPEE"
+                        value={editedUser?.details?.sells_shopee ?? null}
+                        canBeAlter={true}
+                        onChange={(value) =>
+                          handleUserInfoChange(value, {
+                            details: { key: "sells_shopee" },
+                          })
+                        }
+                        type="number"
+                      />
+                      <CreateFields
+                        label="VENDAS NO AMAZON"
+                        value={editedUser?.details?.sells_amazon ?? null}
+                        canBeAlter={true}
+                        onChange={(value) =>
+                          handleUserInfoChange(value, {
+                            details: { key: "sells_amazon" },
+                          })
+                        }
+                        type="number"
+                      />
+                      <CreateFields
+                        label="VENDAS NO SHEIN"
+                        value={editedUser?.details?.sells_shein ?? null}
+                        canBeAlter={true}
+                        onChange={(value) =>
+                          handleUserInfoChange(value, {
+                            details: { key: "sells_shein" },
+                          })
+                        }
+                        type="number"
+                      />
+                      <CreateFields
+                        label="VENDAS NO SITE PRÓPRIO"
+                        value={editedUser?.details?.sells_own_site ?? null}
+                        canBeAlter={true}
+                        onChange={(value) =>
+                          handleUserInfoChange(value, {
+                            details: { key: "sells_own_site" },
+                          })
+                        }
+                        type="number"
+                      />
+                    </GenerateSubSections>
+                  </>
+                )}
+              </>
+            );
+          case "Informações Básicas":
+            return (
+              "details" in editedUser && (
                 <>
                   <CreateFields
-                    label="CÁLCULO DE LUCRO DO PRODUTO"
-                    value={editedUser?.details?.calc_profit_product ?? null}
+                    label="REDE SOCIAL"
+                    value={editedUser?.details?.social_media ?? null}
                     canBeAlter={true}
                     onChange={(value) =>
                       handleUserInfoChange(value, {
-                        details: { key: "calc_profit_product" },
+                        details: { key: "social_media" },
                       })
                     }
-                    hint="O cálculo de lucro do produto mostra quanto você realmente ganha por venda, subtraindo do preço todos os custos (produto, frete, taxas, impostos e embalagem)."
-                    selectOptions={Object.keys(CalcProfitProduct).map(
-                      (key) => ({
+                  />
+                  <CreateFields
+                    label="TELEFONE SECUNDÁRIO"
+                    value={editedUser?.details?.secondary_phone ?? null}
+                    canBeAlter={true}
+                    onChange={(value) =>
+                      handleUserInfoChange(value, {
+                        details: { key: "secondary_phone" },
+                      })
+                    }
+                    error={
+                      editedUserError?.properties?.details?.properties
+                        ?.secondary_phone
+                    }
+                  />
+                  <GenerateSubSections subSectionTitle="Dados coorporativos">
+                    <CreateFields
+                      label="SITE COORPORATIVO"
+                      value={editedUser?.details?.website ?? null}
+                      canBeAlter={true}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "website" },
+                        })
+                      }
+                    />
+                    <CreateFields
+                      label="DATA DE FUNDAÇÃO"
+                      value={
+                        editedUser?.details?.foundation_date?.toISOString() ??
+                        null
+                      }
+                      canBeAlter={true}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "foundation_date" },
+                        })
+                      }
+                    />
+                    <CreateFields
+                      label="SEGMENTO"
+                      value={editedUser?.details?.segment ?? null}
+                      canBeAlter={true}
+                      onChange={(value) =>
+                        handleUserInfoChange(value, {
+                          details: { key: "segment" },
+                        })
+                      }
+                      selectOptions={Object.keys(Segment).map((key) => ({
                         value: key,
-                        label:
-                          CalcProfitProduct[
-                            key as keyof typeof CalcProfitProduct
-                          ],
-                      })
-                    )}
-                  />
-                  <CreateFields
-                    label="CÁLCULO DE IMPOSTO"
-                    value={editedUser?.details?.calc_tax ?? null}
-                    canBeAlter={true}
-                    onChange={(value) =>
-                      handleUserInfoChange(value, {
-                        details: { key: "calc_tax" },
-                      })
-                    }
-                    hint="São diferentes formas de calcular a base tributária antes de aplicar a alíquota do imposto. "
-                    selectOptions={Object.keys(CalcTax).map((key) => ({
-                      value: key,
-                      label: CalcTax[key as keyof typeof CalcTax],
-                    }))}
-                  />
-                  <CreateFields
-                    label="PORCENTAGEM FIXA DE IMPOSTO"
-                    value={editedUser?.details?.tax_percent_fixed ?? null}
-                    canBeAlter={true}
-                    onChange={(value) =>
-                      handleUserInfoChange(value, {
-                        details: { key: "tax_percent_fixed" },
-                      })
-                    }
-                    hint="São diferentes formas de calcular a base tributária antes de aplicar a alíquota do imposto. "
-                    type="number"
-                  />
-                  <CreateFields
-                    label="NÚMERO DE FUNCIONÁRIOS"
-                    value={editedUser?.details?.number_of_employees ?? null}
-                    canBeAlter={true}
-                    onChange={(value) =>
-                      handleUserInfoChange(value, {
-                        details: { key: "number_of_employees" },
-                      })
-                    }
-                    selectOptions={Object.keys(NumberOfEmployees).map(
-                      (key) => ({
-                        value: key,
-                        label:
-                          NumberOfEmployees[
-                            key as keyof typeof NumberOfEmployees
-                          ],
-                      })
-                    )}
-                  />
-                  <CreateFields
-                    label="FATURADOR ATUAL"
-                    value={editedUser?.details?.current_billing ?? null}
-                    canBeAlter={true}
-                    onChange={(value) =>
-                      handleUserInfoChange(value, {
-                        details: { key: "current_billing" },
-                      })
-                    }
-                    selectOptions={Object.keys(CurrentBilling).map((key) => ({
-                      value: key,
-                      label: CurrentBilling[key as keyof typeof CurrentBilling],
-                    }))}
-                  />
-                  <CreateFields
-                    label="EMITE NOTA FISCAL NO FLEX"
-                    value={editedUser?.details?.notify_newsletter ?? false}
-                    canBeAlter={true}
-                    onChange={(value) =>
-                      handleUserInfoChange(value, {
-                        details: { key: "notify_newsletter" },
-                      })
-                    }
-                    type="checkbox"
-                  />
-                  <GenerateSubSections subSectionTitle="VENDAS EM PLATAFORMAS">
-                    <CreateFields
-                      label="VENDAS NO MELI"
-                      value={editedUser?.details?.sells_meli ?? null}
-                      canBeAlter={true}
-                      onChange={(value) =>
-                        handleUserInfoChange(value, {
-                          details: { key: "sells_meli" },
-                        })
-                      }
-                      type="number"
+                        label: Segment[key as keyof typeof Segment],
+                      }))}
                     />
-
+                  </GenerateSubSections>
+                  <GenerateSubSections subSectionTitle="Endereço completo">
                     <CreateFields
-                      label="VENDAS NO SHOPEE"
-                      value={editedUser?.details?.sells_shopee ?? null}
+                      label="CEP"
+                      value={null}
                       canBeAlter={true}
-                      onChange={(value) =>
-                        handleUserInfoChange(value, {
-                          details: { key: "sells_shopee" },
-                        })
-                      }
-                      type="number"
+                      onChange={() => {}}
                     />
                     <CreateFields
-                      label="VENDAS NO AMAZON"
-                      value={editedUser?.details?.sells_amazon ?? null}
+                      label="Bairro"
+                      value={null}
                       canBeAlter={true}
-                      onChange={(value) =>
-                        handleUserInfoChange(value, {
-                          details: { key: "sells_amazon" },
-                        })
-                      }
-                      type="number"
+                      onChange={() => {}}
                     />
                     <CreateFields
-                      label="VENDAS NO SHEIN"
-                      value={editedUser?.details?.sells_shein ?? null}
+                      label="Cidade"
+                      value={null}
                       canBeAlter={true}
-                      onChange={(value) =>
-                        handleUserInfoChange(value, {
-                          details: { key: "sells_shein" },
-                        })
-                      }
-                      type="number"
+                      onChange={() => {}}
                     />
                     <CreateFields
-                      label="VENDAS NO SITE PRÓPRIO"
-                      value={editedUser?.details?.sells_own_site ?? null}
+                      label="Estado"
+                      value={null}
                       canBeAlter={true}
-                      onChange={(value) =>
-                        handleUserInfoChange(value, {
-                          details: { key: "sells_own_site" },
-                        })
-                      }
-                      type="number"
+                      onChange={() => {}}
+                    />
+                    <CreateFields
+                      label="Rua"
+                      value={null}
+                      canBeAlter={true}
+                      onChange={() => {}}
+                    />
+                    <CreateFields
+                      label="Número"
+                      value={null}
+                      canBeAlter={true}
+                      onChange={() => {}}
+                    />
+                    <CreateFields
+                      label="Complemento"
+                      value={null}
+                      canBeAlter={true}
+                      onChange={() => {}}
                     />
                   </GenerateSubSections>
                 </>
-              )}
-            </>
-          );
-        case "Informações Básicas":
-          return (
-            "details" in editedUser && (
-              <>
-                <CreateFields
-                  label="REDE SOCIAL"
-                  value={editedUser?.details?.social_media ?? null}
-                  canBeAlter={true}
-                  onChange={(value) =>
-                    handleUserInfoChange(value, {
-                      details: { key: "social_media" },
-                    })
-                  }
-                />
-                <CreateFields
-                  label="TELEFONE SECUNDÁRIO"
-                  value={editedUser?.details?.secondary_phone ?? null}
-                  canBeAlter={true}
-                  onChange={(value) =>
-                    handleUserInfoChange(value, {
-                      details: { key: "secondary_phone" },
-                    })
-                  }
-                  error={
-                    editedUserError?.properties?.details?.properties
-                      ?.secondary_phone
-                  }
-                />
-                <GenerateSubSections subSectionTitle="Dados coorporativos">
-                  <CreateFields
-                    label="SITE COORPORATIVO"
-                    value={editedUser?.details?.website ?? null}
-                    canBeAlter={true}
-                    onChange={(value) =>
-                      handleUserInfoChange(value, {
-                        details: { key: "website" },
-                      })
-                    }
-                  />
-                  <CreateFields
-                    label="DATA DE FUNDAÇÃO"
-                    value={editedUser?.details?.foundation_date ?? null}
-                    canBeAlter={true}
-                    onChange={(value) =>
-                      handleUserInfoChange(value, {
-                        details: { key: "foundation_date" },
-                      })
-                    }
-                  />
-                  <CreateFields
-                    label="SEGMENTO"
-                    value={editedUser?.details?.segment ?? null}
-                    canBeAlter={true}
-                    onChange={(value) =>
-                      handleUserInfoChange(value, {
-                        details: { key: "segment" },
-                      })
-                    }
-                    selectOptions={Object.keys(Segment).map((key) => ({
-                      value: key,
-                      label: Segment[key as keyof typeof Segment],
-                    }))}
-                  />
-                </GenerateSubSections>
-                <GenerateSubSections subSectionTitle="Endereço completo">
-                  <CreateFields
-                    label="CEP"
-                    value={null}
-                    canBeAlter={true}
-                    onChange={() => {}}
-                  />
-                  <CreateFields
-                    label="Bairro"
-                    value={null}
-                    canBeAlter={true}
-                    onChange={() => {}}
-                  />
-                  <CreateFields
-                    label="Cidade"
-                    value={null}
-                    canBeAlter={true}
-                    onChange={() => {}}
-                  />
-                  <CreateFields
-                    label="Estado"
-                    value={null}
-                    canBeAlter={true}
-                    onChange={() => {}}
-                  />
-                  <CreateFields
-                    label="Rua"
-                    value={null}
-                    canBeAlter={true}
-                    onChange={() => {}}
-                  />
-                  <CreateFields
-                    label="Número"
-                    value={null}
-                    canBeAlter={true}
-                    onChange={() => {}}
-                  />
-                  <CreateFields
-                    label="Complemento"
-                    value={null}
-                    canBeAlter={true}
-                    onChange={() => {}}
-                  />
-                </GenerateSubSections>
-              </>
-            )
-          );
-        default:
-          return null;
+              )
+            );
+          default:
+            return null;
+        }
       }
     },
     [editedUser, user, editUserInformation]

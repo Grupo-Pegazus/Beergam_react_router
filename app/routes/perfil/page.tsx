@@ -9,7 +9,7 @@ export default function PerfilPage() {
   const [activeButton, setActiveButton] = useState<string>("Minha Conta");
   const user = useSelector((state: RootState) => state.auth.user);
   function changeNavigation() {
-    if (!user) return <MinhaConta user={undefined} />;
+    if (!user) return <>nenhum usuario encontrado</>;
     switch (activeButton) {
       case "Minha Conta":
         return <MinhaConta user={user} />;
