@@ -11,7 +11,24 @@ interface IColabDetails {
 }
 
 export const ColabDetailsSchema = z.object({
-  level: z.enum(Object.keys(ColabLevel) as [ColabLevel, ...ColabLevel[]]),
+  level: z
+    .union([
+      z.enum(
+        Object.keys(ColabLevel) as [
+          keyof typeof ColabLevel,
+          ...(keyof typeof ColabLevel)[],
+        ]
+      ), // keys
+      z.enum(Object.values(ColabLevel) as [ColabLevel, ...ColabLevel[]]), // values
+    ])
+    .transform((value) => {
+      if (Object.values(ColabLevel).includes(value as ColabLevel)) {
+        // already value
+        return value as ColabLevel;
+      }
+      // is a key: convert to value
+      return ColabLevel[value as keyof typeof ColabLevel];
+    }),
 });
 
 export interface IColab extends IBaseUser {
