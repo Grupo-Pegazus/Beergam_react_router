@@ -25,6 +25,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   tailWindClasses?: string;
   dataTooltipId?: string;
   showVariables?: boolean;
+  wrapperSize?: string | undefined;
 }
 export default function Input({
   error,
@@ -44,6 +45,7 @@ export default function Input({
   dataTooltipId,
   success,
   showVariables,
+  wrapperSize,
   ...props
 }: InputProps) {
   const isValid = value && (!error || error != "") && success;
@@ -81,7 +83,7 @@ export default function Input({
     <>
       <div
         data-tooltip-id={dataTooltipId}
-        className="relative w-full flex items-center justify-center flex-col"
+        className={`relative w-full flex justify-center flex-col ${wrapperSize}`}
       >
         <input
           type={

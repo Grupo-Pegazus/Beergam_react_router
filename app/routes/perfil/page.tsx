@@ -52,8 +52,8 @@ export default function PerfilPage() {
   }
   return (
     <PageLayout showLogo={false}>
-      <div className="grid grid-cols-[1fr_2.4fr] w-full h-full">
-        <div className="p-6 flex flex-col items-end">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_2.4fr] w-full h-full">
+        <div className="p-6 flex-col right-0 bg-beergam-orange w-[60%] hidden lg:flex lg:w-full items-end absolute z-50 lg:static lg:bg-transparent lg:z-auto">
           <div className="w-[90%] flex flex-col items-start">
             <h3 className="uppercase text-beergam-white">
               CONFIGURAÇÕES DE USUÁRIO

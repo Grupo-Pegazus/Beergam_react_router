@@ -8,15 +8,12 @@ import React, {
 import { Form, useSubmit } from "react-router";
 import { Tooltip } from "react-tooltip";
 import { z } from "zod";
-import type { IBaseUser } from "~/features/user/typings/BaseUser";
 import type { IColab } from "~/features/user/typings/Colab";
 import {
   CalcProfitProduct,
   CalcTax,
-  ComoConheceu,
   CurrentBilling,
   NumberOfEmployees,
-  ProfitRange,
   Segment,
   UserSchema,
   type IUser,
@@ -28,15 +25,17 @@ import Hint from "~/src/components/utils/Hint";
 import { deepEqual, HandleSubmit } from "../../utils";
 const EditingContext = React.createContext<boolean>(false);
 
-interface MinhaContaProps {
-  user: IUser | IColab | undefined;
+interface MinhaContaProps<T extends IUser | IColab> {
+  user: T;
 }
-export default function MinhaConta({ user }: MinhaContaProps) {
+export default function MinhaConta<T extends IUser | IColab>({
+  user,
+}: MinhaContaProps<T>) {
   const [editedUser, setEditedUser] = useReducer(
     (
-      state: IUser | IBaseUser | undefined,
+      state: T,
       action:
-        | { type: "update"; payload: Partial<IUser & IBaseUser> }
+        | { type: "update"; payload: Partial<T> }
         | { type: "reset"; payload?: undefined }
     ) => {
       switch (action.type) {
@@ -88,12 +87,9 @@ export default function MinhaConta({ user }: MinhaContaProps) {
     },
     editingInitialState
   );
-  const editUserInformation = useCallback(
-    (payload: Partial<IUser & IBaseUser>) => {
-      setEditedUser({ type: "update", payload });
-    },
-    []
-  );
+  const editUserInformation = useCallback((payload: Partial<T>) => {
+    setEditedUser({ type: "update", payload });
+  }, []);
   const handleUserInfoChange = useCallback(
     (
       value: string | null,
@@ -106,7 +102,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
         if (value == "") {
           value = null;
         }
-        editUserInformation({ [target]: value });
+        editUserInformation({ [target]: value } as Partial<T>);
       }
       if (typeof target == "object" && "details" in target && target.details) {
         if (!("details" in editedUser)) {
@@ -116,13 +112,25 @@ export default function MinhaConta({ user }: MinhaContaProps) {
           value = null;
         }
         editUserInformation({
-          details: { ...editedUser?.details, [target.details.key]: value },
-        });
+          details: {
+            ...editedUser?.details,
+            [target.details.key]: value,
+          },
+        } as Partial<T>);
       }
     },
     [editUserInformation, editedUser]
   );
-
+  const CreateFieldsWrapper = useCallback(
+    ({ children }: { children: React.ReactNode }) => {
+      return (
+        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4`}>
+          {children}
+        </div>
+      );
+    },
+    []
+  );
   const CreateFields = useCallback(
     ({
       //Função que cria os campos do formulário com algumas configurações por padrão, lógica de edição, etc.
@@ -135,6 +143,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
       hint = null,
       type = "text",
       error = null,
+      dataTooltipId = undefined,
     }: {
       label: string;
       value: string | number | boolean | null;
@@ -149,6 +158,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
       hint?: string | null;
       type?: "text" | "number" | "checkbox";
       error?: { errors: string[] } | null;
+      dataTooltipId?: string | undefined;
     }) => {
       const isEditing = React.useContext(EditingContext);
       if (selectOptions != null) {
@@ -158,7 +168,11 @@ export default function MinhaConta({ user }: MinhaContaProps) {
         ];
       }
       const inputClasses =
-        type === "checkbox" ? "" : type === "number" ? "!w-36" : "!w-2/3";
+        type === "checkbox"
+          ? ""
+          : type === "number" && isEditing
+            ? "!w-22 lg:!w-36"
+            : "!w-full lg:!w-2/3";
       return (
         <Fields.wrapper>
           <div className="flex justify-between items-center gap-2">
@@ -181,16 +195,10 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                   value={value as string | number}
                   onChange={(e) => onChange?.(e.target.value)}
                   placeholder={placeholder}
-                  tailWindClasses={inputClasses}
-                  hasError={true}
-                  error={{
-                    message: error?.errors[0] || "",
-                    error:
-                      error?.errors.length && error?.errors.length > 0
-                        ? true
-                        : false,
-                  }}
+                  error={error?.errors?.[0]}
                   type={type}
+                  dataTooltipId={dataTooltipId}
+                  wrapperSize={inputClasses}
                 />
               )
             ) : selectOptions ? (
@@ -217,9 +225,10 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                 value={""}
                 onChange={(e) => onChange?.(e.target.value)}
                 placeholder={placeholder}
-                tailWindClasses={inputClasses}
-                hasError={true}
+                error={error?.errors?.[0]}
                 type={type}
+                dataTooltipId={dataTooltipId}
+                wrapperSize={inputClasses}
               />
             )
           ) : (
@@ -239,11 +248,13 @@ export default function MinhaConta({ user }: MinhaContaProps) {
       children: React.ReactNode;
     }) => {
       return (
-        <div className="col-span-3 flex flex-col gap-4">
+        <div
+          className={`w-full flex flex-col gap-4 h-fit col-span-1 lg:col-span-2`}
+        >
           <h4 className="text-beergam-blue-primary font-bold uppercase">
             {subSectionTitle}
           </h4>
-          <div className="grid grid-cols-3 gap-4">{children}</div>
+          <CreateFieldsWrapper>{children}</CreateFieldsWrapper>
         </div>
       );
     },
@@ -267,7 +278,13 @@ export default function MinhaConta({ user }: MinhaContaProps) {
       );
       const containerRef = useRef<HTMLDivElement>(null);
       useEffect(() => {
-        if (editingValue) {
+        // Verifica se está em um computador (tela > 1024px como critério comum para desktop)
+        if (
+          editingValue &&
+          typeof window !== "undefined" &&
+          window.matchMedia &&
+          window.matchMedia("(min-width: 1024px)").matches
+        ) {
           containerRef.current?.scrollIntoView({
             behavior: "smooth",
             block: "end",
@@ -283,7 +300,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
               </h3>
               <button onClick={handleToggleEdit}>
                 <div className="flex justify-center items-center gap-2 p-4 pt-1 pb-1 rounded-xl bg-beergam-blue-primary hover:bg-beergam-orange text-beergam-white">
-                  <p>Editar {sectionTitle}</p>
+                  <p className="hidden lg:block">Editar {sectionTitle}</p>
                   {editingValue ? (
                     <Svg.eye width={17} height={17} tailWindClasses="" />
                   ) : (
@@ -292,14 +309,13 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                 </div>
               </button>
             </div>
-            <div className="grid grid-cols-3 gap-4">{children}</div>
+            <CreateFieldsWrapper>{children}</CreateFieldsWrapper>
           </div>
         </EditingContext.Provider>
       );
     },
     [isEditing]
   );
-
   const GenerateFieldsBySection = useCallback(
     (
       //Função que gera os campos se baseando nas sessões
@@ -311,115 +327,11 @@ export default function MinhaConta({ user }: MinhaContaProps) {
           return (
             <>
               <CreateFields
-                label="NOME COMPLETO / RAZÃO SOCIAL"
+                label="NOME / RAZÃO SOCIAL"
                 value={user?.name ?? ""}
                 canBeAlter={false}
                 error={editedUserError?.properties?.name}
               />
-              {"details" in editedUser && "details" in user && (
-                <>
-                  <CreateFields
-                    label="EMAIL"
-                    value={user?.details?.email ?? ""}
-                    canBeAlter={false}
-                    error={
-                      editedUserError?.properties?.details?.properties?.email
-                    }
-                  />
-                  <CreateFields
-                    label="TELEFONE"
-                    value={user?.details?.phone ?? ""}
-                    canBeAlter={false}
-                    error={
-                      editedUserError?.properties?.details?.properties?.phone
-                    }
-                  />
-                  <CreateFields
-                    label="CPF"
-                    value={editedUser?.details?.cpf ?? null}
-                    canBeAlter={
-                      user?.details?.cpf == null ||
-                      user?.details?.cpf == undefined
-                    }
-                    placeholder="Digite seu CPF"
-                    onChange={(value) =>
-                      handleUserInfoChange(value, { details: { key: "cpf" } })
-                    }
-                    error={
-                      editedUserError?.properties?.details?.properties?.cpf
-                    }
-                  />
-                  <CreateFields
-                    label="CNPJ"
-                    value={editedUser?.details?.cnpj ?? null}
-                    canBeAlter={
-                      user?.details?.cnpj == null ||
-                      user?.details?.cnpj == undefined
-                    }
-                    onChange={(value) =>
-                      handleUserInfoChange(value, { details: { key: "cnpj" } })
-                    }
-                    placeholder="Digite seu CNPJ"
-                    error={
-                      editedUserError?.properties?.details?.properties?.cnpj
-                    }
-                  />
-                  <CreateFields
-                    label="CÓDIGO DE INDICAÇÃO"
-                    value={user?.details?.personal_reference_code ?? ""}
-                    canBeAlter={false}
-                    hint="Compartilhe seu código de indicação para convidar novos usuários ao Beergam."
-                    error={
-                      editedUserError?.properties?.details?.properties
-                        ?.personal_reference_code
-                    }
-                  />
-                  <CreateFields
-                    label="COMO CONHECEU A BEERGAM"
-                    value={editedUser?.details?.found_beergam ?? null}
-                    canBeAlter={true}
-                    onChange={(value) =>
-                      handleUserInfoChange(value, {
-                        details: { key: "found_beergam" },
-                      })
-                    }
-                    selectOptions={Object.keys(ComoConheceu).map((key) => ({
-                      value: key,
-                      label: ComoConheceu[key as keyof typeof ComoConheceu],
-                    }))}
-                    error={
-                      editedUserError?.properties?.details?.properties
-                        ?.found_beergam
-                    }
-                  />
-                  <CreateFields
-                    label="FATURAMENTO MENSAL"
-                    value={editedUser?.details?.profit_range ?? null}
-                    canBeAlter={true}
-                    onChange={(value) =>
-                      handleUserInfoChange(value, {
-                        details: { key: "profit_range" },
-                      })
-                    }
-                    selectOptions={Object.keys(ProfitRange).map((key) => ({
-                      value: key,
-                      label: ProfitRange[key as keyof typeof ProfitRange],
-                    }))}
-                    error={
-                      editedUserError?.properties?.details?.properties
-                        ?.profit_range
-                    }
-                  />
-                  <CreateFields
-                    label="PIN"
-                    value={user?.pin ?? null}
-                    canBeAlter={false}
-                    onChange={() => {}}
-                    hint="O PIN é usado para acessar o sistema de colaboradores."
-                    error={editedUserError?.properties?.pin}
-                  />
-                </>
-              )}
             </>
           );
         case "Dados Financeiros":
@@ -628,7 +540,6 @@ export default function MinhaConta({ user }: MinhaContaProps) {
                         details: { key: "foundation_date" },
                       })
                     }
-                    name="foundation_date"
                   />
                   <CreateFields
                     label="SEGMENTO"
@@ -731,12 +642,6 @@ export default function MinhaConta({ user }: MinhaContaProps) {
       method="post"
       className="w-full flex flex-col gap-4 mt-4 relative"
     >
-      {/* {JSON.stringify(editedUserError)}
-      {JSON.stringify(editedUser)}
-      <p>-----------------</p>
-      <p>user</p>
-      {JSON.stringify(user)}
-      <p>{JSON.stringify(usersAreEqual)}</p> */}
       <CreateFieldsSections sectionTitle="Dados Pessoais">
         {dadosPessoaisSection}
       </CreateFieldsSections>
@@ -753,8 +658,8 @@ export default function MinhaConta({ user }: MinhaContaProps) {
             : "opacity-100 pointer-events-auto"
         }`}
       >
-        <div className="bg-beergam-white shadow-lg/50 border-1 border-beergam-blue-primary p-4 rounded-2xl w-3/5 flex justify-between items-center">
-          <p className="text-beergam-blue-primary font-bold !text-lg">
+        <div className="bg-beergam-white shadow-lg/50 border-1 border-beergam-blue-primary p-4 rounded-2xl w-full lg:w-3/5 flex justify-between items-center">
+          <p className="text-beergam-blue-primary font-bold">
             Deseja salvar suas alterações?
           </p>
           <div className="flex gap-4">
@@ -762,7 +667,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
               className="text-beergam-blue-primary"
               onClick={() => setEditedUser({ type: "reset" })}
             >
-              Redefinir
+              <p>Redefinir</p>
             </button>
             <button
               type="submit"
@@ -770,7 +675,7 @@ export default function MinhaConta({ user }: MinhaContaProps) {
               className={`${editedUserError ? "bg-beergam-red !cursor-not-allowed" : "bg-beergam-blue-primary hover:bg-beergam-orange"} !font-bold text-beergam-white p-2 rounded-2xl`}
               onClick={() => console.log("eba")}
             >
-              Salvar alterações
+              <Svg.check width={17} height={17} />
             </button>
             {editedUserError && (
               <Tooltip
