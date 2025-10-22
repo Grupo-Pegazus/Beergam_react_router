@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { BaseUserSchema, type IBaseUser } from "./BaseUser";
-
+export type ColabAction = "Editar" | "Excluir" | "Visualizar";
 export enum ColabLevel {
   ADMIN = "Administrador",
   NORMAL = "Normal",

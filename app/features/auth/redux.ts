@@ -1,16 +1,16 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { MenuState } from "../menu/typings";
-import { type IBaseUser } from "../user/typings/BaseUser";
+import { type IColab } from "../user/typings/Colab";
 import { type IUser } from "../user/typings/User";
 
-export interface IAuthState<T extends IBaseUser | IUser> {
+export interface IAuthState<T extends IColab | IUser> {
   loading: boolean;
   user: T | null;
   error: string | null;
   success: boolean;
 }
 
-const initialState: IAuthState<IBaseUser | IUser> = {
+const initialState: IAuthState<IColab | IUser> = {
   loading: false,
   user: null,
   error: null,
@@ -21,7 +21,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login(state, action: PayloadAction<IBaseUser | IUser>) {
+    login(state, action: PayloadAction<IColab | IUser>) {
       state.user = action.payload;
       state.success = true;
       state.loading = false;
