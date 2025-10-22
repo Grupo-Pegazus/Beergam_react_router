@@ -8,10 +8,8 @@ import { UserPasswordSchema } from "~/features/auth/typing";
 import { UserRoles, UserStatus } from "~/features/user/typings/BaseUser";
 import {
   ComoConheceu,
-  Faixaprofit_range,
+  ProfitRange,
   UserSchema,
-  type ComoConheceuKeys,
-  type Faixaprofit_rangeKeys,
   type IUser,
 } from "~/features/user/typings/User";
 import { Fields } from "~/src/components/utils/_fields";
@@ -100,6 +98,9 @@ export default function FormModal() {
         error: true,
       };
   function HandleSubmit(): boolean {
+    UserInfo.updated_at = new Date();
+    UserInfo.created_at = new Date();
+    UserInfo.status = "ACTIVE" as UserStatus;
     if (UserInfo.details.referral_code == "") {
       UserInfo.details.referral_code = null;
     }
@@ -191,6 +192,25 @@ export default function FormModal() {
           }
         }
         return ActionValidation(name);
+      case "referral_code":
+        if (
+          (UserInfo.details.referral_code?.length &&
+            UserInfo.details.referral_code.length > 0) ||
+          isSubmited
+        ) {
+          if (
+            UserFieldErrors.properties?.details?.properties?.referral_code
+              ?.errors?.[0]
+          ) {
+            return {
+              message:
+                UserFieldErrors.properties.details.properties.referral_code
+                  .errors[0],
+              error: true,
+            };
+          }
+        }
+        return ActionValidation(name);
       default:
         return ActionValidation(name);
     }
@@ -211,25 +231,6 @@ export default function FormModal() {
     >
       {/* <p>{JSON.stringify(actionData?.error_fields)}</p> */}
       <h1 className="text-beergam-blue-primary">Cadastre-se</h1>
-      {/* <button
-        type="button"
-        className="absolute right-2"
-        onClick={() => {
-          UserInfo.email = "teste@teste.com";
-          UserInfo.name = "Teste";
-          UserInfo.cpf = "52556894830";
-          UserInfo.cnpj = "12345678901234";
-          UserInfo.phone = "12345678901";
-          UserInfo.found_beergam = "ANUNCIO_FACEBOOK" as ComoConheceuKeys;
-          UserInfo.profit_range = "ATE_10_MIL" as Faixaprofit_rangeKeys;
-          UserInfo.personal_reference_code = "1234567890";
-          UserInfo.referral_code = "1234567890";
-          setPassword("123456Ab!");
-          setConfirmPassword("123456Ab!");
-        }}
-      >
-        AutoComplete
-      </button> */}
       <div>
         <Fields.wrapper>
           <Fields.label text="DIGITE SEU ENDEREÇO DE E-MAIL" />
@@ -244,11 +245,13 @@ export default function FormModal() {
                 e.target.value
               )
             }
-            error={InputValidation("email")}
+            error={InputValidation("email").message}
+            dataTooltipId="email-input"
+            success={!InputValidation("email").error}
           />
         </Fields.wrapper>
       </div>
-      <div className={`fieldsContainer`}>
+      <div className={`fieldsContainer pt-4`}>
         <Fields.wrapper>
           <Fields.label text="NOME COMPLETO / RAZÃO SOCIAL"></Fields.label>
           <Fields.input
@@ -256,15 +259,18 @@ export default function FormModal() {
             placeholder="Nome Completo / Razão Social"
             value={UserInfo.name}
             onChange={(e) => InputOnChange("name", e.target.value)}
+            dataTooltipId="name-input"
             error={
-              UserInfo.name.length > 0 || isSubmited
+              UserInfo.name.length > 0
                 ? UserFieldErrors.properties?.name?.errors?.[0]
-                  ? {
-                      message: UserFieldErrors.properties.name.errors[0],
-                      error: true,
-                    }
-                  : { message: "", error: false }
-                : { message: "", error: false }
+                : UserInfo.name.length == 0 && isSubmited
+                  ? "Por favor, preencha o nome completo / razão social"
+                  : undefined
+            }
+            success={
+              ((UserInfo.name.length > 0 || isSubmited) &&
+                !UserFieldErrors.properties?.name?.errors?.[0]) ||
+              UserFieldErrors.properties?.name?.errors?.length == 0
             }
           ></Fields.input>
         </Fields.wrapper>
@@ -288,7 +294,10 @@ export default function FormModal() {
             value={docValue ?? ""}
             placeholder="Documento"
             name={currentDocument === "CPF" ? "cpf" : "cnpj"}
-            error={InputValidation("documento")}
+            error={InputValidation("documento").message}
+            dataTooltipId="documento-input"
+            success={!InputValidation("documento").error}
+            // showVariables
             onChange={(e) =>
               InputOnChange(
                 currentDocument === "CPF"
@@ -310,12 +319,14 @@ export default function FormModal() {
             name="password"
             onChange={(e) => setPassword(e.target.value)}
             error={
-              password.length > 0 && passwordError.errors?.[0]
-                ? { error: true, message: passwordError.errors?.[0] }
-                : password.length == 0 && isSubmited
-                  ? { error: true, message: "Por favor, preencha a senha" }
-                  : { error: false, message: "" }
+              password.length == 0 && isSubmited
+                ? "Por favor, preencha a senha"
+                : password.length > 0 && passwordError.errors?.[0]
+                  ? passwordError.errors?.[0]
+                  : undefined
             }
+            dataTooltipId="password-input"
+            success={!passwordError.errors?.[0]}
           ></Fields.input>
         </Fields.wrapper>
         <Fields.wrapper>
@@ -325,16 +336,11 @@ export default function FormModal() {
             type="password"
             placeholder="Confirmar Senha"
             onChange={(e) => setConfirmPassword(e.target.value)}
-            // error={
-            //   (password.length > 0 || confirmPassword.length > 0) &&
-
-            // }
-            error={{
-              message: confirmPasswordResult.success
-                ? ""
-                : "As senhas não coincidem",
-              error: confirmPasswordResult.success ? false : true,
-            }}
+            error={
+              confirmPasswordResult.success ? "" : "As senhas não coincidem"
+            }
+            success={confirmPasswordResult.success}
+            dataTooltipId="confirm-password-input"
           ></Fields.input>
         </Fields.wrapper>
       </div>
@@ -351,7 +357,9 @@ export default function FormModal() {
                 e.target.value
               )
             }
-            error={InputValidation("referral_code")}
+            error={InputValidation("referral_code").message}
+            success={!InputValidation("referral_code").error}
+            dataTooltipId="referral-code-input"
           ></Fields.input>
         </Fields.wrapper>
         <Fields.wrapper>
@@ -369,18 +377,19 @@ export default function FormModal() {
               })
             }
             error={
-              UserInfo.details.phone.length > 0 || isSubmited
-                ? UserFieldErrors.properties?.details?.properties?.phone
-                    ?.errors?.[0]
-                  ? {
-                      error: true,
-                      message:
-                        UserFieldErrors.properties.details.properties.phone
-                          .errors[0],
-                    }
-                  : { error: false, message: "" }
-                : { error: false, message: "" }
+              UserInfo.details.phone.length == 0 && isSubmited
+                ? "Por favor, preencha o whatsapp"
+                : UserFieldErrors.properties?.details?.properties?.phone
+                      ?.errors?.[0] && isSubmited
+                  ? UserFieldErrors.properties.details.properties.phone
+                      .errors[0]
+                  : undefined
             }
+            success={
+              !UserFieldErrors.properties?.details?.properties?.phone
+                ?.errors?.[0]
+            }
+            dataTooltipId="whatsapp-input"
           ></Fields.input>
         </Fields.wrapper>
       </div>
@@ -410,7 +419,7 @@ export default function FormModal() {
               { value: "", label: "Selecione" },
               ...Object.keys(ComoConheceu).map((key) => ({
                 value: key,
-                label: ComoConheceu[key as ComoConheceuKeys],
+                label: ComoConheceu[key as keyof typeof ComoConheceu],
               })),
             ]}
             name="found_beergam"
@@ -418,7 +427,7 @@ export default function FormModal() {
               setUserInfo({
                 details: {
                   ...UserInfo.details,
-                  found_beergam: e.target.value as ComoConheceuKeys,
+                  found_beergam: e.target.value as ComoConheceu,
                 },
               })
             }
@@ -446,9 +455,9 @@ export default function FormModal() {
             }
             options={[
               { value: "", label: "Selecione" },
-              ...Object.keys(Faixaprofit_range).map((key) => ({
+              ...Object.keys(ProfitRange).map((key) => ({
                 value: key,
-                label: Faixaprofit_range[key as Faixaprofit_rangeKeys],
+                label: ProfitRange[key as keyof typeof ProfitRange],
               })),
             ]}
             name="profit_range"
@@ -456,7 +465,7 @@ export default function FormModal() {
               setUserInfo({
                 details: {
                   ...UserInfo.details,
-                  profit_range: e.target.value as Faixaprofit_rangeKeys,
+                  profit_range: e.target.value as ProfitRange,
                 },
               })
             }

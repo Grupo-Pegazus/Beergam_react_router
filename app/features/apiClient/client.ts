@@ -216,16 +216,4 @@ typedApiClient.axiosInstance.interceptors.request.use(async (config) => {
   console.log("request do interceptor", config);
   return config;
 });
-// typedApiClient.axiosInstance.interceptors.response.use(async (response) => {
-//   return response;
-// });
-
-// typedApiClient.axiosInstance.interceptors.request.use(async (config) => {
-//   console.log("request do client", config);
-//   // const access_token = localStorage.getItem("access_token");
-//   // if (access_token) {
-//   //   config.headers.Authorization = `Bearer ${access_token}`;
-//   // }
-//   return config;
-// });
 export { typedApiClient };

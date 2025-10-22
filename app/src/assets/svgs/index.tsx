@@ -5,11 +5,13 @@ import BuildingLibrary from "./BuildingLibrary";
 import CalculatorIcon from "./Calculator";
 import CardIcon from "./CardIcon";
 import ChatIcon from "./ChatIcon";
+import Check from "./Check";
 import CircleX from "./CircleX";
 import ClockIcon from "./ClockIcon";
 import Cog8Tooth from "./Cog8Tooth";
 import CurrencyDollar from "./CurrencyDollar";
 import DollyIcon from "./DollyIcon";
+import ElipsisHorizontal from "./ElipsisHorizontal";
 import Eye from "./Eye";
 import EyeSlash from "./EyeSlash";
 import GlobeIcon from "./GlobeIcon";
@@ -18,6 +20,7 @@ import HomeIcon from "./HomeIcon";
 import InBoxStackIcon from "./InBoxStackIcon";
 import InformationCircle from "./InformationCircle";
 import LockClosed from "./LockClosed";
+import Pencil from "./Pencil";
 import PhoneIcon from "./PhoneIcon";
 import PlusCircle from "./PlusCircle";
 import QuestionMark from "./QuestionMark";
@@ -49,6 +52,9 @@ const Svg = {
   circle_x: CircleX,
   x: X,
   lock_closed: LockClosed,
+  pencil: Pencil,
+  elipsis_horizontal: ElipsisHorizontal,
+  check: Check,
 };
 
 export default Svg;

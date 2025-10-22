@@ -187,21 +187,30 @@ export default function FormModal({
                 onChange={(e) =>
                   setMasterUserInfo({ email: e.target.value as string })
                 }
+                // error={
+                //   MasterUserInfo.email.length > 0
+                //     ? masterFieldErrors.properties?.email?.errors?.[0]
+                //       ? {
+                //           message: masterFieldErrors.properties.email.errors[0],
+                //           error: true,
+                //         }
+                //       : { message: "", error: false }
+                //     : isSubmited
+                //       ? {
+                //           message: "Por favor, preencha o e-mail.",
+                //           error: true,
+                //         }
+                //       : { message: "", error: false }
+                // }
                 error={
-                  MasterUserInfo.email.length > 0
-                    ? masterFieldErrors.properties?.email?.errors?.[0]
-                      ? {
-                          message: masterFieldErrors.properties.email.errors[0],
-                          error: true,
-                        }
-                      : { message: "", error: false }
-                    : isSubmited
-                      ? {
-                          message: "Por favor, preencha o e-mail.",
-                          error: true,
-                        }
-                      : { message: "", error: false }
+                  MasterUserInfo.email.length == 0 && isSubmited
+                    ? "Por favor, preencha o e-mail."
+                    : masterFieldErrors.properties?.email?.errors?.[0] &&
+                        MasterUserInfo.email.length > 0
+                      ? masterFieldErrors.properties.email.errors[0]
+                      : undefined
                 }
+                dataTooltipId="email-input"
               />
             </Fields.wrapper>
             <Fields.wrapper>
@@ -217,20 +226,13 @@ export default function FormModal({
                 onChange={(e) =>
                   setMasterUserInfo({ password: e.target.value as string })
                 }
+                dataTooltipId="password-input"
                 error={
                   MasterUserInfo.password.length === 0 && isSubmited
-                    ? {
-                        message: "Por favor, preencha a senha.",
-                        error: true,
-                      }
-                    : { message: "", error: false }
+                    ? "Por favor, preencha a senha."
+                    : undefined
                 }
               />
-              {/* {masterFieldErrors?.password && masterFieldErrors.password.length >= 0 && (
-            <span className="text-xs text-red-500 mt-1">
-              {masterFieldErrors.password[0]}
-            </span>
-          )} */}
             </Fields.wrapper>
           </>
         ) : (
@@ -250,17 +252,27 @@ export default function FormModal({
                     master_pin: e.target.value as string,
                   })
                 }
+                // error={
+                //   isSubmited &&
+                //   colaboradorFieldErrors.properties?.master_pin?.errors?.[0]
+                //     ? {
+                //         message:
+                //           colaboradorFieldErrors.properties.master_pin
+                //             .errors[0],
+                //         error: true,
+                //       }
+                //     : { message: "", error: false }
+                // }
                 error={
-                  isSubmited &&
-                  colaboradorFieldErrors.properties?.master_pin?.errors?.[0]
-                    ? {
-                        message:
-                          colaboradorFieldErrors.properties.master_pin
-                            .errors[0],
-                        error: true,
-                      }
-                    : { message: "", error: false }
+                  ColaboradorUserInfo.master_pin.length == 0 && isSubmited
+                    ? "Por favor, preencha o pin do empregador."
+                    : colaboradorFieldErrors.properties?.master_pin
+                          ?.errors?.[0] &&
+                        ColaboradorUserInfo.master_pin.length > 0
+                      ? colaboradorFieldErrors.properties.master_pin.errors[0]
+                      : undefined
                 }
+                dataTooltipId="master-pin-input"
               />
             </Fields.wrapper>
             <Fields.wrapper>
@@ -279,15 +291,14 @@ export default function FormModal({
                   })
                 }
                 error={
-                  isSubmited &&
-                  colaboradorFieldErrors.properties?.pin?.errors?.[0]
-                    ? {
-                        message:
-                          colaboradorFieldErrors.properties.pin.errors[0],
-                        error: true,
-                      }
-                    : { message: "", error: false }
+                  ColaboradorUserInfo.pin.length == 0 && isSubmited
+                    ? "Por favor, preencha o pin do colaborador."
+                    : colaboradorFieldErrors.properties?.pin?.errors?.[0] &&
+                        ColaboradorUserInfo.pin.length > 0
+                      ? colaboradorFieldErrors.properties.pin.errors[0]
+                      : undefined
                 }
+                dataTooltipId="pin-input"
               />
             </Fields.wrapper>
             <Fields.wrapper>
@@ -307,12 +318,10 @@ export default function FormModal({
                 }
                 error={
                   ColaboradorUserInfo.password.length === 0 && isSubmited
-                    ? {
-                        message: "Por favor, preencha a senha.",
-                        error: true,
-                      }
-                    : { message: "", error: false }
+                    ? "Por favor, preencha a senha."
+                    : undefined
                 }
+                dataTooltipId="password-colab-input"
               />
             </Fields.wrapper>
           </>

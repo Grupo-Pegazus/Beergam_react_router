@@ -15,7 +15,7 @@ export default function Wrapper({
 }: InputWrapperProps) {
   return (
     <div
-      className={`w-full relative flex flex-col items-start gap-2 ${className || ""} ${tailWindClasses || ""}`}
+      className={`relative basis-[inherit]  flex flex-col items-start gap-2 ${className || ""} ${tailWindClasses || ""}`}
       style={style}
     >
       {children}
