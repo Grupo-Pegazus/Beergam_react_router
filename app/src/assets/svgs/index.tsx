@@ -5,6 +5,7 @@ import BuildingLibrary from "./BuildingLibrary";
 import CalculatorIcon from "./Calculator";
 import CardIcon from "./CardIcon";
 import ChatIcon from "./ChatIcon";
+import Check from "./Check";
 import CircleX from "./CircleX";
 import ClockIcon from "./ClockIcon";
 import Cog8Tooth from "./Cog8Tooth";
@@ -53,6 +54,7 @@ const Svg = {
   lock_closed: LockClosed,
   pencil: Pencil,
   elipsis_horizontal: ElipsisHorizontal,
+  check: Check,
 };
 
 export default Svg;
