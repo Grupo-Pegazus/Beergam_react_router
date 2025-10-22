@@ -1,20 +1,33 @@
 import { Paper, Switch } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useReducer, useState } from "react";
+import { z } from "zod";
 import { UserStatus } from "~/features/user/typings/BaseUser";
-import { ColabLevel, type IColab } from "~/features/user/typings/Colab";
+import {
+  ColabLevel,
+  ColabSchema,
+  type IColab,
+} from "~/features/user/typings/Colab";
 import Svg from "~/src/assets/svgs";
 import { Fields } from "~/src/components/utils/_fields";
 import Time from "~/src/components/utils/Time";
 import type { DaysOfWeek } from "~/src/components/utils/Time/typings";
 import ViewAccess from "../ViewAccess";
-export default function ColabInfo(colab: IColab) {
-  // Criação de um useState com datas fixas para todos os dias da semana e horários pré-definidos
+export default function ColabInfo(colab: IColab | null) {
+  const initialColabState = colab;
+  const [editedColab, setEditedColab] = useReducer(
+    (state: IColab | null, action: Partial<IColab>) => {
+      console.log(action);
+      if (!state) return null;
+      return { ...state, ...action } as IColab;
+    },
+    initialColabState
+  );
   const daysOfWeek = [
-    "Segunda-Feira",
-    "Terça-Feira",
-    "Quarta-Feira",
-    "Quinta-Feira",
-    "Sexta-Feira",
+    "Segunda",
+    "Terça",
+    "Quarta",
+    "Quinta",
+    "Sexta",
     "Sábado",
     "Domingo",
   ];
@@ -28,7 +41,9 @@ export default function ColabInfo(colab: IColab) {
     { day: daysOfWeek[5], startTime: "08:00", endTime: "12:00", ativo: true },
     { day: daysOfWeek[6], startTime: "", endTime: "", ativo: false },
   ]);
-
+  useEffect(() => {
+    setEditedColab({ ...colab });
+  }, [colab]);
   const handleSetHorario =
     (dayName: string) =>
     (params: { ativo: boolean; inicio: string; fim: string }) => {
@@ -45,82 +60,52 @@ export default function ColabInfo(colab: IColab) {
         )
       );
     };
-
+  const editedColabValidation = ColabSchema.safeParse(editedColab);
+  const editedColabError = editedColabValidation.error
+    ? z.treeifyError(editedColabValidation.error)
+    : null;
+  if (!editedColab)
+    return (
+      <div>
+        <h1>Nenhum colaborador encontrado</h1>
+        <p>Colab: {JSON.stringify(colab)}</p>
+        <p>Edited Colab: {JSON.stringify(editedColab)}</p>
+        <p>Initial Colab: {JSON.stringify(initialColabState)}</p>
+      </div>
+    );
   return (
     <>
       <hr className="h-[1px] mb-3.5 mt-5 border-beergam-gray-light" />
       <div>
-        <h3 className="text-beergam-blue-primary !font-bold uppercase mb-4">
-          Editar Colaborador
-        </h3>
-        <div className="grid grid-cols-[1fr_1.3fr] grid-rows-1 gap-4 2xl:grid-cols-[1fr_1.3fr]">
-          {/* <div className="flex flex-col justify-between items-start gap-4">
-            <div className="flex items-stretch gap-2 w-full border-1 border-beergam-gray-light p-2 rounded-md h-full">
-              <div className="flex flex-col items-center justify-center gap-2">
-                <div className="min-w-20 min-h-20 mt-2.5 cursor-pointer group relative  rounded-full group hover:bg-beergam-orange/50 object-cover object-center bg-beergam-orange flex items-center justify-center">
-                  <h2 className="text-white uppercase">
-                    {colab.name.charAt(0).toUpperCase()}
-                  </h2>
-                  <div className="flex pointer-events-none items-center justify-center absolute opacity-0 group-hover:opacity-100 bottom-3.5 right-3.5">
-                    <Svg.pencil width={22} height={22} stroke="white" />
-                  </div>
-                </div>
-                <div className="mt-2.5 flex flex-col items-center justify-center gap-2">
-                  <p className="font-medium text-sm text-beergam-gray ">
-                    STATUS
-                  </p>
-                  <Switch
-                    title="Ativar/Desativar colaborador"
-                    checked={colab.status === UserStatus.ACTIVE}
-                    onChange={(e) => {
-                      console.log(e.target.checked);
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 w-full">
-                <Fields.wrapper>
-                  <Fields.label text="NOME" />
-                  <Fields.input value={colab.name} />
-                </Fields.wrapper>
-                <Fields.wrapper>
-                  <Fields.label text="SENHA DE ACESSO" />
-                  <Fields.input value={"asdaokdokas"} type="password" />
-                </Fields.wrapper>
-                <div className="grid grid-cols-2 gap-2 col-span-2 align-bottom">
-                  {Object.keys(ColabLevel).map((level) => (
-                    <button
-                      key={level}
-                      className={`text-white px-4 py-2 rounded-md h-[42px] ${
-                        colab.details.level === level
-                          ? "bg-beergam-orange"
-                          : "bg-beergam-gray-light"
-                      }`}
-                    >
-                      <p>
-                        {
-                          ColabLevel[
-                            level as unknown as keyof typeof ColabLevel
-                          ]
-                        }
-                      </p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div> */}
+        <div className="flex justify-between items-center">
+          <h3 className="text-beergam-blue-primary !font-bold uppercase mb-4">
+            Editar Colaborador
+          </h3>
+          <button className="opacity-90 hover:opacity-100">
+            <Svg.trash
+              stroke={"var(--color-beergam-red)"}
+              width={28}
+              height={28}
+            />
+          </button>
+        </div>
+        <div className="grid grid-cols-1 grid-rows-1 gap-4 2xl:grid-cols-[1fr_1.3fr]">
           <Paper className="grid grid-rows-2 gap-4 border-1 border-beergam-gray-light rounded-md p-4">
             <div className="grid grid-cols-[80px_1fr] gap-4 w-full">
               <div className="w-full h-full max-h-[80px] bg-beergam-orange rounded-full flex items-center justify-center">
                 <h2 className="text-white uppercase">
-                  {colab.name.charAt(0).toUpperCase()}
+                  {editedColab.name.charAt(0).toUpperCase()}
                 </h2>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <Fields.wrapper>
                   <Fields.label text="NOME" />
-                  <Fields.input value={colab.name} />
+                  <Fields.input
+                    onChange={(e) => setEditedColab({ name: e.target.value })}
+                    value={editedColab.name}
+                    dataTooltipId="name-input"
+                    error={editedColabError?.properties?.name?.errors?.[0]}
+                  />
                 </Fields.wrapper>
                 <Fields.wrapper>
                   <Fields.label text="SENHA DE ACESSO" />
@@ -128,42 +113,51 @@ export default function ColabInfo(colab: IColab) {
                 </Fields.wrapper>
               </div>
             </div>
-            <div className="grid grid-cols-[80px_1fr] gird-rows-1 gap-2">
-              <Fields.wrapper className="justify-end items-end">
-                <Fields.label
-                  text="STATUS"
-                  hint="Acesso do colaborador ao sistema."
-                />
-                <Switch
-                  title="Ativar/Desativar colaborador"
-                  checked={colab.status === UserStatus.ACTIVE}
-                  onChange={(e) => {
-                    console.log(e.target.checked);
-                  }}
-                />
-              </Fields.wrapper>
-              <Fields.wrapper className="justify-end items-end">
-                <Fields.label
-                  text="NÍVEL"
-                  hint="O nível do colaborador é o nível de acesso que ele tem ao sistema."
-                />
-                <div className="grid grid-cols-2 gap-2 w-full">
-                  {Object.keys(ColabLevel).map((level) => (
-                    <button
-                      key={level}
-                      className={`text-white p-2 rounded-md hover:bg-beergam-orange ${level == colab.details.level ? "bg-beergam-orange" : "bg-beergam-gray-light"}`}
-                    >
-                      <p>
-                        {
-                          ColabLevel[
-                            level as unknown as keyof typeof ColabLevel
-                          ]
-                        }
-                      </p>
-                    </button>
-                  ))}
+            <div className="flex gap-2">
+              <div className="flex justify-end items-end gap-2 w-[80px]">
+                <div className="flex flex-col justify-between gap-2 w-full min-h-[68px]">
+                  <Fields.label
+                    text="STATUS"
+                    hint="Ativar/Desativar colaborador do sistema."
+                  />
+                  <Switch
+                    title="Ativar/Desativar colaborador"
+                    checked={editedColab.status == UserStatus.ACTIVE}
+                    onChange={(e) => {
+                      setEditedColab({
+                        status: e.target.checked
+                          ? UserStatus.ACTIVE
+                          : UserStatus.INACTIVE,
+                      });
+                    }}
+                  />
                 </div>
-              </Fields.wrapper>
+              </div>
+              <div className="flex justify-end items-end gap-2 w-full">
+                <div className="flex flex-col justify-between gap-2 w-full min-h-[68px]">
+                  <Fields.label
+                    text="NÍVEL"
+                    hint="Nível de acesso do colaborador ao sistema."
+                  />
+                  <div className="grid grid-cols-2 gap-2 w-full">
+                    {Object.values(ColabLevel).map((level) => (
+                      <button
+                        key={level}
+                        className={`text-white p-2 rounded-md hover:bg-beergam-orange ${level == editedColab.details.level ? "bg-beergam-orange" : "bg-beergam-blue-primary"}`}
+                        onClick={() =>
+                          setEditedColab({
+                            details: {
+                              level: level as ColabLevel,
+                            },
+                          })
+                        }
+                      >
+                        <p>{level}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </Paper>
 
