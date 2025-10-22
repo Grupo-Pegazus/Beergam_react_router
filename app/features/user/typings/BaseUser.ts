@@ -16,8 +16,8 @@ export const UserRolesKeys = Object.keys(UserRoles) as [
 ];
 
 export enum UserStatus {
-  ACTIVE = "ACTIVE",
-  INACTIVE = "INACTIVE",
+  ACTIVE = "Ativo",
+  INACTIVE = "Inativo",
 }
 
 export interface IBaseUser {
@@ -28,6 +28,8 @@ export interface IBaseUser {
   marketplace_accounts?: BaseMarketPlace[] | null;
   pin?: string | null;
   master_pin?: string | null;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export const BaseUserSchema = z.object({
@@ -45,6 +47,25 @@ export const BaseUserSchema = z.object({
   role: z.enum(Object.keys(UserRoles) as [UserRoles, ...UserRoles[]]),
   pin: z.string().optional().nullable(),
   master_pin: z.string().optional().nullable(),
-  status: z.enum(Object.keys(UserStatus) as [UserStatus, ...UserStatus[]]),
+  status: z
+    .union([
+      z.enum(
+        Object.keys(UserStatus) as [
+          keyof typeof UserStatus,
+          ...(keyof typeof UserStatus)[],
+        ]
+      ), // keys
+      z.enum(Object.values(UserStatus) as [UserStatus, ...UserStatus[]]), // values
+    ])
+    .transform((value) => {
+      if (Object.values(UserStatus).includes(value as UserStatus)) {
+        // already value
+        return value as UserStatus;
+      }
+      // is a key: convert to value
+      return UserStatus[value as keyof typeof UserStatus];
+    }),
   marketplace_accounts: z.array(BaseMarketPlaceSchema).optional().nullable(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date(),
 }) satisfies z.ZodType<IBaseUser>;

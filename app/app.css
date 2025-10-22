@@ -13,6 +13,7 @@
   --color-beergam-blue-darker: #192a55;
 
   --color-beergam-blue-primary: #284277;
+  --color-beergam-blue-primary-dark: #192a55;
   --color-beergam-blue-lara: #010314;
   --color-beergam-blue-plano: #0e172abf;
 
@@ -58,7 +59,8 @@ p,
 label,
 a,
 input,
-select {
+select,
+option {
   @apply text-[14px] lg:text-[12px] 2xl:text-[14px];
 }
 
@@ -83,4 +85,40 @@ input[type="password"]::-ms-clear {
 body,
 html {
   height: 100%;
+}
+/* 1. Use a more-intuitive box-sizing model */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  overflow-anchor: none;
+}
+/* 3. Enable keyword animations */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    interpolate-size: allow-keywords;
+  }
+}
+body {
+  /* 4. Add accessible line-height */
+  line-height: 1.5;
+  /* 5. Improve text rendering */
+  -webkit-font-smoothing: antialiased;
+}
+/* 6. Improve media defaults */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/*
+  10. Create a root stacking context
+*/
+#root,
+#__next {
+  isolation: isolate;
 }

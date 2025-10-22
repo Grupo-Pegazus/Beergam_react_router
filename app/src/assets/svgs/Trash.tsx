@@ -2,14 +2,7 @@ import IconBase, { type SvgBaseProps } from "./IconBase";
 
 export default function Trash(props: SvgBaseProps) {
   return (
-    <IconBase
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      className="size-6"
-      {...props}
-    >
+    <IconBase fill="none" strokeWidth={1.5} stroke="currentColor" {...props}>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
