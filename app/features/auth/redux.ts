@@ -2,6 +2,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { MenuState } from "../menu/typings";
 import { type IColab } from "../user/typings/Colab";
 import { type IUser } from "../user/typings/User";
+import { cryptoUser } from "./utils";
 
 export interface IAuthState<T extends IColab | IUser> {
   loading: boolean;
@@ -38,8 +39,19 @@ const authSlice = createSlice({
         state.user.allowed_views = action.payload;
       }
     },
+    updateUserInfo(state, action: PayloadAction<IUser>) {
+      console.log("updateUserInfo", action.payload);
+      if (state.user) {
+        state.user = {
+          ...state.user,
+          ...action.payload,
+        };
+        cryptoUser.encriptarDados(state.user as IUser);
+      }
+    },
   },
 });
 
-export const { login, logout, setUserViews } = authSlice.actions;
+export const { login, logout, setUserViews, updateUserInfo } =
+  authSlice.actions;
 export default authSlice.reducer;

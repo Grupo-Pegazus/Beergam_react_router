@@ -2,6 +2,7 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
 import { createTheme, ThemeProvider } from "@mui/material";
 import { ptBR } from "@mui/material/locale";
+import { ptBR as ptBRDayjs } from "@mui/x-date-pickers/locales";
 import * as Sentry from "@sentry/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -124,7 +125,8 @@ const theme = createTheme(
       },
     },
   },
-  ptBR
+  ptBR,
+  ptBRDayjs
 );
 
 export async function clientLoader() {

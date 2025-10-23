@@ -1,5 +1,6 @@
 import AlertIcon from "./AlertIcon";
 import ArrowPathIcon from "./ArrowPathIcon";
+import ArrowUturnLeft from "./ArrowUturnLeft";
 import BagIcon from "./BagIcon";
 import BuildingLibrary from "./BuildingLibrary";
 import CalculatorIcon from "./Calculator";
@@ -55,6 +56,7 @@ const Svg = {
   pencil: Pencil,
   elipsis_horizontal: ElipsisHorizontal,
   check: Check,
+  arrow_uturn_left: ArrowUturnLeft,
 };
 
 export default Svg;

@@ -30,6 +30,9 @@ export const CNPJSchema = z
   .string()
   .transform((v) => v.replace(/\D/g, ""))
   .refine((v) => v.length === 14, { message: "CNPJ deve ter 14 dígitos" })
-  .refine((v) => validateCNPJ(v), { message: "CNPJ inválido" });
+  .refine((v) => validateCNPJ(v), { message: "CNPJ inválido" })
+  .transform((v) =>
+    v.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5")
+  );
 
 export type CNPJ = z.infer<typeof CNPJSchema>;

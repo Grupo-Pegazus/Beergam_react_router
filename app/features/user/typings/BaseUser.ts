@@ -10,11 +10,6 @@ export enum UserRoles {
   COLAB = "COLAB",
 }
 
-export const UserRolesKeys = Object.keys(UserRoles) as [
-  UserRoles,
-  ...UserRoles[],
-];
-
 export enum UserStatus {
   ACTIVE = "Ativo",
   INACTIVE = "Inativo",
@@ -47,25 +42,21 @@ export const BaseUserSchema = z.object({
   role: z.enum(Object.keys(UserRoles) as [UserRoles, ...UserRoles[]]),
   pin: z.string().optional().nullable(),
   master_pin: z.string().optional().nullable(),
-  status: z
-    .union([
-      z.enum(
-        Object.keys(UserStatus) as [
-          keyof typeof UserStatus,
-          ...(keyof typeof UserStatus)[],
-        ]
-      ), // keys
-      z.enum(Object.values(UserStatus) as [UserStatus, ...UserStatus[]]), // values
-    ])
-    .transform((value) => {
-      if (Object.values(UserStatus).includes(value as UserStatus)) {
-        // already value
-        return value as UserStatus;
-      }
-      // is a key: convert to value
-      return UserStatus[value as keyof typeof UserStatus];
-    }),
+  status: z.enum(Object.keys(UserStatus) as [UserStatus, ...UserStatus[]]),
   marketplace_accounts: z.array(BaseMarketPlaceSchema).optional().nullable(),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date(),
 }) satisfies z.ZodType<IBaseUser>;
+
+export function FormatUserStatus(status: UserStatus): keyof typeof UserStatus {
+  return Object.values(UserStatus).find(
+    (value) =>
+      UserStatus[status as unknown as keyof typeof UserStatus] === value
+  ) as unknown as keyof typeof UserStatus;
+}
+export function FormatUserRole(role: UserRoles): keyof typeof UserRoles {
+  if (Object.values(UserRoles).includes(role)) {
+    return role as keyof typeof UserRoles;
+  }
+  return UserRoles[role as keyof typeof UserRoles];
+}

@@ -95,10 +95,9 @@ export enum CalcProfitProduct {
 }
 
 export enum CalcTax {
-  VALOR_BRUTO_PEDIDO = "Imposto Sobre o Valor Bruto do Pedido",
+  VALOR_PEDIDO = "Imposto Sobre o Valor Bruto do Pedido",
   VALOR_LIQUIDO_PEDIDO = "Imposto Sobre o Valor Líquido do Pedido",
-  VALOR_BRUTO_COM_FRETE_RECEBIDO_PEDIDO = "Imposto Sobre o Valor Bruto Com o Frete Recebido",
-  VALOR_BRUTO_SEM_FRETE_PAGO_PELO_VENDEDOR_PEDIDO = "Imposto Sobre o Valor Bruto Sem o Frete do Vendedor",
+  VALOR_CLIENTE_PAGOU = "Imposto Sobre o Valor Bruto Com o Frete Recebido",
   VALOR_PORCENTAGEM_FIXA = "Imposto Sobre uma Porcentagem Fixa",
 }
 
@@ -185,7 +184,11 @@ const SubscriptionSchema = z.object({
   free_trial_until: DateCoerced,
   plan: PlanSchema,
 });
-
+const NumberCoerced = z.coerce
+  .number()
+  .min(0, "Número tem que ser maior que 0")
+  .nullable()
+  .optional();
 export const UserDetailsSchema = z.object({
   email: z.email("Email inválido"),
   cpf: CPFSchema.optional().nullable(),
@@ -203,7 +206,52 @@ export const UserDetailsSchema = z.object({
     .optional()
     .nullable(),
   subscriptions: z.array(SubscriptionSchema).optional().nullable(),
-  notify_newsletter: z.boolean().optional().nullable(),
+  notify_newsletter: z.coerce.boolean().optional().nullable(),
+  calc_profit_product: z
+    .enum(
+      Object.keys(CalcProfitProduct) as [
+        CalcProfitProduct,
+        ...CalcProfitProduct[],
+      ]
+    )
+    .optional()
+    .nullable(),
+  calc_tax: z
+    .enum(Object.keys(CalcTax) as [CalcTax, ...CalcTax[]])
+    .optional()
+    .nullable(),
+  current_billing: z
+    .enum(Object.keys(CurrentBilling) as [CurrentBilling, ...CurrentBilling[]])
+    .optional()
+    .nullable(),
+  website: z.url("URL inválida").optional().nullable(),
+  tax_percent_fixed: z.coerce
+    .number()
+    .refine((n) => !isNaN(n), "Valor inválido")
+    .min(0, "Número tem que ser maior que 0")
+    .max(100, "Número tem que ser menor que 100")
+    .optional()
+    .nullable(),
+  sells_meli: NumberCoerced,
+  sells_shopee: NumberCoerced,
+  sells_amazon: NumberCoerced,
+  sells_shein: NumberCoerced,
+  sells_own_site: NumberCoerced,
+  sub_count: NumberCoerced,
+  number_of_employees: z
+    .enum(
+      Object.keys(NumberOfEmployees) as [
+        NumberOfEmployees,
+        ...NumberOfEmployees[],
+      ]
+    )
+    .optional()
+    .nullable(),
+  segment: z
+    .enum(Object.keys(Segment) as [Segment, ...Segment[]])
+    .optional()
+    .nullable(),
+  social_media: z.string().optional().nullable(),
 }) satisfies z.ZodType<IUserDetails>;
 
 export const UserSchema = BaseUserSchema.extend({
