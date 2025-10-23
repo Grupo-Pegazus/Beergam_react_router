@@ -2,9 +2,13 @@ import { Paper, TableCell, TableRow } from "@mui/material";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
 import { useState } from "react";
-import { UserStatus } from "~/features/user/typings/BaseUser";
+import { FormatUserStatus, UserStatus } from "~/features/user/typings/BaseUser";
 import Svg from "~/src/assets/svgs";
-import { ColabLevel, type IColab } from "../../../typings/Colab";
+import {
+  ColabLevel,
+  FormatColabLevel,
+  type IColab,
+} from "../../../typings/Colab";
 export default function ColabRow({
   colab,
   index,
@@ -37,8 +41,8 @@ export default function ColabRow({
     return (
       <Badge
         className="!w-[140px]"
-        text={level}
-        pinClassName={`${level == ColabLevel.ADMIN ? "bg-beergam-orange" : "bg-beergam-blue-primary"}`}
+        text={FormatColabLevel(level)}
+        pinClassName={`${ColabLevel[level as unknown as keyof typeof ColabLevel] === ColabLevel.ADMIN ? "bg-beergam-orange" : "bg-beergam-blue-primary"}`}
       />
     );
   }
@@ -46,8 +50,8 @@ export default function ColabRow({
     return (
       <Badge
         className="!w-[100px]"
-        text={status}
-        pinClassName={`${status == UserStatus.ACTIVE ? "bg-beergam-orange" : "bg-beergam-gray"}`}
+        text={FormatUserStatus(status)}
+        pinClassName={`${UserStatus[status as unknown as keyof typeof UserStatus] === UserStatus.ACTIVE ? "bg-beergam-orange" : "bg-beergam-gray"}`}
       />
     );
   }

@@ -1,3 +1,4 @@
+import { Paper, Switch } from "@mui/material";
 import React, {
   useCallback,
   useEffect,
@@ -24,10 +25,11 @@ import {
 import { isMaster } from "~/features/user/utils";
 import Svg from "~/src/assets/svgs";
 import { Fields } from "~/src/components/utils/_fields";
+import BasicDatePicker from "~/src/components/utils/BasicDatePicker";
 import Hint from "~/src/components/utils/Hint";
-import { deepEqual, HandleSubmit } from "../../utils";
+import { deepEqual, getObjectDifferences, HandleSubmit } from "../../utils";
+const production = import.meta.env.PROD;
 const EditingContext = React.createContext<boolean>(false);
-
 interface MinhaContaProps<T extends IUser | IColab> {
   user: T;
 }
@@ -95,7 +97,7 @@ export default function MinhaConta<T extends IUser | IColab>({
   }, []);
   const handleUserInfoChange = useCallback(
     (
-      value: string | null,
+      value: string | null | boolean,
       target: string | { details: { key: keyof IUserDetails } }
     ) => {
       if (!editedUser || !target) {
@@ -159,7 +161,7 @@ export default function MinhaConta<T extends IUser | IColab>({
         disabled?: boolean;
       }> | null;
       hint?: string | null;
-      type?: "text" | "number" | "checkbox";
+      type?: "text" | "number";
       error?: { errors: string[] } | null;
       dataTooltipId?: string | undefined;
     }) => {
@@ -171,11 +173,7 @@ export default function MinhaConta<T extends IUser | IColab>({
         ];
       }
       const inputClasses =
-        type === "checkbox"
-          ? ""
-          : type === "number" && isEditing
-            ? "!w-22 lg:!w-36"
-            : "!w-full lg:!w-2/3";
+        type === "number" && isEditing ? "!w-22 lg:!w-36" : "!w-full lg:!w-2/3";
       return (
         <Fields.wrapper>
           <div className="flex justify-between items-center gap-2">
@@ -219,14 +217,20 @@ export default function MinhaConta<T extends IUser | IColab>({
             selectOptions ? (
               <Fields.select
                 value={""}
-                onChange={(e) => onChange?.(e.target.value)}
+                onChange={(e) => {
+                  console.log("e", e);
+                  onChange?.(e.target.value);
+                }}
                 options={selectOptions}
                 tailWindClasses="!w-2/3"
               />
             ) : (
               <Fields.input
                 value={""}
-                onChange={(e) => onChange?.(e.target.value)}
+                onChange={(e) => {
+                  console.log("e", e);
+                  onChange?.(e.target.value);
+                }}
                 placeholder={placeholder}
                 error={error?.errors?.[0]}
                 type={type}
@@ -325,125 +329,121 @@ export default function MinhaConta<T extends IUser | IColab>({
       sectionTitle: keyof typeof editingInitialState
     ) => {
       if (!editedUser || !user) return null;
-      if (isMaster(editedUser)) {
+      if (isMaster(editedUser) && isMaster(user)) {
         switch (sectionTitle) {
           case "Dados Pessoais":
             return (
               <>
                 <CreateFields
                   label="NOME / RAZÃO SOCIAL"
-                  value={editedUser?.name ?? ""}
+                  value={user?.name ?? ""}
                   canBeAlter={false}
                   error={editedUserError?.properties?.name}
                 />
-                {"details" in editedUser && "details" in user && (
-                  <>
-                    <CreateFields
-                      label="EMAIL"
-                      value={editedUser?.details?.email ?? ""}
-                      canBeAlter={false}
-                      error={
-                        editedUserError?.properties?.details?.properties?.email
-                      }
-                    />
-                    <CreateFields
-                      label="TELEFONE"
-                      value={editedUser?.details?.phone ?? ""}
-                      canBeAlter={false}
-                      error={
-                        editedUserError?.properties?.details?.properties?.phone
-                      }
-                    />
-                    <CreateFields
-                      label="CPF"
-                      value={editedUser?.details?.cpf ?? null}
-                      canBeAlter={
-                        editedUser?.details?.cpf == null ||
-                        editedUser?.details?.cpf == undefined
-                      }
-                      placeholder="Digite seu CPF"
-                      onChange={(value) =>
-                        handleUserInfoChange(value, { details: { key: "cpf" } })
-                      }
-                      error={
-                        editedUserError?.properties?.details?.properties?.cpf
-                      }
-                      dataTooltipId="cpf-input"
-                    />
-                    <CreateFields
-                      label="CNPJ"
-                      value={editedUser?.details?.cnpj ?? null}
-                      canBeAlter={
-                        editedUser?.details?.cnpj == null ||
-                        editedUser?.details?.cnpj == undefined
-                      }
-                      onChange={(value) =>
-                        handleUserInfoChange(value, {
-                          details: { key: "cnpj" },
-                        })
-                      }
-                      placeholder="Digite seu CNPJ"
-                      error={
-                        editedUserError?.properties?.details?.properties?.cnpj
-                      }
-                      dataTooltipId="cnpj-input"
-                    />
-                    <CreateFields
-                      label="CÓDIGO DE INDICAÇÃO"
-                      value={editedUser?.details?.personal_reference_code ?? ""}
-                      canBeAlter={false}
-                      hint="Compartilhe seu código de indicação para convidar novos usuários ao Beergam."
-                      error={
-                        editedUserError?.properties?.details?.properties
-                          ?.personal_reference_code
-                      }
-                    />
-                    <CreateFields
-                      label="COMO CONHECEU A BEERGAM"
-                      value={editedUser?.details?.found_beergam ?? null}
-                      canBeAlter={true}
-                      onChange={(value) =>
-                        handleUserInfoChange(value, {
-                          details: { key: "found_beergam" },
-                        })
-                      }
-                      selectOptions={Object.keys(ComoConheceu).map((key) => ({
-                        value: key,
-                        label: ComoConheceu[key as keyof typeof ComoConheceu],
-                      }))}
-                      error={
-                        editedUserError?.properties?.details?.properties
-                          ?.found_beergam
-                      }
-                    />
-                    <CreateFields
-                      label="FATURAMENTO MENSAL"
-                      value={editedUser?.details?.profit_range ?? null}
-                      canBeAlter={true}
-                      onChange={(value) =>
-                        handleUserInfoChange(value, {
-                          details: { key: "profit_range" },
-                        })
-                      }
-                      selectOptions={Object.keys(ProfitRange).map((key) => ({
-                        value: key,
-                        label: ProfitRange[key as keyof typeof ProfitRange],
-                      }))}
-                      error={
-                        editedUserError?.properties?.details?.properties
-                          ?.profit_range
-                      }
-                    />
-                    <CreateFields
-                      label="PIN"
-                      value={editedUser?.pin ?? null}
-                      canBeAlter={false}
-                      onChange={() => {}}
-                      hint="O PIN é usado para acessar o sistema de colaboradores."
-                      error={editedUserError?.properties?.pin}
-                    />
-                  </>
-                )}
+                <>
+                  <CreateFields
+                    label="EMAIL"
+                    value={user?.details?.email ?? ""}
+                    canBeAlter={false}
+                    error={
+                      editedUserError?.properties?.details?.properties?.email
+                    }
+                  />
+                  <CreateFields
+                    label="TELEFONE"
+                    value={user?.details?.phone ?? ""}
+                    canBeAlter={false}
+                    error={
+                      editedUserError?.properties?.details?.properties?.phone
+                    }
+                  />
+                  <CreateFields
+                    label="CPF"
+                    value={editedUser?.details?.cpf ?? null}
+                    canBeAlter={
+                      user?.details?.cpf == null ||
+                      user?.details?.cpf == undefined
+                    }
+                    placeholder="Digite seu CPF"
+                    onChange={(value) =>
+                      handleUserInfoChange(value, { details: { key: "cpf" } })
+                    }
+                    error={
+                      editedUserError?.properties?.details?.properties?.cpf
+                    }
+                    dataTooltipId="cpf-input"
+                  />
+                  <CreateFields
+                    label="CNPJ"
+                    value={editedUser?.details?.cnpj ?? null}
+                    canBeAlter={
+                      user?.details?.cnpj == null ||
+                      user?.details?.cnpj == undefined
+                    }
+                    onChange={(value) =>
+                      handleUserInfoChange(value, { details: { key: "cnpj" } })
+                    }
+                    placeholder="Digite seu CNPJ"
+                    error={
+                      editedUserError?.properties?.details?.properties?.cnpj
+                    }
+                    dataTooltipId="cnpj-input"
+                  />
+                  <CreateFields
+                    label="CÓDIGO DE INDICAÇÃO"
+                    value={user?.details?.personal_reference_code ?? ""}
+                    canBeAlter={false}
+                    hint="Compartilhe seu código de indicação para convidar novos usuários ao Beergam."
+                    error={
+                      editedUserError?.properties?.details?.properties
+                        ?.personal_reference_code
+                    }
+                  />
+                  <CreateFields
+                    label="COMO CONHECEU A BEERGAM"
+                    value={editedUser?.details?.found_beergam ?? null}
+                    canBeAlter={false}
+                    onChange={(value) =>
+                      handleUserInfoChange(value, {
+                        details: { key: "found_beergam" },
+                      })
+                    }
+                    selectOptions={Object.keys(ComoConheceu).map((key) => ({
+                      value: key,
+                      label: ComoConheceu[key as keyof typeof ComoConheceu],
+                    }))}
+                    error={
+                      editedUserError?.properties?.details?.properties
+                        ?.found_beergam
+                    }
+                  />
+                  <CreateFields
+                    label="FATURAMENTO MENSAL"
+                    value={editedUser?.details?.profit_range ?? null}
+                    canBeAlter={true}
+                    onChange={(value) =>
+                      handleUserInfoChange(value, {
+                        details: { key: "profit_range" },
+                      })
+                    }
+                    selectOptions={Object.keys(ProfitRange).map((key) => ({
+                      value: key,
+                      label: ProfitRange[key as keyof typeof ProfitRange],
+                    }))}
+                    error={
+                      editedUserError?.properties?.details?.properties
+                        ?.profit_range
+                    }
+                  />
+                  <CreateFields
+                    label="PIN"
+                    value={user?.pin ?? null}
+                    canBeAlter={false}
+                    onChange={() => {}}
+                    hint="O PIN é usado para acessar o sistema de colaboradores."
+                    error={editedUserError?.properties?.pin}
+                  />
+                </>
               </>
             );
           case "Dados Financeiros":
@@ -497,6 +497,11 @@ export default function MinhaConta<T extends IUser | IColab>({
                       }
                       hint="São diferentes formas de calcular a base tributária antes de aplicar a alíquota do imposto. "
                       type="number"
+                      dataTooltipId="porcentagem-fixa-imposto"
+                      error={
+                        editedUserError?.properties?.details?.properties
+                          ?.tax_percent_fixed
+                      }
                     />
                     <CreateFields
                       label="NÚMERO DE FUNCIONÁRIOS"
@@ -516,6 +521,11 @@ export default function MinhaConta<T extends IUser | IColab>({
                             ],
                         })
                       )}
+                      error={
+                        editedUserError?.properties?.details?.properties
+                          ?.number_of_employees
+                      }
+                      dataTooltipId="numero-de-funcionarios"
                     />
                     <CreateFields
                       label="FATURADOR ATUAL"
@@ -531,18 +541,25 @@ export default function MinhaConta<T extends IUser | IColab>({
                         label:
                           CurrentBilling[key as keyof typeof CurrentBilling],
                       }))}
-                    />
-                    <CreateFields
-                      label="EMITE NOTA FISCAL NO FLEX"
-                      value={editedUser?.details?.notify_newsletter ?? false}
-                      canBeAlter={true}
-                      onChange={(value) =>
-                        handleUserInfoChange(value, {
-                          details: { key: "notify_newsletter" },
-                        })
+                      error={
+                        editedUserError?.properties?.details?.properties
+                          ?.current_billing
                       }
-                      type="checkbox"
+                      dataTooltipId="faturador-atual"
                     />
+                    <div>
+                      <Fields.label text="EMITE NOTA FISCAL NO FLEX" />
+                      <Switch
+                        checked={
+                          editedUser?.details?.notify_newsletter ?? false
+                        }
+                        onChange={(e) => {
+                          handleUserInfoChange(e.target.checked, {
+                            details: { key: "notify_newsletter" },
+                          });
+                        }}
+                      />
+                    </div>
                     <GenerateSubSections subSectionTitle="VENDAS EM PLATAFORMAS">
                       <CreateFields
                         label="VENDAS NO MELI"
@@ -554,6 +571,11 @@ export default function MinhaConta<T extends IUser | IColab>({
                           })
                         }
                         type="number"
+                        error={
+                          editedUserError?.properties?.details?.properties
+                            ?.sells_meli
+                        }
+                        dataTooltipId="vendas-no-meli"
                       />
 
                       <CreateFields
@@ -566,6 +588,11 @@ export default function MinhaConta<T extends IUser | IColab>({
                           })
                         }
                         type="number"
+                        error={
+                          editedUserError?.properties?.details?.properties
+                            ?.sells_shopee
+                        }
+                        dataTooltipId="vendas-no-shopee"
                       />
                       <CreateFields
                         label="VENDAS NO AMAZON"
@@ -577,6 +604,11 @@ export default function MinhaConta<T extends IUser | IColab>({
                           })
                         }
                         type="number"
+                        error={
+                          editedUserError?.properties?.details?.properties
+                            ?.sells_amazon
+                        }
+                        dataTooltipId="vendas-no-amazon"
                       />
                       <CreateFields
                         label="VENDAS NO SHEIN"
@@ -588,6 +620,11 @@ export default function MinhaConta<T extends IUser | IColab>({
                           })
                         }
                         type="number"
+                        error={
+                          editedUserError?.properties?.details?.properties
+                            ?.sells_shein
+                        }
+                        dataTooltipId="vendas-no-shein"
                       />
                       <CreateFields
                         label="VENDAS NO SITE PRÓPRIO"
@@ -599,6 +636,11 @@ export default function MinhaConta<T extends IUser | IColab>({
                           })
                         }
                         type="number"
+                        error={
+                          editedUserError?.properties?.details?.properties
+                            ?.sells_own_site
+                        }
+                        dataTooltipId="vendas-no-site-proprio"
                       />
                     </GenerateSubSections>
                   </>
@@ -632,6 +674,7 @@ export default function MinhaConta<T extends IUser | IColab>({
                       editedUserError?.properties?.details?.properties
                         ?.secondary_phone
                     }
+                    dataTooltipId="telefone-secundario"
                   />
                   <GenerateSubSections subSectionTitle="Dados coorporativos">
                     <CreateFields
@@ -643,20 +686,13 @@ export default function MinhaConta<T extends IUser | IColab>({
                           details: { key: "website" },
                         })
                       }
-                    />
-                    <CreateFields
-                      label="DATA DE FUNDAÇÃO"
-                      value={
-                        editedUser?.details?.foundation_date?.toISOString() ??
-                        null
+                      error={
+                        editedUserError?.properties?.details?.properties
+                          ?.website
                       }
-                      canBeAlter={true}
-                      onChange={(value) =>
-                        handleUserInfoChange(value, {
-                          details: { key: "foundation_date" },
-                        })
-                      }
+                      dataTooltipId="site-coorporativo"
                     />
+                    <BasicDatePicker />
                     <CreateFields
                       label="SEGMENTO"
                       value={editedUser?.details?.segment ?? null}
@@ -670,9 +706,14 @@ export default function MinhaConta<T extends IUser | IColab>({
                         value: key,
                         label: Segment[key as keyof typeof Segment],
                       }))}
+                      error={
+                        editedUserError?.properties?.details?.properties
+                          ?.segment
+                      }
+                      dataTooltipId="segmento"
                     />
                   </GenerateSubSections>
-                  <GenerateSubSections subSectionTitle="Endereço completo">
+                  {/* <GenerateSubSections subSectionTitle="Endereço completo">
                     <CreateFields
                       label="CEP"
                       value={null}
@@ -715,7 +756,7 @@ export default function MinhaConta<T extends IUser | IColab>({
                       canBeAlter={true}
                       onChange={() => {}}
                     />
-                  </GenerateSubSections>
+                  </GenerateSubSections> */}
                 </>
               )
             );
@@ -749,16 +790,19 @@ export default function MinhaConta<T extends IUser | IColab>({
   return (
     <Form
       onSubmit={(e) => {
+        console.log("dando submit no bgl jão");
         e.preventDefault();
         if (!editedUserValidation.success) {
           console.log("editedUserValidation invalido", editedUserValidation);
           return;
         }
-        HandleSubmit({ action: "Minha Conta", data: editedUser }, submit);
+        const data = getObjectDifferences(user, editedUser);
+        HandleSubmit({ action: "Minha Conta", data: { ...data } }, submit);
       }}
       method="post"
       className="w-full flex flex-col gap-4 mt-4 relative"
     >
+      {!production && <>{JSON.stringify(editedUserError)}</>}
       <CreateFieldsSections sectionTitle="Dados Pessoais">
         {dadosPessoaisSection}
       </CreateFieldsSections>
@@ -769,30 +813,31 @@ export default function MinhaConta<T extends IUser | IColab>({
         {informacoesBasicasSection}
       </CreateFieldsSections>
       <div
-        className={`sticky w-full bottom-0 left-0 right-0 flex justify-center items-center ${
+        className={`sticky w-full bottom-0 left-0 right-0 flex justify-end lg:justify-center items-center ${
           usersAreEqual
             ? "opacity-0 pointer-events-none"
             : "opacity-100 pointer-events-auto"
         }`}
       >
-        <div className="bg-beergam-white shadow-lg/50 border-1 border-beergam-blue-primary p-4 rounded-2xl w-full lg:w-3/5 flex justify-between items-center">
-          <p className="text-beergam-blue-primary font-bold">
+        <Paper className="flex w-full lg:w-2/3 justify-between items-center">
+          <p className="font-bold hidden lg:inline-block text-beergam-blue-primary">
             Deseja salvar suas alterações?
           </p>
-          <div className="flex gap-4">
+          <div className="flex gap-4 w-full justify-center items-center lg:w-auto">
             <button
-              className="text-beergam-blue-primary"
+              className="text-beergam-white bg-beergam-blue-primary p-2 rounded-2xl"
               onClick={() => setEditedUser({ type: "reset" })}
+              type="button"
             >
               <p>Redefinir</p>
             </button>
             <button
               type="submit"
               data-tooltip-id="salvar-alteracoes"
-              className={`${editedUserError ? "bg-beergam-red !cursor-not-allowed" : "bg-beergam-blue-primary hover:bg-beergam-orange"} !font-bold text-beergam-white p-2 rounded-2xl`}
+              className={`${editedUserError ? "bg-beergam-blue-primary/40 !cursor-not-allowed" : "bg-beergam-blue-primary hover:bg-beergam-orange"} !font-bold text-beergam-white p-2 rounded-2xl`}
               onClick={() => console.log("eba")}
             >
-              <Svg.check width={17} height={17} />
+              <p>Salvar alterações</p>
             </button>
             {editedUserError && (
               <Tooltip
@@ -801,7 +846,7 @@ export default function MinhaConta<T extends IUser | IColab>({
               />
             )}
           </div>
-        </div>
+        </Paper>
       </div>
     </Form>
   );
