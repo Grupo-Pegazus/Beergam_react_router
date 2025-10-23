@@ -7,7 +7,7 @@ export default function LoginPage() {
     localStorage.removeItem("loginLoading");
   }, []);
   return (
-    <PageLayout>
+    <PageLayout tailwindClassName="flex items-center justify-center">
       <FormModal />
     </PageLayout>
   );

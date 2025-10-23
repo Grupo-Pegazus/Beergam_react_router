@@ -50,6 +50,7 @@ export const CPFSchema = z
   .string()
   .transform((v) => v.replace(/\D/g, ""))
   .refine((v) => v.length === 11, { message: "CPF deve ter 11 dígitos" })
-  .refine((v) => validateCPF(v), { message: "CPF inválido" });
+  .refine((v) => validateCPF(v), { message: "CPF inválido" })
+  .transform((v) => v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"));
 
 export type CPF = z.infer<typeof CPFSchema>;

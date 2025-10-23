@@ -1,12 +1,13 @@
-export default function Cog8Tooth() {
+import IconBase, { type SvgBaseProps } from "./IconBase";
+export default function Cog8Tooth(props: SvgBaseProps) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
+    <IconBase
       fill="none"
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
       className="size-6"
+      {...props}
     >
       <path
         strokeLinecap="round"
@@ -18,6 +19,6 @@ export default function Cog8Tooth() {
         strokeLinejoin="round"
         d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
       />
-    </svg>
+    </IconBase>
   );
 }

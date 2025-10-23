@@ -4,6 +4,7 @@ import { type InputError } from "./typings";
 interface Option {
   value: string | null;
   label: string;
+  disabled?: boolean;
 }
 
 interface SelectProps {
@@ -37,11 +38,12 @@ function Select({
   children,
   disabled,
   tailWindClasses,
+  icon,
 }: SelectProps) {
   const isValid = required && value && !error;
 
   const wrapperBase =
-    "w-full inline-block relative border border-black/20 flex items-center bg-white rounded-[20px] shadow-[0_0_10px_0_rgba(0,0,0,0.2)] overflow-hidden p-[10px] gap-2 transition-[border,box-shadow] ease-in-out";
+    "w-full inline-block relative border border-black/20 !flex items-center bg-white rounded-[20px] shadow-[0_0_10px_0_rgba(0,0,0,0.2)] overflow-hidden p-[10px] gap-2 transition-[border,box-shadow] ease-in-out";
   const wrapperState = error?.error
     ? "border-red-500"
     : isValid
@@ -57,7 +59,7 @@ function Select({
           backgroundColor: backgroundColor ? backgroundColor : undefined,
         }}
       >
-        {/* {icon && <GrupoCampos.icon icon={icon} />} */}
+        {icon && icon}
         <select
           className={[
             // base
@@ -85,6 +87,7 @@ function Select({
                 style={{ backgroundColor: "#fff", color: "#333" }}
                 key={idx}
                 value={opt.value || ""}
+                disabled={opt.disabled}
               >
                 {opt.label}
               </option>

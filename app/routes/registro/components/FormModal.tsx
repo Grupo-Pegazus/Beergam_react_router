@@ -5,16 +5,13 @@ import { Form, Link, useActionData } from "react-router";
 import { z } from "zod";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { UserPasswordSchema } from "~/features/auth/typing";
-import { getDefaultViews } from "~/features/menu/utils";
+import { UserRoles, UserStatus } from "~/features/user/typings/BaseUser";
 import {
   ComoConheceu,
-  Faixaprofit_range,
+  ProfitRange,
   UserSchema,
-  UsuarioRoles,
-  type ComoConheceuKeys,
-  type Faixaprofit_rangeKeys,
-  type IUsuario,
-} from "~/features/user/typings";
+  type IUser,
+} from "~/features/user/typings/User";
 import { Fields } from "~/src/components/utils/_fields";
 import type { InputError } from "~/src/components/utils/_fields/typings";
 import type { clientAction } from "../route";
@@ -26,6 +23,7 @@ export default function FormModal() {
       state: ApiResponse | null,
       action: ApiResponse | null
     ): ApiResponse | null => {
+      console.log("action data", action);
       if (!state) return action as ApiResponse;
       return { ...state, ...action };
     },
@@ -40,23 +38,24 @@ export default function FormModal() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const documentToValidate = currentDocument == "CPF" ? CPFSchema : CNPJSchema;
   const [UserInfo, setUserInfo] = useReducer(
-    (state: IUsuario, action: Partial<IUsuario>) => {
+    (state: IUser, action: Partial<IUser>) => {
       return { ...state, ...action };
     },
     {
       name: "",
-      role: UsuarioRoles.MASTER,
-      email: "",
-      cpf: undefined,
-      cnpj: undefined,
-      phone: "",
-      found_beergam: undefined,
-      profit_range: undefined,
-      personal_reference_code: undefined,
-      referral_code: undefined,
-      allowed_views: getDefaultViews(),
-      conta_marketplace: undefined,
-    } as IUsuario
+      role: UserRoles.MASTER,
+      details: {
+        email: "",
+        cpf: undefined,
+        cnpj: undefined,
+        phone: "",
+        personal_reference_code: undefined,
+        referral_code: undefined,
+        profit_range: undefined,
+        found_beergam: undefined,
+      },
+      status: UserStatus.ACTIVE,
+    } as IUser
   );
   const parseUserResult = UserSchema.safeParse(UserInfo);
   const UserFieldErrors = parseUserResult.success
@@ -64,15 +63,18 @@ export default function FormModal() {
         properties: {
           name: { errors: [""] },
           role: { errors: [""] },
-          allowed_views: { errors: [""] },
-          email: { errors: [""] },
-          cpf: { errors: [""] },
-          cnpj: { errors: [""] },
-          phone: { errors: [""] },
-          personal_reference_code: { errors: [""] },
-          referral_code: { errors: [""] },
-          profit_range: { errors: [""] },
-          found_beergam: { errors: [""] },
+          details: {
+            properties: {
+              email: { errors: [""] },
+              cpf: { errors: [""] },
+              cnpj: { errors: [""] },
+              phone: { errors: [""] },
+              personal_reference_code: { errors: [""] },
+              referral_code: { errors: [""] },
+              profit_range: { errors: [""] },
+              found_beergam: { errors: [""] },
+            },
+          },
         },
       }
     : z.treeifyError(parseUserResult.error);
@@ -86,7 +88,8 @@ export default function FormModal() {
   const passwordError = passwordResult.success
     ? { errors: [] }
     : z.treeifyError(passwordResult.error);
-  const docValue = currentDocument === "CPF" ? UserInfo.cpf : UserInfo.cnpj;
+  const docValue =
+    currentDocument === "CPF" ? UserInfo.details.cpf : UserInfo.details.cnpj;
   const docResult = documentToValidate.safeParse(docValue);
   const docError = docResult.success
     ? { message: "", error: false }
@@ -95,13 +98,16 @@ export default function FormModal() {
         error: true,
       };
   function HandleSubmit(): boolean {
-    if (UserInfo.referral_code == "") {
-      UserInfo.referral_code = null;
+    UserInfo.updated_at = new Date();
+    UserInfo.created_at = new Date();
+    UserInfo.status = "ACTIVE" as UserStatus;
+    if (UserInfo.details.referral_code == "") {
+      UserInfo.details.referral_code = null;
     }
     if (currentDocument === "CPF") {
-      UserInfo.cnpj = undefined;
+      UserInfo.details.cnpj = undefined;
     } else {
-      UserInfo.cpf = undefined;
+      UserInfo.details.cpf = undefined;
     }
     if (!UserSchema.safeParse(UserInfo).success) {
       console.log(UserSchema.safeParse(UserInfo));
@@ -119,16 +125,23 @@ export default function FormModal() {
     return true;
   }
 
-  function InputOnChange(name: string, value: string) {
+  function InputOnChange(
+    name: string | { details: { [key: string]: string } },
+    value: string
+  ) {
     setActionData(
       data
         ? {
             ...data,
-            error_fields: { ...data.error_fields, [name]: undefined },
+            error_fields: { ...data.error_fields, [name as string]: undefined },
           }
         : null
     );
-    setUserInfo({ [name]: value as string });
+    if (typeof name === "object" && name.details) {
+      setUserInfo({ details: { ...UserInfo.details, ...name.details } });
+    } else {
+      setUserInfo({ [name as string]: value as string });
+    }
   }
 
   function InputValidation(name: string): InputError {
@@ -146,10 +159,14 @@ export default function FormModal() {
     }
     switch (name) {
       case "email":
-        if (UserInfo.email.length > 0 || isSubmited) {
-          if (UserFieldErrors.properties?.email?.errors?.[0]) {
+        if (UserInfo.details.email.length > 0 || isSubmited) {
+          if (
+            UserFieldErrors.properties?.details?.properties?.email?.errors?.[0]
+          ) {
             return {
-              message: UserFieldErrors.properties.email.errors[0],
+              message:
+                UserFieldErrors.properties?.details?.properties?.email
+                  ?.errors[0],
               error: true,
             };
           }
@@ -175,6 +192,25 @@ export default function FormModal() {
           }
         }
         return ActionValidation(name);
+      case "referral_code":
+        if (
+          (UserInfo.details.referral_code?.length &&
+            UserInfo.details.referral_code.length > 0) ||
+          isSubmited
+        ) {
+          if (
+            UserFieldErrors.properties?.details?.properties?.referral_code
+              ?.errors?.[0]
+          ) {
+            return {
+              message:
+                UserFieldErrors.properties.details.properties.referral_code
+                  .errors[0],
+              error: true,
+            };
+          }
+        }
+        return ActionValidation(name);
       default:
         return ActionValidation(name);
     }
@@ -195,25 +231,6 @@ export default function FormModal() {
     >
       {/* <p>{JSON.stringify(actionData?.error_fields)}</p> */}
       <h1 className="text-beergam-blue-primary">Cadastre-se</h1>
-      {/* <button
-        type="button"
-        className="absolute right-2"
-        onClick={() => {
-          UserInfo.email = "teste@teste.com";
-          UserInfo.name = "Teste";
-          UserInfo.cpf = "52556894830";
-          UserInfo.cnpj = "12345678901234";
-          UserInfo.phone = "12345678901";
-          UserInfo.found_beergam = "ANUNCIO_FACEBOOK" as ComoConheceuKeys;
-          UserInfo.profit_range = "ATE_10_MIL" as Faixaprofit_rangeKeys;
-          UserInfo.personal_reference_code = "1234567890";
-          UserInfo.referral_code = "1234567890";
-          setPassword("123456Ab!");
-          setConfirmPassword("123456Ab!");
-        }}
-      >
-        AutoComplete
-      </button> */}
       <div>
         <Fields.wrapper>
           <Fields.label text="DIGITE SEU ENDEREÇO DE E-MAIL" />
@@ -221,13 +238,20 @@ export default function FormModal() {
             type="text"
             name="email"
             placeholder="Email"
-            value={UserInfo.email}
-            onChange={(e) => InputOnChange("email", e.target.value)}
-            error={InputValidation("email")}
+            value={UserInfo.details.email}
+            onChange={(e) =>
+              InputOnChange(
+                { details: { email: e.target.value } },
+                e.target.value
+              )
+            }
+            error={InputValidation("email").message}
+            dataTooltipId="email-input"
+            success={!InputValidation("email").error}
           />
         </Fields.wrapper>
       </div>
-      <div className={`fieldsContainer`}>
+      <div className={`fieldsContainer pt-4`}>
         <Fields.wrapper>
           <Fields.label text="NOME COMPLETO / RAZÃO SOCIAL"></Fields.label>
           <Fields.input
@@ -235,15 +259,18 @@ export default function FormModal() {
             placeholder="Nome Completo / Razão Social"
             value={UserInfo.name}
             onChange={(e) => InputOnChange("name", e.target.value)}
+            dataTooltipId="name-input"
             error={
-              UserInfo.name.length > 0 || isSubmited
+              UserInfo.name.length > 0
                 ? UserFieldErrors.properties?.name?.errors?.[0]
-                  ? {
-                      message: UserFieldErrors.properties.name.errors[0],
-                      error: true,
-                    }
-                  : { message: "", error: false }
-                : { message: "", error: false }
+                : UserInfo.name.length == 0 && isSubmited
+                  ? "Por favor, preencha o nome completo / razão social"
+                  : undefined
+            }
+            success={
+              ((UserInfo.name.length > 0 || isSubmited) &&
+                !UserFieldErrors.properties?.name?.errors?.[0]) ||
+              UserFieldErrors.properties?.name?.errors?.length == 0
             }
           ></Fields.input>
         </Fields.wrapper>
@@ -267,10 +294,15 @@ export default function FormModal() {
             value={docValue ?? ""}
             placeholder="Documento"
             name={currentDocument === "CPF" ? "cpf" : "cnpj"}
-            error={InputValidation("documento")}
+            error={InputValidation("documento").message}
+            dataTooltipId="documento-input"
+            success={!InputValidation("documento").error}
+            // showVariables
             onChange={(e) =>
               InputOnChange(
-                currentDocument === "CPF" ? "cpf" : "cnpj",
+                currentDocument === "CPF"
+                  ? { details: { cpf: e.target.value } }
+                  : { details: { cnpj: e.target.value } },
                 e.target.value
               )
             }
@@ -287,12 +319,14 @@ export default function FormModal() {
             name="password"
             onChange={(e) => setPassword(e.target.value)}
             error={
-              password.length > 0 && passwordError.errors?.[0]
-                ? { error: true, message: passwordError.errors?.[0] }
-                : password.length == 0 && isSubmited
-                  ? { error: true, message: "Por favor, preencha a senha" }
-                  : { error: false, message: "" }
+              password.length == 0 && isSubmited
+                ? "Por favor, preencha a senha"
+                : password.length > 0 && passwordError.errors?.[0]
+                  ? passwordError.errors?.[0]
+                  : undefined
             }
+            dataTooltipId="password-input"
+            success={!passwordError.errors?.[0]}
           ></Fields.input>
         </Fields.wrapper>
         <Fields.wrapper>
@@ -302,16 +336,11 @@ export default function FormModal() {
             type="password"
             placeholder="Confirmar Senha"
             onChange={(e) => setConfirmPassword(e.target.value)}
-            // error={
-            //   (password.length > 0 || confirmPassword.length > 0) &&
-
-            // }
-            error={{
-              message: confirmPasswordResult.success
-                ? ""
-                : "As senhas não coincidem",
-              error: confirmPasswordResult.success ? false : true,
-            }}
+            error={
+              confirmPasswordResult.success ? "" : "As senhas não coincidem"
+            }
+            success={confirmPasswordResult.success}
+            dataTooltipId="confirm-password-input"
           ></Fields.input>
         </Fields.wrapper>
       </div>
@@ -319,32 +348,48 @@ export default function FormModal() {
         <Fields.wrapper>
           <Fields.label text="CÓDIGO DE INDICAÇÃO" />
           <Fields.input
-            value={UserInfo.referral_code ?? ""}
+            value={UserInfo.details.referral_code ?? ""}
             placeholder="Código de Indicação"
             name="referral_code"
             onChange={(e) =>
-              InputOnChange("referral_code", e.target.value as string)
+              InputOnChange(
+                { details: { referral_code: e.target.value } },
+                e.target.value
+              )
             }
-            error={InputValidation("referral_code")}
+            error={InputValidation("referral_code").message}
+            success={!InputValidation("referral_code").error}
+            dataTooltipId="referral-code-input"
           ></Fields.input>
         </Fields.wrapper>
         <Fields.wrapper>
           <Fields.label text="WHATSAPP" />
           <Fields.input
-            value={UserInfo.phone}
+            value={UserInfo.details.phone}
             placeholder="Whatsapp"
             name="whatsapp"
-            onChange={(e) => setUserInfo({ phone: e.target.value as string })}
-            error={
-              UserInfo.phone.length > 0 || isSubmited
-                ? UserFieldErrors.properties?.phone?.errors?.[0]
-                  ? {
-                      error: true,
-                      message: UserFieldErrors.properties.phone.errors[0],
-                    }
-                  : { error: false, message: "" }
-                : { error: false, message: "" }
+            onChange={(e) =>
+              setUserInfo({
+                details: {
+                  ...UserInfo.details,
+                  phone: e.target.value as string,
+                },
+              })
             }
+            error={
+              UserInfo.details.phone.length == 0 && isSubmited
+                ? "Por favor, preencha o whatsapp"
+                : UserFieldErrors.properties?.details?.properties?.phone
+                      ?.errors?.[0] && isSubmited
+                  ? UserFieldErrors.properties.details.properties.phone
+                      .errors[0]
+                  : undefined
+            }
+            success={
+              !UserFieldErrors.properties?.details?.properties?.phone
+                ?.errors?.[0]
+            }
+            dataTooltipId="whatsapp-input"
           ></Fields.input>
         </Fields.wrapper>
       </div>
@@ -352,17 +397,17 @@ export default function FormModal() {
         <Fields.wrapper>
           <Fields.label text="COMO CONHECEU A BEERGAM" />
           <Fields.select
-            value={UserInfo.found_beergam ?? ""}
+            value={UserInfo.details.found_beergam ?? ""}
             hasError={true}
             error={
-              !UserInfo.found_beergam && isSubmited
+              !UserInfo.details.found_beergam && isSubmited
                 ? {
                     error: true,
                     message:
                       "Por favor, selecione como você conheceu a Beergam",
                   }
-                : UserInfo.found_beergam &&
-                    UserInfo.found_beergam.length == 0 &&
+                : UserInfo.details.found_beergam &&
+                    UserInfo.details.found_beergam.length == 0 &&
                     isSubmited
                   ? {
                       error: true,
@@ -374,13 +419,16 @@ export default function FormModal() {
               { value: "", label: "Selecione" },
               ...Object.keys(ComoConheceu).map((key) => ({
                 value: key,
-                label: ComoConheceu[key as ComoConheceuKeys],
+                label: ComoConheceu[key as keyof typeof ComoConheceu],
               })),
             ]}
             name="found_beergam"
             onChange={(e) =>
               setUserInfo({
-                found_beergam: e.target.value as ComoConheceuKeys,
+                details: {
+                  ...UserInfo.details,
+                  found_beergam: e.target.value as ComoConheceu,
+                },
               })
             }
           ></Fields.select>
@@ -388,16 +436,16 @@ export default function FormModal() {
         <Fields.wrapper>
           <Fields.label text="FATURAMENTO MENSAL" />
           <Fields.select
-            value={UserInfo.profit_range ?? ""}
+            value={UserInfo.details.profit_range ?? ""}
             hasError={true}
             error={
-              !UserInfo.profit_range && isSubmited
+              !UserInfo.details.profit_range && isSubmited
                 ? {
                     error: true,
                     message: "Por favor, selecione um faturamento mensal",
                   }
-                : UserInfo.profit_range &&
-                    UserInfo.profit_range.length == 0 &&
+                : UserInfo.details.profit_range &&
+                    UserInfo.details.profit_range.length == 0 &&
                     isSubmited
                   ? {
                       error: true,
@@ -407,15 +455,18 @@ export default function FormModal() {
             }
             options={[
               { value: "", label: "Selecione" },
-              ...Object.keys(Faixaprofit_range).map((key) => ({
+              ...Object.keys(ProfitRange).map((key) => ({
                 value: key,
-                label: Faixaprofit_range[key as Faixaprofit_rangeKeys],
+                label: ProfitRange[key as keyof typeof ProfitRange],
               })),
             ]}
             name="profit_range"
             onChange={(e) =>
               setUserInfo({
-                profit_range: e.target.value as Faixaprofit_rangeKeys,
+                details: {
+                  ...UserInfo.details,
+                  profit_range: e.target.value as ProfitRange,
+                },
               })
             }
           ></Fields.select>
@@ -427,7 +478,7 @@ export default function FormModal() {
       >
         Criar conta grátis
       </button>
-      {UserInfo.personal_reference_code == "14_DIAS_FREE" && (
+      {UserInfo.details.personal_reference_code == "14_DIAS_FREE" && (
         <p className="text-center font-bold text-beergam-blue-primary">
           Não pedimos cartão de crédito.
         </p>

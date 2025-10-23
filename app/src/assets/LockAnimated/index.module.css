@@ -1,0 +1,88 @@
+/* index.module.css */
+svg.lock {
+  width: 120px;
+  -webkit-tap-highlight-color: transparent;
+  transform-origin: center top;
+  cursor: pointer;
+  padding: 1rem;
+}
+
+.fillMask,
+.topPart,
+.bottomPart {
+  fill: none;
+}
+
+.fillCircle {
+  fill: var(--color-beergam-blue-primary-dark);
+  transition: r 300ms; /* foque na animação do raio */
+  r: 1.5; /* valor inicial em CSS, não via atributo */
+}
+
+.topPart,
+.bottomPart {
+  stroke: var(--color-beergam-blue-primary-dark);
+  stroke-miterlimit: 10;
+}
+.lock.open .topPart {
+  d: path(
+    "M41.5,93.69V56.93A49.24,49.24,0,0,1,90.73,7.69h2.54A49.24,49.24,0,0,1,142.5,56.93v33"
+  );
+}
+.topPart {
+  stroke-linecap: round;
+  stroke-width: 15.39px;
+  /* d não anima bem via CSS; remova a transição aqui */
+}
+
+.bottomPart {
+  stroke-width: 15px;
+}
+
+/* Estados */
+.lock.closed .fillCircle {
+  r: 1.5;
+}
+
+.lock.open .fillCircle {
+  transition-delay: 270ms;
+  r: 180;
+}
+
+/* Animações de tremor (opcional) */
+.animateLockOpen {
+  animation:
+    LinearShake ease-in-out 280ms,
+    360ms AngularShake ease-in-out 280ms;
+}
+
+.animateLockClose {
+  animation: LinearShake ease-in-out 280ms;
+}
+
+@-webkit-keyframes LinearShake {
+  0% {
+    transform: translateY(0px);
+  }
+  70% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@-webkit-keyframes AngularShake {
+  0% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(8deg);
+  }
+  70% {
+    transform: rotate(-3deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
