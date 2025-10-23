@@ -142,7 +142,7 @@ export default function SubscriptionPage({ plans }: SubscriptionPageProps) {
                     Gestão financeira: <span className="font-bold">{plan.benefits.gestao_fincanceira}</span>
                   </span>
                 </div>
-                        </div>
+              </div>
 
               {/* CTA Button */}
               {plan.is_current_plan && (
