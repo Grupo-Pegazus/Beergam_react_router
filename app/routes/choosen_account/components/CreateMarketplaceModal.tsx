@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
-import { Form } from "react-router";
+import { useFetcher } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
 import type {
   BaseMarketPlace,
   MarketplaceType,
 } from "~/features/marketplace/typings";
+import { marketplaceService } from "~/features/marketplace/service";
 import { getAvailableMarketplaces } from "~/features/marketplace/utils";
 import type { IUser } from "~/features/user/typings/User";
 import Svg from "~/src/assets/svgs";
@@ -20,58 +23,225 @@ export default function CreateMarketplaceModal({
   modalOpen: boolean;
 }) {
   const user = useSelector((state: RootState) => state.auth.user) as IUser;
+  const fetcher = useFetcher();
+  const queryClient = useQueryClient();
   const availableAccounts =
     user?.details?.subscriptions?.[0]?.plan?.benefits?.ML_accounts ?? 0;
   const remainingAccounts =
     availableAccounts - (marketplacesAccounts?.length || 0);
 
-  // Estado para armazenar o marketplace selecionado
   const [selectedMarketplace, setSelectedMarketplace] =
     useState<MarketplaceType | null>(null);
+  const [integrationState, setIntegrationState] = useState<string | null>(null);
+  const [isPolling, setIsPolling] = useState(false);
+  
+  // Ref para controlar o polling
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Função para parar o polling
+  const stopPolling = () => {
+    console.log("🛑 Parando polling...");
+    
+    // Limpar intervalos
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    
+    // Limpar estados
+    setIsPolling(false);
+    setIntegrationState(null);
+    
+    console.log("✅ Polling parado e estados limpos");
+  };
+
   useEffect(() => {
     setSelectedMarketplace(null);
+    setIntegrationState(null);
+    setIsPolling(false);
+    // Limpar polling quando modal fechar
+    stopPolling();
   }, [modalOpen]);
 
-  // Função para lidar com o envio do formulário
-  const handleSubmit = (e: React.FormEvent) => {
-    if (!selectedMarketplace) {
-      e.preventDefault();
-      return;
+  // Função para abrir janela centralizada na tela
+  const openCenteredWindow = (url: string, width: number = 800, height: number = 800) => {
+
+    const left = (window.screen.width - width) / 2;
+    const top = (window.screen.height - height) / 2;
+    
+    const windowFeatures = [
+      `width=${width}`,
+      `height=${height}`,
+      `left=${left}`,
+      `top=${top}`,
+      'toolbar=no',
+      'location=no',
+      'directories=no',
+      'status=no',
+      'menubar=no',
+      'scrollbars=yes',
+      'resizable=yes'
+    ].join(',');
+
+    return window.open(url, '_blank', windowFeatures);
+  };
+
+  const checkIntegrationStatus = async (state: string) => {
+    try {
+      console.log("🔍 Verificando status da integração:", state);
+      const response = await marketplaceService.checkIntegrationStatus(state);
+      console.log("📊 Resposta do status:", response);
+      
+      if (response.success && response.data) {
+        if (response.data.status === "success") {
+          console.log("✅ Integração realizada com sucesso!");
+          stopPolling();
+          queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
+          toast.success("Integração realizada com sucesso! Sua conta foi conectada.");
+          return true;
+        } else if (response.data.status === "error") {
+          console.log("❌ Erro na integração:", response.data.message);
+          stopPolling();
+          toast.error(`Erro na integração: ${response.data.message}`);
+          return true;
+        } else {
+          console.log("⏳ Ainda processando...");
+          return false;        }
+      }
+      return false; // Continua o polling se não há dados válidos
+    } catch (error) {
+      console.error("❌ Erro ao verificar status:", error);
+      stopPolling();
+      toast.error("Erro ao verificar status da integração");
+      return true; // Para o polling em caso de erro
     }
   };
 
+  useEffect(() => {
+    if (isPolling && integrationState) {
+      console.log("🔄 Iniciando polling para state:", integrationState);
+      
+      // Limpar polling anterior se existir
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      
+      // Iniciar novo polling
+      pollingRef.current = setInterval(async () => {
+        const isCompleted = await checkIntegrationStatus(integrationState);
+        if (isCompleted) {
+          // Se a integração foi concluída, para o polling
+          stopPolling();
+        }
+      }, 3000);
+
+      // Timeout de segurança - para o polling após 10 minutos
+      timeoutRef.current = setTimeout(() => {
+        console.log("⏰ Timeout do polling - parando verificação");
+        stopPolling();
+      }, 600000); // 10 minutos
+
+      return () => {
+        stopPolling();
+      };
+    }
+  }, [isPolling, integrationState]);
+
+  const handleSubmit = async () => {
+    if (!selectedMarketplace) {
+      return;
+    }
+    
+    const formData = new FormData();
+    formData.append("action", "integration");
+    formData.append("Marketplace", selectedMarketplace);
+    
+    fetcher.submit(formData, {
+      method: "post"
+    });
+  };
+
+  useEffect(() => {
+    if (fetcher.data && fetcher.data.success && fetcher.state === "idle") {
+      const integrationData = fetcher.data.data;
+      if (integrationData && integrationData.integration_url) {
+        // Abrir janela centralizada na tela
+        const integrationWindow = openCenteredWindow(integrationData.integration_url);
+        
+        setIntegrationState(integrationData.state);
+        setIsPolling(true);
+
+        // Verificar se a janela foi fechada
+        const checkClosed = setInterval(() => {
+          if (integrationWindow && integrationWindow.closed) {
+            clearInterval(checkClosed);
+            console.log("🪟 Janela de integração foi fechada");
+            // Não fazer nada aqui, deixar o polling continuar verificando
+          }
+        }, 1000);
+
+        // Limpar o verificador após 5 minutos
+        setTimeout(() => {
+          clearInterval(checkClosed);
+        }, 300000);
+      }
+    }
+  }, [fetcher.data, fetcher.state]);
+
   return (
-    <Form
-      method="post"
-      className="flex flex-col gap-4 items-center justify-center"
-      onSubmit={handleSubmit}
-    >
-      <h2>Selecione o Marketplace desejado</h2>
-      <p>
-        Quantidade de Lojas adicionadas: {marketplacesAccounts?.length || 0}
-      </p>
-      <p>Contas restantes: {remainingAccounts || 0}</p>
+    <div className="w-full max-w-4xl mx-auto p-6">
+      {/* Header Section */}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-800 mb-2">
+          Conectar Marketplace
+        </h2>
+        <p className="text-gray-600 text-lg">
+          Escolha uma plataforma para integrar sua loja
+        </p>
+      </div>
 
-      {/* Campo oculto para armazenar o valor do marketplace selecionado */}
-      <input
-        name="Marketplace"
-        value={selectedMarketplace || ""}
-        type="hidden"
-      />
-
-      <div className="grid grid-cols-4 gap-4 relative">
-        {remainingAccounts === 0 && (
-          <div className="absolute top-0 left-0 w-full h-full bg-black/80 flex items-center justify-center z-10 flex-col rounded-2xl">
-            <h2 className="text-beergam-red">
-              Você atingiu o limite de contas disponíveis
-            </h2>
-            <Svg.lock_closed
-              width={100}
-              height={100}
-              tailWindClasses="stroke-beergam-red"
-            />
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="bg-linear-to-r from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-blue-600">Lojas Conectadas</p>
+              <p className="text-2xl font-bold text-blue-800">
+                {marketplacesAccounts?.length || 0}
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-lg">🏪</span>
+            </div>
           </div>
-        )}
+        </div>
+        
+        <div className="bg-linear-to-r from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-green-600">Contas Restantes</p>
+              <p className="text-2xl font-bold text-green-800">
+                {remainingAccounts || 0}
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-lg">➕</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Marketplace Grid */}
+      <div className="relative">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
         {getAvailableMarketplaces().map((marketplace) => (
           <AvailableMarketplaceCard
             key={marketplace.value}
@@ -84,14 +254,86 @@ export default function CreateMarketplaceModal({
         ))}
       </div>
 
+        {/* Overlay para limite atingido */}
+        {remainingAccounts == 99 && (
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl">
+            <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md mx-4">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Svg.lock_closed
+                  width={40}
+                  height={40}
+                  tailWindClasses="stroke-red-500"
+                />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">
+                Limite Atingido
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Você atingiu o limite máximo de contas disponíveis no seu plano.
+              </p>
+              <button className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors">
+                Ver Planos
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Action Button */}
       {selectedMarketplace && (
+        <div className="flex justify-center mb-6">
         <button
-          type="submit"
-          className="mt-4 p-2 bg-beergam-blue-primary text-white rounded-md hover:bg-beergam-orange"
-        >
-          Continuar
+            onClick={handleSubmit}
+            disabled={isPolling}
+            className={`
+              px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform
+              ${isPolling 
+                ? "bg-gray-400 cursor-not-allowed scale-95" 
+                : "bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 hover:scale-105 shadow-lg hover:shadow-xl"
+              }
+              text-white
+            `}
+          >
+            {isPolling ? (
+              <div className="flex items-center gap-3">
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                Aguardando integração...
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <span>🚀</span>
+                Conectar {selectedMarketplace.toUpperCase()}
+              </div>
+            )}
         </button>
+        </div>
       )}
-    </Form>
+
+      {/* Polling Status */}
+      {isPolling && (
+        <div className="bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6 shadow-lg">
+          <div className="flex items-start gap-4">
+            <div className="shrink-0">
+              <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
+              </div>
+            </div>
+            <div className="flex-1">
+              <h4 className="text-lg font-semibold text-blue-800 mb-2">
+                Aguardando Autorização
+              </h4>
+              <p className="text-blue-700 mb-3">
+                Complete a integração na nova janela que foi aberta. 
+                Não feche esta página até finalizar o processo.
+              </p>
+              <div className="flex items-center gap-2 text-sm text-blue-600">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span>Verificando status automaticamente...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

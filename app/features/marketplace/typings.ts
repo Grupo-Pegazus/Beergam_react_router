@@ -25,19 +25,20 @@ export interface MarketplaceVisualInfo {
 }
 
 export enum MarketplaceStatusParse {
-  PENDING = "pending",
-  PROCESSING = "processing",
-  COMPLETED = "completed",
-  ERROR = "error",
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  COMPLETED = "COMPLETED",
+  ERROR = "ERROR",
 }
 
 export enum MarketplaceOrderParseStatus {
-  NONE = "none",
-  FIFTEEN_DAYS = "fifteen_days",
-  COMPLETED = "completed",
+  NONE = "NONE",
+  FIFTEEN_DAYS = "FIFTEEN_DAYS",
+  COMPLETED = "COMPLETED",
 }
 
 export interface BaseMarketPlace {
+  marketplace_shop_id: string;
   marketplace_name: string;
   marketplace_image: string;
   marketplace_type: MarketplaceType;
@@ -45,6 +46,7 @@ export interface BaseMarketPlace {
   orders_parse_status: MarketplaceOrderParseStatus;
 }
 export const BaseMarketPlaceSchema = z.object({
+  marketplace_shop_id: z.string(),
   marketplace_name: z.string(),
   marketplace_image: z.string(),
   marketplace_type: z.enum(
@@ -69,4 +71,14 @@ export interface IntegrationData {
   redirect_uri: string | null;
   integration_url: string;
   state: string;
+}
+
+export interface IntegrationStatus {
+  error_code: string | null;
+  error_detail: string | null;
+  marketplace_shop_id: string | null;
+  message: string;
+  state: string;
+  status: "pending" | "success" | "error";
+  updated_at: string;
 }
