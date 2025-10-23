@@ -94,7 +94,11 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     await cryptoUser.encriptarDados(user.data as IUser);
     // session.set("userInfo", user.data);
 
-    return redirect("/interno", {});
+    if (user.data.details.subscriptions?.length === 0) {
+      return redirect("/interno/subscription", {});
+    }
+
+    return redirect("/interno/choosen_account", {});
   } catch (error) {
     console.error("Erro no login:", error);
     return Response.json({

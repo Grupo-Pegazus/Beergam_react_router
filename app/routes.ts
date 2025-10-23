@@ -70,7 +70,7 @@ export function createMenuRoutes(): RouteConfigEntry[] {
   }
 
   Object.entries(MenuHandler.getMenu())
-    .filter(([key, item]) => item.launched)
+    .filter(([, item]) => item.launched)
     .forEach(([key, item]) => {
       const itemRoutes = processMenuItem(key, item);
       routes.push(...itemRoutes);
@@ -86,6 +86,7 @@ export default [
   layout(
     "features/auth/components/AuthLayout/AuthLayout.tsx",
     withPrefix("interno", [
+      route("subscription", "routes/subscription/route.tsx"),
       route("choosen_account", "routes/choosen_account/route.tsx"),
       route("perfil", "routes/perfil/route.tsx"),
       layout(

@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useFetcher } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import MarketplaceCard from "~/features/marketplace/components/MarketplaceDard";
 import {
@@ -12,6 +14,7 @@ import { Fields } from "~/src/components/utils/_fields";
 import Hint from "~/src/components/utils/Hint";
 import Modal from "~/src/components/utils/Modal";
 import CreateMarketplaceModal from "./components/CreateMarketplaceModal";
+import DeleteMarketaplceAccount from "./components/DeleteMarketaplceAccount";
 interface ChoosenAccountPageProps {
   marketplacesAccounts: BaseMarketPlace[] | null;
   isLoading?: boolean;
@@ -21,8 +24,44 @@ export default function ChoosenAccountPage({
   isLoading = false,
 }: ChoosenAccountPageProps) {
   const [abrirModal, setAbrirModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [marketplaceToDelete, setMarketplaceToDelete] = useState<BaseMarketPlace | null>(null);
+  const fetcher = useFetcher();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (fetcher.data && fetcher.data.success && fetcher.state === "idle") {
+      queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
+    }
+  }, [fetcher.data, fetcher.state, queryClient]);
+  
   function handleAbrirModal({ abrir }: { abrir: boolean }) {
     setAbrirModal(abrir);
+  }
+
+  function handleDeleteMarketplace(marketplace: BaseMarketPlace) {
+    setMarketplaceToDelete(marketplace);
+    setShowDeleteModal(true);
+  }
+
+  function handleConfirmDelete() {
+    if (marketplaceToDelete) {
+      const formData = new FormData();
+      formData.append("action", "delete");
+      formData.append("marketplaceId", marketplaceToDelete.marketplace_shop_id || "");
+      formData.append("marketplaceType", marketplaceToDelete.marketplace_type);
+      
+      fetcher.submit(formData, { 
+        method: "post"
+      });
+    }
+    setShowDeleteModal(false);
+    setMarketplaceToDelete(null);
+  }
+
+  function handleCancelDelete() {
+    setShowDeleteModal(false);
+    setMarketplaceToDelete(null);
   }
   return (
     <PageLayout>
@@ -34,14 +73,13 @@ export default function ChoosenAccountPage({
               <h2 className="text-beergam-blue-primary text-nowrap">
                 Selecione sua loja
               </h2>
-              <Hint message="Informação importante" />
+              <Hint message="Informação importante" anchorSelect="info-important" />
             </div>
             <div className="flex gap-4 items-center max-w-[500px] w-full">
               <Fields.wrapper>
                 <Fields.input
                   placeholder="Buscar loja"
                   value={""}
-                  hasError={false}
                 />
               </Fields.wrapper>
             </div>
@@ -56,11 +94,12 @@ export default function ChoosenAccountPage({
         <div className="w-3/4 grid grid-cols-2 gap-4 lg:grid-cols-4">
           {isLoading ? (
             <div>
-              <h1>Carregando... AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</h1>
+              <h1>Carregando...</h1>
             </div>
           ) : (
             marketplacesAccounts?.map((item) => {
               const marketplace: BaseMarketPlace = {
+                marketplace_shop_id: item.marketplace_shop_id,
                 marketplace_name: item.marketplace_name,
                 marketplace_image: item.marketplace_image,
                 marketplace_type: item.marketplace_type as MarketplaceType,
@@ -72,6 +111,7 @@ export default function ChoosenAccountPage({
                 <MarketplaceCard
                   key={marketplace.marketplace_name}
                   marketplace={marketplace}
+                  onDelete={handleDeleteMarketplace}
                 />
               );
             })
@@ -88,6 +128,18 @@ export default function ChoosenAccountPage({
         <CreateMarketplaceModal
           marketplacesAccounts={marketplacesAccounts}
           modalOpen={abrirModal}
+        />
+      </Modal>
+
+      {/* Modal de confirmação de deletar */}
+      <Modal
+        abrir={showDeleteModal}
+        onClose={handleCancelDelete}
+      >
+        <DeleteMarketaplceAccount
+          marketplaceToDelete={marketplaceToDelete}
+          handleCancelDelete={handleCancelDelete}
+          handleConfirmDelete={handleConfirmDelete}
         />
       </Modal>
     </PageLayout>

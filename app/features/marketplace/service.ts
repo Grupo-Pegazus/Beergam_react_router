@@ -1,6 +1,6 @@
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
-import type { BaseMarketPlace, IntegrationData } from "./typings";
+import type { BaseMarketPlace, IntegrationData, IntegrationStatus } from "./typings";
 import { MarketplaceType } from "./typings";
 
 class MarketplaceService {
@@ -45,6 +45,57 @@ class MarketplaceService {
         data: {} as IntegrationData,
         message:
           "Erro ao buscar dados de integração. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: {},
+      };
+    }
+  }
+
+  async deleteMarketplaceAccount(Marketplace_id: string, Marketplace_type: MarketplaceType): Promise<ApiResponse<null>> {
+    try {
+      const payload = {
+        "marketplace_shop_id": Marketplace_id,
+        "marketplace_type": Marketplace_type,
+      }
+      const response = await typedApiClient.delete<null>(
+        `/v1/accounts/delete`,
+        {
+          data: payload,
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error("error do deleteMarketplaceAccount", error);
+      return {
+        success: false,
+        data: null,
+        message: "Erro ao deletar conta de marketplace. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: {},
+      };
+    }
+  }
+
+  async checkIntegrationStatus(state: string): Promise<ApiResponse<IntegrationStatus>> {
+    try {
+      const response = await typedApiClient.get<IntegrationStatus>(
+        `/v1/auth/meli/integration_status?state=${state}`
+      );
+      return response;
+    } catch (error) {
+      console.error("error do checkIntegrationStatus", error);
+      return {
+        success: false,
+        data: {
+          error_code: null,
+          error_detail: null,
+          marketplace_shop_id: null,
+          message: "Erro ao verificar status da integração",
+          state: state,
+          status: "error",
+          updated_at: new Date().toISOString(),
+        },
+        message: "Erro ao verificar status da integração. Tente novamente em alguns instantes.",
         error_code: 500,
         error_fields: {},
       };

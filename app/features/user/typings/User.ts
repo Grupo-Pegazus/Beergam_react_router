@@ -113,12 +113,19 @@ type MarketplaceSells = number | null;
 export interface PlanBenefits {
   ML_accounts: number;
   colab_accounts: number;
+  catalog_monitoring: number;
+  dias_historico_vendas: number;
+  dias_registro_atividades: number;
+  gestao_fincanceira: string;
+  marketplaces_integrados: number;
+  sincronizacao_estoque: boolean;
 }
 
 export interface Plan {
   display_name: string;
   price: number;
   benefits: PlanBenefits;
+  is_current_plan: boolean;
 }
 
 export interface Subscription {
@@ -167,12 +174,19 @@ const BeergamCodeSchema = z.string().min(10).max(10);
 export const PlanBenefitsSchema = z.object({
   ML_accounts: z.number(),
   colab_accounts: z.number(),
+  catalog_monitoring: z.number(),
+  dias_historico_vendas: z.number(),
+  dias_registro_atividades: z.number(),
+  gestao_fincanceira: z.string(),
+  marketplaces_integrados: z.number(),
+  sincronizacao_estoque: z.boolean(),
 }) satisfies z.ZodType<PlanBenefits>;
 
 export const PlanSchema = z.object({
   display_name: z.string(),
   price: z.number(),
   benefits: PlanBenefitsSchema,
+  is_current_plan: z.boolean(),
 }) satisfies z.ZodType<Plan>;
 
 const DateCoerced = z.coerce

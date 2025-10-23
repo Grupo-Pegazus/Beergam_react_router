@@ -158,7 +158,9 @@ export class TypedApiClient {
 
 // Instância tipada do cliente
 
-const typedApiClient = new TypedApiClient("http://localhost:5000", {
+const API_URL = import.meta.env.VITE_API_URL;
+
+const typedApiClient = new TypedApiClient(API_URL, {
   headers: {
     "Content-Type": "application/json",
   },
@@ -173,7 +175,7 @@ typedApiClient.axiosInstance.interceptors.response.use(
   async (error) => {
     const original = error.config;
     if (error.response?.status === 401) {
-      if (error.response?.data?.error_code === 1002 && !original._retry) {
+      if (error.response?.data?.error_code === 1002 && !original._retry && typeof window !== "undefined") {
         //Verifica se o erro é de access_token expirado e se não foi feito um refresh ainda
         original._retry = true;
         if (!refreshPromise) {
@@ -187,9 +189,11 @@ typedApiClient.axiosInstance.interceptors.response.use(
         return typedApiClient.axiosInstance(original);
       }
       if (error.response?.data?.error_code === 1000) {
-        localStorage.removeItem("userInfo");
-        localStorage.removeItem("userInfoIV");
-        window.location.href = "/login";
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("userInfo");
+          localStorage.removeItem("userInfoIV");
+          window.location.href = "/login";
+        }
       }
     }
     // console.log("erro do interceptor", error);
