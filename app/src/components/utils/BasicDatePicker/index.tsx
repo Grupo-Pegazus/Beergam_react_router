@@ -16,7 +16,11 @@ export default function BasicDatePicker() {
           ptBR.components.MuiLocalizationProvider.defaultProps.localeText
         )}
       </p>
-      <DatePicker />
+      <DatePicker
+        localeText={
+          ptBR.components.MuiLocalizationProvider.defaultProps.localeText
+        }
+      />
     </LocalizationProvider>
   );
 }

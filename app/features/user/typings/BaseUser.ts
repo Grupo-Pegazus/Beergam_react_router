@@ -15,6 +15,64 @@ export enum UserStatus {
   INACTIVE = "Inativo",
 }
 
+export interface PlanBenefits {
+  ML_accounts: number;
+  colab_accounts: number;
+  catalog_monitoring: number;
+  dias_historico_vendas: number;
+  dias_registro_atividades: number;
+  gestao_fincanceira?: string | null;
+  marketplaces_integrados: number;
+  sincronizacao_estoque: boolean;
+}
+
+export interface Plan {
+  display_name: string;
+  price: number;
+  benefits: PlanBenefits;
+  is_current_plan?: boolean | null;
+}
+
+export interface Subscription {
+  start_date: Date;
+  end_date: Date;
+  free_trial_until: Date;
+  plan: Plan;
+}
+
+export const PlanBenefitsSchema = z.object({
+  ML_accounts: z.number(),
+  colab_accounts: z.number(),
+  catalog_monitoring: z.number(),
+  dias_historico_vendas: z.number(),
+  dias_registro_atividades: z.number(),
+  gestao_fincanceira: z.string().optional().nullable(),
+  marketplaces_integrados: z.number(),
+  sincronizacao_estoque: z.boolean(),
+}) satisfies z.ZodType<PlanBenefits>;
+
+export const PlanSchema = z.object({
+  display_name: z.string(),
+  price: z.number(),
+  benefits: PlanBenefitsSchema,
+  is_current_plan: z.boolean().optional().nullable(),
+}) satisfies z.ZodType<Plan>;
+
+const DateCoerced = z.coerce
+  .date()
+  .refine((d) => !isNaN(d.getTime()), "Data inválida");
+
+const SubscriptionSchema = z.object({
+  start_date: DateCoerced,
+  end_date: DateCoerced,
+  free_trial_until: DateCoerced,
+  plan: PlanSchema,
+}) satisfies z.ZodType<Subscription>;
+
+export interface IBaseUserDetails {
+  subscription?: Subscription | null;
+}
+
 export interface IBaseUser {
   name: string;
   role: UserRoles;
@@ -26,6 +84,10 @@ export interface IBaseUser {
   created_at: Date;
   updated_at: Date;
 }
+
+export const BaseUserDetailsSchema = z.object({
+  subscription: SubscriptionSchema.optional().nullable(),
+}) satisfies z.ZodType<IBaseUserDetails>;
 
 export const BaseUserSchema = z.object({
   name: z
@@ -46,6 +108,7 @@ export const BaseUserSchema = z.object({
   marketplace_accounts: z.array(BaseMarketPlaceSchema).optional().nullable(),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date(),
+  details: BaseUserDetailsSchema,
 }) satisfies z.ZodType<IBaseUser>;
 
 export function FormatUserStatus(status: UserStatus): keyof typeof UserStatus {

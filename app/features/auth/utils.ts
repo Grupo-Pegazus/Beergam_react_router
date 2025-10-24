@@ -1,4 +1,5 @@
 // import type { BaseMarketPlace } from "../marketplace/typings";
+import type { IColab } from "../user/typings/Colab";
 import type { IUser } from "../user/typings/User";
 
 // type AvailableData = IUser | BaseMarketPlace; //Tipos de dados que podem ser criptografados
@@ -181,7 +182,7 @@ class Crypto<T> {
   }
 }
 
-class CryptoUser extends Crypto<IUser> {
+class CryptoUser extends Crypto<IUser | IColab> {
   constructor() {
     super("userEncryptionKey", "userInfo");
   }

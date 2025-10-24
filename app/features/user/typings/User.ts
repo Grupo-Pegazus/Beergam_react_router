@@ -3,7 +3,11 @@ import { z } from "zod";
 import { CNPJSchema } from "~/utils/typings/CNPJ";
 import { CPFSchema } from "~/utils/typings/CPF";
 import { TelefoneSchema } from "~/utils/typings/Telefone";
-import { BaseUserSchema, type IBaseUser } from "./BaseUser";
+import {
+  BaseUserDetailsSchema,
+  BaseUserSchema,
+  type IBaseUser,
+} from "./BaseUser";
 import { ColabSchema, type IColab } from "./Colab";
 export enum ProfitRange {
   ATE_10_MIL = "Até 10.000 mil reais",
@@ -108,32 +112,6 @@ export enum CurrentBilling {
 }
 
 type MarketplaceSells = number | null;
-
-export interface PlanBenefits {
-  ML_accounts: number;
-  colab_accounts: number;
-  catalog_monitoring: number;
-  dias_historico_vendas: number;
-  dias_registro_atividades: number;
-  gestao_fincanceira: string;
-  marketplaces_integrados: number;
-  sincronizacao_estoque: boolean;
-}
-
-export interface Plan {
-  display_name: string;
-  price: number;
-  benefits: PlanBenefits;
-  is_current_plan: boolean;
-}
-
-export interface Subscription {
-  start_date: Date;
-  end_date: Date;
-  free_trial_until: Date;
-  plan: Plan;
-}
-
 export interface IUserDetails {
   email: string;
   cpf?: string | null;
@@ -161,7 +139,6 @@ export interface IUserDetails {
   sells_shein?: MarketplaceSells;
   sells_own_site?: MarketplaceSells;
   sub_count?: number | null;
-  subscriptions?: Subscription[] | null;
 }
 export interface IUser extends IBaseUser {
   colabs?: IColab[] | [];
@@ -170,40 +147,12 @@ export interface IUser extends IBaseUser {
 
 const BeergamCodeSchema = z.string().min(10).max(10);
 
-export const PlanBenefitsSchema = z.object({
-  ML_accounts: z.number(),
-  colab_accounts: z.number(),
-  catalog_monitoring: z.number(),
-  dias_historico_vendas: z.number(),
-  dias_registro_atividades: z.number(),
-  gestao_fincanceira: z.string(),
-  marketplaces_integrados: z.number(),
-  sincronizacao_estoque: z.boolean(),
-}) satisfies z.ZodType<PlanBenefits>;
-
-export const PlanSchema = z.object({
-  display_name: z.string(),
-  price: z.number(),
-  benefits: PlanBenefitsSchema,
-  is_current_plan: z.boolean(),
-}) satisfies z.ZodType<Plan>;
-
-const DateCoerced = z.coerce
-  .date()
-  .refine((d) => !isNaN(d.getTime()), "Data inválida");
-
-const SubscriptionSchema = z.object({
-  start_date: DateCoerced,
-  end_date: DateCoerced,
-  free_trial_until: DateCoerced,
-  plan: PlanSchema,
-});
 const NumberCoerced = z.coerce
   .number()
   .min(0, "Número tem que ser maior que 0")
   .nullable()
   .optional();
-export const UserDetailsSchema = z.object({
+export const UserDetailsSchema = BaseUserDetailsSchema.extend({
   email: z.email("Email inválido"),
   cpf: CPFSchema.optional().nullable(),
   cnpj: CNPJSchema.optional().nullable(),
@@ -219,7 +168,6 @@ export const UserDetailsSchema = z.object({
     .enum(Object.keys(ComoConheceu) as [ComoConheceu, ...ComoConheceu[]])
     .optional()
     .nullable(),
-  subscriptions: z.array(SubscriptionSchema).optional().nullable(),
   notify_newsletter: z.coerce.boolean().optional().nullable(),
   calc_profit_product: z
     .enum(
