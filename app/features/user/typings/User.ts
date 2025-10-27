@@ -123,7 +123,7 @@ export interface IUserDetails extends IBaseUserDetails {
   personal_reference_code?: string;
   referral_code?: string | null;
   social_media?: string | null;
-  foundation_date?: Date | null;
+  foundation_date?: string | null;
   address?: string | null;
   secondary_phone?: string | null;
   number_of_employees?: NumberOfEmployees | null;
@@ -216,9 +216,21 @@ export const UserDetailsSchema = BaseUserDetailsSchema.extend({
     .optional()
     .nullable(),
   social_media: z.string().optional().nullable(),
+  foundation_date: z.string().optional().nullable(),
 }) satisfies z.ZodType<IUserDetails>;
 
 export const UserSchema = BaseUserSchema.extend({
   details: UserDetailsSchema,
   colabs: z.array(ColabSchema).default([]),
 }) satisfies z.ZodType<IUser>;
+
+export function isAtributeUser(
+  attribute: keyof IUser | keyof IUserDetails
+): attribute is keyof IUser {
+  return attribute in UserSchema.shape;
+}
+export function isAtributeUserDetails(
+  attribute: keyof IUser | keyof IUserDetails
+): attribute is keyof IUserDetails {
+  return attribute in UserDetailsSchema.shape;
+}
