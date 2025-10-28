@@ -97,19 +97,28 @@ export default function ChoosenAccountPage({
   const resultsCount = filteredAccounts.length;
   return (
     <PageLayout>
-      <div className="justify-center items-center flex flex-col p-2">
-        {/* <h1>Escolha a conta de marketplace</h1> */}
-        <header className="mb-4 p-6 shadow-lg/55 rounded-2xl w-3/4 bg-beergam-white flex items-center justify-between gap-6">
-          <div className="flex gap-3 items-center">
-            <div className="flex gap-3 items-center">
-              <h2 className="text-beergam-blue-primary text-nowrap">
-                Selecione sua loja
-              </h2>
-              <Hint message="Aqui você pode selecionar a loja de marketplace que deseja usar para acessar o sistema." anchorSelect="info-loja" />
+      <div className="flex flex-col items-center w-full p-4">
+        {/* Header compacto */}
+        <div className="mb-4 w-full max-w-5xl">
+          <div className="bg-beergam-white shadow-lg/55 rounded-2xl p-4 md:p-6">
+            {/* Linha 1: Título e botão */}
+            <div className="flex items-center justify-between gap-3 mb-3 lg:flex-row flex-col">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <h2 className="text-xl md:text-2xl text-beergam-blue-primary whitespace-nowrap">
+                  Selecione sua loja
+                </h2>
+                <Hint message="Aqui você pode selecionar a loja de marketplace que deseja usar para acessar o sistema." anchorSelect="info-loja" />
+              </div>
+              <button
+                onClick={() => { navigate("/interno/perfil"); }}
+                className="bg-beergam-blue-primary hover:bg-beergam-orange text-beergam-white px-3 py-2 rounded-md items-center gap-2 text-sm shrink-0 flex cursor-pointer">
+                  <Svg.cog_8_tooth tailWindClasses="size-6" />
+                <span>Gerenciar conta</span>
+              </button>
             </div>
-          </div>
-          <div className="flex items-center gap-3 w-full max-w-[760px]">
-            <div className="flex-1">
+
+            {/* Linha 2: Filtros em grid */}
+            <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_auto] gap-2 items-end">
               <Fields.wrapper>
                 <Fields.input
                   placeholder="Buscar loja"
@@ -118,35 +127,33 @@ export default function ChoosenAccountPage({
                   aria-label="Buscar loja"
                 />
               </Fields.wrapper>
-            </div>
-            <div className="w-[220px]">
+              
               <Fields.wrapper>
                 <Fields.select
                   options={marketplaceTypeOptions}
                   value={typeFilter}
-                  onChange={(e) => setTypeFilter(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTypeFilter(e.target.value)}
                 />
               </Fields.wrapper>
-            </div>
-            <button
-              type="button"
-              onClick={() => { setSearchTerm(""); setTypeFilter(""); }}
-              className="px-3 py-2 rounded-[12px] border border-black/20 text-sm text-[#1e1f21] hover:bg-gray-50 transition-colors"
-            >
-              Limpar
-            </button>
-            <div className="px-3 py-2 rounded-[12px] bg-[#f6f8fb] text-[#1e1f21] text-sm border border-black/10 whitespace-nowrap">
-              {resultsCount} resultado{resultsCount === 1 ? "" : "s"}
+              
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setSearchTerm(""); setTypeFilter(""); }}
+                  className="px-3 py-2 rounded-[12px] border border-black/20 text-sm text-[#1e1f21] hover:bg-gray-50 transition-colors whitespace-nowrap"
+                >
+                  Limpar
+                </button>
+                <div className="px-3 py-2 rounded-[12px] bg-[#f6f8fb] text-[#1e1f21] text-sm border border-black/10 min-w-[60px] text-center flex items-center justify-center">
+                  {resultsCount}
+                </div>
+              </div>
             </div>
           </div>
-          <div className="flex gap-4 items-center">
-            <button className="bg-beergam-blue-primary hover:bg-beergam-orange text-beergam-white px-4 py-2 rounded-md flex items-center gap-2">
-              <Svg.cog_8_tooth />
-              <p>Gerenciar Perfil</p>
-            </button>
-          </div>
-        </header>
-        <div className="w-3/4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        </div>
+
+        {/* Grid de cards responsivo */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {isLoading ? (
             <div>
               <h1>Carregando...</h1>

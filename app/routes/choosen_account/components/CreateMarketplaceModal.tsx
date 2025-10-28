@@ -35,15 +35,12 @@ export default function CreateMarketplaceModal({
   const [integrationState, setIntegrationState] = useState<string | null>(null);
   const [isPolling, setIsPolling] = useState(false);
   
-  // Ref para controlar o polling
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Função para parar o polling
   const stopPolling = () => {
-    console.log("🛑 Parando polling...");
+    console.log("Parando polling...");
     
-    // Limpar intervalos
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
       pollingRef.current = null;
@@ -53,22 +50,19 @@ export default function CreateMarketplaceModal({
       timeoutRef.current = null;
     }
     
-    // Limpar estados
     setIsPolling(false);
     setIntegrationState(null);
     
-    console.log("✅ Polling parado e estados limpos");
+    console.log("Polling parado e estados limpos");
   };
 
   useEffect(() => {
     setSelectedMarketplace(null);
     setIntegrationState(null);
     setIsPolling(false);
-    // Limpar polling quando modal fechar
     stopPolling();
   }, [modalOpen]);
 
-  // Função para abrir janela centralizada na tela
   const openCenteredWindow = (url: string, width: number = 800, height: number = 800) => {
 
     const left = (window.screen.width - width) / 2;
@@ -93,40 +87,39 @@ export default function CreateMarketplaceModal({
 
   const checkIntegrationStatus = async (state: string) => {
     try {
-      console.log("🔍 Verificando status da integração:", state);
+      console.log("Verificando status da integração:", state);
       const response = await marketplaceService.checkIntegrationStatus(state);
       console.log("📊 Resposta do status:", response);
       
       if (response.success && response.data) {
         if (response.data.status === "success") {
-          console.log("✅ Integração realizada com sucesso!");
+          console.log("Integração realizada com sucesso!");
           stopPolling();
           queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
           toast.success("Integração realizada com sucesso! Sua conta foi conectada.");
           return true;
         } else if (response.data.status === "error") {
-          console.log("❌ Erro na integração:", response.data.message);
+          console.log("Erro na integração:", response.data.message);
           stopPolling();
           toast.error(`Erro na integração: ${response.data.message}`);
           return true;
         } else {
-          console.log("⏳ Ainda processando...");
+          console.log("Ainda processando...");
           return false;        }
       }
-      return false; // Continua o polling se não há dados válidos
+      return false;
     } catch (error) {
-      console.error("❌ Erro ao verificar status:", error);
+      console.error("Erro ao verificar status:", error);
       stopPolling();
       toast.error("Erro ao verificar status da integração");
-      return true; // Para o polling em caso de erro
+      return true;
     }
   };
 
   useEffect(() => {
     if (isPolling && integrationState) {
-      console.log("🔄 Iniciando polling para state:", integrationState);
+      console.log("Iniciando polling para state:", integrationState);
       
-      // Limpar polling anterior se existir
       if (pollingRef.current) {
         clearInterval(pollingRef.current);
       }
@@ -134,18 +127,15 @@ export default function CreateMarketplaceModal({
         clearTimeout(timeoutRef.current);
       }
       
-      // Iniciar novo polling
       pollingRef.current = setInterval(async () => {
         const isCompleted = await checkIntegrationStatus(integrationState);
         if (isCompleted) {
-          // Se a integração foi concluída, para o polling
           stopPolling();
         }
       }, 3000);
 
-      // Timeout de segurança - para o polling após 10 minutos
       timeoutRef.current = setTimeout(() => {
-        console.log("⏰ Timeout do polling - parando verificação");
+        console.log("Timeout do polling - parando verificação");
         stopPolling();
       }, 600000); // 10 minutos
 
@@ -173,22 +163,18 @@ export default function CreateMarketplaceModal({
     if (fetcher.data && fetcher.data.success && fetcher.state === "idle") {
       const integrationData = fetcher.data.data;
       if (integrationData && integrationData.integration_url) {
-        // Abrir janela centralizada na tela
         const integrationWindow = openCenteredWindow(integrationData.integration_url);
         
         setIntegrationState(integrationData.state);
         setIsPolling(true);
 
-        // Verificar se a janela foi fechada
         const checkClosed = setInterval(() => {
           if (integrationWindow && integrationWindow.closed) {
             clearInterval(checkClosed);
-            console.log("🪟 Janela de integração foi fechada");
-            // Não fazer nada aqui, deixar o polling continuar verificando
+            console.log("Janela de integração foi fechada");
           }
         }, 1000);
 
-        // Limpar o verificador após 5 minutos
         setTimeout(() => {
           clearInterval(checkClosed);
         }, 300000);
