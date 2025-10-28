@@ -1,6 +1,6 @@
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
-import type { Plan } from "../user/typings/User";
+import type { Plan } from "../user/typings/BaseUser";
 
 class PlansService {
     async getPlans(): Promise<ApiResponse<Plan[]>> {

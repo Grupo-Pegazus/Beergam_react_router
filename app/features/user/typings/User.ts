@@ -9,6 +9,7 @@ import {
   type IBaseUser,
 } from "./BaseUser";
 import { ColabSchema, type IColab } from "./Colab";
+import type { IBaseUserDetails } from "./BaseUser";
 export enum ProfitRange {
   ATE_10_MIL = "Até 10.000 mil reais",
   DE_10_A_30_MIL = "De 10.000 á 30.000 mil reais",
@@ -112,7 +113,7 @@ export enum CurrentBilling {
 }
 
 type MarketplaceSells = number | null;
-export interface IUserDetails {
+export interface IUserDetails extends IBaseUserDetails {
   email: string;
   cpf?: string | null;
   cnpj?: string | null;
