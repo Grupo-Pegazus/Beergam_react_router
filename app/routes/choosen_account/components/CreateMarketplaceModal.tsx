@@ -26,7 +26,7 @@ export default function CreateMarketplaceModal({
   const fetcher = useFetcher();
   const queryClient = useQueryClient();
   const availableAccounts =
-    user?.details?.subscriptions?.[0]?.plan?.benefits?.ML_accounts ?? 0;
+    user?.details?.subscription?.plan?.benefits?.marketplaces_integrados ?? 0;
   const remainingAccounts =
     availableAccounts - (marketplacesAccounts?.length || 0);
 

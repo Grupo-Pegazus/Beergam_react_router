@@ -106,7 +106,8 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     }
     // session.set("userInfo", user.data);
 
-    if (user.data.details.subscription?.start_date === null) {
+    console.log("user.data.details.subscription", user.data.details.subscription);
+    if ( user.data.details.subscription === null || user.data.details.subscription?.start_date === null) {
       return redirect("/interno/subscription", {});
     }
 
