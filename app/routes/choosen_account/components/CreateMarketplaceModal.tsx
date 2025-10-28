@@ -219,7 +219,7 @@ export default function CreateMarketplaceModal({
               </p>
             </div>
             <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-lg">🏪</span>
+              <span className="text-white font-bold text-lg"><Svg.globe /></span>
             </div>
           </div>
         </div>
@@ -233,7 +233,7 @@ export default function CreateMarketplaceModal({
               </p>
             </div>
             <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-lg">➕</span>
+              <span className="text-white font-bold text-lg"><Svg.alert /></span>
             </div>
           </div>
         </div>
@@ -301,7 +301,6 @@ export default function CreateMarketplaceModal({
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <span>🚀</span>
                 Conectar {selectedMarketplace.toUpperCase()}
               </div>
             )}
