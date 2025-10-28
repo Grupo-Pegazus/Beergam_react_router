@@ -1,9 +1,5 @@
-import { useEffect } from "react";
 import { toast } from "react-hot-toast";
-import { useDispatch } from "react-redux";
-import { useActionData } from "react-router";
 import type { ApiResponse } from "~/features/apiClient/typings";
-import { updateUserInfo } from "~/features/auth/redux";
 import { userService } from "~/features/user/service";
 import type { IUser } from "~/features/user/typings/User";
 import { UserSchema } from "~/features/user/typings/User";
@@ -73,29 +69,10 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     }
     return response;
   } catch (error) {
-    console.error("Erro no perfil:", error);
-    return Response.json({
-      success: false,
-      message:
-        error instanceof Error
-          ? error.message
-          : "Erro ao editar informações do usuário",
-      error_code: 500,
-      error_fields: {},
-      data: {} as PossibleDataTypes,
-    });
+    return Response.json(error as ApiResponse<PossibleDataTypes>);
   }
 }
 
 export default function PerfilRoute() {
-  const dispatch = useDispatch();
-  const actionData = useActionData<ApiResponse<PossibleDataTypes>>();
-  const userValidation = UserSchema.safeParse(actionData?.data);
-  useEffect(() => {
-    if (actionData?.success && actionData.data && userValidation.success) {
-      dispatch(updateUserInfo(userValidation.data));
-    }
-  }, [actionData, dispatch]);
-
   return <PerfilPage />;
 }
