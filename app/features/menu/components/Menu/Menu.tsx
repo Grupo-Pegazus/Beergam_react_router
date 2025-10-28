@@ -1,13 +1,18 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setUserViews } from "~/features/auth/redux";
+import { logout } from "~/features/auth/redux";
 import { type RootState } from "~/store";
 import { useActiveMenu } from "../../hooks";
 import { closeMany } from "../../redux";
 import { MenuHandler, type MenuState } from "../../typings";
 import styles from "../index.module.css";
 import MenuItem from "../MenuItem/MenuItem";
+import { menuService } from "../../service";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
+import AccountView from "./AccountView";
 export default function Menu() {
+  const navigate = useNavigate();
   useActiveMenu(MenuHandler.getMenu()); //Gerencia o estado do Menu baseado na rota
   const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
@@ -24,23 +29,33 @@ export default function Menu() {
   const handleMouseLeave = useCallback(() => {
     if (openKeys.length) dispatch(closeMany(openKeys));
   }, [dispatch, openKeys]);
-  const handleChangeView = () => {
-    dispatch(
-      setUserViews({
-        inicio: { active: false },
-        atendimento: { active: true },
-        anuncios: { active: true },
-      })
-    );
+  const handleChangeView = async () => {
+    const res = await menuService.logout();
+    if (res.success) {
+      dispatch(logout());
+      navigate("/login");
+    } else {
+      toast.error(res.message);
+    }
   };
   const menu = useMemo(() => {
     return MenuHandler.setMenu(
       user?.allowed_views ?? (MenuHandler.getMenu() as unknown as MenuState)
     );
   }, [user?.allowed_views]);
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
-    <div onMouseLeave={handleMouseLeave} className={styles.hierarchyMenu}>
+    <div
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => {
+        setIsExpanded(false);
+        handleMouseLeave();
+      }}
+      className={styles.hierarchyMenu}
+    >
       <div className={styles.menuHeader + " " + styles.menuPadding}>
+        <AccountView expanded={isExpanded} />
         <div className={styles.arrow}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -56,32 +71,6 @@ export default function Menu() {
               d="m8.25 4.5 7.5 7.5-7.5 7.5"
             />
           </svg>
-        </div>
-        <div className={styles.dots}>
-          <div
-            style={{ backgroundColor: "var(--blue-primary)" }}
-            className={styles.dot}
-          ></div>
-          <div
-            style={{
-              backgroundColor: "var(--orange)",
-              transform: "translateY(-3px)",
-            }}
-            className={styles.dot}
-          ></div>
-          <div
-            style={{ backgroundColor: "var(--blue)" }}
-            className={styles.dot}
-          ></div>
-        </div>
-        <div className={styles.userInfo}>
-          {/* <img src={UsuarioTeste.conta_marketplace?.image} alt="Sua Conta ML" /> */}
-          <div className={styles.userInfoText}>
-            {/* <p className={styles.userInfoContaMl}>
-              {UsuarioTeste.conta_marketplace?.nome}
-            </p> */}
-            {/* <p>{user?.nome}</p> */}
-          </div>
         </div>
       </div>
       <ul className={styles.menuItems + " " + styles.menuPadding}>
