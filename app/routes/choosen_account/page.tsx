@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
-import { useFetcher } from "react-router";
+import { useFetcher, useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { useDispatch } from "react-redux";
+import { setMarketplace } from "~/features/marketplace/redux";
+import { marketplaceService } from "~/features/marketplace/service";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import MarketplaceCard from "~/features/marketplace/components/MarketplaceDard";
 import {
@@ -15,6 +18,7 @@ import Hint from "~/src/components/utils/Hint";
 import Modal from "~/src/components/utils/Modal";
 import CreateMarketplaceModal from "./components/CreateMarketplaceModal";
 import DeleteMarketaplceAccount from "./components/DeleteMarketaplceAccount";
+import toast from "react-hot-toast";
 interface ChoosenAccountPageProps {
   marketplacesAccounts: BaseMarketPlace[] | null;
   isLoading?: boolean;
@@ -28,7 +32,8 @@ export default function ChoosenAccountPage({
   const [marketplaceToDelete, setMarketplaceToDelete] = useState<BaseMarketPlace | null>(null);
   const fetcher = useFetcher();
   const queryClient = useQueryClient();
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   useEffect(() => {
     if (fetcher.data && fetcher.data.success && fetcher.state === "idle") {
       queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
@@ -112,6 +117,26 @@ export default function ChoosenAccountPage({
                   key={marketplace.marketplace_name}
                   marketplace={marketplace}
                   onDelete={handleDeleteMarketplace}
+                  onCardClick={async () => {
+                    const res = await marketplaceService.SelectMarketplaceAccount(
+                      marketplace.marketplace_shop_id,
+                      marketplace.marketplace_type
+                    );
+                    if (res.success) {
+                      dispatch(setMarketplace({
+                        marketplace_shop_id: res.data.marketplace_shop_id,
+                        marketplace_name: res.data.marketplace_name,
+                        marketplace_image: res.data.marketplace_image,
+                        marketplace_type: res.data.marketplace_type as MarketplaceType,
+                        status_parse: res.data.status_parse as MarketplaceStatusParse,
+                        orders_parse_status: res.data.orders_parse_status as MarketplaceOrderParseStatus,
+                      }));
+                      toast.success("Conta de marketplace selecionada com sucesso");
+                      navigate("/interno");
+                    } else {
+                      toast.error(res.message);
+                    }
+                  }}
                 />
               );
             })
