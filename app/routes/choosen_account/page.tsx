@@ -19,6 +19,7 @@ import Hint from "~/src/components/utils/Hint";
 import Modal from "~/src/components/utils/Modal";
 import CreateMarketplaceModal from "./components/CreateMarketplaceModal";
 import DeleteMarketaplceAccount from "./components/DeleteMarketaplceAccount";
+import ChoosenAccountSkeleton from "./components/ChoosenAccountSkeleton";
 import toast from "react-hot-toast";
 interface ChoosenAccountPageProps {
   marketplacesAccounts: BaseMarketPlace[] | null;
@@ -98,8 +99,8 @@ export default function ChoosenAccountPage({
   return (
     <PageLayout>
       <div className="flex flex-col items-center w-full p-4">
-        {/* Header compacto */}
-        <div className="mb-4 w-full max-w-5xl">
+        {/* Header */}
+        <div className="mb-4 w-full max-w-[80vw]">
           <div className="bg-beergam-white shadow-lg/55 rounded-2xl p-4 md:p-6">
             {/* Linha 1: Título e botão */}
             <div className="flex items-center justify-between gap-3 mb-3 lg:flex-row flex-col">
@@ -152,12 +153,11 @@ export default function ChoosenAccountPage({
           </div>
         </div>
 
-        {/* Grid de cards responsivo */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {/* Grid de cards */}
+        <div className="w-full max-w-[80vw]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {isLoading ? (
-            <div>
-              <h1>Carregando...</h1>
-            </div>
+            <ChoosenAccountSkeleton count={7} />
           ) : (
             filteredAccounts.map((item) => {
               const marketplace: BaseMarketPlace = {
@@ -201,6 +201,7 @@ export default function ChoosenAccountPage({
           <MarketplaceCard
             onCardClick={() => handleAbrirModal({ abrir: true })}
           />
+          </div>
         </div>
       </div>
       <Modal

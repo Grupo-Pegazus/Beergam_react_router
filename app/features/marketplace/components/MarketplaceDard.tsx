@@ -58,7 +58,7 @@ export default function MarketplaceCard({
           <img
             src={marketplace.marketplace_image}
             alt={marketplace.marketplace_name}
-            className="max-w-44 max-h-44 object-cover rounded-2xl"
+            className="max-w-44 max-h-44 object-cover rounded-2xl shadow-2xl"
           />
           <h3 className="text-center font-semibold truncate max-w-80">{marketplace.marketplace_name}</h3>
           
