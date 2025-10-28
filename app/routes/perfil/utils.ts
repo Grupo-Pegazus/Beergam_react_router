@@ -45,7 +45,8 @@ export function deepEqual(obj1: unknown, obj2: unknown): boolean {
 }
 export function getObjectDifferences(
   obj1: unknown,
-  obj2: unknown
+  obj2: unknown,
+  ignoreKeys: string[] = []
 ): Record<string, unknown> {
   const differences: Record<string, unknown> = {};
 
@@ -67,6 +68,7 @@ export function getObjectDifferences(
   const allKeys = new Set([...keys1, ...keys2]);
 
   for (const key of allKeys) {
+    if (ignoreKeys.includes(key)) continue;
     const value1 = obj1[key as keyof typeof obj1];
     const value2 = obj2[key as keyof typeof obj2];
 
@@ -94,7 +96,8 @@ export function getObjectDifferences(
     ) {
       const nestedDifferences = getObjectDifferences(
         normalizedValue1,
-        normalizedValue2
+        normalizedValue2,
+        ignoreKeys
       );
 
       // Se há diferenças aninhadas, adiciona com a estrutura original
