@@ -17,6 +17,7 @@ import type { IUser } from "./features/user/typings/User";
 import store from "./store";
 import "./zod";
 export const queryClient = new QueryClient();
+import { Analytics } from "@vercel/analytics/react"
 export const links: Route.LinksFunction = () => [
   {
     rel: "stylesheet",
@@ -190,6 +191,7 @@ function BootstrapAuth() {
 export default function App() {
   return (
     <Provider store={store}>
+      <Analytics />
       <BootstrapAuth />
       <QueryClientProvider client={queryClient}>
         <Outlet />
