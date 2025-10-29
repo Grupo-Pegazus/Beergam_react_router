@@ -1,13 +1,11 @@
-import { useState } from "react";
-import type { IUser } from "~/features/user/typings/User";
+import { useEffect, useState } from "react";
 import { subscriptionService } from "~/features/plans/subscriptionService";
 import type { Subscription } from "~/features/user/typings/BaseUser";
 import Svg from "~/src/assets/svgs";
 import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import MinhaAssinaturaSkeleton from "./skeleton";
 
-interface MinhaAssinaturaProps {
-  user: IUser;
-}
 
 const openCenteredWindow = (url: string, width: number = 800, height: number = 800) => {
 
@@ -31,10 +29,39 @@ const openCenteredWindow = (url: string, width: number = 800, height: number = 8
   return window.open(url, '_blank', windowFeatures);
 };
 
-export default function MinhaAssinatura({ user }: MinhaAssinaturaProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const subscription = user.details.subscription;
+export default function MinhaAssinatura() {
+  const [isBillingLoading, setIsBillingLoading] = useState(false);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const { data: subscriptionResponse, isLoading: isLoadingSubscription, isError: isErrorSubscription } = useQuery({
+    queryKey: ["subscriptionResponse"],
+    queryFn: subscriptionService.getSubscription,
+  });
   const navigate = useNavigate();
+  useEffect(() => {
+    if (!subscriptionResponse) {
+      setSubscription(null);
+      return;
+    }
+    const data = subscriptionResponse.data as Partial<Subscription> | undefined;
+    const hasValidSubscription = Boolean(
+      subscriptionResponse.success && data && data.plan
+    );
+    setSubscription(hasValidSubscription ? (subscriptionResponse.data as Subscription) : null);
+  }, [subscriptionResponse]);
+  const isError = isErrorSubscription;
+  if (isLoadingSubscription) {
+    return <MinhaAssinaturaSkeleton />;
+  }
+  if (isError) {
+    return (
+      <div className="flex flex-col gap-4 items-center justify-center py-8">
+        <div className="text-center max-w-md">
+          <h3 className="text-beergam-red text-xl font-bold mb-2">Erro ao buscar assinatura</h3>
+          <p className="text-beergam-gray mb-6">Tente novamente em alguns instantes.</p>
+        </div>
+      </div>
+    );
+  }
   /**
    * Abre o portal de billing do Stripe para o cliente gerenciar sua assinatura
    */
@@ -44,18 +71,9 @@ export default function MinhaAssinatura({ user }: MinhaAssinaturaProps) {
       return;
     }
 
-    setIsLoading(true);
+    setIsBillingLoading(true);
     try {
-      // TODO: Você precisa armazenar o customer_id do Stripe no backend
-      // Por enquanto, vamos assumir que o customer_id está em algum campo do usuário
-      // ou você vai precisar buscar do backend baseado no user.id
-      
       const returnUrl = `${window.location.origin}/interno/perfil`;
-      
-      // TODO: Buscar o customer_id do Stripe do backend
-      // Por enquanto, vamos usar o ID do usuário como referência
-      // O backend vai precisar ter um campo stripe_customer_id na tabela de usuários
-      // Você precisa criar um endpoint no backend que retorne o customer_id do Stripe
       
       const response = await subscriptionService.createBillingPortalSession(
         returnUrl
@@ -71,7 +89,7 @@ export default function MinhaAssinatura({ user }: MinhaAssinaturaProps) {
       console.error("Erro ao abrir portal de billing:", error);
       alert("Erro ao acessar o portal de billing. Tente novamente em alguns instantes.");
     } finally {
-      setIsLoading(false);
+      setIsBillingLoading(false);
     }
   };
 
@@ -92,11 +110,11 @@ export default function MinhaAssinatura({ user }: MinhaAssinaturaProps) {
    */
   const isInTrialPeriod = (subscription: Subscription): boolean => {
     const now = new Date();
-    const trialUntil = typeof subscription.free_trial_until === "string" 
+    const trialUntil = subscription.free_trial_until && typeof subscription.free_trial_until === "string" 
       ? new Date(subscription.free_trial_until) 
       : subscription.free_trial_until;
     
-    return trialUntil > now;
+    return trialUntil ? trialUntil > now : false;
   };
 
   /**
@@ -159,7 +177,7 @@ export default function MinhaAssinatura({ user }: MinhaAssinaturaProps) {
           </div>
           <div>
             <p className="text-sm opacity-80 mb-1">Início</p>
-            <p className="text-lg font-semibold">{formatDate(subscription.start_date)}</p>
+            <p className="text-lg font-semibold">{subscription.start_date ? formatDate(subscription.start_date) : "N/A"}</p>
           </div>
           <div>
             <p className="text-sm opacity-80 mb-1">
@@ -167,8 +185,8 @@ export default function MinhaAssinatura({ user }: MinhaAssinaturaProps) {
             </p>
             <p className="text-lg font-semibold">
               {inTrial 
-                ? formatDate(subscription.free_trial_until)
-                : formatDate(subscription.end_date)
+                ? subscription.free_trial_until ? formatDate(subscription.free_trial_until) : "N/A"
+                : subscription.end_date ? formatDate(subscription.end_date) : "N/A"
               }
             </p>
           </div>
@@ -231,7 +249,7 @@ export default function MinhaAssinatura({ user }: MinhaAssinaturaProps) {
               <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
             </div>
             <p className="text-sm text-beergam-black-blue">
-              Gestão financeira: <span className="font-bold">{subscription.plan.benefits.gestao_fincanceira}</span>
+              Gestão financeira: <span className="font-bold">{subscription.plan.benefits.gestao_financeira}</span>
             </p>
           </div>
 
@@ -257,19 +275,19 @@ export default function MinhaAssinatura({ user }: MinhaAssinaturaProps) {
           Acesse o portal para atualizar métodos de pagamento, visualizar faturas, 
           alterar seu plano ou cancelar sua assinatura.
         </p>
-        <button
+          <button
           onClick={handleManageBilling}
-          disabled={isLoading}
+          disabled={isBillingLoading}
           className="w-full bg-beergam-blue-primary hover:bg-beergam-orange disabled:bg-beergam-gray text-beergam-white px-6 py-3 rounded-2xl font-medium transition-colors flex items-center justify-center gap-2 disabled:cursor-not-allowed"
         >
-          {isLoading ? (
+          {isBillingLoading ? (
             <>
-              <Svg.arrow_path />
+              <Svg.arrow_path width={20} height={20} tailWindClasses="stroke-beergam-white animate-spin" />
               <span>Carregando...</span>
             </>
           ) : (
             <>
-              <Svg.card />
+              <Svg.card width={20} height={20} tailWindClasses="stroke-beergam-white" />
               <span>Gerenciar Assinatura</span>
             </>
           )}

@@ -1,7 +1,11 @@
+import { useState } from "react";
 import type { Plan } from "~/features/user/typings/BaseUser";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import Svg from "~/src/assets/svgs";
 import PlansSkeleton from "./components/PlansSkeleton";
+import StripeCheckout from "./components/StripeCheckout";
+import Modal from "~/src/components/utils/Modal";
+import { toast } from "react-hot-toast";
 
 interface SubscriptionPageProps {
   plans: Plan[];
@@ -9,6 +13,8 @@ interface SubscriptionPageProps {
 }
 
 export default function SubscriptionPage({ plans, isLoading }: SubscriptionPageProps) {
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [showCheckout, setShowCheckout] = useState(false);
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -144,7 +150,7 @@ export default function SubscriptionPage({ plans, isLoading }: SubscriptionPageP
                     <Svg.check width={12} height={12} tailWindClasses="stroke-beergam-white" />
                   </div>
                   <span className="text-beergam-black-blue text-sm">
-                    Gestão financeira: <span className="font-bold">{plan.benefits.gestao_fincanceira}</span>
+                    Gestão financeira: <span className="font-bold">{plan.benefits.gestao_financeira}</span>
                   </span>
                 </div>
               </div>
@@ -158,7 +164,15 @@ export default function SubscriptionPage({ plans, isLoading }: SubscriptionPageP
               )}
               {!plan.is_current_plan && (
                 <button 
-                className="w-full py-3 px-6 rounded-2xl font-medium text-beergam-white bg-beergam-blue-primary hover:bg-beergam-orange transition-colors flex items-center justify-center gap-2">
+                  onClick={() => {
+                    if (!plan.price_id) {
+                      toast.error("Este plano não está disponível para assinatura no momento.");
+                      return;
+                    }
+                    setSelectedPlan(plan);
+                    setShowCheckout(true);
+                  }}
+                  className="w-full py-3 px-6 rounded-2xl font-medium text-beergam-white bg-beergam-blue-primary hover:bg-beergam-orange transition-colors flex items-center justify-center gap-2">
                     <p className="text-beergam-white text-sm">Escolher plano</p>
                 </button>
               )}
@@ -178,6 +192,35 @@ export default function SubscriptionPage({ plans, isLoading }: SubscriptionPageP
           </p>
         </div>
       </div>
+
+      {/* Modal de Checkout */}
+      {showCheckout && selectedPlan && (
+        <Modal
+          abrir={showCheckout}
+          onClose={() => {
+            setShowCheckout(false);
+            setSelectedPlan(null);
+          }}
+          style={{ width: "95vw", maxWidth: "800px", overflowY: "auto" }}
+        >
+          <StripeCheckout
+            plan={selectedPlan}
+            onSuccess={() => {
+              setShowCheckout(false);
+              setSelectedPlan(null);
+              toast.success("Assinatura realizada com sucesso!");
+            }}
+            onError={(error) => {
+              console.error("Erro no checkout:", error);
+              toast.error(error || "Erro ao processar pagamento. Tente novamente.");
+            }}
+            onCancel={() => {
+              setShowCheckout(false);
+              setSelectedPlan(null);
+            }}
+          />
+        </Modal>
+      )}
     </PageLayout>
   );
 }

@@ -21,7 +21,7 @@ export default function PerfilPage() {
           />
         );
       case "Minha Assinatura":
-        return <MinhaAssinatura user={user as IUser} />;
+        return <MinhaAssinatura />;
       default:
         return <MinhaConta user={user} />;
     }
@@ -70,7 +70,7 @@ export default function PerfilPage() {
             </nav>
           </div>
         </div>
-        <div className="bg-beergam-white p-6 rounded-2xl shadow-lg/55 overflow-y-auto max-h-screen">
+        <div className="bg-beergam-white p-6 rounded-tl-[16px] rounded-tr-none rounded-br-none rounded-bl-[16px] shadow-lg/55 overflow-y-auto max-h-screen">
           <h1 className="text-beergam-blue-primary mb-4">{activeButton}</h1>
           {changeNavigation()}
         </div>
