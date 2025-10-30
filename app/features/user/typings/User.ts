@@ -147,6 +147,7 @@ export interface IUser extends IBaseUser {
 }
 
 const BeergamCodeSchema = z.string().min(10).max(10);
+const BeergamReferralCodeSchema = z.string().max(20)
 
 const NumberCoerced = z.coerce
   .number()
@@ -160,7 +161,7 @@ export const UserDetailsSchema = BaseUserDetailsSchema.extend({
   phone: TelefoneSchema,
   secondary_phone: TelefoneSchema.optional().nullable(),
   personal_reference_code: BeergamCodeSchema.optional(),
-  referral_code: BeergamCodeSchema.optional().nullable(),
+  referral_code: BeergamReferralCodeSchema.optional().nullable(),
   profit_range: z
     .enum(Object.keys(ProfitRange) as [ProfitRange, ...ProfitRange[]])
     .optional()
