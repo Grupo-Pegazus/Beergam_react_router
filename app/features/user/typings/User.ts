@@ -169,7 +169,7 @@ export interface IUser extends IBaseUser {
 }
 
 const BeergamCodeSchema = z.string().min(10).max(10);
-const BeergamReferralCodeSchema = z.string().min(10).max(20)
+const BeergamReferralCodeSchema = z.string().max(20)
 
 export const PlanBenefitsSchema = z.object({
   ML_accounts: z.number(),
