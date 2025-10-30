@@ -6,6 +6,7 @@ import { type RootState } from "~/store";
 import Colaboradores from "./components/Colaboradores";
 import MinhaConta from "./components/MinhaConta";
 import MinhaAssinatura from "./components/MinhaAssinatura";
+import Impostos from "./components/Impostos";
 export default function PerfilPage() {
   const [activeButton, setActiveButton] = useState<string>("Minha Conta");
   const user = useSelector((state: RootState) => state.auth.user);
@@ -22,6 +23,8 @@ export default function PerfilPage() {
         );
       case "Minha Assinatura":
         return <MinhaAssinatura />;
+      case "Impostos":
+        return <Impostos />;
       default:
         return <MinhaConta user={user} />;
     }
