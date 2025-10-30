@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { useActionData, useSearchParams } from "react-router";
@@ -7,6 +8,7 @@ import { subscriptionService } from "~/features/plans/subscriptionService";
 import { userService } from "~/features/user/service";
 import { SubscriptionSchema } from "~/features/user/typings/BaseUser";
 import type { IUser } from "~/features/user/typings/User";
+import { UserSchema } from "~/features/user/typings/User";
 import type { Route } from "./+types/route";
 import PerfilPage from "./page";
 import type { SubmitAction } from "./typings";
