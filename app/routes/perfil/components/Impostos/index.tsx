@@ -213,7 +213,7 @@ export default function Impostos() {
                   const value = editRates[String(m)] ?? fallback;
                   const disabledSave =
                     upsert.isPending ||
-                    (!editRates[String(m)] && Number(current) === Number(fallback.replace(',', '.')));
+                    (editRates[String(m)] === undefined && Number(current) === Number(fallback.replace(',', '.')));
                   return (
                     <TableRow key={m}>
                       <TableCell>{String(m).padStart(2, "0")}</TableCell>
