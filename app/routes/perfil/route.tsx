@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { useActionData, useSearchParams } from "react-router";
@@ -61,6 +60,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     const response = await responsePromise;
     return response;
   } catch (error) {
+    return Response.json(error as ApiResponse<PossibleDataTypes>);
     return Response.json(error as ApiResponse<PossibleDataTypes>);
   }
 }
