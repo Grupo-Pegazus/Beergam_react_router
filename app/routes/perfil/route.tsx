@@ -8,7 +8,6 @@ import { subscriptionService } from "~/features/plans/subscriptionService";
 import { userService } from "~/features/user/service";
 import { SubscriptionSchema } from "~/features/user/typings/BaseUser";
 import type { IUser } from "~/features/user/typings/User";
-import { UserSchema } from "~/features/user/typings/User";
 import type { Route } from "./+types/route";
 import PerfilPage from "./page";
 import type { SubmitAction } from "./typings";
@@ -60,20 +59,6 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 
   try {
     const response = await responsePromise;
-    switch (requestData.action as SubmitAction) {
-      case "Minha Conta": {
-        const user = UserSchema.safeParse(response?.data);
-        if (!user.success) {
-          return Response.json({
-            success: false,
-            message: "Erro ao transformar informações do usuário",
-            error_code: 500,
-            error_fields: {},
-            data: {} as PossibleDataTypes,
-          });
-        }
-      }
-    }
     return response;
   } catch (error) {
     return Response.json(error as ApiResponse<PossibleDataTypes>);

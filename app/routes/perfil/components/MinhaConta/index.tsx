@@ -1,8 +1,9 @@
 import { Switch } from "@mui/material";
 import dayjs from "dayjs";
-import React, { useContext, useEffect, useReducer } from "react";
+import React, { useContext, useEffect, useMemo, useReducer } from "react";
 import { useDispatch } from "react-redux";
 import { useFetcher } from "react-router";
+import { Tooltip } from "react-tooltip";
 import { z } from "zod";
 import { updateUserInfo } from "~/features/auth/redux";
 import type { IColab } from "~/features/user/typings/Colab";
@@ -32,7 +33,7 @@ import Svg from "~/src/assets/svgs";
 import { Fields } from "~/src/components/utils/_fields";
 import type { InputProps } from "~/src/components/utils/_fields/input";
 import BasicDatePicker from "~/src/components/utils/BasicDatePicker";
-import { getObjectDifferences } from "../../utils";
+import { deepEqual, getObjectDifferences } from "../../utils";
 interface SessionsState {
   [key: string]: boolean;
 }
@@ -45,7 +46,7 @@ const editingInitialState = {
 
 interface ElementWrapperProps {
   canBeAlter: boolean;
-  value: string | number | null;
+  value: string | number | null | undefined;
   inputName: keyof IUser | keyof IUserDetails;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   children: React.ReactNode;
@@ -67,6 +68,34 @@ function ElementWrapper({
   editedUserError,
   label,
 }: ElementWrapperProps) {
+  function sanitizeValue(value: string | number) {
+    // Verifica se o valor existe como chave no enum ProfitRange
+    if (typeof value != "string") {
+      return value;
+    }
+    if (value in ProfitRange) {
+      return FormatProfitRange(value as ProfitRange);
+    }
+    if (value in NumberOfEmployees) {
+      return FormatNumberOfEmployees(value as NumberOfEmployees);
+    }
+    if (value in CalcProfitProduct) {
+      return FormatCalcProfitProduct(value as CalcProfitProduct);
+    }
+    if (value in CalcTax) {
+      return FormatCalcTax(value as CalcTax);
+    }
+    if (value in CurrentBilling) {
+      return FormatCurrentBilling(value as CurrentBilling);
+    }
+    if (value in Segment) {
+      return FormatSegment(value as Segment);
+    }
+    // if (value in ComoConheceu) {
+    //   return FormatComoConheceu(value as ComoConheceu);
+    // }
+    return value ?? "";
+  }
   const { isEditing } = useContext(ElementSectionContext);
   const isUserAttr = isAtributeUser(inputName as keyof IUser);
   const isDetailsAttr = isAtributeUserDetails(inputName as keyof IUserDetails);
@@ -79,7 +108,7 @@ function ElementWrapper({
       : undefined;
   const access = canBeAlter && isEditing;
   return (
-    <div>
+    <div className="max-w-96">
       <Fields.label text={label} />
       {!isEditing && !value && (
         <p className="text-beergam-gray">Campo não preenchido.</p>
@@ -87,6 +116,7 @@ function ElementWrapper({
       {access &&
         React.cloneElement(children as React.ReactElement<InputProps>, {
           //Clonando o elemento filho para adicionar as props necessárias
+          value: value ?? "",
           defaultValue: value ?? "",
           name: inputName as string,
           dataTooltipId: `${inputName}-tooltip`,
@@ -97,7 +127,9 @@ function ElementWrapper({
         })}
 
       {!access && (
-        <p className={`${attributeError && "text-beergam-red"}`}>{value}</p>
+        <p className={`${attributeError && "text-beergam-red"}`}>
+          {sanitizeValue(value ?? "")}
+        </p>
       )}
     </div>
   );
@@ -142,6 +174,9 @@ function ElementSection({
       </div>
     </section>
   );
+}
+interface FieldErrors {
+  [key: string]: Array<Record<string, string>>;
 }
 
 export default function MinhaConta<T extends IUser | IColab>({
@@ -206,7 +241,9 @@ export default function MinhaConta<T extends IUser | IColab>({
   const [sessions, setSession] = useReducer(
     (
       state: SessionsState,
-      action: { type: "update"; payload: string | number | null }
+      action:
+        | { type: "update"; payload: string | number | null }
+        | { type: "reset"; payload?: undefined }
     ) => {
       switch (action.type) {
         case "update":
@@ -215,12 +252,26 @@ export default function MinhaConta<T extends IUser | IColab>({
             ...state,
             [action.payload as string]: !state[action.payload as string],
           };
+        case "reset":
+          return editingInitialState;
         default:
           return state;
       }
     },
     editingInitialState
   );
+  const [fieldErrors, setFieldErrors] = useReducer(
+    (state: FieldErrors, action: { type: "update"; payload: FieldErrors }) => {
+      switch (action.type) {
+        case "update":
+          return { ...state, ...action.payload };
+        default:
+          return state;
+      }
+    },
+    fetcher.data?.error_fields ?? {}
+  );
+  console.log("fieldErrors", fieldErrors);
   const editedUserValidation = UserSchema.safeParse(editedUser);
   const editedUserError = editedUserValidation.error
     ? z.treeifyError(editedUserValidation.error)
@@ -231,7 +282,7 @@ export default function MinhaConta<T extends IUser | IColab>({
   ]);
   const fetchData = () => {
     if (fetcher.state === "submitting") return;
-    if (Object.keys(infoDifferences).length === 0) return;
+    if (Object.keys(infoDifferences).length === 0 || editedUserError) return;
     const dataToSubmit = { ...infoDifferences };
     fetcher.submit(
       JSON.stringify({ action: "Minha Conta", data: { ...dataToSubmit } }),
@@ -245,17 +296,33 @@ export default function MinhaConta<T extends IUser | IColab>({
     if (fetcher.data) {
       if (fetcher.data.success) {
         console.log("atualizando o usuario");
-        dispatch(updateUserInfo(fetcher.data.data));
+        const userData = UserSchema.safeParse(fetcher.data.data);
+        dispatch(updateUserInfo(userData.data as IUser));
+        setSession({ type: "reset" });
+      } else {
+        if (fetcher.data.error_fields) {
+          setFieldErrors({
+            type: "update",
+            payload: fetcher.data.error_fields,
+          });
+        }
       }
     }
   }, [fetcher.state]);
   useEffect(() => {
     setEditedUser({ type: "reset" });
   }, [user]);
+  const usersAreEqual = useMemo(() => {
+    if (!user || !editedUser) return false;
+
+    // Comparação rápida primeiro
+    if (user === editedUser) return true;
+
+    // Comparação profunda apenas se necessário
+    return deepEqual(user, editedUser);
+  }, [user, editedUser]);
   return (
     <div className="flex flex-col gap-4">
-      <button onClick={() => fetchData()}>Teste do Fecther</button>
-      <p>fetcher.data : {JSON.stringify(fetcher.data)}</p>
       {isMaster(user) &&
         isMaster(editedUser) && ( //Definindo o tipo de informação que será editada para o TypeScript não encher mais o saco
           <>
@@ -326,16 +393,13 @@ export default function MinhaConta<T extends IUser | IColab>({
               </ElementWrapper>
               <ElementWrapper
                 canBeAlter={true}
-                value={FormatProfitRange(
-                  editedUser.details.profit_range as ProfitRange
-                )}
+                value={editedUser.details.profit_range}
                 inputName="profit_range"
                 label="FATURAMENTO MENSAL"
                 onChange={handleChange}
                 editedUserError={editedUserError}
               >
                 <Fields.select
-                  value={editedUser.details.profit_range ?? ""}
                   options={Object.keys(ProfitRange).map((key) => ({
                     value: key,
                     label: ProfitRange[key as keyof typeof ProfitRange],
@@ -380,18 +444,13 @@ export default function MinhaConta<T extends IUser | IColab>({
             >
               <ElementWrapper
                 canBeAlter={true}
-                value={
-                  FormatCalcProfitProduct(
-                    editedUser.details.calc_profit_product as CalcProfitProduct
-                  ) ?? ""
-                }
+                value={editedUser.details.calc_profit_product}
                 inputName="calc_profit_product"
                 label="CÁLCULO DE LUCRO DO PRODUTO"
                 onChange={handleChange}
                 editedUserError={editedUserError}
               >
                 <Fields.select
-                  value={editedUser.details.calc_profit_product ?? ""}
                   options={Object.keys(CalcProfitProduct).map((key) => ({
                     value: key,
                     label: FormatCalcProfitProduct(key as CalcProfitProduct),
@@ -400,16 +459,13 @@ export default function MinhaConta<T extends IUser | IColab>({
               </ElementWrapper>
               <ElementWrapper
                 canBeAlter={true}
-                value={
-                  FormatCalcTax(editedUser.details.calc_tax as CalcTax) ?? ""
-                }
+                value={editedUser.details.calc_tax}
                 inputName="calc_tax"
                 label="CÁLCULO DE IMPOSTO"
                 onChange={handleChange}
                 editedUserError={editedUserError}
               >
                 <Fields.select
-                  value={editedUser.details.calc_tax ?? ""}
                   options={Object.keys(CalcTax).map((key) => ({
                     value: key,
                     label: FormatCalcTax(key as CalcTax),
@@ -428,18 +484,13 @@ export default function MinhaConta<T extends IUser | IColab>({
               </ElementWrapper>
               <ElementWrapper
                 canBeAlter={true}
-                value={
-                  FormatNumberOfEmployees(
-                    editedUser.details.number_of_employees as NumberOfEmployees
-                  ) ?? ""
-                }
+                value={editedUser.details.number_of_employees}
                 inputName="number_of_employees"
                 label="NÚMERO DE EMPREGADOS"
                 onChange={handleChange}
                 editedUserError={editedUserError}
               >
                 <Fields.select
-                  value={editedUser.details.number_of_employees ?? ""}
                   options={Object.keys(NumberOfEmployees).map((key) => ({
                     value: key,
                     label: FormatNumberOfEmployees(key as NumberOfEmployees),
@@ -448,18 +499,13 @@ export default function MinhaConta<T extends IUser | IColab>({
               </ElementWrapper>
               <ElementWrapper
                 canBeAlter={true}
-                value={
-                  FormatCurrentBilling(
-                    editedUser.details.current_billing as CurrentBilling
-                  ) ?? ""
-                }
+                value={editedUser.details.current_billing}
                 inputName="current_billing"
                 label="FATURAMENTO MENSAL"
                 onChange={handleChange}
                 editedUserError={editedUserError}
               >
                 <Fields.select
-                  value={editedUser.details.current_billing ?? ""}
                   options={Object.keys(CurrentBilling).map((key) => ({
                     value: key,
                     label: FormatCurrentBilling(key as CurrentBilling),
@@ -483,7 +529,7 @@ export default function MinhaConta<T extends IUser | IColab>({
                 <h3 className="text-beergam-blue-primary mb-4 !font-bold">
                   Vendas em Marketplaces
                 </h3>
-                <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <ElementWrapper
                     canBeAlter={true}
                     value={editedUser.details.sells_meli ?? ""}
@@ -565,9 +611,11 @@ export default function MinhaConta<T extends IUser | IColab>({
               <ElementWrapper
                 canBeAlter={true}
                 value={
-                  dayjs(editedUser.details.foundation_date).format(
-                    "DD/MM/YYYY"
-                  ) ?? ""
+                  editedUser.details.foundation_date
+                    ? dayjs(editedUser.details.foundation_date).format(
+                        "DD/MM/YYYY"
+                      )
+                    : null
                 }
                 inputName="foundation_date"
                 label="DATA DE FUNDAÇÃO"
@@ -578,14 +626,13 @@ export default function MinhaConta<T extends IUser | IColab>({
               </ElementWrapper>
               <ElementWrapper
                 canBeAlter={true}
-                value={FormatSegment(editedUser.details.segment as Segment)}
+                value={editedUser.details.segment}
                 inputName="segment"
                 label="SEGMENTO"
                 onChange={handleChange}
                 editedUserError={editedUserError}
               >
                 <Fields.select
-                  value={editedUser.details.segment ?? ""}
                   options={Object.keys(Segment).map((key) => ({
                     value: key,
                     label: FormatSegment(key as Segment),
@@ -593,6 +640,41 @@ export default function MinhaConta<T extends IUser | IColab>({
                 />
               </ElementWrapper>
             </ElementSection>
+            <div
+              className={`sticky w-full bottom-0 left-0 right-0 flex justify-end lg:justify-center items-center ${
+                usersAreEqual
+                  ? "opacity-0 pointer-events-none"
+                  : "opacity-100 pointer-events-auto"
+              }`}
+            >
+              <Paper className="flex w-full lg:w-2/3 justify-between items-center">
+                <p className="font-bold hidden lg:inline-block text-beergam-blue-primary">
+                  Deseja salvar suas alterações?
+                </p>
+                <div className="flex gap-4 w-full justify-center items-center lg:w-auto">
+                  <button
+                    className="text-beergam-white bg-beergam-blue-primary p-2 rounded-2xl"
+                    onClick={() => setEditedUser({ type: "reset" })}
+                    type="button"
+                  >
+                    <p>Redefinir</p>
+                  </button>
+                  <button
+                    data-tooltip-id="salvar-alteracoes"
+                    className={`${editedUserError ? "bg-beergam-blue-primary/40 !cursor-not-allowed" : "bg-beergam-blue-primary hover:bg-beergam-orange"} !font-bold text-beergam-white p-2 rounded-2xl`}
+                    onClick={() => fetchData()}
+                  >
+                    <p>Salvar alterações</p>
+                  </button>
+                  {editedUserError && (
+                    <Tooltip
+                      id="salvar-alteracoes"
+                      content="Você possui erros pendentes no formulário."
+                    />
+                  )}
+                </div>
+              </Paper>
+            </div>
           </>
         )}
     </div>
