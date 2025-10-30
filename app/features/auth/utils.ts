@@ -139,7 +139,6 @@ class Crypto<T> {
   async recuperarDados<T>(): Promise<T | null> {
     try {
       const armazenado = localStorage.getItem(this.localStorageName);
-      console.log("armazenado", armazenado);
       if (!armazenado) {
         return null;
       }
@@ -147,12 +146,10 @@ class Crypto<T> {
       // Fallback: valor salvo em texto simples
       if (armazenado.startsWith(this.PLAIN_PREFIX)) {
         const json = armazenado.slice(this.PLAIN_PREFIX.length);
-        console.log("json", json);
         return JSON.parse(json) as T;
       }
 
       const ivBase64 = localStorage.getItem(this.localStorageName + "IV");
-      console.log("ivBase64", ivBase64);
       if (!ivBase64) {
         return null;
       }
@@ -169,8 +166,6 @@ class Crypto<T> {
 
       const dadosCriptografados = this.base64ToArrayBuffer(armazenado);
       const iv = new Uint8Array(this.base64ToArrayBuffer(ivBase64));
-      console.log("dadosCriptografados", dadosCriptografados);
-      console.log("iv", iv);
       return (await this.descriptografarDados(dadosCriptografados, iv)) as T;
     } catch (error) {
       console.error("Erro ao recuperar dados:", error);

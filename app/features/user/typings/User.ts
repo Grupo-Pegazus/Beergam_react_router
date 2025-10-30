@@ -162,6 +162,7 @@ export interface IUserDetails {
   sells_own_site?: MarketplaceSells;
   sub_count?: number | null;
   subscriptions?: Subscription[] | null;
+  invoice_in_flex?: boolean | null;
 }
 export interface IUser extends IBaseUser {
   colabs?: IColab[] | [];
@@ -267,6 +268,7 @@ export const UserDetailsSchema = z.object({
     .nullable(),
   social_media: z.string().optional().nullable(),
   foundation_date: z.string().optional().nullable(),
+  invoice_in_flex: z.boolean().optional().nullable(),
 }) satisfies z.ZodType<IUserDetails>;
 
 export const UserSchema = BaseUserSchema.extend({
