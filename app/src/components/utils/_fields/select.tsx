@@ -9,7 +9,7 @@ interface Option {
 
 interface SelectProps {
   options?: Option[];
-  value: string | null;
+  value?: string | null | undefined | null;
   required?: boolean;
   error?: InputError;
   hasError?: boolean;
