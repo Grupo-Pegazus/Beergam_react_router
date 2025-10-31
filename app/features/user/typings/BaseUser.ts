@@ -3,7 +3,8 @@ import {
   BaseMarketPlaceSchema,
   type BaseMarketPlace,
 } from "~/features/marketplace/typings";
-import type { MenuState } from "~/features/menu/typings";
+import type { MenuKeys, MenuState } from "~/features/menu/typings";
+import { MenuConfig } from "~/features/menu/typings";
 
 export enum UserRoles {
   MASTER = "MASTER",
@@ -21,7 +22,7 @@ export enum SubscriptionStatus {
   INCOMPLETE = "incomplete",
   PAST_DUE = "past_due",
   TRIALING = "trialing",
-  PENDING = "pending"
+  PENDING = "pending",
 }
 
 export interface PlanBenefits {
@@ -88,13 +89,15 @@ export const PlanSchema = z.object({
   price_1_year: z.number(),
 }) satisfies z.ZodType<Plan>;
 
-const DateCoerced = z
-  .preprocess((val) => {
+const DateCoerced = z.preprocess(
+  (val) => {
     if (val === null || val === undefined || val === "") return undefined;
     if (val instanceof Date) return val;
     const parsed = new Date(String(val));
     return isNaN(parsed.getTime()) ? undefined : parsed;
-  }, z.date({ message: "Data inválida" }));
+  },
+  z.date({ message: "Data inválida" })
+);
 
 export const SubscriptionSchema = z.object({
   start_date: DateCoerced,
@@ -130,28 +133,36 @@ export const SubscriptionSchema = z.object({
           return normalized;
         }),
     })
-    .transform((p) => ({
-      display_name: p.display_name,
-      benefits: p.benefits as PlanBenefits,
-      is_affiliate_plan: p.is_affiliate_plan,
-    }) as SubscriptionPlan),
+    .transform(
+      (p) =>
+        ({
+          display_name: p.display_name,
+          benefits: p.benefits as PlanBenefits,
+          is_affiliate_plan: p.is_affiliate_plan,
+        }) as SubscriptionPlan
+    ),
   status: z
     .string()
-    .transform((s) => (typeof s === "string" ? (s.toLowerCase() as SubscriptionStatus) : s))
-    .refine((s) => (s == null ? true : Object.values(SubscriptionStatus).includes(s)), {
-      message: `Status inválido`,
-    })
+    .transform((s) =>
+      typeof s === "string" ? (s.toLowerCase() as SubscriptionStatus) : s
+    )
+    .refine(
+      (s) => (s == null ? true : Object.values(SubscriptionStatus).includes(s)),
+      {
+        message: `Status inválido`,
+      }
+    )
     .optional(),
 }) satisfies z.ZodType<Subscription>;
 
 export interface IBaseUserDetails {
   subscription?: Subscription | null;
+  allowed_views?: MenuState;
 }
 
 export interface IBaseUser {
   name: string;
   role: UserRoles;
-  allowed_views?: MenuState;
   status: UserStatus;
   marketplace_accounts?: BaseMarketPlace[] | null;
   pin?: string | null;
@@ -160,20 +171,42 @@ export interface IBaseUser {
   updated_at: Date;
 }
 
-export const BaseUserDetailsSchema = z
-  .object({
-    subscription: z
-      .union([SubscriptionSchema, z.array(SubscriptionSchema)])
-      .optional()
-      .nullable()
-      .transform((s) => {
-        if (Array.isArray(s)) {
-          return s.length > 0 ? (s[0] as Subscription) : null;
-        }
-        return (s as Subscription | null | undefined) ?? null;
-      }),
-  })
-  ;
+export const BaseUserDetailsSchema = z.object({
+  subscription: z
+    .union([SubscriptionSchema, z.array(SubscriptionSchema)])
+    .optional()
+    .nullable()
+    .transform((s) => {
+      if (Array.isArray(s)) {
+        return s.length > 0 ? (s[0] as Subscription) : null;
+      }
+      return (s as Subscription | null | undefined) ?? null;
+    }),
+  allowed_views: z
+    .record(
+      z.string(),
+      z.object({
+        access: z.boolean(),
+        notifications: z.number().optional(),
+      })
+    )
+    .optional()
+    .nullable()
+    .transform((views) => {
+      if (!views || views === null) return undefined;
+      const menuKeys = Object.keys(MenuConfig) as MenuKeys[];
+      const result: MenuState = {} as MenuState;
+
+      for (const key of menuKeys) {
+        const viewData = views[key];
+        result[key] = {
+          access: viewData?.access ?? false,
+          notifications: viewData?.notifications,
+        };
+      }
+      return result;
+    }),
+});
 
 export const BaseUserSchema = z.object({
   name: z
