@@ -3,13 +3,13 @@ import { z } from "zod";
 import { CNPJSchema } from "~/utils/typings/CNPJ";
 import { CPFSchema } from "~/utils/typings/CPF";
 import { TelefoneSchema } from "~/utils/typings/Telefone";
+import type { IBaseUserDetails } from "./BaseUser";
 import {
   BaseUserDetailsSchema,
   BaseUserSchema,
   type IBaseUser,
 } from "./BaseUser";
 import { ColabSchema, type IColab } from "./Colab";
-import type { IBaseUserDetails } from "./BaseUser";
 export enum ProfitRange {
   ATE_10_MIL = "Até 10.000 mil reais",
   DE_10_A_30_MIL = "De 10.000 á 30.000 mil reais",
@@ -123,7 +123,7 @@ export interface IUserDetails extends IBaseUserDetails {
   personal_reference_code?: string;
   referral_code?: string | null;
   social_media?: string | null;
-  foundation_date?: Date | null;
+  foundation_date?: string | null;
   address?: string | null;
   secondary_phone?: string | null;
   number_of_employees?: NumberOfEmployees | null;
@@ -140,6 +140,8 @@ export interface IUserDetails extends IBaseUserDetails {
   sells_shein?: MarketplaceSells;
   sells_own_site?: MarketplaceSells;
   sub_count?: number | null;
+  subscriptions?: Subscription[] | null;
+  invoice_in_flex?: boolean | null;
 }
 export interface IUser extends IBaseUser {
   colabs?: IColab[] | [];
@@ -147,7 +149,7 @@ export interface IUser extends IBaseUser {
 }
 
 const BeergamCodeSchema = z.string().min(10).max(10);
-const BeergamReferralCodeSchema = z.string().max(20)
+const BeergamReferralCodeSchema = z.string().max(20);
 
 const NumberCoerced = z.coerce
   .number()
@@ -216,9 +218,22 @@ export const UserDetailsSchema = BaseUserDetailsSchema.extend({
     .optional()
     .nullable(),
   social_media: z.string().optional().nullable(),
+  foundation_date: z.string().optional().nullable(),
+  invoice_in_flex: z.boolean().optional().nullable(),
 }) satisfies z.ZodType<IUserDetails>;
 
 export const UserSchema = BaseUserSchema.extend({
   details: UserDetailsSchema,
   colabs: z.array(ColabSchema).default([]),
 }) satisfies z.ZodType<IUser>;
+
+export function isAtributeUser(
+  attribute: keyof IUser | keyof IUserDetails
+): attribute is keyof IUser {
+  return attribute in UserSchema.shape;
+}
+export function isAtributeUserDetails(
+  attribute: keyof IUser | keyof IUserDetails
+): attribute is keyof IUserDetails {
+  return attribute in UserDetailsSchema.shape;
+}
