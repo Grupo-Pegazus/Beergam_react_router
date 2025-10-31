@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { MenuState } from "../menu/typings";
 import { type IColab } from "../user/typings/Colab";
+import type { Subscription } from "../user/typings/BaseUser";
 import { type IUser } from "../user/typings/User";
 import { cryptoUser } from "./utils";
 
@@ -46,12 +47,29 @@ const authSlice = createSlice({
           ...state.user,
           ...action.payload,
         };
-        cryptoUser.encriptarDados(state.user as IUser);
+        try {
+          const plainUser: IUser = JSON.parse(JSON.stringify(state.user));
+          cryptoUser.encriptarDados(plainUser);
+        } catch (e) {
+          console.error("Falha ao encriptar dados do usuário", e);
+        }
+      }
+    },
+    updateUserSubscription(state, action: PayloadAction<Subscription | null>) {
+      if (state.user && "details" in state.user) {
+        const user = state.user as IUser;
+        user.details.subscription = action.payload;
+        try {
+          const plainUser: IUser = JSON.parse(JSON.stringify(user));
+          cryptoUser.encriptarDados(plainUser);
+        } catch (e) {
+          console.error("Falha ao encriptar dados do usuário", e);
+        }
       }
     },
   },
 });
 
-export const { login, logout, setUserViews, updateUserInfo } =
+export const { login, logout, setUserViews, updateUserInfo, updateUserSubscription } =
   authSlice.actions;
 export default authSlice.reducer;

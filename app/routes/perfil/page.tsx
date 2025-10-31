@@ -5,6 +5,8 @@ import type { IUser } from "~/features/user/typings/User";
 import { type RootState } from "~/store";
 import Colaboradores from "./components/Colaboradores";
 import MinhaConta from "./components/MinhaConta";
+import MinhaAssinatura from "./components/MinhaAssinatura";
+import Impostos from "./components/Impostos";
 export default function PerfilPage() {
   const [activeButton, setActiveButton] = useState<string>("Minha Conta");
   const user = useSelector((state: RootState) => state.auth.user);
@@ -19,6 +21,10 @@ export default function PerfilPage() {
             colabs={"colabs" in user ? ((user as IUser).colabs ?? []) : []}
           />
         );
+      case "Minha Assinatura":
+        return <MinhaAssinatura />;
+      case "Impostos":
+        return <Impostos />;
       default:
         return <MinhaConta user={user} />;
     }
@@ -32,7 +38,7 @@ export default function PerfilPage() {
   }) {
     return (
       <button
-        className={`text-beergam-white relative text-left p-2 rounded-md w-full bg-beergam-blue-primary/0 ${emBreve ? "!cursor-not-allowed" : "hover:bg-beergam-blue-primary/80"}   ${activeButton === text ? "!bg-beergam-blue-primary/100" : ""}`}
+        className={`text-beergam-white relative text-left p-2 rounded-md w-full bg-beergam-blue-primary/0 ${emBreve ? "cursor-not-allowed!" : "hover:bg-beergam-blue-primary/80"}   ${activeButton === text ? "!bg-beergam-blue-primary/100" : ""}`}
         onClick={() => {
           if (emBreve) return;
           console.log("cliquei no", text);
@@ -67,7 +73,7 @@ export default function PerfilPage() {
             </nav>
           </div>
         </div>
-        <div className="bg-beergam-white p-6 rounded-2xl shadow-lg/55 overflow-y-auto max-h-[100vh]">
+        <div className="bg-beergam-white p-6 rounded-tl-[16px] rounded-tr-none rounded-br-none rounded-bl-[16px] shadow-lg/55 overflow-y-auto max-h-screen">
           <h1 className="text-beergam-blue-primary mb-4">{activeButton}</h1>
           {changeNavigation()}
         </div>

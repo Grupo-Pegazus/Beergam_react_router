@@ -5,6 +5,8 @@ import { UserSchema, type IUser } from "~/features/user/typings/User";
 // import { commitSession, getSession } from "~/sessions";
 import { toast } from "react-hot-toast";
 import { cryptoUser } from "~/features/auth/utils";
+import { ColabSchema, type IColab } from "~/features/user/typings/Colab";
+import { isMaster } from "~/features/user/utils";
 import type { Route } from "./+types/route";
 import LoginPage from "./page";
 // export async function loader({ request }: Route.LoaderArgs) {
@@ -27,25 +29,31 @@ const errorResponse = {
   error_fields: {},
 };
 
-function FormSanitizer(formData: FormData, role: UserRoles) {
+function FormSanitizer(
+  formData: {
+    role: UserRoles;
+    data: { email: string; pin: string; password: string };
+  },
+  role: UserRoles
+) {
   if (role === UserRoles.MASTER) {
     return {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
+      email: formData.data.email as string,
+      password: formData.data.password as string,
     };
   }
   return {
-    master_pin: formData.get("master_pin") as string,
-    pin: formData.get("pin") as string,
-    password: formData.get("password") as string,
+    pin: formData.data.pin as string,
+    password: formData.data.password as string,
   };
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
-  const formData = await request.formData();
-  const role = formData.get("role");
+  const formData = await request.json();
+  const role = formData.role;
   const formInfo = FormSanitizer(formData, role as UserRoles);
-
+  console.log("formInfo do route", formInfo);
+  console.log("role do route", role);
   const responsePromise = authService
     .login(formInfo, role as UserRoles)
     .then((response) => {
@@ -82,8 +90,14 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     console.log("request do route", request);
 
     // Continuar com o código existente...
-    const user = UserSchema.safeParse(response.data);
-    if (!user.success) {
+    let user = null;
+    const isMasterUser = isMaster(response.data as IUser);
+    if (isMasterUser) {
+      user = UserSchema.safeParse(response.data);
+    } else {
+      user = ColabSchema.safeParse(response.data as IColab);
+    }
+    if (!user?.success) {
       console.log("user invalido", user);
       errorResponse.data = response.data;
       toast.error(
@@ -91,10 +105,21 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       );
       return Response.json(errorResponse);
     }
-    await cryptoUser.encriptarDados(user.data as IUser);
+    if (isMasterUser) {
+      await cryptoUser.encriptarDados(user.data as IUser);
+    } else {
+      await cryptoUser.encriptarDados(user.data as IColab);
+    }
     // session.set("userInfo", user.data);
 
-    if (user.data.details.subscriptions?.length === 0) {
+    console.log(
+      "user.data.details.subscription",
+      user.data.details.subscription
+    );
+    if (
+      user.data.details.subscription === null ||
+      user.data.details.subscription?.start_date === null
+    ) {
       return redirect("/interno/subscription", {});
     }
 

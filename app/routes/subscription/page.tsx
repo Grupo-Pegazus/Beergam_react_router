@@ -1,12 +1,20 @@
-import type { Plan } from "~/features/user/typings/User";
+import { useState } from "react";
+import type { Plan } from "~/features/user/typings/BaseUser";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import Svg from "~/src/assets/svgs";
+import PlansSkeleton from "./components/PlansSkeleton";
+import StripeCheckout from "./components/StripeCheckout";
+import Modal from "~/src/components/utils/Modal";
+import { toast } from "react-hot-toast";
 
 interface SubscriptionPageProps {
   plans: Plan[];
+  isLoading: boolean;
 }
 
-export default function SubscriptionPage({ plans }: SubscriptionPageProps) {
+export default function SubscriptionPage({ plans, isLoading }: SubscriptionPageProps) {
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [showCheckout, setShowCheckout] = useState(false);
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -31,25 +39,28 @@ export default function SubscriptionPage({ plans }: SubscriptionPageProps) {
     <PageLayout tailwindClassName="flex items-center justify-center">
       <div className="w-full max-w-6xl mx-auto p-4">
         {/* Header Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-beergam-white text-4xl font-bold mb-4">
+        <div className="text-center mb-8 md:mb-12 px-4">
+          <h1 className="text-beergam-white text-2xl md:text-4xl font-bold mb-3 md:mb-4">
             Escolha seu Plano
           </h1>
-          <p className="text-beergam-white text-lg max-w-2xl mx-auto">
+          <p className="text-beergam-white text-sm md:text-lg max-w-2xl mx-auto">
             Desbloqueie todo o potencial do Beergam com nossos planos premium. 
             Escolha o que melhor se adapta ao seu negócio.
           </p>
         </div>
 
-        {/* Plans Flex */}
-        <div className="flex flex-col lg:flex-row gap-6 w-full justify-center">
-          {plans.sort((a, b) => a.price - b.price).map((plan) => (
+        {/* Plans Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+          {isLoading ? (
+            <PlansSkeleton />
+          ) : (
+            plans.sort((a, b) => a.price - b.price).map((plan) => (
             <div 
               key={plan.display_name} 
               className={`
-                group relative w-[calc(100% / 3)] bg-beergam-white rounded-2xl shadow-lg/55 p-6 border-2 border-beergam-blue-light
+                group relative w-full bg-beergam-white rounded-2xl shadow-lg/55 p-6 border-2 border-beergam-blue-light
                 hover:border-beergam-blue transition-all duration-300 hover:shadow-xl
-                ${plan.display_name === "Freemium" ? 'scale-105 ring-2 ring-beergam-blue z-10' : ''}
+                ${plan.display_name === "Freemium" ? 'lg:scale-105 ring-2 ring-beergam-blue z-10' : ''}
               `}
             >
               {plan.display_name === "Freemium" && (
@@ -139,7 +150,7 @@ export default function SubscriptionPage({ plans }: SubscriptionPageProps) {
                     <Svg.check width={12} height={12} tailWindClasses="stroke-beergam-white" />
                   </div>
                   <span className="text-beergam-black-blue text-sm">
-                    Gestão financeira: <span className="font-bold">{plan.benefits.gestao_fincanceira}</span>
+                    Gestão financeira: <span className="font-bold">{plan.benefits.gestao_financeira}</span>
                   </span>
                 </div>
               </div>
@@ -153,25 +164,63 @@ export default function SubscriptionPage({ plans }: SubscriptionPageProps) {
               )}
               {!plan.is_current_plan && (
                 <button 
-                className="w-full py-3 px-6 rounded-2xl font-medium text-beergam-white bg-beergam-blue-primary hover:bg-beergam-orange transition-colors flex items-center justify-center gap-2">
+                  onClick={() => {
+                    if (!plan.price_id) {
+                      toast.error("Este plano não está disponível para assinatura no momento.");
+                      return;
+                    }
+                    setSelectedPlan(plan);
+                    setShowCheckout(true);
+                  }}
+                  className="w-full py-3 px-6 rounded-2xl font-medium text-beergam-white bg-beergam-blue-primary hover:bg-beergam-orange transition-colors flex items-center justify-center gap-2">
                     <p className="text-beergam-white text-sm">Escolher plano</p>
                 </button>
               )}
             </div>
-          ))}
+          ))
+          )}
         </div>
 
         {/* Footer Info */}
-        <div className="text-center mt-12">
-          <div className="inline-flex items-center space-x-2 text-beergam-white mb-3">
+        <div className="text-center mt-8 md:mt-12 px-4">
+          <div className="inline-flex items-center space-x-2 text-beergam-white mb-3 flex-wrap justify-center">
             <Svg.check width={16} height={16} tailWindClasses="stroke-beergam-green" />
-            <span className="font-medium">Cancelamento a qualquer momento</span>
+            <span className="font-medium text-sm md:text-base">Cancelamento a qualquer momento</span>
           </div>
-          <p className="text-beergam-white text-sm max-w-xl mx-auto">
+          <p className="text-beergam-white text-xs md:text-sm max-w-xl mx-auto">
             Todos os planos incluem suporte 24/7 e garantia de satisfação de 30 dias
           </p>
         </div>
       </div>
+
+      {/* Modal de Checkout */}
+      {showCheckout && selectedPlan && (
+        <Modal
+          abrir={showCheckout}
+          onClose={() => {
+            setShowCheckout(false);
+            setSelectedPlan(null);
+          }}
+          style={{ width: "95vw", maxWidth: "800px", overflowY: "auto" }}
+        >
+          <StripeCheckout
+            plan={selectedPlan}
+            onSuccess={() => {
+              setShowCheckout(false);
+              setSelectedPlan(null);
+              toast.success("Assinatura realizada com sucesso!");
+            }}
+            onError={(error) => {
+              console.error("Erro no checkout:", error);
+              toast.error(error || "Erro ao processar pagamento. Tente novamente.");
+            }}
+            onCancel={() => {
+              setShowCheckout(false);
+              setSelectedPlan(null);
+            }}
+          />
+        </Modal>
+      )}
     </PageLayout>
   );
 }

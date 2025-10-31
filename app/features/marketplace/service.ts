@@ -2,7 +2,6 @@ import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
 import type { BaseMarketPlace, IntegrationData, IntegrationStatus } from "./typings";
 import { MarketplaceType } from "./typings";
-
 class MarketplaceService {
   async getMarketplacesAccounts(): Promise<ApiResponse<BaseMarketPlace[]>> {
     try {
@@ -16,6 +15,29 @@ class MarketplaceService {
         data: [] as BaseMarketPlace[],
         message:
           "Erro ao buscar contas de marketplace. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: {},
+      };
+    }
+  }
+
+  async SelectMarketplaceAccount(Marketplace_id: string, Marketplace_type: MarketplaceType): Promise<ApiResponse<BaseMarketPlace>> {
+    try {
+      const payload = {
+        "marketplace_shop_id": Marketplace_id,
+        "marketplace_type": Marketplace_type,
+      }
+      const response = await typedApiClient.post<BaseMarketPlace>(
+        `/v1/accounts/select`,
+        payload
+      );
+      return response;
+    } catch (error) {
+      console.error("error do SelectMarketplaceAccount", error);
+      return {
+        success: false,
+        data: {} as BaseMarketPlace,
+        message: "Erro ao selecionar conta de marketplace. Tente novamente em alguns instantes.",
         error_code: 500,
         error_fields: {},
       };

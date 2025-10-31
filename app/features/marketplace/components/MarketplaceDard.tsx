@@ -58,9 +58,9 @@ export default function MarketplaceCard({
           <img
             src={marketplace.marketplace_image}
             alt={marketplace.marketplace_name}
-            className="max-w-44 max-h-44 object-cover rounded-2xl"
+            className="max-w-44 max-h-44 object-cover rounded-2xl shadow-2xl"
           />
-          <h3 className="text-center font-semibold">{marketplace.marketplace_name}</h3>
+          <h3 className="text-center font-semibold truncate max-w-80">{marketplace.marketplace_name}</h3>
           
           {/* Tags de Status */}
           <div className="flex flex-col gap-1 items-center">
@@ -88,7 +88,7 @@ export default function MarketplaceCard({
 
           {/* Botão de deletar - só aparece se não estiver processando */}
           {!isDisabled && (
-            <div className="absolute z-[-10] flex items-end justify-center gap-2 bottom-0 opacity-0 group-hover:opacity-100 h-full group-hover:bottom-[-50px]">
+            <div className="absolute z-10 flex items-end justify-center gap-2 bottom-0 opacity-0 group-hover:opacity-100 h-full group-hover:bottom-[-50px]">
               <button 
                 className="bg-beergam-red-primary opacity-75 w-10 h-10 rounded-full hover:opacity-100 flex items-center justify-center"
                 onClick={handleDeleteClick}

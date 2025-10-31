@@ -12,7 +12,6 @@ export default function DeleteMarketaplceAccount({
   handleCancelDelete,
   handleConfirmDelete,
 }: DeleteMarketplaceAccountProps) {
-  // Função para validar marketplace seguindo Single Responsibility Principle
   function isValidMarketplace(marketplace: BaseMarketPlace | null): boolean {
     return !!(
       marketplace && 

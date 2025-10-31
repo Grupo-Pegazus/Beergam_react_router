@@ -19,7 +19,7 @@ import Svg from "~/src/assets/svgs";
 //   tailWindClasses?: string;
 //   dataTooltipId?: string;
 // }
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   success?: boolean;
   tailWindClasses?: string;

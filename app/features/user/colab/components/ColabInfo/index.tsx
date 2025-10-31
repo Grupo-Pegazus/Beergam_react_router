@@ -1,12 +1,18 @@
 import { Paper, Switch } from "@mui/material";
 import { useEffect, useReducer, useState } from "react";
 import { z } from "zod";
+import {
+  MenuConfig,
+  type MenuKeys,
+  type MenuState,
+} from "~/features/menu/typings";
 import { UserStatus } from "~/features/user/typings/BaseUser";
 import {
   ColabLevel,
   ColabSchema,
   type IColab,
 } from "~/features/user/typings/Colab";
+import { FormatColabLevel } from "~/features/user/utils";
 import Svg from "~/src/assets/svgs";
 import { Fields } from "~/src/components/utils/_fields";
 import Time from "~/src/components/utils/Time";
@@ -122,7 +128,11 @@ export default function ColabInfo(colab: IColab | null) {
                   />
                   <Switch
                     title="Ativar/Desativar colaborador"
-                    checked={editedColab.status == UserStatus.ACTIVE}
+                    checked={
+                      UserStatus[
+                        editedColab.status as unknown as keyof typeof UserStatus
+                      ] === UserStatus.ACTIVE
+                    }
                     onChange={(e) => {
                       setEditedColab({
                         status: e.target.checked
@@ -140,10 +150,14 @@ export default function ColabInfo(colab: IColab | null) {
                     hint="Nível de acesso do colaborador ao sistema."
                   />
                   <div className="grid grid-cols-2 gap-2 w-full">
-                    {Object.values(ColabLevel).map((level) => (
+                    {Object.keys(ColabLevel).map((level) => (
                       <button
                         key={level}
-                        className={`text-white p-2 rounded-md hover:bg-beergam-orange ${level == editedColab.details.level ? "bg-beergam-orange" : "bg-beergam-blue-primary"}`}
+                        className={`text-white p-2 rounded-md hover:bg-beergam-orange ${
+                          editedColab.details.level === level
+                            ? "bg-beergam-orange"
+                            : "bg-beergam-blue-primary"
+                        }`}
                         onClick={() =>
                           setEditedColab({
                             details: {
@@ -152,7 +166,7 @@ export default function ColabInfo(colab: IColab | null) {
                           })
                         }
                       >
-                        <p>{level}</p>
+                        <p>{FormatColabLevel(level as ColabLevel)}</p>
                       </button>
                     ))}
                   </div>
@@ -175,7 +189,7 @@ export default function ColabInfo(colab: IColab | null) {
                 />
               ))}
               <button className="bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange flex items-center justify-center gap-2">
-                <Svg.clock />
+                <Svg.clock width={20} height={20} />
                 <p>Horário Comercial</p>
               </button>
             </div>
@@ -184,7 +198,36 @@ export default function ColabInfo(colab: IColab | null) {
         <Paper className="grid grid-cols-1 gap-4 p-4 mt-4">
           <Fields.wrapper>
             <Fields.label text="ACESSOS" />
-            <ViewAccess />
+            <ViewAccess
+              views={editedColab.details.allowed_views}
+              onChange={(key, value) => {
+                const currentViews = editedColab.details.allowed_views;
+                const menuKeys = Object.keys(MenuConfig) as MenuKeys[];
+                const updatedViews: MenuState = {} as MenuState;
+
+                // Garante que todas as chaves estejam presentes
+                for (const menuKey of menuKeys) {
+                  if (menuKey === key) {
+                    updatedViews[menuKey] = { access: value };
+                  } else {
+                    const existingView = currentViews?.[menuKey];
+                    updatedViews[menuKey] = existingView
+                      ? {
+                          access: existingView.access,
+                          notifications: existingView.notifications,
+                        }
+                      : { access: false };
+                  }
+                }
+
+                setEditedColab({
+                  details: {
+                    ...editedColab.details,
+                    allowed_views: updatedViews,
+                  },
+                });
+              }}
+            />
           </Fields.wrapper>
         </Paper>
         <button className="sticky mt-2.5 bottom-0 left-0 right-0 bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange">
