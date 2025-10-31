@@ -1,5 +1,5 @@
 import { UserRoles } from "./typings/BaseUser";
-import type { IColab } from "./typings/Colab";
+import { ColabLevel, type IColab } from "./typings/Colab";
 import {
   CalcProfitProduct,
   CalcTax,
@@ -47,4 +47,7 @@ export function FormatCurrentBilling(currentBilling: CurrentBilling): string {
 }
 export function FormatSegment(segment: Segment): string {
   return Segment[segment as unknown as keyof typeof Segment];
+}
+export function FormatColabLevel(level: ColabLevel): string {
+  return ColabLevel[level as unknown as keyof typeof ColabLevel];
 }

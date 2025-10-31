@@ -3,6 +3,7 @@ import {
   BaseUserDetailsSchema,
   BaseUserSchema,
   type IBaseUser,
+  type IBaseUserDetails,
 } from "./BaseUser";
 export type ColabAction = "Editar" | "Excluir" | "Visualizar";
 export enum ColabLevel {
@@ -10,7 +11,7 @@ export enum ColabLevel {
   NORMAL = "Normal",
 }
 
-interface IColabDetails {
+interface IColabDetails extends IBaseUserDetails {
   level: ColabLevel;
   photo_id?: string | null;
 }

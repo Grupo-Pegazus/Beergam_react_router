@@ -59,7 +59,7 @@ export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
 
   const isVisible = useSelector(
     (s: RootState) =>
-      s.menu.views[itemKey as keyof typeof s.menu.views]?.active ?? true
+      s.menu.views[itemKey as keyof typeof s.menu.views]?.access ?? true
   );
   const open = useSelector((s: RootState) => s.menu.open[currentKey] ?? false);
   const isSelected = useSelector(
@@ -68,7 +68,7 @@ export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
 
   if (!isVisible) return <></>;
 
-  return item.active !== false ? (
+  return item.access !== false ? (
     <li
       className={`${item.dropdown ? styles.subNav : ""} ${open ? styles.open : ""} ${styles.menuItem}`}
     >
