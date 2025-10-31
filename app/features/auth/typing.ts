@@ -6,7 +6,6 @@ export interface MasterUserForm {
 }
 
 export interface ColaboradorUserForm {
-  master_pin: string;
   pin: string;
   password: string;
 }
@@ -31,7 +30,6 @@ export const MasterUserFormSchema = z.object({
 }) satisfies z.ZodType<MasterUserForm>;
 
 export const ColaboradorUserFormSchema = z.object({
-  master_pin: UserPinSchema,
   pin: UserPinSchema,
   password: UserPasswordSchema,
 }) satisfies z.ZodType<ColaboradorUserForm>;
