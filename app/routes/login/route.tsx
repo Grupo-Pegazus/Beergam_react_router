@@ -32,7 +32,7 @@ const errorResponse = {
 function FormSanitizer(
   formData: {
     role: UserRoles;
-    data: { email: string; master_pin: string; pin: string; password: string };
+    data: { email: string; pin: string; password: string };
   },
   role: UserRoles
 ) {
@@ -43,7 +43,6 @@ function FormSanitizer(
     };
   }
   return {
-    master_pin: formData.data.master_pin as string,
     pin: formData.data.pin as string,
     password: formData.data.password as string,
   };
@@ -53,7 +52,8 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   const formData = await request.json();
   const role = formData.role;
   const formInfo = FormSanitizer(formData, role as UserRoles);
-
+  console.log("formInfo do route", formInfo);
+  console.log("role do route", role);
   const responsePromise = authService
     .login(formInfo, role as UserRoles)
     .then((response) => {
