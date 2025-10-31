@@ -29,23 +29,29 @@ const errorResponse = {
   error_fields: {},
 };
 
-function FormSanitizer(formData: FormData, role: UserRoles) {
+function FormSanitizer(
+  formData: {
+    role: UserRoles;
+    data: { email: string; master_pin: string; pin: string; password: string };
+  },
+  role: UserRoles
+) {
   if (role === UserRoles.MASTER) {
     return {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
+      email: formData.data.email as string,
+      password: formData.data.password as string,
     };
   }
   return {
-    master_pin: formData.get("master_pin") as string,
-    pin: formData.get("pin") as string,
-    password: formData.get("password") as string,
+    master_pin: formData.data.master_pin as string,
+    pin: formData.data.pin as string,
+    password: formData.data.password as string,
   };
 }
 
 export async function clientAction({ request }: Route.ClientActionArgs) {
-  const formData = await request.formData();
-  const role = formData.get("role");
+  const formData = await request.json();
+  const role = formData.role;
   const formInfo = FormSanitizer(formData, role as UserRoles);
 
   const responsePromise = authService
@@ -106,8 +112,14 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     }
     // session.set("userInfo", user.data);
 
-    console.log("user.data.details.subscription", user.data.details.subscription);
-    if ( user.data.details.subscription === null || user.data.details.subscription?.start_date === null) {
+    console.log(
+      "user.data.details.subscription",
+      user.data.details.subscription
+    );
+    if (
+      user.data.details.subscription === null ||
+      user.data.details.subscription?.start_date === null
+    ) {
       return redirect("/interno/subscription", {});
     }
 

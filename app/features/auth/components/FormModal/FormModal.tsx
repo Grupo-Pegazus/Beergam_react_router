@@ -1,5 +1,5 @@
 import { useReducer, useState } from "react";
-import { Form, Link } from "react-router";
+import { Link, useFetcher } from "react-router";
 import { z } from "zod";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import { Fields } from "~/src/components/utils/_fields";
@@ -53,6 +53,7 @@ function ButtonChangeUserType({
 export default function FormModal({
   userType = UserRoles.MASTER,
 }: FormModalProps) {
+  const fetcher = useFetcher();
   const [currentUserType, setCurrentUserType] = useState<UserRoles>(userType);
   const [isSubmited, setIsSubmited] = useState(false);
   const [MasterUserInfo, setMasterUserInfo] = useReducer(
@@ -122,6 +123,29 @@ export default function FormModal({
     localStorage.setItem("loginLoading", "true");
     return true;
   }
+  function HandleFetch() {
+    const result = HandleSubmit(
+      currentUserType === UserRoles.MASTER
+        ? parseMasterUserResult
+        : parseColaboradorUserResult,
+      currentUserType
+    );
+    if (!result) {
+      setIsSubmited(true);
+      return;
+    }
+    fetcher.submit(
+      JSON.stringify({
+        role: currentUserType,
+        data:
+          currentUserType === UserRoles.MASTER
+            ? MasterUserInfo
+            : ColaboradorUserInfo,
+      }),
+      { method: "post", encType: "application/json" }
+    );
+    setIsSubmited(false);
+  }
   const modalHeight =
     currentUserType === UserRoles.MASTER ? "sm:h-[490px]" : "sm:h-[595px]"; //524px e 629px
   return (
@@ -153,24 +177,7 @@ export default function FormModal({
           callback={ChangeUserType}
         />
       </div>
-      <Form
-        method="post"
-        className="flex flex-col gap-4"
-        onSubmit={(e) => {
-          const result = HandleSubmit(
-            currentUserType === UserRoles.MASTER
-              ? parseMasterUserResult
-              : parseColaboradorUserResult,
-            currentUserType
-          );
-          if (!result) {
-            e.preventDefault();
-            setIsSubmited(true);
-            return;
-          }
-          setIsSubmited(false);
-        }}
-      >
+      <div className="flex flex-col gap-4">
         <input type="hidden" name="role" value={currentUserType} />
         {currentUserType == UserRoles.MASTER ? (
           <>
@@ -336,12 +343,12 @@ export default function FormModal({
           <FormHelpNavigation />
         </div>
         <button
-          type="submit"
+          onClick={HandleFetch}
           className="p-2 rounded-2xl bg-beergam-blue-primary text-beergam-white hover:bg-beergam-orange"
         >
           Entrar
         </button>
-      </Form>
+      </div>
     </div>
   );
 }
