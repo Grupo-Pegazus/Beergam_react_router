@@ -85,7 +85,7 @@ export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
         {item.icon && (
           <>
             <div className={styles.menuIconContainer}>
-              {getIcon(item.icon)()}
+              {React.createElement(getIcon(item.icon), {})}
             </div>
           </>
         )}
