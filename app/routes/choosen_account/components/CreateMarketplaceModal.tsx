@@ -1,6 +1,5 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useSelector } from "react-redux";
-import { useFetcher } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import type {
@@ -23,7 +22,6 @@ export default function CreateMarketplaceModal({
   modalOpen: boolean;
 }) {
   const user = useSelector((state: RootState) => state.auth.user) as IUser;
-  const fetcher = useFetcher();
   const queryClient = useQueryClient();
   const availableAccounts =
     user?.details?.subscription?.plan?.benefits?.marketplaces_integrados ?? 0;
@@ -38,7 +36,7 @@ export default function CreateMarketplaceModal({
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const stopPolling = () => {
+  const stopPolling = useCallback(() => {
     console.log("Parando polling...");
     
     if (pollingRef.current) {
@@ -54,14 +52,14 @@ export default function CreateMarketplaceModal({
     setIntegrationState(null);
     
     console.log("Polling parado e estados limpos");
-  };
+  }, []);
 
   useEffect(() => {
     setSelectedMarketplace(null);
     setIntegrationState(null);
     setIsPolling(false);
     stopPolling();
-  }, [modalOpen]);
+  }, [modalOpen, stopPolling]);
 
   const openCenteredWindow = (url: string, width: number = 800, height: number = 800) => {
 
@@ -85,7 +83,7 @@ export default function CreateMarketplaceModal({
     return window.open(url, '_blank', windowFeatures);
   };
 
-  const checkIntegrationStatus = async (state: string) => {
+  const checkIntegrationStatus = useCallback(async (state: string) => {
     try {
       console.log("Verificando status da integração:", state);
       const response = await marketplaceService.checkIntegrationStatus(state);
@@ -114,7 +112,7 @@ export default function CreateMarketplaceModal({
       toast.error("Erro ao verificar status da integração");
       return true;
     }
-  };
+  }, [stopPolling, queryClient]);
 
   useEffect(() => {
     if (isPolling && integrationState) {
@@ -143,44 +141,42 @@ export default function CreateMarketplaceModal({
         stopPolling();
       };
     }
-  }, [isPolling, integrationState]);
+  }, [isPolling, integrationState, checkIntegrationStatus, stopPolling]);
 
   const handleSubmit = async () => {
     if (!selectedMarketplace) {
       return;
     }
     
-    const formData = new FormData();
-    formData.append("action", "integration");
-    formData.append("Marketplace", selectedMarketplace);
-    
-    fetcher.submit(formData, {
-      method: "post"
-    });
-  };
+    try {
+      const response = await marketplaceService.IntegrationData(selectedMarketplace);
+      
+      if (response.success && response.data) {
+        const integrationData = response.data;
+        if (integrationData.integration_url) {
+          const integrationWindow = openCenteredWindow(integrationData.integration_url);
+          
+          setIntegrationState(integrationData.state);
+          setIsPolling(true);
 
-  useEffect(() => {
-    if (fetcher.data && fetcher.data.success && fetcher.state === "idle") {
-      const integrationData = fetcher.data.data;
-      if (integrationData && integrationData.integration_url) {
-        const integrationWindow = openCenteredWindow(integrationData.integration_url);
-        
-        setIntegrationState(integrationData.state);
-        setIsPolling(true);
+          const checkClosed = setInterval(() => {
+            if (integrationWindow && integrationWindow.closed) {
+              clearInterval(checkClosed);
+              console.log("Janela de integração foi fechada");
+              stopPolling();
+            }
+          }, 1000);
 
-        const checkClosed = setInterval(() => {
-          if (integrationWindow && integrationWindow.closed) {
+          setTimeout(() => {
             clearInterval(checkClosed);
-            console.log("Janela de integração foi fechada");
-          }
-        }, 1000);
-
-        setTimeout(() => {
-          clearInterval(checkClosed);
-        }, 300000);
+          }, 300000);
+        }
       }
+    } catch (error) {
+      toast.error("Erro ao iniciar integração");
+      console.error("Erro na integração:", error);
     }
-  }, [fetcher.data, fetcher.state]);
+  };
 
   return (
     <div className="w-full max-w-4xl mx-auto p-6">

@@ -29,6 +29,7 @@ import Trash from "./Trash";
 import X from "./X";
 import Line from "./Line";
 import Chevron from "./Chevron";
+import UserPlus from "./UserPlus";
 const Svg = {
   home: HomeIcon,
   bag: BagIcon,
@@ -61,6 +62,7 @@ const Svg = {
   arrow_uturn_left: ArrowUturnLeft,
   line: Line,
   chevron: Chevron,
+  user_plus: UserPlus,
 };
 
 export default Svg;

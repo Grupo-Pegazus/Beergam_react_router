@@ -1,19 +1,19 @@
 import { useCallback, useMemo , useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "~/features/auth/redux";
+// import { logout } from "~/features/auth/redux";
 import { type RootState } from "~/store";
 import { useActiveMenu } from "../../hooks";
 import { closeMany } from "../../redux";
 import { MenuHandler, type MenuState } from "../../typings";
 import MenuItem from "../MenuItem/MenuItem";
-import { menuService } from "../../service";
-import toast from "react-hot-toast";
-import { useNavigate } from "react-router";
+// import { menuService } from "../../service";
+// import toast from "react-hot-toast";
+// import { useNavigate } from "react-router";
 // import { useQueryClient } from "@tanstack/react-query";
 
 export default function Menu() {
   // const queryClient = useQueryClient();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   useActiveMenu(MenuHandler.getMenu()); //Gerencia o estado do Menu baseado na rota
   const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
@@ -31,17 +31,17 @@ export default function Menu() {
   const handleMouseLeave = useCallback(() => {
     if (openKeys.length) dispatch(closeMany(openKeys));
   }, [dispatch, openKeys]);
-  const handleChangeView = async () => {
-    const res = await menuService.logout();
-    if (res.success) {
-      dispatch(logout());
-      // TODO: Verificar problema de limpar cache do react query
-      // queryClient.clear()
-      navigate("/login");
-    } else {
-      toast.error(res.message);
-    }
-  };
+  // const handleChangeView = async () => {
+  //   const res = await menuService.logout();
+  //   if (res.success) {
+  //     dispatch(logout());
+  //     // TODO: Verificar problema de limpar cache do react query
+  //     // queryClient.clear()
+  //     navigate("/login");
+  //   } else {
+  //     toast.error(res.message);
+  //   }
+  // };
   const menu = useMemo(() => {
     return MenuHandler.setMenu(
       user?.allowed_views ?? (MenuHandler.getMenu() as unknown as MenuState)
@@ -69,7 +69,7 @@ export default function Menu() {
           ))}
         </ul>
         <div className="mt-auto px-3">
-          <button
+          {/* <button
             onClick={handleChangeView}
             className="relative w-full flex items-center justify-center p-2 rounded-[10px] bg-beergam-orange! cursor-pointer border border-transparent transition-all duration-200 hover:border-white"
           >
@@ -90,7 +90,7 @@ export default function Menu() {
             <span className="absolute right-[33%] text-white font-normal text-[18px] opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               Sair
             </span>
-          </button>
+          </button> */}
         </div>
       </div>
     </>
