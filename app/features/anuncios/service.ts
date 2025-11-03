@@ -1,5 +1,8 @@
 import type { AnuncioBase } from "./typings";
 
+import { typedApiClient } from "../apiClient/client";
+import type { ApiResponse } from "../apiClient/typings";
+
 const anuncios = {
   "1": {
     id: "1",
@@ -25,3 +28,12 @@ export async function getAnuncio(anuncio_id: string) {
 
   return anuncio as AnuncioBase;
 }
+
+class AnuncioService {
+  async getAnuncios(): Promise<ApiResponse<AnuncioBase[]>> {
+    const response = await typedApiClient.get<AnuncioBase[]>("/v1/anuncios");
+    return response as ApiResponse<AnuncioBase[]>;
+  }
+}
+
+export const anuncioService = new AnuncioService();

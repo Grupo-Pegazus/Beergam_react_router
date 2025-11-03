@@ -1,4 +1,5 @@
 // import type { BaseMarketPlace } from "../marketplace/typings";
+import type { BaseMarketPlace } from "../marketplace/typings";
 import type { IColab } from "../user/typings/Colab";
 import type { IUser } from "../user/typings/User";
 
@@ -188,4 +189,12 @@ class CryptoUser extends Crypto<IUser | IColab> {
   }
 }
 
+class CryptoMarketplace extends Crypto<BaseMarketPlace> {
+  constructor() {
+    super("marketplaceEncryptionKey", "marketplaceInfo");
+  }
+}
+
 export const cryptoUser = new CryptoUser();
+
+export const cryptoMarketplace = new CryptoMarketplace();

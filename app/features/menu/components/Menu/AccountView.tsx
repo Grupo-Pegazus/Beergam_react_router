@@ -1,67 +1,119 @@
-import { useSelector } from "react-redux";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "~/store";
-import { MarketplaceType, MarketplaceTypeLabel } from "~/features/marketplace/typings";
-import { useNavigate } from "react-router";
+import { MarketplaceType, MarketplaceTypeLabel, type BaseMarketPlace } from "~/features/marketplace/typings";
+import { marketplaceService } from "~/features/marketplace/service";
+import { setMarketplace } from "~/features/marketplace/redux";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import ClickAwayListener from "@mui/material/ClickAwayListener";
+import toast from "react-hot-toast";
 
-export default function AccountView({ expanded = false }: { expanded?: boolean }) {
+const selectAccount = async (acc: BaseMarketPlace) => {
+    const res = await marketplaceService.SelectMarketplaceAccount(
+        acc.marketplace_shop_id,
+        acc.marketplace_type as MarketplaceType
+    )
+    return res;
+}
+
+export default function AccountView({ expanded = true }: { expanded?: boolean }) {
     const marketplace = useSelector((state: RootState) => state.marketplace.marketplace);
-    const navigate = useNavigate();
-
-    const AvatarButton = (
-        <button
-            type="button"
-            onClick={() => navigate("interno/choosen_account")}
-            className="relative w-[50px] h-[50px] min-w-[50px] min-h-[50px] rounded-full overflow-hidden group flex-none transition-transform duration-200 ease-in-out"
-            title="Trocar de conta"
-            aria-label="Trocar de conta de marketplace"
-            style={{ background: "transparent", border: 0, padding: 0, cursor: "pointer" }}
-        >
-            <img
-                src={marketplace?.marketplace_image}
-                alt={marketplace?.marketplace_name}
-                className="w-full h-full rounded-full object-cover transition-opacity duration-200 ease-in-out group-hover:opacity-70"
-            />
-            <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out bg-black/30">
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="white"
-                    className="w-5 h-5"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
-                    />
-                </svg>
-            </span>
-        </button>
-    );
-
-    if (!expanded) {
-        return (
-            <div className="flex items-center gap-2">
-                {AvatarButton}
-            </div>
-        );
+    const [open, setOpen] = useState(false);
+    const dispatch = useDispatch();
+    const queryClient = useQueryClient();
+    const { data: accountsData, isLoading: accountsLoading } = useQuery({
+        queryKey: ["marketplaces-accounts"],
+        queryFn: () => marketplaceService.getMarketplacesAccounts(),
+    });
+    const select = useMutation({
+        mutationFn: selectAccount,
+        onSuccess: (data) => {
+            if (data.success) {
+                dispatch(setMarketplace(data.data));
+                queryClient.invalidateQueries({ refetchType: "active" });
+            }
+        },
+        onError: (error) => {
+            toast.error(error.message);
+        },
+    });
+    if (accountsLoading) {
+        return <div className="p-3 text-sm opacity-70">Carregando contas...</div>;
     }
+    if (!accountsData) {
+        return <div className="p-3 text-sm opacity-70">Nenhuma conta encontrada</div>;
+    }
+    const accounts = accountsData.data as BaseMarketPlace[];
+
+
 
     return (
-        <div className="flex items-center gap-3">
-            {AvatarButton}
-            <div className="flex flex-col min-w-0 transition-opacity duration-200 ease-in-out">
-                <p
-                    className="font-semibold leading-4 truncate"
-                    title={marketplace?.marketplace_name}
+        <ClickAwayListener onClickAway={() => setOpen(false)}>
+            <div className="relative">
+                <button
+                    type="button"
+                    onClick={() => setOpen((v) => !v)}
+                    className="flex items-center gap-2.5 bg-transparent border-0 p-0 cursor-pointer"
+                    title="Trocar de conta"
+                    aria-label="Trocar de conta de marketplace"
                 >
-                    {marketplace?.marketplace_name}
-                </p>
-                <p className="text-xs opacity-60 leading-4">
-                    {MarketplaceTypeLabel[marketplace?.marketplace_type as MarketplaceType]}
-                </p>
+                    {expanded && (
+                        <div className="hidden md:flex flex-col min-w-0 text-right text-beergam-white">
+                            <p className="font-semibold leading-4 truncate max-w-[200px]" title={marketplace?.marketplace_name}>
+                                {marketplace?.marketplace_name}
+                            </p>
+                            <p className="text-xs opacity-70 leading-4">
+                                {MarketplaceTypeLabel[marketplace?.marketplace_type as MarketplaceType]}
+                            </p>
+                        </div>
+                    )}
+                    <img
+                        src={marketplace?.marketplace_image}
+                        alt={marketplace?.marketplace_name}
+                        className="w-8 h-8 rounded-full object-cover"
+                    />
+                </button>
+
+                {open && (
+                    <div className="absolute right-0 mt-2 w-[320px] rounded-lg bg-white text-[#1e1f21] shadow-xl ring-1 ring-black/5 overflow-hidden z-50">
+                        <div className="p-3 border-b border-black/10 flex items-center gap-3">
+                            <img src={marketplace?.marketplace_image} alt={marketplace?.marketplace_name} className="w-10 h-10 rounded-full object-cover" />
+                            <div className="min-w-0">
+                                <p className="font-semibold truncate" title={marketplace?.marketplace_name}>{marketplace?.marketplace_name}</p>
+                                <p className="text-xs opacity-70">{MarketplaceTypeLabel[marketplace?.marketplace_type as MarketplaceType]}</p>
+                            </div>
+                        </div>
+                        <div className="max-h-[320px] overflow-auto">
+                            {accounts.length ? (
+                                accounts.map((acc) => (
+                                    <button
+                                        key={acc.marketplace_shop_id}
+                                        onClick={() => {
+                                            toast.promise(
+                                                select.mutateAsync(acc).then(() => setOpen(false)),
+                                                {
+                                                    loading: "Trocando de conta...",
+                                                    success: "Conta selecionada!",
+                                                    error: (e: unknown) => (e instanceof Error ? e.message : "Erro ao selecionar conta"),
+                                                }
+                                            );
+                                        }}
+                                        className="w-full text-left p-3 hover:bg-gray-50 flex items-center gap-3 cursor-pointer"
+                                    >
+                                        <img src={acc.marketplace_image} alt={acc.marketplace_name} className="w-8 h-8 rounded-full object-cover" />
+                                        <div className="min-w-0">
+                                            <p className="truncate" title={acc.marketplace_name}>{acc.marketplace_name}</p>
+                                            <p className="text-xs opacity-70">{MarketplaceTypeLabel[acc.marketplace_type as MarketplaceType]}</p>
+                                        </div>
+                                    </button>
+                                ))
+                            ) : (
+                                <div className="p-3 text-sm opacity-70">Nenhuma conta encontrada</div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
-        </div>
+        </ClickAwayListener>
     );
 }

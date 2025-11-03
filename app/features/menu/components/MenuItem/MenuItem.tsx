@@ -5,7 +5,7 @@ import { type RootState } from "~/store";
 import { toggleOpen } from "../../redux";
 import { type IMenuItem } from "../../typings";
 import { DEFAULT_INTERNAL_PATH, getIcon, getRelativePath } from "../../utils";
-import styles from "../index.module.css";
+import Svg from "~/src/assets/svgs/index";
 
 interface IMenuItemProps {
   item: IMenuItem;
@@ -35,7 +35,17 @@ function MenuItemWrapper({
   if (isDropDown) {
     return (
       <button
-        className={`${styles.menuBtn} ${isSelected ? styles.selected : ""}`}
+        className={
+          [
+            "w-full text-left bg-transparent relative flex items-center rounded-[5px]",
+            "text-white/50 border border-transparent hover:text-white hover:border-white/70",
+            "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-8",
+            "transition-[width,padding,color,border-color] duration-200",
+            isSelected
+              ? "border-white text-beergam-orange!"
+              : "",
+          ].join(" ")
+        }
         onClick={() => setOpen!({ open: !open })}
       >
         {children}
@@ -44,7 +54,15 @@ function MenuItemWrapper({
   }
   return (
     <Link
-      className={`${styles.menuBtn} ${isSelected ? styles.selected : ""}`}
+      className={
+        [
+          "w-full text-left bg-transparent relative flex items-center rounded-[5px]",
+          "text-white/50 border border-transparent hover:text-white hover:border-white/70",
+          "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-8",
+          "transition-[width,padding,color,border-color] duration-200",
+          isSelected ? "border-white text-beergam-orange!" : "",
+        ].join(" ")
+      }
       to={path || ""}
       target={target ? target : undefined}
     >
@@ -70,7 +88,7 @@ export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
 
   return item.active !== false ? (
     <li
-      className={`${item.dropdown ? styles.subNav : ""} ${open ? styles.open : ""} ${styles.menuItem}`}
+      className={[item.dropdown ? "relative" : "", open ? "" : "", "w-full"].join(" ")}
     >
       <MenuItemWrapper
         isDropDown={!!item.dropdown}
@@ -84,30 +102,58 @@ export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
       >
         {item.icon && (
           <>
-            <div className={styles.menuIconContainer}>
-              {getIcon(item.icon)()}
+            <div className="w-[26px] h-[26px] shrink-0 flex-none">
+              {React.createElement(getIcon(item.icon), {})}
             </div>
           </>
         )}
-        <div className={styles.menuStatus + " " + styles[item.status]}></div>
-        <span>{item.label}</span>
+        <div
+          className={[
+            "w-[10px] h-[10px] rounded-full absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity",
+            item.status === "green"
+              ? "bg-beergam-green!"
+              : item.status === "yellow"
+              ? "bg-beergam-yellow!"
+              : item.status === "red"
+              ? "bg-beergam-red!"
+              : "bg-white/80",
+          ].join(" ")}
+        />
+        <span className="inline-block ml-0 group-hover:ml-3 text-[18px] w-0 opacity-0 overflow-hidden whitespace-nowrap transition-[margin,width,opacity] duration-200 group-hover:w-auto group-hover:opacity-100">
+          {item.label}
+        </span>
+        {item.dropdown && (
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              dispatch(toggleOpen({ path: currentKey }));
+            }}
+            className="ml-auto mr-1 hidden group-hover:flex items-center cursor-pointer text-white/80"
+            aria-label={open ? "Recolher" : "Expandir"}
+            title={open ? "Recolher" : "Expandir"}
+          >
+            <Svg.chevron tailWindClasses={["size-4 transition-transform duration-200", open ? "rotate-90" : "rotate-0"].join(" ")} />
+          </div>
+        )}
       </MenuItemWrapper>
       {item.dropdown && (
-        <ul
-          className={
-            styles.biggerLine + " " + (open ? styles.opening : styles.close)
-          }
-          style={{ display: open ? "block" : "none" }}
+        <div
+          className={[
+            "overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out",
+            open ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0",
+          ].join(" ")}
         >
-          {Object.entries(item.dropdown).map(([key, dropdownItem]) => (
-            <MenuItem
-              key={key}
-              item={dropdownItem}
-              itemKey={key}
-              parentKey={currentKey}
-            />
-          ))}
-        </ul>
+          <ul className="ml-4 pl-2 border-l border-white/70">
+            {Object.entries(item.dropdown).map(([key, dropdownItem]) => (
+              <MenuItem
+                key={key}
+                item={dropdownItem}
+                itemKey={key}
+                parentKey={currentKey}
+              />
+            ))}
+          </ul>
+        </div>
       )}
     </li>
   ) : (

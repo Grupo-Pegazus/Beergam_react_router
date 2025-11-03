@@ -29,6 +29,8 @@
 
   --color-beergam-gray: #8c8c8d;
   --color-beergam-gray-light: #b2b2bf;
+
+  --shadow-layout-primary: 0px 0px 10px 0px rgba(0,0,0,0.8);
 }
 /* 
 html,

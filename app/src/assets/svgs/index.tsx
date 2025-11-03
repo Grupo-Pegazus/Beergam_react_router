@@ -27,6 +27,8 @@ import PlusCircle from "./PlusCircle";
 import QuestionMark from "./QuestionMark";
 import Trash from "./Trash";
 import X from "./X";
+import Line from "./Line";
+import Chevron from "./Chevron";
 const Svg = {
   home: HomeIcon,
   bag: BagIcon,
@@ -57,6 +59,8 @@ const Svg = {
   elipsis_horizontal: ElipsisHorizontal,
   check: Check,
   arrow_uturn_left: ArrowUturnLeft,
+  line: Line,
+  chevron: Chevron,
 };
 
 export default Svg;
