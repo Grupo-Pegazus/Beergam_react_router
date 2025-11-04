@@ -1,5 +1,5 @@
-import FormModal from "~/features/auth/components/FormModal/FormModal";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
+import FormModal from "~/routes/login/components/FormModal/FormModal";
 
 export default function LoginPage() {
   return (
