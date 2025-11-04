@@ -10,7 +10,6 @@ export function meta({}: Route.MetaArgs) {
 export default function Inicio() {
   return (
     <>
-    <h1 className="text-black">Página de Início</h1>
     <div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
       <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
         <p>Página de Início</p>

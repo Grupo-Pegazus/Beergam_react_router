@@ -20,7 +20,6 @@ export default function VendasRoute() {
 
     return (
         <div>
-          <h1>Tela de vendas</h1>
             {console.log(data?.data)}
         </div>
       );

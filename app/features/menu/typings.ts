@@ -56,6 +56,7 @@ export const MenuConfig = {
             label: "Perguntas",
             status: "yellow",
             path: "/perguntas",
+            launched: true,
           },
           reclamacoes_ml: {
             label: "Reclamações",

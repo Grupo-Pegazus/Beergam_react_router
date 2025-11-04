@@ -1,5 +1,7 @@
 import beergam_flower_logo from "~/src/img/beergam_flower_logo.webp";
 import AccountView from "~/features/menu/components/Menu/AccountView";
+import Svg from "~/src/assets/svgs";
+import { Tooltip } from "react-tooltip";
 
 export default function SystemHeader() {
     return (
@@ -18,7 +20,37 @@ export default function SystemHeader() {
               </div>
             </div> 
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center gap-5">
+            <button
+              type="button"
+              aria-label="Notificações"
+              data-tooltip-id="header-notifications-tooltip"
+              data-tooltip-content="Notificações"
+              className="grid place-items-center"
+            >
+              <Svg.bell tailWindClasses="size-4.5" />
+            </button>
+            <Tooltip id="header-notifications-tooltip" place="bottom" />
+            <button
+              type="button"
+              aria-label="Novidades"
+              data-tooltip-id="header-news-tooltip"
+              data-tooltip-content="Novidades do sistema"
+              className="grid place-items-center"
+            >
+              <Svg.megaphone tailWindClasses="size-4.5" />
+            </button>
+            <Tooltip id="header-news-tooltip" place="bottom" />
+            <button
+              type="button"
+              aria-label="Ajuda"
+              data-tooltip-id="header-help-tooltip"
+              data-tooltip-content="Ajuda e documentação"
+              className="grid place-items-center"
+            >
+              <Svg.question tailWindClasses="size-4.5" />
+            </button>
+            <Tooltip id="header-help-tooltip" place="bottom" />
             <AccountView expanded={true} />
           </div>
         </div>

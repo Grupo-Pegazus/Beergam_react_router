@@ -30,6 +30,9 @@ import X from "./X";
 import Line from "./Line";
 import Chevron from "./Chevron";
 import UserPlus from "./UserPlus";
+import Question from "./Question";
+import Megaphone from "./Megaphone";
+import Bell from "./Bell";
 const Svg = {
   home: HomeIcon,
   bag: BagIcon,
@@ -63,6 +66,9 @@ const Svg = {
   line: Line,
   chevron: Chevron,
   user_plus: UserPlus,
+  question: Question,
+  megaphone: Megaphone,
+  bell: Bell,
 };
 
 export default Svg;
