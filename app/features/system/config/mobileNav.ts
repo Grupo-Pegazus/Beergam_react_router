@@ -7,7 +7,7 @@ const mobileNav: BottomNavConfig = {
     {
       key: "home",
       label: "Início",
-      destination: { pathname: DEFAULT_INTERNAL_PATH + "/" },
+      destination: { pathname: DEFAULT_INTERNAL_PATH },
       icon: Svg.home as unknown as NavIcon,
     },
     {

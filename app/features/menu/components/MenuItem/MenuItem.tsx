@@ -1,8 +1,7 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router";
-import { type RootState } from "~/store";
-import { toggleOpen } from "../../redux";
+import { useMenuActions } from "../../hooks/useMenuActions";
+import { useMenuState } from "../../hooks/useMenuState";
 import { type IMenuItem } from "../../typings";
 import { DEFAULT_INTERNAL_PATH, getIcon, getRelativePath } from "../../utils";
 import Svg from "~/src/assets/svgs/index";
@@ -15,8 +14,7 @@ interface IMenuItemProps {
 
 interface IMenuItemWrapperProps {
   isDropDown: boolean;
-  open?: boolean;
-  setOpen?: (params: { open: boolean }) => void;
+  setOpen?: () => void;
   children: React.ReactNode;
   path?: string;
   isSelected?: boolean;
@@ -25,7 +23,6 @@ interface IMenuItemWrapperProps {
 
 function MenuItemWrapper({
   isDropDown,
-  open,
   setOpen,
   children,
   path,
@@ -46,7 +43,7 @@ function MenuItemWrapper({
               : "",
           ].join(" ")
         }
-        onClick={() => setOpen!({ open: !open })}
+        onClick={setOpen}
       >
         {children}
       </button>
@@ -72,19 +69,15 @@ function MenuItemWrapper({
 }
 
 export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
-  const dispatch = useDispatch();
   const currentKey = parentKey ? `${parentKey}.${itemKey}` : itemKey;
+  const { toggleOpen } = useMenuActions();
+  const { views, open: openMap, currentSelected } = useMenuState();
 
-  const isVisible = useSelector(
-    (s: RootState) =>
-      s.menu.views[itemKey as keyof typeof s.menu.views]?.active ?? true
-  );
-  const open = useSelector((s: RootState) => s.menu.open[currentKey] ?? false);
-  const isSelected = useSelector(
-    (s: RootState) => s.menu.currentSelected[currentKey] ?? false
-  );
+  const isVisible = views[itemKey as keyof typeof views]?.active ?? true;
+  const open = openMap[currentKey] ?? false;
+  const isSelected = currentSelected[currentKey] ?? false;
 
-  if (!isVisible) return <></>;
+  if (!isVisible) return null;
 
   return item.active !== false ? (
     <li
@@ -92,8 +85,7 @@ export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
     >
       <MenuItemWrapper
         isDropDown={!!item.dropdown}
-        open={open}
-        setOpen={() => dispatch(toggleOpen({ path: currentKey }))}
+        setOpen={() => toggleOpen(currentKey)}
         path={
           getRelativePath(itemKey) ?? DEFAULT_INTERNAL_PATH + (item.path || "")
         }
@@ -126,7 +118,7 @@ export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
           <div
             onClick={(e) => {
               e.stopPropagation();
-              dispatch(toggleOpen({ path: currentKey }));
+              toggleOpen(currentKey);
             }}
             className="ml-auto mr-1 hidden group-hover:flex items-center cursor-pointer text-white/80"
             aria-label={open ? "Recolher" : "Expandir"}
@@ -156,7 +148,5 @@ export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
         </div>
       )}
     </li>
-  ) : (
-    <></>
-  );
+  ) : null;
 }
