@@ -1,7 +1,9 @@
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
-import { UserRoles, type IBaseUser } from "../user/typings/BaseUser";
+import { UserRoles, type Subscription } from "../user/typings/BaseUser";
+import type { IColab } from "../user/typings/Colab";
 import { type IUser } from "../user/typings/User";
+import { cryptoAuth, cryptoUser } from "./utils";
 
 // Tipagem para os dados de usuário retornados pelo login
 // interface UserData {
@@ -14,28 +16,66 @@ interface RegisterUser extends IUser {
   password: string;
 }
 
+interface LoginResponse {
+  user: IUser | IColab;
+  subscription: Subscription | null;
+}
+
 class AuthService {
   async login(
     formInfo:
       | { email: string; password: string }
       | { pin: string; password: string },
     type: UserRoles
-  ): Promise<ApiResponse<IUser | IBaseUser>> {
+  ): Promise<ApiResponse<LoginResponse>> {
     const role = type === UserRoles.MASTER ? UserRoles.MASTER : UserRoles.COLAB;
     try {
-      const response = await typedApiClient.post<IUser | IBaseUser>(
+      const loginResponse = await typedApiClient.post<IUser | IColab>(
         `/v1/auth/${role.toLowerCase()}/login`,
         {
           ...formInfo,
         }
       );
-      return response;
+      if (loginResponse.success) {
+        const subscriptionResponse = await this.getSubscription();
+        if (subscriptionResponse.success) {
+          cryptoUser.encriptarDados(loginResponse.data);
+          cryptoAuth.encriptarDados(subscriptionResponse.data);
+          return {
+            success: true,
+            data: {
+              user: loginResponse.data,
+              subscription: subscriptionResponse.data,
+            },
+            message: "Login realizado com sucesso",
+          };
+        } else {
+          return {
+            success: false,
+            data: {} as LoginResponse,
+            message: subscriptionResponse.message,
+            error_code: subscriptionResponse.error_code,
+            error_fields: subscriptionResponse.error_fields,
+          };
+        }
+      } else {
+        return {
+          success: false,
+          data: {} as LoginResponse,
+          message: loginResponse.message,
+          error_code: loginResponse.error_code,
+          error_fields: loginResponse.error_fields,
+        };
+      }
     } catch (error) {
       console.error("error do login", error);
       return {
         success: false,
-        data: {} as IUser | IBaseUser,
-        message: "Erro ao fazer login. Tente novamente em alguns instantes.",
+        data: {} as LoginResponse,
+        message:
+          error instanceof Error
+            ? error.message
+            : "Erro ao fazer login. Tente novamente em alguns instantes.",
         error_code: 500,
         error_fields: {},
       };
@@ -62,6 +102,24 @@ class AuthService {
   }
   async logout(): Promise<ApiResponse<null>> {
     return await typedApiClient.post<null>("/v1/auth/logout");
+  }
+  async getSubscription(): Promise<ApiResponse<Subscription>> {
+    try {
+      const response = await typedApiClient.get<Subscription>(
+        "/v1/stripe/payments/subscription"
+      );
+      return response;
+    } catch (error) {
+      console.error("error do getSubscription", error);
+      return {
+        success: false,
+        data: {} as Subscription,
+        message:
+          "Erro ao buscar assinatura. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: {},
+      };
+    }
   }
 }
 
