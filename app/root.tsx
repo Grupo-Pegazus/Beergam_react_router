@@ -5,19 +5,21 @@ import { ptBR } from "@mui/material/locale";
 import { ptBR as ptBRDayjs } from "@mui/x-date-pickers/locales";
 import * as Sentry from "@sentry/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Analytics } from "@vercel/analytics/react";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { Provider, useDispatch } from "react-redux";
 import { isRouteErrorResponse, useLoaderData } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
-import { login as loginAction } from "./features/auth/redux";
-import { cryptoUser } from "./features/auth/utils";
+import { updateSubscription } from "./features/auth/redux";
+import { cryptoAuth, cryptoUser } from "./features/auth/utils";
+import { updateUserInfo } from "./features/user/redux";
+import type { Subscription } from "./features/user/typings/BaseUser";
 import type { IUser } from "./features/user/typings/User";
 import store from "./store";
 import "./zod";
 export const queryClient = new QueryClient();
-import { Analytics } from "@vercel/analytics/react"
 export const links: Route.LinksFunction = () => [
   {
     rel: "stylesheet",
@@ -131,7 +133,10 @@ const theme = createTheme(
 );
 
 export async function clientLoader() {
-  return { userInfo: await cryptoUser.recuperarDados<IUser>() };
+  return {
+    userInfo: await cryptoUser.recuperarDados<IUser>(),
+    subscriptionInfo: await cryptoAuth.recuperarDados<Subscription>(),
+  };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -178,13 +183,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 function BootstrapAuth() {
-  const { userInfo } = useLoaderData<typeof clientLoader>() ?? {};
+  const { userInfo, subscriptionInfo } =
+    useLoaderData<typeof clientLoader>() ?? {};
   const dispatch = useDispatch();
+  console.log("userInfo bootstrap", userInfo);
+  console.log("subscriptionInfo bootstrap", subscriptionInfo);
   useEffect(() => {
     if (userInfo) {
-      dispatch(loginAction(userInfo));
+      dispatch(updateUserInfo(userInfo));
     }
-  }, [dispatch, userInfo]);
+    if (subscriptionInfo) {
+      dispatch(updateSubscription(subscriptionInfo));
+    }
+  }, [dispatch, userInfo, subscriptionInfo]);
   return null;
 }
 
