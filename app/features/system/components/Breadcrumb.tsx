@@ -175,7 +175,7 @@ export default function SystemBreadcrumb() {
 
   return (
     <nav aria-label="breadcrumb">
-      <div className="flex items-center gap-3 text-4xl font-semibold leading-snug">
+      <div className="flex items-center gap-3 text-2xl md:text-4xl font-semibold leading-snug">
         {items.map((item, index) => {
           const isLast = item.isLast;
           return (

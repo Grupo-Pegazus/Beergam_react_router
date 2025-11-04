@@ -33,6 +33,7 @@ import UserPlus from "./UserPlus";
 import Question from "./Question";
 import Megaphone from "./Megaphone";
 import Bell from "./Bell";
+import List from "./List";
 const Svg = {
   home: HomeIcon,
   bag: BagIcon,
@@ -69,6 +70,7 @@ const Svg = {
   question: Question,
   megaphone: Megaphone,
   bell: Bell,
+  list: List,
 };
 
 export default Svg;

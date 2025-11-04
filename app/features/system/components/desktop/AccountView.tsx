@@ -1,30 +1,21 @@
 import { useState, lazy, Suspense, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "~/store";
-import { MarketplaceType, MarketplaceTypeLabel, MarketplaceStatusParse, type BaseMarketPlace } from "~/features/marketplace/typings";
-import { marketplaceService } from "~/features/marketplace/service";
-import { setMarketplace } from "~/features/marketplace/redux";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { MarketplaceType, MarketplaceTypeLabel, MarketplaceStatusParse } from "~/features/marketplace/typings";
+import { useQueryClient } from "@tanstack/react-query";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { logout } from "~/features/auth/redux";
-import { menuService } from "../../service";
+import { menuService } from "../../../menu/service";
 import Svg from "~/src/assets/svgs";
 import StatusTag from "~/features/marketplace/components/StatusTag";
 import Modal from "~/src/components/utils/Modal";
 import Loading from "~/src/assets/loading";
+import { useMarketplaceAccounts } from "~/features/marketplace/hooks/useMarketplaceAccounts";
 
 // Lazy loading do modal de integração para otimizar performance
 const CreateMarketplaceModal = lazy(() => import("~/routes/choosen_account/components/CreateMarketplaceModal"));
-
-const selectAccount = async (acc: BaseMarketPlace) => {
-    const res = await marketplaceService.SelectMarketplaceAccount(
-        acc.marketplace_shop_id,
-        acc.marketplace_type as MarketplaceType
-    )
-    return res;
-}
 
 export default function AccountView({ expanded = true }: { expanded?: boolean }) {
     const marketplace = useSelector((state: RootState) => state.marketplace.marketplace);
@@ -34,6 +25,7 @@ export default function AccountView({ expanded = true }: { expanded?: boolean })
     const dispatch = useDispatch();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
+    const { accounts, isLoading: accountsLoading, selectAccount } = useMarketplaceAccounts();
 
     // Controla animação de abertura/fechamento do dropdown
     useEffect(() => {
@@ -54,23 +46,7 @@ export default function AccountView({ expanded = true }: { expanded?: boolean })
             toast.error(res.message);
         }
     }
-    const { data: accountsData, isLoading: accountsLoading } = useQuery({
-        queryKey: ["marketplacesAccounts"],
-        queryFn: () => marketplaceService.getMarketplacesAccounts(),
-    });
-    
-    const select = useMutation({
-        mutationFn: selectAccount,
-        onSuccess: (data) => {
-            if (data.success) {
-                dispatch(setMarketplace(data.data));
-                queryClient.invalidateQueries({ refetchType: "active" });
-            }
-        },
-        onError: (error) => {
-            toast.error(error.message);
-        },
-    });
+    // seleção de conta delegada à hook compartilhada
 
     // Invalida queries quando modal fecha para garantir dados atualizados
     const handleModalClose = () => {
@@ -82,11 +58,10 @@ export default function AccountView({ expanded = true }: { expanded?: boolean })
         return <div className="p-3 text-sm opacity-70">Carregando contas...</div>;
     }
     
-    if (!accountsData) {
+    if (!accounts) {
         return <div className="p-3 text-sm opacity-70">Nenhuma conta encontrada</div>;
     }
     
-    const accounts = accountsData.data as BaseMarketPlace[];
     const otherAccounts = accounts.filter((acc) => acc.marketplace_shop_id !== marketplace?.marketplace_shop_id);
 
     return (
@@ -196,18 +171,7 @@ export default function AccountView({ expanded = true }: { expanded?: boolean })
                                                     </div>
                                                 )}
                                                 <button
-                                                    onClick={() => {
-                                                        if (!isProcessing) {
-                                                            toast.promise(
-                                                                select.mutateAsync(acc).then(() => setOpen(false)),
-                                                                {
-                                                                    loading: "Trocando de conta...",
-                                                                    success: "Conta selecionada!",
-                                                                    error: (e: unknown) => (e instanceof Error ? e.message : "Erro ao selecionar conta"),
-                                                                }
-                                                            );
-                                                        }
-                                                    }}
+                                                    onClick={() => selectAccount(acc)}
                                                     className={`w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 cursor-pointer transition-colors group ${isProcessing ? 'opacity-60 cursor-not-allowed' : ''}`}
                                                     disabled={isProcessing}
                                                 >
