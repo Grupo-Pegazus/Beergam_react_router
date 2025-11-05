@@ -10,7 +10,7 @@ export default function SystemLayout({ children }: SystemLayoutProps) {
   return (
     <div className="min-h-screen text-[#111827]">
       <main
-        className="w-full md:pt-14 pt-0"
+        className="w-full md:pt-14 pt-8"
       >
         <SystemHeader />
         <section

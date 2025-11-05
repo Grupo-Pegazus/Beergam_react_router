@@ -38,4 +38,4 @@ const mobileNav: BottomNavConfig = {
 
 export default mobileNav;
 
-
+export const dynamicDefaultParentKey = "atendimento" as const;
