@@ -1,36 +1,46 @@
 import React from "react";
 import Swal from "sweetalert2";
 import LockAnimated from "~/src/assets/LockAnimated";
-import type { DaysOfWeek } from "./typings";
 interface TimeProps {
-  dia: DaysOfWeek;
-  ativo: boolean;
-  inicio: string;
-  fim: string;
+  dia: string;
+  access: boolean;
+  start_date: string;
+  end_date: string;
   style?: React.CSSProperties;
-  setHorario: (params: { ativo: boolean; inicio: string; fim: string }) => void;
+  setHorario: (params: {
+    access: boolean;
+    start_date: string;
+    end_date: string;
+  }) => void;
 }
 
-function Time({ dia, ativo, inicio, fim, setHorario, style }: TimeProps) {
+function Time({
+  dia,
+  access,
+  start_date,
+  end_date,
+  setHorario,
+  style,
+}: TimeProps) {
   const clickDia = () => {
-    setHorario({ ativo: !ativo, inicio, fim });
+    setHorario({ access: !access, start_date, end_date });
   };
 
   const aviso = (params: React.ChangeEvent<HTMLInputElement>) => {
     const novoFim = params.target.value;
 
-    if (inicio && novoFim && novoFim < inicio) {
+    if (start_date && end_date && end_date < start_date) {
       Swal.fire({
         icon: "warning",
         title: "Horário inválido",
         text: "O horário de fim não pode ser menor que o horário de início",
       });
 
-      setHorario({ ativo, inicio, fim: "" });
+      setHorario({ access, start_date, end_date: "" });
       return;
     }
 
-    setHorario({ ativo, inicio, fim: novoFim });
+    setHorario({ access, start_date, end_date: novoFim });
   };
   return (
     <div
@@ -38,8 +48,8 @@ function Time({ dia, ativo, inicio, fim, setHorario, style }: TimeProps) {
       style={style}
     >
       <LockAnimated
-        tailwindClasses={`absolute top-[50%] translate-y-[-50%] right-0 ${ativo ? "opacity-0" : "opacity-100"}`}
-        open={ativo}
+        tailwindClasses={`absolute top-[50%] translate-y-[-50%] right-0 ${access ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+        open={access}
         size="sm"
       />
       <button
@@ -49,21 +59,23 @@ function Time({ dia, ativo, inicio, fim, setHorario, style }: TimeProps) {
         <p>{dia}</p>
       </button>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 relative z-10">
         <input
           type="time"
-          value={inicio}
-          onChange={(e) => setHorario({ ativo, inicio: e.target.value, fim })}
-          disabled={!ativo}
-          className={`outline-none ${ativo ? "opacity-100" : "opacity-0"}`}
+          value={start_date || ""}
+          onChange={(e) =>
+            setHorario({ access, start_date: e.target.value, end_date })
+          }
+          disabled={!access}
+          className={`outline-none ${access ? "opacity-100" : "opacity-0"} ${!access ? "pointer-events-none" : ""}`}
         />
 
         <input
           type="time"
-          value={fim}
+          value={end_date || ""}
           onChange={aviso}
-          disabled={!ativo}
-          className={`outline-none ${ativo ? "opacity-100" : "opacity-0"}`}
+          disabled={!access}
+          className={`outline-none ${access ? "opacity-100" : "opacity-0"} ${!access ? "pointer-events-none" : ""}`}
         />
       </div>
     </div>
