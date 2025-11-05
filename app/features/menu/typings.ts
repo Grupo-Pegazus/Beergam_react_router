@@ -109,25 +109,11 @@ export const MenuConfig = {
     icon: "bag",
     denyColabAccess: false,
   },
-  suporte: {
-    label: "Suporte",
-    status: "yellow",
-    path: "/suporte",
-    icon: "bag",
-    denyColabAccess: true,
-  },
   gestao_interna: {
     label: "Gestão Interna",
     status: "yellow",
     path: "/gestao_interna",
     icon: "bag",
-  },
-  configuracao: {
-    label: "Configuração",
-    status: "yellow",
-    path: "/configuracao",
-    icon: "bag",
-    denyColabAccess: true,
   },
 } satisfies IMenuConfig;
 
@@ -165,14 +151,8 @@ export const MenuViewExtraInfo: Record<
   networking: {
     description: "Área de networking do sistema",
   },
-  suporte: {
-    description: "Área de suporte do sistema",
-  },
   gestao_interna: {
     description: "Área de gestão interna do sistema",
-  },
-  configuracao: {
-    description: "Área de configuração do sistema",
   },
 };
 

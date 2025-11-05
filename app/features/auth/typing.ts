@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Subscription } from "../user/typings/BaseUser";
 
 export interface MasterUserForm {
   email: string;
@@ -33,3 +34,7 @@ export const ColaboradorUserFormSchema = z.object({
   pin: UserPinSchema,
   password: UserPasswordSchema,
 }) satisfies z.ZodType<ColaboradorUserForm>;
+
+export interface IAuthUser {
+  subscription: Subscription | null;
+}

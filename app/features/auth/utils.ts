@@ -1,5 +1,6 @@
 // import type { BaseMarketPlace } from "../marketplace/typings";
 import type { BaseMarketPlace } from "../marketplace/typings";
+import type { Subscription } from "../user/typings/BaseUser";
 import type { IColab } from "../user/typings/Colab";
 import type { IUser } from "../user/typings/User";
 
@@ -177,6 +178,14 @@ class Crypto<T> {
     }
   }
 }
+
+class CryptoAuth extends Crypto<Subscription> {
+  constructor() {
+    super("authEncryptionKey", "authInfo");
+  }
+}
+
+export const cryptoAuth = new CryptoAuth();
 
 class CryptoUser extends Crypto<IUser | IColab> {
   constructor() {

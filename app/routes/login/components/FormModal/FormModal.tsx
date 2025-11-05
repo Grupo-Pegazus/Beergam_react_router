@@ -1,15 +1,21 @@
+import { useMutation } from "@tanstack/react-query";
 import { useReducer, useState } from "react";
-import { Link, useFetcher } from "react-router";
+import { toast } from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router";
 import { z } from "zod";
+import { updateUserInfo } from "~/features/user/redux";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import { Fields } from "~/src/components/utils/_fields";
 import beergam_flower_logo from "~/src/img/beergam_flower_logo.webp";
+import { updateSubscription } from "../../../../features/auth/redux";
+import { authService } from "../../../../features/auth/service";
 import {
   type ColaboradorUserForm,
   ColaboradorUserFormSchema,
   type MasterUserForm,
   MasterUserFormSchema,
-} from "../../typing";
+} from "../../../../features/auth/typing";
 
 interface FormModalProps {
   userType?: UserRoles;
@@ -53,7 +59,17 @@ function ButtonChangeUserType({
 export default function FormModal({
   userType = UserRoles.MASTER,
 }: FormModalProps) {
-  const fetcher = useFetcher();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const loginMutation = useMutation({
+    mutationFn: (
+      formInfo:
+        | { email: string; password: string }
+        | { pin: string; password: string }
+    ) => {
+      return authService.login(formInfo, userType as UserRoles);
+    },
+  });
   const [currentUserType, setCurrentUserType] = useState<UserRoles>(userType);
   const [isSubmited, setIsSubmited] = useState(false);
   const [MasterUserInfo, setMasterUserInfo] = useReducer(
@@ -94,8 +110,6 @@ export default function FormModal({
     userResult: MasterResult | ColabResult,
     userType: UserRoles
   ) {
-    const isLoading = localStorage.getItem("loginLoading") == "true";
-    if (isLoading) return false;
     let onlyPasswordError = true;
     if (!userResult.success) {
       if (userType === UserRoles.MASTER) {
@@ -118,9 +132,9 @@ export default function FormModal({
         return false;
       }
     }
-    localStorage.setItem("loginLoading", "true");
     return true;
   }
+
   function HandleFetch() {
     const result = HandleSubmit(
       currentUserType === UserRoles.MASTER
@@ -134,17 +148,41 @@ export default function FormModal({
       setIsSubmited(true);
       return;
     }
-    fetcher.submit(
-      JSON.stringify({
-        role: currentUserType,
-        data:
+    if (loginMutation.status === "pending") return;
+    toast.promise(
+      loginMutation
+        .mutateAsync(
           currentUserType === UserRoles.MASTER
             ? MasterUserInfo
-            : ColaboradorUserInfo,
-      }),
-      { method: "post", encType: "application/json" }
+            : ColaboradorUserInfo
+        )
+        .then((data) => {
+          if (!data.success) {
+            throw new Error(data.message);
+          }
+          return data;
+        }),
+      {
+        loading: "Carregando...",
+        success: (data) => {
+          const userData = data.data.user;
+          const subscriptionData = data.data.subscription;
+          dispatch(updateUserInfo({ user: userData, shouldEncrypt: true }));
+          dispatch(updateSubscription(subscriptionData));
+          if (!subscriptionData || subscriptionData?.start_date === null) {
+            navigate("/interno/subscription");
+            toast("Redirecionando para a página de assinatura...", {
+              icon: "🍊",
+            });
+          }
+          navigate("/interno/choosen_account");
+          return data.message;
+        },
+        error: (error) => {
+          return error.message;
+        },
+      }
     );
-    setIsSubmited(false);
   }
   return (
     <div
@@ -293,10 +331,7 @@ export default function FormModal({
         <div className="flex gap-2 sm:hidden">
           <FormHelpNavigation />
         </div>
-        <button
-          onClick={HandleFetch}
-          className="p-2 rounded-2xl bg-beergam-blue-primary text-beergam-white hover:bg-beergam-orange"
-        >
+        <button className="p-2 rounded-2xl bg-beergam-blue-primary text-beergam-white hover:bg-beergam-orange">
           Entrar
         </button>
       </form>

@@ -156,7 +156,7 @@ export const SubscriptionSchema = z.object({
 }) satisfies z.ZodType<Subscription>;
 
 export interface IBaseUserDetails {
-  subscription?: Subscription | null;
+  // subscription?: Subscription | null;
   allowed_views?: MenuState;
 }
 
@@ -165,23 +165,13 @@ export interface IBaseUser {
   role: UserRoles;
   status: UserStatus;
   marketplace_accounts?: BaseMarketPlace[] | null;
-  pin?: string | null;
+  pin: string;
   master_pin?: string | null;
   created_at: Date;
   updated_at: Date;
 }
 
 export const BaseUserDetailsSchema = z.object({
-  subscription: z
-    .union([SubscriptionSchema, z.array(SubscriptionSchema)])
-    .optional()
-    .nullable()
-    .transform((s) => {
-      if (Array.isArray(s)) {
-        return s.length > 0 ? (s[0] as Subscription) : null;
-      }
-      return (s as Subscription | null | undefined) ?? null;
-    }),
   allowed_views: z
     .record(
       z.string(),
@@ -221,7 +211,7 @@ export const BaseUserSchema = z.object({
     .min(3, "Nome precisa ter 3 caracteres")
     .max(20, "Nome não pode ter mais de 20 caracteres"),
   role: z.enum(Object.keys(UserRoles) as [UserRoles, ...UserRoles[]]),
-  pin: z.string().optional().nullable(),
+  pin: z.string(),
   master_pin: z.string().optional().nullable(),
   status: z.enum(Object.keys(UserStatus) as [UserStatus, ...UserStatus[]]),
   marketplace_accounts: z.array(BaseMarketPlaceSchema).optional().nullable(),
@@ -230,11 +220,11 @@ export const BaseUserSchema = z.object({
   details: BaseUserDetailsSchema,
 }) satisfies z.ZodType<IBaseUser>;
 
-export function FormatUserStatus(status: UserStatus): keyof typeof UserStatus {
+export function FormatUserStatus(status: UserStatus): UserStatus {
   return Object.values(UserStatus).find(
     (value) =>
       UserStatus[status as unknown as keyof typeof UserStatus] === value
-  ) as unknown as keyof typeof UserStatus;
+  ) as UserStatus;
 }
 export function FormatUserRole(role: UserRoles): keyof typeof UserRoles {
   if (Object.values(UserRoles).includes(role)) {
