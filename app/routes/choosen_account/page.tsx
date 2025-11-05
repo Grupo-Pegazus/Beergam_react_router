@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { setMarketplace } from "~/features/marketplace/redux";
 import { marketplaceService } from "~/features/marketplace/service";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
-import MarketplaceCard from "~/features/marketplace/components/MarketplaceDard";
+import MarketplaceCard from "~/features/marketplace/components/MarketplaceCard";
 import {
   MarketplaceOrderParseStatus,
   MarketplaceStatusParse,

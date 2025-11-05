@@ -1,13 +1,9 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import authReducer from "../features/auth/redux";
-import counterReducer from "../features/counter/counterSlice";
 import marketplaceReducer from "../features/marketplace/redux";
-import menuReducer from "../features/menu/redux";
 
 // Combina todos os reducers
 const rootReducer = combineReducers({
-  counter: counterReducer,
-  menu: menuReducer,
   auth: authReducer,
   marketplace: marketplaceReducer,
 });

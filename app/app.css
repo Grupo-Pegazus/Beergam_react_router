@@ -29,6 +29,8 @@
 
   --color-beergam-gray: #8c8c8d;
   --color-beergam-gray-light: #b2b2bf;
+
+  --shadow-layout-primary: 0px 0px 10px 0px rgba(0,0,0,0.8);
 }
 /* 
 html,
@@ -70,6 +72,56 @@ button {
 
 .transition-height {
   transition: height 200ms ease;
+}
+
+/* Animações para dropdown do AccountView */
+@keyframes slideDownFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+}
+
+.animate-slide-down {
+  animation: slideDownFadeIn 0.2s ease-out;
+  will-change: opacity, transform;
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.2s ease-in;
+  will-change: opacity, transform;
+}
+
+/* Animação para o componente Loading */
+@keyframes pulseLoading {
+  0%,
+  100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pulse-loading {
+  animation: pulseLoading 1s ease-in-out infinite;
 }
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {

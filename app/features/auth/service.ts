@@ -60,9 +60,6 @@ class AuthService {
       };
     }
   }
-  async logout(): Promise<ApiResponse<null>> {
-    return await typedApiClient.post<null>("/v1/auth/logout");
-  }
 }
 
 export const authService = new AuthService();

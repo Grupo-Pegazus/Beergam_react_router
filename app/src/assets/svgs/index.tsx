@@ -27,6 +27,14 @@ import PlusCircle from "./PlusCircle";
 import QuestionMark from "./QuestionMark";
 import Trash from "./Trash";
 import X from "./X";
+import Line from "./Line";
+import Chevron from "./Chevron";
+import UserPlus from "./UserPlus";
+import Question from "./Question";
+import Megaphone from "./Megaphone";
+import Bell from "./Bell";
+import List from "./List";
+import Profile from "./Profile";
 const Svg = {
   home: HomeIcon,
   bag: BagIcon,
@@ -57,6 +65,14 @@ const Svg = {
   elipsis_horizontal: ElipsisHorizontal,
   check: Check,
   arrow_uturn_left: ArrowUturnLeft,
+  line: Line,
+  chevron: Chevron,
+  user_plus: UserPlus,
+  question: Question,
+  megaphone: Megaphone,
+  bell: Bell,
+  list: List,
+  profile: Profile,
 };
 
 export default Svg;

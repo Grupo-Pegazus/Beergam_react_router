@@ -1,11 +1,11 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
 import { Link } from "react-router";
-import { type RootState } from "~/store";
-import { toggleOpen } from "../../redux";
+import { useMenuActions } from "../../hooks/useMenuActions";
+import { useMenuState } from "../../hooks/useMenuState";
 import { type IMenuItem } from "../../typings";
 import { DEFAULT_INTERNAL_PATH, getIcon, getRelativePath } from "../../utils";
-import styles from "../index.module.css";
+import Svg from "~/src/assets/svgs/index";
+import { PrefetchPageLinks } from "react-router";
 
 interface IMenuItemProps {
   item: IMenuItem;
@@ -15,8 +15,7 @@ interface IMenuItemProps {
 
 interface IMenuItemWrapperProps {
   isDropDown: boolean;
-  open?: boolean;
-  setOpen?: (params: { open: boolean }) => void;
+  setOpen?: () => void;
   children: React.ReactNode;
   path?: string;
   isSelected?: boolean;
@@ -25,57 +24,77 @@ interface IMenuItemWrapperProps {
 
 function MenuItemWrapper({
   isDropDown,
-  open,
   setOpen,
   children,
   path,
   isSelected,
   target,
 }: IMenuItemWrapperProps) {
+  const [prefetchActive, setPrefetchActive] = useState(false);
   if (isDropDown) {
     return (
       <button
-        className={`${styles.menuBtn} ${isSelected ? styles.selected : ""}`}
-        onClick={() => setOpen!({ open: !open })}
+        className={
+          [
+            "w-full text-left bg-transparent relative flex items-center rounded-[5px]",
+            "text-white/50 border border-transparent hover:text-white hover:border-white/70",
+            "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-8",
+            "transition-[width,padding,color,border-color] duration-200",
+            isSelected
+              ? "border-white text-beergam-orange!"
+              : "",
+          ].join(" ")
+        }
+        onClick={setOpen}
       >
         {children}
       </button>
     );
   }
   return (
+    <>
     <Link
-      className={`${styles.menuBtn} ${isSelected ? styles.selected : ""}`}
+      className={
+        [
+          "w-full text-left bg-transparent relative flex items-center rounded-[5px]",
+          "text-white/50 border border-transparent hover:text-white hover:border-white/70",
+          "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-8",
+          "transition-[width,padding,color,border-color] duration-200",
+          isSelected ? "border-white text-beergam-orange!" : "",
+        ].join(" ")
+      }
       to={path || ""}
       target={target ? target : undefined}
+      onMouseEnter={() => setPrefetchActive(true)}
+      onMouseLeave={() => setPrefetchActive(false)}
+      onFocus={() => setPrefetchActive(true)}
+      onBlur={() => setPrefetchActive(false)}
     >
       {children}
     </Link>
+    {prefetchActive && path ? <PrefetchPageLinks page={path} /> : null}
+    </>
   );
 }
 
 export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
-  const dispatch = useDispatch();
   const currentKey = parentKey ? `${parentKey}.${itemKey}` : itemKey;
+  const { toggleOpen } = useMenuActions();
+  const { views, open: openMap, currentSelected } = useMenuState();
 
-  const isVisible = useSelector(
-    (s: RootState) =>
-      s.menu.views[itemKey as keyof typeof s.menu.views]?.access ?? true
-  );
-  const open = useSelector((s: RootState) => s.menu.open[currentKey] ?? false);
-  const isSelected = useSelector(
-    (s: RootState) => s.menu.currentSelected[currentKey] ?? false
-  );
+  const isVisible = views[itemKey as keyof typeof views]?.active ?? true;
+  const open = openMap[currentKey] ?? false;
+  const isSelected = currentSelected[currentKey] ?? false;
 
-  if (!isVisible) return <></>;
+  if (!isVisible) return null;
 
   return item.access !== false ? (
     <li
-      className={`${item.dropdown ? styles.subNav : ""} ${open ? styles.open : ""} ${styles.menuItem}`}
+      className={[item.dropdown ? "relative" : "", open ? "" : "", "w-full"].join(" ")}
     >
       <MenuItemWrapper
         isDropDown={!!item.dropdown}
-        open={open}
-        setOpen={() => dispatch(toggleOpen({ path: currentKey }))}
+        setOpen={() => toggleOpen(currentKey)}
         path={
           getRelativePath(itemKey) ?? DEFAULT_INTERNAL_PATH + (item.path || "")
         }
@@ -84,33 +103,59 @@ export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
       >
         {item.icon && (
           <>
-            <div className={styles.menuIconContainer}>
+            <div className="w-[26px] h-[26px] shrink-0 flex-none">
               {React.createElement(getIcon(item.icon), {})}
             </div>
           </>
         )}
-        <div className={styles.menuStatus + " " + styles[item.status]}></div>
-        <span>{item.label}</span>
+        <div
+          className={[
+            "w-[10px] h-[10px] rounded-full absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity",
+            item.status === "green"
+              ? "bg-beergam-green!"
+              : item.status === "yellow"
+              ? "bg-beergam-yellow!"
+              : item.status === "red"
+              ? "bg-beergam-red!"
+              : "bg-white/80",
+          ].join(" ")}
+        />
+        <span className="inline-block ml-0 group-hover:ml-3 text-[18px] w-0 opacity-0 overflow-hidden whitespace-nowrap transition-[margin,width,opacity] duration-200 group-hover:w-auto group-hover:opacity-100">
+          {item.label}
+        </span>
+        {item.dropdown && (
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleOpen(currentKey);
+            }}
+            className="ml-auto mr-1 hidden group-hover:flex items-center cursor-pointer text-white/80"
+            aria-label={open ? "Recolher" : "Expandir"}
+            title={open ? "Recolher" : "Expandir"}
+          >
+            <Svg.chevron tailWindClasses={["size-4 transition-transform duration-200", open ? "rotate-90" : "rotate-0"].join(" ")} />
+          </div>
+        )}
       </MenuItemWrapper>
       {item.dropdown && (
-        <ul
-          className={
-            styles.biggerLine + " " + (open ? styles.opening : styles.close)
-          }
-          style={{ display: open ? "block" : "none" }}
+        <div
+          className={[
+            "overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out",
+            open ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0",
+          ].join(" ")}
         >
-          {Object.entries(item.dropdown).map(([key, dropdownItem]) => (
-            <MenuItem
-              key={key}
-              item={dropdownItem}
-              itemKey={key}
-              parentKey={currentKey}
-            />
-          ))}
-        </ul>
+          <ul className="ml-4 pl-2 border-l border-white/70">
+            {Object.entries(item.dropdown).map(([key, dropdownItem]) => (
+              <MenuItem
+                key={key}
+                item={dropdownItem}
+                itemKey={key}
+                parentKey={currentKey}
+              />
+            ))}
+          </ul>
+        </div>
       )}
     </li>
-  ) : (
-    <></>
-  );
+  ) : null;
 }
