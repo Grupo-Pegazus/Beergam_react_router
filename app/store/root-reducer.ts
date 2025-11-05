@@ -1,10 +1,12 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import authReducer from "../features/auth/redux";
 import marketplaceReducer from "../features/marketplace/redux";
+import userReducer from "../features/user/redux";
 
 // Combina todos os reducers
 const rootReducer = combineReducers({
   auth: authReducer,
+  user: userReducer,
   marketplace: marketplaceReducer,
 });
 

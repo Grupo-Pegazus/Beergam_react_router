@@ -1,11 +1,18 @@
 import { z } from "zod";
 import {
+  AllowedTimesSchema,
+  getEmptyAllowedTimes,
+  type IAllowedTimes,
+} from "./AllowedTimes";
+import {
   BaseUserDetailsSchema,
   BaseUserSchema,
+  UserRoles,
+  UserStatus,
   type IBaseUser,
   type IBaseUserDetails,
 } from "./BaseUser";
-export type ColabAction = "Editar" | "Excluir" | "Visualizar";
+
 export enum ColabLevel {
   ADMIN = "Administrador",
   NORMAL = "Normal",
@@ -14,11 +21,13 @@ export enum ColabLevel {
 interface IColabDetails extends IBaseUserDetails {
   level: ColabLevel;
   photo_id?: string | null;
+  allowed_times: IAllowedTimes;
 }
 
 export const ColabDetailsSchema = BaseUserDetailsSchema.extend({
   level: z.enum(Object.keys(ColabLevel) as [ColabLevel, ...ColabLevel[]]),
   photo_id: z.string().optional().nullable(),
+  allowed_times: AllowedTimesSchema,
 }) satisfies z.ZodType<IColabDetails>;
 
 export interface IColab extends IBaseUser {
@@ -39,4 +48,22 @@ export function FormatColabLevel(level: ColabLevel): keyof typeof ColabLevel {
   return ColabLevel[
     level as unknown as keyof typeof ColabLevel
   ] as unknown as keyof typeof ColabLevel;
+}
+
+export function getDefaultColab(): IColab {
+  return {
+    name: "",
+    pin: "",
+    role: "COLAB" as UserRoles,
+    status: "ACTIVE" as UserStatus,
+    details: {
+      level: "NORMAL" as ColabLevel,
+      photo_id: null,
+      allowed_times: getEmptyAllowedTimes(),
+    },
+    created_at: new Date(),
+    updated_at: new Date(),
+    is_online: false,
+    last_online_update: null,
+  };
 }

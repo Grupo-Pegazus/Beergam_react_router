@@ -82,13 +82,13 @@ export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
   const { toggleOpen } = useMenuActions();
   const { views, open: openMap, currentSelected } = useMenuState();
 
-  const isVisible = views[itemKey as keyof typeof views]?.active ?? true;
+  const isVisible = views[itemKey as keyof typeof views]?.access ?? true;
   const open = openMap[currentKey] ?? false;
   const isSelected = currentSelected[currentKey] ?? false;
 
   if (!isVisible) return null;
 
-  return item.access !== false ? (
+  return (
     <li
       className={[item.dropdown ? "relative" : "", open ? "" : "", "w-full"].join(" ")}
     >
@@ -157,5 +157,5 @@ export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
         </div>
       )}
     </li>
-  ) : null;
+  );
 }

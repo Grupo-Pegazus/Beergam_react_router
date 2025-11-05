@@ -40,15 +40,6 @@ export enum ComoConheceu {
   OUTROS = "Outros",
 }
 
-// type AvailableMarketPlace = "ml" | "magalu" | "shopee";
-
-// const AllowedViewsSchema = z.record(
-//   z.enum(Object.keys(MenuConfig) as [MenuKeys, ...MenuKeys[]]),
-//   z.object({
-//     active: z.boolean(),
-//   })
-// );
-
 export enum NumberOfEmployees {
   ATE_10 = "Até 10",
   DE_10_A_30 = "De 10 á 30",
@@ -140,12 +131,11 @@ export interface IUserDetails extends IBaseUserDetails {
   sells_shein?: MarketplaceSells;
   sells_own_site?: MarketplaceSells;
   sub_count?: number | null;
-  subscriptions?: Subscription[] | null;
   invoice_in_flex?: boolean | null;
 }
 export interface IUser extends IBaseUser {
-  colabs?: IColab[] | [];
   details: IUserDetails;
+  colabs: Record<string, IColab>;
 }
 
 const BeergamCodeSchema = z.string().min(10).max(10);
@@ -224,7 +214,7 @@ export const UserDetailsSchema = BaseUserDetailsSchema.extend({
 
 export const UserSchema = BaseUserSchema.extend({
   details: UserDetailsSchema,
-  colabs: z.array(ColabSchema).default([]),
+  colabs: z.record(z.string(), ColabSchema).default({}),
 }) satisfies z.ZodType<IUser>;
 
 export function isAtributeUser(

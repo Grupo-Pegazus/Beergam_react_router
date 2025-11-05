@@ -1,12 +1,15 @@
+import {
+  EmbeddedCheckout,
+  EmbeddedCheckoutProvider,
+} from "@stripe/react-stripe-js";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
-import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
+import { updateSubscription } from "~/features/auth/redux";
 import { subscriptionService } from "~/features/plans/subscriptionService";
-import { updateUserSubscription } from "~/features/auth/redux";
+import type { Plan } from "~/features/user/typings/BaseUser";
 import { SubscriptionSchema } from "~/features/user/typings/BaseUser";
 import Svg from "~/src/assets/svgs";
-import type { Plan } from "~/features/user/typings/BaseUser";
 
 interface StripeCheckoutProps {
   plan: Plan;
@@ -17,22 +20,22 @@ interface StripeCheckoutProps {
 
 /**
  * Inicializa o Stripe com a chave pública
- * 
+ *
  * IMPORTANTE: Configure VITE_STRIPE_PUBLISHABLE_KEY nas variáveis de ambiente
- * 
+ *
  * Exemplo no arquivo .env:
  * VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
  */
 const getStripePromise = (): Promise<Stripe | null> => {
   const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-  
+
   if (!publishableKey) {
     console.error(
       "⚠️ VITE_STRIPE_PUBLISHABLE_KEY não configurada. " +
-      "Configure esta variável no arquivo .env"
+        "Configure esta variável no arquivo .env"
     );
   }
-  
+
   return loadStripe(publishableKey || "");
 };
 
@@ -40,7 +43,7 @@ const stripePromise = getStripePromise();
 
 /**
  * Componente que exibe o checkout embutido do Stripe para assinaturas
- * 
+ *
  */
 export default function StripeCheckout({
   plan,
@@ -54,7 +57,7 @@ export default function StripeCheckout({
 
   /**
    * Função que busca o client secret do backend
-   * 
+   *
    * Esta função é chamada pelo EmbeddedCheckoutProvider automaticamente.
    * Ela deve retornar uma Promise que resolve com o client_secret.
    */
@@ -73,13 +76,11 @@ export default function StripeCheckout({
 
       const response = await subscriptionService.createSubscriptionCheckout({
         price_id: priceId,
-        return_url: returnUrl
+        return_url: returnUrl,
       });
 
       if (!response.success || !response.data.clientSecret) {
-        throw new Error(
-          response.message || "Erro ao criar sessão de checkout"
-        );
+        throw new Error(response.message || "Erro ao criar sessão de checkout");
       }
 
       return response.data.clientSecret;
@@ -98,7 +99,7 @@ export default function StripeCheckout({
 
   /**
    * Trata o evento de sucesso do checkout
-   * 
+   *
    * Este callback é chamado quando o pagamento é concluído com sucesso no embedded checkout.
    * Para métodos de pagamento que fazem redirect (ex: alguns bancos), o usuário será
    * redirecionado para a return_url com session_id, que será tratado na rota.
@@ -107,22 +108,29 @@ export default function StripeCheckout({
     try {
       // Busca a subscription atualizada do backend
       const response = await subscriptionService.getSubscription();
-      
+
       if (response.success && response.data) {
         // Valida e atualiza o Redux com a nova assinatura
-        const validatedSubscription = SubscriptionSchema.safeParse(response.data);
-        
+        const validatedSubscription = SubscriptionSchema.safeParse(
+          response.data
+        );
+
         if (validatedSubscription.success) {
-          dispatch(updateUserSubscription(validatedSubscription.data));
+          dispatch(updateSubscription(validatedSubscription.data));
           // Chama o callback de sucesso
           // O componente pai pode decidir como tratar (ex: fechar modal, redirecionar)
           onSuccess?.();
         } else {
-          console.error("Erro ao validar subscription:", validatedSubscription.error);
+          console.error(
+            "Erro ao validar subscription:",
+            validatedSubscription.error
+          );
           throw new Error("Erro ao validar dados da assinatura");
         }
       } else {
-        throw new Error(response.message || "Erro ao buscar assinatura atualizada");
+        throw new Error(
+          response.message || "Erro ao buscar assinatura atualizada"
+        );
       }
     } catch (err) {
       const errorMessage =
@@ -140,9 +148,15 @@ export default function StripeCheckout({
         <div className="relative rounded-none border-0 bg-transparent shadow-none">
           <div className="px-2 sm:px-8 pt-4 pb-3 text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/10 ring-1 ring-red-500/30">
-              <Svg.circle_x width={28} height={28} tailWindClasses="text-red-400" />
+              <Svg.circle_x
+                width={28}
+                height={28}
+                tailWindClasses="text-red-400"
+              />
             </div>
-            <h2 className="text-2xl font-bold text-beergam-blue-primary">Algo deu errado</h2>
+            <h2 className="text-2xl font-bold text-beergam-blue-primary">
+              Algo deu errado
+            </h2>
             <p className="mt-2 text-beergam-gray text-base">{error}</p>
           </div>
           <div className="px-2 sm:px-8 pb-6 flex flex-wrap items-center justify-center gap-3">
@@ -175,11 +189,19 @@ export default function StripeCheckout({
         <div className="px-2 sm:px-8 pt-4 pb-3">
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-beergam-blue-primary">
-              <Svg.card width={24} height={24} tailWindClasses="text-beergam-white" />
+              <Svg.card
+                width={24}
+                height={24}
+                tailWindClasses="text-beergam-white"
+              />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-beergam-blue-primary">Finalizar assinatura</h2>
-              <p className="text-sm text-beergam-gray">Pagamento processado com segurança pela Stripe</p>
+              <h2 className="text-2xl font-bold text-beergam-blue-primary">
+                Finalizar assinatura
+              </h2>
+              <p className="text-sm text-beergam-gray">
+                Pagamento processado com segurança pela Stripe
+              </p>
             </div>
           </div>
           {plan?.display_name && (
@@ -194,15 +216,27 @@ export default function StripeCheckout({
         <div className="px-2 sm:px-8 pb-3">
           <ul className="flex flex-wrap gap-3 text-sm text-beergam-gray">
             <li className="inline-flex items-center gap-2 rounded-full bg-beergam-blue-light/80 px-3 py-1 ring-1 ring-beergam-blue-light">
-              <Svg.check width={16} height={16} tailWindClasses="text-beergam-green" />
+              <Svg.check
+                width={16}
+                height={16}
+                tailWindClasses="text-beergam-green"
+              />
               Sem taxas ocultas
             </li>
             <li className="inline-flex items-center gap-2 rounded-full bg-beergam-blue-light/80 px-3 py-1 ring-1 ring-beergam-blue-light">
-              <Svg.lock_closed width={16} height={16} tailWindClasses="text-beergam-blue-primary" />
+              <Svg.lock_closed
+                width={16}
+                height={16}
+                tailWindClasses="text-beergam-blue-primary"
+              />
               Ambiente seguro
             </li>
             <li className="inline-flex items-center gap-2 rounded-full bg-beergam-blue-light/80 px-3 py-1 ring-1 ring-beergam-blue-light">
-              <Svg.clock width={16} height={16} tailWindClasses="text-beergam-orange" />
+              <Svg.clock
+                width={16}
+                height={16}
+                tailWindClasses="text-beergam-orange"
+              />
               Ativação imediata
             </li>
           </ul>
@@ -236,12 +270,18 @@ export default function StripeCheckout({
         {/* Rodapé */}
         <div className="px-2 sm:px-8 pb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="inline-flex items-center gap-2 text-sm text-beergam-gray">
-            <Svg.lock_closed width={16} height={16} tailWindClasses="text-beergam-blue-primary" />
+            <Svg.lock_closed
+              width={16}
+              height={16}
+              tailWindClasses="text-beergam-blue-primary"
+            />
             Transações protegidas e criptografadas
           </div>
           <div className="inline-flex items-center gap-2 text-sm text-beergam-gray">
             <span className="opacity-75">Powered by</span>
-            <span className="font-semibold text-beergam-blue-primary">Stripe</span>
+            <span className="font-semibold text-beergam-blue-primary">
+              Stripe
+            </span>
           </div>
         </div>
 
@@ -260,4 +300,3 @@ export default function StripeCheckout({
     </div>
   );
 }
-

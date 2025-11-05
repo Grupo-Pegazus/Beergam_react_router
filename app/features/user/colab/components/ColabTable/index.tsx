@@ -9,51 +9,25 @@ import {
   TableRow,
   TableSortLabel,
 } from "@mui/material";
-import { useState, type Dispatch } from "react";
+import { useState } from "react";
 import { Fields } from "~/src/components/utils/_fields";
 import { UserStatus } from "../../../typings/BaseUser";
-import {
-  ColabLevel,
-  type ColabAction,
-  type IColab,
-} from "../../../typings/Colab";
+import { ColabLevel, type IColab } from "../../../typings/Colab";
 import ColabRow from "../ColabRow";
 
 export default function ColabTable({
   colabs,
-  setCurrentColab,
+  onTableAction,
   availableActions,
 }: {
   colabs: IColab[];
-  setCurrentColab: Dispatch<{
-    colab: IColab | null;
-    action: ColabAction | null;
-  }>;
+  onTableAction: (params: { action: string; colab: IColab }) => void;
   availableActions: Record<string, { icon: React.ReactNode }>;
 }) {
   const ROWS_PER_PAGE = 3;
   const [search, setSearch] = useState("");
-  function handleAction(action: string, colab: IColab) {
-    console.log("setando o colaborador ativo", colab);
-    console.log("setCurrentColab.current", setCurrentColab);
-    setCurrentColab({ colab: colab, action: action as ColabAction });
-    switch (action) {
-      case "Excluir": {
-        console.log("Excluindo o colaborador", colab.name);
-        break;
-      }
-      case "Editar": {
-        console.log("Editando o colaborador", colab.name);
-        break;
-      }
-      default: {
-        console.log("Ação não encontrada", action);
-        break;
-      }
-    }
-  }
   function onAction(params: { action: string; colab: IColab }) {
-    handleAction(params.action, params.colab);
+    onTableAction(params);
   }
   const [page, setPage] = useState(0);
   function handlePageChange(event: unknown, newPage: number) {

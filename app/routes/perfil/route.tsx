@@ -3,16 +3,18 @@ import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { useActionData, useSearchParams } from "react-router";
 import type { ApiResponse } from "~/features/apiClient/typings";
-import { updateUserInfo, updateUserSubscription } from "~/features/auth/redux";
+import { updateSubscription } from "~/features/auth/redux";
 import { subscriptionService } from "~/features/plans/subscriptionService";
+import { updateUserInfo } from "~/features/user/redux";
 import { userService } from "~/features/user/service";
 import { SubscriptionSchema } from "~/features/user/typings/BaseUser";
+import type { IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
 import { UserSchema } from "~/features/user/typings/User";
 import type { Route } from "./+types/route";
 import PerfilPage from "./page";
 import type { SubmitAction } from "./typings";
-type PossibleDataTypes = IUser;
+type PossibleDataTypes = IUser | IColab;
 export async function clientAction({ request }: Route.ClientActionArgs) {
   const requestData = await request.json();
   console.log("requestData", requestData);
@@ -38,21 +40,13 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   }
 
   if (responsePromise) {
+    console.log("responsePromise do toast.promise", responsePromise);
     toast.promise(responsePromise, {
       loading: "Carregando...",
       success: "Informações do usuário editadas com sucesso",
       error: (err) => (
         <>
           <p>{err.message || "Erro ao editar informações do usuário"}</p>
-          {err.error_fields && Object.keys(err.error_fields).length > 0 && (
-            <ul className="list-disc">
-              {Object.keys(err.error_fields).map((field) => (
-                <li className="font-bold" key={field}>
-                  <p>{err?.error_fields?.[field]?.join(", ")}</p>
-                </li>
-              ))}
-            </ul>
-          )}
         </>
       ),
     });
@@ -60,9 +54,9 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 
   try {
     const response = await responsePromise;
+    console.log("response do await responsePromise", response);
     return response;
   } catch (error) {
-    return Response.json(error as ApiResponse<PossibleDataTypes>);
     return Response.json(error as ApiResponse<PossibleDataTypes>);
   }
 }
@@ -78,7 +72,9 @@ export default function PerfilRoute() {
    */
   useEffect(() => {
     if (actionData?.success && actionData.data && userValidation.success) {
-      dispatch(updateUserInfo(userValidation.data));
+      dispatch(
+        updateUserInfo({ user: userValidation.data, shouldEncrypt: true })
+      );
     }
   }, [actionData, dispatch, userValidation]);
 
@@ -100,7 +96,7 @@ export default function PerfilRoute() {
             );
 
             if (validatedSubscription.success) {
-              dispatch(updateUserSubscription(validatedSubscription.data));
+              dispatch(updateSubscription(validatedSubscription.data));
               toast.success(
                 "Assinatura criada com sucesso! Suas informações foram atualizadas."
               );
