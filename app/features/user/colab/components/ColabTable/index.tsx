@@ -10,13 +10,10 @@ import {
   TableSortLabel,
 } from "@mui/material";
 import { useState, type Dispatch } from "react";
+import type { ColabAction } from "~/routes/perfil/typings";
 import { Fields } from "~/src/components/utils/_fields";
 import { UserStatus } from "../../../typings/BaseUser";
-import {
-  ColabLevel,
-  type ColabAction,
-  type IColab,
-} from "../../../typings/Colab";
+import { ColabLevel, type IColab } from "../../../typings/Colab";
 import ColabRow from "../ColabRow";
 
 export default function ColabTable({

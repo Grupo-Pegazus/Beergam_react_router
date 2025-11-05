@@ -1,25 +1,68 @@
 import { Paper, Switch } from "@mui/material";
-import { useEffect, useReducer, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useEffect, useReducer } from "react";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
 import { z } from "zod";
+import { authService } from "~/features/auth/service";
 import {
   MenuConfig,
   type MenuKeys,
   type MenuState,
 } from "~/features/menu/typings";
-import { UserStatus } from "~/features/user/typings/BaseUser";
+import { updateColab } from "~/features/user/redux";
+import { userService } from "~/features/user/service";
+import {
+  WeekDay,
+  WeekDayToPortuguese,
+  type DayTimeAccess,
+  type IAllowedTimes,
+} from "~/features/user/typings/AllowedTimes";
+import { FormatUserStatus, UserStatus } from "~/features/user/typings/BaseUser";
 import {
   ColabLevel,
   ColabSchema,
+  getDefaultColab,
   type IColab,
 } from "~/features/user/typings/Colab";
 import { FormatColabLevel } from "~/features/user/utils";
+import type { ColabAction } from "~/routes/perfil/typings";
 import Svg from "~/src/assets/svgs";
 import { Fields } from "~/src/components/utils/_fields";
 import Time from "~/src/components/utils/Time";
-import type { DaysOfWeek } from "~/src/components/utils/Time/typings";
+import { EnumKeyFromValue } from "~/utils/typings/EnumKeysFromValues";
 import ViewAccess from "../ViewAccess";
-export default function ColabInfo(colab: IColab | null) {
+export default function ColabInfo({
+  colab,
+  action,
+}: {
+  colab: IColab | null;
+  action: ColabAction | null;
+}) {
+  const dispatch = useDispatch();
   const initialColabState = colab;
+  const updateColabMutation = useMutation({
+    mutationFn: (colab: IColab) => userService.updateColab(colab),
+  });
+  const createColabMutation = useMutation({
+    mutationFn: (colab: IColab) => authService.createColab(colab),
+  });
+
+  // Formata Date | string | null para "HH:mm"
+  const toHHmm = (value: unknown): string => {
+    if (!value) return "";
+    // Já está no formato "HH:mm"
+    if (typeof value === "string" && /^\d{2}:\d{2}$/.test(value)) return value;
+    // String ISO ou outra: tentar converter para Date
+    const date: Date =
+      typeof value === "string" ? new Date(value) : (value as Date);
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      const h = date.getHours().toString().padStart(2, "0");
+      const m = date.getMinutes().toString().padStart(2, "0");
+      return `${h}:${m}`;
+    }
+    return "";
+  };
   const [editedColab, setEditedColab] = useReducer(
     (state: IColab | null, action: Partial<IColab>) => {
       console.log(action);
@@ -28,44 +71,6 @@ export default function ColabInfo(colab: IColab | null) {
     },
     initialColabState
   );
-  const daysOfWeek = [
-    "Segunda",
-    "Terça",
-    "Quarta",
-    "Quinta",
-    "Sexta",
-    "Sábado",
-    "Domingo",
-  ];
-
-  const [colabDates, setColabDates] = useState([
-    { day: daysOfWeek[0], startTime: "08:00", endTime: "17:00", ativo: true },
-    { day: daysOfWeek[1], startTime: "08:00", endTime: "17:00", ativo: true },
-    { day: daysOfWeek[2], startTime: "08:00", endTime: "17:00", ativo: true },
-    { day: daysOfWeek[3], startTime: "08:00", endTime: "17:00", ativo: true },
-    { day: daysOfWeek[4], startTime: "08:00", endTime: "17:00", ativo: true },
-    { day: daysOfWeek[5], startTime: "08:00", endTime: "12:00", ativo: true },
-    { day: daysOfWeek[6], startTime: "", endTime: "", ativo: false },
-  ]);
-  useEffect(() => {
-    setEditedColab({ ...colab });
-  }, [colab]);
-  const handleSetHorario =
-    (dayName: string) =>
-    (params: { ativo: boolean; inicio: string; fim: string }) => {
-      setColabDates(
-        colabDates.map((date) =>
-          date.day === dayName
-            ? {
-                ...date,
-                ativo: params.ativo,
-                startTime: params.inicio,
-                endTime: params.fim,
-              }
-            : date
-        )
-      );
-    };
   const editedColabValidation = ColabSchema.safeParse(editedColab);
   const editedColabError = editedColabValidation.error
     ? z.treeifyError(editedColabValidation.error)
@@ -79,14 +84,93 @@ export default function ColabInfo(colab: IColab | null) {
         <p>Initial Colab: {JSON.stringify(initialColabState)}</p>
       </div>
     );
+  function handleFetch() {
+    if (!editedColab) return;
+    switch (action) {
+      case "Criar":
+        toast.promise(createColabMutation.mutateAsync(editedColab), {
+          loading: "Carregando...",
+          success: (data) => {
+            return data.message;
+          },
+        });
+        break;
+      case "Editar":
+        toast.promise(updateColabMutation.mutateAsync(editedColab), {
+          loading: "Carregando...",
+          success: (data) => {
+            if (!data.success) {
+              throw new Error(data.message);
+            }
+
+            dispatch(updateColab(data.data));
+            return data.message;
+          },
+          error: "Erro ao atualizar colaborador",
+        });
+        break;
+      default:
+        toast.error("Ação inválida");
+        break;
+    }
+  }
+  function setHorarioComercial() {
+    if (!editedColab) return;
+    const current = editedColab as IColab;
+    // Para todos os dias em allowed_times, ajusta start_date e end_date
+    setEditedColab({
+      details: {
+        ...current.details,
+        allowed_times: ((): IAllowedTimes => {
+          const parseTimeString = (timeStr: string): Date => {
+            const [hours, minutes] = timeStr.split(":").map(Number);
+            const d = new Date();
+            d.setHours(hours ?? 0, minutes ?? 0, 0, 0);
+            return d;
+          };
+          const entries = (Object.values(WeekDay) as WeekDay[]).map((day) => {
+            const value = current.details.allowed_times[day];
+            if (day === WeekDay.SATURDAY || day === WeekDay.SUNDAY) {
+              // Não alterar sábado e domingo
+              return [day, value] as const;
+            }
+            const updated: DayTimeAccess = {
+              ...value,
+              start_date: parseTimeString("08:00"),
+              end_date: parseTimeString("20:00"),
+              access: true,
+            };
+            return [day, updated] as const;
+          });
+          return Object.fromEntries(entries) as unknown as IAllowedTimes;
+        })(),
+      },
+    });
+  }
+  useEffect(() => {
+    if (action === "Criar") {
+      setEditedColab(getDefaultColab());
+    }
+    if (action === "Editar" && colab) {
+      setEditedColab(colab);
+    }
+  }, [action]);
   return (
     <>
       <hr className="h-[1px] mb-3.5 mt-5 border-beergam-gray-light" />
       <div>
-        <div className="flex justify-between items-center">
-          <h3 className="text-beergam-blue-primary !font-bold uppercase mb-4">
-            Editar Colaborador
-          </h3>
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <h3 className="text-beergam-blue-primary !font-bold uppercase">
+              {action === "Editar"
+                ? "Editar Colaborador"
+                : action === "Visualizar"
+                  ? "Visualizar Colaborador"
+                  : action === "Criar"
+                    ? "Criar Colaborador"
+                    : "Nenhum colaborador encontrado"}
+            </h3>
+          </div>
           <button className="opacity-90 hover:opacity-100">
             <Svg.trash
               stroke={"var(--color-beergam-red)"}
@@ -129,15 +213,17 @@ export default function ColabInfo(colab: IColab | null) {
                   <Switch
                     title="Ativar/Desativar colaborador"
                     checked={
-                      UserStatus[
-                        editedColab.status as unknown as keyof typeof UserStatus
-                      ] === UserStatus.ACTIVE
+                      FormatUserStatus(editedColab.status as UserStatus) ===
+                      UserStatus.ACTIVE
                     }
                     onChange={(e) => {
                       setEditedColab({
-                        status: e.target.checked
-                          ? UserStatus.ACTIVE
-                          : UserStatus.INACTIVE,
+                        status: EnumKeyFromValue(
+                          UserStatus,
+                          e.target.checked
+                            ? UserStatus.ACTIVE
+                            : UserStatus.INACTIVE
+                        ) as UserStatus,
                       });
                     }}
                   />
@@ -161,6 +247,7 @@ export default function ColabInfo(colab: IColab | null) {
                         onClick={() =>
                           setEditedColab({
                             details: {
+                              ...editedColab.details,
                               level: level as ColabLevel,
                             },
                           })
@@ -178,17 +265,40 @@ export default function ColabInfo(colab: IColab | null) {
           <Paper className="flex flex-col border-1 border-beergam-gray-light rounded-md p-4">
             <Fields.label text="HORÁRIOS DE FUNCIONAMENTO" />
             <div className="grid grid-cols-2 gap-4">
-              {colabDates.map((day) => (
+              {Object.values(WeekDay).map((day: WeekDay) => (
                 <Time
-                  key={day.day}
-                  dia={day.day as unknown as DaysOfWeek}
-                  ativo={day.ativo}
-                  inicio={day.startTime}
-                  fim={day.endTime}
-                  setHorario={handleSetHorario(day.day)}
+                  key={day}
+                  dia={WeekDayToPortuguese[day]}
+                  access={
+                    editedColab.details.allowed_times[day as WeekDay].access
+                  }
+                  start_date={toHHmm(
+                    editedColab.details.allowed_times[day as WeekDay].start_date
+                  )}
+                  end_date={toHHmm(
+                    editedColab.details.allowed_times[day as WeekDay].end_date
+                  )}
+                  setHorario={(params: {
+                    access: boolean;
+                    start_date: string;
+                    end_date: string;
+                  }) => {
+                    setEditedColab({
+                      details: {
+                        ...editedColab.details,
+                        allowed_times: {
+                          ...editedColab.details.allowed_times,
+                          [day]: params,
+                        },
+                      },
+                    });
+                  }}
                 />
               ))}
-              <button className="bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange flex items-center justify-center gap-2">
+              <button
+                onClick={setHorarioComercial}
+                className="bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange flex items-center justify-center gap-2"
+              >
                 <Svg.clock width={20} height={20} />
                 <p>Horário Comercial</p>
               </button>
@@ -230,7 +340,10 @@ export default function ColabInfo(colab: IColab | null) {
             />
           </Fields.wrapper>
         </Paper>
-        <button className="sticky mt-2.5 bottom-0 left-0 right-0 bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange">
+        <button
+          onClick={handleFetch}
+          className="sticky mt-2.5 bottom-0 left-0 right-0 bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange"
+        >
           Salvar Informações
         </button>
       </div>

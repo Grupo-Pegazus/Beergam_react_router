@@ -190,7 +190,7 @@ function BootstrapAuth() {
   console.log("subscriptionInfo bootstrap", subscriptionInfo);
   useEffect(() => {
     if (userInfo) {
-      dispatch(updateUserInfo(userInfo));
+      dispatch(updateUserInfo({ user: userInfo, shouldEncrypt: false }));
     }
     if (subscriptionInfo) {
       dispatch(updateSubscription(subscriptionInfo));
