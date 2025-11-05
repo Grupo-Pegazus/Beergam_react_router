@@ -2,10 +2,10 @@ import { useState, useEffect, useMemo } from "react";
 import { useFetcher, useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
-import { setMarketplace } from "~/features/marketplace/redux";
-import { marketplaceService } from "~/features/marketplace/service";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import MarketplaceCard from "~/features/marketplace/components/MarketplaceCard";
+import { setMarketplace } from "~/features/marketplace/redux";
+import { marketplaceService } from "~/features/marketplace/service";
 import {
   MarketplaceOrderParseStatus,
   MarketplaceStatusParse,
