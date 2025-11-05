@@ -1,5 +1,5 @@
 import { useReducer, useState } from "react";
-import { Form, Link } from "react-router";
+import { Link, useFetcher } from "react-router";
 import { z } from "zod";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import { Fields } from "~/src/components/utils/_fields";
@@ -53,6 +53,7 @@ function ButtonChangeUserType({
 export default function FormModal({
   userType = UserRoles.MASTER,
 }: FormModalProps) {
+  const fetcher = useFetcher();
   const [currentUserType, setCurrentUserType] = useState<UserRoles>(userType);
   const [isSubmited, setIsSubmited] = useState(false);
   const [MasterUserInfo, setMasterUserInfo] = useReducer(
@@ -65,7 +66,7 @@ export default function FormModal({
     (state: ColaboradorUserForm, action: Partial<ColaboradorUserForm>) => {
       return { ...state, ...action };
     },
-    { master_pin: "", pin: "", password: "" } as ColaboradorUserForm
+    { pin: "", password: "" } as ColaboradorUserForm
   );
   const parseMasterUserResult = MasterUserFormSchema.safeParse(MasterUserInfo);
   const masterFieldErrors = parseMasterUserResult.success
@@ -78,7 +79,6 @@ export default function FormModal({
   const colaboradorFieldErrors = parseColaboradorUserResult.success
     ? {
         properties: {
-          master_pin: { errors: [""] },
           pin: { errors: [""] },
           password: { errors: [""] },
         },
@@ -111,7 +111,6 @@ export default function FormModal({
           return false;
         }
         onlyPasswordError =
-          !colaboradorFieldErrors.properties?.master_pin?.errors?.[0] &&
           !colaboradorFieldErrors.properties?.pin?.errors?.[0] &&
           !!colaboradorFieldErrors.properties?.password?.errors?.[0];
       }
@@ -122,11 +121,34 @@ export default function FormModal({
     localStorage.setItem("loginLoading", "true");
     return true;
   }
-  const modalHeight =
-    currentUserType === UserRoles.MASTER ? "sm:h-[490px]" : "sm:h-[595px]"; //524px e 629px
+  function HandleFetch() {
+    const result = HandleSubmit(
+      currentUserType === UserRoles.MASTER
+        ? parseMasterUserResult
+        : parseColaboradorUserResult,
+      currentUserType
+    );
+    console.log("result do handle fetch", result);
+    console.log("colaboradorFieldErrors", colaboradorFieldErrors);
+    if (!result) {
+      setIsSubmited(true);
+      return;
+    }
+    fetcher.submit(
+      JSON.stringify({
+        role: currentUserType,
+        data:
+          currentUserType === UserRoles.MASTER
+            ? MasterUserInfo
+            : ColaboradorUserInfo,
+      }),
+      { method: "post", encType: "application/json" }
+    );
+    setIsSubmited(false);
+  }
   return (
     <div
-      className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-white h-full w-[100%] mx-auto my-auto p-8 transition-height ${modalHeight} sm:w-2/3 sm:max-w-[32rem] sm:rounded-4xl`}
+      className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-white h-full w-[100%] mx-auto my-auto p-8 sm:w-2/3 sm:max-w-[32rem] sm:rounded-4xl sm:h-[490px]`}
     >
       <div className="block w-16 h-16 sm:hidden">
         <img
@@ -153,23 +175,12 @@ export default function FormModal({
           callback={ChangeUserType}
         />
       </div>
-      <Form
-        method="post"
-        className="flex flex-col gap-4"
+      <form
         onSubmit={(e) => {
-          const result = HandleSubmit(
-            currentUserType === UserRoles.MASTER
-              ? parseMasterUserResult
-              : parseColaboradorUserResult,
-            currentUserType
-          );
-          if (!result) {
-            e.preventDefault();
-            setIsSubmited(true);
-            return;
-          }
-          setIsSubmited(false);
+          e.preventDefault();
+          HandleFetch();
         }}
+        className="flex flex-col gap-4"
       >
         <input type="hidden" name="role" value={currentUserType} />
         {currentUserType == UserRoles.MASTER ? (
@@ -187,21 +198,6 @@ export default function FormModal({
                 onChange={(e) =>
                   setMasterUserInfo({ email: e.target.value as string })
                 }
-                // error={
-                //   MasterUserInfo.email.length > 0
-                //     ? masterFieldErrors.properties?.email?.errors?.[0]
-                //       ? {
-                //           message: masterFieldErrors.properties.email.errors[0],
-                //           error: true,
-                //         }
-                //       : { message: "", error: false }
-                //     : isSubmited
-                //       ? {
-                //           message: "Por favor, preencha o e-mail.",
-                //           error: true,
-                //         }
-                //       : { message: "", error: false }
-                // }
                 error={
                   MasterUserInfo.email.length == 0 && isSubmited
                     ? "Por favor, preencha o e-mail."
@@ -237,44 +233,6 @@ export default function FormModal({
           </>
         ) : (
           <>
-            <Fields.wrapper>
-              <Fields.label
-                text="INSIRA O PIN DO EMPREGADOR"
-                tailWindClasses="!text-beergam-gray-light"
-              />
-              <Fields.input
-                type="text"
-                name="master_pin"
-                placeholder="Pin do Empregador"
-                value={ColaboradorUserInfo.master_pin}
-                onChange={(e) =>
-                  setColaboradorUserInfo({
-                    master_pin: e.target.value as string,
-                  })
-                }
-                // error={
-                //   isSubmited &&
-                //   colaboradorFieldErrors.properties?.master_pin?.errors?.[0]
-                //     ? {
-                //         message:
-                //           colaboradorFieldErrors.properties.master_pin
-                //             .errors[0],
-                //         error: true,
-                //       }
-                //     : { message: "", error: false }
-                // }
-                error={
-                  ColaboradorUserInfo.master_pin.length == 0 && isSubmited
-                    ? "Por favor, preencha o pin do empregador."
-                    : colaboradorFieldErrors.properties?.master_pin
-                          ?.errors?.[0] &&
-                        ColaboradorUserInfo.master_pin.length > 0
-                      ? colaboradorFieldErrors.properties.master_pin.errors[0]
-                      : undefined
-                }
-                dataTooltipId="master-pin-input"
-              />
-            </Fields.wrapper>
             <Fields.wrapper>
               <Fields.label
                 text="INSIRA O SEU PIN"
@@ -336,12 +294,12 @@ export default function FormModal({
           <FormHelpNavigation />
         </div>
         <button
-          type="submit"
+          onClick={HandleFetch}
           className="p-2 rounded-2xl bg-beergam-blue-primary text-beergam-white hover:bg-beergam-orange"
         >
           Entrar
         </button>
-      </Form>
+      </form>
     </div>
   );
 }

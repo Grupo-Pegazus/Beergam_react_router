@@ -8,7 +8,7 @@ export interface IMenuItem {
   dropdown?: Record<string, IMenuItem>;
   icon?: keyof typeof Svg;
   target?: string;
-  active?: boolean;
+  access?: boolean;
   dinamic_id?: string;
   isOpen?: boolean;
   currentSelected?: boolean;
@@ -205,7 +205,7 @@ export class MenuClass {
     for (const key in this.config) {
       this.config[key as MenuKeys] = {
         ...this.config[key as MenuKeys],
-        active: views[key as MenuKeys].active,
+        access: views[key as MenuKeys].access,
       };
     }
     return this.config;
@@ -223,7 +223,8 @@ export type View = Record<
   MenuKeys,
   {
     //Se quiser colocar mais coisas no allowed_views do usuário bastar adicionar nessa tipagem
-    active: boolean;
+    access: boolean;
+    notifications?: number;
   }
 >;
 export type MenuState = {

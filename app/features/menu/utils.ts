@@ -12,7 +12,7 @@ export function getDefaultViews() {
   const views: MenuState = {} as MenuState;
   for (const key in MenuConfig) {
     views[key as MenuKeys] = {
-      active: true,
+      access: true,
     };
   }
   return views;

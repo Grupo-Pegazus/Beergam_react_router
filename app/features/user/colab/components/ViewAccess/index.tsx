@@ -1,11 +1,19 @@
 import { Paper, Switch } from "@mui/material";
 import { Tooltip } from "react-tooltip";
 import {
-  type IMenuItem,
   MenuHandler,
   MenuViewExtraInfo,
+  type IMenuItem,
+  type MenuKeys,
+  type MenuState,
 } from "~/features/menu/typings";
-export default function ViewAccess() {
+export default function ViewAccess({
+  views,
+  onChange,
+}: {
+  views: MenuState | undefined;
+  onChange: (key: MenuKeys, value: boolean) => void;
+}) {
   const itens = Object.entries(MenuHandler.getMenu())
     .filter(([, item]: [string, IMenuItem]) => !item.denyColabAccess)
     .reduce(
@@ -31,7 +39,10 @@ export default function ViewAccess() {
             data-tooltip-id={key}
           >
             <p>{itens[key].label}</p>
-            <Switch checked={itens[key].active} />
+            <Switch
+              checked={views?.[key as MenuKeys]?.access ?? false}
+              onChange={(e) => onChange(key as MenuKeys, e.target.checked)}
+            />
           </Paper>
           <Tooltip
             id={key}

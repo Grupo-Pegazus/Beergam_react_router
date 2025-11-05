@@ -188,7 +188,7 @@ typedApiClient.axiosInstance.interceptors.response.use(
         await refreshPromise;
         return typedApiClient.axiosInstance(original);
       }
-      if (error.response?.data?.error_code === 1000) {
+      if (error.response?.data?.error_code === 1001) {
         if (typeof window !== "undefined") {
           localStorage.removeItem("userInfo");
           localStorage.removeItem("userInfoIV");

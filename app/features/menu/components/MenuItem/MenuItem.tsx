@@ -88,7 +88,7 @@ export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
 
   if (!isVisible) return null;
 
-  return item.active !== false ? (
+  return item.access !== false ? (
     <li
       className={[item.dropdown ? "relative" : "", open ? "" : "", "w-full"].join(" ")}
     >

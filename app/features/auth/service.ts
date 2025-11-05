@@ -18,7 +18,7 @@ class AuthService {
   async login(
     formInfo:
       | { email: string; password: string }
-      | { master_pin: string; pin: string; password: string },
+      | { pin: string; password: string },
     type: UserRoles
   ): Promise<ApiResponse<IUser | IBaseUser>> {
     const role = type === UserRoles.MASTER ? UserRoles.MASTER : UserRoles.COLAB;
