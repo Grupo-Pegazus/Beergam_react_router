@@ -12,7 +12,7 @@ import { isMaster } from "~/features/user/utils";
 import type { IUser } from "~/features/user/typings/User";
 
 export default function HeaderMobile() {
-    const { user } = useSelector((state: RootState) => state.user);
+    const { user } = useSelector((state: RootState) => state.auth);
     const { isOpen, shouldRender, open, requestClose } = useOverlay();
     const dispatch = useDispatch();
     const navigate = useNavigate();

@@ -641,7 +641,7 @@ export default function MinhaConta<T extends IUser | IColab>({
               </ElementWrapper>
             </ElementSection>
             <div
-              className={`sticky w-full bottom-0 left-0 right-0 flex justify-end lg:justify-center items-center ${
+              className={`sticky w-full md:bottom-0 bottom-16 left-0 right-0 flex justify-end lg:justify-center items-center ${
                 usersAreEqual
                   ? "opacity-0 pointer-events-none"
                   : "opacity-100 pointer-events-auto"

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
+import { type IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
 import { type RootState } from "~/store";
 import Colaboradores from "./components/Colaboradores";
@@ -18,7 +20,11 @@ export default function PerfilPage() {
       case "Colaboradores":
         return (
           <Colaboradores
-            colabs={"colabs" in user ? ((user as IUser).colabs ?? []) : []}
+            colabs={
+              "colabs" in user
+                ? Object.values((user as IUser).colabs ?? {})
+                : ([] as IColab[])
+            }
           />
         );
       case "Minha Assinatura":
@@ -58,29 +64,28 @@ export default function PerfilPage() {
   }
   return (
     <PerfilLayout activeButton={activeButton} onSelectButton={setActiveButton}>
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_2.4fr] w-full h-full gap-4">
-        {/* Menu Desktop - Sidebar */}
-        <div className="p-6 flex-col right-0 bg-beergam-orange w-[60%] hidden lg:flex lg:w-full items-end absolute z-50 lg:static lg:bg-transparent lg:z-auto">
-          <div className="w-[90%] flex flex-col items-start">
-            <h3 className="uppercase text-beergam-white">
-              CONFIGURAÇÕES DE USUÁRIO
-            </h3>
-            <nav className="flex flex-col gap-2 items-start w-full">
-              <NavButton text="Minha Conta" />
-              <NavButton text="Colaboradores" />
-              <NavButton text="Minha Assinatura" />
-              <NavButton text="Impostos" />
-              <NavButton text="Afiliados" emBreve />
-            </nav>
+      <PageLayout showLogo={false}>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2.4fr] w-full h-full">
+          <div className="p-6 flex-col right-0 bg-beergam-orange w-[60%] hidden lg:flex lg:w-full items-end absolute z-50 lg:static lg:bg-transparent lg:z-auto">
+            <div className="w-[90%] flex flex-col items-start">
+              <h3 className="uppercase text-beergam-white">
+                CONFIGURAÇÕES DE USUÁRIO
+              </h3>
+              <nav className="flex flex-col gap-2 items-start w-full">
+                <NavButton text="Minha Conta" />
+                <NavButton text="Colaboradores" />
+                <NavButton text="Minha Assinatura" />
+                <NavButton text="Impostos" />
+                <NavButton text="Afiliados" emBreve />
+              </nav>
+            </div>
+          </div>
+          <div className="bg-beergam-white p-6 md:rounded-tl-[16px] rounded-tr-none rounded-br-none md:rounded-bl-[16px] shadow-lg/55 overflow-y-auto max-h-screen">
+            <h1 className="text-beergam-blue-primary mb-4">{activeButton}</h1>
+            {changeNavigation()}
           </div>
         </div>
-
-        {/* Conteúdo Principal */}
-        <div className="bg-beergam-white p-6 rounded-tl-[16px] rounded-tr-none rounded-br-none rounded-bl-[16px] shadow-lg/55 overflow-y-auto max-h-screen">
-          <h1 className="text-beergam-blue-primary mb-4">{activeButton}</h1>
-          {changeNavigation()}
-        </div>
-      </div>
+      </PageLayout>
     </PerfilLayout>
   );
 }
