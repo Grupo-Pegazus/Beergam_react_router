@@ -1,12 +1,17 @@
 // import ColabCard from "~/features/user/colab/components/ColabCard";
-import { useReducer, type Dispatch } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useReducer } from "react";
+import { useDispatch } from "react-redux";
 import ColabInfo from "~/features/user/colab/components/ColabInfo";
 import ColabTable from "~/features/user/colab/components/ColabTable";
+import { updateColabs } from "~/features/user/redux";
+import { userService } from "~/features/user/service";
 import { getDefaultColab, type IColab } from "~/features/user/typings/Colab";
 import Svg from "~/src/assets/svgs";
 import type { ColabAction } from "../../typings";
 
 export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
+  const dispatch = useDispatch();
   const availableActions = {
     Editar: { icon: <Svg.pencil width={20} height={20} /> },
     Excluir: { icon: <Svg.trash width={20} height={20} /> },
@@ -19,6 +24,8 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
   };
   const [currentColab, setCurrentColab] = useReducer(
     (state: typeof initialColabState, action: typeof initialColabState) => {
+      console.log("action", action);
+      console.log("state", state);
       switch (action.action) {
         case "Editar":
           return { ...state, ...action };
@@ -38,6 +45,15 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
     },
     initialColabState
   );
+  const { data } = useQuery({
+    queryKey: ["getColabList"],
+    queryFn: () => userService.getColabs(),
+  });
+  useEffect(() => {
+    if (data?.success) {
+      dispatch(updateColabs(data.data as Record<string, IColab>));
+    }
+  }, [data]);
   return (
     <>
       <div className="flex items-center justify-between pb-4">
@@ -62,11 +78,11 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
             )
           )}
           colabs={colabs}
-          setCurrentColab={
-            setCurrentColab as Dispatch<{
-              colab: IColab | null;
-              action: ColabAction | null;
-            }>
+          onTableAction={(params) =>
+            setCurrentColab({
+              colab: params.colab,
+              action: params.action as ColabAction,
+            })
           }
         />
         {currentColab.colab && currentColab.action && (

@@ -1,7 +1,7 @@
 import IconBase, { type SvgBaseProps } from "./IconBase";
 export default function Eye(props: SvgBaseProps) {
   return (
-    <IconBase strokeWidth={1.5} stroke="currentColor" {...props}>
+    <IconBase strokeWidth={1.5} fill="currentColor" {...props}>
       <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
       <path
         fillRule="evenodd"

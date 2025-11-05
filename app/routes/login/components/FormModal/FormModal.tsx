@@ -61,16 +61,17 @@ export default function FormModal({
 }: FormModalProps) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [currentUserType, setCurrentUserType] = useState<UserRoles>(userType);
   const loginMutation = useMutation({
     mutationFn: (
       formInfo:
         | { email: string; password: string }
         | { pin: string; password: string }
     ) => {
-      return authService.login(formInfo, userType as UserRoles);
+      return authService.login(formInfo, currentUserType as UserRoles);
     },
   });
-  const [currentUserType, setCurrentUserType] = useState<UserRoles>(userType);
+
   const [isSubmited, setIsSubmited] = useState(false);
   const [MasterUserInfo, setMasterUserInfo] = useReducer(
     (state: MasterUserForm, action: Partial<MasterUserForm>) => {
@@ -170,12 +171,13 @@ export default function FormModal({
           dispatch(updateUserInfo({ user: userData, shouldEncrypt: true }));
           dispatch(updateSubscription(subscriptionData));
           if (!subscriptionData || subscriptionData?.start_date === null) {
-            navigate("/interno/subscription");
             toast("Redirecionando para a página de assinatura...", {
               icon: "🍊",
             });
+            navigate("/interno/subscription");
+          } else {
+            navigate("/interno/choosen_account");
           }
-          navigate("/interno/choosen_account");
           return data.message;
         },
         error: (error) => {
