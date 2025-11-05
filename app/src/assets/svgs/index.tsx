@@ -34,6 +34,7 @@ import Question from "./Question";
 import Megaphone from "./Megaphone";
 import Bell from "./Bell";
 import List from "./List";
+import Profile from "./Profile";
 const Svg = {
   home: HomeIcon,
   bag: BagIcon,
@@ -71,6 +72,7 @@ const Svg = {
   megaphone: Megaphone,
   bell: Bell,
   list: List,
+  profile: Profile,
 };
 
 export default Svg;
