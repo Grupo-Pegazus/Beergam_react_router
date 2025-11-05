@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { MenuConfig, type IMenuItem, type IMenuConfig } from "~/features/menu/typings";
 import Svg from "~/src/assets/svgs";
-import { useNavigate } from "react-router";
+import { PrefetchPageLinks, useNavigate } from "react-router";
 import { useOverlay } from "../../hooks/useOverlay";
 import OverlayFrame from "../../shared/OverlayFrame";
 import { getRelativePath, DEFAULT_INTERNAL_PATH } from "~/features/menu/utils";
@@ -85,6 +85,13 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
                 </span>
               </Paper>
             );
+          })}
+        </div>
+        <div aria-hidden>
+          {Object.entries(MenuConfig).map(([key, item]) => {
+            const menuItem = item as IMenuItem;
+            const path = menuItem.path ? (getRelativePath(key) || DEFAULT_INTERNAL_PATH + menuItem.path) : undefined;
+            return path ? <PrefetchPageLinks key={`prefetch:${key}`} page={path} /> : null;
           })}
         </div>
       </OverlayFrame>

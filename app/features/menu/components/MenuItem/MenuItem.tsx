@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router";
 import { useMenuActions } from "../../hooks/useMenuActions";
 import { useMenuState } from "../../hooks/useMenuState";
 import { type IMenuItem } from "../../typings";
 import { DEFAULT_INTERNAL_PATH, getIcon, getRelativePath } from "../../utils";
 import Svg from "~/src/assets/svgs/index";
+import { PrefetchPageLinks } from "react-router";
 
 interface IMenuItemProps {
   item: IMenuItem;
@@ -29,6 +30,7 @@ function MenuItemWrapper({
   isSelected,
   target,
 }: IMenuItemWrapperProps) {
+  const [prefetchActive, setPrefetchActive] = useState(false);
   if (isDropDown) {
     return (
       <button
@@ -50,6 +52,7 @@ function MenuItemWrapper({
     );
   }
   return (
+    <>
     <Link
       className={
         [
@@ -62,9 +65,15 @@ function MenuItemWrapper({
       }
       to={path || ""}
       target={target ? target : undefined}
+      onMouseEnter={() => setPrefetchActive(true)}
+      onMouseLeave={() => setPrefetchActive(false)}
+      onFocus={() => setPrefetchActive(true)}
+      onBlur={() => setPrefetchActive(false)}
     >
       {children}
     </Link>
+    {prefetchActive && path ? <PrefetchPageLinks page={path} /> : null}
+    </>
   );
 }
 

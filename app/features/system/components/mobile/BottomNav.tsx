@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { PrefetchPageLinks, useLocation, useNavigate } from "react-router";
 import mobileNav, { dynamicDefaultParentKey } from "../../config/mobileNav";
 import type { BottomNavItem } from "../../types";
 import MenuOverlay from "~/features/system/components/mobile/MenuOverlay";
@@ -11,12 +11,12 @@ import { DEFAULT_INTERNAL_PATH, findKeyPathByRoute, getIcon, getRelativePath } f
 import SubmenuOverlay from "~/features/system/components/mobile/SubmenuOverlay";
 import Svg from "~/src/assets/svgs";
 
-function NavButton({ item, active, onClick }: { item: BottomNavItem; active: boolean; onClick: () => void }) {
+function NavButton({ item, active, onClick, onIntent }: { item: BottomNavItem; active: boolean; onClick: () => void; onIntent?: () => void }) {
   const Icon = item.icon;
   const base = "flex flex-col items-center justify-center gap-1 px-3 py-2 text-xs";
   const color = active ? "text-beergam-orange" : "text-white/70";
   return (
-    <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={[base, color].join(" ")}
+    <button type="button" onClick={onClick} onMouseEnter={onIntent} onFocus={onIntent} aria-current={active ? "page" : undefined} className={[base, color].join(" ")}
       aria-label={item.label}
     >
       <span className="grid place-items-center text-[22px] leading-none">
@@ -34,6 +34,7 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [prefetchPage, setPrefetchPage] = useState<string | undefined>(undefined);
   const [submenuOpen, setSubmenuOpen] = useState<{
     open: boolean;
     items?: Record<string, IMenuItem>;
@@ -49,6 +50,7 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
       return [dynamicDefaultParentKey];
     }
   });
+
 
   useEffect(() => {
     const { keyChain } = findKeyPathByRoute(MenuConfig, location.pathname);
@@ -166,6 +168,10 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
                   key={item.key}
                   item={item}
                   active={isActive(item)}
+                  onIntent={() => {
+                    const path = item.destination?.pathname;
+                    if (path) setPrefetchPage(path);
+                  }}
                   onClick={() => {
                     if (item.key === "complaints") {
                       const parentKey = effectiveParentKey ?? lastVisitedParents[0] ?? "atendimento";
@@ -192,6 +198,10 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
                   key={item.key}
                   item={item}
                   active={isActive(item)}
+                  onIntent={() => {
+                    const path = item.destination?.pathname;
+                    if (path) setPrefetchPage(path);
+                  }}
                   onClick={() => {
                     if (item.key === "menu") setMenuOpen(true);
                     else if (item.key === "complaints") {
@@ -228,6 +238,7 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
       </nav>
       {menuOpen && <MenuOverlay onClose={() => setMenuOpen(false)} />}
       {accountOpen && <MobileAccountOverlay onClose={() => setAccountOpen(false)} />}
+      {prefetchPage ? <PrefetchPageLinks page={prefetchPage} /> : null}
       {submenuOpen.open && submenuOpen.items && (
         <SubmenuOverlay
           items={submenuOpen.items}

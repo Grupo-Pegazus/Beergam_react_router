@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { IMenuItem, IMenuConfig } from "~/features/menu/typings";
 import Svg from "~/src/assets/svgs";
-import { useNavigate } from "react-router";
+import { PrefetchPageLinks, useNavigate } from "react-router";
 import MobilePortal from "./Portal";
 import { getRelativePath, DEFAULT_INTERNAL_PATH } from "~/features/menu/utils";
 import { useOverlay } from "../../hooks/useOverlay";
@@ -154,6 +154,12 @@ export default function SubmenuOverlay({
                   </Paper>
                 );
               })}
+              <div aria-hidden>
+                {Object.entries(currentSubmenu.items).map(([key, item]) => {
+                  const path = item.path ? (getRelativePath(key) || DEFAULT_INTERNAL_PATH + item.path) : undefined;
+                  return path ? <PrefetchPageLinks key={`prefetch-sub:${key}`} page={path} /> : null;
+                })}
+              </div>
             </div>
           </div>
         </section>
