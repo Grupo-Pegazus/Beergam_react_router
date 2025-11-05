@@ -13,7 +13,13 @@ import { isRouteErrorResponse, useLoaderData } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
 import { updateSubscription } from "./features/auth/redux";
-import { cryptoAuth, cryptoUser } from "./features/auth/utils";
+import {
+  cryptoAuth,
+  cryptoMarketplace,
+  cryptoUser,
+} from "./features/auth/utils";
+import { setMarketplace } from "./features/marketplace/redux";
+import type { BaseMarketPlace } from "./features/marketplace/typings";
 import { updateUserInfo } from "./features/user/redux";
 import type { Subscription } from "./features/user/typings/BaseUser";
 import type { IUser } from "./features/user/typings/User";
@@ -136,6 +142,7 @@ export async function clientLoader() {
   return {
     userInfo: await cryptoUser.recuperarDados<IUser>(),
     subscriptionInfo: await cryptoAuth.recuperarDados<Subscription>(),
+    marketplace: await cryptoMarketplace.recuperarDados<BaseMarketPlace>(),
   };
 }
 
@@ -152,7 +159,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <ThemeProvider theme={theme}>{children}</ThemeProvider>
         <ScrollRestoration />
         <Scripts />
-        <Toaster toastOptions={{ style: { maxWidth: "500px", width: "auto" } }}>
+        <Toaster
+          toastOptions={{
+            style: { maxWidth: "500px", width: "auto", zIndex: 9999999999999 },
+          }}
+        >
           {/* {(t) => (
             <ToastBar toast={t}>
               {({ icon, message }) => (
@@ -199,11 +210,23 @@ function BootstrapAuth() {
   return null;
 }
 
+function BootstrapMarketplace() {
+  const { marketplace } = useLoaderData<typeof clientLoader>() ?? {};
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (marketplace) {
+      dispatch(setMarketplace(marketplace));
+    }
+  }, [dispatch, marketplace]);
+  return null;
+}
+
 export default function App() {
   return (
     <Provider store={store}>
       <Analytics />
       <BootstrapAuth />
+      <BootstrapMarketplace />
       <QueryClientProvider client={queryClient}>
         <Outlet />
       </QueryClientProvider>

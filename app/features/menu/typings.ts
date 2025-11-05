@@ -33,6 +33,7 @@ export const MenuConfig = {
     status: "yellow",
     icon: "bag",
     path: "/vendas",
+    launched: true,
   },
   anuncios: {
     label: "Anúncios",
@@ -40,6 +41,7 @@ export const MenuConfig = {
     path: "/anuncios",
     dinamic_id: "anuncio_id",
     icon: "bag",
+    launched: true,
   },
   atendimento: {
     label: "Atendimento",
@@ -54,6 +56,7 @@ export const MenuConfig = {
             label: "Perguntas",
             status: "yellow",
             path: "/perguntas",
+            launched: true,
           },
           reclamacoes_ml: {
             label: "Reclamações",

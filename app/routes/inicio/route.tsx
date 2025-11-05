@@ -1,6 +1,5 @@
 import type { Route } from ".react-router/types/app/routes/inicio/+types/route";
-import { useSelector } from "react-redux";
-import { type RootState } from "~/store";
+import { Paper } from "@mui/material";
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "Beergam | Início" },
@@ -9,11 +8,85 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Inicio() {
-  const user = useSelector((state: RootState) => state.auth.user);
   return (
     <>
-      <h1>Página de Início</h1>
-      <p>Olá, {user?.name}</p>
+    <div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+    </div>
+    <div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+    </div>
+    <div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+    </div>
+    <div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+    </div>
+    <div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+    </div>
+    <div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+    </div>
+    <div style={{ display: "flex", gap: "16px", marginTop: "16px" }}>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+      <Paper sx={{ width: "calc(100% / 3)", height: "200px", margin: "0 auto" }}>
+        <p>Página de Início</p>
+      </Paper>
+    </div>
     </>
   );
 }

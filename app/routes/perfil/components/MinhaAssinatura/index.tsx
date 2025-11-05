@@ -166,7 +166,7 @@ export default function MinhaAssinatura() {
               ? "bg-beergam-green" 
               : "bg-beergam-red"
           }`}>
-            {inTrial ? "Período de Trial" : subscriptionActive ? "Ativa" : "Expirada"}
+            {inTrial ? "Período de Teste" : subscriptionActive ? "Ativa" : "Expirada"}
           </div>
         </div>
         

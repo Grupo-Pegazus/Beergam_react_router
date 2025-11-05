@@ -11,14 +11,17 @@ export default function IconBase({
   children,
   width,
   fill,
+  height,
+  viewBox = "0 0 24 24",
 }: IconBaseProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className={tailWindClasses}
       width={width}
+      height={height}
       strokeWidth={strokeWidth}
-      viewBox="0 0 24 24"
+      viewBox={viewBox}
       stroke={stroke}
       fill={fill}
     >
