@@ -3,14 +3,7 @@ import type { ApiResponse } from "../apiClient/typings";
 import { UserRoles, type Subscription } from "../user/typings/BaseUser";
 import type { IColab } from "../user/typings/Colab";
 import { type IUser } from "../user/typings/User";
-import { cryptoAuth, cryptoUser } from "./utils";
-
-// Tipagem para os dados de usuário retornados pelo login
-// interface UserData {
-//   id: string;
-//   email: string;
-//   name: string;
-// }
+import { cryptoAuth } from "./utils";
 
 interface RegisterUser extends IUser {
   password: string;
@@ -39,7 +32,6 @@ class AuthService {
       if (loginResponse.success) {
         const subscriptionResponse = await this.getSubscription();
         if (subscriptionResponse.success) {
-          cryptoUser.encriptarDados(loginResponse.data);
           cryptoAuth.encriptarDados(subscriptionResponse.data);
           return {
             success: true,
@@ -116,6 +108,25 @@ class AuthService {
         data: {} as Subscription,
         message:
           "Erro ao buscar assinatura. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: {},
+      };
+    }
+  }
+  async createColab(colab: IColab): Promise<ApiResponse<IColab>> {
+    try {
+      const response = await typedApiClient.post<IColab>(
+        "/v1/auth/colab/register",
+        colab
+      );
+      return response;
+    } catch (error) {
+      console.error("error do createColab", error);
+      return {
+        success: false,
+        data: {} as IColab,
+        message:
+          "Erro ao criar colaborador. Tente novamente em alguns instantes.",
         error_code: 500,
         error_fields: {},
       };

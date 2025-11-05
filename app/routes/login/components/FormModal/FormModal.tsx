@@ -167,7 +167,7 @@ export default function FormModal({
         success: (data) => {
           const userData = data.data.user;
           const subscriptionData = data.data.subscription;
-          dispatch(updateUserInfo(userData));
+          dispatch(updateUserInfo({ user: userData, shouldEncrypt: true }));
           dispatch(updateSubscription(subscriptionData));
           if (!subscriptionData || subscriptionData?.start_date === null) {
             navigate("/interno/subscription");
@@ -175,6 +175,7 @@ export default function FormModal({
               icon: "🍊",
             });
           }
+          navigate("/interno/choosen_account");
           return data.message;
         },
         error: (error) => {
