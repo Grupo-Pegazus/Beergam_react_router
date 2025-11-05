@@ -156,7 +156,7 @@ export const SubscriptionSchema = z.object({
 }) satisfies z.ZodType<Subscription>;
 
 export interface IBaseUserDetails {
-  subscription?: Subscription | null;
+  // subscription?: Subscription | null;
   allowed_views?: MenuState;
 }
 
@@ -172,16 +172,6 @@ export interface IBaseUser {
 }
 
 export const BaseUserDetailsSchema = z.object({
-  subscription: z
-    .union([SubscriptionSchema, z.array(SubscriptionSchema)])
-    .optional()
-    .nullable()
-    .transform((s) => {
-      if (Array.isArray(s)) {
-        return s.length > 0 ? (s[0] as Subscription) : null;
-      }
-      return (s as Subscription | null | undefined) ?? null;
-    }),
   allowed_views: z
     .record(
       z.string(),
@@ -230,11 +220,11 @@ export const BaseUserSchema = z.object({
   details: BaseUserDetailsSchema,
 }) satisfies z.ZodType<IBaseUser>;
 
-export function FormatUserStatus(status: UserStatus): keyof typeof UserStatus {
+export function FormatUserStatus(status: UserStatus): UserStatus {
   return Object.values(UserStatus).find(
     (value) =>
       UserStatus[status as unknown as keyof typeof UserStatus] === value
-  ) as unknown as keyof typeof UserStatus;
+  ) as UserStatus;
 }
 export function FormatUserRole(role: UserRoles): keyof typeof UserRoles {
   if (Object.values(UserRoles).includes(role)) {

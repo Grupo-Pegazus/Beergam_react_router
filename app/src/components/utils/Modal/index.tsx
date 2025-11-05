@@ -33,7 +33,7 @@ function Modal({
 
   return (
     <div
-      className="fixed w-full justify-center items-center top-0 left-0 h-full z-[999] transition-all duration-300 ease-in-out"
+      className="fixed w-full justify-center items-center top-0 left-0 h-full z-999 transition-all duration-300 ease-in-out"
       style={{
         display: abrir ? "flex" : "none",
         opacity: fadeAnimation ? 1 : 0,
@@ -55,7 +55,7 @@ function Modal({
         }}
       ></button>
       <div
-        className={`relative max-h-[95vh] p-6 rounded-xl bg-white shadow-lg mx-auto transition-all duration-300 ease-in-out ${
+        className={`relative max-h-[95vh] p-6 rounded-xl bg-white shadow-lg mx-auto transition-all duration-300 ease-in-out overflow-y-auto ${
           abrir ? "opacity-100 scale-100" : "opacity-0 scale-95"
         } md:w-auto`}
         style={typeof style === "string" ? { [style]: "" } : style}

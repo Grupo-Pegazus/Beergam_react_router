@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { useFetcher } from "react-router";
 import { Tooltip } from "react-tooltip";
 import { z } from "zod";
-import { updateUserInfo } from "~/features/auth/redux";
+import { updateUserInfo } from "~/features/user/redux";
 import type { IColab } from "~/features/user/typings/Colab";
 import {
   CalcProfitProduct,
@@ -297,7 +297,9 @@ export default function MinhaConta<T extends IUser | IColab>({
       if (fetcher.data.success) {
         console.log("atualizando o usuario");
         const userData = UserSchema.safeParse(fetcher.data.data);
-        dispatch(updateUserInfo(userData.data as IUser));
+        dispatch(
+          updateUserInfo({ user: userData.data as IUser, shouldEncrypt: true })
+        );
         setSession({ type: "reset" });
       } else {
         if (fetcher.data.error_fields) {
@@ -641,7 +643,7 @@ export default function MinhaConta<T extends IUser | IColab>({
               </ElementWrapper>
             </ElementSection>
             <div
-              className={`sticky w-full bottom-0 left-0 right-0 flex justify-end lg:justify-center items-center ${
+              className={`sticky w-full md:bottom-0 bottom-16 left-0 right-0 flex justify-end lg:justify-center items-center ${
                 usersAreEqual
                   ? "opacity-0 pointer-events-none"
                   : "opacity-100 pointer-events-auto"

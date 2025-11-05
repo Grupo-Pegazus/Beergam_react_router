@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Subscription } from "../user/typings/BaseUser";
 
 export interface MasterUserForm {
   email: string;
@@ -33,3 +34,17 @@ export const ColaboradorUserFormSchema = z.object({
   pin: UserPinSchema,
   password: UserPasswordSchema,
 }) satisfies z.ZodType<ColaboradorUserForm>;
+
+export interface IAuthUser {
+  subscription: Subscription | null;
+}
+// export const PasswordSchema = z
+//   .string()
+//   .min(8, "A senha deve ter pelo menos 8 caracteres.")
+//   .regex(/[A-Z]/, "A senha deve conter pelo menos uma letra maiúscula.")
+//   .regex(/[a-z]/, "A senha deve conter pelo menos uma letra minúscula.")
+//   .regex(/\d/, "A senha deve conter pelo menos um número.")
+//   .regex(
+//     /[!@#$%^&*(),.?":{}|<>_\-+=~`[\]\\\/';]/,
+//     "A senha deve conter pelo menos um caractere especial."
+//   );

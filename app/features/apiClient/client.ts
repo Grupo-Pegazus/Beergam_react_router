@@ -175,7 +175,11 @@ typedApiClient.axiosInstance.interceptors.response.use(
   async (error) => {
     const original = error.config;
     if (error.response?.status === 401) {
-      if (error.response?.data?.error_code === 1002 && !original._retry && typeof window !== "undefined") {
+      if (
+        error.response?.data?.error_code === 1002 &&
+        !original._retry &&
+        typeof window !== "undefined"
+      ) {
         //Verifica se o erro é de access_token expirado e se não foi feito um refresh ainda
         original._retry = true;
         if (!refreshPromise) {
