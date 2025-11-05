@@ -11,9 +11,11 @@ import {
 } from "./typings/User";
 
 export function isMaster(user: IUser | IColab): user is IUser {
+  if (!user) return false;
   return user.role === UserRoles.MASTER;
 }
 export function isColab(user: IUser | IColab): user is IColab {
+  if (!user) return false;
   return user.role === UserRoles.COLAB;
 }
 
