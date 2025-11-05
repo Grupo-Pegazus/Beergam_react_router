@@ -91,8 +91,13 @@ export default function ColabInfo({
         toast.promise(createColabMutation.mutateAsync(editedColab), {
           loading: "Carregando...",
           success: (data) => {
+            if (!data.success) {
+              throw new Error(data.message);
+            }
+            // dispatch(updateColab(data.data));
             return data.message;
           },
+          error: "Erro ao criar colaborador",
         });
         break;
       case "Editar":
