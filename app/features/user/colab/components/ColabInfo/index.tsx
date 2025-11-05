@@ -1,10 +1,11 @@
 import { Paper, Switch } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
-import { useEffect, useReducer } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useReducer, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { z } from "zod";
 import { authService } from "~/features/auth/service";
+import { UserPasswordSchema } from "~/features/auth/typing";
 import {
   MenuConfig,
   type MenuKeys,
@@ -40,12 +41,13 @@ export default function ColabInfo({
   action: ColabAction | null;
 }) {
   const dispatch = useDispatch();
-  const initialColabState = colab;
+  const queryClient = useQueryClient();
+  const [password, setPassword] = useState("");
   const updateColabMutation = useMutation({
-    mutationFn: (colab: IColab) => userService.updateColab(colab),
+    mutationFn: (colab: IColab) => userService.updateColab(colab, password),
   });
   const createColabMutation = useMutation({
-    mutationFn: (colab: IColab) => authService.createColab(colab),
+    mutationFn: (colab: IColab) => authService.createColab(colab, password),
   });
 
   // Formata Date | string | null para "HH:mm"
@@ -69,8 +71,14 @@ export default function ColabInfo({
       if (!state) return null;
       return { ...state, ...action } as IColab;
     },
-    initialColabState
+    colab ?? null
   );
+
+  const passwordValidation = UserPasswordSchema.safeParse(password);
+  const passwordValidationError = passwordValidation.error
+    ? z.treeifyError(passwordValidation.error)
+    : null;
+  const [isShowPassword, setIsShowPassword] = useState(false);
   const editedColabValidation = ColabSchema.safeParse(editedColab);
   const editedColabError = editedColabValidation.error
     ? z.treeifyError(editedColabValidation.error)
@@ -81,11 +89,12 @@ export default function ColabInfo({
         <h1>Nenhum colaborador encontrado</h1>
         <p>Colab: {JSON.stringify(colab)}</p>
         <p>Edited Colab: {JSON.stringify(editedColab)}</p>
-        <p>Initial Colab: {JSON.stringify(initialColabState)}</p>
+        <p>Initial Colab: {JSON.stringify(colab)}</p>
       </div>
     );
   function handleFetch() {
     if (!editedColab) return;
+    if (updateColabMutation.isPending || createColabMutation.isPending) return;
     switch (action) {
       case "Criar":
         toast.promise(createColabMutation.mutateAsync(editedColab), {
@@ -94,7 +103,7 @@ export default function ColabInfo({
             if (!data.success) {
               throw new Error(data.message);
             }
-            // dispatch(updateColab(data.data));
+            queryClient.invalidateQueries({ refetchType: "active" });
             return data.message;
           },
           error: "Erro ao criar colaborador",
@@ -119,6 +128,17 @@ export default function ColabInfo({
         break;
     }
   }
+  const parseTimeString = (time: string | Date): Date => {
+    // Se já é Date, retorna o próprio Date
+    if (time instanceof Date) {
+      return time;
+    }
+    // Se é string "HH:mm", converte para Date
+    const [hours, minutes] = time.split(":").map(Number);
+    const d = new Date();
+    d.setHours(hours ?? 0, minutes ?? 0, 0, 0);
+    return d;
+  };
   function setHorarioComercial() {
     if (!editedColab) return;
     const current = editedColab as IColab;
@@ -127,12 +147,6 @@ export default function ColabInfo({
       details: {
         ...current.details,
         allowed_times: ((): IAllowedTimes => {
-          const parseTimeString = (timeStr: string): Date => {
-            const [hours, minutes] = timeStr.split(":").map(Number);
-            const d = new Date();
-            d.setHours(hours ?? 0, minutes ?? 0, 0, 0);
-            return d;
-          };
           const entries = (Object.values(WeekDay) as WeekDay[]).map((day) => {
             const value = current.details.allowed_times[day];
             if (day === WeekDay.SATURDAY || day === WeekDay.SUNDAY) {
@@ -153,13 +167,16 @@ export default function ColabInfo({
     });
   }
   useEffect(() => {
+    setPassword("");
     if (action === "Criar") {
       setEditedColab(getDefaultColab());
+      setIsShowPassword(true);
     }
     if (action === "Editar" && colab) {
       setEditedColab(colab);
+      setIsShowPassword(false);
     }
-  }, [action]);
+  }, [action, colab]);
   return (
     <>
       <hr className="h-[1px] mb-3.5 mt-5 border-beergam-gray-light" />
@@ -204,7 +221,30 @@ export default function ColabInfo({
                 </Fields.wrapper>
                 <Fields.wrapper>
                   <Fields.label text="SENHA DE ACESSO" />
-                  <Fields.input value={"asdaokdokas"} type="password" />
+                  <Fields.input
+                    error={
+                      action === "Editar" && isShowPassword
+                        ? passwordValidationError?.errors?.[0]
+                        : undefined
+                    }
+                    dataTooltipId="password-input"
+                    onChange={(e) => {
+                      if (isShowPassword) {
+                        setPassword(e.target.value);
+                      }
+                    }}
+                    onEyeChange={(showPassword) =>
+                      setIsShowPassword(!showPassword)
+                    }
+                    showPassword={isShowPassword}
+                    value={
+                      (action === "Editar" || action === "Criar") &&
+                      isShowPassword
+                        ? password
+                        : "asokaoksas"
+                    }
+                    type="password"
+                  />
                 </Fields.wrapper>
               </div>
             </div>
@@ -293,7 +333,11 @@ export default function ColabInfo({
                         ...editedColab.details,
                         allowed_times: {
                           ...editedColab.details.allowed_times,
-                          [day]: params,
+                          [day]: {
+                            access: params.access,
+                            start_date: parseTimeString(params.start_date),
+                            end_date: parseTimeString(params.end_date),
+                          },
                         },
                       },
                     });

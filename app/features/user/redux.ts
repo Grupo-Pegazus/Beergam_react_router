@@ -42,7 +42,7 @@ const userSlice = createSlice({
     },
     updateColab(state, action: PayloadAction<IColab>) {
       if (state.user && isMaster(state.user)) {
-        if (state.user.colabs) {
+        if (state.user.colabs && action.payload.pin) {
           state.user.colabs[action.payload.pin] = action.payload;
           userSlice.caseReducers.updateUserInfo(state, {
             payload: { user: state.user, shouldEncrypt: true },
@@ -51,8 +51,17 @@ const userSlice = createSlice({
         }
       }
     },
+    updateColabs(state, action: PayloadAction<Record<string, IColab>>) {
+      if (state.user && isMaster(state.user)) {
+        state.user.colabs = action.payload;
+        userSlice.caseReducers.updateUserInfo(state, {
+          payload: { user: state.user, shouldEncrypt: true },
+          type: "updateUserInfo",
+        });
+      }
+    },
   },
 });
 
-export const { updateUserInfo, updateColab } = userSlice.actions;
+export const { updateUserInfo, updateColab, updateColabs } = userSlice.actions;
 export default userSlice.reducer;

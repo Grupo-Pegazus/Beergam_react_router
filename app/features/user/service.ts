@@ -23,8 +23,15 @@ class UserService {
       };
     }
   }
-  async updateColab(editColab: IColab): Promise<ApiResponse<IColab>> {
+  async updateColab(
+    editColab: IColab,
+    password: string
+  ): Promise<ApiResponse<IColab>> {
     const colabPin = editColab.pin;
+    const body = {
+      ...editColab,
+      password: password.length > 0 ? password : undefined,
+    };
     if (!colabPin) {
       return {
         success: false,
@@ -37,7 +44,7 @@ class UserService {
     try {
       const response = await typedApiClient.patch<IColab>(
         `/v1/users/me/colabs/${colabPin}`,
-        editColab
+        body
       );
       return response;
     } catch (error) {
@@ -52,9 +59,9 @@ class UserService {
       };
     }
   }
-  async getColabs(): Promise<ApiResponse<IColab[]>> {
+  async getColabs(): Promise<ApiResponse<Record<string, IColab>>> {
     try {
-      const response = await typedApiClient.get<IColab[]>(
+      const response = await typedApiClient.get<Record<string, IColab>>(
         "/v1/users/me/colabs"
       );
       return response;
@@ -62,7 +69,7 @@ class UserService {
       console.error("error do getColabs", error);
       return {
         success: false,
-        data: [],
+        data: {},
         message:
           "Erro ao buscar colaboradores. Tente novamente em alguns instantes.",
         error_code: 500,
