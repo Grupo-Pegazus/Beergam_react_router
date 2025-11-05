@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useOverlay() {
   const [isOpen, setIsOpen] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const open = useCallback(() => {
     setShouldRender(true);
@@ -13,16 +14,27 @@ export function useOverlay() {
 
   const requestClose = useCallback((onAfter?: () => void) => {
     setIsOpen(false);
-    // tempo deve casar com duration das transições
-    const t = setTimeout(() => {
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
       setShouldRender(false);
-      onAfter?.();
+      if (typeof onAfter === "function") {
+        onAfter();
+      }
+      timeoutRef.current = null;
     }, 300);
-    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
-    return () => setShouldRender(false);
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      setShouldRender(false);
+    };
   }, []);
 
   return { isOpen, shouldRender, open, requestClose } as const;
