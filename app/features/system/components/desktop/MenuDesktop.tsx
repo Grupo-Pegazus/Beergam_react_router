@@ -10,7 +10,7 @@ import MenuItem from "../../../menu/components/MenuItem/MenuItem";
 
 function MenuDesktopContent() {
   useActiveMenu(MenuHandler.getMenu());
-  const user = useSelector((state: RootState) => state.auth);
+  const user = useSelector((state: RootState) => state.user);
   const { closeMany } = useMenuActions();
   const { openKeys } = useMenuState();
   const [isExpanded, setIsExpanded] = useState(false);

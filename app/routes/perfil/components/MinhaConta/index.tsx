@@ -528,7 +528,7 @@ export default function MinhaConta<T extends IUser | IColab>({
                 />
               </ElementWrapper>
               <div className="col-span-1 md:col-span-2">
-                <h3 className="text-beergam-blue-primary mb-4 !font-bold">
+                <h3 className="text-beergam-blue-primary mb-4 font-bold!">
                   Vendas em Marketplaces
                 </h3>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -663,7 +663,7 @@ export default function MinhaConta<T extends IUser | IColab>({
                   </button>
                   <button
                     data-tooltip-id="salvar-alteracoes"
-                    className={`${editedUserError ? "bg-beergam-blue-primary/40 !cursor-not-allowed" : "bg-beergam-blue-primary hover:bg-beergam-orange"} !font-bold text-beergam-white p-2 rounded-2xl`}
+                    className={`${editedUserError ? "bg-beergam-blue-primary/40 cursor-not-allowed!" : "bg-beergam-blue-primary hover:bg-beergam-orange"} font-bold! text-beergam-white p-2 rounded-2xl`}
                     onClick={() => fetchData()}
                   >
                     <p>Salvar alterações</p>

@@ -12,7 +12,7 @@ import { isMaster } from "~/features/user/utils";
 import type { IUser } from "~/features/user/typings/User";
 
 export default function PerfilHeaderMobile() {
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { user } = useSelector((state: RootState) => state.user);
   const { isOpen, shouldRender, open, requestClose } = useOverlay();
   const dispatch = useDispatch();
   const navigate = useNavigate();
