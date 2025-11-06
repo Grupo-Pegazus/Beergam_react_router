@@ -16,7 +16,7 @@ export const saveStateToLocalStorage = (state: RootState): void => {
     // Filtrar apenas os slices que devem ser persistidos
     const stateToPersist = {
       auth: state.auth,
-      menu: state.menu,
+      user: state.user,
     };
 
     const serializedState = JSON.stringify(stateToPersist);

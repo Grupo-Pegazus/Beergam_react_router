@@ -65,7 +65,7 @@ function Select({
             // base
             "w-full appearance-none bg-inherit text-[14px] text-[#333] cursor-pointer outline-none",
             // built-in arrow
-            "bg-[right_center] bg-no-repeat bg-[length:15px]",
+            "bg-position-[right_center] bg-no-repeat bg-size-[15px]",
             // states
             "focus:outline-none disabled:bg-[#f9f9f9] disabled:cursor-not-allowed disabled:text-[#64748b]",
           ].join(" ")}
