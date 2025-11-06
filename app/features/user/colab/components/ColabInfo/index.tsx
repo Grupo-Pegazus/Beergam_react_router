@@ -205,15 +205,15 @@ export default function ColabInfo({
         <ColabDetails colab={colab} />
       ) : (
         <div>
-          <div className="grid grid-cols-1 grid-rows-1 gap-4 2xl:grid-cols-[1fr_1.3fr]">
-            <Paper className="grid grid-rows-2 gap-4 border-1 border-beergam-gray-light rounded-md p-4">
-              <div className="grid grid-cols-[80px_1fr] gap-4 w-full">
-                <div className="w-full h-full max-h-[80px] bg-beergam-orange rounded-full flex items-center justify-center">
-                  <h2 className="text-white uppercase">
+          <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[1fr_1.3fr]">
+            <Paper className="grid lg:grid-rows-2 gap-4 border-1 border-beergam-gray-light rounded-md p-4">
+              <div className="grid grid-cols-1 lg:grid-cols-[80px_1fr] gap-4 w-full justify-items-center lg:justify-items-start">
+                <div className="w-24 h-24 lg:w-full lg:h-full lg:max-h-[80px] lg:max-w-[80px] bg-beergam-orange rounded-full flex items-center justify-center">
+                  <h2 className="text-white uppercase !text-4xl">
                     {editedColab.name.charAt(0).toUpperCase()}
                   </h2>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
                   <Fields.wrapper>
                     <Fields.label text="NOME" />
                     <Fields.input
@@ -252,9 +252,9 @@ export default function ColabInfo({
                   </Fields.wrapper>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col lg:flex-row gap-2">
                 <div className="flex justify-end items-end gap-2 w-[80px]">
-                  <div className="flex flex-col justify-between gap-2 w-full min-h-[68px]">
+                  <div className="flex flex-row items-start lg:flex-col justify-between gap-2 w-full min-h-[68px]">
                     <Fields.label
                       text="STATUS"
                       hint="Ativar/Desativar colaborador do sistema."
@@ -284,7 +284,7 @@ export default function ColabInfo({
                       text="NÍVEL"
                       hint="Nível de acesso do colaborador ao sistema."
                     />
-                    <div className="grid grid-cols-2 gap-2 w-full">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 w-full">
                       {Object.keys(ColabLevel).map((level) => (
                         <button
                           key={level}
@@ -313,7 +313,7 @@ export default function ColabInfo({
 
             <Paper className="flex flex-col border-1 border-beergam-gray-light rounded-md p-4">
               <Fields.label text="HORÁRIOS DE FUNCIONAMENTO" />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {Object.values(WeekDay).map((day: WeekDay) => (
                   <Time
                     key={day}
