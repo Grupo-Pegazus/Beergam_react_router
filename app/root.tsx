@@ -1,8 +1,10 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
 import { createTheme, ThemeProvider } from "@mui/material";
+// Enable MUI X Date Pickers component keys in theme.components
 import { ptBR } from "@mui/material/locale";
 import { ptBR as ptBRDayjs } from "@mui/x-date-pickers/locales";
+import "@mui/x-date-pickers/themeAugmentation";
 import * as Sentry from "@sentry/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
@@ -82,6 +84,79 @@ const theme = createTheme(
             border: "1px solid #b2b2bf",
             borderRadius: "8px",
             padding: "16px",
+          },
+        },
+      },
+      // Estilização do calendário (MUI X Date Pickers)
+      MuiDateCalendar: {
+        styleOverrides: {
+          root: {
+            borderRadius: 16,
+            border: "1px solid #e6e6f2",
+            padding: 12,
+            backgroundColor: "#ffffff",
+          },
+          viewTransitionContainer: {
+            marginTop: 8,
+          },
+        },
+      },
+      MuiPickersCalendarHeader: {
+        styleOverrides: {
+          root: {
+            paddingLeft: 8,
+            paddingRight: 8,
+          },
+          labelContainer: {
+            fontWeight: 700,
+            color: "#1f2a44",
+          },
+          switchViewButton: {
+            color: "var(--color-beergam-orange)",
+          },
+        },
+      },
+      MuiPickersArrowSwitcher: {
+        styleOverrides: {
+          root: {
+            "& .MuiIconButton-root": {
+              color: "var(--color-beergam-orange)",
+            },
+          },
+        },
+      },
+      MuiDayCalendar: {
+        styleOverrides: {
+          weekDayLabel: {
+            color: "#a0a3b1",
+            fontWeight: 600,
+          },
+        },
+      },
+      MuiPickersDay: {
+        styleOverrides: {
+          root: {
+            borderRadius: 10,
+            fontWeight: 600,
+            "&.Mui-selected": {
+              backgroundColor: "var(--color-beergam-blue-primary)",
+              color: "#ffffff",
+            },
+            "&.Mui-selected:hover": {
+              backgroundColor: "var(--color-beergam-blue-primary)",
+            },
+            "&:hover": {
+              backgroundColor: "#eef2ff",
+            },
+            "&.MuiPickersDay-today": {
+              border: "none",
+            },
+            "&.Mui-disabled": {
+              opacity: 0.4,
+            },
+          },
+          dayOutsideMonth: {
+            opacity: 0.4,
           },
         },
       },
