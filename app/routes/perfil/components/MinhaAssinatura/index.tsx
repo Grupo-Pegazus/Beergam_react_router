@@ -154,7 +154,7 @@ export default function MinhaAssinatura() {
   const inTrial = isInTrialPeriod(subscription);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 md:mb-0 mb-16">
       {/* Header da assinatura */}
       <div className="bg-beergam-blue-primary p-6 rounded-2xl text-white">
         <div className="flex items-center justify-between mb-4">
