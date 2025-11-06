@@ -165,7 +165,7 @@ export interface IBaseUser {
   role: UserRoles;
   status: UserStatus;
   marketplace_accounts?: BaseMarketPlace[] | null;
-  pin: string;
+  pin?: string | null;
   master_pin?: string | null;
   created_at: Date;
   updated_at: Date;
@@ -211,7 +211,7 @@ export const BaseUserSchema = z.object({
     .min(3, "Nome precisa ter 3 caracteres")
     .max(20, "Nome não pode ter mais de 20 caracteres"),
   role: z.enum(Object.keys(UserRoles) as [UserRoles, ...UserRoles[]]),
-  pin: z.string(),
+  pin: z.string().optional().nullable(),
   master_pin: z.string().optional().nullable(),
   status: z.enum(Object.keys(UserStatus) as [UserStatus, ...UserStatus[]]),
   marketplace_accounts: z.array(BaseMarketPlaceSchema).optional().nullable(),

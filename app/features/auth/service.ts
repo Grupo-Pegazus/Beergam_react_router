@@ -113,11 +113,18 @@ class AuthService {
       };
     }
   }
-  async createColab(colab: IColab): Promise<ApiResponse<IColab>> {
+  async createColab(
+    colab: IColab,
+    password: string
+  ): Promise<ApiResponse<IColab>> {
     try {
+      const body = {
+        ...colab,
+        password: password.length > 0 ? password : undefined,
+      };
       const response = await typedApiClient.post<IColab>(
         "/v1/auth/colab/register",
-        colab
+        body
       );
       return response;
     } catch (error) {

@@ -1,4 +1,4 @@
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import meli from "~/src/img/Mercado-Livre-Icon-Logo-Vector.svg-.png";
 import shopee from "~/src/img/shopee.png";
 import { type BaseMarketPlace, MarketplaceType, MarketplaceStatusParse } from "../typings";

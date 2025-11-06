@@ -10,7 +10,7 @@ import MenuItem from "../../../menu/components/MenuItem/MenuItem";
 
 function MenuDesktopContent() {
   useActiveMenu(MenuHandler.getMenu());
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = useSelector((state: RootState) => state.user);
   const { closeMany } = useMenuActions();
   const { openKeys } = useMenuState();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -23,9 +23,9 @@ function MenuDesktopContent() {
 
   const menu = useMemo(() => {
     return MenuHandler.setMenu(
-      user?.allowed_views ?? (MenuHandler.getMenu() as unknown as MenuState)
+      user?.user?.details.allowed_views ?? (MenuHandler.getMenu() as unknown as MenuState)
     );
-  }, [user?.allowed_views]);
+  }, [user?.user?.details.allowed_views]);
 
   return (
     <>

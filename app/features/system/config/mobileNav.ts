@@ -1,4 +1,4 @@
-import Svg from "../../../src/assets/svgs";
+import Svg from "../../../src/assets/svgs/_index";
 import type { BottomNavConfig, NavIcon } from "../types";
 import { DEFAULT_INTERNAL_PATH } from "~/features/menu/utils";
 
@@ -9,12 +9,14 @@ const mobileNav: BottomNavConfig = {
       label: "Início",
       destination: { pathname: DEFAULT_INTERNAL_PATH },
       icon: Svg.home as unknown as NavIcon,
+      iconSolid: Svg.home_solid as unknown as NavIcon,
     },
     {
       key: "sales",
       label: "Vendas",
       destination: { pathname: DEFAULT_INTERNAL_PATH + "/vendas" },
       icon: Svg.bag as unknown as NavIcon,
+      iconSolid: Svg.bag_solid as unknown as NavIcon,
     },
     {
       key: "account",

@@ -35,9 +35,21 @@ import Megaphone from "./Megaphone";
 import Bell from "./Bell";
 import List from "./List";
 import Profile from "./Profile";
+import HomeSolid from "./HomeSolid";
+import BagSolid from "./BagSolid";
+import CheckCircle from "./CheckCircle";
+import WarningCircle from "./WarningCircle";
+import XCircle from "./XCircle";
+import ProfileSolid from "./ProfileSolid";
+import UserPlusSolid from "./UserPlusSolid";
+import CardSolid from "./CardSolid";
+import CalculatorSolid from "./CalculatorSolid";
+import Plus from "./Plus";
 const Svg = {
   home: HomeIcon,
+  home_solid: HomeSolid,
   bag: BagIcon,
+  bag_solid: BagSolid,
   graph: GraphIcon,
   chat: ChatIcon,
   card: CardIcon,
@@ -73,6 +85,14 @@ const Svg = {
   bell: Bell,
   list: List,
   profile: Profile,
+  check_circle: CheckCircle,
+  warning_circle: WarningCircle,
+  x_circle: XCircle,
+  profile_solid: ProfileSolid,
+  user_plus_solid: UserPlusSolid,
+  card_solid: CardSolid,
+  calculator_solid: CalculatorSolid,
+  plus: Plus,
 };
 
 export default Svg;

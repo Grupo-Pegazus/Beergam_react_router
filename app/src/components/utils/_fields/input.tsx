@@ -1,6 +1,6 @@
-import { useState, type InputHTMLAttributes } from "react";
+import { useEffect, useState, type InputHTMLAttributes } from "react";
 import { Tooltip } from "react-tooltip";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 
 // interface InputProps {
 //   placeholder?: string;
@@ -26,6 +26,8 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   dataTooltipId?: string;
   showVariables?: boolean;
   wrapperSize?: string | undefined;
+  showPassword?: boolean;
+  onEyeChange?: (showPassword: boolean) => void;
 }
 export default function Input({
   error,
@@ -46,6 +48,8 @@ export default function Input({
   success,
   showVariables,
   wrapperSize,
+  onEyeChange,
+  showPassword,
   ...props
 }: InputProps) {
   const isValid = value && (!error || error != "") && success;
@@ -65,7 +69,7 @@ export default function Input({
   const disabledClasses = disabled
     ? "bg-gray-50 cursor-not-allowed border-gray-300 text-slate-500"
     : "";
-  const [showPassword, setShowPassword] = useState(false);
+  const [isShowPassword, setIsShowPassword] = useState(showPassword);
   // State para verificar se o usuário está focado ou interagindo com o input
   const [isInteracting, setIsInteracting] = useState(false);
 
@@ -79,6 +83,9 @@ export default function Input({
     setIsInteracting(false);
     if (onBlur) onBlur(e);
   };
+  useEffect(() => {
+    setIsShowPassword(showPassword ?? false);
+  }, [showPassword]);
   return (
     <>
       <div
@@ -87,7 +94,7 @@ export default function Input({
       >
         <input
           type={
-            type === "password" ? (showPassword ? "text" : "password") : type
+            type === "password" ? (isShowPassword ? "text" : "password") : type
           }
           value={value}
           placeholder={placeholder}
@@ -108,10 +115,13 @@ export default function Input({
         {type === "password" && (
           <button
             type="button"
-            onClick={() => setShowPassword(!showPassword)}
+            onClick={() => {
+              setIsShowPassword(!isShowPassword);
+              onEyeChange?.(isShowPassword ?? false);
+            }}
             className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
           >
-            {showPassword ? (
+            {isShowPassword ? (
               <div className="flex items-center gap-2">
                 <Svg.eye width={20} height={20} />
               </div>

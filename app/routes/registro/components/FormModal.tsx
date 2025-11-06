@@ -111,7 +111,11 @@ export default function FormModal() {
     }
     if (!UserSchema.safeParse(UserInfo).success) {
       console.log(UserSchema.safeParse(UserInfo));
-      console.log("UserInfo invalido", UserInfo);
+      console.log(
+        "UserInfo invalido",
+        UserInfo,
+        UserSchema.safeParse(UserInfo)
+      );
       return false;
     }
     if (!ConfirmPasswordSchema.safeParse(confirmPassword).success) {

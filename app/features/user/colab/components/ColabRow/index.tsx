@@ -3,7 +3,7 @@ import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
 import { useState } from "react";
 import { FormatUserStatus, UserStatus } from "~/features/user/typings/BaseUser";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import {
   ColabLevel,
   FormatColabLevel,
