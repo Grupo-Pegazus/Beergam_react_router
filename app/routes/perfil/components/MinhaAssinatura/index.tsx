@@ -5,6 +5,7 @@ import Svg from "~/src/assets/svgs/_index";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import MinhaAssinaturaSkeleton from "./skeleton";
+import { SubscriptionStatus } from "~/features/user/typings/BaseUser";
 
 
 const openCenteredWindow = (url: string, width: number = 800, height: number = 800) => {
@@ -109,12 +110,7 @@ export default function MinhaAssinatura() {
    * Verifica se a assinatura está em período de trial
    */
   const isInTrialPeriod = (subscription: Subscription): boolean => {
-    const now = new Date();
-    const trialUntil = subscription.free_trial_until && typeof subscription.free_trial_until === "string" 
-      ? new Date(subscription.free_trial_until) 
-      : subscription.free_trial_until;
-    
-    return trialUntil ? trialUntil > now : false;
+    return subscription.status === SubscriptionStatus.TRIALING;
   };
 
   /**
@@ -184,10 +180,7 @@ export default function MinhaAssinatura() {
               {inTrial ? "Trial até" : "Renovação"}
             </p>
             <p className="text-lg font-semibold">
-              {inTrial 
-                ? subscription.free_trial_until ? formatDate(subscription.free_trial_until) : "N/A"
-                : subscription.end_date ? formatDate(subscription.end_date) : "N/A"
-              }
+              {subscription.end_date ? formatDate(subscription.end_date) : "N/A"}
             </p>
           </div>
         </div>
