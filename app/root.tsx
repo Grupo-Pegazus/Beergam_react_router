@@ -148,10 +148,11 @@ export async function clientLoader() {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-br">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1 user-scalable=no" />
+        <link rel="preconnect" href="http://http2.mlstatic.com" /> {/* cdn de imagens do mercado livre */}
         <Meta />
         <Links />
       </head>
