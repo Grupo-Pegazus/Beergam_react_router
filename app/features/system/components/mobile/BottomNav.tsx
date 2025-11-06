@@ -9,10 +9,10 @@ import { useMarketplaceAccounts } from "~/features/marketplace/hooks/useMarketpl
 import { MenuConfig, type IMenuItem } from "~/features/menu/typings";
 import { DEFAULT_INTERNAL_PATH, findKeyPathByRoute, getIcon, getRelativePath } from "~/features/menu/utils";
 import SubmenuOverlay from "~/features/system/components/mobile/SubmenuOverlay";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 
 function NavButton({ item, active, onClick, onIntent }: { item: BottomNavItem; active: boolean; onClick: () => void; onIntent?: () => void }) {
-  const Icon = item.icon;
+  const Icon = active && item.iconSolid ? item.iconSolid : item.icon;
   const base = "flex flex-col items-center justify-center gap-1 px-3 py-2 text-xs";
   const color = active ? "text-beergam-orange" : "text-white/70";
   return (
@@ -86,6 +86,14 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
     return getIcon(item.icon);
   };
 
+  const solidIconForMenuKey = (menuKey: string) => {
+    const item = (MenuConfig as Record<string, IMenuItem>)[menuKey];
+    if (!item || !item.icon) return undefined;
+    const solidKey = (item.icon + "_solid") as keyof typeof Svg;
+    const Solid = (Svg as Record<string, unknown>)[solidKey] as BottomNavItem["icon"] | undefined;
+    return Solid;
+  };
+
   const excludedParents = useMemo(() => {
     const set = new Set<string>();
     for (const it of items) {
@@ -107,12 +115,14 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
     const parentKey = effectiveParentKey ?? lastVisitedParents[0] ?? dynamicDefaultParentKey;
     const parent = (MenuConfig as Record<string, IMenuItem>)[parentKey];
     const icon = parent?.icon ? getIcon(parent.icon) : (items[3]?.icon as BottomNavItem["icon"]);
+    const iconSolid = parent?.icon ? solidIconForMenuKey(parentKey) : (items[3] as BottomNavItem | undefined)?.iconSolid;
     const destinationPath = getRelativePath(parentKey) || DEFAULT_INTERNAL_PATH;
     return {
       key: "complaints",
       label: parent?.label ?? items[3]?.label ?? "Atendimento",
       destination: { pathname: destinationPath },
       icon: icon!,
+      iconSolid: iconSolid,
     };
   }, [items, effectiveParentKey, lastVisitedParents]);
 
@@ -123,11 +133,13 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
     const homeKey = "inicio";
     const salesKey = "vendas";
     const iconHome = iconForMenuKey(homeKey);
+    const iconHomeSolid = solidIconForMenuKey(homeKey);
     const iconSales = iconForMenuKey(salesKey);
+    const iconSalesSolid = solidIconForMenuKey(salesKey);
     const iconMenu = getIcon("list" as keyof typeof Svg);
 
-    if (iconHome) base[0] = { ...base[0], icon: iconHome } as BottomNavItem;
-    if (iconSales) base[1] = { ...base[1], icon: iconSales } as BottomNavItem;
+    if (iconHome) base[0] = { ...base[0], icon: iconHome, iconSolid: iconHomeSolid ?? base[0].iconSolid } as BottomNavItem;
+    if (iconSales) base[1] = { ...base[1], icon: iconSales, iconSolid: iconSalesSolid ?? base[1].iconSolid } as BottomNavItem;
 
     const homeItem = (MenuConfig as Record<string, IMenuItem>)[homeKey];
     const salesItem = (MenuConfig as Record<string, IMenuItem>)[salesKey];

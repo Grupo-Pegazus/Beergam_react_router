@@ -9,7 +9,7 @@ import { updateSubscription } from "~/features/auth/redux";
 import { subscriptionService } from "~/features/plans/subscriptionService";
 import type { Plan } from "~/features/user/typings/BaseUser";
 import { SubscriptionSchema } from "~/features/user/typings/BaseUser";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 
 interface StripeCheckoutProps {
   plan: Plan;

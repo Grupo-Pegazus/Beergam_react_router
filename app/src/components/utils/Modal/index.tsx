@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 
 interface ModalProps {
   abrir: boolean;

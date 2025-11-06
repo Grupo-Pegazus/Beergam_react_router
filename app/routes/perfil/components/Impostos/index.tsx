@@ -8,7 +8,7 @@ import type { TaxesData } from "~/features/taxes/typings";
 import { TextField, MenuItem, Select, InputLabel, FormControl, Table, TableHead, TableRow, TableCell, TableBody, Button, Card, CardContent, CircularProgress, Box, Typography, InputAdornment, IconButton, Chip, Avatar } from "@mui/material";
 import { Tooltip } from "react-tooltip";
 import Modal from "~/src/components/utils/Modal";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import Hint from "~/src/components/utils/Hint";
 import type { ApiResponse } from "~/features/apiClient/typings";
 

@@ -1,4 +1,4 @@
-import Svg from "../../src/assets/svgs";
+import Svg from "../../src/assets/svgs/_index";
 export type MenuStatus = "green" | "yellow" | "red";
 
 export interface IMenuItem {
