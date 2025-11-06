@@ -45,6 +45,8 @@ import UserPlusSolid from "./UserPlusSolid";
 import CardSolid from "./CardSolid";
 import CalculatorSolid from "./CalculatorSolid";
 import Plus from "./Plus";
+import Logout from "./Logout";
+
 const Svg = {
   home: HomeIcon,
   home_solid: HomeSolid,
@@ -93,6 +95,7 @@ const Svg = {
   card_solid: CardSolid,
   calculator_solid: CalculatorSolid,
   plus: Plus,
+  logout: Logout,
 };
 
 export default Svg;

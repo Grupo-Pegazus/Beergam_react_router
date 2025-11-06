@@ -3,6 +3,11 @@ import Svg from "~/src/assets/svgs/_index";
 import { useOverlay } from "~/features/system/hooks/useOverlay";
 import OverlayFrame from "~/features/system/shared/OverlayFrame";
 import { Paper } from "@mui/material";
+import { menuService } from "~/features/menu/service";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
+import { logout } from "~/features/auth/redux";
+import { useDispatch } from "react-redux";
 
 type PerfilMenuItem = {
   key: string;
@@ -29,7 +34,8 @@ export default function PerfilMenuOverlay({
   onSelect: (button: string) => void;
 }) {
   const { isOpen, shouldRender, open, requestClose } = useOverlay();
-
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const handleClose = useCallback(() => {
     requestClose(onClose);
   }, [requestClose, onClose]);
@@ -53,6 +59,16 @@ export default function PerfilMenuOverlay({
     onSelect(item.label);
     handleClose();
   }
+
+  const handleLogout = async () => {
+    const res = await menuService.logout();
+    if (res.success) {
+      dispatch(logout());
+      navigate("/login");
+    } else {
+      toast.error(res.message);
+    }
+  };
 
   return (
     <OverlayFrame title="Configurações de Usuário" isOpen={isOpen} shouldRender={shouldRender} onRequestClose={handleClose}>
@@ -85,8 +101,15 @@ export default function PerfilMenuOverlay({
             </Paper>
           );
         })}
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="fixed w-[90%] mx-auto bottom-6 left-0 right-0 flex items-center gap-3 p-3 rounded-xl border border-black/10 bg-beergam-red-light text-beergam-red-primary shadow-sm"
+        >
+            <Svg.logout width={20} height={20} tailWindClasses="text-beergam-red-primary" />
+            <span className="text-lg font-medium text-beergam-red-primary">Sair</span>
+        </button>
       </div>
     </OverlayFrame>
   );
 }
-
