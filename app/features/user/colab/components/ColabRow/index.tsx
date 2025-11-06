@@ -1,14 +1,12 @@
-import { Paper, TableCell, TableRow } from "@mui/material";
+import { TableCell, TableRow } from "@mui/material";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
 import { useState } from "react";
-import { FormatUserStatus, UserStatus } from "~/features/user/typings/BaseUser";
 import Svg from "~/src/assets/svgs";
-import {
-  ColabLevel,
-  FormatColabLevel,
-  type IColab,
-} from "../../../typings/Colab";
+import { type IColab } from "../../../typings/Colab";
+import ColabLevelBadge from "../Badges/ColabLevelBadge";
+import ColabStatusBadge from "../Badges/ColabStatusBadge";
+import ColabPhoto from "../ColabPhoto";
 export default function ColabRow({
   colab,
   index,
@@ -23,40 +21,6 @@ export default function ColabRow({
   isCurrentColab: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  function Badge({
-    className,
-    text,
-    pinClassName,
-  }: {
-    className: string;
-    text: string;
-    pinClassName: string;
-  }) {
-    return (
-      <Paper className={`flex items-center gap-2 !p-2 rounded-2xl${className}`}>
-        <div className={`w-2 h-2 rounded-full ${pinClassName}`}></div>
-        <p>{text}</p>
-      </Paper>
-    );
-  }
-  function ColabLevelBadge({ level }: { level: ColabLevel }) {
-    return (
-      <Badge
-        className="!w-[140px]"
-        text={FormatColabLevel(level)}
-        pinClassName={`${ColabLevel[level as unknown as keyof typeof ColabLevel] === ColabLevel.ADMIN ? "bg-beergam-orange" : "bg-beergam-blue-primary"}`}
-      />
-    );
-  }
-  function ColabStatusBadge({ status }: { status: UserStatus }) {
-    return (
-      <Badge
-        className="!w-[100px]"
-        text={FormatUserStatus(status)}
-        pinClassName={`${UserStatus[status as unknown as keyof typeof UserStatus] === UserStatus.ACTIVE ? "bg-beergam-orange" : "bg-beergam-gray"}`}
-      />
-    );
-  }
   return (
     <TableRow
       key={colab.pin}
@@ -68,10 +32,11 @@ export default function ColabRow({
     >
       <TableCell>
         <div className="flex items-center gap-2">
-          <div className="min-w-8 min-h-8 rounded-full relative object-cover object-center bg-beergam-orange flex items-center justify-center">
-            <h4 className="text-white">{colab.name.charAt(0).toUpperCase()}</h4>
-            <div className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-beergam-red border-1 border-beergam-white"></div>
-          </div>
+          <ColabPhoto
+            photo_id={colab.details.photo_id}
+            tailWindClasses="min-w-8 min-h-8 rounded-full relative object-cover object-center bg-beergam-orange flex items-center justify-center"
+            name={colab.name}
+          />
           <div>
             <p
               className="text-ellipsis overflow-hidden whitespace-nowrap"
@@ -85,10 +50,10 @@ export default function ColabRow({
       </TableCell>
       <TableCell className="font-bold">{colab.pin}</TableCell>
       <TableCell className="font-bold">
-        <ColabStatusBadge status={colab.status} />
+        <ColabStatusBadge status={colab.status} className="!w-[100px]" />
       </TableCell>
       <TableCell className="font-bold">
-        <ColabLevelBadge level={colab.details.level} />
+        <ColabLevelBadge level={colab.details.level} className="!w-[140px]" />
       </TableCell>
       <TableCell>
         <SpeedDial

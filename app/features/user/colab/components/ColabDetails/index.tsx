@@ -110,9 +110,9 @@ export default function ColabDetails({ colab }: ColabDetailsProps) {
         </div>
 
         <div className="flex flex-col">
-          <span className="text-xs text-beergam-gray mb-2">
+          <label className="text-beergam-gray mb-2">
             HORÁRIOS DE FUNCIONAMENTO
-          </span>
+          </label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {(Object.values(WeekDay) as WeekDay[]).map((day) => {
               const item = schedule[day];
@@ -143,8 +143,8 @@ export default function ColabDetails({ colab }: ColabDetailsProps) {
       </Paper>
 
       <Paper className="grid grid-cols-1 gap-4 p-4">
-        <span className="text-xs text-beergam-gray">ACESSOS</span>
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+        <label className="text-beergam-gray">ACESSOS</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
           {accessList.map((v) => (
             <div
               key={v.key}
