@@ -84,6 +84,7 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
               action: params.action as ColabAction,
             })
           }
+          currentColabPin={currentColab.colab?.pin ?? null}
         />
         {currentColab.colab && currentColab.action && (
           <ColabInfo

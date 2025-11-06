@@ -14,11 +14,13 @@ export default function ColabRow({
   index,
   actions,
   onAction,
+  isCurrentColab,
 }: {
   colab: IColab;
   index: number;
   actions: { icon: React.ReactNode; label: string }[];
   onAction: (params: { action: string; colab: IColab }) => void;
+  isCurrentColab: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   function Badge({
@@ -56,7 +58,14 @@ export default function ColabRow({
     );
   }
   return (
-    <TableRow key={colab.pin}>
+    <TableRow
+      key={colab.pin}
+      sx={{
+        backgroundColor: isCurrentColab
+          ? "var(--color-beergam-orange-light)"
+          : "transparent",
+      }}
+    >
       <TableCell>
         <div className="flex items-center gap-2">
           <div className="min-w-8 min-h-8 rounded-full relative object-cover object-center bg-beergam-orange flex items-center justify-center">
