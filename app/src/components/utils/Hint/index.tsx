@@ -1,5 +1,5 @@
 import { Tooltip } from "react-tooltip";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 
 export default function Hint({
   message,

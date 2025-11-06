@@ -1,4 +1,4 @@
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import {
   MenuConfig,
   type IMenuConfig,

@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { logout } from "~/features/auth/redux";
 import { menuService } from "../../../menu/service";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import StatusTag from "~/features/marketplace/components/StatusTag";
 import Modal from "~/src/components/utils/Modal";
 import Loading from "~/src/assets/loading";

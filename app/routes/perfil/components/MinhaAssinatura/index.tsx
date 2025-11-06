@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { subscriptionService } from "~/features/plans/subscriptionService";
 import type { Subscription } from "~/features/user/typings/BaseUser";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import MinhaAssinaturaSkeleton from "./skeleton";

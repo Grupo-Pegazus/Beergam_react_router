@@ -8,7 +8,7 @@ import type {
 } from "~/features/marketplace/typings";
 import { marketplaceService } from "~/features/marketplace/service";
 import { getAvailableMarketplaces } from "~/features/marketplace/utils";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import type { RootState } from "~/store";
 import AvailableMarketplaceCard from "./AvailableMarketplaceCard";
 

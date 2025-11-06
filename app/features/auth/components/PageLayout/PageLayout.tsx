@@ -1,4 +1,4 @@
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import ParticlesBackground from "~/src/components/utils/ParticlesBackground";
 import calendar from "~/src/img/auth/calendar.webp";
 import card from "~/src/img/auth/card.webp";

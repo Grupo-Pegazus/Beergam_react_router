@@ -14,6 +14,7 @@ export type BottomNavItem = {
   label: string;
   destination?: NavDestination;
   icon: NavIcon;
+  iconSolid?: NavIcon;
   isCenter?: boolean;
 };
 

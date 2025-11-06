@@ -1,5 +1,5 @@
 import beergam_flower_logo from "~/src/img/beergam_flower_logo.webp";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import { Tooltip } from "react-tooltip";
 import AccountView from "./AccountView";
 
