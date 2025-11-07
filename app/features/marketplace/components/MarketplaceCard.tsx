@@ -1,4 +1,4 @@
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import meli from "~/src/img/Mercado-Livre-Icon-Logo-Vector.svg-.png";
 import shopee from "~/src/img/shopee.png";
 import { type BaseMarketPlace, MarketplaceType, MarketplaceStatusParse } from "../typings";
@@ -48,13 +48,27 @@ export default function MarketplaceCard({
     >
       {marketplace ? (
         <>
-          <div className="absolute top-2 right-2 max-w-10 max-h-10">
-            <img
-              className="w-full h-full"
-              src={MarketplaceTypeBadge(marketplace.marketplace_type)}
-              alt=""
-            />
+          {/* Container para badges e botão de deletar no topo */}
+          <div className="absolute top-2 right-2 flex items-start gap-2 z-20">
+            {/* Badge do Marketplace */}
+            <div className="max-w-10 max-h-10">
+              <img
+                className="w-full h-full"
+                src={MarketplaceTypeBadge(marketplace.marketplace_type)}
+                alt=""
+              />
+            </div>
           </div>
+          <div className="absolute top-2 left-2 flex items-start gap-2 z-20">
+            <button 
+              className="bg-beergam-red-primary opacity-90 hover:opacity-100 active:opacity-100 md:opacity-0 md:group-hover:opacity-100 w-10 h-10 rounded-full flex items-center justify-center transition-opacity duration-200 shadow-lg"
+              onClick={handleDeleteClick}
+              aria-label="Deletar conta"
+            >
+              <Svg.trash tailWindClasses="stroke-beergam-white w-5 h-5" />
+            </button>
+          </div>
+          
           <img
             src={marketplace.marketplace_image}
             alt={marketplace.marketplace_name}
@@ -78,23 +92,11 @@ export default function MarketplaceCard({
 
           {/* Overlay de processamento */}
           {isProcessing && (
-            <div className="absolute inset-0 bg-black bg-opacity-50 rounded-2xl flex items-center justify-center opacity-70">
+            <div className="absolute inset-0 bg-black bg-opacity-50 rounded-2xl flex items-center justify-center opacity-70 z-10">
               <div className="text-white text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
                 <p className="text-sm font-medium">Processando...</p>
               </div>
-            </div>
-          )}
-
-          {/* Botão de deletar - só aparece se não estiver processando */}
-          {!isDisabled && (
-            <div className="absolute z-10 flex items-end justify-center gap-2 bottom-0 opacity-0 group-hover:opacity-100 h-full group-hover:bottom-[-50px]">
-              <button 
-                className="bg-beergam-red-primary opacity-75 w-10 h-10 rounded-full hover:opacity-100 flex items-center justify-center"
-                onClick={handleDeleteClick}
-              >
-                <Svg.trash tailWindClasses="stroke-beergam-white w-6 h-6" />
-              </button>
             </div>
           )}
         </>

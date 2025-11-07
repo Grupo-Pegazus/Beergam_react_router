@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { IMenuItem, IMenuConfig } from "~/features/menu/typings";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import { PrefetchPageLinks, useNavigate } from "react-router";
 import MobilePortal from "./Portal";
 import { getRelativePath, DEFAULT_INTERNAL_PATH } from "~/features/menu/utils";

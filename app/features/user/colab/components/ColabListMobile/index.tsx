@@ -1,7 +1,7 @@
 import { Pagination, Paper } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { type IColab } from "~/features/user/typings/Colab";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
 import ColabLevelBadge from "../Badges/ColabLevelBadge";
 import ColabStatusBadge from "../Badges/ColabStatusBadge";

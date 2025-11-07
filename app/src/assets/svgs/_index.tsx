@@ -12,6 +12,7 @@ import ClockIcon from "./ClockIcon";
 import Cog8Tooth from "./Cog8Tooth";
 import CurrencyDollar from "./CurrencyDollar";
 import DollyIcon from "./DollyIcon";
+import DocumentIcon from "./DocumentIcon";
 import ElipsisHorizontal from "./ElipsisHorizontal";
 import Eye from "./Eye";
 import EyeSlash from "./EyeSlash";
@@ -35,9 +36,23 @@ import Megaphone from "./Megaphone";
 import Bell from "./Bell";
 import List from "./List";
 import Profile from "./Profile";
+import HomeSolid from "./HomeSolid";
+import BagSolid from "./BagSolid";
+import CheckCircle from "./CheckCircle";
+import WarningCircle from "./WarningCircle";
+import XCircle from "./XCircle";
+import ProfileSolid from "./ProfileSolid";
+import UserPlusSolid from "./UserPlusSolid";
+import CardSolid from "./CardSolid";
+import CalculatorSolid from "./CalculatorSolid";
+import Plus from "./Plus";
+import Logout from "./Logout";
+
 const Svg = {
   home: HomeIcon,
+  home_solid: HomeSolid,
   bag: BagIcon,
+  bag_solid: BagSolid,
   graph: GraphIcon,
   chat: ChatIcon,
   card: CardIcon,
@@ -63,6 +78,7 @@ const Svg = {
   lock_closed: LockClosed,
   pencil: Pencil,
   elipsis_horizontal: ElipsisHorizontal,
+  document: DocumentIcon,
   check: Check,
   arrow_uturn_left: ArrowUturnLeft,
   line: Line,
@@ -73,6 +89,15 @@ const Svg = {
   bell: Bell,
   list: List,
   profile: Profile,
+  check_circle: CheckCircle,
+  warning_circle: WarningCircle,
+  x_circle: XCircle,
+  profile_solid: ProfileSolid,
+  user_plus_solid: UserPlusSolid,
+  card_solid: CardSolid,
+  calculator_solid: CalculatorSolid,
+  plus: Plus,
+  logout: Logout,
 };
 
 export default Svg;

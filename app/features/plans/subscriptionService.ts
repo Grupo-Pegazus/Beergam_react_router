@@ -93,7 +93,7 @@ class SubscriptionService {
   async getSubscription(): Promise<ApiResponse<Subscription>> {
     try {
       const response = await typedApiClient.get<unknown>(
-        "/v1/stripe/payments/subscription"
+        "/v1/payments/subscription"
       );
       // Normaliza diferentes formatos de resposta do backend (objeto ou array)
       type MaybeSubscriptionArray = { data?: Subscription[] } | Subscription[] | Subscription | null | undefined;

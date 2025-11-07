@@ -192,7 +192,7 @@ typedApiClient.axiosInstance.interceptors.response.use(
         await refreshPromise;
         return typedApiClient.axiosInstance(original);
       }
-      if (error.response?.data?.error_code === 1001) {
+      if (error.response?.data?.error_code === 1001 || error.response?.data?.error_code === 1004) {
         if (typeof window !== "undefined") {
           localStorage.removeItem("userInfo");
           localStorage.removeItem("userInfoIV");

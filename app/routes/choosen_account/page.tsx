@@ -2,7 +2,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
+
 import { useFetcher, useNavigate } from "react-router";
+
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import MarketplaceCard from "~/features/marketplace/components/MarketplaceCard";
 import { setMarketplace } from "~/features/marketplace/redux";
@@ -14,7 +16,7 @@ import {
   MarketplaceTypeLabel,
   type BaseMarketPlace,
 } from "~/features/marketplace/typings";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
 import Hint from "~/src/components/utils/Hint";
 import Modal from "~/src/components/utils/Modal";
@@ -187,7 +189,7 @@ export default function ChoosenAccountPage({
                 };
                 return (
                   <MarketplaceCard
-                    key={marketplace.marketplace_name}
+                    key={marketplace.marketplace_shop_id}
                     marketplace={marketplace}
                     onDelete={handleDeleteMarketplace}
                     onCardClick={async () => {

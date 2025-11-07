@@ -4,7 +4,7 @@ import { useMenuActions } from "../../hooks/useMenuActions";
 import { useMenuState } from "../../hooks/useMenuState";
 import { type IMenuItem } from "../../typings";
 import { DEFAULT_INTERNAL_PATH, getIcon, getRelativePath } from "../../utils";
-import Svg from "~/src/assets/svgs/index";
+import Svg from "~/src/assets/svgs/_index";
 import { PrefetchPageLinks } from "react-router";
 
 interface IMenuItemProps {

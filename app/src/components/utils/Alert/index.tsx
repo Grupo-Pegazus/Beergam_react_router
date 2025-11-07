@@ -4,7 +4,7 @@ import {
   type ClickAwayListenerProps,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import type { SvgBaseProps } from "~/src/assets/svgs/IconBase";
 import AlertButton from "./AlertButton";
 interface AlertProps extends Omit<ClickAwayListenerProps, "children"> {

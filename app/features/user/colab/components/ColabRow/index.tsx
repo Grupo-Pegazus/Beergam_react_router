@@ -1,12 +1,15 @@
 import { TableCell, TableRow } from "@mui/material";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
-import { useState } from "react";
-import Svg from "~/src/assets/svgs";
+import { useMemo, useState } from "react";
+import { useSelector } from "react-redux";
+import type { IUser } from "~/features/user/typings/User";
+import { isMaster } from "~/features/user/utils";
+import Svg from "~/src/assets/svgs/_index";
+import type { RootState } from "~/store";
 import { type IColab } from "../../../typings/Colab";
 import ColabLevelBadge from "../Badges/ColabLevelBadge";
 import ColabStatusBadge from "../Badges/ColabStatusBadge";
-import ColabPhoto from "../ColabPhoto";
 export default function ColabRow({
   colab,
   index,
@@ -21,6 +24,21 @@ export default function ColabRow({
   isCurrentColab: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useSelector((state: RootState) => state.user);
+
+  const masterPin = useMemo(() => {
+    if (user && isMaster(user)) {
+      return (user as IUser).pin;
+    }
+    return colab.master_pin ?? null;
+  }, [user, colab.master_pin]);
+
+  const colabPhotoUrl = useMemo(() => {
+    if (!masterPin || !colab.details?.photo_id) {
+      return null;
+    }
+    return `https://cdn.beergam.com.br/colab_photos/colab/${masterPin}/${colab.details.photo_id}.webp`;
+  }, [masterPin, colab.details?.photo_id]);
   return (
     <TableRow
       key={colab.pin}
@@ -32,11 +50,24 @@ export default function ColabRow({
     >
       <TableCell>
         <div className="flex items-center gap-2">
-          <ColabPhoto
-            photo_id={colab.details.photo_id}
-            tailWindClasses="min-w-8 min-h-8 rounded-full relative object-cover object-center bg-beergam-orange flex items-center justify-center"
-            name={colab.name}
-          />
+          <div
+            className="min-w-8 min-h-8 rounded-full relative object-cover object-center bg-beergam-orange flex items-center justify-center overflow-hidden"
+            style={{
+              backgroundImage: colabPhotoUrl
+                ? `url(${colabPhotoUrl})`
+                : undefined,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          >
+            {!colabPhotoUrl && (
+              <h4 className="text-white">
+                {colab.name.charAt(0).toUpperCase()}
+              </h4>
+            )}
+            <div className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-beergam-red border border-beergam-white"></div>
+          </div>
           <div>
             <p
               className="text-ellipsis overflow-hidden whitespace-nowrap"

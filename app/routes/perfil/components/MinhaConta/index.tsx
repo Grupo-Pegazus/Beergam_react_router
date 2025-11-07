@@ -29,7 +29,7 @@ import {
   FormatSegment,
   isMaster,
 } from "~/features/user/utils";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
 import type { InputProps } from "~/src/components/utils/_fields/input";
 import BasicDatePicker from "~/src/components/utils/BasicDatePicker";
@@ -528,7 +528,7 @@ export default function MinhaConta<T extends IUser | IColab>({
                 />
               </ElementWrapper>
               <div className="col-span-1 md:col-span-2">
-                <h3 className="text-beergam-blue-primary mb-4 !font-bold">
+                <h3 className="text-beergam-blue-primary mb-4 font-bold!">
                   Vendas em Marketplaces
                 </h3>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -643,7 +643,7 @@ export default function MinhaConta<T extends IUser | IColab>({
               </ElementWrapper>
             </ElementSection>
             <div
-              className={`sticky w-full bottom-0 left-0 right-0 flex justify-end lg:justify-center items-center ${
+              className={`sticky w-full md:bottom-0 bottom-16 left-0 right-0 flex justify-end lg:justify-center items-center ${
                 usersAreEqual
                   ? "opacity-0 pointer-events-none"
                   : "opacity-100 pointer-events-auto"
@@ -663,7 +663,7 @@ export default function MinhaConta<T extends IUser | IColab>({
                   </button>
                   <button
                     data-tooltip-id="salvar-alteracoes"
-                    className={`${editedUserError ? "bg-beergam-blue-primary/40 !cursor-not-allowed" : "bg-beergam-blue-primary hover:bg-beergam-orange"} !font-bold text-beergam-white p-2 rounded-2xl`}
+                    className={`${editedUserError ? "bg-beergam-blue-primary/40 cursor-not-allowed!" : "bg-beergam-blue-primary hover:bg-beergam-orange"} font-bold! text-beergam-white p-2 rounded-2xl`}
                     onClick={() => fetchData()}
                   >
                     <p>Salvar alterações</p>

@@ -98,7 +98,7 @@ class AuthService {
   async getSubscription(): Promise<ApiResponse<Subscription>> {
     try {
       const response = await typedApiClient.get<Subscription>(
-        "/v1/stripe/payments/subscription"
+        "/v1/payments/subscription"
       );
       return response;
     } catch (error) {

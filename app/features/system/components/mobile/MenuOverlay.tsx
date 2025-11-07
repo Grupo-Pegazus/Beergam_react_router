@@ -1,15 +1,16 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { MenuConfig, type IMenuItem, type IMenuConfig } from "~/features/menu/typings";
-import Svg from "~/src/assets/svgs";
-import { PrefetchPageLinks, useNavigate } from "react-router";
+import Svg from "~/src/assets/svgs/_index";
+import { PrefetchPageLinks, useLocation, useNavigate } from "react-router";
 import { useOverlay } from "../../hooks/useOverlay";
 import OverlayFrame from "../../shared/OverlayFrame";
-import { getRelativePath, DEFAULT_INTERNAL_PATH } from "~/features/menu/utils";
+import { getRelativePath, DEFAULT_INTERNAL_PATH, findKeyPathByRoute, getIcon } from "~/features/menu/utils";
 import SubmenuOverlay from "./SubmenuOverlay";
 import { Paper } from "@mui/material";
 
 export default function MenuOverlay({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const firstFocusable = useRef<HTMLButtonElement | null>(null);
   const { isOpen, shouldRender, open, requestClose } = useOverlay();
   const [submenuState, setSubmenuState] = useState<{
@@ -62,26 +63,36 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
         <div className="p-2 grid grid-cols-3 gap-2">
           {Object.entries(MenuConfig).map(([key, item]) => {
             const menuItem = item as IMenuItem;
-            const Icon = menuItem.icon ? (Svg as Record<string, React.ComponentType<unknown>>)[menuItem.icon] : undefined;
+            const Icon = menuItem.icon ? getIcon(menuItem.icon) : undefined;
+            const maybeSolid = menuItem.icon ? (getIcon((menuItem.icon + "_solid") as keyof typeof Svg) as typeof Icon | undefined) : undefined;
+            const { keyChain } = findKeyPathByRoute(MenuConfig, location.pathname);
+            const isActive = keyChain[0] === key;
+            const ActiveIcon = isActive && maybeSolid ? maybeSolid : Icon;
             const hasDropdown = !!menuItem.dropdown;
             return (
               <Paper
                 key={key}
                 onClick={() => handleItemClick(menuItem, key)}
-                className="relative aspect-square rounded-xl border border-black/10 bg-white shadow-sm p-3 flex flex-col items-center justify-center gap-2 hover:bg-beergam-blue-light hover:border-beergam-blue/20 active:scale-95 cursor-pointer transition-all duration-200"
+                className={
+                  [
+                    "relative aspect-square rounded-xl border border-black/10 bg-white shadow-sm p-3 flex flex-col items-center justify-center gap-2 transition-all duration-200",
+                    "hover:bg-beergam-blue-light hover:border-beergam-blue/20 active:scale-95 cursor-pointer",
+                    isActive ? "border-beergam-orange!" : "",
+                  ].join(" ")
+                }
                 elevation={1}
               >
-                <span className="text-[22px] leading-none grid place-items-center text-beergam-blue-primary">
-                  {Icon ? <Icon /> : null}
+                <span className="leading-none grid place-items-center text-beergam-blue-primary">
+                  {ActiveIcon ? <ActiveIcon tailWindClasses={`w-8 h-8 ${isActive ? "text-beergam-orange" : "text-beergam-blue-primary"}`} /> : null}
                 </span>
-                <span className="text-xs font-medium text-beergam-blue-primary text-center leading-tight">{menuItem.label}</span>
+                <span className={`text-xs ${isActive ? "font-bold" : "font-medium"} ${isActive ? "text-beergam-orange" : "text-beergam-blue-primary"} text-center leading-tight`}>{menuItem.label}</span>
                 {hasDropdown && (
                   <span className="absolute top-1.5 left-1.5 grid place-items-center w-5 h-5">
-                    <Svg.list width={20} height={20} tailWindClasses="text-beergam-blue-primary" />
+                    <Svg.list tailWindClasses="w-6 h-6 text-beergam-blue-primary" />
                   </span>
                 )}
                 <span className="absolute top-1.5 right-1.5 grid place-items-center w-5 h-5">
-                  {menuItem.status === "green" ? <div className="bg-beergam-green w-2 h-2 rounded-full"></div> : menuItem.status === "yellow" ? <div className="bg-beergam-yellow w-2 h-2 rounded-full"></div> : menuItem.status === "red" ? <div className="bg-beergam-red w-2 h-2 rounded-full"></div> : null}
+                  {menuItem.status === "green" ? <Svg.check_circle tailWindClasses="w-6 h-6 text-beergam-green" /> : menuItem.status === "yellow" ? <Svg.warning_circle tailWindClasses="w-6 h-6 text-beergam-yellow" /> : menuItem.status === "red" ? <Svg.x_circle tailWindClasses="w-6 h-6 text-beergam-red" /> : null}
                 </span>
               </Paper>
             );

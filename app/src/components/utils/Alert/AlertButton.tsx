@@ -1,5 +1,5 @@
 import React from "react";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 interface AlertButtonProps {
   onClick: (e: MouseEvent | TouchEvent) => void;
   type?: "confirm" | "cancel" | undefined;

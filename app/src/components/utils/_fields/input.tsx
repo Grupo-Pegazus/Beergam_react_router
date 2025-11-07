@@ -1,6 +1,6 @@
 import { useEffect, useState, type InputHTMLAttributes } from "react";
 import { Tooltip } from "react-tooltip";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 
 // interface InputProps {
 //   placeholder?: string;

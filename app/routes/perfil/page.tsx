@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import { type IColab } from "~/features/user/typings/Colab";
@@ -6,11 +6,69 @@ import type { IUser } from "~/features/user/typings/User";
 import { type RootState } from "~/store";
 import Colaboradores from "./components/Colaboradores";
 import Impostos from "./components/Impostos";
+import PerfilLayout from "./layout/PerfilLayout";
 import MinhaAssinatura from "./components/MinhaAssinatura";
 import MinhaConta from "./components/MinhaConta";
+import { useNavigate } from "react-router";
+import Svg from "~/src/assets/svgs/_index";
+
+const LAST_ROUTE_BEFORE_PERFIL_KEY = "beergam:lastRouteBeforePerfil";
 export default function PerfilPage() {
   const [activeButton, setActiveButton] = useState<string>("Minha Conta");
   const user = useSelector((state: RootState) => state.user.user);
+  const navigate = useNavigate();
+  const hasSavedRoute = useRef(false);
+  const marketplace = useSelector((state: RootState) => state.marketplace.marketplace);
+
+  // Salvar a última rota quando montar o componente (primeira vez no perfil)
+  useEffect(() => {
+    if (hasSavedRoute.current || typeof window === "undefined") return;
+    
+    // Tentar pegar do referrer ou do histórico
+    const referrer = document.referrer;
+    if (referrer && !referrer.includes("/perfil")) {
+      try {
+        const referrerUrl = new URL(referrer);
+        const referrerPath = referrerUrl.pathname;
+        if (referrerPath && !referrerPath.includes("/perfil")) {
+          sessionStorage.setItem(LAST_ROUTE_BEFORE_PERFIL_KEY, referrerPath);
+          hasSavedRoute.current = true;
+          return;
+        }
+      } catch {
+        // Ignorar erro ao criar URL
+      }
+    }
+    
+    // Fallback: usar a rota do início do sistema
+    const lastRoute = sessionStorage.getItem(LAST_ROUTE_BEFORE_PERFIL_KEY);
+    if (!lastRoute || lastRoute.includes("/perfil")) {
+      sessionStorage.setItem(LAST_ROUTE_BEFORE_PERFIL_KEY, "/interno");
+    }
+    hasSavedRoute.current = true;
+  }, []);
+
+  const handleVoltar = () => {
+    // Tentar usar a rota salva primeiro (mais confiável)
+    const lastRoute = sessionStorage.getItem(LAST_ROUTE_BEFORE_PERFIL_KEY);
+    
+    if (lastRoute && !lastRoute.includes("/perfil")) {
+      navigate(lastRoute);
+      return;
+    }
+    
+    // Se não houver rota salva, tentar voltar no histórico
+    try {
+      navigate(-1);
+    } catch {
+      // Se falhar, usar fallback baseado no marketplace
+      if (marketplace) {
+        navigate("/interno");
+      } else {
+        navigate("/interno/choosen_account");
+      }
+    }
+  };
   function changeNavigation() {
     if (!user) return <>nenhum usuario encontrado</>;
     switch (activeButton) {
@@ -43,7 +101,7 @@ export default function PerfilPage() {
   }) {
     return (
       <button
-        className={`text-beergam-white relative text-left p-2 rounded-md w-full bg-beergam-blue-primary/0 ${emBreve ? "cursor-not-allowed!" : "hover:bg-beergam-blue-primary/80"}   ${activeButton === text ? "!bg-beergam-blue-primary/100" : ""}`}
+        className={`text-beergam-white relative text-left p-2 rounded-md w-full bg-beergam-blue-primary/0 ${emBreve ? "cursor-not-allowed!" : "hover:bg-beergam-blue-primary/80"}   ${activeButton === text ? "bg-beergam-blue-primary!" : ""}`}
         onClick={() => {
           if (emBreve) return;
           console.log("cliquei no", text);
@@ -62,27 +120,36 @@ export default function PerfilPage() {
     );
   }
   return (
-    <PageLayout showLogo={false}>
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_2.4fr] w-full h-full">
-        <div className="p-6 flex-col right-0 bg-beergam-orange w-[60%] hidden lg:flex lg:w-full items-end absolute z-50 lg:static lg:bg-transparent lg:z-auto">
-          <div className="w-[90%] flex flex-col items-start">
-            <h3 className="uppercase text-beergam-white">
-              CONFIGURAÇÕES DE USUÁRIO
-            </h3>
-            <nav className="flex flex-col gap-2 items-start w-full">
-              <NavButton text="Minha Conta" />
-              <NavButton text="Colaboradores" />
-              <NavButton text="Minha Assinatura" />
-              <NavButton text="Impostos" />
-              <NavButton text="Afiliados" emBreve />
-            </nav>
+    <PerfilLayout activeButton={activeButton} onSelectButton={setActiveButton}>
+      <PageLayout showLogo={false}>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2.4fr] w-full h-full">
+          <div className="p-6 flex-col right-0 bg-beergam-orange w-[60%] hidden lg:flex lg:w-full items-end absolute z-50 lg:static lg:bg-transparent lg:z-auto">
+            <div className="w-[90%] flex flex-col items-start">
+              <h3 className="uppercase text-beergam-white">
+                CONFIGURAÇÕES DE USUÁRIO
+              </h3>
+              <nav className="flex flex-col gap-2 items-start w-full">
+                <button 
+                  onClick={handleVoltar}
+                  className="text-beergam-white text-sm flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-beergam-white/10 transition-colors duration-200 font-medium group"
+                >
+                  <Svg.arrow_uturn_left tailWindClasses="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+                  <span>Voltar</span>
+                </button>
+                <NavButton text="Minha Conta" />
+                <NavButton text="Colaboradores" />
+                <NavButton text="Minha Assinatura" />
+                <NavButton text="Impostos" />
+                <NavButton text="Afiliados" emBreve />
+              </nav>
+            </div>
+          </div>
+          <div className="bg-beergam-white p-6 md:rounded-tl-[16px] rounded-tr-none rounded-br-none md:rounded-bl-[16px] shadow-lg/55 overflow-y-auto max-h-screen">
+            <h1 className="text-beergam-blue-primary mb-4">{activeButton}</h1>
+            {changeNavigation()}
           </div>
         </div>
-        <div className="bg-beergam-white p-6 rounded-tl-[16px] rounded-tr-none rounded-br-none rounded-bl-[16px] shadow-lg/55 overflow-y-auto max-h-screen">
-          <h1 className="text-beergam-blue-primary mb-4">{activeButton}</h1>
-          {changeNavigation()}
-        </div>
-      </div>
-    </PageLayout>
+      </PageLayout>
+    </PerfilLayout>
   );
 }

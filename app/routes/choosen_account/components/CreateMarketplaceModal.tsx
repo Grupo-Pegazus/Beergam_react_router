@@ -8,8 +8,7 @@ import type {
 } from "~/features/marketplace/typings";
 import { marketplaceService } from "~/features/marketplace/service";
 import { getAvailableMarketplaces } from "~/features/marketplace/utils";
-import type { IUser } from "~/features/user/typings/User";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import type { RootState } from "~/store";
 import AvailableMarketplaceCard from "./AvailableMarketplaceCard";
 
@@ -21,12 +20,16 @@ export default function CreateMarketplaceModal({
   HandleIntegrationData?: (params: { Marketplace: MarketplaceType }) => void;
   modalOpen: boolean;
 }) {
-  const user = useSelector((state: RootState) => state.auth.user) as IUser;
+  const { subscription: rawSubscription } = useSelector((state: RootState) => state.auth);
   const queryClient = useQueryClient();
-  const availableAccounts =
-    user?.details?.subscription?.plan?.benefits?.marketplaces_integrados ?? 0;
-  const remainingAccounts =
-    availableAccounts - (marketplacesAccounts?.length || 0);
+  
+  const subscription = Array.isArray(rawSubscription) 
+    ? rawSubscription[0] ?? null 
+    : rawSubscription;
+  
+  const maxAccounts = subscription?.plan?.benefits?.ML_accounts ?? 0;
+  const currentAccountsCount = marketplacesAccounts?.length ?? 0;
+  const remainingAccounts = Math.max(0, maxAccounts - currentAccountsCount);
 
   const [selectedMarketplace, setSelectedMarketplace] =
     useState<MarketplaceType | null>(null);
@@ -93,7 +96,7 @@ export default function CreateMarketplaceModal({
         if (response.data.status === "success") {
           console.log("Integração realizada com sucesso!");
           stopPolling();
-          queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
+          queryClient.invalidateQueries({ refetchType: "active" });
           toast.success("Integração realizada com sucesso! Sua conta foi conectada.");
           return true;
         } else if (response.data.status === "error") {
@@ -211,7 +214,7 @@ export default function CreateMarketplaceModal({
             <div>
               <p className="text-sm font-medium text-green-600">Contas Restantes</p>
               <p className="text-2xl font-bold text-green-800">
-                {remainingAccounts || 0}
+                {remainingAccounts}
               </p>
             </div>
             <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
@@ -237,7 +240,7 @@ export default function CreateMarketplaceModal({
       </div>
 
         {/* Overlay para limite atingido */}
-        {remainingAccounts == 99 && (
+        {remainingAccounts <= 0 && (
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl">
             <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md mx-4">
               <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
