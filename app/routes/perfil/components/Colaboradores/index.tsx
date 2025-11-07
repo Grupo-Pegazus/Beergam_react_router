@@ -1,8 +1,9 @@
 // import ColabCard from "~/features/user/colab/components/ColabCard";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import { useDispatch } from "react-redux";
 import ColabInfo from "~/features/user/colab/components/ColabInfo";
+import ColabListMobile from "~/features/user/colab/components/ColabListMobile";
 import ColabTable from "~/features/user/colab/components/ColabTable";
 import { updateColabs } from "~/features/user/redux";
 import { userService } from "~/features/user/service";
@@ -54,9 +55,10 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
       dispatch(updateColabs(data.data as Record<string, IColab>));
     }
   }, [data]);
+  const colabInfoRef = useRef<HTMLDivElement>(null);
   return (
     <>
-      <div className="flex items-center justify-between pb-4">
+      <div className="flex flex-col md:flex-row items-center justify-between pb-4">
         <p>Quantidade de colaboradores registrados: {colabs.length}</p>
         <button
           onClick={() => setCurrentColab({ colab: null, action: "Criar" })}
@@ -71,26 +73,51 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
         </button>
       </div>
       <div className="flex flex-col">
-        <ColabTable
-          availableActions={Object.fromEntries(
-            Object.entries(availableActions).filter(
-              ([action]) => action !== "Criar"
-            )
-          )}
-          colabs={colabs}
-          onTableAction={(params) =>
-            setCurrentColab({
-              colab: params.colab,
-              action: params.action as ColabAction,
-            })
-          }
-        />
-        {currentColab.colab && currentColab.action && (
-          <ColabInfo
-            colab={currentColab.colab}
-            action={currentColab.action as ColabAction}
+        <div className="hidden md:block">
+          <ColabTable
+            availableActions={Object.fromEntries(
+              Object.entries(availableActions).filter(
+                ([action]) => action !== "Criar"
+              )
+            )}
+            colabs={colabs}
+            onTableAction={(params) =>
+              setCurrentColab({
+                colab: params.colab,
+                action: params.action as ColabAction,
+              })
+            }
+            currentColabPin={currentColab.colab?.pin ?? null}
           />
-        )}
+        </div>
+        <div className="md:hidden">
+          <ColabListMobile
+            colabs={colabs}
+            onAction={(params) => {
+              setCurrentColab({
+                colab: params.colab,
+                action: params.action as ColabAction,
+              });
+              if (params.action != "Excluir") {
+                setTimeout(() => {
+                  colabInfoRef.current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                }, 100);
+              }
+            }}
+            currentColabPin={currentColab.colab?.pin ?? null}
+          />
+        </div>
+        <div ref={colabInfoRef}>
+          {currentColab.colab && currentColab.action && (
+            <ColabInfo
+              colab={currentColab.colab}
+              action={currentColab.action as ColabAction}
+            />
+          )}
+        </div>
       </div>
     </>
   );

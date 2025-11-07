@@ -1,28 +1,28 @@
-import { Paper, TableCell, TableRow } from "@mui/material";
+import { TableCell, TableRow } from "@mui/material";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
 import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { FormatUserStatus, UserStatus } from "~/features/user/typings/BaseUser";
-import type { RootState } from "~/store";
-import Svg from "~/src/assets/svgs/_index";
-import { isMaster } from "~/features/user/utils";
 import type { IUser } from "~/features/user/typings/User";
-import {
-  ColabLevel,
-  FormatColabLevel,
-  type IColab,
-} from "../../../typings/Colab";
+import { isMaster } from "~/features/user/utils";
+import Svg from "~/src/assets/svgs/_index";
+import type { RootState } from "~/store";
+import { type IColab } from "../../../typings/Colab";
+import ColabLevelBadge from "../Badges/ColabLevelBadge";
+import ColabStatusBadge from "../Badges/ColabStatusBadge";
+import ColabPhoto from "../ColabPhoto";
 export default function ColabRow({
   colab,
   index,
   actions,
   onAction,
+  isCurrentColab,
 }: {
   colab: IColab;
   index: number;
   actions: { icon: React.ReactNode; label: string }[];
   onAction: (params: { action: string; colab: IColab }) => void;
+  isCurrentColab: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useSelector((state: RootState) => state.user);
@@ -34,63 +34,24 @@ export default function ColabRow({
     return colab.master_pin ?? null;
   }, [user, colab.master_pin]);
 
-  const colabPhotoUrl = useMemo(() => {
-    if (!masterPin || !colab.details?.photo_id) {
-      return null;
-    }
-    return `https://cdn.beergam.com.br/colab_photos/colab/${masterPin}/${colab.details.photo_id}.webp`;
-  }, [masterPin, colab.details?.photo_id]);
-  function Badge({
-    className,
-    text,
-    pinClassName,
-  }: {
-    className: string;
-    text: string;
-    pinClassName: string;
-  }) {
-    return (
-      <Paper className={`flex items-center gap-2 p-2! rounded-2xl${className}`}>
-        <div className={`w-2 h-2 rounded-full ${pinClassName}`}></div>
-        <p>{text}</p>
-      </Paper>
-    );
-  }
-  function ColabLevelBadge({ level }: { level: ColabLevel }) {
-    return (
-      <Badge
-        className="w-[140px]!"
-        text={FormatColabLevel(level)}
-        pinClassName={`${ColabLevel[level as unknown as keyof typeof ColabLevel] === ColabLevel.ADMIN ? "bg-beergam-orange" : "bg-beergam-blue-primary"}`}
-      />
-    );
-  }
-  function ColabStatusBadge({ status }: { status: UserStatus }) {
-    return (
-      <Badge
-        className="w-[100px]!"
-        text={FormatUserStatus(status)}
-        pinClassName={`${UserStatus[status as unknown as keyof typeof UserStatus] === UserStatus.ACTIVE ? "bg-beergam-orange" : "bg-beergam-gray"}`}
-      />
-    );
-  }
   return (
-    <TableRow key={colab.pin}>
+    <TableRow
+      key={colab.pin}
+      sx={{
+        backgroundColor: isCurrentColab
+          ? "var(--color-beergam-orange-light)"
+          : "transparent",
+      }}
+    >
       <TableCell>
         <div className="flex items-center gap-2">
-          <div
-            className="min-w-8 min-h-8 rounded-full relative object-cover object-center bg-beergam-orange flex items-center justify-center overflow-hidden"
-            style={{
-              backgroundImage: colabPhotoUrl ? `url(${colabPhotoUrl})` : undefined,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
-          >
-            {!colabPhotoUrl && (
-              <h4 className="text-white">{colab.name.charAt(0).toUpperCase()}</h4>
-            )}
-            <div className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-beergam-red border border-beergam-white"></div>
+          <div className="size-10">
+            <ColabPhoto
+              photo_id={colab.details.photo_id}
+              masterPin={masterPin}
+              name={colab.name}
+              online={colab.is_online}
+            />
           </div>
           <div>
             <p
@@ -105,10 +66,10 @@ export default function ColabRow({
       </TableCell>
       <TableCell className="font-bold">{colab.pin}</TableCell>
       <TableCell className="font-bold">
-        <ColabStatusBadge status={colab.status} />
+        <ColabStatusBadge status={colab.status} className="!w-[100px]" />
       </TableCell>
       <TableCell className="font-bold">
-        <ColabLevelBadge level={colab.details.level} />
+        <ColabLevelBadge level={colab.details.level} className="!w-[140px]" />
       </TableCell>
       <TableCell>
         <SpeedDial
