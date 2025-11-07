@@ -19,7 +19,6 @@ type BaseUploadProps = {
   onUploadSuccess?: (ids: string[]) => void;
   emptyStateLabel?: string;
   draggingLabel?: string;
-  helperText?: string;
 };
 
 type InternalUploadProps = BaseUploadProps & {
