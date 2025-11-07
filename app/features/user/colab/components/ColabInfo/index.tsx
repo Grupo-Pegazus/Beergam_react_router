@@ -1,8 +1,8 @@
 import { Paper, Switch } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useReducer, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { z } from "zod";
 import { authService } from "~/features/auth/service";
 import { UserPasswordSchema } from "~/features/auth/typing";
@@ -12,7 +12,7 @@ import {
   type MenuState,
 } from "~/features/menu/typings";
 import { updateColab } from "~/features/user/redux";
-import { userService } from "~/features/user/service";
+import { createColabPhotoUploadService, userService } from "~/features/user/service";
 import {
   WeekDay,
   WeekDayToPortuguese,
@@ -26,10 +26,13 @@ import {
   getDefaultColab,
   type IColab,
 } from "~/features/user/typings/Colab";
-import { FormatColabLevel } from "~/features/user/utils";
+import { FormatColabLevel, isMaster } from "~/features/user/utils";
 import type { ColabAction } from "~/routes/perfil/typings";
+import type { RootState } from "~/store";
 import Svg from "~/src/assets/svgs/_index";
+import type { IUser } from "~/features/user/typings/User";
 import { Fields } from "~/src/components/utils/_fields";
+import UploadOverlay from "~/src/components/utils/upload/components/Overlay";
 import Time from "~/src/components/utils/Time";
 import { EnumKeyFromValue } from "~/utils/typings/EnumKeysFromValues";
 import ViewAccess from "../ViewAccess";
@@ -42,6 +45,7 @@ export default function ColabInfo({
 }) {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
+  const { user } = useSelector((state: RootState) => state.user);
   const [password, setPassword] = useState("");
   const updateColabMutation = useMutation({
     mutationFn: (colab: IColab) => userService.updateColab(colab, password),
@@ -72,6 +76,63 @@ export default function ColabInfo({
       return { ...state, ...action } as IColab;
     },
     colab ?? null
+  );
+
+  const [isHoveringPhoto, setIsHoveringPhoto] = useState(false);
+  const [isPhotoUploaderVisible, setIsPhotoUploaderVisible] = useState(false);
+
+  const canUploadPhoto = Boolean(editedColab?.pin);
+  const colabPhotoUploadService = useMemo(
+    () =>
+      editedColab?.pin ? createColabPhotoUploadService(editedColab.pin) : null,
+    [editedColab?.pin]
+  );
+
+  const handleOpenPhotoUploader = useCallback(() => {
+    if (!canUploadPhoto) {
+      return;
+    }
+    setIsPhotoUploaderVisible(true);
+  }, [canUploadPhoto]);
+
+  const handleClosePhotoUploader = useCallback(() => {
+    setIsPhotoUploaderVisible(false);
+    setIsHoveringPhoto(false);
+  }, []);
+
+  const masterPin = useMemo(() => {
+    if (user && isMaster(user)) {
+      return (user as IUser).pin;
+    }
+    return editedColab?.master_pin ?? null;
+  }, [user, editedColab?.master_pin]);
+
+  const colabPhotoUrl = useMemo(() => {
+    if (!masterPin || !editedColab?.details?.photo_id) {
+      return null;
+    }
+    return `https://cdn.beergam.com.br/colab_photos/colab/${masterPin}/${editedColab.details.photo_id}.webp`;
+  }, [masterPin, editedColab?.details?.photo_id]);
+
+  const handleUploadSuccess = useCallback(
+    (ids: string[]) => {
+      if (!ids.length || !editedColab) {
+        return;
+      }
+      const newPhotoId = ids[0];
+      const updatedColab: IColab = {
+        ...editedColab,
+        details: {
+          ...editedColab.details,
+          photo_id: newPhotoId,
+        },
+      };
+      setEditedColab(updatedColab);
+      dispatch(updateColab(updatedColab));
+      queryClient.invalidateQueries({ refetchType: "active" });
+      handleClosePhotoUploader();
+    },
+    [editedColab, dispatch, handleClosePhotoUploader, queryClient]
   );
 
   const passwordValidation = UserPasswordSchema.safeParse(password);
@@ -168,6 +229,8 @@ export default function ColabInfo({
   }
   useEffect(() => {
     setPassword("");
+    setIsPhotoUploaderVisible(false);
+    setIsHoveringPhoto(false);
     if (action === "Criar") {
       setEditedColab(getDefaultColab());
       setIsShowPassword(true);
@@ -179,11 +242,11 @@ export default function ColabInfo({
   }, [action, colab]);
   return (
     <>
-      <hr className="h-[1px] mb-3.5 mt-5 border-beergam-gray-light" />
+      <hr className="h-px mb-3.5 mt-5 border-beergam-gray-light" />
       <div>
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
-            <h3 className="text-beergam-blue-primary !font-bold uppercase">
+            <h3 className="text-beergam-blue-primary font-bold! uppercase">
               {action === "Editar"
                 ? "Editar Colaborador"
                 : action === "Visualizar"
@@ -202,12 +265,44 @@ export default function ColabInfo({
           </button>
         </div>
         <div className="grid grid-cols-1 grid-rows-1 gap-4 2xl:grid-cols-[1fr_1.3fr]">
-          <Paper className="grid grid-rows-2 gap-4 border-1 border-beergam-gray-light rounded-md p-4">
+          <Paper className="grid grid-rows-2 gap-4 border border-beergam-gray-light rounded-md p-4">
             <div className="grid grid-cols-[80px_1fr] gap-4 w-full">
-              <div className="w-full h-full max-h-[80px] bg-beergam-orange rounded-full flex items-center justify-center">
-                <h2 className="text-white uppercase">
-                  {editedColab.name.charAt(0).toUpperCase()}
-                </h2>
+              <div className="w-full h-full max-h-[80px]">
+                <button
+                  type="button"
+                  className="relative flex h-full w-full items-center justify-center rounded-full bg-beergam-orange text-white transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-beergam-blue-primary disabled:cursor-not-allowed disabled:opacity-60 overflow-hidden"
+                  style={{
+                    backgroundImage: colabPhotoUrl ? `url(${colabPhotoUrl})` : undefined,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
+                  }}
+                  disabled={!canUploadPhoto}
+                  onMouseEnter={() => setIsHoveringPhoto(true)}
+                  onMouseLeave={() => setIsHoveringPhoto(false)}
+                  onFocus={() => setIsHoveringPhoto(true)}
+                  onBlur={() => setIsHoveringPhoto(false)}
+                  onClick={handleOpenPhotoUploader}
+                >
+                  {!colabPhotoUrl && (
+                    <span
+                      className={`uppercase transition-opacity duration-150 ${
+                        isHoveringPhoto && canUploadPhoto ? "opacity-0" : "opacity-100"
+                      }`}
+                    >
+                      {editedColab.name.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                  <span
+                    className={`pointer-events-none absolute inset-0 flex items-center justify-center px-3 text-center text-[11px] font-semibold uppercase transition-opacity duration-150 bg-beergam-black-blue/60 ${
+                      isHoveringPhoto || !canUploadPhoto ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    {canUploadPhoto
+                      ? "Clique para alterar"
+                      : "Salve o colaborador para adicionar foto"}
+                  </span>
+                </button>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <Fields.wrapper>
@@ -247,6 +342,7 @@ export default function ColabInfo({
                   />
                 </Fields.wrapper>
               </div>
+
             </div>
             <div className="flex gap-2">
               <div className="flex justify-end items-end gap-2 w-[80px]">
@@ -307,7 +403,7 @@ export default function ColabInfo({
             </div>
           </Paper>
 
-          <Paper className="flex flex-col border-1 border-beergam-gray-light rounded-md p-4">
+          <Paper className="flex flex-col border border-beergam-gray-light rounded-md p-4">
             <Fields.label text="HORÁRIOS DE FUNCIONAMENTO" />
             <div className="grid grid-cols-2 gap-4">
               {Object.values(WeekDay).map((day: WeekDay) => (
@@ -396,6 +492,23 @@ export default function ColabInfo({
           Salvar Informações
         </button>
       </div>
+
+      {colabPhotoUploadService && (
+        <UploadOverlay
+          isOpen={isPhotoUploaderVisible}
+          onClose={handleClosePhotoUploader}
+          title="Atualizar foto do colaborador"
+          description="Adicione ou atualize a foto do seu colaborador."
+          uploadProps={{
+            typeImport: "internal",
+            service: colabPhotoUploadService,
+            maxFiles: 1,
+            accept: "image/*",
+            emptyStateLabel: "Arraste ou selecione a nova foto do colaborador",
+            onUploadSuccess: handleUploadSuccess
+          }}
+        />
+      )}
     </>
   );
 }
