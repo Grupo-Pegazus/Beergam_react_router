@@ -13,7 +13,7 @@ import type {
 
 type BaseUploadProps = {
   accept?: string;
-    maxFiles?: number;
+  maxFiles?: number;
   onChange?: (ids: string[]) => void;
   onError?: (error: UploadErrorContext) => void;
   onUploadSuccess?: (ids: string[]) => void;
