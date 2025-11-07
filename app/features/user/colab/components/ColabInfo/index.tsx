@@ -507,8 +507,7 @@ export default function ColabInfo({
             emptyStateLabel: "Arraste ou selecione a nova foto do colaborador",
             onUploadSuccess: handleUploadSuccess
           }}
-        >
-        </UploadOverlay>
+        />
       )}
     </>
   );
