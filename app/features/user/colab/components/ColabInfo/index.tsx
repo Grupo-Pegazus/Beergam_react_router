@@ -1,6 +1,6 @@
 import { Paper, Switch } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useReducer, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { z } from "zod";
@@ -26,7 +26,8 @@ import {
   getDefaultColab,
   type IColab,
 } from "~/features/user/typings/Colab";
-import { FormatColabLevel } from "~/features/user/utils";
+import type { IUser } from "~/features/user/typings/User";
+import { FormatColabLevel, isMaster } from "~/features/user/utils";
 import type { ColabAction } from "~/routes/perfil/typings";
 import Svg from "~/src/assets/svgs";
 import { Fields } from "~/src/components/utils/_fields";
@@ -73,6 +74,63 @@ export default function ColabInfo({
       return { ...state, ...action } as IColab;
     },
     colab ?? null
+  );
+
+  const [isHoveringPhoto, setIsHoveringPhoto] = useState(false);
+  const [isPhotoUploaderVisible, setIsPhotoUploaderVisible] = useState(false);
+
+  const canUploadPhoto = Boolean(editedColab?.pin);
+  const colabPhotoUploadService = useMemo(
+    () =>
+      editedColab?.pin ? createColabPhotoUploadService(editedColab.pin) : null,
+    [editedColab?.pin]
+  );
+
+  const handleOpenPhotoUploader = useCallback(() => {
+    if (!canUploadPhoto) {
+      return;
+    }
+    setIsPhotoUploaderVisible(true);
+  }, [canUploadPhoto]);
+
+  const handleClosePhotoUploader = useCallback(() => {
+    setIsPhotoUploaderVisible(false);
+    setIsHoveringPhoto(false);
+  }, []);
+
+  const masterPin = useMemo(() => {
+    if (user && isMaster(user)) {
+      return (user as IUser).pin;
+    }
+    return editedColab?.master_pin ?? null;
+  }, [user, editedColab?.master_pin]);
+
+  const colabPhotoUrl = useMemo(() => {
+    if (!masterPin || !editedColab?.details?.photo_id) {
+      return null;
+    }
+    return `https://cdn.beergam.com.br/colab_photos/colab/${masterPin}/${editedColab.details.photo_id}.webp`;
+  }, [masterPin, editedColab?.details?.photo_id]);
+
+  const handleUploadSuccess = useCallback(
+    (ids: string[]) => {
+      if (!ids.length || !editedColab) {
+        return;
+      }
+      const newPhotoId = ids[0];
+      const updatedColab: IColab = {
+        ...editedColab,
+        details: {
+          ...editedColab.details,
+          photo_id: newPhotoId,
+        },
+      };
+      setEditedColab(updatedColab);
+      dispatch(updateColab(updatedColab));
+      queryClient.invalidateQueries({ refetchType: "active" });
+      handleClosePhotoUploader();
+    },
+    [editedColab, dispatch, handleClosePhotoUploader, queryClient]
   );
 
   const passwordValidation = UserPasswordSchema.safeParse(password);
@@ -169,6 +227,8 @@ export default function ColabInfo({
   }
   useEffect(() => {
     setPassword("");
+    setIsPhotoUploaderVisible(false);
+    setIsHoveringPhoto(false);
     if (action === "Criar") {
       setEditedColab(getDefaultColab());
       setIsShowPassword(true);
@@ -210,9 +270,47 @@ export default function ColabInfo({
               <Paper className="grid md:grid-rows-2 gap-4 border-1 border-beergam-gray-light rounded-md p-4">
                 <div className="grid grid-cols-1 md:grid-cols-[80px_1fr] gap-4 w-full justify-items-center md:justify-items-start">
                   <div className="w-24 h-24 md:w-full md:h-full md:max-h-[80px] md:max-w-[80px] bg-beergam-orange rounded-full flex items-center justify-center">
-                    <h2 className="text-white uppercase !text-4xl">
-                      {editedColab.name.charAt(0).toUpperCase()}
-                    </h2>
+                    <button
+                      type="button"
+                      className="relative flex h-full w-full items-center justify-center rounded-full bg-beergam-orange text-white transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-beergam-blue-primary disabled:cursor-not-allowed disabled:opacity-60 overflow-hidden"
+                      style={{
+                        backgroundImage: colabPhotoUrl
+                          ? `url(${colabPhotoUrl})`
+                          : undefined,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                      }}
+                      disabled={!canUploadPhoto}
+                      onMouseEnter={() => setIsHoveringPhoto(true)}
+                      onMouseLeave={() => setIsHoveringPhoto(false)}
+                      onFocus={() => setIsHoveringPhoto(true)}
+                      onBlur={() => setIsHoveringPhoto(false)}
+                      onClick={handleOpenPhotoUploader}
+                    >
+                      {!colabPhotoUrl && (
+                        <span
+                          className={`uppercase transition-opacity duration-150 ${
+                            isHoveringPhoto && canUploadPhoto
+                              ? "opacity-0"
+                              : "opacity-100"
+                          }`}
+                        >
+                          {editedColab.name.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                      <span
+                        className={`pointer-events-none absolute inset-0 flex items-center justify-center px-3 text-center text-[11px] font-semibold uppercase transition-opacity duration-150 bg-beergam-black-blue/60 ${
+                          isHoveringPhoto || !canUploadPhoto
+                            ? "opacity-100"
+                            : "opacity-0"
+                        }`}
+                      >
+                        {canUploadPhoto
+                          ? "Clique para alterar"
+                          : "Salve o colaborador para adicionar foto"}
+                      </span>
+                    </button>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
                     <Fields.wrapper>
@@ -407,6 +505,22 @@ export default function ColabInfo({
           </div>
         )}
       </div>
+      {colabPhotoUploadService && (
+        <UploadOverlay
+          isOpen={isPhotoUploaderVisible}
+          onClose={handleClosePhotoUploader}
+          title="Atualizar foto do colaborador"
+          description="Adicione ou atualize a foto do seu colaborador."
+          uploadProps={{
+            typeImport: "internal",
+            service: colabPhotoUploadService,
+            maxFiles: 1,
+            accept: "image/*",
+            emptyStateLabel: "Arraste ou selecione a nova foto do colaborador",
+            onUploadSuccess: handleUploadSuccess,
+          }}
+        />
+      )}
     </>
   );
 }
