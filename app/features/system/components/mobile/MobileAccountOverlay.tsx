@@ -4,6 +4,7 @@ import { useOverlay } from "../../hooks/useOverlay";
 import { useMarketplaceAccounts } from "~/features/marketplace/hooks/useMarketplaceAccounts";
 import Modal from "~/src/components/utils/Modal";
 import { MarketplaceTypeLabel } from "~/features/marketplace/typings";
+import Svg from "~/src/assets/svgs/_index";
 
 const CreateMarketplaceModal = lazy(() => import("~/routes/choosen_account/components/CreateMarketplaceModal"));
 
@@ -45,7 +46,7 @@ function AccountList({ onSelected, onAdd }: { onSelected: () => void; onAdd: () 
       {isLoading ? (
         <div className="text-sm opacity-70">Carregando contas...</div>
       ) : (
-        <div className="grid grid-cols-1 gap-3">
+        <div className="grid grid-cols-1 gap-1 max-h-[80vh] overflow-y-auto">
           {accounts.map((acc) => (
             <button
               key={acc.marketplace_shop_id}
@@ -53,7 +54,7 @@ function AccountList({ onSelected, onAdd }: { onSelected: () => void; onAdd: () 
               onClick={async () => { await selectAccountAsync(acc); onSelected(); }}
               disabled={isSelecting}
               className={[
-                "w-full flex items-center gap-3 p-3 rounded-xl border border-black/10 bg-white shadow-sm",
+                "w-[90%] mx-auto my-1 flex items-center gap-3 p-3 rounded-xl border border-black/10 bg-white shadow-sm",
                 acc.marketplace_shop_id === current?.marketplace_shop_id ? "ring-2 ring-beergam-orange" : "",
               ].join(" ")}
             >
@@ -67,9 +68,10 @@ function AccountList({ onSelected, onAdd }: { onSelected: () => void; onAdd: () 
           <button
             type="button"
             onClick={onAdd}
-            className="mt-2 px-3 py-2 rounded-xl border border-black/10 bg-[#f6f8fb] text-center"
+            className="fixed w-[90%] mx-auto bottom-6 left-0 right-0 mt-2 px-3 py-4 rounded-xl border border-black/10 bg-beergam-blue-light text-center flex items-center justify-center gap-2"
           >
-            Adicionar conta
+            <Svg.plus width={20} height={20} tailWindClasses="text-beergam-blue-primary" />
+            <span className="text-lg font-medium text-beergam-blue-primary">Adicionar conta</span>
           </button>
         </div>
       )}

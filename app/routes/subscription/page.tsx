@@ -2,7 +2,7 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import type { Plan } from "~/features/user/typings/BaseUser";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import Modal from "~/src/components/utils/Modal";
 import PlansSkeleton from "./components/PlansSkeleton";
 import StripeCheckout from "./components/StripeCheckout";

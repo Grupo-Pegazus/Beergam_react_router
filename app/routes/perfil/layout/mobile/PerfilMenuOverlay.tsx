@@ -1,8 +1,13 @@
 import { useEffect, useCallback } from "react";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import { useOverlay } from "~/features/system/hooks/useOverlay";
 import OverlayFrame from "~/features/system/shared/OverlayFrame";
 import { Paper } from "@mui/material";
+import { menuService } from "~/features/menu/service";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
+import { logout } from "~/features/auth/redux";
+import { useDispatch } from "react-redux";
 
 type PerfilMenuItem = {
   key: string;
@@ -29,7 +34,8 @@ export default function PerfilMenuOverlay({
   onSelect: (button: string) => void;
 }) {
   const { isOpen, shouldRender, open, requestClose } = useOverlay();
-
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const handleClose = useCallback(() => {
     requestClose(onClose);
   }, [requestClose, onClose]);
@@ -54,12 +60,24 @@ export default function PerfilMenuOverlay({
     handleClose();
   }
 
+  const handleLogout = async () => {
+    const res = await menuService.logout();
+    if (res.success) {
+      dispatch(logout());
+      navigate("/login");
+    } else {
+      toast.error(res.message);
+    }
+  };
+
   return (
     <OverlayFrame title="Configurações de Usuário" isOpen={isOpen} shouldRender={shouldRender} onRequestClose={handleClose}>
       <div className="p-2 grid grid-cols-3 gap-2">
         {PERFIL_MENU_ITEMS.map((item) => {
           const Icon = Svg[item.icon];
+          const maybeSolid = item.icon ? (Svg[(item.icon + "_solid") as keyof typeof Svg] as typeof Icon | undefined) : undefined;
           const isActive = activeButton === item.label;
+          const ActiveIcon = isActive && maybeSolid ? maybeSolid : Icon;
           return (
             <Paper
               key={item.key}
@@ -68,28 +86,30 @@ export default function PerfilMenuOverlay({
                 item.emBreve
                   ? "cursor-not-allowed opacity-60"
                   : "hover:bg-beergam-blue-light hover:border-beergam-blue/20 active:scale-95 cursor-pointer"
-              } ${isActive ? "bg-beergam-blue-primary/20! border-beergam-blue-primary/40!" : ""}`}
+              } ${isActive ? "border-beergam-orange!" : ""}`}
               elevation={1}
             >
-              <span className="text-[22px] leading-none grid place-items-center text-beergam-blue-primary">
-                <Icon tailWindClasses="w-6 h-6" />
+              <span className="leading-none grid place-items-center text-beergam-blue-primary">
+                {ActiveIcon ? <ActiveIcon tailWindClasses={`w-8 h-8 ${isActive ? "text-beergam-orange" : "text-beergam-blue-primary"}`} /> : null}
               </span>
-              <span className="text-xs font-medium text-beergam-blue-primary text-center leading-tight">{item.label}</span>
+              <span className={`text-xs font-medium ${isActive ? "text-beergam-orange" : "text-beergam-blue-primary"} text-center leading-tight`}>{item.label}</span>
               {item.emBreve && (
                 <span className="absolute top-1.5 right-1.5 grid place-items-center">
                   <span className="text-[8px] py-0.5 px-1.5 rounded bg-beergam-gray text-white font-medium">Em breve</span>
                 </span>
               )}
-              {isActive && !item.emBreve && (
-                <span className="absolute top-1.5 left-1.5 grid place-items-center w-5 h-5">
-                  <div className="bg-beergam-blue-primary w-2 h-2 rounded-full"></div>
-                </span>
-              )}
             </Paper>
           );
         })}
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="fixed w-[90%] mx-auto bottom-6 left-0 right-0 flex items-center gap-3 p-3 rounded-xl border border-black/10 bg-beergam-red-light text-beergam-red-primary shadow-sm"
+        >
+            <Svg.logout width={20} height={20} tailWindClasses="text-beergam-red-primary" />
+            <span className="text-lg font-medium text-beergam-red-primary">Sair</span>
+        </button>
       </div>
     </OverlayFrame>
   );
 }
-

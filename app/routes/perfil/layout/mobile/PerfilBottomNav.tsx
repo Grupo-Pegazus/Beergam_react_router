@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import MobilePortal from "~/features/system/components/mobile/Portal";
 import type { RootState } from "~/store";
 import PerfilMenuOverlay from "./PerfilMenuOverlay";
@@ -12,13 +12,14 @@ type PerfilNavItem = {
   key: string;
   label: string;
   icon: keyof typeof Svg;
+  iconSolid?: keyof typeof Svg;
   onClick: () => void;
   active: boolean;
   emBreve?: boolean;
 };
 
 function NavButton({ item, active, onClick }: { item: PerfilNavItem; active: boolean; onClick: () => void }) {
-  const Icon = Svg[item.icon];
+  const Icon = active && item.iconSolid ? Svg[item.iconSolid] : Svg[item.icon];
   const base = "flex flex-col items-center justify-center gap-1 px-2 py-2 text-xs relative";
   const color = active ? "text-beergam-orange" : item.emBreve ? "text-white/40" : "text-white/70";
   return (
@@ -31,7 +32,7 @@ function NavButton({ item, active, onClick }: { item: PerfilNavItem; active: boo
       aria-label={item.label}
     >
       <span className="grid place-items-center text-[22px] leading-none">
-        <Icon tailWindClasses="w-6 h-6" />
+        {Icon ? <Icon tailWindClasses="w-6 h-6" /> : null}
       </span>
       <span className="text-[10px] leading-tight text-center">{item.label}</span>
       {item.emBreve && (
@@ -105,6 +106,7 @@ export default function PerfilBottomNav({ activeButton, onSelect }: PerfilBottom
       icon: "profile",
       onClick: () => onSelect("Minha Conta"),
       active: activeButton === "Minha Conta",
+      iconSolid: "profile_solid",
     },
     {
       key: "colaboradores",
@@ -112,6 +114,7 @@ export default function PerfilBottomNav({ activeButton, onSelect }: PerfilBottom
       icon: "user_plus",
       onClick: () => onSelect("Colaboradores"),
       active: activeButton === "Colaboradores",
+      iconSolid: "user_plus_solid",
     },
     {
       key: "minha_assinatura",
@@ -119,6 +122,7 @@ export default function PerfilBottomNav({ activeButton, onSelect }: PerfilBottom
       icon: "card",
       onClick: () => onSelect("Minha Assinatura"),
       active: activeButton === "Minha Assinatura",
+      iconSolid: "card_solid",
     },
     {
       key: "voltar",

@@ -1,7 +1,7 @@
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import { useSelector } from "react-redux";
 import type { RootState } from "~/store";
 import OverlayFrame from "../../shared/OverlayFrame";

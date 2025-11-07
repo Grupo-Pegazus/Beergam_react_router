@@ -17,12 +17,12 @@ export enum UserStatus {
 }
 
 export enum SubscriptionStatus {
-  ACTIVE = "active",
-  CANCELED = "canceled",
-  INCOMPLETE = "incomplete",
-  PAST_DUE = "past_due",
-  TRIALING = "trialing",
-  PENDING = "pending",
+  ACTIVE = "ACTIVE",
+  CANCELED = "CANCELED",
+  INCOMPLETE = "INCOMPLETE",
+  PAST_DUE = "PAST_DUE",
+  TRIALING = "TRIALING",
+  PENDING = "PENDING",
 }
 
 export interface PlanBenefits {
@@ -142,16 +142,7 @@ export const SubscriptionSchema = z.object({
         }) as SubscriptionPlan
     ),
   status: z
-    .string()
-    .transform((s) =>
-      typeof s === "string" ? (s.toLowerCase() as SubscriptionStatus) : s
-    )
-    .refine(
-      (s) => (s == null ? true : Object.values(SubscriptionStatus).includes(s)),
-      {
-        message: `Status inválido`,
-      }
-    )
+    .enum(Object.keys(SubscriptionStatus) as [SubscriptionStatus, ...SubscriptionStatus[]])
     .optional(),
 }) satisfies z.ZodType<Subscription>;
 

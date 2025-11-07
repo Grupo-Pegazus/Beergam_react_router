@@ -1,4 +1,4 @@
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import MobilePortal from "../components/mobile/Portal";
 
 export default function OverlayFrame({

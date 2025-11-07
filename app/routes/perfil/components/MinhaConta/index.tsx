@@ -29,7 +29,7 @@ import {
   FormatSegment,
   isMaster,
 } from "~/features/user/utils";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
 import type { InputProps } from "~/src/components/utils/_fields/input";
 import BasicDatePicker from "~/src/components/utils/BasicDatePicker";

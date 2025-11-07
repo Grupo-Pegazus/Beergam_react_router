@@ -7,7 +7,7 @@ import ColabTable from "~/features/user/colab/components/ColabTable";
 import { updateColabs } from "~/features/user/redux";
 import { userService } from "~/features/user/service";
 import { getDefaultColab, type IColab } from "~/features/user/typings/Colab";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import type { ColabAction } from "../../typings";
 
 export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {

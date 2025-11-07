@@ -8,7 +8,7 @@ import type { TaxesData } from "~/features/taxes/typings";
 import { TextField, MenuItem, Select, InputLabel, FormControl, Table, TableHead, TableRow, TableCell, TableBody, Button, Card, CardContent, CircularProgress, Box, Typography, InputAdornment, IconButton, Chip, Avatar } from "@mui/material";
 import { Tooltip } from "react-tooltip";
 import Modal from "~/src/components/utils/Modal";
-import Svg from "~/src/assets/svgs";
+import Svg from "~/src/assets/svgs/_index";
 import Hint from "~/src/components/utils/Hint";
 import type { ApiResponse } from "~/features/apiClient/typings";
 
@@ -132,7 +132,7 @@ export default function Impostos() {
   const isReady = Boolean(selectedAccount);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 md:mb-0 mb-16">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FormControl fullWidth>
           <InputLabel id="account-select-label">Conta</InputLabel>
@@ -180,12 +180,19 @@ export default function Impostos() {
       ) : (
         <Card>
           <CardContent>
-            <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
-              <div className="flex items-center gap-3">
+            <Box 
+              display="flex" 
+              flexDirection={{ xs: "column", md: "row" }}
+              alignItems={{ xs: "flex-start", md: "center" }}
+              justifyContent="space-between" 
+              mb={2}
+              gap={2}
+            >
+              <div className="flex items-center gap-3 flex-1 min-w-0">
                 <Avatar src={selectedAccount?.marketplace_image} alt={selectedAccount?.marketplace_name} />
-                <div>
-                  <Typography variant="h6">{selectedAccount?.marketplace_name}</Typography>
-                  <div className="flex items-center gap-2 mt-1">
+                <div className="min-w-0 flex-1">
+                  <Typography variant="h6" className="truncate">{selectedAccount?.marketplace_name}</Typography>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
                     <Chip size="small" label={MarketplaceTypeLabel[selectedAccount?.marketplace_type as MarketplaceType]} color="primary" variant="outlined" />
                     <Chip size="small" label={`Ano ${year}`} />
                   </div>
@@ -193,20 +200,93 @@ export default function Impostos() {
               </div>
               {taxesLoading && <CircularProgress size={20} />}
             </Box>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Mês</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span>Alíquota (%)</span>
-                      <Hint message="Informe a alíquota do mês. Ex.: 1,25" anchorSelect="impostos-aliquota-hint" />
-                    </div>
-                  </TableCell>
-                  <TableCell align="right">Ações</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
+            
+            {/* Desktop: Tabela */}
+            <Box sx={{ display: { xs: "none", md: "block" } }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Mês</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span>Alíquota (%)</span>
+                        <Hint message="Informe a alíquota do mês. Ex.: 1,25" anchorSelect="impostos-aliquota-hint" />
+                      </div>
+                    </TableCell>
+                    <TableCell align="right">Ações</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {months.map((m) => {
+                    const current = taxes?.impostos?.[String(m) as keyof TaxesData["impostos"]] ?? 0;
+                    const fallback = formatNumberToPercentString(Number(current));
+                    const value = editRates[String(m)] ?? fallback;
+                    const disabledSave =
+                      upsert.isPending ||
+                      (editRates[String(m)] === undefined && Number(current) === Number(fallback.replace(',', '.')));
+                    return (
+                      <TableRow key={m}>
+                        <TableCell>{String(m).padStart(2, "0")}</TableCell>
+                        <TableCell>
+                          <TextField
+                            size="small"
+                            value={value}
+                            onChange={(e) => {
+                              const next = sanitizePercentInput(e.target.value);
+                              setEditRates((prev) => ({ ...prev, [String(m)]: next }));
+                            }}
+                            inputProps={{ inputMode: "decimal" }}
+                            placeholder="0,00"
+                            InputProps={{
+                              endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                            }}
+                            onBlur={(ev) => {
+                              const raw = ev.target.value;
+                              if (!raw) return;
+                              const num = Number(raw.replace(",", "."));
+                              if (Number.isFinite(num)) {
+                                setEditRates((prev) => ({ ...prev, [String(m)]: formatNumberToPercentString(num) }));
+                              }
+                            }}
+                            onFocus={() => {
+                              // ao focar, se o valor for apenas o fallback formatado, mantém; se for editado, não força seleção
+                              // comportamento natural de digitação funciona pois não reformatamos em onChange
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          <Box display="flex" gap={1} justifyContent="flex-end">
+                            <IconButton
+                              color="primary"
+                              onClick={() => openRecalc(m)}
+                              data-tooltip-id={`recalc-${m}`}
+                            >
+                              <Svg.arrow_path tailWindClasses="w-5 h-5" />
+                            </IconButton>
+                            <Tooltip id={`recalc-${m}`} content="Recalcular período" className="z-50" />
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={() => handleSaveMonth(m)}
+                              disabled={!selectedAccount || disabledSave}
+                            >
+                              <div className="flex items-center gap-1">
+                                <Svg.check width={16} height={16} tailWindClasses="stroke-beergam-white" />
+                                <span>Salvar</span>
+                              </div>
+                            </Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </Box>
+
+            {/* Mobile: Cards */}
+            <Box sx={{ display: { xs: "block", md: "none" } }}>
+              <div className="flex flex-col gap-3">
                 {months.map((m) => {
                   const current = taxes?.impostos?.[String(m) as keyof TaxesData["impostos"]] ?? 0;
                   const fallback = formatNumberToPercentString(Number(current));
@@ -215,45 +295,51 @@ export default function Impostos() {
                     upsert.isPending ||
                     (editRates[String(m)] === undefined && Number(current) === Number(fallback.replace(',', '.')));
                   return (
-                    <TableRow key={m}>
-                      <TableCell>{String(m).padStart(2, "0")}</TableCell>
-                      <TableCell>
-                        <TextField
-                          size="small"
-                          value={value}
-                          onChange={(e) => {
-                            const next = sanitizePercentInput(e.target.value);
-                            setEditRates((prev) => ({ ...prev, [String(m)]: next }));
-                          }}
-                          inputProps={{ inputMode: "decimal" }}
-                          placeholder="0,00"
-                          InputProps={{
-                            endAdornment: <InputAdornment position="end">%</InputAdornment>,
-                          }}
-                          onBlur={(ev) => {
-                            const raw = ev.target.value;
-                            if (!raw) return;
-                            const num = Number(raw.replace(",", "."));
-                            if (Number.isFinite(num)) {
-                              setEditRates((prev) => ({ ...prev, [String(m)]: formatNumberToPercentString(num) }));
-                            }
-                          }}
-                          onFocus={() => {
-                            // ao focar, se o valor for apenas o fallback formatado, mantém; se for editado, não força seleção
-                            // comportamento natural de digitação funciona pois não reformatamos em onChange
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        <Box display="flex" gap={1} justifyContent="flex-end">
+                    <Card key={m} variant="outlined" className="p-4">
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-center justify-between">
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            Mês {String(m).padStart(2, "0")}
+                          </Typography>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-beergam-black-blue/70">Alíquota (%)</span>
+                            <Hint message="Informe a alíquota do mês. Ex.: 1,25" anchorSelect={`impostos-aliquota-hint-${m}`} />
+                          </div>
+                          <TextField
+                            size="small"
+                            value={value}
+                            onChange={(e) => {
+                              const next = sanitizePercentInput(e.target.value);
+                              setEditRates((prev) => ({ ...prev, [String(m)]: next }));
+                            }}
+                            inputProps={{ inputMode: "decimal" }}
+                            placeholder="0,00"
+                            fullWidth
+                            InputProps={{
+                              endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                            }}
+                            onBlur={(ev) => {
+                              const raw = ev.target.value;
+                              if (!raw) return;
+                              const num = Number(raw.replace(",", "."));
+                              if (Number.isFinite(num)) {
+                                setEditRates((prev) => ({ ...prev, [String(m)]: formatNumberToPercentString(num) }));
+                              }
+                            }}
+                          />
+                        </div>
+                        <div className="flex gap-2 justify-end pt-2">
                           <IconButton
                             color="primary"
                             onClick={() => openRecalc(m)}
-                            data-tooltip-id={`recalc-${m}`}
+                            data-tooltip-id={`recalc-mobile-${m}`}
+                            size="small"
                           >
                             <Svg.arrow_path tailWindClasses="w-5 h-5" />
                           </IconButton>
-                          <Tooltip id={`recalc-${m}`} content="Recalcular período" className="z-50" />
+                          <Tooltip id={`recalc-mobile-${m}`} content="Recalcular período" className="z-50" />
                           <Button
                             variant="contained"
                             size="small"
@@ -265,13 +351,13 @@ export default function Impostos() {
                               <span>Salvar</span>
                             </div>
                           </Button>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
+                        </div>
+                      </div>
+                    </Card>
                   );
                 })}
-              </TableBody>
-            </Table>
+              </div>
+            </Box>
           </CardContent>
         </Card>
       )}
