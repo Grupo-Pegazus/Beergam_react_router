@@ -19,10 +19,12 @@ export default function ColabTable({
   colabs,
   onTableAction,
   availableActions,
+  currentColabPin,
 }: {
   colabs: IColab[];
   onTableAction: (params: { action: string; colab: IColab }) => void;
   availableActions: Record<string, { icon: React.ReactNode }>;
+  currentColabPin: string | null;
 }) {
   const ROWS_PER_PAGE = 3;
   const [search, setSearch] = useState("");
@@ -191,6 +193,9 @@ export default function ColabTable({
             {visibleColabs.map((colab, index) => (
               <ColabRow
                 colab={colab}
+                isCurrentColab={
+                  currentColabPin ? currentColabPin === colab.pin : false
+                }
                 index={index}
                 actions={Object.keys(availableActions).map((action) => ({
                   icon: availableActions[action].icon,
