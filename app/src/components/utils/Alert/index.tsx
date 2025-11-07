@@ -59,25 +59,28 @@ export default function Alert({
   open,
   ...props
 }: AlertProps) {
-  const [fadeAnimation, setFadeAnimation] = useState(false);
+  const [isClosed, setIsClosed] = useState(true);
+  const [fade, setFade] = useState(false);
   useEffect(() => {
     if (open) {
-      console.log("open", open);
+      setIsClosed(false);
       window.setTimeout(() => {
-        setFadeAnimation(true);
+        setFade(true);
       }, 200);
+    } else {
+      setFade(false);
+      window.setTimeout(() => {
+        setIsClosed(true);
+      }, 500);
     }
   }, [open]);
-  if (!open) return null;
+  if (isClosed) return null;
   function handleClickAway(e: MouseEvent | TouchEvent) {
-    setFadeAnimation(false);
-    window.setTimeout(() => {
-      onClickAway?.(e);
-    }, 500);
+    onClickAway?.(e);
   }
   return (
     <div
-      className={`fixed z-[99999] top-0 left-0 w-full h-full flex justify-center items-center bg-beergam-black/50 ${fadeAnimation ? "opacity-100" : "opacity-0"}`}
+      className={`fixed z-[99999] top-0 left-0 w-full h-full flex justify-center items-center bg-beergam-black/50 ${fade ? "opacity-100" : "opacity-0"}`}
     >
       <ClickAwayListener
         onClickAway={(e) => {
