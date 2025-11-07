@@ -1,8 +1,12 @@
 import { Pagination, Paper } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { type IColab } from "~/features/user/typings/Colab";
+import type { IUser } from "~/features/user/typings/User";
+import { isMaster } from "~/features/user/utils";
 import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
+import type { RootState } from "~/store";
 import ColabLevelBadge from "../Badges/ColabLevelBadge";
 import ColabStatusBadge from "../Badges/ColabStatusBadge";
 import ColabPhoto from "../ColabPhoto";
@@ -26,6 +30,15 @@ export default function ColabListMobile({
   const [page, setPage] = useState(1);
   const searchRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+
+  const { user } = useSelector((state: RootState) => state.user);
+
+  const masterPin = useMemo(() => {
+    if (user && isMaster(user)) {
+      return (user as IUser).pin;
+    }
+    return null;
+  }, [user]);
 
   const filteredColabs = colabs.filter(
     (colab) =>
@@ -96,11 +109,13 @@ export default function ColabListMobile({
               >
                 {/* Botão de excluir - posicionado absolutamente no canto superior direito */}
                 <div className="flex items-center justify-between">
-                  <ColabPhoto
-                    photo_id={colab?.details.photo_id || null}
-                    tailWindClasses="w-16 h-16 min-w-16 min-h-16"
-                    name={colab?.name || ""}
-                  />
+                  <div className="size-10">
+                    <ColabPhoto
+                      photo_id={colab?.details.photo_id || null}
+                      name={colab?.name || ""}
+                      masterPin={masterPin}
+                    />
+                  </div>
                   <button
                     onClick={() =>
                       colab && onAction({ action: "Excluir", colab })

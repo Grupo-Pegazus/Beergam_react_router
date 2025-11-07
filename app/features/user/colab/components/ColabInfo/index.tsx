@@ -39,6 +39,7 @@ import UploadOverlay from "~/src/components/utils/upload/components/Overlay";
 import type { RootState } from "~/store";
 import { EnumKeyFromValue } from "~/utils/typings/EnumKeysFromValues";
 import ColabDetails from "../ColabDetails";
+import ColabPhoto from "../ColabPhoto";
 import ViewAccess from "../ViewAccess";
 export default function ColabInfo({
   colab,
@@ -110,13 +111,6 @@ export default function ColabInfo({
     }
     return editedColab?.master_pin ?? null;
   }, [user, editedColab?.master_pin]);
-
-  const colabPhotoUrl = useMemo(() => {
-    if (!masterPin || !editedColab?.details?.photo_id) {
-      return null;
-    }
-    return `https://cdn.beergam.com.br/colab_photos/colab/${masterPin}/${editedColab.details.photo_id}.webp`;
-  }, [masterPin, editedColab?.details?.photo_id]);
 
   const handleUploadSuccess = useCallback(
     (ids: string[]) => {
@@ -278,15 +272,7 @@ export default function ColabInfo({
                   <div className="w-24 h-24 md:w-full md:h-full md:max-h-[80px] md:max-w-[80px] bg-beergam-orange rounded-full flex items-center justify-center">
                     <button
                       type="button"
-                      className="relative flex h-full w-full items-center justify-center rounded-full bg-beergam-orange text-white transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-beergam-blue-primary disabled:cursor-not-allowed disabled:opacity-60 overflow-hidden"
-                      style={{
-                        backgroundImage: colabPhotoUrl
-                          ? `url(${colabPhotoUrl})`
-                          : undefined,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        backgroundRepeat: "no-repeat",
-                      }}
+                      className="relative flex h-full w-full items-center justify-center rounded-full bg-beergam-orange text-white transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-beergam-blue-primary disabled:cursor-not-allowed disabled:opacity-60"
                       disabled={!canUploadPhoto}
                       onMouseEnter={() => setIsHoveringPhoto(true)}
                       onMouseLeave={() => setIsHoveringPhoto(false)}
@@ -294,19 +280,13 @@ export default function ColabInfo({
                       onBlur={() => setIsHoveringPhoto(false)}
                       onClick={handleOpenPhotoUploader}
                     >
-                      {!colabPhotoUrl && (
-                        <span
-                          className={`uppercase transition-opacity duration-150 ${
-                            isHoveringPhoto && canUploadPhoto
-                              ? "opacity-0"
-                              : "opacity-100"
-                          }`}
-                        >
-                          {editedColab.name.charAt(0).toUpperCase()}
-                        </span>
-                      )}
+                      <ColabPhoto
+                        photo_id={editedColab.details.photo_id}
+                        masterPin={masterPin}
+                        name={editedColab.name}
+                      />
                       <span
-                        className={`pointer-events-none absolute inset-0 flex items-center justify-center px-3 text-center text-[11px] font-semibold uppercase transition-opacity duration-150 bg-beergam-black-blue/60 ${
+                        className={`pointer-events-none absolute inset-0 flex items-center justify-center px-3 text-center rounded-full text-[11px] font-semibold uppercase transition-opacity duration-150 bg-beergam-black-blue/60 ${
                           isHoveringPhoto || !canUploadPhoto
                             ? "opacity-100"
                             : "opacity-0"

@@ -10,6 +10,7 @@ import type { RootState } from "~/store";
 import { type IColab } from "../../../typings/Colab";
 import ColabLevelBadge from "../Badges/ColabLevelBadge";
 import ColabStatusBadge from "../Badges/ColabStatusBadge";
+import ColabPhoto from "../ColabPhoto";
 export default function ColabRow({
   colab,
   index,
@@ -33,12 +34,6 @@ export default function ColabRow({
     return colab.master_pin ?? null;
   }, [user, colab.master_pin]);
 
-  const colabPhotoUrl = useMemo(() => {
-    if (!masterPin || !colab.details?.photo_id) {
-      return null;
-    }
-    return `https://cdn.beergam.com.br/colab_photos/colab/${masterPin}/${colab.details.photo_id}.webp`;
-  }, [masterPin, colab.details?.photo_id]);
   return (
     <TableRow
       key={colab.pin}
@@ -50,23 +45,13 @@ export default function ColabRow({
     >
       <TableCell>
         <div className="flex items-center gap-2">
-          <div
-            className="min-w-8 min-h-8 rounded-full relative object-cover object-center bg-beergam-orange flex items-center justify-center overflow-hidden"
-            style={{
-              backgroundImage: colabPhotoUrl
-                ? `url(${colabPhotoUrl})`
-                : undefined,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
-          >
-            {!colabPhotoUrl && (
-              <h4 className="text-white">
-                {colab.name.charAt(0).toUpperCase()}
-              </h4>
-            )}
-            <div className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-beergam-red border border-beergam-white"></div>
+          <div className="size-10">
+            <ColabPhoto
+              photo_id={colab.details.photo_id}
+              masterPin={masterPin}
+              name={colab.name}
+              online={colab.is_online}
+            />
           </div>
           <div>
             <p
