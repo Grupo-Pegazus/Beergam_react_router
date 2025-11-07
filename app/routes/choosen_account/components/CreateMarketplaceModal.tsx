@@ -20,10 +20,16 @@ export default function CreateMarketplaceModal({
   HandleIntegrationData?: (params: { Marketplace: MarketplaceType }) => void;
   modalOpen: boolean;
 }) {
-  const { subscription } = useSelector((state: RootState) => state.auth);
+  const { subscription: rawSubscription } = useSelector((state: RootState) => state.auth);
   const queryClient = useQueryClient();
-  const availableAccounts = subscription?.plan?.benefits?.ML_accounts;
-  const remainingAccounts = availableAccounts ? availableAccounts - (marketplacesAccounts?.length || 0) : 0;
+  
+  const subscription = Array.isArray(rawSubscription) 
+    ? rawSubscription[0] ?? null 
+    : rawSubscription;
+  
+  const maxAccounts = subscription?.plan?.benefits?.ML_accounts ?? 0;
+  const currentAccountsCount = marketplacesAccounts?.length ?? 0;
+  const remainingAccounts = Math.max(0, maxAccounts - currentAccountsCount);
 
   const [selectedMarketplace, setSelectedMarketplace] =
     useState<MarketplaceType | null>(null);
@@ -90,7 +96,7 @@ export default function CreateMarketplaceModal({
         if (response.data.status === "success") {
           console.log("Integração realizada com sucesso!");
           stopPolling();
-          queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
+          queryClient.invalidateQueries({ refetchType: "active" });
           toast.success("Integração realizada com sucesso! Sua conta foi conectada.");
           return true;
         } else if (response.data.status === "error") {
@@ -208,7 +214,7 @@ export default function CreateMarketplaceModal({
             <div>
               <p className="text-sm font-medium text-green-600">Contas Restantes</p>
               <p className="text-2xl font-bold text-green-800">
-                {remainingAccounts || 0}
+                {remainingAccounts}
               </p>
             </div>
             <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">

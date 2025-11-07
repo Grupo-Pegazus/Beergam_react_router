@@ -189,7 +189,7 @@ export default function ChoosenAccountPage({
                 };
                 return (
                   <MarketplaceCard
-                    key={marketplace.marketplace_name}
+                    key={marketplace.marketplace_shop_id}
                     marketplace={marketplace}
                     onDelete={handleDeleteMarketplace}
                     onCardClick={async () => {
