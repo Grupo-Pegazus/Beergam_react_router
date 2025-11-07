@@ -13,7 +13,7 @@ import type {
 
 type BaseUploadProps = {
   accept?: string;
-    maxFiles?: number;
+  maxFiles?: number;
   onChange?: (ids: string[]) => void;
   onError?: (error: UploadErrorContext) => void;
   onUploadSuccess?: (ids: string[]) => void;
@@ -539,7 +539,7 @@ export default function Upload<ResponseSchema = unknown>(
         </div>
         <p className="font-medium text-beergam-blue-primary">{dropzoneLabel}</p>
         <p className="text-sm text-beergam-gray-400">
-          {availableSlots !== Infinity && ` Resta${availableSlots > 1 ? "m" : ` `} ${availableSlots} arquivo${availableSlots === 1 ? "" : "s"}`}
+          {availableSlots !== Infinity && `Resta${availableSlots === 1 ? "" : "m"} ${availableSlots} arquivo${availableSlots === 1 ? "" : "s"}`}
         </p>
         <button
           type="button"
