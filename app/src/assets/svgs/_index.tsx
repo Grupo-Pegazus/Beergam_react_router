@@ -12,6 +12,7 @@ import ClockIcon from "./ClockIcon";
 import Cog8Tooth from "./Cog8Tooth";
 import CurrencyDollar from "./CurrencyDollar";
 import DollyIcon from "./DollyIcon";
+import DocumentIcon from "./DocumentIcon";
 import ElipsisHorizontal from "./ElipsisHorizontal";
 import Eye from "./Eye";
 import EyeSlash from "./EyeSlash";
@@ -77,6 +78,7 @@ const Svg = {
   lock_closed: LockClosed,
   pencil: Pencil,
   elipsis_horizontal: ElipsisHorizontal,
+  document: DocumentIcon,
   check: Check,
   arrow_uturn_left: ArrowUturnLeft,
   line: Line,
