@@ -9,6 +9,7 @@ import type { SvgBaseProps } from "~/src/assets/svgs/IconBase";
 import AlertButton from "./AlertButton";
 interface AlertProps extends Omit<ClickAwayListenerProps, "children"> {
   type?: "success" | "error" | "warning" | "info" | undefined;
+  title: string;
   open: boolean;
   customIcon?: keyof typeof Svg;
   onConfirm?: () => void;
@@ -97,6 +98,9 @@ export default function Alert({
             />
           </div>
           <div className="flex flex-col items-center justify-center gap-2">
+            <h3 className="text-beergam-blue-primary font-bold text-2xl">
+              {props.title}
+            </h3>
             {children}
           </div>
 
