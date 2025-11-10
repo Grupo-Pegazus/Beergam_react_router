@@ -1,8 +1,8 @@
 // import type { BaseMarketPlace } from "../marketplace/typings";
 import type { BaseMarketPlace } from "../marketplace/typings";
-import type { Subscription } from "../user/typings/BaseUser";
 import type { IColab } from "../user/typings/Colab";
 import type { IUser } from "../user/typings/User";
+import type { IAuthState } from "./redux";
 
 // type AvailableData = IUser | BaseMarketPlace; //Tipos de dados que podem ser criptografados
 
@@ -172,16 +172,24 @@ class Crypto<T> {
       return (await this.descriptografarDados(dadosCriptografados, iv)) as T;
     } catch (error) {
       console.error("Erro ao recuperar dados:", error);
-      localStorage.removeItem(this.localStorageName);
-      localStorage.removeItem(this.localStorageName + "IV");
+      this.limparDados();
       return null;
     }
   }
+  async limparDados(): Promise<void> {
+    localStorage.removeItem(this.localStorageName);
+    localStorage.removeItem(this.localStorageName + "IV");
+    sessionStorage.removeItem(this.sessionName);
+  }
 }
 
-class CryptoAuth extends Crypto<Subscription> {
+class CryptoAuth extends Crypto<IAuthState> {
   constructor() {
     super("authEncryptionKey", "authInfo");
+  }
+  async encriptarDados(dados: IAuthState): Promise<void> {
+    console.log("encriptando dados do auth", dados);
+    await super.encriptarDados(dados);
   }
 }
 
@@ -190,6 +198,10 @@ export const cryptoAuth = new CryptoAuth();
 class CryptoUser extends Crypto<IUser | IColab> {
   constructor() {
     super("userEncryptionKey", "userInfo");
+  }
+  async encriptarDados(dados: IUser | IColab): Promise<void> {
+    console.log("encriptando dados do user", dados);
+    await super.encriptarDados(dados);
   }
 }
 
