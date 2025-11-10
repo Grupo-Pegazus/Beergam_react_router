@@ -3,7 +3,6 @@ import type { ApiResponse } from "../apiClient/typings";
 import { UserRoles, type Subscription } from "../user/typings/BaseUser";
 import type { IColab } from "../user/typings/Colab";
 import { type IUser } from "../user/typings/User";
-import { cryptoAuth } from "./utils";
 
 interface RegisterUser extends IUser {
   password: string;
@@ -32,7 +31,6 @@ class AuthService {
       if (loginResponse.success) {
         const subscriptionResponse = await this.getSubscription();
         if (subscriptionResponse.success) {
-          cryptoAuth.encriptarDados(subscriptionResponse.data);
           return {
             success: true,
             data: {

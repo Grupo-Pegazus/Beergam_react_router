@@ -4,6 +4,9 @@ import axios, {
   type AxiosRequestConfig,
   type AxiosResponse,
 } from "axios";
+import store from "~/store";
+import { setAuthError } from "../auth/redux";
+import { cryptoAuth } from "../auth/utils";
 import { type ApiResponse } from "./typings";
 
 // Wrapper tipado que garante que todas as respostas sigam o padrão ApiResponse
@@ -189,15 +192,31 @@ typedApiClient.axiosInstance.interceptors.response.use(
               refreshPromise = null;
             });
         }
-        await refreshPromise;
         return typedApiClient.axiosInstance(original);
       }
-      if (error.response?.data?.error_code === 1001 || error.response?.data?.error_code === 1004) {
+      if (error.response?.data?.error_code === 1002) {
+        //Deu erro no refresh token
         if (typeof window !== "undefined") {
-          localStorage.removeItem("userInfo");
-          localStorage.removeItem("userInfoIV");
-          window.location.href = "/login";
+          store.dispatch(setAuthError("REFRESH_TOKEN_EXPIRED"));
+          // localStorage.removeItem("userInfo");
+          // localStorage.removeItem("userInfoIV");
+          // // window.location.href = "/login";
         }
+      }
+    }
+    if (error.response?.data?.error_code === 1005) {
+      if (typeof window !== "undefined") {
+        // window.location.href = "/login";
+        // window.alert(
+        //   "Erro de refresh_token revogado, alguem logou na sua conta"
+        // );
+        store.dispatch(setAuthError("REFRESH_TOKEN_REVOKED"));
+        cryptoAuth.encriptarDados({
+          loading: false,
+          subscription: null,
+          error: "REFRESH_TOKEN_REVOKED",
+          success: false,
+        });
       }
     }
     // console.log("erro do interceptor", error);
