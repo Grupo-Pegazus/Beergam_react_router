@@ -231,7 +231,7 @@ export default function ChoosenAccountPage({
         </div>
       </div>
       <Modal
-        abrir={abrirModal}
+        isOpen={abrirModal}
         onClose={() => handleAbrirModal({ abrir: false })}
       >
         <CreateMarketplaceModal
@@ -241,7 +241,7 @@ export default function ChoosenAccountPage({
       </Modal>
 
       {/* Modal de confirmação de deletar */}
-      <Modal abrir={showDeleteModal} onClose={handleCancelDelete}>
+      <Modal isOpen={showDeleteModal} onClose={handleCancelDelete}>
         <DeleteMarketaplceAccount
           marketplaceToDelete={marketplaceToDelete}
           handleCancelDelete={handleCancelDelete}
