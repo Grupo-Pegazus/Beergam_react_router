@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, KeyboardEvent } from "react";
 import Svg from "~/src/assets/svgs/_index";
 import toast from "react-hot-toast";
+import Modal from "../Modal";
 
 import type {
   ExternalMarketplace,
@@ -19,6 +20,8 @@ type BaseUploadProps = {
   onUploadSuccess?: (ids: string[]) => void;
   emptyStateLabel?: string;
   draggingLabel?: string;
+  isOpen: boolean;
+  onClose: () => void;
 };
 
 type InternalUploadProps = BaseUploadProps & {
@@ -115,6 +118,8 @@ export default function Upload<ResponseSchema = unknown>(
     onUploadSuccess,
     emptyStateLabel = "Arraste e solte ou clique para selecionar arquivos",
     draggingLabel = "Solte para iniciar o upload",
+    isOpen,
+    onClose,
   } = props;
 
   const [items, setItems] = useState<UploadItem[]>([]);
@@ -514,134 +519,136 @@ export default function Upload<ResponseSchema = unknown>(
   const dropzoneLabel = isDragging ? draggingLabel : emptyStateLabel;
 
   return (
-    <section className="flex w-full flex-col gap-4">
-      <div
-        className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
-          isDragging
-            ? "border-beergam-blue-primary bg-beergam-blue-primary/5"
-            : "border-beergam-gray-200 hover:border-beergam-blue-primary"
-        } ${availableSlots === 0 ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        role="button"
-        tabIndex={0}
-        onClick={openFileDialog}
-        onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            openFileDialog();
-          }
-        }}
-      >
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-beergam-blue-primary/10 text-beergam-blue-primary">
-          <Svg.in_box_stack />
-        </div>
-        <p className="font-medium text-beergam-blue-primary">{dropzoneLabel}</p>
-        <p className="text-sm text-beergam-gray-400">
-          {availableSlots !== Infinity && `Resta${availableSlots === 1 ? "" : "m"} ${availableSlots} arquivo${availableSlots === 1 ? "" : "s"}`}
-        </p>
-        <button
-          type="button"
-          className="mt-2 rounded-lg bg-beergam-blue-primary px-4 py-2 text-sm font-semibold text-white"
-          onClick={(event) => {
-            event.stopPropagation();
-            openFileDialog();
+    <Modal title="Upload de foto do colaborador" isOpen={isOpen} onClose={onClose}>
+      <section className="flex w-full flex-col gap-4">
+        <div
+          className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
+            isDragging
+              ? "border-beergam-blue-primary bg-beergam-blue-primary/5"
+              : "border-beergam-gray-200 hover:border-beergam-blue-primary"
+          } ${availableSlots === 0 ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          role="button"
+          tabIndex={0}
+          onClick={openFileDialog}
+          onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              openFileDialog();
+            }
           }}
         >
-          Selecionar arquivos
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          hidden
-          multiple
-          accept={accept}
-          onChange={handleInputChange}
-        />
-      </div>
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-beergam-blue-primary/10 text-beergam-blue-primary">
+            <Svg.in_box_stack />
+          </div>
+          <p className="font-medium text-beergam-blue-primary">{dropzoneLabel}</p>
+          <p className="text-sm text-beergam-gray-400">
+            {availableSlots !== Infinity && `Resta${availableSlots === 1 ? "" : "m"} ${availableSlots} arquivo${availableSlots === 1 ? "" : "s"}`}
+          </p>
+          <button
+            type="button"
+            className="mt-2 rounded-lg bg-beergam-blue-primary px-4 py-2 text-sm font-semibold text-white"
+            onClick={(event) => {
+              event.stopPropagation();
+              openFileDialog();
+            }}
+          >
+            Selecionar arquivos
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            hidden
+            multiple
+            accept={accept}
+            onChange={handleInputChange}
+          />
+        </div>
 
-      {items.length > 0 && (
-        <div className="flex flex-col gap-4">
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {items.map((item) => (
-              <article
-                key={item.key}
-                className="group relative flex flex-col gap-2 rounded-xl border border-beergam-gray-200 p-3 overflow-hidden"
-              >
-                <div className="relative h-36 w-full overflow-hidden rounded-lg bg-beergam-gray-50 shrink-0">
-                  {renderPreviewContent(item)}
-                  {item.status === "uploading" && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white">
-                      <span className="text-sm">Enviando...</span>
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-start justify-between gap-2 min-w-0 shrink-0">
-                  <div className="flex flex-col gap-1 min-w-0 flex-1">
-                    <span
-                      className="text-sm font-medium text-beergam-blue-primary truncate"
-                      title={item.filename}
-                    >
-                      {truncateFilename(item.filename)}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    {item.status === "error" && (
-                      <button
-                        type="button"
-                        className="rounded-md p-1.5 text-beergam-blue-primary transition-colors hover:bg-beergam-blue-primary/10 hover:text-beergam-blue shrink-0"
-                        onClick={() => handleRetry(item.key)}
-                        aria-label={`Reenviar ${item.filename}`}
-                        title="Reenviar arquivo"
-                      >
-                        <Svg.arrow_path width={18} height={18} />
-                      </button>
+        {items.length > 0 && (
+          <div className="flex flex-col gap-4">
+            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {items.map((item) => (
+                <article
+                  key={item.key}
+                  className="group relative flex flex-col gap-2 rounded-xl border border-beergam-gray-200 p-3 overflow-hidden"
+                >
+                  <div className="relative h-36 w-full overflow-hidden rounded-lg bg-beergam-gray-50 shrink-0">
+                    {renderPreviewContent(item)}
+                    {item.status === "uploading" && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white">
+                        <span className="text-sm">Enviando...</span>
+                      </div>
                     )}
-                    {((maxFiles === undefined || maxFiles > 1) ||
-                      item.status === "error" ||
-                      item.status === "pending") &&
-                      item.status !== "uploaded" && (
+                  </div>
+                  <div className="flex items-start justify-between gap-2 min-w-0 shrink-0">
+                    <div className="flex flex-col gap-1 min-w-0 flex-1">
+                      <span
+                        className="text-sm font-medium text-beergam-blue-primary truncate"
+                        title={item.filename}
+                      >
+                        {truncateFilename(item.filename)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {item.status === "error" && (
                         <button
                           type="button"
-                          className="rounded-md p-1.5 text-beergam-gray-400 transition-colors hover:bg-beergam-red/10 hover:text-beergam-red shrink-0"
-                          onClick={() => handleRemove(item.key)}
-                          aria-label={`Remover ${item.filename}`}
-                          title="Remover arquivo"
+                          className="rounded-md p-1.5 text-beergam-blue-primary transition-colors hover:bg-beergam-blue-primary/10 hover:text-beergam-blue shrink-0"
+                          onClick={() => handleRetry(item.key)}
+                          aria-label={`Reenviar ${item.filename}`}
+                          title="Reenviar arquivo"
                         >
-                          <Svg.trash width={18} height={18} />
+                          <Svg.arrow_path width={18} height={18} />
                         </button>
                       )}
+                      {((maxFiles === undefined || maxFiles > 1) ||
+                        item.status === "error" ||
+                        item.status === "pending") &&
+                        item.status !== "uploaded" && (
+                          <button
+                            type="button"
+                            className="rounded-md p-1.5 text-beergam-gray-400 transition-colors hover:bg-beergam-red/10 hover:text-beergam-red shrink-0"
+                            onClick={() => handleRemove(item.key)}
+                            aria-label={`Remover ${item.filename}`}
+                            title="Remover arquivo"
+                          >
+                            <Svg.trash width={18} height={18} />
+                          </button>
+                        )}
+                    </div>
                   </div>
-                </div>
-                {item.errorMessage && (
-                    <span
-                    className="text-xs text-beergam-red"
-                    title={item.errorMessage}
-                    >
-                        {item.errorMessage}
-                    </span>
+                  {item.errorMessage && (
+                      <span
+                      className="text-xs text-beergam-red"
+                      title={item.errorMessage}
+                      >
+                          {item.errorMessage}
+                      </span>
+                  )}
+                </article>
+              ))}
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2">
+                {isProcessing && (
+                  <span className="text-sm text-beergam-gray-500">Processando uploads...</span>
                 )}
-              </article>
-            ))}
-          </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2">
-              {isProcessing && (
-                <span className="text-sm text-beergam-gray-500">Processando uploads...</span>
-              )}
-              <button
-                type="button"
-                onClick={uploadPending}
-                disabled={!hasAwaitingUploads || isProcessing}
-                className="rounded-lg bg-beergam-blue-primary px-4 py-2 text-sm font-semibold text-white transition-opacity hover:bg-beergam-blue disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isProcessing ? "Enviando..." : "Enviar arquivos"}
-              </button>
+                <button
+                  type="button"
+                  onClick={uploadPending}
+                  disabled={!hasAwaitingUploads || isProcessing}
+                  className="rounded-lg bg-beergam-blue-primary px-4 py-2 text-sm font-semibold text-white transition-opacity hover:bg-beergam-blue disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isProcessing ? "Enviando..." : "Enviar arquivos"}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </section>
+        )}
+      </section>
+    </Modal>
     );
 }

@@ -47,6 +47,7 @@ import CardSolid from "./CardSolid";
 import CalculatorSolid from "./CalculatorSolid";
 import Plus from "./Plus";
 import Logout from "./Logout";
+import Star from "./Star";
 
 const Svg = {
   home: HomeIcon,
@@ -98,6 +99,7 @@ const Svg = {
   calculator_solid: CalculatorSolid,
   plus: Plus,
   logout: Logout,
+  star: Star,
 };
 
 export default Svg;
