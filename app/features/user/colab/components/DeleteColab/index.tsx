@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { deleteColab } from "~/features/user/redux";
@@ -37,22 +37,19 @@ export default function DeleteColab({
 
   const handleConfirm = () => {
     if (colab) {
-      toast.promise(
-        deleteColabMutation.mutateAsync(colab.pin ?? ""),
-        {
-          loading: "Excluindo colaborador...",
-          success: (data) => {
-            if (!data.success) {
-              throw new Error(data.message);
-            }
-            dispatch(deleteColab(colab.pin ?? ""));
-            setIsAlertOpen(false);
-            onDeleteSuccess?.(colab);
-            return data.message;
-          },
-          error: "Erro ao excluir colaborador",
-        }
-      );
+      toast.promise(deleteColabMutation.mutateAsync(colab.pin ?? ""), {
+        loading: "Excluindo colaborador...",
+        success: (data) => {
+          if (!data.success) {
+            throw new Error(data.message);
+          }
+          dispatch(deleteColab(colab.pin ?? ""));
+          setIsAlertOpen(false);
+          onDeleteSuccess?.(colab);
+          return data.message;
+        },
+        error: "Erro ao excluir colaborador",
+      });
     }
   };
 
@@ -71,4 +68,3 @@ export default function DeleteColab({
     </Alert>
   );
 }
-
