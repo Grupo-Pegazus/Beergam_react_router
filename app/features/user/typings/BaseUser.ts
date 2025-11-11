@@ -34,6 +34,10 @@ export interface PlanBenefits {
   gestao_financeira?: string | null;
   marketplaces_integrados: number;
   sincronizacao_estoque: boolean;
+  clube_beergam?: boolean;
+  comunidade_beergam?: boolean;
+  ligacao_quinzenal?: boolean;
+  novidades_beta?: boolean;
 }
 
 export interface Plan {
@@ -73,6 +77,10 @@ export const PlanBenefitsSchema = z.object({
   gestao_financeira: z.string().optional().nullable(),
   marketplaces_integrados: z.number(),
   sincronizacao_estoque: z.boolean(),
+  clube_beergam: z.boolean().optional(),
+  comunidade_beergam: z.boolean().optional(),
+  ligacao_quinzenal: z.boolean().optional(),
+  novidades_beta: z.boolean().optional(),
 }) satisfies z.ZodType<PlanBenefits>;
 
 export const PlanSchema = z.object({
@@ -117,6 +125,10 @@ export const SubscriptionSchema = z.object({
           gestao_financeira: z.string().optional().nullable(),
           marketplaces_integrados: z.number(),
           sincronizacao_estoque: z.boolean(),
+          clube_beergam: z.boolean().optional(),
+          comunidade_beergam: z.boolean().optional(),
+          ligacao_quinzenal: z.boolean().optional(),
+          novidades_beta: z.boolean().optional(),
         })
         .transform((b) => {
           const bi = b as PlanBenefits;
@@ -129,6 +141,10 @@ export const SubscriptionSchema = z.object({
             gestao_financeira: bi.gestao_financeira,
             marketplaces_integrados: bi.marketplaces_integrados,
             sincronizacao_estoque: bi.sincronizacao_estoque,
+            clube_beergam: bi.clube_beergam,
+            comunidade_beergam: bi.comunidade_beergam,
+            ligacao_quinzenal: bi.ligacao_quinzenal,
+            novidades_beta: bi.novidades_beta,
           };
           return normalized;
         }),

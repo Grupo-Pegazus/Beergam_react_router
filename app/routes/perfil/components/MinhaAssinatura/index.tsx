@@ -246,16 +246,99 @@ export default function MinhaAssinatura() {
             </p>
           </div>
 
-          {subscription.plan.benefits.sincronizacao_estoque && (
-            <div className="flex items-start gap-3">
-              <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
+          <div className="flex items-start gap-3">
+            <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+              subscription.plan.benefits.sincronizacao_estoque 
+                ? "bg-beergam-green" 
+                : "bg-beergam-red"
+            }`}>
+              {subscription.plan.benefits.sincronizacao_estoque ? (
                 <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
-              </div>
-              <p className="text-sm text-beergam-black-blue">
-                Sincronização de estoque
-              </p>
+              ) : (
+                <Svg.x width={14} height={14} tailWindClasses="stroke-beergam-white" />
+              )}
             </div>
-          )}
+            <p className="text-sm text-beergam-black-blue">
+              Sincronização de estoque
+            </p>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
+              <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+            </div>
+            <p className="text-sm text-beergam-black-blue">
+              <span className="font-bold">{subscription.plan.benefits.dias_registro_atividades}</span> dias de registro de atividades
+            </p>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+              subscription.plan.benefits.clube_beergam 
+                ? "bg-beergam-green" 
+                : "bg-beergam-red"
+            }`}>
+              {subscription.plan.benefits.clube_beergam ? (
+                <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+              ) : (
+                <Svg.x width={14} height={14} tailWindClasses="stroke-beergam-white" />
+              )}
+            </div>
+            <p className="text-sm text-beergam-black-blue">
+              Clube Beergam
+            </p>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+              subscription.plan.benefits.comunidade_beergam 
+                ? "bg-beergam-green" 
+                : "bg-beergam-red"
+            }`}>
+              {subscription.plan.benefits.comunidade_beergam ? (
+                <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+              ) : (
+                <Svg.x width={14} height={14} tailWindClasses="stroke-beergam-white" />
+              )}
+            </div>
+            <p className="text-sm text-beergam-black-blue">
+              Comunidade Beergam
+            </p>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+              subscription.plan.benefits.ligacao_quinzenal 
+                ? "bg-beergam-green" 
+                : "bg-beergam-red"
+            }`}>
+              {subscription.plan.benefits.ligacao_quinzenal ? (
+                <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+              ) : (
+                <Svg.x width={14} height={14} tailWindClasses="stroke-beergam-white" />
+              )}
+            </div>
+            <p className="text-sm text-beergam-black-blue">
+              Ligação quinzenal
+            </p>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+              subscription.plan.benefits.novidades_beta 
+                ? "bg-beergam-green" 
+                : "bg-beergam-red"
+            }`}>
+              {subscription.plan.benefits.novidades_beta ? (
+                <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+              ) : (
+                <Svg.x width={14} height={14} tailWindClasses="stroke-beergam-white" />
+              )}
+            </div>
+            <p className="text-sm text-beergam-black-blue">
+              Novidades Beta
+            </p>
+          </div>
         </div>
       </div>
 
