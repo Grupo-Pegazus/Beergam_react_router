@@ -35,7 +35,7 @@ import type { ColabAction } from "~/routes/perfil/typings";
 import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
 import Time from "~/src/components/utils/Time";
-import UploadOverlay from "~/src/components/utils/upload/components/Overlay";
+import Upload from "~/src/components/utils/upload";
 import type { RootState } from "~/store";
 import { EnumKeyFromValue } from "~/utils/typings/EnumKeysFromValues";
 import ColabDetails from "../ColabDetails";
@@ -246,10 +246,10 @@ export default function ColabInfo({
   }, [action, colab]);
   return (
     <>
-      <hr className="h-[1px] mb-3.5 mt-5 border-beergam-gray-light" />
+      <hr className="h-px mb-3.5 mt-5 border-beergam-gray-light" />
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-beergam-blue-primary !font-bold uppercase">
+          <h3 className="text-beergam-blue-primary font-bold! uppercase">
             {action === "Editar"
               ? "Editar Colaborador"
               : action === "Visualizar"
@@ -266,7 +266,7 @@ export default function ColabInfo({
         ) : (
           <div>
             <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[1fr_1.3fr]">
-              <Paper className="grid md:grid-rows-2 gap-4 border-1 border-beergam-gray-light rounded-md p-4">
+              <Paper className="grid md:grid-rows-2 gap-4 border border-beergam-gray-light rounded-md p-4">
                 <div className="grid grid-cols-1 md:grid-cols-[80px_1fr] gap-4 w-full justify-items-center md:justify-items-start">
                   <div className="w-24 h-24 md:w-full md:h-full md:max-h-[80px] md:max-w-[80px] bg-beergam-orange rounded-full flex items-center justify-center">
                     <button
@@ -397,7 +397,7 @@ export default function ColabInfo({
                 </div>
               </Paper>
 
-              <Paper className="flex flex-col border-1 border-beergam-gray-light rounded-md p-4">
+              <Paper className="flex flex-col border border-beergam-gray-light rounded-md p-4">
                 <Fields.label text="HORÁRIOS DE FUNCIONAMENTO" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {Object.values(WeekDay).map((day: WeekDay) => (
@@ -491,19 +491,15 @@ export default function ColabInfo({
         )}
       </div>
       {colabPhotoUploadService && (
-        <UploadOverlay
+        <Upload 
           isOpen={isPhotoUploaderVisible}
           onClose={handleClosePhotoUploader}
-          title="Atualizar foto do colaborador"
-          description="Adicione ou atualize a foto do seu colaborador."
-          uploadProps={{
-            typeImport: "internal",
-            service: colabPhotoUploadService,
-            maxFiles: 1,
-            accept: "image/*",
-            emptyStateLabel: "Arraste ou selecione a nova foto do colaborador",
-            onUploadSuccess: handleUploadSuccess,
-          }}
+          typeImport="internal"
+          service={colabPhotoUploadService}
+          maxFiles={1}
+          accept="image/*"
+          emptyStateLabel="Arraste ou selecione a nova foto do colaborador"
+          onUploadSuccess={handleUploadSuccess} 
         />
       )}
     </>

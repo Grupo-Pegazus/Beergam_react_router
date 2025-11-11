@@ -17,7 +17,7 @@ export default function Hint({
           tailWindClasses="stroke-beergam-gray min-w-[17px] min-h-[17px]"
         />
       </a>
-      <Tooltip id={anchorSelect} content={message} className="z-50" />
+      <Tooltip id={anchorSelect} content={message} className="z-9999" />
     </>
   );
 }
