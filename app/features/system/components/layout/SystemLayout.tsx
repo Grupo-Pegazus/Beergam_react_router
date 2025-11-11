@@ -1,6 +1,5 @@
-import SystemHeader from "../Header";
-import SystemFooter from "../Footer";
 import SystemBreadcrumb from "../Breadcrumb";
+import SystemHeader from "../Header";
 
 interface SystemLayoutProps {
   children: React.ReactNode;
@@ -8,23 +7,17 @@ interface SystemLayoutProps {
 
 export default function SystemLayout({ children }: SystemLayoutProps) {
   return (
-    <div className="min-h-screen text-[#111827]">
-      <main
-        className="w-full md:pt-14 pt-8"
-      >
-        <SystemHeader />
-        <section
-          className="bg-[#f9f9f9] shadow-sm p-4 min-h-[400px] pb-4"
-        >
+    <main className="w-full md:pt-0 pt-8  h-full max-h-screen pb-5">
+      <SystemHeader />
+      <section className="w-full max-h-full h-full pb-20 md:pb-0 md:h-[calc(100%-52px)] md:ml-[100px] p-5 overflow-auto rounded-2xl bg-white md:block md:w-[calc(100vw-120px)]!">
+        <div>
           <div className="mb-4">
             <SystemBreadcrumb />
           </div>
           {children}
-
-        </section>
-      </main>
-
-      <SystemFooter />
-    </div>
+          {/* <SystemFooter /> */}
+        </div>
+      </section>
+    </main>
   );
 }
