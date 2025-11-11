@@ -80,7 +80,7 @@ class Crypto<T> {
     const chaveExportada = await window.crypto.subtle.exportKey("raw", chave);
 
     // Armazenar a chave em um local seguro (ex: sessionStorage)
-    sessionStorage.setItem(
+    localStorage.setItem(
       this.sessionName,
       this.arrayBufferToBase64(chaveExportada)
     );
@@ -106,7 +106,7 @@ class Crypto<T> {
       throw new Error("WebCrypto indisponível");
     }
     // Recuperar a chave armazenada
-    const chaveBase64 = sessionStorage.getItem(this.sessionName);
+    const chaveBase64 = localStorage.getItem(this.sessionName);
     if (!chaveBase64) {
       throw new Error("Chave de criptografia não encontrada");
     }
@@ -179,7 +179,7 @@ class Crypto<T> {
   async limparDados(): Promise<void> {
     localStorage.removeItem(this.localStorageName);
     localStorage.removeItem(this.localStorageName + "IV");
-    sessionStorage.removeItem(this.sessionName);
+    localStorage.removeItem(this.sessionName);
   }
 }
 
