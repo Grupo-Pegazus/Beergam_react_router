@@ -1,7 +1,7 @@
 import { ClickAwayListener, Fade, Grow, type FadeProps } from "@mui/material";
 import { useEffect, useState } from "react";
 
-interface ModalProps extends FadeProps {
+export interface ModalProps extends FadeProps {
   title?: string;
   isOpen: boolean;
   className?: string;
