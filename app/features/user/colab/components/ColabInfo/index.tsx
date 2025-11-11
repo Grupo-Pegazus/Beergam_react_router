@@ -483,7 +483,7 @@ export default function ColabInfo({
             </Paper>
             <button
               onClick={handleFetch}
-              className="sticky mt-2.5 bottom-0 left-0 right-0 bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange"
+              className="static mb-10 md:mb-0 md:sticky mt-2.5 bottom-0 left-0 right-0 bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange"
             >
               Salvar Informações
             </button>

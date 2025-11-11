@@ -1,6 +1,6 @@
 // import ColabCard from "~/features/user/colab/components/ColabCard";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import ColabInfo from "~/features/user/colab/components/ColabInfo";
 import ColabListMobile from "~/features/user/colab/components/ColabListMobile";
@@ -56,12 +56,35 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
     }
   }, [data]);
   const colabInfoRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar se é dispositivo móvel
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // 768px é o breakpoint 'md' do Tailwind
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
   return (
     <>
       <div className="flex flex-col md:flex-row items-center justify-between pb-4">
         <p>Quantidade de colaboradores registrados: {colabs.length}</p>
         <button
-          onClick={() => setCurrentColab({ colab: null, action: "Criar" })}
+          onClick={() => {
+            setCurrentColab({ colab: null, action: "Criar" });
+            if (isMobile) {
+              setTimeout(() => {
+                colabInfoRef.current?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+              }, 100);
+            }
+          }}
           className="flex items-center gap-2 p-2 rounded-md bg-beergam-blue-primary hover:bg-beergam-orange text-beergam-white"
         >
           <p>Adicionar colaborador</p>
