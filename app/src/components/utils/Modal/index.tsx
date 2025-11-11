@@ -1,12 +1,13 @@
 import { ClickAwayListener, Fade, Grow, type FadeProps } from "@mui/material";
 import { useEffect, useState } from "react";
 
-export interface ModalProps extends FadeProps {
+export interface ModalProps extends Omit<FadeProps, "children"> {
   title?: string;
   isOpen: boolean;
   className?: string;
   contentClassName?: string;
   onClose: () => void;
+  children?: React.ReactNode | React.ReactNode[];
 }
 
 export function Modal({
@@ -62,12 +63,10 @@ export function Modal({
             <div
               className={`relative w-full max-w-3xl rounded-2xl bg-white p-6 shadow-2xl ${contentClassName ?? ""}`.trim()}
             >
-              {title && <h2 className="text-beergam-blue-primary">{title}</h2>}
-              {children && (
-                <div className="mt-4 rounded-lg bg-beergam-blue-primary/5 p-3 text-sm text-beergam-blue-primary">
-                  {children}
-                </div>
+              {title && (
+                <h2 className="text-beergam-blue-primary mb-4">{title}</h2>
               )}
+              {children && children}
             </div>
           </Grow>
         </ClickAwayListener>

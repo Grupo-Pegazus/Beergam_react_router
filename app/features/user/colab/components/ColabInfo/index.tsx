@@ -44,9 +44,11 @@ import ViewAccess from "../ViewAccess";
 export default function ColabInfo({
   colab,
   action,
+  onColabCreated,
 }: {
   colab: IColab | null;
   action: ColabAction | null;
+  onColabCreated?: (createdColab: IColab) => void;
 }) {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -163,6 +165,10 @@ export default function ColabInfo({
               throw new Error(data.message);
             }
             queryClient.invalidateQueries({ refetchType: "active" });
+            // Seleciona o colaborador recém-criado
+            if (data.data && onColabCreated) {
+              onColabCreated(data.data);
+            }
             return data.message;
           },
           error: "Erro ao criar colaborador",
@@ -253,13 +259,6 @@ export default function ColabInfo({
                   : "Nenhum colaborador encontrado"}
           </h3>
         </div>
-        <button className="opacity-90 hover:opacity-100">
-          <Svg.trash
-            stroke={"var(--color-beergam-red)"}
-            width={28}
-            height={28}
-          />
-        </button>
       </div>
       <div>
         {action === "Visualizar" ? (

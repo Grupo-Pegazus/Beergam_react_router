@@ -115,6 +115,12 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
             <ColabInfo
               colab={currentColab.colab}
               action={currentColab.action as ColabAction}
+              onColabCreated={(createdColab) => {
+                setCurrentColab({
+                  colab: createdColab,
+                  action: "Editar",
+                });
+              }}
             />
           )}
         </div>
