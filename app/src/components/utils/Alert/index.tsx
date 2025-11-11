@@ -62,7 +62,7 @@ export default function Alert({
 }: AlertProps) {
   return (
     <Modal isOpen={props.isOpen} onClose={props.onClose} title={props.title}>
-      <Paper className="flex flex-col items-center justify-center gap-4 min-w-2xl">
+      <Paper className="flex flex-col items-center justify-center gap-4 w-full md:min-w-2xl">
         <div>
           <Icon
             type={type}
@@ -70,7 +70,7 @@ export default function Alert({
             customIcon={customIcon}
           />
         </div>
-        <div className="flex flex-col items-center justify-center gap-2">
+        <div className="flex text-center md:text-left flex-col items-center justify-center gap-2">
           {children}
         </div>
 

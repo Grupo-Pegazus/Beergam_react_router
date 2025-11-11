@@ -10,6 +10,7 @@ import type { RootState } from "~/store";
 import ColabLevelBadge from "../Badges/ColabLevelBadge";
 import ColabStatusBadge from "../Badges/ColabStatusBadge";
 import ColabPhoto from "../ColabPhoto";
+import DeleteColab from "../DeleteColab";
 
 type ColabListMobileProps = {
   colabs: IColab[];
@@ -28,6 +29,7 @@ export default function ColabListMobile({
   const ROWS_PER_PAGE = 4;
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [colabToDelete, setColabToDelete] = useState<IColab | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -76,8 +78,12 @@ export default function ColabListMobile({
     action: "Editar" | "Visualizar" | "Excluir";
     colab: IColab;
   }) => {
-    // Chamar a função onAction original
-    onAction(params);
+    if (params.action === "Excluir") {
+      setColabToDelete(params.colab);
+    } else {
+      // Chamar a função onAction original
+      onAction(params);
+    }
   };
 
   return (
@@ -117,9 +123,7 @@ export default function ColabListMobile({
                     />
                   </div>
                   <button
-                    onClick={() =>
-                      colab && onAction({ action: "Excluir", colab })
-                    }
+                    onClick={() => colab && setColabToDelete(colab)}
                     className="p-2 rounded-full bg-beergam-red hover:bg-beergam-red/90 text-white transition-colors z-10"
                     aria-label="Excluir colaborador"
                     disabled={isEmpty}
@@ -199,6 +203,14 @@ export default function ColabListMobile({
           />
         </div>
       )}
+      <DeleteColab
+        colab={colabToDelete}
+        onDeleteSuccess={(colab) => {
+          onAction({ action: "Excluir", colab });
+          setColabToDelete(null);
+        }}
+        onClose={() => setColabToDelete(null)}
+      />
     </div>
   );
 }

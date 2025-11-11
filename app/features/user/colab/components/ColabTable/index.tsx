@@ -9,17 +9,12 @@ import {
   TableRow,
   TableSortLabel,
 } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
-import { deleteColab } from "~/features/user/redux";
-import { userService } from "~/features/user/service";
 import { Fields } from "~/src/components/utils/_fields";
-import Alert from "~/src/components/utils/Alert";
 import { UserStatus } from "../../../typings/BaseUser";
 import { ColabLevel, type IColab } from "../../../typings/Colab";
 import ColabRow from "../ColabRow";
+import DeleteColab from "../DeleteColab";
 export default function ColabTable({
   colabs,
   onTableAction,
@@ -31,17 +26,12 @@ export default function ColabTable({
   availableActions: Record<string, { icon: React.ReactNode }>;
   currentColabPin: string | null;
 }) {
-  const dispatch = useDispatch();
   const ROWS_PER_PAGE = 3;
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [colabToDelete, setColabToDelete] = useState<IColab | null>(null);
-  const deleteColabMutation = useMutation({
-    mutationFn: (colabPin: string) => userService.deleteColab(colabPin),
-  });
+
   function onAction(params: { action: string; colab: IColab }) {
     if (params.action === "Excluir") {
-      setIsAlertOpen(true);
       setColabToDelete(params.colab);
     } else {
       onTableAction(params);
@@ -224,38 +214,14 @@ export default function ColabTable({
           </TableBody>
         </Table>
       </TableContainer>
-      <Alert
-        isOpen={isAlertOpen}
-        onClose={() => setIsAlertOpen(false)}
-        onConfirm={() => {
-          if (colabToDelete) {
-            // onTableAction({ action: "Excluir", colab: colabToDelete });
-            toast.promise(
-              deleteColabMutation.mutateAsync(colabToDelete.pin ?? ""),
-              {
-                loading: "Excluindo colaborador...",
-                success: (data) => {
-                  if (!data.success) {
-                    throw new Error(data.message);
-                  }
-                  dispatch(deleteColab(colabToDelete.pin ?? ""));
-                  setIsAlertOpen(false);
-                  onTableAction({ action: "Excluir", colab: colabToDelete });
-                  return data.message;
-                },
-                error: "Erro ao excluir colaborador",
-              }
-            );
-          }
+      <DeleteColab
+        colab={colabToDelete}
+        onDeleteSuccess={(colab) => {
+          onTableAction({ action: "Excluir", colab });
+          setColabToDelete(null);
         }}
-        type="info"
-      >
-        <h3>Tem certeza que deseja excluir o colaborador?</h3>
-        <p>
-          O colaborador será removido da lista de colaboradores e não será mais
-          possível acessar o sistema.
-        </p>
-      </Alert>
+        onClose={() => setColabToDelete(null)}
+      />
     </>
   );
 }
