@@ -3,19 +3,7 @@ import React from "react";
 import Svg from "~/src/assets/svgs/_index";
 import type { SvgBaseProps } from "~/src/assets/svgs/IconBase";
 import { Modal, type ModalProps } from "../Modal";
-// import Modal from "../Modal";
-// interface AlertProps extends Omit<ClickAwayListenerProps, "children"> {
-//   type?: "success" | "error" | "warning" | "info" | undefined;
-//   title: string;
-//   open: boolean;
-//   customIcon?: keyof typeof Svg;
-//   onConfirm?: () => void;
-//   cancelText?: string;
-//   cancelClassName?: string;
-//   confirmText?: string;
-//   confirmClassName?: string;
-//   children: React.ReactNode[];
-// }
+import AlertButton from "./AlertButton";
 function Icon({
   type,
   SvgBaseProps,
@@ -51,79 +39,6 @@ function Icon({
     </div>
   );
 }
-// export default function Alert({
-//   onClickAway,
-//   children,
-//   open,
-//   ...props
-// }: AlertProps) {
-//   const [isClosed, setIsClosed] = useState(true);
-//   const [fade, setFade] = useState(false);
-//   useEffect(() => {
-//     if (open) {
-//       setIsClosed(false);
-//       window.setTimeout(() => {
-//         setFade(true);
-//       }, 200);
-//     } else {
-//       setFade(false);
-//       window.setTimeout(() => {
-//         setIsClosed(true);
-//       }, 500);
-//     }
-//   }, [open]);
-//   if (isClosed) return null;
-//   function handleClickAway(e: MouseEvent | TouchEvent) {
-//     onClickAway?.(e);
-//   }
-//   return (
-//     <div
-//       className={`fixed z-[99999] top-0 left-0 w-full h-full flex justify-center items-center bg-beergam-black/50 ${fade ? "opacity-100" : "opacity-0"}`}
-//     >
-//       <ClickAwayListener
-//         onClickAway={(e) => {
-//           if (!open) return;
-//           handleClickAway(e);
-//         }}
-//       >
-//         <Paper className="flex flex-col items-center justify-center gap-4 min-w-2xl">
-//           <div>
-//             <Icon
-//               type={props.type}
-//               SvgBaseProps={{ width: "60px", height: "60px" }}
-//               customIcon={props.customIcon}
-//             />
-//           </div>
-//           <div className="flex flex-col items-center justify-center gap-2">
-//             <h3 className="text-beergam-blue-primary font-bold text-2xl">
-//               {props.title}
-//             </h3>
-//             {children}
-//           </div>
-
-//           <div className="flex items-center justify-center gap-4">
-//             {props.onConfirm && (
-//               <AlertButton
-//                 onClick={props.onConfirm}
-//                 type="confirm"
-//                 text={props.confirmText ?? "Confirmar"}
-//                 className={props.confirmClassName}
-//               />
-//             )}
-//             <AlertButton
-//               onClick={(e) => {
-//                 handleClickAway(e);
-//               }}
-//               type="cancel"
-//               text={props.cancelText ?? "Voltar"}
-//               className={props.cancelClassName}
-//             />
-//           </div>
-//         </Paper>
-//       </ClickAwayListener>
-//     </div>
-//   );
-// }
 
 interface AlertProps extends ModalProps {
   type?: "success" | "error" | "warning" | "info" | undefined;
@@ -147,8 +62,7 @@ export default function Alert({
 }: AlertProps) {
   return (
     <Modal isOpen={props.isOpen} onClose={props.onClose} title={props.title}>
-      {/* {children} */}
-      <Paper className="flex flex-col items-center justify-center gap-4 min-w-2xl">
+      <Paper className="flex flex-col items-center justify-center gap-4 w-full md:min-w-2xl">
         <div>
           <Icon
             type={type}
@@ -156,14 +70,11 @@ export default function Alert({
             customIcon={customIcon}
           />
         </div>
-        <div className="flex flex-col items-center justify-center gap-2">
-          <h3 className="text-beergam-blue-primary font-bold text-2xl">
-            {props.title}
-          </h3>
+        <div className="flex text-center md:text-left flex-col items-center justify-center gap-2">
           {children}
         </div>
 
-        {/* <div className="flex items-center justify-center gap-4">
+        <div className="flex items-center justify-center gap-4">
           {onConfirm && (
             <AlertButton
               onClick={onConfirm}
@@ -173,14 +84,14 @@ export default function Alert({
             />
           )}
           <AlertButton
-            onClick={(e) => {
-              handleClickAway(e);
+            onClick={() => {
+              props.onClose();
             }}
             type="cancel"
-            text={props.cancelText ?? "Voltar"}
-            className={props.cancelClassName}
+            text={cancelText ?? "Voltar"}
+            className={cancelClassName}
           />
-        </div> */}
+        </div>
       </Paper>
     </Modal>
   );

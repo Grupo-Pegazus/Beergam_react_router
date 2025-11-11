@@ -44,9 +44,11 @@ import ViewAccess from "../ViewAccess";
 export default function ColabInfo({
   colab,
   action,
+  onColabCreated,
 }: {
   colab: IColab | null;
   action: ColabAction | null;
+  onColabCreated?: (createdColab: IColab) => void;
 }) {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -163,6 +165,10 @@ export default function ColabInfo({
               throw new Error(data.message);
             }
             queryClient.invalidateQueries({ refetchType: "active" });
+            // Seleciona o colaborador recém-criado
+            if (data.data && onColabCreated) {
+              onColabCreated(data.data);
+            }
             return data.message;
           },
           error: "Erro ao criar colaborador",
@@ -253,13 +259,6 @@ export default function ColabInfo({
                   : "Nenhum colaborador encontrado"}
           </h3>
         </div>
-        <button className="opacity-90 hover:opacity-100">
-          <Svg.trash
-            stroke={"var(--color-beergam-red)"}
-            width={28}
-            height={28}
-          />
-        </button>
       </div>
       <div>
         {action === "Visualizar" ? (
@@ -484,7 +483,7 @@ export default function ColabInfo({
             </Paper>
             <button
               onClick={handleFetch}
-              className="sticky mt-2.5 bottom-0 left-0 right-0 bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange"
+              className="static mb-10 md:mb-0 md:sticky mt-2.5 bottom-0 left-0 right-0 bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange"
             >
               Salvar Informações
             </button>
