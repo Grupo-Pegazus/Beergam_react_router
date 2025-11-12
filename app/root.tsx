@@ -22,6 +22,7 @@ import {
 } from "./features/auth/utils";
 import { setMarketplace } from "./features/marketplace/redux";
 import type { BaseMarketPlace } from "./features/marketplace/typings";
+import { SocketStatusIndicator } from "./features/socket/components/SocketStatusIndicator";
 import { SocketProvider } from "./features/socket/context/SocketContext";
 import { updateUserInfo } from "./features/user/redux";
 import type { IUser } from "./features/user/typings/User";
@@ -345,6 +346,7 @@ function SocketConnectionManager() {
   return (
     <SocketProvider isAuthenticated={isAuthenticated}>
       <Outlet />
+      <SocketStatusIndicator />
     </SocketProvider>
   );
 }
