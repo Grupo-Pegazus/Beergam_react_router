@@ -40,7 +40,9 @@ function MenuItemWrapper({
           "text-white/50 border border-transparent hover:text-white hover:border-white/70",
           "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-8",
           "transition-[width,padding,color,border-color] duration-200",
-          isSelected || open ? "border-white text-beergam-orange!" : "",
+          isSelected || open
+            ? "border-white text-beergam-orange! bg-beergam-orange/10!"
+            : "",
         ].join(" ")}
         onClick={setOpen}
       >
@@ -56,7 +58,9 @@ function MenuItemWrapper({
           "text-white/50 border border-transparent hover:text-white hover:border-white/70",
           "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-8",
           "transition-[width,padding,color,border-color] duration-200",
-          isSelected || open ? "border-white text-beergam-orange!" : "",
+          isSelected || open
+            ? "border-white text-beergam-orange! bg-beergam-orange/10!"
+            : "",
         ].join(" ")}
         to={path || ""}
         target={target ? target : undefined}
