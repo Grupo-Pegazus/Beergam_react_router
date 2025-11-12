@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import { type MenuKeys } from "../typings";
 import { useMenuContext } from "../context/MenuContext";
+import { type MenuKeys } from "../typings";
 
 export function useMenuActions() {
   const { dispatch } = useMenuContext();
@@ -47,6 +47,13 @@ export function useMenuActions() {
     [dispatch]
   );
 
+  const setIsExpanded = useCallback(
+    (value: boolean) => {
+      dispatch({ type: "SET_IS_EXPANDED", payload: value });
+    },
+    [dispatch]
+  );
+
   return {
     setMenuActive,
     toggleOpen,
@@ -54,6 +61,6 @@ export function useMenuActions() {
     setCurrentSelected,
     setSelectedOnly,
     closeMany,
+    setIsExpanded,
   };
 }
-
