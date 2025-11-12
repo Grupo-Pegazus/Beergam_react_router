@@ -44,8 +44,14 @@ export default function ChoosenAccountPage({
   useEffect(() => {
     if (fetcher.data && fetcher.data.success && fetcher.state === "idle") {
       queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
+
+      // Verifica se precisa limpar o Redux (quando a conta deletada era a selecionada)
+      const responseData = fetcher.data as { shouldClearRedux?: boolean };
+      if (responseData.shouldClearRedux) {
+        dispatch(setMarketplace(null));
+      }
     }
-  }, [fetcher.data, fetcher.state, queryClient]);
+  }, [fetcher.data, fetcher.state, queryClient, dispatch]);
 
   function handleAbrirModal({ abrir }: { abrir: boolean }) {
     setAbrirModal(abrir);
