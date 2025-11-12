@@ -22,6 +22,7 @@ import {
 } from "./features/auth/utils";
 import { setMarketplace } from "./features/marketplace/redux";
 import type { BaseMarketPlace } from "./features/marketplace/typings";
+import { SocketProvider } from "./features/socket/context/SocketContext";
 import { updateUserInfo } from "./features/user/redux";
 import type { IUser } from "./features/user/typings/User";
 import type { RootState } from "./store";
@@ -337,6 +338,17 @@ function BootstrapMarketplace() {
   return null;
 }
 
+function SocketConnectionManager() {
+  const authState = useSelector((state: RootState) => state.auth);
+  const isAuthenticated = authState.success === true;
+
+  return (
+    <SocketProvider isAuthenticated={isAuthenticated}>
+      <Outlet />
+    </SocketProvider>
+  );
+}
+
 export default function App() {
   return (
     <Provider store={store}>
@@ -344,7 +356,7 @@ export default function App() {
       <BootstrapAuth />
       <BootstrapMarketplace />
       <QueryClientProvider client={queryClient}>
-        <Outlet />
+        <SocketConnectionManager />
       </QueryClientProvider>
     </Provider>
   );
