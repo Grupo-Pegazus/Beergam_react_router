@@ -5,7 +5,11 @@ import MultipleDeviceWarning from "../MultipleDeviceWarning/MultipleDeviceWarnin
 export default function AuthLayout() {
   // Usa o hook useAuth que monitora mudanças no Redux e força re-render
   const { userInfo, authInfo } = useAuth();
-
+  if (authInfo?.error === "REFRESH_TOKEN_EXPIRED") {
+    localStorage.removeItem("userInfo");
+    localStorage.removeItem("userInfoIV");
+    return <Navigate to="/login" replace />;
+  }
   if (authInfo?.error === "REFRESH_TOKEN_REVOKED") {
     return <MultipleDeviceWarning />;
   }
