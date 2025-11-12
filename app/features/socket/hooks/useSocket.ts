@@ -1,16 +1,15 @@
-import { useEffect, useCallback } from "react";
-import type { Socket } from "socket.io-client";
+import { useCallback } from "react";
 import { useSocketContext } from "../context/SocketContext";
 import type {
+  HeartbeatData,
+  OnlineStatusUpdate,
+  PresenceHeartbeat,
   SessionEvent,
   SessionStatus,
-  TokenValidation,
-  HeartbeatData,
-  TeamStatus,
-  UserStatus,
-  OnlineStatusUpdate,
   StatusSubscription,
-  PresenceHeartbeat,
+  TeamStatus,
+  TokenValidation,
+  UserStatus,
 } from "../typings/socket.types";
 
 /**
@@ -131,10 +130,7 @@ export function useSocket() {
      * Obter status de um usuário específico
      */
     getUserStatus: useCallback(
-      (
-        userPin: string,
-        callback?: (status: UserStatus) => void
-      ) => {
+      (userPin: string, callback?: (status: UserStatus) => void) => {
         if (context.onlineStatusSocket?.connected) {
           context.onlineStatusSocket.emit(
             "get_user_status",
@@ -239,17 +235,17 @@ export function useSocket() {
     // Estado das conexões
     isSessionConnected: context.isSessionConnected,
     isOnlineStatusConnected: context.isOnlineStatusConnected,
-    
+
     // Sockets diretos (para uso avançado)
     sessionSocket: context.sessionSocket,
     onlineStatusSocket: context.onlineStatusSocket,
-    
+
     // Métodos do namespace /session
     session,
-    
+
     // Métodos do namespace /online-status
     onlineStatus,
-    
+
     // Métodos de controle
     connectSession: context.connectSession,
     connectOnlineStatus: context.connectOnlineStatus,
@@ -259,4 +255,3 @@ export function useSocket() {
     isConnected: context.isConnected,
   };
 }
-

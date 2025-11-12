@@ -285,7 +285,6 @@ export function SocketProvider({
         disconnectAll();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
   const value: SocketContextValue = {

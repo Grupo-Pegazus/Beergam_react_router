@@ -52,6 +52,7 @@ export interface Plan {
   price_6_months: number;
   price_id_1_year: string;
   price_1_year: number;
+  description: string;
 }
 
 export interface SubscriptionPlan {
@@ -95,6 +96,7 @@ export const PlanSchema = z.object({
   price_6_months: z.number(),
   price_id_1_year: z.string(),
   price_1_year: z.number(),
+  description: z.string(),
 }) satisfies z.ZodType<Plan>;
 
 const DateCoerced = z.preprocess(
@@ -158,7 +160,12 @@ export const SubscriptionSchema = z.object({
         }) as SubscriptionPlan
     ),
   status: z
-    .enum(Object.keys(SubscriptionStatus) as [SubscriptionStatus, ...SubscriptionStatus[]])
+    .enum(
+      Object.keys(SubscriptionStatus) as [
+        SubscriptionStatus,
+        ...SubscriptionStatus[],
+      ]
+    )
     .optional(),
 }) satisfies z.ZodType<Subscription>;
 
