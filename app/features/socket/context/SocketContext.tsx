@@ -1,6 +1,16 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { io, type Socket } from "socket.io-client";
-import type { SocketContextValue, SocketNamespace } from "../typings/socket.types";
+import type {
+  SocketContextValue,
+  SocketNamespace,
+} from "../typings/socket.types";
 
 const SocketContext = createContext<SocketContextValue | undefined>(undefined);
 
@@ -15,7 +25,7 @@ interface SocketProviderProps {
  */
 function getAccessTokenFromCookies(): string | null {
   if (typeof document === "undefined") return null;
-  
+
   const cookies = document.cookie.split(";");
   for (const cookie of cookies) {
     const [name, value] = cookie.trim().split("=");
@@ -35,10 +45,12 @@ export function SocketProvider({
   isAuthenticated = false,
 }: SocketProviderProps) {
   const [sessionSocket, setSessionSocket] = useState<Socket | null>(null);
-  const [onlineStatusSocket, setOnlineStatusSocket] = useState<Socket | null>(null);
+  const [onlineStatusSocket, setOnlineStatusSocket] = useState<Socket | null>(
+    null
+  );
   const [isSessionConnected, setIsSessionConnected] = useState(false);
   const [isOnlineStatusConnected, setIsOnlineStatusConnected] = useState(false);
-  
+
   const socketUrlRef = useRef<string>(
     socketUrl || import.meta.env.VITE_SOCKET_URL || "http://localhost:3001"
   );
@@ -63,8 +75,14 @@ export function SocketProvider({
       return;
     }
 
+    // Se já existe um socket desconectado, limpar antes de criar um novo
+    if (sessionSocket) {
+      sessionSocket.removeAllListeners();
+      sessionSocket.disconnect();
+    }
+
     const token = getAccessTokenFromCookies();
-    
+
     const socket = io(`${socketUrlRef.current}/session`, {
       withCredentials: true,
       reconnection: true,
@@ -88,22 +106,32 @@ export function SocketProvider({
 
     socket.on("connect_error", (error) => {
       console.error("❌ Erro ao conectar ao namespace /session:", error);
-      if (error.message.includes("CORS") || error.message.includes("xhr poll error")) {
+      if (
+        error.message.includes("CORS") ||
+        error.message.includes("xhr poll error")
+      ) {
         console.error(
           "⚠️ Erro de CORS detectado. " +
-          "Certifique-se de que a origem do front-end está configurada no servidor Socket. " +
-          `Origem atual: ${window.location.origin}`
+            "Certifique-se de que a origem do front-end está configurada no servidor Socket. " +
+            `Origem atual: ${window.location.origin}`
         );
       }
       setIsSessionConnected(false);
     });
 
+    // Configurar listeners para eventos do servidor
     socket.on("session_event", (data) => {
       console.log("📨 Evento de sessão recebido:", data);
     });
 
     socket.on("heartbeat", (data) => {
       console.log("💓 Heartbeat recebido:", data);
+    });
+
+    // Reconfigurar listeners após reconexão
+    socket.on("reconnect", () => {
+      console.log("🔄 Reconectado ao namespace /session");
+      setIsSessionConnected(true);
     });
 
     setSessionSocket(socket);
@@ -123,8 +151,14 @@ export function SocketProvider({
       return;
     }
 
+    // Se já existe um socket desconectado, limpar antes de criar um novo
+    if (onlineStatusSocket) {
+      onlineStatusSocket.removeAllListeners();
+      onlineStatusSocket.disconnect();
+    }
+
     const token = getAccessTokenFromCookies();
-    
+
     const socket = io(`${socketUrlRef.current}/online-status`, {
       withCredentials: true,
       reconnection: true,
@@ -148,16 +182,20 @@ export function SocketProvider({
 
     socket.on("connect_error", (error) => {
       console.error("❌ Erro ao conectar ao namespace /online-status:", error);
-      if (error.message.includes("CORS") || error.message.includes("xhr poll error")) {
+      if (
+        error.message.includes("CORS") ||
+        error.message.includes("xhr poll error")
+      ) {
         console.error(
           "⚠️ Erro de CORS detectado. " +
-          "Certifique-se de que a origem do front-end está configurada no servidor Socket. " +
-          `Origem atual: ${window.location.origin}`
+            "Certifique-se de que a origem do front-end está configurada no servidor Socket. " +
+            `Origem atual: ${window.location.origin}`
         );
       }
       setIsOnlineStatusConnected(false);
     });
 
+    // Configurar listeners para eventos do servidor
     socket.on("online_status_update", (data) => {
       console.log("📨 Atualização de status online recebida:", data);
     });
@@ -168,6 +206,12 @@ export function SocketProvider({
 
     socket.on("status_subscription_confirmed", (data) => {
       console.log("✅ Inscrição de status confirmada:", data);
+    });
+
+    // Reconfigurar listeners após reconexão
+    socket.on("reconnect", () => {
+      console.log("🔄 Reconectado ao namespace /online-status");
+      setIsOnlineStatusConnected(true);
     });
 
     setOnlineStatusSocket(socket);
@@ -272,4 +316,3 @@ export function useSocketContext(): SocketContextValue {
   }
   return context;
 }
-
