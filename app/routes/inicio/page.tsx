@@ -6,18 +6,18 @@ import Visitas from "~/features/metricsAccount/components/Visitas/Visitas";
 
 export default function InicioPage() {
     return (
-    <>
-        <Section title="Geral da conta">
-            <Grid cols={{ base: 1, sm: 2, md: 3, lg: 4 }}>
-            <Reputacao />
-            <ScheduleTimes />
-            </Grid>
-        </Section>
-        <Section title="Visitas na conta">
-            <Grid cols={{ base: 1 }}>
-            <Visitas />
-            </Grid>
-        </Section>
-    </>
+        <>
+            <Section title="Geral da conta">
+                <Grid cols={{ base: 1, sm: 2, md: 3, lg: 4 }}>
+                    <Reputacao />
+                    <ScheduleTimes />
+                </Grid>
+            </Section>
+            <Section title="Visitas na conta">
+                <Grid cols={{ base: 1 }}>
+                    <Visitas />
+                </Grid>
+            </Section>
+        </>
     )
 }
