@@ -6,8 +6,14 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useSelector } from "react-redux";
 import { io, type Socket } from "socket.io-client";
+import { showNotification } from "~/features/notifications/showNotification";
+import type { OnlineStatusNotificationData } from "~/features/notifications/types";
+import { isMaster } from "~/features/user/utils";
+import type { RootState } from "~/store";
 import type {
+  OnlineStatusUpdate,
   SocketContextValue,
   SocketNamespace,
 } from "../typings/socket.types";
@@ -36,6 +42,131 @@ function getAccessTokenFromCookies(): string | null {
   return null;
 }
 
+// function showOnlineStatusToast(
+//   update: OnlineStatusUpdate,
+//   colab: IColab | null
+// ) {
+//   const statusLabel = update.is_online ? "ficou online" : "ficou offline";
+//   const eventLabel =
+//     update.event_type === "bulk_update"
+//       ? "Atualização de equipe"
+//       : "Atualização de presença";
+//   // if (user && isMaster(user)) {
+//   //   colab = (user as IUser).colabs?.[update.user_pin];
+//   // }
+//   // toast.custom(
+//   //   (t) => (
+//   //     <div
+//   //       style={{
+//   //         display: "flex",
+//   //         alignItems: "flex-start",
+//   //         gap: "12px",
+//   //         backgroundColor: "#0f172a",
+//   //         color: "#f8fafc",
+//   //         padding: "14px 18px",
+//   //         borderRadius: "14px",
+//   //         boxShadow: "0px 20px 45px rgba(15, 23, 42, 0.35)",
+//   //         borderLeft: `5px solid ${
+//   //           update.is_online ? "var(--color-beergam-green)" : "#f97316"
+//   //         }`,
+//   //         transform: t.visible ? "translateX(0)" : "translateX(24px)",
+//   //         opacity: t.visible ? 1 : 0,
+//   //         transition: "all 0.3s ease",
+//   //         minWidth: "320px",
+//   //         maxWidth: "380px",
+//   //         fontFamily: "Satoshi, Inter, sans-serif",
+//   //       }}
+//   //     >
+//   //       <div
+//   //         style={{
+//   //           width: 36,
+//   //           height: 36,
+//   //           minWidth: 36,
+//   //           borderRadius: "50%",
+//   //           backgroundColor: update.is_online ? "#22c55e1a" : "#f973161a",
+//   //           display: "flex",
+//   //           alignItems: "center",
+//   //           justifyContent: "center",
+//   //           color: update.is_online ? "var(--color-beergam-green)" : "#fb923c",
+//   //           fontWeight: 600,
+//   //           fontSize: 18,
+//   //         }}
+//   //       >
+//   //         {update.is_online ? "●" : "○"}
+//   //       </div>
+//   //       <div style={{ flex: 1 }}>
+//   //         <p
+//   //           style={{
+//   //             margin: 0,
+//   //             fontSize: 13,
+//   //             letterSpacing: 0.4,
+//   //             textTransform: "uppercase",
+//   //             color: "#94a3b8",
+//   //             fontWeight: 600,
+//   //           }}
+//   //         >
+//   //           {eventLabel}
+//   //         </p>
+//   //         <p
+//   //           style={{
+//   //             margin: "4px 0 0",
+//   //             fontSize: 15,
+//   //             fontWeight: 600,
+//   //           }}
+//   //         >
+//   //           Usuário {update.user_pin}
+//   //         </p>
+//   //         <p
+//   //           style={{
+//   //             margin: "4px 0 0",
+//   //             fontSize: 14,
+//   //             color: "#cbd5f5",
+//   //           }}
+//   //         >
+//   //           {statusLabel}
+//   //           {update.master_pin ? ` · Master ${update.master_pin}` : ""}
+//   //         </p>
+//   //       </div>
+//   //       <button
+//   //         onClick={() => toast.dismiss(t.id)}
+//   //         style={{
+//   //           appearance: "none",
+//   //           border: "none",
+//   //           background: "transparent",
+//   //           color: "#94a3b8",
+//   //           cursor: "pointer",
+//   //           fontSize: 18,
+//   //           lineHeight: 1,
+//   //           padding: 0,
+//   //           marginLeft: 4,
+//   //         }}
+//   //         aria-label="Fechar notificação"
+//   //       >
+//   //         ×
+//   //       </button>
+//   //     </div>
+//   //   ),
+//   //   {
+//   //     id: `online-status-${update.user_pin}-${Date.now()}`,
+//   //     duration: 4000,
+//   //     position: "bottom-right",
+//   //     toasterId: "notifications",
+//   //   }
+//   // );
+//   toast(
+//     "Usuário " +
+//       (colab?.name || `Não identificado`) +
+//       " " +
+//       statusLabel +
+//       " no evento " +
+//       eventLabel,
+//     {
+//       toasterId: "notifications",
+//       icon: update.is_online ? "🟢" : "🔴",
+//     }
+//   );
+// }
+
 /**
  * Provider do Socket.IO que gerencia conexões com múltiplos namespaces
  */
@@ -48,6 +179,7 @@ export function SocketProvider({
   const [onlineStatusSocket, setOnlineStatusSocket] = useState<Socket | null>(
     null
   );
+  const user = useSelector((state: RootState) => state.user.user);
   const [isSessionConnected, setIsSessionConnected] = useState(false);
   const [isOnlineStatusConnected, setIsOnlineStatusConnected] = useState(false);
 
@@ -196,8 +328,19 @@ export function SocketProvider({
     });
 
     // Configurar listeners para eventos do servidor
-    socket.on("online_status_update", (data) => {
+    socket.on("online_status_update", (data: OnlineStatusUpdate) => {
       console.log("📨 Atualização de status online recebida:", data);
+      if (user && isMaster(user)) {
+        const colab = user.colabs?.[data.user_pin];
+        if (colab) {
+          const notificationData: OnlineStatusNotificationData = {
+            type: "online_status",
+            colab: colab,
+            online: data.is_online,
+          };
+          showNotification(notificationData);
+        }
+      }
     });
 
     socket.on("presence_heartbeat", (data) => {
