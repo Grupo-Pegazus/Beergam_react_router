@@ -44,9 +44,11 @@ import ViewAccess from "../ViewAccess";
 export default function ColabInfo({
   colab,
   action,
+  onColabCreated,
 }: {
   colab: IColab | null;
   action: ColabAction | null;
+  onColabCreated?: (createdColab: IColab) => void;
 }) {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -163,6 +165,10 @@ export default function ColabInfo({
               throw new Error(data.message);
             }
             queryClient.invalidateQueries({ refetchType: "active" });
+            // Seleciona o colaborador recém-criado
+            if (data.data && onColabCreated) {
+              onColabCreated(data.data);
+            }
             return data.message;
           },
           error: "Erro ao criar colaborador",
@@ -253,13 +259,6 @@ export default function ColabInfo({
                   : "Nenhum colaborador encontrado"}
           </h3>
         </div>
-        <button className="opacity-90 hover:opacity-100">
-          <Svg.trash
-            stroke={"var(--color-beergam-red)"}
-            width={28}
-            height={28}
-          />
-        </button>
       </div>
       <div>
         {action === "Visualizar" ? (
@@ -269,10 +268,10 @@ export default function ColabInfo({
             <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[1fr_1.3fr]">
               <Paper className="grid md:grid-rows-2 gap-4 border border-beergam-gray-light rounded-md p-4">
                 <div className="grid grid-cols-1 md:grid-cols-[80px_1fr] gap-4 w-full justify-items-center md:justify-items-start">
-                  <div className="w-24 h-24 md:w-full md:h-full md:max-h-[80px] md:max-w-[80px] bg-beergam-orange rounded-full flex items-center justify-center">
+                  <div className="rounded-full flex items-center justify-center">
                     <button
                       type="button"
-                      className="relative flex h-full w-full items-center justify-center rounded-full bg-beergam-orange text-white transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-beergam-blue-primary disabled:cursor-not-allowed disabled:opacity-60"
+                      className="relative flex items-center justify-center rounded-full bg-beergam-orange text-white transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-beergam-blue-primary disabled:cursor-not-allowed disabled:opacity-60"
                       disabled={!canUploadPhoto}
                       onMouseEnter={() => setIsHoveringPhoto(true)}
                       onMouseLeave={() => setIsHoveringPhoto(false)}
@@ -284,6 +283,7 @@ export default function ColabInfo({
                         photo_id={editedColab.details.photo_id}
                         masterPin={masterPin}
                         name={editedColab.name}
+                        size="large"
                       />
                       <span
                         className={`pointer-events-none absolute inset-0 flex items-center justify-center px-3 text-center rounded-full text-[11px] font-semibold uppercase transition-opacity duration-150 bg-beergam-black-blue/60 ${
@@ -484,7 +484,7 @@ export default function ColabInfo({
             </Paper>
             <button
               onClick={handleFetch}
-              className="sticky mt-2.5 bottom-0 left-0 right-0 bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange"
+              className="static mb-10 md:mb-0 md:sticky mt-2.5 bottom-0 left-0 right-0 bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange"
             >
               Salvar Informações
             </button>
@@ -492,7 +492,7 @@ export default function ColabInfo({
         )}
       </div>
       {colabPhotoUploadService && (
-        <Upload 
+        <Upload
           isOpen={isPhotoUploaderVisible}
           onClose={handleClosePhotoUploader}
           typeImport="internal"
@@ -500,7 +500,7 @@ export default function ColabInfo({
           maxFiles={1}
           accept="image/*"
           emptyStateLabel="Arraste ou selecione a nova foto do colaborador"
-          onUploadSuccess={handleUploadSuccess} 
+          onUploadSuccess={handleUploadSuccess}
         />
       )}
     </>

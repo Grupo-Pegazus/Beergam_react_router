@@ -17,6 +17,7 @@ export function useMenuState() {
     open: state.open,
     currentSelected: state.currentSelected,
     openKeys,
+    isExpanded: state.isExpanded,
   };
 }
 
