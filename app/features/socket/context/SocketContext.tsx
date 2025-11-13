@@ -6,10 +6,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { io, type Socket } from "socket.io-client";
 import { showNotification } from "~/features/notifications/showNotification";
 import type { OnlineStatusNotificationData } from "~/features/notifications/types";
+import { updateColab } from "~/features/user/redux";
 import { isMaster } from "~/features/user/utils";
 import type { RootState } from "~/store";
 import type {
@@ -182,7 +183,7 @@ export function SocketProvider({
   const user = useSelector((state: RootState) => state.user.user);
   const [isSessionConnected, setIsSessionConnected] = useState(false);
   const [isOnlineStatusConnected, setIsOnlineStatusConnected] = useState(false);
-
+  const dispatch = useDispatch();
   const socketUrlRef = useRef<string>(
     socketUrl || import.meta.env.VITE_SOCKET_URL || "http://localhost:3001"
   );
@@ -338,6 +339,7 @@ export function SocketProvider({
             colab: colab,
             online: data.is_online,
           };
+          dispatch(updateColab({ ...colab, is_online: data.is_online }));
           showNotification(notificationData);
         }
       }
