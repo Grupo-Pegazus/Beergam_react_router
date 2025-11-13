@@ -2,25 +2,10 @@ import { Tooltip } from "react-tooltip";
 import Svg from "~/src/assets/svgs/_index";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
 import AccountView from "./AccountView";
-
 export default function HeaderDesktop() {
   return (
     <header className="hidden md:block fixed top-0 md:relative left-0 right-0 h-14 z-1001 text-white bg-beergam-blue-primary">
-      <div className="mx-auto px-4 py-[10px] flex items-center gap-3 justify-between">
-        <div className="flex items-center gap-3">
-          <div aria-label="Beergam" className="flex items-center gap-2">
-            <div className="flex items-end">
-              <img
-                src={CDN_IMAGES.BEERGAM_FLOWER_LOGO}
-                alt="Beergam"
-                className="w-[28px] h-[28px] object-contain"
-              />
-              <span className="text-[18px] font-bold text-beergam-white">
-                eergam
-              </span>
-            </div>
-          </div>
-        </div>
+      <div className="mx-auto px-4 py-[10px] flex items-center gap-3 justify-end">
         <div className="flex items-center justify-center gap-5">
           <button
             type="button"

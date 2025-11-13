@@ -60,8 +60,20 @@ const userSlice = createSlice({
         });
       }
     },
+    deleteColab(state, action: PayloadAction<string>) {
+      if (state.user && isMaster(state.user)) {
+        if (state.user.colabs && action.payload in state.user.colabs) {
+          delete state.user.colabs[action.payload];
+        }
+        userSlice.caseReducers.updateUserInfo(state, {
+          payload: { user: state.user, shouldEncrypt: true },
+          type: "updateUserInfo",
+        });
+      }
+    },
   },
 });
 
-export const { updateUserInfo, updateColab, updateColabs } = userSlice.actions;
+export const { updateUserInfo, updateColab, updateColabs, deleteColab } =
+  userSlice.actions;
 export default userSlice.reducer;

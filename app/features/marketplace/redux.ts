@@ -14,8 +14,14 @@ const marketplaceSlice = createSlice({
     setMarketplace(state, action: PayloadAction<BaseMarketPlace | null>) {
       state.marketplace = action.payload;
     },
+    limparMarketplace(state) {
+      state.marketplace = null;
+    },
   },
 });
 
-export const { setMarketplace } = marketplaceSlice.actions;
+export const { setMarketplace, limparMarketplace } = marketplaceSlice.actions;
+export const limparMarketplaceDados = () => {
+  return marketplaceSlice.caseReducers.limparMarketplace;
+};
 export default marketplaceSlice.reducer;

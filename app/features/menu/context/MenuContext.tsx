@@ -9,6 +9,7 @@ interface MenuReducerState {
   views: MenuStateType;
   open: OpenMap;
   currentSelected: CurrentSelectedMap;
+  isExpanded: boolean;
 }
 
 type MenuAction =
@@ -17,7 +18,8 @@ type MenuAction =
   | { type: "SET_OPEN"; payload: { path: string; value: boolean } }
   | { type: "SET_CURRENT_SELECTED"; payload: { path: string; value: boolean } }
   | { type: "SET_SELECTED_ONLY"; payload: { path: string } }
-  | { type: "CLOSE_MANY"; payload: string[] };
+  | { type: "CLOSE_MANY"; payload: string[] }
+  | { type: "SET_IS_EXPANDED"; payload: boolean };
 
 interface MenuContextValue {
   state: MenuReducerState;
@@ -30,6 +32,7 @@ const initialState: MenuReducerState = {
   views: getDefaultViews(),
   open: {},
   currentSelected: {},
+  isExpanded: false,
 };
 
 function menuReducer(state: MenuReducerState, action: MenuAction): MenuReducerState {
@@ -91,6 +94,12 @@ function menuReducer(state: MenuReducerState, action: MenuAction): MenuReducerSt
       return {
         ...state,
         open: newOpen,
+      };
+    }
+    case "SET_IS_EXPANDED": {
+      return {
+        ...state,
+        isExpanded: action.payload,
       };
     }
     default:
