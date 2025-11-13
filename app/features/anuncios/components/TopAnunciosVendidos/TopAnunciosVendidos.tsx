@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useTopSoldAds } from "../../hooks";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import MainCards from "~/src/components/ui/MainCards";
 import Svg from "~/src/assets/svgs/_index";
 import TopAnunciosVendidosSkeleton from "./TopAnunciosVendidosSkeleton";
 import { Link } from "react-router";
@@ -43,9 +44,9 @@ export default function TopAnunciosVendidos() {
 
 function HighlightCard({ anuncio, position }: { anuncio: Anuncio; position: number }) {
   return (
-    <div className="relative flex h-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-md shadow-slate-200/40">
+    <MainCards className="relative flex h-full flex-col gap-4 p-4 sm:p-5">
       <div className="absolute left-0 top-0">
-        <span className="flex h-8 w-8 items-center justify-center rounded-tl-2xl rounded-br-2xl bg-amber-500 text-xs sm:text-sm font-bold text-white shadow-md">
+        <span className="flex h-8 w-8 items-center justify-center rounded-tl-[8px] rounded-br-[8px] bg-amber-500 text-xs sm:text-sm font-bold text-white shadow-md">
           {position}º
         </span>
       </div>
@@ -92,7 +93,7 @@ function HighlightCard({ anuncio, position }: { anuncio: Anuncio; position: numb
           Ver anúncio
         </InternalButtonLink>
       </div>
-    </div>
+    </MainCards>
   );
 }
 

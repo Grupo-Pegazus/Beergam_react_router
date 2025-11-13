@@ -1,6 +1,6 @@
 import { Tooltip } from "react-tooltip";
 import Svg from "~/src/assets/svgs/_index";
-import beergam_flower_logo from "~/src/img/beergam_flower_logo.webp";
+import { CDN_IMAGES } from "~/src/constants/cdn-images";
 import AccountView from "./AccountView";
 
 export default function HeaderDesktop() {
@@ -11,7 +11,7 @@ export default function HeaderDesktop() {
           <div aria-label="Beergam" className="flex items-center gap-2">
             <div className="flex items-end">
               <img
-                src={beergam_flower_logo}
+                src={CDN_IMAGES.BEERGAM_FLOWER_LOGO}
                 alt="Beergam"
                 className="w-[28px] h-[28px] object-contain"
               />

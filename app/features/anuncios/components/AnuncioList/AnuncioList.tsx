@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { Link } from "react-router";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import MainCards from "~/src/components/ui/MainCards";
 import Svg from "~/src/assets/svgs/_index";
 import { useAnuncios, useChangeAdStatus } from "../../hooks";
 import type { AdsFilters, Anuncio } from "../../typings";
@@ -213,7 +214,7 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
   };
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
+    <MainCards>
       <div className="grid grid-cols-12 gap-4">
         {/* Coluna Esquerda: Produto */}
         <div className="col-span-12 md:col-span-5 flex flex-col gap-3">
@@ -585,7 +586,7 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
           </MenuItem>
         )}
       </Menu>
-    </div>
+    </MainCards>
   );
 }
 

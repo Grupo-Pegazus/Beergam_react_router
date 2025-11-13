@@ -41,6 +41,11 @@ class AnuncioService {
     return response as ApiResponse<AdsResponse>;
   }
 
+  async getAnuncio(anuncioId: string): Promise<ApiResponse<any>> { //TODO: implementar detalhe de anúncio
+    const response = await typedApiClient.get<any>(`/v1/ads/${anuncioId}`);
+    return response as ApiResponse<any>;
+  }
+
   async getAdsMetrics(): Promise<ApiResponse<AdsMetrics>> {
     const response = await typedApiClient.get<AdsMetrics>("/v1/ads/metrics");
     return response as ApiResponse<AdsMetrics>;

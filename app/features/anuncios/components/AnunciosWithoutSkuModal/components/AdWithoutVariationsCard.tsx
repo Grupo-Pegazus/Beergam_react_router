@@ -1,4 +1,5 @@
 import { Chip, Typography } from "@mui/material";
+import MainCards from "~/src/components/ui/MainCards";
 import type { AdWithoutSku } from "../../../typings";
 
 interface AdWithoutVariationsCardProps {
@@ -9,7 +10,7 @@ export default function AdWithoutVariationsCard({
   ad,
 }: AdWithoutVariationsCardProps) {
   return (
-    <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 md:p-4">
+    <MainCards>
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <div className="mb-2 flex flex-col sm:flex-row sm:items-center gap-2">
@@ -38,7 +39,7 @@ export default function AdWithoutVariationsCard({
           )}
         </div>
       </div>
-    </div>
+    </MainCards>
   );
 }
 

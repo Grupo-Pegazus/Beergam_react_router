@@ -1,4 +1,5 @@
 import type { PropsWithChildren, ReactNode } from "react";
+import { Paper } from "@mui/material";
 
 type StatVariant = "soft" | "solid";
 
@@ -136,13 +137,12 @@ export default function StatCard({
 }: StatCardProps) {
   const tokens = colorTokens(color, variant);
   return (
-    <div
+    <Paper
       role={onClick ? "button" : undefined}
       onClick={onClick}
       className={[
-        "group relative flex flex-col justify-between rounded-2xl border border-black/10",
+        "group relative flex flex-col justify-between",
         "p-4 md:p-5",
-        "shadow-sm hover:shadow-lg transition-all duration-300",
         "hover:-translate-y-px",
         "ring-1 ring-transparent hover:" + tokens.ring,
         tokens.cardBg,
@@ -180,7 +180,7 @@ export default function StatCard({
       {variant === "soft" ? (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-black/5 to-transparent rounded-b-2xl" />
       ) : null}
-    </div>
+    </Paper>
   );
 }
 

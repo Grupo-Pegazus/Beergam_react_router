@@ -1,15 +1,10 @@
 import Svg from "~/src/assets/svgs/_index";
-import meli from "~/src/img/Mercado-Livre-Icon-Logo-Vector.svg-.png";
-import shopee from "~/src/img/shopee.png";
 import { type BaseMarketPlace, MarketplaceType, MarketplaceStatusParse } from "../typings";
+import { getMarketplaceImageUrl } from "~/src/constants/cdn-images";
 import StatusTag from "./StatusTag";
+
 function MarketplaceTypeBadge(marketplace_type: MarketplaceType) {
-  switch (marketplace_type) {
-    case MarketplaceType.MELI:
-      return meli;
-    case MarketplaceType.SHOPEE:
-      return shopee;
-  }
+  return getMarketplaceImageUrl(marketplace_type);
 }
 interface MarketplaceCardProps {
   marketplace?: BaseMarketPlace;

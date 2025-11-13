@@ -261,19 +261,6 @@ export const ChangeAdStatusRequestSchema = z.object({
 
 export type ChangeAdStatusRequest = z.infer<typeof ChangeAdStatusRequestSchema>;
 
-// Tipos legados para compatibilidade
-export interface AnuncioBase {
-  id: string;
-  title: string;
-  price: number;
-}
-
-export const AnuncioBaseSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  price: z.number(),
-}) satisfies z.ZodType<AnuncioBase>;
-
 // Schema para anúncio sem SKU (com variations_without_sku)
 export const AdWithoutSkuSchema = AnuncioSchema.extend({
   variations_without_sku: z.array(VariationSchema).optional(),

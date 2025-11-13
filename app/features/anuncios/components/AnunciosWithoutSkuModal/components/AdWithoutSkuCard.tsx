@@ -1,4 +1,5 @@
 import { Button, Chip, CircularProgress, Typography } from "@mui/material";
+import MainCards from "~/src/components/ui/MainCards";
 import type { AdWithoutSku } from "../../../typings";
 import VariationsGroup from "../Variations/VariationsGroup";
 import Thumbnail from "../../Thumbnail/Thumbnail";
@@ -21,7 +22,7 @@ export default function AdWithoutSkuCard({
   hasPendingChanges,
 }: AdWithoutSkuCardProps) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3 md:p-4 shadow-sm">
+    <MainCards>
       <div className="mb-4 flex flex-col md:flex-row md:items-start md:justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="mb-2 flex flex-col sm:flex-row sm:items-center gap-2">
@@ -63,7 +64,7 @@ export default function AdWithoutSkuCard({
           onSkuChange={onSkuChange}
         />
       )}
-    </div>
+    </MainCards>
   );
 }
 

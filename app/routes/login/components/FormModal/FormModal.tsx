@@ -8,7 +8,7 @@ import { cryptoAuth } from "~/features/auth/utils";
 import { updateUserInfo } from "~/features/user/redux";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import { Fields } from "~/src/components/utils/_fields";
-import beergam_flower_logo from "~/src/img/beergam_flower_logo.webp";
+import { CDN_IMAGES } from "~/src/constants/cdn-images";
 import { login } from "../../../../features/auth/redux";
 import { authService } from "../../../../features/auth/service";
 import {
@@ -200,7 +200,7 @@ export default function FormModal({
     >
       <div className="block w-16 h-16 sm:hidden">
         <img
-          src={beergam_flower_logo}
+          src={CDN_IMAGES.BEERGAM_FLOWER_LOGO}
           alt="beergam_flower_logo"
           className="w-full h-full object-contain"
         />
