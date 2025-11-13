@@ -157,11 +157,13 @@ function InternalButtonLink({ to, icon, children }: ButtonBaseProps & { to: stri
 }
 
 function formatPrice(price: string): string {
-  const numPrice = parseFloat(price);
-  return new Intl.NumberFormat("pt-BR", {
+  if (Number.isNaN(parseFloat(price))) return "R$ 0,00";
+  return parseFloat(price).toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
-  }).format(numPrice);
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
 function formatNumber(value: number | null | undefined) {
