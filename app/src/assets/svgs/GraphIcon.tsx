@@ -3,7 +3,7 @@ import IconBase from "./IconBase";
 
 export default function GraphIcon(props: SvgBaseProps) {
   return (
-    <IconBase fill="none" strokeWidth={1.5} stroke="currentColor" {...props}>
+    <IconBase fill="none" strokeWidth={1.5} stroke="currentColor" viewBox="0 0 24 24" {...props}>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"

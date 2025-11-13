@@ -28,10 +28,6 @@ export default function DeleteMarketaplceAccount({
 
   return (
     <div className="flex flex-col gap-6 items-center justify-center p-8 max-w-md">
-      <div className="flex items-center gap-3">
-        <h2 className="text-2xl font-bold text-gray-800">Deletar Conta</h2>
-      </div>
-      
       <div className="text-center">
         <p className="text-gray-600 mb-2">
           Tem certeza que deseja deletar a conta do marketplace:

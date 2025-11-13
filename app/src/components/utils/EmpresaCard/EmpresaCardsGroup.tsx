@@ -1,6 +1,9 @@
-import meli from "~/src/img/Mercado-Livre-Icon-Logo-Vector.svg-.png";
-import shopee from "~/src/img/shopee.png";
 import EmpresaCard from ".";
+import { getMarketplaceImageUrl } from "~/src/constants/cdn-images";
+import { MarketplaceType } from "~/features/marketplace/typings";
+
+const meli = getMarketplaceImageUrl(MarketplaceType.MELI);
+const shopee = getMarketplaceImageUrl(MarketplaceType.SHOPEE);
 export default function EmpresaCardsGroup() {
   const cards = [
     <EmpresaCard.wrapper

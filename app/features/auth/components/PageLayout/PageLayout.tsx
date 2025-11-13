@@ -1,10 +1,6 @@
 import Svg from "~/src/assets/svgs/_index";
 import ParticlesBackground from "~/src/components/utils/ParticlesBackground";
-import calendar from "~/src/img/auth/calendar.webp";
-import card from "~/src/img/auth/card.webp";
-import graph from "~/src/img/auth/graph.webp";
-import world_bg from "~/src/img/auth/world_bg.webp";
-import beergam_flower_logo from "~/src/img/beergam_flower_logo.webp";
+import { CDN_IMAGES } from "~/src/constants/cdn-images";
 function CardComponent({ title, value }: { title: string; value: string }) {
   return (
     <div className="relative w-full max-w-44 h-26 group">
@@ -40,7 +36,7 @@ export default function PageLayout({
         <data className="absolute top-2 left-2 w-30 h-30 z-10 hidden lg:block">
           {showLogo && (
             <img
-              src={beergam_flower_logo}
+              src={CDN_IMAGES.BEERGAM_FLOWER_LOGO}
               alt="beergam_flower_logo"
               className="w-full h-full object-contain"
             />
@@ -49,7 +45,7 @@ export default function PageLayout({
         <div className="absolute hidden lg:block top-0 left-0 max-w-screen max-h-screen overflow-hidden w-full h-full opacity-50">
           <div className="absolute top-0 left-0 w-3/4 max-w-6xl object-contain">
             <img
-              src={world_bg}
+              src={CDN_IMAGES.AUTH_WORLD_BG}
               alt="world_bg"
               className="w-full h-full max-w-7xl max-h-screen-2xl object-cover"
             />
@@ -57,7 +53,7 @@ export default function PageLayout({
           <div className="absolute max-h-240 opacity-0 max-w-80 w-[16%] h-10/12 right-0 top-1/2 -translate-y-1/2 sm:opacity-100">
             <div className="absolute right-[-30%] top-[-35%] w-[190%] h-[45%] skew-x-15 skew-y-10">
               <img
-                src={graph}
+                src={CDN_IMAGES.AUTH_GRAPH}
                 alt="logo"
                 className="absolute top-2/6 right-2/4 w-full h-full z-5"
               />
@@ -65,7 +61,7 @@ export default function PageLayout({
             </div>
             <div className="absolute right-2/5 top-[10%] w-[85%] aspect-square max-w-full h-[35%] skew-x-15 skew-y-10">
               <img
-                src={calendar}
+                src={CDN_IMAGES.AUTH_CALENDAR}
                 alt="logo"
                 className="absolute top-2/6 right-2/4 w-full h-full z-5"
               />
@@ -78,7 +74,7 @@ export default function PageLayout({
               <CardComponent title="CTR" value="3,47%" />
             </div>
             <div className="absolute right-[35%] bottom-[8%] w-[55%] max-w-44 h-[35%] skew-x-15 skew-y-10">
-              <img src={card} alt="" />
+              <img src={CDN_IMAGES.AUTH_CARD} alt="" />
             </div>
           </div>
         </div>

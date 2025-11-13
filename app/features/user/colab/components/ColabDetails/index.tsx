@@ -75,7 +75,7 @@ export default function ColabDetails({ colab }: ColabDetailsProps) {
 
   return (
     <div className="w-full flex flex-col gap-4">
-      <Paper className="flex flex-col gap-4 border-1 border-beergam-gray-light rounded-md p-4">
+      <Paper className="flex flex-col gap-4 border border-beergam-gray-light rounded-md p-4">
         <div className="w-full">
           <div className="flex flex-wrap items-baseline gap-6 text-beergam-blue-primary">
             <div className="flex flex-col gap-1">

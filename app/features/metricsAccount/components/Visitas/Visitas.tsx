@@ -28,15 +28,12 @@ function isMeliVisits(
   return payload?.marketplace_type === MarketplaceType.MELI;
 }
 
-/**
- * Formata data para exibição no gráfico
- */
-function formatDateForChart(dateStr: string): string {
+const formatDateForChart = (dateStr: string): string => {
   const date = new Date(dateStr);
   const day = date.getDate();
   const month = date.getMonth() + 1;
   return `${day}/${month}`;
-}
+};
 
 type PeriodFilter = 7 | 30 | 90 | 150;
 
@@ -84,6 +81,12 @@ const CHART_STYLES = {
         r: 5,
       },
     },
+    margin: {
+      top: 5,
+      right: 10,
+      left: 0,
+      bottom: 5,
+    },
   },
   mobile: {
     grid: {
@@ -122,22 +125,40 @@ const CHART_STYLES = {
         r: 6,
       },
     },
+    margin: {
+      top: 5,
+      right: 5,
+      left: -10,
+      bottom: 0,
+    },
   },
 } as const;
 
 function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth < 768;
+  });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+
+    const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      setIsMobile(e.matches);
     };
 
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+
+    handleChange(mediaQuery);
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    } else {
+      mediaQuery.addListener(handleChange);
+      return () => mediaQuery.removeListener(handleChange);
+    }
   }, []);
 
   return isMobile;
@@ -148,11 +169,14 @@ type ChartDataPoint = {
   visitas: number;
 };
 
-const VisitsChart = memo(({ data }: { data: ChartDataPoint[] }) => {
-  const isMobile = useIsMobile();
+interface VisitsChartProps {
+  data: ChartDataPoint[];
+  isMobile: boolean;
+}
+
+const VisitsChart = memo(({ data, isMobile }: VisitsChartProps) => {
   const styles = isMobile ? CHART_STYLES.mobile : CHART_STYLES.desktop;
 
-  // Todos os hooks devem ser chamados antes de qualquer return condicional
   const calculateInterval = useMemo(() => {
     if (data.length <= 7) return 0;
     if (isMobile) {
@@ -160,6 +184,13 @@ const VisitsChart = memo(({ data }: { data: ChartDataPoint[] }) => {
     }
     return Math.ceil(data.length / 8);
   }, [data.length, isMobile]);
+
+  const margin = useMemo(() => styles.margin, [styles.margin]);
+
+  const cursorStyle = useMemo(
+    () => ({ stroke: styles.line.stroke, strokeWidth: 1 }),
+    [styles.line.stroke],
+  );
 
   if (data.length === 0) {
     return (
@@ -172,15 +203,7 @@ const VisitsChart = memo(({ data }: { data: ChartDataPoint[] }) => {
   return (
     <div className="h-56 sm:h-48 md:h-56 -mx-2 sm:mx-0 px-2 sm:px-0">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={data}
-          margin={{
-            top: 5,
-            right: isMobile ? 5 : 10,
-            left: isMobile ? -10 : 0,
-            bottom: isMobile ? 0 : 5,
-          }}
-        >
+        <LineChart data={data} margin={margin}>
           <CartesianGrid
             strokeDasharray={styles.grid.strokeDasharray}
             stroke={styles.grid.stroke}
@@ -206,7 +229,7 @@ const VisitsChart = memo(({ data }: { data: ChartDataPoint[] }) => {
           <Tooltip
             contentStyle={styles.tooltip.contentStyle}
             labelStyle={styles.tooltip.labelStyle}
-            cursor={{ stroke: styles.line.stroke, strokeWidth: 1 }}
+            cursor={cursorStyle}
           />
           <Line
             type="monotone"
@@ -216,6 +239,7 @@ const VisitsChart = memo(({ data }: { data: ChartDataPoint[] }) => {
             dot={isMobile ? false : styles.line.dot}
             activeDot={styles.line.activeDot}
             isAnimationActive={!isMobile}
+            animationEasing="linear"
           />
         </LineChart>
       </ResponsiveContainer>
@@ -236,18 +260,21 @@ const PeriodButton = memo(({ option, isSelected, onSelect }: PeriodButtonProps) 
     onSelect(option.value);
   }, [option.value, onSelect]);
 
-  return (
-    <button
-      onClick={handleClick}
-      className={[
+  const className = useMemo(
+    () =>
+      [
         "px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium",
         "transition-all duration-200 min-h-[36px] sm:min-h-0",
         "touch-manipulation",
         isSelected
           ? "bg-blue-600 text-white shadow-md"
           : "bg-slate-100 text-slate-700 hover:bg-slate-200 active:bg-slate-300",
-      ].join(" ")}
-    >
+      ].join(" "),
+    [isSelected],
+  );
+
+  return (
+    <button onClick={handleClick} className={className}>
       {option.label}
     </button>
   );
@@ -255,32 +282,41 @@ const PeriodButton = memo(({ option, isSelected, onSelect }: PeriodButtonProps) 
 
 PeriodButton.displayName = "PeriodButton";
 
+const ErrorFallback = memo(() => (
+  <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4">
+    Não foi possível carregar os dados de visitas.
+  </div>
+));
+
+ErrorFallback.displayName = "ErrorFallback";
+
 export default function Visitas() {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>(90);
+  const isMobile = useIsMobile();
+  
   const selectedMarketplace = useSelector(
     (state: RootState) => state.marketplace.marketplace,
   );
   const marketplaceType = selectedMarketplace?.marketplace_type;
+  const marketplaceShopId = selectedMarketplace?.marketplace_shop_id;
 
   const { data, isLoading, error } = useQuery<VisitsResponse>({
-    queryKey: [
-      "visitas",
-      marketplaceType,
-      selectedMarketplace?.marketplace_shop_id,
-      selectedPeriod,
-    ],
+    queryKey: ["visitas", marketplaceType, marketplaceShopId, selectedPeriod],
     queryFn: async () => {
       if (!marketplaceType) {
         throw new Error("Marketplace não selecionado");
       }
-      // Busca apenas o período selecionado
       return metricsAccountService.getVisits(marketplaceType, [selectedPeriod]);
     },
     enabled: Boolean(marketplaceType),
     staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
   });
 
-  const payload = data?.success ? data.data : null;
+  const payload = useMemo(
+    () => (data?.success ? data.data : null),
+    [data?.success, data?.data],
+  );
 
   const chartData = useMemo(() => {
     if (!isMeliVisits(payload)) return [];
@@ -291,27 +327,24 @@ export default function Visitas() {
 
     if (!periodData) return [];
 
-    return Object.entries(periodData)
-      .map(([date, value]) => ({
-        date: formatDateForChart(date),
-        visitas: value,
-      }));
+    return Object.entries(periodData).map(([date, value]) => ({
+      date: formatDateForChart(date),
+      visitas: value,
+    }));
   }, [payload, selectedPeriod]);
 
   const handlePeriodChange = useCallback((period: PeriodFilter) => {
     setSelectedPeriod(period);
   }, []);
 
+  const isMeliData = useMemo(() => isMeliVisits(payload), [payload]);
+
   return (
     <AsyncBoundary
       isLoading={isLoading}
       error={error as unknown}
       Skeleton={VisitasSkeleton}
-      ErrorFallback={() => (
-        <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4">
-          Não foi possível carregar os dados de visitas.
-        </div>
-      )}
+      ErrorFallback={ErrorFallback}
     >
       <StatCard
         icon={<Svg.graph tailWindClasses="w-5 h-5 text-blue-600" />}
@@ -319,7 +352,7 @@ export default function Visitas() {
         color="blue"
         variant="soft"
       >
-        {isMeliVisits(payload) ? (
+        {isMeliData ? (
           <div className="mt-3 sm:mt-4 space-y-3 sm:space-y-4">
             {/* Botões de filtro */}
             <div className="flex flex-wrap gap-1.5 sm:gap-2 -mx-1 sm:mx-0 px-1 sm:px-0">
@@ -334,7 +367,7 @@ export default function Visitas() {
             </div>
 
             {/* Gráfico */}
-            <VisitsChart data={chartData} />
+            <VisitsChart key={selectedPeriod} data={chartData} isMobile={isMobile} />
           </div>
         ) : (
           <p className="text-xs sm:text-sm text-[#475569] mt-3">
@@ -345,4 +378,3 @@ export default function Visitas() {
     </AsyncBoundary>
   );
 }
-
