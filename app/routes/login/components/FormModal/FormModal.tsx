@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 import { cryptoAuth } from "~/features/auth/utils";
+import { useSocketContext } from "~/features/socket/context/SocketContext";
 import { updateUserInfo } from "~/features/user/redux";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import { Fields } from "~/src/components/utils/_fields";
@@ -62,6 +63,7 @@ export default function FormModal({
 }: FormModalProps) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { connectSession, connectOnlineStatus } = useSocketContext();
   const [currentUserType, setCurrentUserType] = useState<UserRoles>(userType);
   const loginMutation = useMutation({
     mutationFn: (
@@ -177,6 +179,12 @@ export default function FormModal({
             success: true,
           });
           dispatch(login(subscriptionData));
+
+          // Conectar sockets após login bem-sucedido (cookies já estão setados)
+          setTimeout(() => {
+            connectSession();
+            connectOnlineStatus();
+          }, 100);
 
           if (!subscriptionData || subscriptionData?.start_date === null) {
             toast("Redirecionando para a página de assinatura...", {
