@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import Section from "~/src/components/ui/Section";
 import Grid from "~/src/components/ui/Grid";
 import MetricasCards from "~/features/anuncios/components/MetricasCards/MetricasCards";
-// import TopAnunciosVendidos from "~/features/anuncios/components/TopAnunciosVendidos/TopAnunciosVendidos";
+import TopAnunciosVendidos from "~/features/anuncios/components/TopAnunciosVendidos/TopAnunciosVendidos";
 import { AnunciosFilters } from "~/features/anuncios/components/Filters";
 import type { AnunciosFiltersState } from "~/features/anuncios/components/Filters";
 import { useAnunciosFilters } from "~/features/anuncios/hooks";
@@ -31,11 +31,11 @@ export default function AnunciosPage() {
         </Grid>
       </Section>
 
-      {/* <Section title="Top 5 anúncios mais vendidos">
+      <Section title="Top 5 anúncios mais vendidos">
         <Grid cols={{ base: 1, lg: 1 }}>
           <TopAnunciosVendidos />
         </Grid>
-      </Section> */}
+      </Section>
 
       <Section title="Todos os anúncios">
         <AnunciosFilters

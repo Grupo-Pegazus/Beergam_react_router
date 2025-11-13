@@ -1,34 +1,194 @@
-import StatCard from "~/src/components/ui/StatCard";
-import Svg from "~/src/assets/svgs/_index";
 import { Skeleton } from "@mui/material";
 
 export default function TopAnunciosVendidosSkeleton() {
   return (
-    <StatCard
-      icon={<Svg.star tailWindClasses="w-5 h-5 text-amber-600" />}
-      title="Top 5 Anúncios Mais Vendidos"
-      color="amber"
-      variant="soft"
-    >
-      <div className="mt-4 space-y-3">
-        {[1, 2, 3, 4, 5].map((index) => (
-          <div
-            key={index}
-            className="flex items-center justify-between p-3 rounded-xl border border-black/10 bg-white"
-          >
-            <div className="flex items-center gap-3 flex-1">
-              <Skeleton variant="circular" width={32} height={32} />
-              <div className="flex-1">
-                <Skeleton variant="text" width="80%" height={20} />
-                <Skeleton variant="text" width="60%" height={16} className="mt-1" />
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-5">
+      {[1, 2, 3, 4, 5].map((index) => (
+        <div
+          key={index}
+          className="relative flex h-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-md shadow-slate-200/40"
+        >
+          {/* Badge de posição */}
+          <div className="absolute left-0 top-0">
+            <Skeleton
+              variant="rectangular"
+              width={32}
+              height={32}
+              sx={{
+                borderRadius: "16px 0 16px 0",
+                bgcolor: "#fef3c7",
+              }}
+            />
+          </div>
+
+          {/* Thumbnail e informações básicas */}
+          <div className="flex items-start gap-3 sm:gap-4 pt-1">
+            <Skeleton
+              variant="rectangular"
+              width={56}
+              height={56}
+              sx={{
+                borderRadius: "16px",
+                bgcolor: "#f1f5f9",
+                "@media (min-width: 640px)": {
+                  width: 64,
+                  height: 64,
+                },
+              }}
+            />
+            <div className="min-w-0 flex-1 space-y-1">
+              <Skeleton
+                variant="text"
+                width="100%"
+                height={16}
+                sx={{
+                  bgcolor: "#e2e8f0",
+                  "@media (min-width: 640px)": {
+                    height: 20,
+                  },
+                }}
+              />
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Skeleton
+                  variant="text"
+                  width={50}
+                  height={12}
+                  sx={{
+                    bgcolor: "#cbd5e1",
+                    "@media (min-width: 640px)": {
+                      width: 60,
+                      height: 16,
+                    },
+                  }}
+                />
+                <span className="text-slate-300 text-[10px] sm:text-xs">•</span>
+                <Skeleton
+                  variant="text"
+                  width={60}
+                  height={12}
+                  sx={{
+                    bgcolor: "#cbd5e1",
+                    "@media (min-width: 640px)": {
+                      width: 70,
+                      height: 16,
+                    },
+                  }}
+                />
               </div>
             </div>
-            <Skeleton variant="rectangular" width={48} height={48} className="rounded-lg" />
           </div>
-        ))}
-      </div>
-    </StatCard>
+
+          {/* Stats */}
+          <div className="flex flex-col gap-2">
+            {/* Stat Visitas */}
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-2 sm:px-3 py-1.5 sm:py-2">
+              <Skeleton
+                variant="rectangular"
+                width={24}
+                height={24}
+                sx={{
+                  borderRadius: "8px",
+                  bgcolor: "#ffffff",
+                  "@media (min-width: 640px)": {
+                    width: 28,
+                    height: 28,
+                  },
+                }}
+              />
+              <div className="flex-1 min-w-0">
+                <Skeleton
+                  variant="text"
+                  width={45}
+                  height={10}
+                  sx={{
+                    bgcolor: "#cbd5e1",
+                    "@media (min-width: 640px)": {
+                      width: 50,
+                      height: 11,
+                    },
+                  }}
+                />
+                <Skeleton
+                  variant="text"
+                  width={55}
+                  height={14}
+                  sx={{
+                    bgcolor: "#e2e8f0",
+                    mt: 0.5,
+                    "@media (min-width: 640px)": {
+                      width: 60,
+                      height: 16,
+                    },
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Stat Estoque */}
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-2 sm:px-3 py-1.5 sm:py-2">
+              <Skeleton
+                variant="rectangular"
+                width={24}
+                height={24}
+                sx={{
+                  borderRadius: "8px",
+                  bgcolor: "#ffffff",
+                  "@media (min-width: 640px)": {
+                    width: 28,
+                    height: 28,
+                  },
+                }}
+              />
+              <div className="flex-1 min-w-0">
+                <Skeleton
+                  variant="text"
+                  width={45}
+                  height={10}
+                  sx={{
+                    bgcolor: "#cbd5e1",
+                    "@media (min-width: 640px)": {
+                      width: 50,
+                      height: 11,
+                    },
+                  }}
+                />
+                <Skeleton
+                  variant="text"
+                  width={70}
+                  height={14}
+                  sx={{
+                    bgcolor: "#e2e8f0",
+                    mt: 0.5,
+                    "@media (min-width: 640px)": {
+                      width: 80,
+                      height: 16,
+                    },
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Botão */}
+          <div className="mt-auto">
+            <Skeleton
+              variant="rectangular"
+              width="100%"
+              height={32}
+              sx={{
+                borderRadius: "9999px",
+                bgcolor: "#fef3c7",
+                "@media (min-width: 640px)": {
+                  height: 36,
+                },
+              }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
+
 
 

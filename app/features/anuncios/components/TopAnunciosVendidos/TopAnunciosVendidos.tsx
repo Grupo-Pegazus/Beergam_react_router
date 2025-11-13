@@ -4,7 +4,7 @@ import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import Svg from "~/src/assets/svgs/_index";
 import TopAnunciosVendidosSkeleton from "./TopAnunciosVendidosSkeleton";
 import { Link } from "react-router";
-
+import type { Anuncio } from "../../typings";
 export default function TopAnunciosVendidos() {
   const { data, isLoading, error } = useTopSoldAds({
     limit: 5,
@@ -31,9 +31,9 @@ export default function TopAnunciosVendidos() {
           <p className="mt-2 text-sm text-slate-500">Nenhum destaque encontrado no momento.</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-5">
           {topAnuncios.map((anuncio, index) => (
-            <HighlightCard key={anuncio.mlb} anuncio={anuncio} position={index + 1} />
+            <HighlightCard key={anuncio.mlb} anuncio={anuncio as Anuncio} position={index + 1} />
           ))}
         </div>
       )}
@@ -41,32 +41,19 @@ export default function TopAnunciosVendidos() {
   );
 }
 
-interface HighlightCardProps {
-  anuncio: {
-    mlb: string;
-    name: string;
-    price: string;
-    sold_quantity: number;
-    thumbnail?: string | null;
-    stock: number;
-    geral_visits: number;
-  };
-  position: number;
-}
-
-function HighlightCard({ anuncio, position }: HighlightCardProps) {
+function HighlightCard({ anuncio, position }: { anuncio: Anuncio; position: number }) {
   return (
-    <div className="relative flex h-full flex-col gap-4 rounded-3xl border border-amber-100 bg-white p-5 shadow-md shadow-amber-200/40">
-      <div className="absolute right-4 top-4">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 text-sm font-bold text-white shadow-md">
-          {position}
+    <div className="relative flex h-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-md shadow-slate-200/40">
+      <div className="absolute left-0 top-0">
+        <span className="flex h-8 w-8 items-center justify-center rounded-tl-2xl rounded-br-2xl bg-amber-500 text-xs sm:text-sm font-bold text-white shadow-md">
+          {position}º
         </span>
       </div>
-      <div className="flex items-start gap-4">
-      <Thumbnail thumbnail={anuncio.thumbnail} name={anuncio.name} />
-        <div className="min-w-0 space-y-1">
-          <p className="truncate text-sm font-semibold text-slate-900">{anuncio.name}</p>
-          <div className="flex items-center gap-2 text-xs text-slate-500">
+      <div className="flex items-start gap-3 sm:gap-4 pt-1">
+        <Thumbnail thumbnail={anuncio.thumbnail} name={anuncio.name} />
+        <div className="min-w-0 flex-1 space-y-1">
+          <p className="truncate text-xs sm:text-sm font-semibold text-slate-900">{anuncio.name}</p>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[12px] sm:text-xs text-slate-500">
             <span>{formatPrice(anuncio.price)}</span>
             <span>•</span>
             <span>{anuncio.sold_quantity} vendas</span>
@@ -77,7 +64,7 @@ function HighlightCard({ anuncio, position }: HighlightCardProps) {
         <HighlightStat
           icon={
             <span className="text-sky-500">
-              <Svg.graph tailWindClasses="h-4 w-4" />
+              <Svg.graph tailWindClasses="h-5 w-5" />
             </span>
           }
           label="Visitas"
@@ -86,7 +73,7 @@ function HighlightCard({ anuncio, position }: HighlightCardProps) {
         <HighlightStat
           icon={
             <span className="text-emerald-500">
-              <Svg.dolly tailWindClasses="h-4 w-4" />
+              <Svg.in_box_stack tailWindClasses="h-5 w-5" />
             </span>
           }
           label="Estoque"
@@ -98,22 +85,12 @@ function HighlightCard({ anuncio, position }: HighlightCardProps) {
           to={`/interno/anuncios/${anuncio.mlb}`}
           icon={
             <span className="text-amber-600">
-              <Svg.eye tailWindClasses="h-4 w-4" />
+              <Svg.eye tailWindClasses="h-5 w-5" />
             </span>
           }
         >
           Ver anúncio
         </InternalButtonLink>
-        <ExternalButtonLink
-          href={`https://www.mercadolivre.com.br/itm/${anuncio.mlb}`}
-          icon={
-            <span className="text-amber-600">
-              <Svg.globe />
-            </span>
-          }
-        >
-          Ver no ML
-        </ExternalButtonLink>
       </div>
     </div>
   );
@@ -130,13 +107,13 @@ function Thumbnail({ thumbnail, name }: ThumbnailProps) {
       <img
         src={thumbnail}
         alt={name}
-        className="h-16 w-16 rounded-2xl object-cover shadow-inner"
+        className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl object-cover shadow-inner shrink-0"
       />
     );
   }
   return (
-    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
-      <Svg.bag tailWindClasses="h-6 w-6" />
+      <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 shrink-0">
+      <Svg.bag tailWindClasses="h-5 w-5 sm:h-6 sm:w-6" />
     </div>
   );
 }
@@ -149,13 +126,13 @@ interface HighlightStatProps {
 
 function HighlightStat({ icon, label, value }: HighlightStatProps) {
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2">
-      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white shadow-inner">
+    <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-2 sm:px-3 py-1.5 sm:py-2">
+      <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-white shadow-inner shrink-0">
         {icon}
       </div>
-      <div>
-        <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">{label}</p>
-        <p className="text-sm font-semibold text-slate-700">{value}</p>
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] sm:text-[11px] font-medium uppercase tracking-wide text-slate-400 truncate">{label}</p>
+        <p className="text-xs sm:text-sm font-semibold text-slate-700 truncate">{value}</p>
       </div>
     </div>
   );
@@ -170,25 +147,11 @@ function InternalButtonLink({ to, icon, children }: ButtonBaseProps & { to: stri
   return (
     <Link
       to={to}
-      className="flex flex-1 items-center justify-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-600 transition hover:bg-amber-100"
+      className="flex flex-1 items-center justify-center gap-1.5 sm:gap-2 rounded-full border border-amber-300 bg-amber-50 px-2.5 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold text-amber-600 transition hover:bg-amber-100"
     >
       {icon}
-      {children}
+      <span className="truncate">{children}</span>
     </Link>
-  );
-}
-
-function ExternalButtonLink({ href, icon, children }: ButtonBaseProps & { href: string }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex flex-1 items-center justify-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-600 transition hover:bg-amber-100"
-    >
-      {icon}
-      {children}
-    </a>
   );
 }
 
