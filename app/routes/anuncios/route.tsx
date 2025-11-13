@@ -1,27 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
-import { anuncioService } from "~/features/anuncios/service";
+import type { Route } from ".react-router/types/app/routes/anuncios/+types/route";
+import AnunciosPage from "./page";
 
-export default function AnunciosPage() {
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "Beergam | Anúncios" },
+    { name: "description", content: "Anúncios" },
+  ];
+}
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["anuncios"],
-    queryFn: () => anuncioService.getAnuncios(),
-  });
-
-  if (isLoading) {
-    return <h1>Carregando...</h1>;
-  }
-  if (error) {
-    return <h1>Erro ao carregar anúncios</h1>;
-  }
-
-  if (data === null) {
-    return <h1>Nenhum anúncio encontrado</h1>;
-  }
-
+export default function Anuncios() {
   return (
-    <div>
-      {console.log(data?.data)}
-    </div>
+    <AnunciosPage />
   );
 }

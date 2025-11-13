@@ -62,7 +62,7 @@ export function Modal({
             }}
           >
             <div
-              className={`relative w-full max-w-3xl rounded-2xl bg-white p-6 shadow-2xl overflow-y-auto h-[80%] md:h-auto max-h-[80vh] ${contentClassName ?? ""}`.trim()}
+              className={`relative w-full max-w-3xl rounded-2xl bg-white p-3 md:p-6 shadow-2xl overflow-y-auto h-[80%] md:h-auto max-h-[80vh] ${contentClassName ?? ""}`.trim()}
             >
               <div className="flex items-start justify-between mb-4">
                 {title && (

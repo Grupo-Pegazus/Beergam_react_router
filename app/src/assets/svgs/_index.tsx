@@ -48,6 +48,8 @@ import CalculatorSolid from "./CalculatorSolid";
 import Plus from "./Plus";
 import Logout from "./Logout";
 import Star from "./Star";
+import Copy from "./Copy";
+import LowStock from "./LowStock";
 
 const Svg = {
   home: HomeIcon,
@@ -100,6 +102,8 @@ const Svg = {
   plus: Plus,
   logout: Logout,
   star: Star,
+  copy: Copy,
+  low_stock: LowStock,
 };
 
 export default Svg;

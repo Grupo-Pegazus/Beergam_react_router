@@ -83,9 +83,10 @@ const theme = createTheme(
       MuiPaper: {
         styleOverrides: {
           root: {
-            border: "1px solid #b2b2bf",
+            border: "1px solid #e6e6e6",
             borderRadius: "8px",
             padding: "16px",
+            transition: "all 0.3s ease",
           },
         },
       },
