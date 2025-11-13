@@ -18,15 +18,14 @@ import toast from "react-hot-toast";
 import AnuncioListSkeleton from "./AnuncioListSkeleton";
 import Speedometer from "../Speedometer/Speedometer";
 import VisitsChart from "./VisitsChart";
+import VariationsList from "./Variations/VariationsList";
+import { formatCurrency, formatNumber } from "./utils";
+import Thumbnail from "../Thumbnail/Thumbnail";
 
 interface AnunciosListProps {
   filters?: Partial<AdsFilters>;
 }
 
-/**
- * Mapeia o tipo de entrega para label e cores
- * Seguindo princípios SOLID: Single Responsibility
- */
 function getLogisticTypeInfo(logisticType: string) {
   const mapping: Record<
     string,
@@ -192,12 +191,14 @@ interface AnuncioCardProps {
 
 function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
   const isActive = anuncio.status === "active";
   const isClosed = anuncio.status === "closed";
   const healthScore = anuncio.health?.score ?? null;
   const reputation = anuncio.experience?.reputation;
   const conversionRate = anuncio.conversion_rate ? parseFloat(anuncio.conversion_rate) : null;
   const statusMessage = getStatusMessage(anuncio.status, anuncio.sub_status);
+  const hasVariations = anuncio.variations && anuncio.variations.length > 0;
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -207,38 +208,61 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
     setAnchorEl(null);
   };
 
+  const handleToggleExpansion = () => {
+    setIsExpanded((prev) => !prev);
+  };
+
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
       <div className="grid grid-cols-12 gap-4">
         {/* Coluna Esquerda: Produto */}
         <div className="col-span-12 md:col-span-5 flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <Thumbnail anuncio={anuncio} />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <Typography variant="caption" color="text.secondary" className="font-mono">
-                  # {anuncio.mlb}
-                </Typography>
-                <button className="flex items-center gap-1 text-slate-500 hover:text-slate-700" onClick={() => {navigator.clipboard.writeText(anuncio.mlb); toast.success("MLB copiado para a área de transferência")}}>
-                  <Svg.copy tailWindClasses="h-4 w-4" />
+            <div className="relative shrink-0">
+              <Thumbnail anuncio={anuncio} />
+              {hasVariations && (
+                <button
+                  onClick={handleToggleExpansion}
+                  className="absolute -right-1 -top-1 md:flex hidden items-center justify-center w-6 h-6 md:w-5 md:h-5 rounded-full bg-blue-500 text-white shadow-md hover:bg-blue-600 active:bg-blue-700 transition-colors z-10 touch-manipulation"
+                  aria-label={isExpanded ? "Recolher variações" : "Expandir variações"}
+                >
+                  <Svg.chevron
+                    tailWindClasses={`h-3.5 w-3.5 md:h-3 md:w-3 transition-transform duration-200 ${
+                      isExpanded ? "rotate-270" : "rotate-90"
+                    }`}
+                  />
                 </button>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex md:items-center items-start md:flex-row flex-col gap-2 mb-1">
+                <div className="flex items-center gap-2">
+                  <Typography variant="caption" color="text.secondary" className="font-mono">
+                    # {anuncio.mlb}
+                  </Typography>
+                  <button className="flex items-center gap-1 text-slate-500 hover:text-slate-700" onClick={() => {navigator.clipboard.writeText(anuncio.mlb); toast.success("MLB copiado para a área de transferência")}}>
+                    <Svg.copy tailWindClasses="h-4 w-4" />
+                  </button>
+                </div>
                 {anuncio.sku && (
                   <>
-                    <span className="text-slate-300">|</span>
-                    <Typography variant="caption" color="text.secondary">
-                      SKU {anuncio.sku}
-                    </Typography>
-                    <button
-                      className="flex items-center gap-1 text-slate-500 hover:text-slate-700"
-                      onClick={() => {
-                        if (anuncio.sku) {
-                          navigator.clipboard.writeText(anuncio.sku);
-                          toast.success("SKU copiado para a área de transferência");
-                        }
-                      }}
-                    >
-                      <Svg.copy tailWindClasses="h-4 w-4" />
-                    </button>
+                    <span className="text-slate-300 hidden md:inline">|</span>
+                    <div className="flex items-center gap-2">
+                      <Typography variant="caption" color="text.secondary">
+                        SKU {anuncio.sku}
+                      </Typography>
+                      <button
+                        className="flex items-center gap-1 text-slate-500 hover:text-slate-700"
+                        onClick={() => {
+                          if (anuncio.sku) {
+                            navigator.clipboard.writeText(anuncio.sku);
+                            toast.success("SKU copiado para a área de transferência");
+                          }
+                        }}
+                      >
+                        <Svg.copy tailWindClasses="h-4 w-4" />
+                      </button>
+                    </div>
                   </>
                 )}
               </div>
@@ -512,8 +536,34 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
               </Typography>
             )}
           </div>
+          {hasVariations && (
+                <button
+                  onClick={handleToggleExpansion}
+                  className="mt-2 flex items-center gap-2 w-full md:w-auto px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 transition-colors touch-manipulation md:hidden"
+                  aria-label={isExpanded ? "Recolher variações" : "Expandir variações"}
+                >
+                  <Svg.chevron
+                    tailWindClasses={`h-4 w-4 transition-transform duration-200 ${
+                      isExpanded ? "rotate-270" : "rotate-90"
+                    }`}
+                  />
+                  <Typography variant="caption" className="text-blue-700 font-semibold">
+                    {isExpanded ? "Ocultar" : "Ver"} {anuncio.variations?.length || 0} variaç{anuncio.variations?.length === 1 ? "ão" : "ões"}
+                  </Typography>
+                </button>
+              )}
         </div>
       </div>
+
+      {/* Seção de Variações Expandida */}
+      {hasVariations && isExpanded && (
+        <div className="mt-4 pt-4 border-t border-slate-200">
+          <VariationsList
+            variations={anuncio.variations || []}
+            anuncio={anuncio}
+          />
+        </div>
+      )}
 
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
         <MenuItem
@@ -539,37 +589,6 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
   );
 }
 
-function Thumbnail({ anuncio }: { anuncio: Anuncio }) {
-  if (anuncio.thumbnail) {
-    return (
-      <img
-        src={anuncio.thumbnail}
-        alt={anuncio.name}
-        className="h-16 w-16 rounded-lg object-cover shrink-0"
-      />
-    );
-  }
-  return (
-    <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-slate-100 text-slate-400 shrink-0">
-      <Svg.bag tailWindClasses="h-6 w-6" />
-    </div>
-  );
-}
-
-function formatCurrency(price: string | number) {
-  const value = typeof price === "string" ? parseFloat(price) : price;
-  if (Number.isNaN(value)) return "R$ 0,00";
-  return value.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-
-function formatNumber(value: number | null | undefined) {
-  return (value ?? 0).toLocaleString("pt-BR");
-}
 
 function getStatusMessage(status: string, subStatus: string[]): string | null {
   const normalizedStatus = status.toLowerCase().replace(/\s+/g, "_");

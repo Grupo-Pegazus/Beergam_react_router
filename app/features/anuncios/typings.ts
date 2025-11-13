@@ -133,6 +133,23 @@ const ImageSchema = z.object({
   url: z.string(),
 });
 
+// Schema para variação do anúncio
+const VariationSchema = z.object({
+  attributes: z.array(AttributeSchema),
+  created_at: z.string(),
+  images: z.array(z.string()),
+  mlb: z.string(),
+  price: z.string(),
+  sku: z.string().nullable(),
+  sold_quantity: z.number(),
+  stock: z.number(),
+  thumbnail: z.string(),
+  updated_at: z.string(),
+  variation_id: z.string(),
+});
+
+export type Variation = z.infer<typeof VariationSchema>;
+
 // Schema para visitas mensais
 export const VisitSchema = z.object({
   created_at: z.string(),
@@ -172,6 +189,7 @@ export const AnuncioSchema = z.object({
   thumbnail: z.string(),
   updated_at: z.string(),
   variations_count: z.number(),
+  variations: z.array(VariationSchema).optional(),
   visits: z.array(VisitSchema).optional(),
 });
 
@@ -255,3 +273,37 @@ export const AnuncioBaseSchema = z.object({
   title: z.string(),
   price: z.number(),
 }) satisfies z.ZodType<AnuncioBase>;
+
+// Schema para anúncio sem SKU (com variations_without_sku)
+export const AdWithoutSkuSchema = AnuncioSchema.extend({
+  variations_without_sku: z.array(VariationSchema).optional(),
+});
+
+export type AdWithoutSku = z.infer<typeof AdWithoutSkuSchema>;
+
+// Schema para resposta de anúncios sem SKU
+export const WithoutSkuResponseSchema = z.object({
+  total_without_sku: z.number(),
+  with_variations: z.array(AdWithoutSkuSchema),
+  without_variations: z.array(AdWithoutSkuSchema),
+});
+
+export type WithoutSkuResponse = z.infer<typeof WithoutSkuResponseSchema>;
+
+// Schema para atualização de SKU
+const UpdateSkuVariationAttributeSchema = z.object({
+  id: z.string(),
+  value_name: z.string(),
+});
+
+const UpdateSkuVariationSchema = z.object({
+  id: z.number(),
+  attributes: z.array(UpdateSkuVariationAttributeSchema),
+});
+
+export const UpdateSkuRequestSchema = z.object({
+  ad_id: z.string(),
+  variations: z.array(UpdateSkuVariationSchema),
+});
+
+export type UpdateSkuRequest = z.infer<typeof UpdateSkuRequestSchema>;

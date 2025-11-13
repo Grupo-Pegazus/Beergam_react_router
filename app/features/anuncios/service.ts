@@ -1,6 +1,6 @@
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
-import type { AdsResponse, AdsFilters, ChangeAdStatusRequest } from "./typings";
+import type { AdsResponse, AdsFilters, ChangeAdStatusRequest, WithoutSkuResponse, UpdateSkuRequest } from "./typings";
 
 // Tipos para os novos endpoints
 export interface AdsMetrics {
@@ -66,6 +66,19 @@ class AnuncioService {
     const response = await typedApiClient.post<{ success: boolean; message?: string }>(
       `/v1/ads/${adId}/status/change`,
       { status }
+    );
+    return response as ApiResponse<{ success: boolean; message?: string }>;
+  }
+
+  async getAdsWithoutSku(): Promise<ApiResponse<WithoutSkuResponse>> {
+    const response = await typedApiClient.get<WithoutSkuResponse>("/v1/ads/without-sku");
+    return response as ApiResponse<WithoutSkuResponse>;
+  }
+
+  async updateSku(request: UpdateSkuRequest): Promise<ApiResponse<{ success: boolean; message?: string }>> {
+    const response = await typedApiClient.post<{ success: boolean; message?: string }>(
+      "/v1/ads/update-sku",
+      request
     );
     return response as ApiResponse<{ success: boolean; message?: string }>;
   }

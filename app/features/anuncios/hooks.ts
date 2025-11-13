@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { anuncioService } from "./service";
-import type { AdsFilters, ChangeAdStatusRequest, AdsResponse } from "./typings";
+import type { AdsFilters, ChangeAdStatusRequest, AdsResponse, WithoutSkuResponse, UpdateSkuRequest } from "./typings";
 import type { ApiResponse } from "../apiClient/typings";
 import type { AdsMetrics, TopSoldAd } from "./service";
 
@@ -71,6 +71,43 @@ export function useChangeAdStatus() {
     },
     onError: (error: unknown) => {
       const message = error instanceof Error ? error.message : "Erro ao alterar status do anúncio";
+      toast.error(message);
+    },
+  });
+}
+
+export function useAdsWithoutSku() {
+  return useQuery<ApiResponse<WithoutSkuResponse>>({
+    queryKey: ["anuncios", "without-sku"],
+    queryFn: async () => {
+      const res = await anuncioService.getAdsWithoutSku();
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar anúncios sem SKU");
+      }
+      return res;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutos
+  });
+}
+
+export function useUpdateSku() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: UpdateSkuRequest) => {
+      const res = await anuncioService.updateSku(request);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao atualizar SKU");
+      }
+      return res;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["anuncios", "without-sku"] });
+      queryClient.invalidateQueries({ queryKey: ["anuncios"] });
+      toast.success("SKU atualizado com sucesso");
+    },
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "Erro ao atualizar SKU";
       toast.error(message);
     },
   });
