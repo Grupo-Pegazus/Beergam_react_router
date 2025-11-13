@@ -36,7 +36,6 @@ const authSlice = createSlice({
       state.subscription = null;
       state.success = false;
       state.loading = false;
-      state.error = null;
       cryptoAuth.limparDados();
       cryptoMarketplace.limparDados();
       cryptoUser.limparDados();
