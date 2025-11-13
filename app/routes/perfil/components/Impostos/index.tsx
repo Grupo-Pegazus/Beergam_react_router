@@ -44,8 +44,8 @@ function sanitizePercentInput(value: string): string {
 }
 
 function formatNumberToPercentString(n: number): string {
-  const fixed = Number.isFinite(n) ? n : 0;
-  return fixed.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (Number.isNaN(n)) return "0,00";
+  return n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 export default function Impostos() {
