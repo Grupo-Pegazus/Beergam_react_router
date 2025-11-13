@@ -21,10 +21,12 @@ export default function ColabPhoto({
   }, [masterPin, photo_id]);
   return (
     <div
-      className={`rounded-full relative object-cover object-center ${photo_id ? "bg-transparent" : "bg-beergam-orange"} flex items-center justify-center ${size === "small" ? "size-6" : size === "medium" ? "size-10" : "size-12"}`}
+      className={`rounded-full relative object-cover object-center ${photo_id ? "bg-transparent" : "bg-beergam-orange"} flex items-center justify-center ${size === "small" ? "size-6" : size === "medium" ? "size-10" : "size-20"}`}
     >
       {!colabPhotoUrl ? (
-        <h4 className="text-white">{name.charAt(0).toUpperCase()}</h4>
+        <h4 className={`text-white ${size === "large" && "text-2xl"}`}>
+          {name.charAt(0).toUpperCase()}
+        </h4>
       ) : (
         <img
           className="w-full h-full object-cover object-center rounded-full"
