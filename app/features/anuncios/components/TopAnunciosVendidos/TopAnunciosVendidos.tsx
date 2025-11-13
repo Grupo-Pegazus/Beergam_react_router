@@ -156,9 +156,11 @@ function InternalButtonLink({ to, icon, children }: ButtonBaseProps & { to: stri
   );
 }
 
-function formatPrice(price: string): string {
-  if (Number.isNaN(parseFloat(price))) return "R$ 0,00";
-  return parseFloat(price).toLocaleString("pt-BR", {
+function formatPrice(price: string | null | undefined): string {
+  if (!price || Number.isNaN(parseFloat(price))) return "R$ 0,00";
+  const numValue = parseFloat(price);
+  if (!Number.isFinite(numValue)) return "R$ 0,00";
+  return numValue.toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
     minimumFractionDigits: 2,
