@@ -1,4 +1,5 @@
 import { Navigate, Outlet, useRouteLoaderData } from "react-router";
+import type { IAuthState } from "~/features/auth/redux";
 import type { BaseMarketPlace } from "~/features/marketplace/typings";
 import MenuDesktop from "~/features/system/components/desktop/MenuDesktop";
 import SystemLayout from "~/features/system/components/layout/SystemLayout";
@@ -6,11 +7,9 @@ import { MenuProvider } from "../../context/MenuContext";
 
 export default function MenuLayout() {
   const rootData = useRouteLoaderData("root") as
-    | { marketplace?: BaseMarketPlace }
+    | { marketplace?: BaseMarketPlace; authInfo?: IAuthState }
     | undefined;
-
   const marketplace = rootData?.marketplace;
-
   if (!marketplace) {
     return <Navigate to="/interno/choosen_account" replace />;
   }
