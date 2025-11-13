@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { limparMarketplaceDados } from "../marketplace/redux";
 import type { Subscription } from "../user/typings/BaseUser";
-import { cryptoAuth } from "./utils";
-
+import { cryptoAuth, cryptoMarketplace, cryptoUser } from "./utils";
 export type TAuthError =
   | "REFRESH_TOKEN_EXPIRED"
   | "REFRESH_TOKEN_REVOKED"
@@ -37,6 +37,10 @@ const authSlice = createSlice({
       state.success = false;
       state.loading = false;
       state.error = null;
+      cryptoAuth.limparDados();
+      cryptoMarketplace.limparDados();
+      cryptoUser.limparDados();
+      limparMarketplaceDados();
     },
     updateSubscription(state, action: PayloadAction<Subscription | null>) {
       state.subscription = action.payload;
