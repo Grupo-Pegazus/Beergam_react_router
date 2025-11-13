@@ -43,8 +43,8 @@ function sanitizePercentInput(value: string): string {
   return v;
 }
 
-function formatNumberToPercentString(n: number): string {
-  if (Number.isNaN(n)) return "0,00";
+function formatNumberToPercentString(n: number | null | undefined): string {
+  if (n == null || Number.isNaN(n) || !Number.isFinite(n)) return "0,00";
   return n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
