@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
-import beergam_flower_logo from "~/src/img/beergam_flower_logo.webp";
+import { CDN_IMAGES } from "~/src/constants/cdn-images";
 import { type RootState } from "~/store";
 import MenuItem from "../../../menu/components/MenuItem/MenuItem";
 import { useActiveMenu } from "../../../menu/hooks";
@@ -49,7 +49,7 @@ function MenuDesktopContent() {
         <div className="px-[18px] flex items-end justify-start">
           <div className="w-full max-w-[64px] px-4">
             <img
-              src={beergam_flower_logo}
+              src={CDN_IMAGES.BEERGAM_FLOWER_LOGO}
               alt="Beergam"
               className="w-full h-full max-h-full max-w-full object-contain"
             />

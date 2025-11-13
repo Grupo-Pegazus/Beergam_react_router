@@ -1,6 +1,5 @@
 import { Tooltip } from "react-tooltip";
 import Svg from "~/src/assets/svgs/_index";
-import { CDN_IMAGES } from "~/src/constants/cdn-images";
 import AccountView from "./AccountView";
 export default function HeaderDesktop() {
   return (
