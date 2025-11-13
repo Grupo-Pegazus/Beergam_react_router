@@ -44,11 +44,6 @@ export function showNotification(
       content = <OnlineStatus colab={data.colab} online={data.online} />;
       break;
 
-    case "custom":
-      content = data.content;
-      icon = data.icon;
-      break;
-
     default:
       // TypeScript garante que todos os casos são cobertos
       throw new Error(`Tipo de notificação não suportado: ${typeof data}`);
