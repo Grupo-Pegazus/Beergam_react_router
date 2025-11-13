@@ -4,11 +4,13 @@ import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router";
 import { z } from "zod";
+import { cryptoAuth } from "~/features/auth/utils";
+import { useSocketContext } from "~/features/socket/context/SocketContext";
 import { updateUserInfo } from "~/features/user/redux";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import { Fields } from "~/src/components/utils/_fields";
 import beergam_flower_logo from "~/src/img/beergam_flower_logo.webp";
-import { updateSubscription } from "../../../../features/auth/redux";
+import { login } from "../../../../features/auth/redux";
 import { authService } from "../../../../features/auth/service";
 import {
   type ColaboradorUserForm,
@@ -61,6 +63,7 @@ export default function FormModal({
 }: FormModalProps) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { connectSession, connectOnlineStatus } = useSocketContext();
   const [currentUserType, setCurrentUserType] = useState<UserRoles>(userType);
   const loginMutation = useMutation({
     mutationFn: (
@@ -169,7 +172,20 @@ export default function FormModal({
           const userData = data.data.user;
           const subscriptionData = data.data.subscription;
           dispatch(updateUserInfo({ user: userData, shouldEncrypt: true }));
-          dispatch(updateSubscription(subscriptionData));
+          cryptoAuth.encriptarDados({
+            loading: false,
+            subscription: subscriptionData,
+            error: null,
+            success: true,
+          });
+          dispatch(login(subscriptionData));
+
+          // Conectar sockets após login bem-sucedido (cookies já estão setados)
+          setTimeout(() => {
+            connectSession();
+            connectOnlineStatus();
+          }, 100);
+
           if (!subscriptionData || subscriptionData?.start_date === null) {
             toast("Redirecionando para a página de assinatura...", {
               icon: "🍊",

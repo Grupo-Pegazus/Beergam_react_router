@@ -34,6 +34,10 @@ export interface PlanBenefits {
   gestao_financeira?: string | null;
   marketplaces_integrados: number;
   sincronizacao_estoque: boolean;
+  clube_beergam?: boolean;
+  comunidade_beergam?: boolean;
+  ligacao_quinzenal?: boolean;
+  novidades_beta?: boolean;
 }
 
 export interface Plan {
@@ -48,6 +52,7 @@ export interface Plan {
   price_6_months: number;
   price_id_1_year: string;
   price_1_year: number;
+  description: string;
 }
 
 export interface SubscriptionPlan {
@@ -73,6 +78,10 @@ export const PlanBenefitsSchema = z.object({
   gestao_financeira: z.string().optional().nullable(),
   marketplaces_integrados: z.number(),
   sincronizacao_estoque: z.boolean(),
+  clube_beergam: z.boolean().optional(),
+  comunidade_beergam: z.boolean().optional(),
+  ligacao_quinzenal: z.boolean().optional(),
+  novidades_beta: z.boolean().optional(),
 }) satisfies z.ZodType<PlanBenefits>;
 
 export const PlanSchema = z.object({
@@ -87,6 +96,7 @@ export const PlanSchema = z.object({
   price_6_months: z.number(),
   price_id_1_year: z.string(),
   price_1_year: z.number(),
+  description: z.string(),
 }) satisfies z.ZodType<Plan>;
 
 const DateCoerced = z.preprocess(
@@ -117,6 +127,10 @@ export const SubscriptionSchema = z.object({
           gestao_financeira: z.string().optional().nullable(),
           marketplaces_integrados: z.number(),
           sincronizacao_estoque: z.boolean(),
+          clube_beergam: z.boolean().optional(),
+          comunidade_beergam: z.boolean().optional(),
+          ligacao_quinzenal: z.boolean().optional(),
+          novidades_beta: z.boolean().optional(),
         })
         .transform((b) => {
           const bi = b as PlanBenefits;
@@ -129,6 +143,10 @@ export const SubscriptionSchema = z.object({
             gestao_financeira: bi.gestao_financeira,
             marketplaces_integrados: bi.marketplaces_integrados,
             sincronizacao_estoque: bi.sincronizacao_estoque,
+            clube_beergam: bi.clube_beergam,
+            comunidade_beergam: bi.comunidade_beergam,
+            ligacao_quinzenal: bi.ligacao_quinzenal,
+            novidades_beta: bi.novidades_beta,
           };
           return normalized;
         }),
@@ -142,7 +160,12 @@ export const SubscriptionSchema = z.object({
         }) as SubscriptionPlan
     ),
   status: z
-    .enum(Object.keys(SubscriptionStatus) as [SubscriptionStatus, ...SubscriptionStatus[]])
+    .enum(
+      Object.keys(SubscriptionStatus) as [
+        SubscriptionStatus,
+        ...SubscriptionStatus[],
+      ]
+    )
     .optional(),
 }) satisfies z.ZodType<Subscription>;
 

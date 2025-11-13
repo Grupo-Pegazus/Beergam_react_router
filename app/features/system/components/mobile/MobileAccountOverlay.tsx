@@ -1,14 +1,27 @@
-import { useEffect, useRef, useState, lazy, Suspense, useCallback } from "react";
-import OverlayFrame from "../../shared/OverlayFrame";
-import { useOverlay } from "../../hooks/useOverlay";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useMarketplaceAccounts } from "~/features/marketplace/hooks/useMarketplaceAccounts";
-import Modal from "~/src/components/utils/Modal";
 import { MarketplaceTypeLabel } from "~/features/marketplace/typings";
 import Svg from "~/src/assets/svgs/_index";
+import Modal from "~/src/components/utils/Modal";
+import { useOverlay } from "../../hooks/useOverlay";
+import OverlayFrame from "../../shared/OverlayFrame";
 
-const CreateMarketplaceModal = lazy(() => import("~/routes/choosen_account/components/CreateMarketplaceModal"));
+const CreateMarketplaceModal = lazy(
+  () => import("~/routes/choosen_account/components/CreateMarketplaceModal")
+);
 
-export default function MobileAccountOverlay({ onClose }: { onClose: () => void }) {
+export default function MobileAccountOverlay({
+  onClose,
+}: {
+  onClose: () => void;
+}) {
   const first = useRef<HTMLButtonElement | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const { isOpen, shouldRender, open, requestClose } = useOverlay();
@@ -21,26 +34,51 @@ export default function MobileAccountOverlay({ onClose }: { onClose: () => void 
   }, [requestClose, onClose]);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") handleClose(); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") handleClose();
+    };
     document.addEventListener("keydown", onKey);
     first.current?.focus();
-    return () => { document.removeEventListener("keydown", onKey); };
+    return () => {
+      document.removeEventListener("keydown", onKey);
+    };
   }, [handleClose]);
 
   return (
-    <OverlayFrame title="Trocar de conta" isOpen={isOpen} shouldRender={shouldRender} onRequestClose={handleClose}>
+    <OverlayFrame
+      title="Trocar de conta"
+      isOpen={isOpen}
+      shouldRender={shouldRender}
+      onRequestClose={handleClose}
+    >
       <AccountList onAdd={() => setModalOpen(true)} onSelected={handleClose} />
-        <Modal abrir={modalOpen} onClose={() => setModalOpen(false)}>
-          <Suspense fallback={<div className="flex items-center justify-center min-h-[200px]"><div className="animate-spin rounded-full h-8 w-8 border-2 border-beergam-orange border-t-transparent"></div></div>}>
-            <CreateMarketplaceModal marketplacesAccounts={[]} modalOpen={modalOpen} />
-          </Suspense>
-        </Modal>
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center min-h-[200px]">
+              <div className="animate-spin rounded-full h-8 w-8 border-2 border-beergam-orange border-t-transparent"></div>
+            </div>
+          }
+        >
+          <CreateMarketplaceModal
+            marketplacesAccounts={[]}
+            modalOpen={modalOpen}
+          />
+        </Suspense>
+      </Modal>
     </OverlayFrame>
   );
 }
 
-function AccountList({ onSelected, onAdd }: { onSelected: () => void; onAdd: () => void }) {
-  const { accounts, current, isLoading, selectAccountAsync, isSelecting } = useMarketplaceAccounts();
+function AccountList({
+  onSelected,
+  onAdd,
+}: {
+  onSelected: () => void;
+  onAdd: () => void;
+}) {
+  const { accounts, current, isLoading, selectAccountAsync, isSelecting } =
+    useMarketplaceAccounts();
   return (
     <div className="p-4 overflow-y-auto">
       {isLoading ? (
@@ -51,17 +89,30 @@ function AccountList({ onSelected, onAdd }: { onSelected: () => void; onAdd: () 
             <button
               key={acc.marketplace_shop_id}
               type="button"
-              onClick={async () => { await selectAccountAsync(acc); onSelected(); }}
+              onClick={async () => {
+                await selectAccountAsync(acc);
+                onSelected();
+              }}
               disabled={isSelecting}
               className={[
                 "w-[90%] mx-auto my-1 flex items-center gap-3 p-3 rounded-xl border border-black/10 bg-white shadow-sm",
-                acc.marketplace_shop_id === current?.marketplace_shop_id ? "ring-2 ring-beergam-orange" : "",
+                acc.marketplace_shop_id === current?.marketplace_shop_id
+                  ? "ring-2 ring-beergam-orange"
+                  : "",
               ].join(" ")}
             >
-              <img src={acc.marketplace_image} alt={acc.marketplace_name} className="w-10 h-10 rounded-full object-cover" />
+              <img
+                src={acc.marketplace_image}
+                alt={acc.marketplace_name}
+                className="w-10 h-10 rounded-full object-cover"
+              />
               <div className="text-left min-w-0">
-                <div className="font-medium truncate">{acc.marketplace_name}</div>
-                <div className="text-xs opacity-70 truncate">{MarketplaceTypeLabel[acc.marketplace_type]}</div>
+                <div className="font-medium truncate">
+                  {acc.marketplace_name}
+                </div>
+                <div className="text-xs opacity-70 truncate">
+                  {MarketplaceTypeLabel[acc.marketplace_type]}
+                </div>
               </div>
             </button>
           ))}
@@ -70,13 +121,17 @@ function AccountList({ onSelected, onAdd }: { onSelected: () => void; onAdd: () 
             onClick={onAdd}
             className="fixed w-[90%] mx-auto bottom-6 left-0 right-0 mt-2 px-3 py-4 rounded-xl border border-black/10 bg-beergam-blue-light text-center flex items-center justify-center gap-2"
           >
-            <Svg.plus width={20} height={20} tailWindClasses="text-beergam-blue-primary" />
-            <span className="text-lg font-medium text-beergam-blue-primary">Adicionar conta</span>
+            <Svg.plus
+              width={20}
+              height={20}
+              tailWindClasses="text-beergam-blue-primary"
+            />
+            <span className="text-lg font-medium text-beergam-blue-primary">
+              Adicionar conta
+            </span>
           </button>
         </div>
       )}
     </div>
   );
 }
-
-

@@ -1,14 +1,13 @@
-import { typedApiClient } from "../apiClient/client";
-import type { ApiResponse } from "../apiClient/typings";
-import type { IColab } from "./typings/Colab";
-import type { IUser } from "./typings/User";
 import type {
   InternalUploadResponse,
   InternalUploadService,
 } from "~/src/components/utils/upload/types";
+import { typedApiClient } from "../apiClient/client";
+import type { ApiResponse } from "../apiClient/typings";
+import type { IColab } from "./typings/Colab";
+import type { IUser } from "./typings/User";
 
 class UserService {
-
   async editUserInformation(editUser: IUser): Promise<ApiResponse<IUser>> {
     try {
       const response = await typedApiClient.patch<IUser>(
@@ -110,7 +109,26 @@ class UserService {
       return {
         success: false,
         data: {} as InternalUploadResponse,
-        message: "Erro ao enviar foto do colaborador. Tente novamente em alguns instantes.",
+        message:
+          "Erro ao enviar foto do colaborador. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: {},
+      };
+    }
+  }
+  async deleteColab(colabPin: string): Promise<ApiResponse<void>> {
+    try {
+      const response = await typedApiClient.delete<void>(
+        `/v1/users/me/colabs/${colabPin}`
+      );
+      return response;
+    } catch (error) {
+      console.error("error do deleteColab", error);
+      return {
+        success: false,
+        data: undefined,
+        message:
+          "Erro ao excluir colaborador. Tente novamente em alguns instantes.",
         error_code: 500,
         error_fields: {},
       };

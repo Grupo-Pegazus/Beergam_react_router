@@ -1,10 +1,16 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { limparMarketplaceDados } from "../marketplace/redux";
 import type { Subscription } from "../user/typings/BaseUser";
+import { cryptoAuth, cryptoMarketplace, cryptoUser } from "./utils";
+export type TAuthError =
+  | "REFRESH_TOKEN_EXPIRED"
+  | "REFRESH_TOKEN_REVOKED"
+  | "UNKNOWN_ERROR";
 
 export interface IAuthState {
   loading: boolean;
   subscription: Subscription | null;
-  error: string | null;
+  error: TAuthError | null;
   success: boolean;
 }
 
@@ -19,26 +25,52 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login(state, action: PayloadAction<Subscription>) {
+    login(state, action: PayloadAction<Subscription | null>) {
       state.subscription = action.payload;
       state.success = true;
       state.loading = false;
       state.error = null;
+      console.log("login: ", state.error);
     },
     logout(state) {
       state.subscription = null;
       state.success = false;
       state.loading = false;
-      state.error = null;
+      cryptoAuth.limparDados();
+      cryptoMarketplace.limparDados();
+      cryptoUser.limparDados();
+      limparMarketplaceDados();
     },
     updateSubscription(state, action: PayloadAction<Subscription | null>) {
       state.subscription = action.payload;
-      state.success = true;
+      cryptoAuth.encriptarDados(state);
+    },
+    setAuthError(state, action: PayloadAction<TAuthError>) {
+      state.error = action.payload;
+      state.success = false;
       state.loading = false;
-      state.error = null;
+      state.subscription = null;
+    },
+    updateAuthInfo(
+      state,
+      action: PayloadAction<{ auth: IAuthState; shouldEncrypt?: boolean }>
+    ) {
+      state.loading = action.payload.auth.loading;
+      state.subscription = action.payload.auth.subscription;
+      state.error = action.payload.auth.error;
+      state.success = action.payload.auth.success;
+      if (action.payload.shouldEncrypt) {
+        cryptoAuth.encriptarDados(action.payload.auth);
+      }
     },
   },
 });
 
-export const { login, logout, updateSubscription } = authSlice.actions;
+export const {
+  login,
+  logout,
+  updateSubscription,
+  setAuthError,
+  updateAuthInfo,
+} = authSlice.actions;
 export default authSlice.reducer;

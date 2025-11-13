@@ -60,7 +60,9 @@ export default function ColabRow({
             >
               {colab.name}
             </p>
-            <p className="text-xs text-beergam-gray-light">OFFLINE</p>
+            <p className="text-xs text-beergam-gray-light">
+              {colab.is_online ? "ONLINE" : "OFFLINE"}
+            </p>
           </div>
         </div>
       </TableCell>

@@ -14,7 +14,7 @@ import { Fields } from "~/src/components/utils/_fields";
 import { UserStatus } from "../../../typings/BaseUser";
 import { ColabLevel, type IColab } from "../../../typings/Colab";
 import ColabRow from "../ColabRow";
-
+import DeleteColab from "../DeleteColab";
 export default function ColabTable({
   colabs,
   onTableAction,
@@ -28,8 +28,14 @@ export default function ColabTable({
 }) {
   const ROWS_PER_PAGE = 3;
   const [search, setSearch] = useState("");
+  const [colabToDelete, setColabToDelete] = useState<IColab | null>(null);
+
   function onAction(params: { action: string; colab: IColab }) {
-    onTableAction(params);
+    if (params.action === "Excluir") {
+      setColabToDelete(params.colab);
+    } else {
+      onTableAction(params);
+    }
   }
   const [page, setPage] = useState(0);
   function handlePageChange(event: unknown, newPage: number) {
@@ -208,6 +214,14 @@ export default function ColabTable({
           </TableBody>
         </Table>
       </TableContainer>
+      <DeleteColab
+        colab={colabToDelete}
+        onDeleteSuccess={(colab) => {
+          onTableAction({ action: "Excluir", colab });
+          setColabToDelete(null);
+        }}
+        onClose={() => setColabToDelete(null)}
+      />
     </>
   );
 }

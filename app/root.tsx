@@ -10,11 +10,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
-import { Provider, useDispatch } from "react-redux";
+import { Provider, useDispatch, useSelector } from "react-redux";
 import { isRouteErrorResponse, useLoaderData } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
-import { updateSubscription } from "./features/auth/redux";
+import { type IAuthState, updateAuthInfo } from "./features/auth/redux";
 import {
   cryptoAuth,
   cryptoMarketplace,
@@ -22,9 +22,11 @@ import {
 } from "./features/auth/utils";
 import { setMarketplace } from "./features/marketplace/redux";
 import type { BaseMarketPlace } from "./features/marketplace/typings";
+import { SocketStatusIndicator } from "./features/socket/components/SocketStatusIndicator";
+import { SocketProvider } from "./features/socket/context/SocketContext";
 import { updateUserInfo } from "./features/user/redux";
-import type { Subscription } from "./features/user/typings/BaseUser";
 import type { IUser } from "./features/user/typings/User";
+import type { RootState } from "./store";
 import store from "./store";
 import "./zod";
 export const queryClient = new QueryClient();
@@ -216,7 +218,7 @@ const theme = createTheme(
 export async function clientLoader() {
   return {
     userInfo: await cryptoUser.recuperarDados<IUser>(),
-    subscriptionInfo: await cryptoAuth.recuperarDados<Subscription>(),
+    authInfo: await cryptoAuth.recuperarDados<IAuthState>(),
     marketplace: await cryptoMarketplace.recuperarDados<BaseMarketPlace>(),
   };
 }
@@ -226,9 +228,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <html lang="pt-br">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1 user-scalable=no" />
-        <link rel="preconnect" href="https://cdn.beergam.com.br/" /> {/* cdn de arquivos estáticos da Beergam */}
-        <link rel="preconnect" href="http://http2.mlstatic.com" /> {/* cdn de imagens do mercado livre */}
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1 maximum-scale=1 user-scalable=no"
+        />
+        <link rel="preconnect" href="https://cdn.beergam.com.br/" />{" "}
+        {/* cdn de arquivos estáticos da Beergam */}
+        <link rel="preconnect" href="http://http2.mlstatic.com" />{" "}
+        {/* cdn de imagens do mercado livre */}
         <Meta />
         <Links />
       </head>
@@ -240,50 +247,61 @@ export function Layout({ children }: { children: React.ReactNode }) {
           toastOptions={{
             style: { maxWidth: "500px", width: "auto", zIndex: 9999999999999 },
           }}
-        >
-          {/* {(t) => (
-            <ToastBar toast={t}>
-              {({ icon, message }) => (
-                <>
-                  {icon}
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <div>{message}</div>
-                    {t.data?.additionalMessage && (
-                      <div
-                        style={{
-                          fontSize: "0.85em",
-                          opacity: 0.8,
-                          marginTop: "4px",
-                        }}
-                      >
-                        {t.data.additionalMessage}
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-            </ToastBar>
-          )} */}
-        </Toaster>
+        ></Toaster>
+        <Toaster position="bottom-right" toasterId="notifications"></Toaster>
       </body>
     </html>
   );
 }
 
 function BootstrapAuth() {
-  const { userInfo, subscriptionInfo } =
-    useLoaderData<typeof clientLoader>() ?? {};
+  const { userInfo, authInfo } = useLoaderData<typeof clientLoader>() ?? {};
   const dispatch = useDispatch();
+  const authState = useSelector((state: RootState) => state.auth);
+  const userFromRedux = useSelector((state: RootState) => state.user.user);
+
   console.log("userInfo bootstrap", userInfo);
-  console.log("subscriptionInfo bootstrap", subscriptionInfo);
+  console.log("authInfo bootstrap", authInfo);
+  console.log("authState no Redux", authState);
+
   useEffect(() => {
-    if (userInfo) {
+    // Só atualiza userInfo se não houver no Redux
+    if (userInfo && !userFromRedux) {
       dispatch(updateUserInfo({ user: userInfo, shouldEncrypt: false }));
     }
-    if (subscriptionInfo) {
-      dispatch(updateSubscription(subscriptionInfo));
+
+    // Só atualiza authInfo se o Redux ainda não foi inicializado com dados válidos
+    // Isso evita sobrescrever um login bem-sucedido com dados antigos do loader
+    if (authInfo) {
+      // Verifica se o Redux já tem um estado válido (login bem-sucedido)
+      // ou se já foi inicializado com algum estado (mesmo que seja um erro)
+      const isReduxInitialized =
+        authState.success === true ||
+        authState.error !== null ||
+        authState.subscription !== null ||
+        authState.loading !== false;
+
+      // Se o Redux já foi inicializado, não sobrescreve (prioriza o estado atual do Redux)
+      // Isso garante que um login bem-sucedido não seja sobrescrito por dados antigos do loader
+      if (!isReduxInitialized) {
+        console.log("Redux não inicializado, atualizando com dados do loader");
+        dispatch(updateAuthInfo({ auth: authInfo, shouldEncrypt: false }));
+      } else {
+        console.log(
+          "Redux já inicializado, ignorando dados do loader para evitar sobrescrever estado válido"
+        );
+      }
     }
-  }, [dispatch, userInfo, subscriptionInfo]);
+  }, [
+    dispatch,
+    userInfo,
+    authInfo,
+    authState.success,
+    authState.error,
+    authState.subscription,
+    authState.loading,
+    userFromRedux,
+  ]);
   return null;
 }
 
@@ -298,6 +316,18 @@ function BootstrapMarketplace() {
   return null;
 }
 
+function SocketConnectionManager() {
+  const authState = useSelector((state: RootState) => state.auth);
+  const isAuthenticated = authState.success === true;
+  const showSocketDebug = false;
+  return (
+    <SocketProvider isAuthenticated={isAuthenticated}>
+      <Outlet />
+      {showSocketDebug && <SocketStatusIndicator />}
+    </SocketProvider>
+  );
+}
+
 export default function App() {
   return (
     <Provider store={store}>
@@ -305,7 +335,7 @@ export default function App() {
       <BootstrapAuth />
       <BootstrapMarketplace />
       <QueryClientProvider client={queryClient}>
-        <Outlet />
+        <SocketConnectionManager />
       </QueryClientProvider>
     </Provider>
   );
