@@ -247,31 +247,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
           toastOptions={{
             style: { maxWidth: "500px", width: "auto", zIndex: 9999999999999 },
           }}
-        >
-          {/* {(t) => (
-            <ToastBar toast={t}>
-              {({ icon, message }) => (
-                <>
-                  {icon}
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <div>{message}</div>
-                    {t.data?.additionalMessage && (
-                      <div
-                        style={{
-                          fontSize: "0.85em",
-                          opacity: 0.8,
-                          marginTop: "4px",
-                        }}
-                      >
-                        {t.data.additionalMessage}
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-            </ToastBar>
-          )} */}
-        </Toaster>
+        ></Toaster>
+        <Toaster position="bottom-right" toasterId="notifications"></Toaster>
       </body>
     </html>
   );
@@ -342,11 +319,11 @@ function BootstrapMarketplace() {
 function SocketConnectionManager() {
   const authState = useSelector((state: RootState) => state.auth);
   const isAuthenticated = authState.success === true;
-
+  const showSocketDebug = false;
   return (
     <SocketProvider isAuthenticated={isAuthenticated}>
       <Outlet />
-      <SocketStatusIndicator />
+      {showSocketDebug && <SocketStatusIndicator />}
     </SocketProvider>
   );
 }
