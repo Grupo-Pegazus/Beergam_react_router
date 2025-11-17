@@ -10,6 +10,9 @@ export const CDN_IMAGES = {
   AUTH_GRAPH: "https://cdn.beergam.com.br/graph.webp",
   AUTH_WORLD_BG: "https://cdn.beergam.com.br/world_bg.webp",
   BERGAMOTA_LOGO: "https://cdn2.beergam.com.br/landing_page/Bergamota.webp",
+  ANUNCIOS_PREVIEW:
+    "https://cdn2.beergam.com.br/landing_page/AnunciosPreview.webp",
+  COLAB_PREVIEW: "https://cdn2.beergam.com.br/landing_page/ColabPreview.webp",
 } as const;
 
 const MARKETPLACE_IMAGES: Record<MarketplaceType, string> = {

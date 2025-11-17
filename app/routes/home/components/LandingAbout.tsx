@@ -1,3 +1,5 @@
+import { CDN_IMAGES } from "~/src/constants/cdn-images";
+
 export default function LandingAbout() {
   return (
     <section id="sobre" className="py-24 bg-beergam-blue-lara">
@@ -60,38 +62,20 @@ export default function LandingAbout() {
               </div>
             </div>
           </div>
-          <div className="relative">
-            <div className="bg-beergam-blue-primary-dark rounded-2xl p-8 border border-white/10">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between p-4 bg-beergam-blue-lara/50 rounded-lg border border-white/10">
-                  <span className="text-beergam-gray-light">
-                    Marketplaces Integrados
-                  </span>
-                  <span className="text-beergam-orange font-bold text-xl">
-                    1
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-beergam-blue-lara/50 rounded-lg border border-white/10">
-                  <span className="text-beergam-gray-light">
-                    Vendedores Ativos
-                  </span>
-                  <span className="text-beergam-orange font-bold text-xl">
-                    200K+
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-beergam-blue-lara/50 rounded-lg border border-white/10">
-                  <span className="text-beergam-gray-light">Pedidos/Mês</span>
-                  <span className="text-beergam-orange font-bold text-xl">
-                    100M+
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-beergam-blue-lara/50 rounded-lg border border-white/10">
-                  <span className="text-beergam-gray-light">Uptime</span>
-                  <span className="text-beergam-orange font-bold text-xl">
-                    99.9%
-                  </span>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 grid-rows-2 h-full gap-4 max-h-[500px]">
+            <div className="bg-beergam-blue-primary-dark rounded-2xl">
+              <img
+                src={CDN_IMAGES.ANUNCIOS_PREVIEW}
+                alt="About"
+                className="w-full h-full object-cover rounded-2xl"
+              />
+            </div>
+            <div className="bg-beergam-blue-primary-dark rounded-2xl">
+              <img
+                src={CDN_IMAGES.COLAB_PREVIEW}
+                alt="About"
+                className="w-full h-full object-cover rounded-2xl"
+              />
             </div>
             {/* Decorative element */}
             <div className="absolute -top-4 -right-4 w-24 h-24 bg-beergam-orange/20 rounded-full blur-2xl -z-10" />
