@@ -166,12 +166,14 @@ export default function CreateMarketplaceModal({
             if (integrationWindow && integrationWindow.closed) {
               clearInterval(checkClosed);
               console.log("Janela de integração foi fechada");
-              stopPolling();
+              checkIntegrationStatus(integrationData.state);
+              setIsPolling(false);
             }
           }, 1000);
 
           setTimeout(() => {
             clearInterval(checkClosed);
+            setIsPolling(false);
           }, 300000);
         }
       }

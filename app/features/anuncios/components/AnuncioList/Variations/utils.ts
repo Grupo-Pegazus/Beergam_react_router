@@ -6,7 +6,7 @@ export interface GroupedVariation {
     name: string;
     value_name: string;
   }>;
-  varyingAttributeId: string | null;
+  varyingAttributeIds: string[];
   variations: Variation[];
 }
 
@@ -70,7 +70,7 @@ export function groupVariationsByCommonAttributes(
         value_name: value || "",
       };
     }),
-    varyingAttributeId: Array.from(varyingAttributes)[0] || null,
+    varyingAttributeIds: Array.from(varyingAttributes),
     variations: vars,
   }));
 }
