@@ -1,35 +1,45 @@
 import { Link } from "react-router";
-
-const features = [
-  {
-    title: "Gestão de Anúncios",
-    description: "Copie anúncios em múltiplas plataformas com um clique, gere títulos e descrições com IA e gerencie promoções em massa.",
-    icon: "📦",
-  },
-  {
-    title: "Automação de Pedidos",
-    description: "Emissão automática de NF-e, impressão em massa de etiquetas e listas de separação, reduzindo erros de expedição.",
-    icon: "⚡",
-  },
+interface IFeature {
+  title: string;
+  description: string;
+  icon: string;
+}
+const features: IFeature[] = [
   {
     title: "Controle de Estoque",
-    description: "Sincronização automática com todas as lojas, alertas inteligentes de estoque baixo e geração automática de pedidos de compra.",
+    description:
+      "Sincronização automática com todas as lojas, alertas inteligentes de estoque baixo e geração automática de pedidos de compra.",
     icon: "📊",
   },
   {
     title: "Multi-marketplace",
-    description: "Gerencie todas as suas vendas em um único lugar. Integração com os principais marketplaces do Brasil.",
+    description:
+      "Gerencie todas as suas vendas em um único lugar. Integração com os principais marketplaces do Brasil.",
     icon: "🛒",
   },
   {
-    title: "Relatórios Avançados",
-    description: "Análise de dados multidimensional para acompanhar insights operacionais e tomar decisões baseadas em dados.",
-    icon: "📈",
+    title: "Cálculo de Lucro",
+    description:
+      "Mantenha dados de lucro precisos com sincronização automática de liquidações e custos.",
+    icon: "💰",
   },
   {
-    title: "Cálculo de Lucro",
-    description: "Mantenha dados de lucro precisos com sincronização automática de liquidações e custos.",
-    icon: "💰",
+    title: "Controle de Colaboradores",
+    description:
+      "Reduza tarefas manuais e aumente a performance do seu colaborador. Fluxos otimizados para um time mais eficiente e focado em resultados.",
+    icon: "👥",
+  },
+  {
+    title: "Pesquisa de Produtos",
+    description:
+      "Pesquise produtos em todas as lojas de forma automática e eficiente, antes da concorrência.",
+    icon: "🔍",
+  },
+  {
+    title: "Sistema de SAC",
+    description:
+      "Gerencie suas reclamações e sugestões de forma eficiente e organizada.",
+    icon: "💬",
   },
 ];
 
@@ -42,7 +52,8 @@ export default function LandingFeatures() {
             Funcionalidades que fazem a diferença
           </h2>
           <p className="text-xl text-beergam-gray-light max-w-2xl mx-auto">
-            Tudo que você precisa para gerenciar seu e-commerce de forma profissional
+            Tudo que você precisa para gerenciar seu e-commerce de forma
+            profissional
           </p>
         </div>
 
@@ -75,4 +86,3 @@ export default function LandingFeatures() {
     </section>
   );
 }
-

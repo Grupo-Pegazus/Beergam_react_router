@@ -8,12 +8,14 @@ export default function LandingAbout() {
               Por que escolher o Beergam?
             </h2>
             <p className="text-lg text-beergam-gray-light mb-6 leading-relaxed">
-              Somos especialistas em soluções para e-commerce. Com mais de 10 anos de experiência, 
-              desenvolvemos uma plataforma completa que atende desde pequenos vendedores até grandes operações.
+              Somos especialistas em soluções para e-commerce. Com mais de 10
+              anos de experiência, desenvolvemos uma plataforma completa que
+              atende desde pequenos vendedores até grandes operações.
             </p>
             <p className="text-lg text-beergam-gray-light mb-8 leading-relaxed">
-              Nossa missão é simplificar a gestão do seu negócio online, permitindo que você se concentre 
-              no que realmente importa: fazer sua empresa crescer.
+              Nossa missão é simplificar a gestão do seu negócio online,
+              permitindo que você se concentre no que realmente importa: fazer
+              sua empresa crescer.
             </p>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
@@ -21,9 +23,12 @@ export default function LandingAbout() {
                   <span className="text-beergam-white text-sm">✓</span>
                 </div>
                 <div>
-                  <h3 className="text-beergam-white font-semibold mb-1">Integração Completa</h3>
+                  <h3 className="text-beergam-white font-semibold mb-1">
+                    Integração Completa
+                  </h3>
                   <p className="text-beergam-gray-light text-sm">
-                    Conecte-se com os principais marketplaces do Brasil em um único lugar
+                    Conecte-se com os principais marketplaces do Brasil em um
+                    único lugar
                   </p>
                 </div>
               </div>
@@ -32,7 +37,9 @@ export default function LandingAbout() {
                   <span className="text-beergam-white text-sm">✓</span>
                 </div>
                 <div>
-                  <h3 className="text-beergam-white font-semibold mb-1">Automação Inteligente</h3>
+                  <h3 className="text-beergam-white font-semibold mb-1">
+                    Automação Inteligente
+                  </h3>
                   <p className="text-beergam-gray-light text-sm">
                     Reduza erros e economize tempo com processos automatizados
                   </p>
@@ -43,7 +50,9 @@ export default function LandingAbout() {
                   <span className="text-beergam-white text-sm">✓</span>
                 </div>
                 <div>
-                  <h3 className="text-beergam-white font-semibold mb-1">Suporte Dedicado</h3>
+                  <h3 className="text-beergam-white font-semibold mb-1">
+                    Suporte Dedicado
+                  </h3>
                   <p className="text-beergam-gray-light text-sm">
                     Equipe especializada pronta para ajudar você a crescer
                   </p>
@@ -55,20 +64,32 @@ export default function LandingAbout() {
             <div className="bg-beergam-blue-primary-dark rounded-2xl p-8 border border-white/10">
               <div className="space-y-6">
                 <div className="flex items-center justify-between p-4 bg-beergam-blue-lara/50 rounded-lg border border-white/10">
-                  <span className="text-beergam-gray-light">Marketplaces Integrados</span>
-                  <span className="text-beergam-orange font-bold text-xl">20+</span>
+                  <span className="text-beergam-gray-light">
+                    Marketplaces Integrados
+                  </span>
+                  <span className="text-beergam-orange font-bold text-xl">
+                    1
+                  </span>
                 </div>
                 <div className="flex items-center justify-between p-4 bg-beergam-blue-lara/50 rounded-lg border border-white/10">
-                  <span className="text-beergam-gray-light">Vendedores Ativos</span>
-                  <span className="text-beergam-orange font-bold text-xl">200K+</span>
+                  <span className="text-beergam-gray-light">
+                    Vendedores Ativos
+                  </span>
+                  <span className="text-beergam-orange font-bold text-xl">
+                    200K+
+                  </span>
                 </div>
                 <div className="flex items-center justify-between p-4 bg-beergam-blue-lara/50 rounded-lg border border-white/10">
                   <span className="text-beergam-gray-light">Pedidos/Mês</span>
-                  <span className="text-beergam-orange font-bold text-xl">100M+</span>
+                  <span className="text-beergam-orange font-bold text-xl">
+                    100M+
+                  </span>
                 </div>
                 <div className="flex items-center justify-between p-4 bg-beergam-blue-lara/50 rounded-lg border border-white/10">
                   <span className="text-beergam-gray-light">Uptime</span>
-                  <span className="text-beergam-orange font-bold text-xl">99.9%</span>
+                  <span className="text-beergam-orange font-bold text-xl">
+                    99.9%
+                  </span>
                 </div>
               </div>
             </div>
@@ -80,4 +101,3 @@ export default function LandingAbout() {
     </section>
   );
 }
-

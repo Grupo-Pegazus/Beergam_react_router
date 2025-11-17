@@ -22,19 +22,19 @@ export default function LandingHeader() {
           <nav className="hidden md:flex items-center gap-8">
             <Link
               to="#features"
-              className="text-beergam-gray-light hover:text-beergam-white transition-colors text-sm font-medium"
+              className="text-beergam-gray-light hover:text-beergam-orange transition-colors text-sm font-medium"
             >
               Funcionalidades
             </Link>
             <Link
               to="#sobre"
-              className="text-beergam-gray-light hover:text-beergam-white transition-colors text-sm font-medium"
+              className="text-beergam-gray-light hover:text-beergam-orange transition-colors text-sm font-medium"
             >
               Sobre
             </Link>
             <Link
               to="#contato"
-              className="text-beergam-gray-light hover:text-beergam-white transition-colors text-sm font-medium"
+              className="text-beergam-gray-light hover:text-beergam-orange transition-colors text-sm font-medium"
             >
               Contato
             </Link>
