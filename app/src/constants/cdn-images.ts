@@ -2,12 +2,14 @@ import { MarketplaceType } from "~/features/marketplace/typings";
 
 export const CDN_IMAGES = {
   BEERGAM_FLOWER_LOGO: "https://cdn.beergam.com.br/beergam_flower_logo.webp",
-  MARKETPLACE_MELI: "https://cdn.beergam.com.br/Mercado-Livre-Icon-Logo-Vector.svg-.png",
+  MARKETPLACE_MELI:
+    "https://cdn.beergam.com.br/Mercado-Livre-Icon-Logo-Vector.svg-.png",
   MARKETPLACE_SHOPEE: "https://cdn.beergam.com.br/shopee.png",
   AUTH_CALENDAR: "https://cdn.beergam.com.br/calendar.webp",
   AUTH_CARD: "https://cdn.beergam.com.br/card.webp",
   AUTH_GRAPH: "https://cdn.beergam.com.br/graph.webp",
   AUTH_WORLD_BG: "https://cdn.beergam.com.br/world_bg.webp",
+  BERGAMOTA_LOGO: "https://cdn2.beergam.com.br/landing_page/Bergamota.webp",
 } as const;
 
 const MARKETPLACE_IMAGES: Record<MarketplaceType, string> = {
@@ -15,6 +17,8 @@ const MARKETPLACE_IMAGES: Record<MarketplaceType, string> = {
   [MarketplaceType.SHOPEE]: CDN_IMAGES.MARKETPLACE_SHOPEE,
 };
 
-export function getMarketplaceImageUrl(marketplaceType: MarketplaceType): string {
+export function getMarketplaceImageUrl(
+  marketplaceType: MarketplaceType
+): string {
   return MARKETPLACE_IMAGES[marketplaceType];
 }
