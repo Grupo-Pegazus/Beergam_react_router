@@ -6,6 +6,7 @@ import Svg from "~/src/assets/svgs/_index";
 import TopAnunciosVendidosSkeleton from "./TopAnunciosVendidosSkeleton";
 import { Link } from "react-router";
 import type { Anuncio } from "../../typings";
+import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 export default function TopAnunciosVendidos() {
   const { data, isLoading, error } = useTopSoldAds({
     limit: 5,
@@ -55,7 +56,7 @@ function HighlightCard({ anuncio, position }: { anuncio: Anuncio; position: numb
         <div className="min-w-0 flex-1 space-y-1">
           <p className="truncate text-xs sm:text-sm font-semibold text-slate-900">{anuncio.name}</p>
           <div className="flex items-center gap-1.5 sm:gap-2 text-[12px] sm:text-xs text-slate-500">
-            <span>{formatPrice(anuncio.price)}</span>
+            <span>{formatCurrency(anuncio.price)}</span>
             <span>•</span>
             <span>{anuncio.sold_quantity} vendas</span>
           </div>
@@ -154,18 +155,6 @@ function InternalButtonLink({ to, icon, children }: ButtonBaseProps & { to: stri
       <span className="truncate">{children}</span>
     </Link>
   );
-}
-
-function formatPrice(price: string | null | undefined): string {
-  if (!price || Number.isNaN(parseFloat(price))) return "R$ 0,00";
-  const numValue = parseFloat(price);
-  if (!Number.isFinite(numValue)) return "R$ 0,00";
-  return numValue.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
 }
 
 function formatNumber(value: number | null | undefined) {

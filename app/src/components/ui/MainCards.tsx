@@ -8,7 +8,7 @@ interface MainCardsProps {
 
 export default function MainCards({ children, className }: MainCardsProps) {
     return (
-        <Paper className={className}>
+        <Paper className={`w-full min-w-0 overflow-hidden ${className || ""}`}>
             {children}
         </Paper>
     );

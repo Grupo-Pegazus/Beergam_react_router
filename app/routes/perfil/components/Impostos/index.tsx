@@ -363,10 +363,11 @@ export default function Impostos() {
       )}
 
       <Modal
-        abrir={confirmModal.open}
+        isOpen={confirmModal.open}
         onClose={() => setConfirmModal({ open: false, month: null })}
-        titleModal={"Confirmar recálculo"}
-        style={{ width: "95vw", maxWidth: 560 }}
+        title="Confirmar recálculo"
+        className="px-4"
+        contentClassName="max-w-[560px]"
       >
         <div className="flex flex-col gap-4">
           <p>
