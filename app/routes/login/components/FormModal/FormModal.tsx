@@ -10,7 +10,7 @@ import { updateUserInfo } from "~/features/user/redux";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import { Fields } from "~/src/components/utils/_fields";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
-import { login } from "../../../../features/auth/redux";
+import { login, setAuthError } from "../../../../features/auth/redux";
 import { authService } from "../../../../features/auth/service";
 import {
   type ColaboradorUserForm,
@@ -187,13 +187,12 @@ export default function FormModal({
           }, 100);
 
           if (!subscriptionData || subscriptionData?.start_date === null) {
+            dispatch(setAuthError("SUBSCRIPTION_NOT_FOUND"));
             toast("Redirecionando para a página de assinatura...", {
               icon: "🍊",
             });
-            navigate("/interno/subscription");
-          } else {
-            navigate("/interno/choosen_account");
           }
+          navigate("/interno/choosen_account");
           return data.message;
         },
         error: (error) => {

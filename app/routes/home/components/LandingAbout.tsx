@@ -77,8 +77,6 @@ export default function LandingAbout() {
                 className="w-full h-full object-cover rounded-2xl"
               />
             </div>
-            {/* Decorative element */}
-            <div className="absolute -top-4 -right-4 w-24 h-24 bg-beergam-orange/20 rounded-full blur-2xl -z-10" />
           </div>
         </div>
       </div>
