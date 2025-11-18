@@ -51,6 +51,7 @@ import Star from "./Star";
 import Copy from "./Copy";
 import LowStock from "./LowStock";
 import Truck from "./Truck";
+import GraphIconSolid from "./GraphIconSolid";
 
 const Svg = {
   home: HomeIcon,
@@ -58,6 +59,7 @@ const Svg = {
   bag: BagIcon,
   bag_solid: BagSolid,
   graph: GraphIcon,
+  graph_solid: GraphIconSolid,
   chat: ChatIcon,
   card: CardIcon,
   globe: GlobeIcon,

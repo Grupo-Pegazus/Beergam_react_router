@@ -5,6 +5,7 @@ import ScheduleTimes from "~/features/metricsAccount/components/ScheduleTimes/Sc
 import Visitas from "~/features/metricsAccount/components/Visitas/Visitas";
 import MetricasCards from "~/features/anuncios/components/MetricasCards/MetricasCards";
 import TopAnunciosVendidos from "~/features/anuncios/components/TopAnunciosVendidos/TopAnunciosVendidos";
+import VendasResumo from "~/features/vendas/components/VendasResumo/VendasResumo";
 
 export default function InicioPage() {
     return (
@@ -14,6 +15,9 @@ export default function InicioPage() {
                     <Reputacao />
                     <ScheduleTimes />
                 </Grid>
+            </Section>
+            <Section title="Resumo de Vendas">
+                <VendasResumo />
             </Section>
             <Section title="Resumo de Anúncios">
                 <MetricasCards />
