@@ -50,6 +50,7 @@ import Logout from "./Logout";
 import Star from "./Star";
 import Copy from "./Copy";
 import LowStock from "./LowStock";
+import Truck from "./Truck";
 
 const Svg = {
   home: HomeIcon,
@@ -104,6 +105,7 @@ const Svg = {
   star: Star,
   copy: Copy,
   low_stock: LowStock,
+  truck: Truck,
 };
 
 export default Svg;

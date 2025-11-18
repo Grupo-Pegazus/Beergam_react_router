@@ -30,6 +30,11 @@ import type { RootState } from "./store";
 import store from "./store";
 import "./zod";
 export const queryClient = new QueryClient();
+import dayjs from "dayjs";
+import "dayjs/locale/pt-br";
+
+dayjs.locale("pt-br");
+
 export const links: Route.LinksFunction = () => [
   {
     rel: "stylesheet",
