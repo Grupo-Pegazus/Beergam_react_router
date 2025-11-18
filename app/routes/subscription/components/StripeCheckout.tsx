@@ -5,15 +5,15 @@ import {
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
-import { updateSubscription } from "~/features/auth/redux";
+import { updateAuthInfo } from "~/features/auth/redux";
 import { subscriptionService } from "~/features/plans/subscriptionService";
-import type { Plan } from "~/features/user/typings/BaseUser";
+import type { Plan, Subscription } from "~/features/user/typings/BaseUser";
 import { SubscriptionSchema } from "~/features/user/typings/BaseUser";
 import Svg from "~/src/assets/svgs/_index";
 
 interface StripeCheckoutProps {
   plan: Plan;
-  onSuccess?: () => void;
+  onSuccess?: (subscription: Subscription) => void;
   onError?: (error: string) => void;
   onCancel?: () => void;
 }
@@ -82,7 +82,18 @@ export default function StripeCheckout({
       if (!response.success || !response.data.clientSecret) {
         throw new Error(response.message || "Erro ao criar sessão de checkout");
       }
-
+      const subscriptionResponse = await subscriptionService.getSubscription();
+      dispatch(
+        updateAuthInfo({
+          auth: {
+            subscription: subscriptionResponse.data,
+            loading: false,
+            error: null,
+            success: true,
+          },
+          shouldEncrypt: true,
+        })
+      );
       return response.data.clientSecret;
     } catch (err) {
       const errorMessage =
@@ -116,10 +127,7 @@ export default function StripeCheckout({
         );
 
         if (validatedSubscription.success) {
-          dispatch(updateSubscription(validatedSubscription.data));
-          // Chama o callback de sucesso
-          // O componente pai pode decidir como tratar (ex: fechar modal, redirecionar)
-          onSuccess?.();
+          onSuccess?.(validatedSubscription.data);
         } else {
           console.error(
             "Erro ao validar subscription:",

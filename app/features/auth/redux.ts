@@ -2,9 +2,16 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { limparMarketplaceDados } from "../marketplace/redux";
 import type { Subscription } from "../user/typings/BaseUser";
 import { cryptoAuth, cryptoMarketplace, cryptoUser } from "./utils";
+
+export type TSubscriptionError =
+  | "SUBSCRIPTION_NOT_FOUND"
+  | "SUBSCRIPTION_NOT_ACTIVE"
+  | "SUBSCRIPTION_CANCELLED";
+
 export type TAuthError =
   | "REFRESH_TOKEN_EXPIRED"
   | "REFRESH_TOKEN_REVOKED"
+  | TSubscriptionError
   | "UNKNOWN_ERROR";
 
 export interface IAuthState {
@@ -43,6 +50,9 @@ const authSlice = createSlice({
     },
     updateSubscription(state, action: PayloadAction<Subscription | null>) {
       state.subscription = action.payload;
+      state.error = null;
+      state.success = true;
+      state.loading = false;
       cryptoAuth.encriptarDados(state);
     },
     setAuthError(state, action: PayloadAction<TAuthError>) {
