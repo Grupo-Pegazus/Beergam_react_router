@@ -31,7 +31,7 @@ export const MenuConfig = {
   vendas: {
     label: "Vendas",
     status: "yellow",
-    icon: "bag",
+    icon: "graph",
     path: "/vendas",
     launched: true,
   },

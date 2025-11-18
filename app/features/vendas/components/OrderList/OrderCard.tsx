@@ -61,13 +61,13 @@ export default function OrderCard({ order }: OrderCardProps) {
   }, [order.estimated_delivery, order.expiration_date]);
 
   return (
-    <MainCards className="p-4">
-      <div className="flex flex-col gap-2">
+    <MainCards className="p-3 md:p-4 w-full min-w-0">
+      <div className="flex flex-col gap-2 w-full min-w-0">
         {/* Header: ID e Data */}
-        <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
             <div className="flex items-center gap-1">
-              <Typography variant="caption" color="text.secondary" className="font-mono">
+              <Typography variant="caption" color="text.secondary" className="font-mono text-xs md:text-sm">
                 #{order.order_id}
               </Typography>
               <button
@@ -77,36 +77,39 @@ export default function OrderCard({ order }: OrderCardProps) {
                   toast.success("Order ID copiado para a área de transferência");
                 }}
               >
-                <Svg.copy tailWindClasses="h-4 w-4" />
+                <Svg.copy tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />
               </button>
             </div>
-            <span className="text-slate-300">|</span>
-            <Typography variant="caption" color="text.secondary">
+            <span className="text-slate-300 hidden md:inline">|</span>
+            <Typography variant="caption" color="text.secondary" className="text-xs md:text-sm">
                 {formatDate(order.date_created)}
             </Typography>
-            <span className="text-slate-300">|</span>
+            <span className="text-slate-300 hidden md:inline">|</span>
             <Chip
                 label={logisticTypeInfo.label}
                 size="small"
                 sx={{
-                    height: 24,
-                    fontSize: "0.7rem",
+                    height: 22,
+                    fontSize: "0.65rem",
                     fontWeight: 600,
                     backgroundColor: logisticTypeInfo.backgroundColor,
                     color: logisticTypeInfo.color,
+                    "& .MuiChip-label": {
+                      px: 0.75,
+                    },
                 }}
                 />
             </div>
             {order.buyer_nickname && (
-                <div className="flex items-center gap-2">
-                    <Svg.profile tailWindClasses="h-4 w-4 text-slate-500" />
-                    <Typography variant="body2" className="text-slate-900">
+                <div className="flex items-center gap-1.5 md:gap-2">
+                    <Svg.profile tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4 text-slate-500" />
+                    <Typography variant="body2" className="text-slate-900 text-sm md:text-base">
                     {order.buyer_nickname}
                     </Typography>
                     {order.buyer_id && (
                     <>
-                        <span className="text-slate-300">|</span>
-                        <Typography variant="caption" color="text.secondary">
+                        <span className="text-slate-300 hidden md:inline">|</span>
+                        <Typography variant="caption" color="text.secondary" className="text-xs md:text-sm">
                         {order.buyer_id}
                         </Typography>
                     </>
@@ -115,25 +118,28 @@ export default function OrderCard({ order }: OrderCardProps) {
             )}
         </div>
 
-        <Divider />
+        <Divider sx={{ my: 0.5 }} />
 
-        {/* Status Chips */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Status Chips e Botão de Expandir */}
+        <div className="flex flex-wrap items-center justify-between gap-1.5 md:gap-2">
           <Chip
             label={statusInfo.label}
             size="small"
             icon={
               (() => {
                 const IconComponent = Svg[statusInfo.icon];
-                return <IconComponent tailWindClasses="h-4 w-4" />;
+                return <IconComponent tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />;
               })()
             }
             sx={{
-              height: 24,
-              fontSize: "0.7rem",
+              height: 22,
+              fontSize: "0.65rem",
               fontWeight: 600,
               backgroundColor: statusInfo.backgroundColor,
               color: statusInfo.color,
+              "& .MuiChip-label": {
+                px: 0.75,
+              },
             }}
           />
         </div>
@@ -142,23 +148,22 @@ export default function OrderCard({ order }: OrderCardProps) {
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             {(order.shipment_status || deliveryInfo) && (
-              <div className="mt-2">
+              <div className="mt-1 md:mt-2">
                 {order.shipment_status && (
-                  <Typography variant="body1" fontWeight={600} className="text-slate-900 mb-1">
+                  <Typography variant="body2" fontWeight={600} className="text-slate-900 mb-0.5 md:mb-1 text-sm md:text-base">
                     {getStatusOrderMeliInfo(order.shipment_status)?.label || order.shipment_status}
                   </Typography>
                 )}
                 {deliveryInfo && (
-                  <Typography variant="body2" fontWeight={400} className="text-slate-700">
+                  <Typography variant="caption" fontWeight={400} className="text-slate-700 text-xs md:text-sm">
                     {deliveryInfo.label} {deliveryInfo.date}
                   </Typography>
                 )}
               </div>
             )}
-
           </div>
-
         </div>
+
         {/* Pedido */}
         <OrderItemCard order={order} />
       </div>

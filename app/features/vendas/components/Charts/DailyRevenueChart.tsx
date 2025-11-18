@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import { useDailyRevenue } from "../../hooks";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
-import { Skeleton, Typography, Stack } from "@mui/material";
+import { Skeleton, Typography } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -77,58 +77,72 @@ export default function DailyRevenueChart({ days = 30 }: DailyRevenueChartProps)
         </div>
       )}
     >
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end gap-4">
-          <Stack direction="row" spacing={2} alignItems="center">
-            <LocalizationProvider
-              dateAdapter={AdapterDayjs}
-              adapterLocale="pt-br"
-              localeText={
-                ptBR.components.MuiLocalizationProvider.defaultProps.localeText
-              }
-            >
-              <DatePicker
-                label="Período de Provisão"
-                value={selectedMonth}
-                onChange={handleMonthChange}
-                views={["year", "month"]}
-                format="MMMM YYYY"
-                slotProps={{
-                  textField: {
-                    size: "small",
+      <div className="space-y-3 md:space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end gap-2 md:gap-4">
+          <LocalizationProvider
+            dateAdapter={AdapterDayjs}
+            adapterLocale="pt-br"
+            localeText={
+              ptBR.components.MuiLocalizationProvider.defaultProps.localeText
+            }
+          >
+            <DatePicker
+              label="Período de Provisão"
+              value={selectedMonth}
+              onChange={handleMonthChange}
+              views={["year", "month"]}
+              format="MMMM YYYY"
+              slotProps={{
+                textField: {
+                  size: "small",
+                  fullWidth: true,
+                  sx: {
+                    "& .MuiInputBase-root": {
+                      fontSize: "0.875rem",
+                    },
                   },
-                }}
-              />
-            </LocalizationProvider>
-          </Stack>
+                },
+              }}
+              sx={{ width: { xs: "100%", sm: "auto" } }}
+            />
+          </LocalizationProvider>
         </div>
 
         {chartData.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-80 rounded-lg border border-dashed border-slate-300 bg-slate-50">
-            <Typography variant="body2" color="text.secondary">
+          <div className="flex flex-col items-center justify-center h-64 md:h-80 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+            <Typography variant="body2" color="text.secondary" className="text-center text-sm md:text-base">
               Nenhum dado disponível para o período selecionado.
             </Typography>
           </div>
         ) : (
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+          <div className="h-64 md:h-80 w-full overflow-x-auto">
+            <ResponsiveContainer width="100%" height="100%" minHeight={256}>
+              <BarChart 
+                data={chartData} 
+                margin={{ 
+                  top: 5, 
+                  right: 10, 
+                  left: 0, 
+                  bottom: 40 
+                }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis
                   dataKey="date"
                   stroke="#64748b"
-                  fontSize={12}
+                  fontSize={10}
                   tick={{ fill: "#64748b" }}
                   angle={-45}
                   textAnchor="end"
                   height={60}
+                  interval="preserveStartEnd"
                 />
                 <YAxis
                   stroke="#64748b"
-                  fontSize={12}
+                  fontSize={10}
                   tick={{ fill: "#64748b" }}
                   tickFormatter={formatCurrency}
-                  width={80}
+                  width={60}
                 />
                 <Tooltip
                   contentStyle={{
@@ -136,14 +150,19 @@ export default function DailyRevenueChart({ days = 30 }: DailyRevenueChartProps)
                     border: "1px solid #e2e8f0",
                     borderRadius: "8px",
                     padding: "8px",
+                    fontSize: "12px",
                   }}
                   labelStyle={{
                     color: "#0f172a",
                     fontWeight: "bold",
+                    fontSize: "12px",
                   }}
                   formatter={(value: number) => formatCurrency(value)}
                 />
-                <Legend />
+                <Legend 
+                  wrapperStyle={{ fontSize: "12px" }}
+                  iconSize={12}
+                />
                 <Bar
                   dataKey="Faturamento Bruto"
                   fill="#f59e0b"

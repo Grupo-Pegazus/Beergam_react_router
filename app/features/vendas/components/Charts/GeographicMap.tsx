@@ -137,90 +137,106 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
         </div>
       )}
     >
-      <MainCards className="p-4">
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex-1">
-              <Typography variant="caption" color="text.secondary">
-                {selectedPeriod === "last_day"
-                  ? "Último dia"
-                  : selectedPeriod === "last_7_days"
-                    ? "Últimos 7 dias"
-                    : selectedPeriod === "last_30_days"
-                      ? "Últimos 30 dias"
-                      : "Período personalizado"}
-              </Typography>
-              {selectedPeriod === "custom" && (
-                <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-                  <LocalizationProvider
-                    dateAdapter={AdapterDayjs}
-                    adapterLocale="pt-br"
-                    localeText={
-                      ptBR.components.MuiLocalizationProvider.defaultProps.localeText
-                    }
-                  >
-                    <DatePicker
-                      label="Data de início"
-                      value={dateFrom}
-                      onChange={handleDateFromChange}
-                      slotProps={{
-                        textField: {
-                          size: "small",
-                        },
-                      }}
-                    />
-                    <DatePicker
-                      label="Data de fim"
-                      value={dateTo}
-                      onChange={handleDateToChange}
-                      slotProps={{
-                        textField: {
-                          size: "small",
-                        },
-                      }}
-                    />
-                  </LocalizationProvider>
-                </Stack>
-              )}
+      <MainCards className="p-3 md:p-4">
+        <div className="space-y-3 md:space-y-4">
+          <div className="flex flex-col gap-3 md:gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-4">
+              <div className="flex-1 w-full sm:w-auto">
+                <Typography variant="caption" color="text.secondary" className="text-xs md:text-sm">
+                  {selectedPeriod === "last_day"
+                    ? "Último dia"
+                    : selectedPeriod === "last_7_days"
+                      ? "Últimos 7 dias"
+                      : selectedPeriod === "last_30_days"
+                        ? "Últimos 30 dias"
+                        : "Período personalizado"}
+                </Typography>
+                {selectedPeriod === "custom" && (
+                  <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 2 }}>
+                    <LocalizationProvider
+                      dateAdapter={AdapterDayjs}
+                      adapterLocale="pt-br"
+                      localeText={
+                        ptBR.components.MuiLocalizationProvider.defaultProps.localeText
+                      }
+                    >
+                      <DatePicker
+                        label="Data de início"
+                        value={dateFrom}
+                        onChange={handleDateFromChange}
+                        slotProps={{
+                          textField: {
+                            size: "small",
+                            fullWidth: true,
+                            sx: {
+                              "& .MuiInputBase-root": {
+                                fontSize: "0.875rem",
+                              },
+                            },
+                          },
+                        }}
+                        sx={{ width: { xs: "100%", sm: "auto" } }}
+                      />
+                      <DatePicker
+                        label="Data de fim"
+                        value={dateTo}
+                        onChange={handleDateToChange}
+                        slotProps={{
+                          textField: {
+                            size: "small",
+                            fullWidth: true,
+                            sx: {
+                              "& .MuiInputBase-root": {
+                                fontSize: "0.875rem",
+                              },
+                            },
+                          },
+                        }}
+                        sx={{ width: { xs: "100%", sm: "auto" } }}
+                      />
+                    </LocalizationProvider>
+                  </Stack>
+                )}
+              </div>
+              <FormControl size="small" sx={{ minWidth: { xs: "100%", sm: 150 }, width: { xs: "100%", sm: "auto" } }}>
+                <InputLabel>Período</InputLabel>
+                <Select
+                  value={selectedPeriod}
+                  label="Período"
+                  onChange={handlePeriodChange}
+                >
+                  <MenuItem value="last_day">Último dia</MenuItem>
+                  <MenuItem value="last_7_days">Últimos 7 dias</MenuItem>
+                  <MenuItem value="last_30_days">Últimos 30 dias</MenuItem>
+                  <MenuItem value="custom">Período personalizado</MenuItem>
+                </Select>
+              </FormControl>
             </div>
-            <FormControl size="small" sx={{ minWidth: 150 }}>
-              <InputLabel>Período</InputLabel>
-              <Select
-                value={selectedPeriod}
-                label="Período"
-                onChange={handlePeriodChange}
-              >
-                <MenuItem value="last_day">Último dia</MenuItem>
-                <MenuItem value="last_7_days">Últimos 7 dias</MenuItem>
-                <MenuItem value="last_30_days">Últimos 30 dias</MenuItem>
-                <MenuItem value="custom">Período personalizado</MenuItem>
-              </Select>
-            </FormControl>
           </div>
 
           {selectedPeriod === "custom" && (!dateFrom || !dateTo) ? (
-            <div className="flex flex-col items-center justify-center h-96 rounded-lg border border-dashed border-slate-300 bg-slate-50">
-              <Typography variant="body2" color="text.secondary">
+            <div className="flex flex-col items-center justify-center h-64 md:h-96 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+              <Typography variant="body2" color="text.secondary" className="text-center text-sm md:text-base">
                 Selecione as datas de início e fim para visualizar a distribuição geográfica.
               </Typography>
             </div>
           ) : distribution.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-96 rounded-lg border border-dashed border-slate-300 bg-slate-50">
-              <Typography variant="body2" color="text.secondary">
+            <div className="flex flex-col items-center justify-center h-64 md:h-96 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+              <Typography variant="body2" color="text.secondary" className="text-center text-sm md:text-base">
                 Nenhum dado disponível para o período selecionado.
               </Typography>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Ranking à esquerda */}
-              <div className="lg:col-span-1 space-y-4">
+            <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 md:gap-6">
+              {/* Ranking - Mobile primeiro, Desktop à esquerda */}
+              <div className="lg:col-span-1 space-y-3 md:space-y-4 order-2 lg:order-1">
                 <div>
-                  <Typography variant="h6" fontWeight={600} className="text-slate-900 mb-4">
+                  <Typography variant="h6" fontWeight={600} className="text-slate-900 mb-2 md:mb-4 text-base md:text-xl">
                     Ranking de Estados
                   </Typography>
                   <Paper 
                     variant="outlined" 
-                    className="p-2 max-h-[600px] overflow-y-auto"
+                    className="p-2 max-h-[400px] md:max-h-[600px] overflow-y-auto"
                     sx={{ 
                       backgroundColor: 'background.paper',
                       '&::-webkit-scrollbar': {
@@ -245,21 +261,21 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
                         return (
                           <div
                             key={item.state}
-                            className="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-200"
+                            className="flex items-center justify-between p-2 md:p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-200"
                           >
-                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                              <span className="text-sm font-bold text-slate-600 w-8 shrink-0">
+                            <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                              <span className="text-xs md:text-sm font-bold text-slate-600 w-6 md:w-8 shrink-0">
                                 {globalIndex + 1}°
                               </span>
-                              <span className="text-sm font-medium text-slate-900 truncate">
+                              <span className="text-xs md:text-sm font-medium text-slate-900 truncate">
                                 {item.state_name}
                               </span>
                             </div>
-                            <div className="flex items-center gap-3 shrink-0 ml-2">
-                              <span className="text-sm text-slate-600 whitespace-nowrap">
+                            <div className="flex items-center gap-2 md:gap-3 shrink-0 ml-2">
+                              <span className="text-xs md:text-sm text-slate-600 whitespace-nowrap">
                                 {item.units} unid.
                               </span>
-                              <span className="text-sm font-semibold text-slate-900 whitespace-nowrap min-w-[60px] text-right">
+                              <span className="text-xs md:text-sm font-semibold text-slate-900 whitespace-nowrap min-w-[50px] md:min-w-[60px] text-right">
                                 {parseFloat(item.percentage).toFixed(2)}%
                               </span>
                             </div>
@@ -282,11 +298,11 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
                 </div>
               </div>
 
-              {/* Mapa à direita */}
-              <div className="lg:col-span-2 space-y-4">
+              {/* Mapa - Mobile primeiro, Desktop à direita */}
+              <div className="lg:col-span-2 space-y-3 md:space-y-4 order-1 lg:order-2">
                 <div className="relative">
                   <div 
-                    className="h-[600px] w-full relative"
+                    className="h-[300px] md:h-[400px] lg:h-[600px] w-full relative"
                   >
                     <ComposableMap
                       projection="geoMercator"
@@ -345,21 +361,21 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
                 </div>
 
                 {/* Legenda de cores */}
-                <Paper variant="outlined" className="p-4">
-                  <Typography variant="subtitle2" fontWeight={600} className="text-slate-900 mb-3">
+                <Paper variant="outlined" className="p-3 md:p-4">
+                  <Typography variant="subtitle2" fontWeight={600} className="text-slate-900 mb-2 md:mb-3 text-sm md:text-base">
                     Escala de Cores
                   </Typography>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 md:gap-4">
                     <div className="flex-1">
                       <div 
-                        className="h-6 rounded"
+                        className="h-4 md:h-6 rounded"
                         style={{
                           background: 'linear-gradient(to right, rgba(249, 115, 22, 0.3), rgba(249, 115, 22, 1))',
                         }}
                       />
                     </div>
                   </div>
-                  <div className="mt-2 flex justify-between text-xs text-slate-500">
+                  <div className="mt-2 flex justify-between text-xs md:text-sm text-slate-500">
                     <span>0 unidades</span>
                     <span>{maxUnits} unidades</span>
                   </div>

@@ -4,7 +4,6 @@ import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import StatCard from "~/src/components/ui/StatCard";
 import Svg from "~/src/assets/svgs/_index";
 import MetricasCardsSkeleton from "./MetricasCardsSkeleton";
-import Grid from "~/src/components/ui/Grid";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 
 interface SummaryCardDefinition {
@@ -45,21 +44,21 @@ const SUMMARY_CARDS: SummaryCardDefinition[] = [
 const REVENUE_CARDS: SummaryCardDefinition[] = [
   {
     key: "faturamento_bruto_90d",
-    label: "Faturamento total Bruto (90 dias)",
+    label: "Total Bruto",
     icon: "currency_dollar",
     color: "blue",
     formatter: formatCurrency,
   },
   {
     key: "faturamento_liquido_90d",
-    label: "Faturamento total Líquido (90 dias)",
+    label: "Total Líquido",
     icon: "currency_dollar",
     color: "green",
     formatter: formatCurrency,
   },
   {
     key: "media_faturamento_diario_90d",
-    label: "Média de faturamento bruto Diário (90 dias)",
+    label: "Média Bruto Diário",
     icon: "graph",
     color: "slate",
     formatter: formatCurrency,
@@ -107,12 +106,12 @@ export default function MetricasCards() {
         </div>
       )}
     >
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         <div>
-          <h4 className="text-sm font-semibold text-slate-700 mb-3">
+          <h4 className="text-xs md:text-sm font-semibold text-slate-700 mb-2 md:mb-3">
             Suas vendas nos últimos 90 dias
           </h4>
-          <Grid cols={{ base: 1, lg: 4 }}>
+          <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {SUMMARY_CARDS.map((card) => {
               const value = ordersByStatus[card.key as keyof typeof ordersByStatus];
               return (
@@ -128,14 +127,14 @@ export default function MetricasCards() {
                 />
               );
             })}
-          </Grid>
+          </div>
         </div>
 
         <div>
-          <h4 className="text-sm font-semibold text-slate-700 mb-3">
-            Faturamento
+          <h4 className="text-xs md:text-sm font-semibold text-slate-700 mb-2 md:mb-3">
+            Faturamento dos últimos 90 dias
           </h4>
-          <Grid cols={{ base: 1, md: 3 }}>
+          <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             {REVENUE_CARDS.map((card) => {
               const value = revenueData[card.key as keyof typeof revenueData];
               const formattedValue = card.formatter
@@ -154,7 +153,7 @@ export default function MetricasCards() {
                 />
               );
             })}
-          </Grid>
+          </div>
         </div>
       </div>
     </AsyncBoundary>

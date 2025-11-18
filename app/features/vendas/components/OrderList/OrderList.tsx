@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Pagination, Stack, Typography } from "@mui/material";
+import { Pagination, Typography } from "@mui/material";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import { useOrders } from "../../hooks";
 import type { OrdersFilters, Order } from "../../typings";
@@ -88,7 +88,7 @@ export default function OrderList({ filters = {} }: OrderListProps) {
         </div>
       )}
     >
-      <Stack spacing={2}>
+      <div className="flex flex-col gap-2 w-full min-w-0">
         {orders.length === 0 ? (
           <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
             <Typography variant="h6" color="text.secondary">
@@ -96,7 +96,7 @@ export default function OrderList({ filters = {} }: OrderListProps) {
             </Typography>
           </div>
         ) : (
-          <Stack spacing={2}>
+          <div className="flex flex-col gap-2 w-full min-w-0">
             {/* Renderiza pacotes agrupados */}
             {Array.from(groupedOrders.groups.entries()).map(([packId, packOrders]) => (
               <OrderPackage key={packId} packId={packId} orders={packOrders} />
@@ -106,29 +106,34 @@ export default function OrderList({ filters = {} }: OrderListProps) {
             {groupedOrders.standaloneOrders.map((order) => (
               <OrderCard key={order.order_id} order={order} />
             ))}
-          </Stack>
+          </div>
         )}
 
         {totalPages > 1 ? (
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            sx={{ pt: 2 }}
-          >
-            <Typography variant="body2" color="text.secondary">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 pt-2 w-full min-w-0">
+            <Typography variant="body2" color="text.secondary" className="text-center md:text-left text-xs md:text-sm">
               Mostrando página {page} de {totalPages} — {totalCount} pedidos no total
             </Typography>
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={handlePageChange}
-              shape="rounded"
-              color="primary"
-            />
-          </Stack>
+            <div className="flex justify-center">
+              <Pagination
+                count={totalPages}
+                page={page}
+                onChange={handlePageChange}
+                shape="rounded"
+                color="primary"
+                size="small"
+                sx={{
+                  "& .MuiPaginationItem-root": {
+                    fontSize: "0.875rem",
+                    minWidth: "32px",
+                    height: "32px",
+                  },
+                }}
+              />
+            </div>
+          </div>
         ) : null}
-      </Stack>
+      </div>
     </AsyncBoundary>
   );
 }

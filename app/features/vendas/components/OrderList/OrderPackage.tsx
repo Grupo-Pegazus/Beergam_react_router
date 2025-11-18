@@ -22,7 +22,7 @@ const formatDate = (dateStr: string | null | undefined): string => {
 };
 
 export default function OrderPackage({ packId, orders }: OrderPackageProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isPackageExpanded, setIsPackageExpanded] = useState(false);
 
   // Usa o primeiro pedido para informações do pacote (todos têm o mesmo pack_id)
   const firstOrder = orders[0];
@@ -106,13 +106,13 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
   const remainingCount = orders.length - 4;
 
   return (
-    <MainCards className="p-4">
-      <div className="flex flex-col gap-2">
+    <MainCards className="p-3 md:p-4 w-full min-w-0">
+      <div className="flex flex-col gap-2 w-full min-w-0">
         {/* Header: Pack ID e Data */}
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
             <div className="flex items-center gap-1">
-              <Typography variant="caption" color="text.secondary" className="font-mono">
+              <Typography variant="caption" color="text.secondary" className="font-mono text-xs md:text-sm">
                 #{packId}
               </Typography>
               <button
@@ -122,36 +122,39 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
                   toast.success("Pack ID copiado para a área de transferência");
                 }}
               >
-                <Svg.copy tailWindClasses="h-4 w-4" />
+                <Svg.copy tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />
               </button>
             </div>
-            <span className="text-slate-300">|</span>
-            <Typography variant="caption" color="text.secondary">
+            <span className="text-slate-300 hidden md:inline">|</span>
+            <Typography variant="caption" color="text.secondary" className="text-xs md:text-sm">
               {formatDate(firstOrder.date_created)}
             </Typography>
-            <span className="text-slate-300">|</span>
+            <span className="text-slate-300 hidden md:inline">|</span>
             <Chip
               label={logisticTypeInfo.label}
               size="small"
               sx={{
-                height: 24,
-                fontSize: "0.7rem",
+                height: 22,
+                fontSize: "0.65rem",
                 fontWeight: 600,
                 backgroundColor: logisticTypeInfo.backgroundColor,
                 color: logisticTypeInfo.color,
+                "& .MuiChip-label": {
+                  px: 0.75,
+                },
               }}
             />
           </div>
           {firstOrder.buyer_nickname && (
-            <div className="flex items-center gap-2">
-              <Svg.profile tailWindClasses="h-4 w-4 text-slate-500" />
-              <Typography variant="body2" className="text-slate-900">
+            <div className="flex items-center gap-1.5 md:gap-2">
+              <Svg.profile tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4 text-slate-500" />
+              <Typography variant="body2" className="text-slate-900 text-sm md:text-base">
                 {firstOrder.buyer_nickname}
               </Typography>
               {firstOrder.buyer_id && (
                 <>
-                  <span className="text-slate-300">|</span>
-                  <Typography variant="caption" color="text.secondary">
+                  <span className="text-slate-300 hidden md:inline">|</span>
+                  <Typography variant="caption" color="text.secondary" className="text-xs md:text-sm">
                     {firstOrder.buyer_id}
                   </Typography>
                 </>
@@ -160,94 +163,102 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
           )}
         </div>
 
-        <Divider />
+        <Divider sx={{ my: 0.5 }} />
 
-        {/* Status Chips */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Status Chips e Botão de Expandir */}
+        <div className="flex flex-wrap items-center justify-between gap-1.5 md:gap-2">
           <Chip
             label={statusInfo.label}
             size="small"
             icon={
               (() => {
                 const IconComponent = Svg[statusInfo.icon];
-                return <IconComponent tailWindClasses="h-4 w-4" />;
+                return <IconComponent tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />;
               })()
             }
             sx={{
-              height: 24,
-              fontSize: "0.7rem",
+              height: 22,
+              fontSize: "0.65rem",
               fontWeight: 600,
               backgroundColor: statusInfo.backgroundColor,
               color: statusInfo.color,
+              "& .MuiChip-label": {
+                px: 0.75,
+              },
             }}
           />
         </div>
 
         {/* Status do envio */}
         {(firstOrder.shipment_status || deliveryInfo) && (
-          <div className="mt-2">
+          <div className="block mt-1 md:mt-2">
             {firstOrder.shipment_status && (
-              <Typography variant="body1" fontWeight={600} className="text-slate-900 mb-1">
+              <Typography variant="body2" fontWeight={600} className="text-slate-900 mb-0.5 md:mb-1 text-sm md:text-base">
                 {getStatusOrderMeliInfo(firstOrder.shipment_status)?.label ||
                   firstOrder.shipment_status}
               </Typography>
             )}
             {deliveryInfo && (
-              <Typography variant="body2" fontWeight={400} className="text-slate-700">
+              <Typography variant="caption" fontWeight={400} className="text-slate-700 text-xs md:text-sm">
                 {deliveryInfo.label} {deliveryInfo.date}
               </Typography>
             )}
           </div>
         )}
 
-        {/* Resumo do Pacote - Sempre visível */}
+        {/* Resumo do Pacote */}
         <div
-          className="flex justify-between items-center gap-2 bg-slate-100 rounded-lg p-3 cursor-pointer hover:bg-slate-200 transition-colors"
-          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-2 bg-slate-100 rounded-lg p-2.5 md:p-3 cursor-pointer hover:bg-slate-200 transition-colors"
+          onClick={() => setIsPackageExpanded(!isPackageExpanded)}
         >
-          <div className="flex items-center gap-3 flex-1">
+          <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
             <IconButton
               size="small"
               onClick={(e) => {
                 e.stopPropagation();
-                setIsExpanded(!isExpanded);
+                setIsPackageExpanded(!isPackageExpanded);
               }}
-              sx={{ padding: 0, transform: isExpanded ? "rotate(270deg)" : "rotate(90deg)", transition: "transform 0.2s" }}
+              sx={{ 
+                padding: 0, 
+                transform: isPackageExpanded ? "rotate(270deg)" : "rotate(90deg)", 
+                transition: "transform 0.2s",
+                minWidth: "auto",
+              }}
             >
-              <Svg.chevron tailWindClasses="h-5 w-5 text-slate-600" />
+              <Svg.chevron tailWindClasses="h-4 w-4 md:h-5 md:w-5 text-slate-600" />
             </IconButton>
 
             {/* Thumbnails dos produtos */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5 md:gap-1 shrink-0">
               {thumbnailsToDisplay.map((item, index) => (
                 <div
                   key={index}
-                  className="w-10 h-10 rounded-full border-2 border-white overflow-hidden -ml-4 shadow-xs first:ml-0 bg-white flex items-center justify-center"
+                  className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-white overflow-hidden -ml-3 md:-ml-4 shadow-xs first:ml-0 bg-white flex items-center justify-center"
                 >
-                    <Thumbnail thumbnail={item.thumbnail || ""} tailWindClasses="w-10! h-10!" />
+                    <Thumbnail thumbnail={item.thumbnail || ""} tailWindClasses="w-8! h-8! md:w-10! md:h-10!" />
                 </div>
               ))}
               {hasMoreItems && (
-                <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-300 flex items-center justify-center -ml-4">
-                  <Typography variant="caption" fontWeight={600} className="text-slate-700">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-white bg-slate-300 flex items-center justify-center -ml-3 md:-ml-4">
+                  <Typography variant="caption" fontWeight={600} className="text-slate-700 text-xs">
                     +{remainingCount}
                   </Typography>
                 </div>
               )}
             </div>
 
-            <Typography variant="body2" fontWeight={600} className="text-slate-900">
+            <Typography variant="body2" fontWeight={600} className="text-slate-900 text-sm md:text-base truncate">
               Pacote de {orders.length} produto{orders.length > 1 ? "s" : ""}
             </Typography>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <Typography variant="h6" fontWeight={700} className="text-slate-900">
+          <div className="flex items-center justify-between md:justify-end gap-2 md:gap-4">
+            <div className="text-left md:text-right">
+              <Typography variant="h6" fontWeight={700} className="text-slate-900 text-base md:text-xl">
                 {formatCurrency(packageTotals.totalAmount)}
               </Typography>
               {packageTotals.totalLiquido > 0 && (
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" color="text.secondary" className="text-xs">
                   Líquido: {formatCurrency(packageTotals.totalLiquido)}
                 </Typography>
               )}
@@ -256,19 +267,22 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
               label={`${packageTotals.totalQuantity} unidade${packageTotals.totalQuantity > 1 ? "s" : ""}`}
               size="small"
               sx={{
-                height: 28,
-                fontSize: "0.75rem",
+                height: 24,
+                fontSize: "0.7rem",
                 fontWeight: 600,
                 backgroundColor: "#1e40af",
                 color: "#fff",
+                "& .MuiChip-label": {
+                  px: 1,
+                },
               }}
             />
           </div>
         </div>
 
         {/* Lista de itens - Expandida */}
-        {isExpanded && (
-          <Stack spacing={2} sx={{ mt: 2 }}>
+        {isPackageExpanded && (
+          <Stack spacing={1.5} sx={{ mt: 1.5 }}>
             {orders.map((order) => (
               <OrderItemCard key={order.order_id} order={order} />
             ))}
