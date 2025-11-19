@@ -1,18 +1,9 @@
-interface AnuncioPageProps {
-    error: boolean;
-    anuncio: any; //TODO: implementar tipo de anúncio
+import AnuncioDetails from "~/features/anuncios/components/AnuncioDetails";
+
+interface AnuncioDetailsPageProps {
+  anuncio_id: string;
 }
 
-export default function AnuncioPage({ error, anuncio }: AnuncioPageProps) {
-    if (error) {
-        return <div>Anúncio não encontrado</div>;
-    }
-    if (anuncio === null) {
-        return <div>Anúncio não encontrado</div>;
-    }
-    return (
-        <div>
-            {anuncio}
-        </div>
-    )
+export default function AnuncioDetailsPage({ anuncio_id }: AnuncioDetailsPageProps) {
+  return <AnuncioDetails anuncioId={anuncio_id} />;
 }

@@ -294,3 +294,61 @@ export const UpdateSkuRequestSchema = z.object({
 });
 
 export type UpdateSkuRequest = z.infer<typeof UpdateSkuRequestSchema>;
+
+// Schema para detalhes do anúncio (dados adicionais para a página de detalhe)
+export const AnuncioDetailsSchema = AnuncioSchema.extend({
+  // Métricas financeiras
+  total_profit: z.number().optional(),
+  average_profit_per_sale: z.number().optional(),
+  total_revenue: z.number().optional(),
+  total_expenses: z.number().optional(),
+  
+  // Métricas de performance
+  visits_last_150_days: z.number().optional(),
+  total_sales: z.number().optional(),
+  average_weekly_sales: z.number().optional(),
+  
+  // Melhorias
+  improvements: z.object({
+    opportunities: z.array(z.object({
+      id: z.string(),
+      title: z.string(),
+      description: z.string(),
+      type: z.string(),
+      action: z.string(),
+      label_action: z.string(),
+    })).optional(),
+    warnings: z.array(z.object({
+      id: z.string(),
+      title: z.string(),
+      description: z.string(),
+      type: z.string(),
+      action: z.string(),
+      label_action: z.string(),
+    })).optional(),
+    total_count: z.number().optional(),
+  }).optional(),
+  
+  // Métricas de qualidade
+  quality_metrics: z.object({
+    qa_score: z.number().nullable().optional(), // Qualidade do Anúncio
+    ec_score: z.number().nullable().optional(), // Experiência de Compra
+  }).optional(),
+  
+  // Features/Badges do anúncio
+  features: z.array(z.string()).optional(), // Ex: ["FULL", "CATALOGO", "FRETE GRÁTIS", "COLETAS", "FLEX"]
+  
+  // Custos detalhados
+  costs: z.object({
+    purchase_price: z.number().optional(),
+    commission: z.object({
+      value: z.number(),
+      percentage: z.number(),
+    }).optional(),
+    shipping: z.number().optional(),
+    taxes: z.number().optional(),
+    additional_costs: z.number().optional(),
+  }).optional(),
+});
+
+export type AnuncioDetails = z.infer<typeof AnuncioDetailsSchema>;

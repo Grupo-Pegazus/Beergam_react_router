@@ -1,6 +1,7 @@
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
-import type { AdsResponse, AdsFilters, ChangeAdStatusRequest, WithoutSkuResponse, UpdateSkuRequest } from "./typings";
+import type { AdsResponse, AdsFilters, ChangeAdStatusRequest, WithoutSkuResponse, UpdateSkuRequest, AnuncioDetails } from "./typings";
+import type { DailyRevenue } from "../vendas/typings";
 
 // Tipos para os novos endpoints
 export interface AdsMetrics {
@@ -41,9 +42,9 @@ class AnuncioService {
     return response as ApiResponse<AdsResponse>;
   }
 
-  async getAnuncio(anuncioId: string): Promise<ApiResponse<any>> { //TODO: implementar detalhe de anúncio
-    const response = await typedApiClient.get<any>(`/v1/ads/${anuncioId}`);
-    return response as ApiResponse<any>;
+  async getAnuncioDetails(anuncioId: string): Promise<ApiResponse<AnuncioDetails>> {
+    const response = await typedApiClient.get<AnuncioDetails>(`/v1/ads/${anuncioId}/details`);
+    return response as ApiResponse<AnuncioDetails>;
   }
 
   async getAdsMetrics(): Promise<ApiResponse<AdsMetrics>> {
@@ -86,6 +87,26 @@ class AnuncioService {
       request
     );
     return response as ApiResponse<{ success: boolean; message?: string }>;
+  }
+
+  async getAdOrdersChart(
+    anuncioId: string,
+    params?: {
+      days?: number;
+      date_from?: string;
+      date_to?: string;
+    }
+  ): Promise<ApiResponse<DailyRevenue>> {
+    const queryParams = new URLSearchParams();
+    if (params?.days) queryParams.append("days", String(params.days));
+    if (params?.date_from) queryParams.append("date_from", params.date_from);
+    if (params?.date_to) queryParams.append("date_to", params.date_to);
+
+    const queryString = queryParams.toString();
+    const url = `/v1/ads/${anuncioId}/orders-chart${queryString ? `?${queryString}` : ""}`;
+
+    const response = await typedApiClient.get<DailyRevenue>(url);
+    return response as ApiResponse<DailyRevenue>;
   }
 }
 
