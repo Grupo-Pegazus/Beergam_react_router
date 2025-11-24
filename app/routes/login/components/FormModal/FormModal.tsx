@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useReducer, useState } from "react";
-import { toast } from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router";
 import { z } from "zod";

@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import Svg from "~/src/assets/svgs/_index";
 import { useSelector } from "react-redux";
 import type { RootState } from "~/store";

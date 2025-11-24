@@ -9,7 +9,7 @@ import { getStatusOrderMeliInfo } from "~/src/constants/status-order-meli";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import OrderItemCard from "./OrderItemCard";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 
 interface OrderPackageProps {
   packId: string;

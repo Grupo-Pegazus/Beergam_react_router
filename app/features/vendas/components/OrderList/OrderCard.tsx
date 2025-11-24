@@ -7,7 +7,7 @@ import Svg from "~/src/assets/svgs/_index";
 import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
 import { getStatusOrderMeliInfo } from "~/src/constants/status-order-meli";
 import OrderItemCard from "./OrderItemCard";
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 
 interface OrderCardProps {
   order: Order;

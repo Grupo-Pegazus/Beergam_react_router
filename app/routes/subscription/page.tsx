@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import type { Plan } from "~/features/user/typings/BaseUser";
 import Svg from "~/src/assets/svgs/_index";

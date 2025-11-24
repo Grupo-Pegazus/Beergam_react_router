@@ -4,7 +4,7 @@ import { useOverlay } from "~/features/system/hooks/useOverlay";
 import OverlayFrame from "~/features/system/shared/OverlayFrame";
 import { Paper } from "@mui/material";
 import { menuService } from "~/features/menu/service";
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import { useNavigate } from "react-router";
 import { logout } from "~/features/auth/redux";
 import { useDispatch } from "react-redux";

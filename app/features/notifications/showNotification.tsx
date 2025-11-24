@@ -1,5 +1,6 @@
 import type React from "react";
-import toast, { type ToastOptions } from "react-hot-toast";
+import { type ToastOptions } from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import Svg from "~/src/assets/svgs/_index";
 import OnlineStatus from "./OnlineStatus";
 import type { NotificationData } from "./types";

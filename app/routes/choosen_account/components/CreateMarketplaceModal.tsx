@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import type {
   BaseMarketPlace,
   MarketplaceType,

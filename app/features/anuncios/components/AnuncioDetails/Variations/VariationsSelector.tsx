@@ -9,7 +9,7 @@ import TextField from "@mui/material/TextField";
 import { useUpdateSku } from "../../../hooks";
 import type { AnuncioDetails, Variation, UpdateSkuRequest } from "../../../typings";
 import { groupVariationsByCommonAttributes } from "../../AnuncioList/Variations/utils";
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import Svg from "~/src/assets/svgs/_index";
 
 interface VariationsSelectorProps {

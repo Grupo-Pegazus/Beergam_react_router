@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, KeyboardEvent } from "react";
 import Svg from "~/src/assets/svgs/_index";
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import Modal from "../Modal";
 
 import type {

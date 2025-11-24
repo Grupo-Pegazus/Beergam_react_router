@@ -180,6 +180,8 @@ export function SocketProvider({
   const [onlineStatusSocket, setOnlineStatusSocket] = useState<Socket | null>(
     null
   );
+  const sessionSocketRef = useRef<Socket | null>(null);
+  const onlineStatusSocketRef = useRef<Socket | null>(null);
   const user = useSelector((state: RootState) => state.user.user);
   const [isSessionConnected, setIsSessionConnected] = useState(false);
   const [isOnlineStatusConnected, setIsOnlineStatusConnected] = useState(false);
@@ -203,20 +205,20 @@ export function SocketProvider({
    * Conectar ao namespace /session
    */
   const connectSession = () => {
-    if (sessionSocket?.connected) {
-      console.log("Socket /session já está conectado");
-      return;
+    const existingSocket = sessionSocketRef.current;
+    if (existingSocket) {
+      if (existingSocket.connected) {
+        console.log("Socket /session já está conectado");
+        return;
+      }
+      existingSocket.removeAllListeners();
+      existingSocket.disconnect();
+      sessionSocketRef.current = null;
     }
 
     if (!isAuthenticatedRef.current) {
       console.warn("Tentativa de conectar socket sem autenticação");
       return;
-    }
-
-    // Se já existe um socket desconectado, limpar antes de criar um novo
-    if (sessionSocket) {
-      sessionSocket.removeAllListeners();
-      sessionSocket.disconnect();
     }
 
     const token = getAccessTokenFromCookies();
@@ -272,6 +274,7 @@ export function SocketProvider({
       setIsSessionConnected(true);
     });
 
+    sessionSocketRef.current = socket;
     setSessionSocket(socket);
   };
 
@@ -279,20 +282,20 @@ export function SocketProvider({
    * Conectar ao namespace /online-status
    */
   const connectOnlineStatus = () => {
-    if (onlineStatusSocket?.connected) {
-      console.log("Socket /online-status já está conectado");
-      return;
+    const existingSocket = onlineStatusSocketRef.current;
+    if (existingSocket) {
+      if (existingSocket.connected) {
+        console.log("Socket /online-status já está conectado");
+        return;
+      }
+      existingSocket.removeAllListeners();
+      existingSocket.disconnect();
+      onlineStatusSocketRef.current = null;
     }
 
     if (!isAuthenticatedRef.current) {
       console.warn("Tentativa de conectar socket sem autenticação");
       return;
-    }
-
-    // Se já existe um socket desconectado, limpar antes de criar um novo
-    if (onlineStatusSocket) {
-      onlineStatusSocket.removeAllListeners();
-      onlineStatusSocket.disconnect();
     }
 
     const token = getAccessTokenFromCookies();
@@ -365,6 +368,7 @@ export function SocketProvider({
       setIsOnlineStatusConnected(true);
     });
 
+    onlineStatusSocketRef.current = socket;
     setOnlineStatusSocket(socket);
   };
 
@@ -372,8 +376,10 @@ export function SocketProvider({
    * Desconectar do namespace /session
    */
   const disconnectSession = () => {
-    if (sessionSocket) {
-      sessionSocket.disconnect();
+    if (sessionSocketRef.current) {
+      sessionSocketRef.current.removeAllListeners();
+      sessionSocketRef.current.disconnect();
+      sessionSocketRef.current = null;
       setSessionSocket(null);
       setIsSessionConnected(false);
       console.log("🔌 Desconectado do namespace /session");
@@ -384,8 +390,10 @@ export function SocketProvider({
    * Desconectar do namespace /online-status
    */
   const disconnectOnlineStatus = () => {
-    if (onlineStatusSocket) {
-      onlineStatusSocket.disconnect();
+    if (onlineStatusSocketRef.current) {
+      onlineStatusSocketRef.current.removeAllListeners();
+      onlineStatusSocketRef.current.disconnect();
+      onlineStatusSocketRef.current = null;
       setOnlineStatusSocket(null);
       setIsOnlineStatusConnected(false);
       console.log("🔌 Desconectado do namespace /online-status");
@@ -417,26 +425,24 @@ export function SocketProvider({
   useEffect(() => {
     // Só conectar se autenticado e ainda não conectado
     if (isAuthenticated) {
-      if (!sessionSocket?.connected) {
+      if (!sessionSocketRef.current) {
         connectSession();
       }
-      if (!onlineStatusSocket?.connected) {
+      if (!onlineStatusSocketRef.current) {
         connectOnlineStatus();
       }
     } else {
       // Só desconectar se estiver conectado
-      if (sessionSocket?.connected || onlineStatusSocket?.connected) {
-        disconnectAll();
-      }
+      disconnectAll();
     }
-
-    // Cleanup ao desmontar
-    return () => {
-      if (sessionSocket || onlineStatusSocket) {
-        disconnectAll();
-      }
-    };
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    // Cleanup ao desmontar o provider
+    return () => {
+      disconnectAll();
+    };
+  }, []);
 
   const value: SocketContextValue = {
     sessionSocket,
