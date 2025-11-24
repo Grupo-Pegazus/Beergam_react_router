@@ -42,7 +42,12 @@ function BeergamButtonWrapper({
   return (
     <>
       {link ? (
-        <Link className={`${wrapperClass}`} to={link} style={combinedStyle}>
+        <Link
+          viewTransition
+          className={`${wrapperClass}`}
+          to={link}
+          style={combinedStyle}
+        >
           {children}
         </Link>
       ) : (

@@ -80,7 +80,7 @@ export default function Home() {
           />
         </div>
       </section>
-      <section className="w-full py-24 flex flex-col items-center justify-center gap-6">
+      <section className="w-full text-center py-24 flex flex-col items-center justify-center gap-6">
         <h1>
           Teste o Beergam{" "}
           <span className="text-beergam-orange">gratuitamente</span>.
@@ -91,6 +91,7 @@ export default function Home() {
           mainColor="beergam-orange"
           animationStyle="slider"
           className="text-2xl"
+          link="/registro"
         ></BeergamButton>
       </section>
       <LandingFooter />

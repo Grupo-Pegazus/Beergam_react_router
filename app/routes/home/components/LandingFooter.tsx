@@ -4,7 +4,7 @@ export default function LandingFooter() {
   return (
     <footer className="bg-beergam-blue-lara border-t border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Brand */}
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
@@ -41,40 +41,10 @@ export default function LandingFooter() {
               </li>
               <li>
                 <Link
-                  to="/registro"
+                  to="#planos"
                   className="text-beergam-gray-light hover:text-beergam-orange transition-colors text-sm"
                 >
-                  Preços
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-beergam-white font-semibold mb-4">Empresa</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  to="#contato"
-                  className="text-beergam-gray-light hover:text-beergam-orange transition-colors text-sm"
-                >
-                  Contato
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="#"
-                  className="text-beergam-gray-light hover:text-beergam-orange transition-colors text-sm"
-                >
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="#"
-                  className="text-beergam-gray-light hover:text-beergam-orange transition-colors text-sm"
-                >
-                  Suporte
+                  Planos
                 </Link>
               </li>
             </ul>
