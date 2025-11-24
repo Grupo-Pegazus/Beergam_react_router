@@ -184,11 +184,14 @@ export default function PlanCard({
         <PlanBenefits benefits={plan.benefits} />
       </div>
       <BeergamButton
-        title="Escolher Plano"
-        mainColor="beergam-blue-primary"
+        title={plan.is_current_plan ? "Plano Atual" : "Escolher Plano"}
+        mainColor={
+          plan.is_current_plan ? "beergam-gray" : "beergam-blue-primary"
+        }
         animationStyle="slider"
         className={`w-full mt-auto`}
         onClick={() => onPlanSelect?.(plan)}
+        disabled={plan.is_current_plan}
       />
     </div>
   );
