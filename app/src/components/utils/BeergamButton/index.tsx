@@ -22,13 +22,16 @@ function BeergamButtonWrapper({
   children,
   className,
   onClick,
+  disabled,
   ...props
 }: BeergamButtonProps) {
   const { style, ...buttonProps } = props;
   const isSlider = animationStyle === "slider";
-  const sliderClasses = isSlider
-    ? "bg-[linear-gradient(90deg,var(--bg-slider-color)_0%,var(--bg-slider-color)_100%)] bg-[length:0%_100%] bg-no-repeat bg-left transition-[background-size,color] duration-300 ease-out hover:bg-[length:100%_100%]"
-    : "hover:opacity-80";
+  const sliderClasses = disabled
+    ? "cursor-not-allowed!"
+    : isSlider
+      ? "bg-[linear-gradient(90deg,var(--bg-slider-color)_0%,var(--bg-slider-color)_100%)] bg-[length:0%_100%] bg-no-repeat bg-left transition-[background-size,color] duration-300 ease-out hover:bg-[length:100%_100%]"
+      : "hover:opacity-80";
   const wrapperClass = `${sliderClasses} relative overflow-hidden text-${mainColor} font-semibold py-2 px-4 rounded-lg shadow-sm group ${className}`;
   const sliderStyle: CSSPropertiesWithVars | undefined = isSlider
     ? { "--bg-slider-color": `var(--color-${mainColor})` }
@@ -63,6 +66,7 @@ export default function BeergamButton({
   className,
   link,
   onClick,
+  disabled,
 }: BeergamButtonProps) {
   return (
     <BeergamButtonWrapper
@@ -70,10 +74,11 @@ export default function BeergamButton({
       mainColor={mainColor}
       animationStyle={animationStyle}
       className={className}
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
     >
       <span
-        className={`relative z-10 ${animationStyle == "fade" ? "" : "group-hover:text-beergam-white"}`}
+        className={`relative z-10 ${disabled ? "" : animationStyle == "fade" ? "" : "group-hover:text-beergam-white"}`}
         style={{ fontSize: "inherit" }}
       >
         {title}
