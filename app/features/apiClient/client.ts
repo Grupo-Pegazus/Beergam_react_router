@@ -252,6 +252,28 @@ typedApiClient.axiosInstance.interceptors.response.use(
     //     console.error("Erro ao atualizar access_token");
     //   }
     // }
+    if (error.response?.data?.error_code === 6104) {
+      if (typeof window !== "undefined") {
+        store.dispatch(setAuthError("SUBSCRIPTION_NOT_FOUND"));
+        cryptoAuth.encriptarDados({
+          loading: false,
+          subscription: null,
+          error: "SUBSCRIPTION_NOT_FOUND",
+          success: false,
+        });
+      }
+    }
+    if (error.response?.data?.error_code === 6100) {
+      if (typeof window !== "undefined") {
+        store.dispatch(setAuthError("SUBSCRIPTION_CANCELLED"));
+        cryptoAuth.encriptarDados({
+          loading: false,
+          subscription: null,
+          error: "SUBSCRIPTION_CANCELLED",
+          success: false,
+        });
+      }
+    }
 
     return Promise.reject(error);
   }

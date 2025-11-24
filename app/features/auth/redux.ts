@@ -2,10 +2,17 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { limparMarketplaceDados } from "../marketplace/redux";
 import type { Subscription } from "../user/typings/BaseUser";
 import { cryptoAuth, cryptoMarketplace, cryptoUser } from "./utils";
+
+export type TSubscriptionError =
+  | "SUBSCRIPTION_NOT_FOUND"
+  | "SUBSCRIPTION_NOT_ACTIVE"
+  | "SUBSCRIPTION_CANCELLED";
+
 export type TAuthError =
   | "REFRESH_TOKEN_EXPIRED"
   | "REFRESH_TOKEN_REVOKED"
   | "USAGE_TIME_LIMIT"
+  | TSubscriptionError
   | "UNKNOWN_ERROR";
 
 export interface UsageLimitData {
@@ -54,6 +61,9 @@ const authSlice = createSlice({
     },
     updateSubscription(state, action: PayloadAction<Subscription | null>) {
       state.subscription = action.payload;
+      state.error = null;
+      state.success = true;
+      state.loading = false;
       cryptoAuth.encriptarDados(state);
     },
     setAuthError(
@@ -62,6 +72,8 @@ const authSlice = createSlice({
     ) {
       state.error = action.payload.error;
       state.success = false;
+    setAuthError(state, action: PayloadAction<TAuthError>) {
+      state.error = action.payload;
       state.loading = false;
       state.subscription = null;
       state.usageLimitData = action.payload.usageLimitData ?? null;
