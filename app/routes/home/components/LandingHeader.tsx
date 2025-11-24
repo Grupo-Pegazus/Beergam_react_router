@@ -13,7 +13,6 @@ type NavLink = {
 const NAV_LINKS: NavLink[] = [
   { id: "features", label: "Funcionalidades" },
   { id: "sobre", label: "Sobre" },
-  { id: "contato", label: "Contato" },
   { id: "planos", label: "Planos" },
 ];
 
@@ -64,10 +63,9 @@ export default function LandingHeader() {
 
     const triggers = sections.map((section) => {
       const triggerInstance = ScrollTrigger.create({
-        markers: true,
         trigger: section,
         start: "top 65px",
-        end: "bottom 65px",
+        end: "bottom",
         onToggle: (self) => {
           const currentLock = lockedSectionRef.current;
 
@@ -214,18 +212,6 @@ export default function LandingHeader() {
                 }`}
               >
                 Sobre
-              </Link>
-              <Link
-                to="#contato"
-                onClick={() => handleNavClick("contato")}
-                aria-current={activeSection === "contato" ? "page" : undefined}
-                className={`text-sm font-medium py-2 transition-colors ${
-                  activeSection === "contato"
-                    ? "text-beergam-orange"
-                    : "text-beergam-gray-light hover:text-beergam-white"
-                }`}
-              >
-                Contato
               </Link>
               <Link
                 to="#planos"

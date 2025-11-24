@@ -1,4 +1,3 @@
-import { Link } from "react-router";
 interface IFeature {
   title: string;
   description: string;
@@ -45,7 +44,10 @@ const features: IFeature[] = [
 
 export default function LandingFeatures() {
   return (
-    <section id="features" className="py-24 bg-beergam-blue-primary-dark">
+    <section
+      id="features"
+      className="py-24 bg-beergam-blue-primary-dark h-screen"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl sm:text-5xl font-bold text-beergam-white mb-4">
@@ -72,15 +74,6 @@ export default function LandingFeatures() {
               </p>
             </div>
           ))}
-        </div>
-
-        <div className="text-center mt-16">
-          <Link
-            to="/registro"
-            className="inline-block bg-beergam-orange hover:bg-beergam-orange-dark text-beergam-white font-semibold px-8 py-4 rounded-lg text-lg transition-all shadow-lg shadow-beergam-orange/30 hover:shadow-xl hover:shadow-beergam-orange/40"
-          >
-            Começar Agora Gratuitamente
-          </Link>
         </div>
       </div>
     </section>

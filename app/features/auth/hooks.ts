@@ -52,7 +52,6 @@ export function useAuth() {
   return {
     userInfo,
     authInfo,
-    // Retorna também o estado do Redux diretamente para acesso completo
     authState,
   };
 }

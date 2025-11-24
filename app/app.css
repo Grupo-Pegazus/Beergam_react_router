@@ -45,6 +45,7 @@ body {
 
 * {
   @apply transition-all duration-300;
+  box-sizing: border-box !important;
 }
 
 h1 {
@@ -60,7 +61,6 @@ h3 {
 
 p,
 label,
-a,
 input,
 select,
 option {
@@ -178,7 +178,8 @@ svg {
 
 /* Landing Page Styles */
 @keyframes gradient-shift {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%;
   }
   50% {

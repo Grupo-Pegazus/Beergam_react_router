@@ -2,11 +2,11 @@ import { useMutation } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { Tooltip } from "react-tooltip";
-import { menuService } from "~/features/menu/service";
 import Svg from "~/src/assets/svgs/_index";
 import ParticlesBackground from "~/src/components/utils/ParticlesBackground";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
 import { logout } from "../../redux";
+import { authService } from "../../service";
 function CardComponent({ title, value }: { title: string; value: string }) {
   return (
     <div className="relative w-full max-w-44 h-26 group">
@@ -41,7 +41,7 @@ export default function PageLayout({
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = useMutation({
-    mutationFn: () => menuService.logout(),
+    mutationFn: () => authService.logout(),
   });
   return (
     <>

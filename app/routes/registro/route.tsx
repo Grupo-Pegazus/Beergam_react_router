@@ -2,9 +2,10 @@ import { toast } from "react-hot-toast";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { authService } from "~/features/auth/service";
 import { UserRoles, UserStatus } from "~/features/user/typings/BaseUser";
+import type { IColab } from "~/features/user/typings/Colab";
 import type {
-  IUser,
   ComoConheceu,
+  IUser,
   ProfitRange,
 } from "~/features/user/typings/User";
 import type { Route } from "./+types/route";
@@ -22,6 +23,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   const referral_code = formData.get("referral_code");
   const responsePromise = authService
     .register({
+      colabs: {} as Record<string, IColab>,
       created_at: new Date(),
       updated_at: new Date(),
       name: name as string,
@@ -50,7 +52,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
     loading: "Carregando...",
     success: (msg: ApiResponse<IUser>) => {
       window.setTimeout(() => {
-        window.location.href = "/interno";
+        window.location.href = "/login";
       }, 1000);
       return <p>{msg.message}</p>;
     },

@@ -217,6 +217,8 @@ const theme = createTheme(
 );
 
 export async function clientLoader() {
+  console.log("clientLoader");
+  console.log("authInfo", await cryptoAuth.recuperarDados<IAuthState>());
   return {
     userInfo: await cryptoUser.recuperarDados<IUser>(),
     authInfo: await cryptoAuth.recuperarDados<IAuthState>(),
@@ -285,12 +287,7 @@ function BootstrapAuth() {
       // Se o Redux já foi inicializado, não sobrescreve (prioriza o estado atual do Redux)
       // Isso garante que um login bem-sucedido não seja sobrescrito por dados antigos do loader
       if (!isReduxInitialized) {
-        console.log("Redux não inicializado, atualizando com dados do loader");
         dispatch(updateAuthInfo({ auth: authInfo, shouldEncrypt: false }));
-      } else {
-        console.log(
-          "Redux já inicializado, ignorando dados do loader para evitar sobrescrever estado válido"
-        );
       }
     }
   }, [

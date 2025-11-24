@@ -1,35 +1,39 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { useRouteLoaderData } from "react-router";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
-import { type IAuthState } from "~/features/auth/redux";
+import type { TAuthError } from "~/features/auth/redux";
 import type { Plan } from "~/features/user/typings/BaseUser";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 import Modal from "~/src/components/utils/Modal";
-import PlansGrid from "./components/PlansGrid";
-import StripeCheckout from "./components/StripeCheckout";
-
+import PlansGrid from "../../features/plans/components/PlansGrid";
+import StripeCheckout from "../../features/plans/components/StripeCheckout";
 interface SubscriptionPageProps {
   plans: Plan[];
   isLoading: boolean;
+  subscriptionError: TAuthError;
+  homeSelectedPlan: Plan | null;
 }
 
 export default function SubscriptionPage({
   plans,
   isLoading,
+  subscriptionError,
+  homeSelectedPlan,
 }: SubscriptionPageProps) {
-  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
-  const [showCheckout, setShowCheckout] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(
+    homeSelectedPlan || null
+  );
+  const [showCheckout, setShowCheckout] = useState(
+    homeSelectedPlan ? true : false
+  );
   const handlePlanSelect = (plan: Plan) => {
     setSelectedPlan(plan);
     setShowCheckout(true);
   };
 
-  const rootData = useRouteLoaderData("root") as
-    | { authInfo?: IAuthState }
-    | undefined;
-  const authInfo = rootData?.authInfo;
-  const type = authInfo?.error;
-  const [showContent, setShowContent] = useState(type === null ? true : false);
+  const [showContent, setShowContent] = useState(
+    subscriptionError === null || homeSelectedPlan ? true : false
+  );
   return (
     <>
       <PageLayout
@@ -38,7 +42,7 @@ export default function SubscriptionPage({
       >
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scale-90 origin-top">
           {/* Header Section */}
-          {type !== null && !showContent && (
+          {subscriptionError !== null && !showContent && (
             <div className="text-center mb-16">
               <h1 className="text-beergam-white mb-6">
                 Você não possui uma assinatura ativa
@@ -50,18 +54,11 @@ export default function SubscriptionPage({
                 recursos premium.
               </h3>
               <div className="flex gap-4 w-full justify-center mt-4">
-                <button
+                <BeergamButton
                   onClick={() => setShowContent(true)}
-                  className="relative text-beergam-blue-primary bg-beergam-white font-semibold py-2 px-4 rounded-lg shadow-sm group"
-                >
-                  <span
-                    className="absolute inset-0 left-0 top-0 h-full rounded-lg w-0 bg-beergam-blue-primary transition-all duration-300 group-hover:w-full z-0"
-                    aria-hidden="true"
-                  ></span>
-                  <span className="relative z-10  group-hover:text-beergam-white">
-                    Ver planos
-                  </span>
-                </button>
+                  title="Ver planos"
+                  className="bg-beergam-white"
+                />
               </div>
             </div>
           )}

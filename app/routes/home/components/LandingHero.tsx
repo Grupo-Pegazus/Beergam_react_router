@@ -39,7 +39,7 @@ export default function LandingHero() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             to="/registro"
-            className="bg-beergam-orange hover:bg-beergam-orange-dark text-beergam-white font-semibold px-8 py-4 rounded-lg text-lg transition-all shadow-lg shadow-beergam-orange/30 hover:shadow-xl hover:shadow-beergam-orange/40 hover:scale-105"
+            className="bg-beergam-orange/10 hover:bg-beergam-orange/20 text-beergam-orange font-semibold px-8 py-4 rounded-lg text-lg transition-all border border-white/20 hover:border-white/30"
           >
             Começar Agora
           </Link>
