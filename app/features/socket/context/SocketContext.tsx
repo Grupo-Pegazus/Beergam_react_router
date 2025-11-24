@@ -8,13 +8,16 @@ import {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { io, type Socket } from "socket.io-client";
+import { enforceUsageLimit } from "~/features/auth/utils/accessWindow";
 import { showNotification } from "~/features/notifications/showNotification";
 import type { OnlineStatusNotificationData } from "~/features/notifications/types";
 import { updateColab } from "~/features/user/redux";
-import { isMaster } from "~/features/user/utils";
+import { isColab, isMaster } from "~/features/user/utils";
 import type { RootState } from "~/store";
 import type {
   OnlineStatusUpdate,
+  SessionEvent,
+  SessionUsageLimitEvent,
   SocketContextValue,
   SocketNamespace,
 } from "../typings/socket.types";
@@ -182,6 +185,7 @@ export function SocketProvider({
   );
   const sessionSocketRef = useRef<Socket | null>(null);
   const onlineStatusSocketRef = useRef<Socket | null>(null);
+  const sessionRoomNameRef = useRef<string | null>(null);
   const user = useSelector((state: RootState) => state.user.user);
   const [isSessionConnected, setIsSessionConnected] = useState(false);
   const [isOnlineStatusConnected, setIsOnlineStatusConnected] = useState(false);
@@ -199,6 +203,13 @@ export function SocketProvider({
 
   useEffect(() => {
     userRef.current = user;
+    if (!user?.pin) {
+      sessionRoomNameRef.current = null;
+    }
+    if (sessionSocketRef.current?.connected) {
+      sessionRoomNameRef.current = null;
+      tryJoinSessionRoom();
+    }
   }, [user]);
 
   /**
@@ -237,6 +248,7 @@ export function SocketProvider({
     socket.on("connect", () => {
       console.log("✅ Conectado ao namespace /session");
       setIsSessionConnected(true);
+      tryJoinSessionRoom(socket);
     });
 
     socket.on("disconnect", (reason) => {
@@ -260,8 +272,12 @@ export function SocketProvider({
     });
 
     // Configurar listeners para eventos do servidor
-    socket.on("session_event", (data) => {
+    socket.on("session_event", (data: SessionEvent) => {
       console.log("📨 Evento de sessão recebido:", data);
+      if (data.event_type === "usage_time_limit") {
+        console.log("⏰ Evento usage_time_limit detectado, chamando handleUsageLimitEvent");
+        handleUsageLimitEvent(data as SessionUsageLimitEvent);
+      }
     });
 
     socket.on("heartbeat", (data) => {
@@ -272,6 +288,8 @@ export function SocketProvider({
     socket.on("reconnect", () => {
       console.log("🔄 Reconectado ao namespace /session");
       setIsSessionConnected(true);
+      sessionRoomNameRef.current = null;
+      tryJoinSessionRoom(socket);
     });
 
     sessionSocketRef.current = socket;
@@ -382,6 +400,7 @@ export function SocketProvider({
       sessionSocketRef.current = null;
       setSessionSocket(null);
       setIsSessionConnected(false);
+      sessionRoomNameRef.current = null;
       console.log("🔌 Desconectado do namespace /session");
     }
   };
@@ -443,6 +462,35 @@ export function SocketProvider({
       disconnectAll();
     };
   }, []);
+
+  const tryJoinSessionRoom = (socketInstance?: Socket | null) => {
+    const socketToUse = socketInstance ?? sessionSocketRef.current;
+    if (!socketToUse || !socketToUse.connected) {
+      return;
+    }
+    const currentUser = userRef.current;
+    if (!currentUser || !isColab(currentUser) || !currentUser.pin) {
+      return;
+    }
+    const roomName = `user_${currentUser.pin}`;
+    if (sessionRoomNameRef.current === roomName) {
+      return;
+    }
+    socketToUse.emit("join_room", { room: roomName });
+    sessionRoomNameRef.current = roomName;
+    console.log(`📡 Assinado na sala ${roomName}`);
+  };
+
+  const handleUsageLimitEvent = (payload: SessionUsageLimitEvent) => {
+    enforceUsageLimit({
+      source: "socket",
+      event_type: payload.event_type,
+      message: payload.message,
+      timestamp: payload.timestamp,
+      next_allowed_at: payload.next_allowed_at,
+      weekday: payload.weekday,
+    });
+  };
 
   const value: SocketContextValue = {
     sessionSocket,
