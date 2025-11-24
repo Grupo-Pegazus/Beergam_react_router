@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Navigate, Outlet } from "react-router";
 import { useAuth } from "../../hooks";
+import { logout } from "../../redux";
 import { isSubscriptionError } from "../../utils";
 import MultipleDeviceWarning from "../MultipleDeviceWarning/MultipleDeviceWarning";
 import UsageTimeLimitWarning from "../UsageTimeLimitWarning/UsageTimeLimitWarning";
@@ -11,6 +12,7 @@ export default function AuthLayout() {
   // Usa o hook useAuth que monitora mudanças no Redux e força re-render
   const { userInfo, authInfo } = useAuth();
   const dispatch = useDispatch();
+
   
   if (
     authInfo?.error &&
