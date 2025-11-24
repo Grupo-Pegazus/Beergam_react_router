@@ -72,8 +72,6 @@ const authSlice = createSlice({
     ) {
       state.error = action.payload.error;
       state.success = false;
-    setAuthError(state, action: PayloadAction<TAuthError>) {
-      state.error = action.payload;
       state.loading = false;
       state.subscription = null;
       state.usageLimitData = action.payload.usageLimitData ?? null;
