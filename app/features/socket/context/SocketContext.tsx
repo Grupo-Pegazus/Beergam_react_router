@@ -188,11 +188,16 @@ export function SocketProvider({
     socketUrl || import.meta.env.VITE_SOCKET_URL || "http://localhost:3001"
   );
   const isAuthenticatedRef = useRef(isAuthenticated);
+  const userRef = useRef(user);
 
   // Atualizar ref quando isAuthenticated mudar
   useEffect(() => {
     isAuthenticatedRef.current = isAuthenticated;
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   /**
    * Conectar ao namespace /session
@@ -331,12 +336,13 @@ export function SocketProvider({
     // Configurar listeners para eventos do servidor
     socket.on("online_status_update", (data: OnlineStatusUpdate) => {
       console.log("📨 Atualização de status online recebida:", data);
-      if (user && isMaster(user)) {
-        const colab = user.colabs?.[data.user_pin];
+      const currentUser = userRef.current;
+      if (currentUser && isMaster(currentUser)) {
+        const colab = currentUser.colabs?.[data.user_pin];
         if (colab) {
           const notificationData: OnlineStatusNotificationData = {
             type: "online_status",
-            colab: colab,
+            colab,
             online: data.is_online,
           };
           dispatch(updateColab({ ...colab, is_online: data.is_online }));
