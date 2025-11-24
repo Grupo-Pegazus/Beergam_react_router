@@ -2,56 +2,57 @@ import AlertIcon from "./AlertIcon";
 import ArrowPathIcon from "./ArrowPathIcon";
 import ArrowUturnLeft from "./ArrowUturnLeft";
 import BagIcon from "./BagIcon";
+import BagSolid from "./BagSolid";
+import Bell from "./Bell";
 import BuildingLibrary from "./BuildingLibrary";
 import CalculatorIcon from "./Calculator";
+import CalculatorSolid from "./CalculatorSolid";
 import CardIcon from "./CardIcon";
+import CardSolid from "./CardSolid";
 import ChatIcon from "./ChatIcon";
 import Check from "./Check";
+import CheckCircle from "./CheckCircle";
+import Chevron from "./Chevron";
 import CircleX from "./CircleX";
 import ClockIcon from "./ClockIcon";
 import Cog8Tooth from "./Cog8Tooth";
+import Copy from "./Copy";
 import CurrencyDollar from "./CurrencyDollar";
-import DollyIcon from "./DollyIcon";
 import DocumentIcon from "./DocumentIcon";
+import DollyIcon from "./DollyIcon";
 import ElipsisHorizontal from "./ElipsisHorizontal";
 import Eye from "./Eye";
 import EyeSlash from "./EyeSlash";
 import GlobeIcon from "./GlobeIcon";
 import GraphIcon from "./GraphIcon";
+import GraphIconSolid from "./GraphIconSolid";
 import HomeIcon from "./HomeIcon";
+import HomeSolid from "./HomeSolid";
 import InBoxStackIcon from "./InBoxStackIcon";
 import InformationCircle from "./InformationCircle";
+import Line from "./Line";
+import List from "./List";
 import LockClosed from "./LockClosed";
+import Logout from "./Logout";
+import LowStock from "./LowStock";
+import Megaphone from "./Megaphone";
 import Pencil from "./Pencil";
 import PhoneIcon from "./PhoneIcon";
-import PlusCircle from "./PlusCircle";
-import QuestionMark from "./QuestionMark";
-import Trash from "./Trash";
-import X from "./X";
-import Line from "./Line";
-import Chevron from "./Chevron";
-import UserPlus from "./UserPlus";
-import Question from "./Question";
-import Megaphone from "./Megaphone";
-import Bell from "./Bell";
-import List from "./List";
-import Profile from "./Profile";
-import HomeSolid from "./HomeSolid";
-import BagSolid from "./BagSolid";
-import CheckCircle from "./CheckCircle";
-import WarningCircle from "./WarningCircle";
-import XCircle from "./XCircle";
-import ProfileSolid from "./ProfileSolid";
-import UserPlusSolid from "./UserPlusSolid";
-import CardSolid from "./CardSolid";
-import CalculatorSolid from "./CalculatorSolid";
 import Plus from "./Plus";
-import Logout from "./Logout";
+import PlusCircle from "./PlusCircle";
+import Profile from "./Profile";
+import ProfileSolid from "./ProfileSolid";
+import Question from "./Question";
+import QuestionMark from "./QuestionMark";
 import Star from "./Star";
-import Copy from "./Copy";
-import LowStock from "./LowStock";
+import StarSolid from "./StarSolid";
+import Trash from "./Trash";
 import Truck from "./Truck";
-import GraphIconSolid from "./GraphIconSolid";
+import UserPlus from "./UserPlus";
+import UserPlusSolid from "./UserPlusSolid";
+import WarningCircle from "./WarningCircle";
+import X from "./X";
+import XCircle from "./XCircle";
 
 const Svg = {
   home: HomeIcon,
@@ -107,6 +108,7 @@ const Svg = {
   star: Star,
   copy: Copy,
   low_stock: LowStock,
+  star_solid: StarSolid,
   truck: Truck,
 };
 

@@ -2,7 +2,7 @@
 import type { BaseMarketPlace } from "../marketplace/typings";
 import type { IColab } from "../user/typings/Colab";
 import type { IUser } from "../user/typings/User";
-import type { IAuthState } from "./redux";
+import type { IAuthState, TAuthError } from "./redux";
 
 // type AvailableData = IUser | BaseMarketPlace; //Tipos de dados que podem ser criptografados
 
@@ -214,3 +214,11 @@ class CryptoMarketplace extends Crypto<BaseMarketPlace> {
 export const cryptoUser = new CryptoUser();
 
 export const cryptoMarketplace = new CryptoMarketplace();
+
+export function isSubscriptionError(error: TAuthError): boolean {
+  return (
+    error === "SUBSCRIPTION_NOT_FOUND" ||
+    error === "SUBSCRIPTION_CANCELLED" ||
+    error === "SUBSCRIPTION_NOT_ACTIVE"
+  );
+}

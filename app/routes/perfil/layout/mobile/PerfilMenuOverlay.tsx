@@ -1,13 +1,13 @@
-import { useEffect, useCallback } from "react";
-import Svg from "~/src/assets/svgs/_index";
-import { useOverlay } from "~/features/system/hooks/useOverlay";
-import OverlayFrame from "~/features/system/shared/OverlayFrame";
 import { Paper } from "@mui/material";
-import { menuService } from "~/features/menu/service";
+import { useCallback, useEffect } from "react";
 import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { logout } from "~/features/auth/redux";
-import { useDispatch } from "react-redux";
+import { authService } from "~/features/auth/service";
+import { useOverlay } from "~/features/system/hooks/useOverlay";
+import OverlayFrame from "~/features/system/shared/OverlayFrame";
+import Svg from "~/src/assets/svgs/_index";
 
 type PerfilMenuItem = {
   key: string;
@@ -61,7 +61,7 @@ export default function PerfilMenuOverlay({
   }
 
   const handleLogout = async () => {
-    const res = await menuService.logout();
+    const res = await authService.logout();
     if (res.success) {
       dispatch(logout());
       navigate("/login");
@@ -71,11 +71,20 @@ export default function PerfilMenuOverlay({
   };
 
   return (
-    <OverlayFrame title="Configurações de Usuário" isOpen={isOpen} shouldRender={shouldRender} onRequestClose={handleClose}>
+    <OverlayFrame
+      title="Configurações de Usuário"
+      isOpen={isOpen}
+      shouldRender={shouldRender}
+      onRequestClose={handleClose}
+    >
       <div className="p-2 grid grid-cols-3 gap-2">
         {PERFIL_MENU_ITEMS.map((item) => {
           const Icon = Svg[item.icon];
-          const maybeSolid = item.icon ? (Svg[(item.icon + "_solid") as keyof typeof Svg] as typeof Icon | undefined) : undefined;
+          const maybeSolid = item.icon
+            ? (Svg[(item.icon + "_solid") as keyof typeof Svg] as
+                | typeof Icon
+                | undefined)
+            : undefined;
           const isActive = activeButton === item.label;
           const ActiveIcon = isActive && maybeSolid ? maybeSolid : Icon;
           return (
@@ -90,12 +99,22 @@ export default function PerfilMenuOverlay({
               elevation={1}
             >
               <span className="leading-none grid place-items-center text-beergam-blue-primary">
-                {ActiveIcon ? <ActiveIcon tailWindClasses={`w-8 h-8 ${isActive ? "text-beergam-orange" : "text-beergam-blue-primary"}`} /> : null}
+                {ActiveIcon ? (
+                  <ActiveIcon
+                    tailWindClasses={`w-8 h-8 ${isActive ? "text-beergam-orange" : "text-beergam-blue-primary"}`}
+                  />
+                ) : null}
               </span>
-              <span className={`text-xs font-medium ${isActive ? "text-beergam-orange" : "text-beergam-blue-primary"} text-center leading-tight`}>{item.label}</span>
+              <span
+                className={`text-xs font-medium ${isActive ? "text-beergam-orange" : "text-beergam-blue-primary"} text-center leading-tight`}
+              >
+                {item.label}
+              </span>
               {item.emBreve && (
                 <span className="absolute top-1.5 right-1.5 grid place-items-center">
-                  <span className="text-[8px] py-0.5 px-1.5 rounded bg-beergam-gray text-white font-medium">Em breve</span>
+                  <span className="text-[8px] py-0.5 px-1.5 rounded bg-beergam-gray text-white font-medium">
+                    Em breve
+                  </span>
                 </span>
               )}
             </Paper>
@@ -106,8 +125,14 @@ export default function PerfilMenuOverlay({
           onClick={handleLogout}
           className="fixed w-[90%] mx-auto bottom-6 left-0 right-0 flex items-center gap-3 p-3 rounded-xl border border-black/10 bg-beergam-red-light text-beergam-red-primary shadow-sm"
         >
-            <Svg.logout width={20} height={20} tailWindClasses="text-beergam-red-primary" />
-            <span className="text-lg font-medium text-beergam-red-primary">Sair</span>
+          <Svg.logout
+            width={20}
+            height={20}
+            tailWindClasses="text-beergam-red-primary"
+          />
+          <span className="text-lg font-medium text-beergam-red-primary">
+            Sair
+          </span>
         </button>
       </div>
     </OverlayFrame>

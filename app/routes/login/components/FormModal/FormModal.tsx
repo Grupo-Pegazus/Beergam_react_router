@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useReducer, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { z } from "zod";
 import { cryptoAuth } from "~/features/auth/utils";
 import { useSocketContext } from "~/features/socket/context/SocketContext";
@@ -10,7 +10,7 @@ import { updateUserInfo } from "~/features/user/redux";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import { Fields } from "~/src/components/utils/_fields";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
-import { login } from "../../../../features/auth/redux";
+import { login, updateAuthInfo } from "../../../../features/auth/redux";
 import { authService } from "../../../../features/auth/service";
 import {
   type ColaboradorUserForm,
@@ -24,6 +24,9 @@ interface FormModalProps {
 }
 
 function FormHelpNavigation() {
+  const { state } = useLocation();
+  const homeSelectedPlan = state?.plan;
+  console.log("homeSelectedPlan", homeSelectedPlan);
   return (
     <div className="flex flex-row gap-2 sm:flex-col sm:gap-0.5">
       <label className="text-beergam-gray font-medium" htmlFor="">
@@ -32,6 +35,7 @@ function FormHelpNavigation() {
       <Link
         className="text-beergam-blue-primary hover:text-beergam-orange font-medium"
         to={"/registro"}
+        state={{ plan: homeSelectedPlan }}
       >
         Cadastre-se
       </Link>
@@ -65,6 +69,9 @@ export default function FormModal({
   const navigate = useNavigate();
   const { connectSession, connectOnlineStatus } = useSocketContext();
   const [currentUserType, setCurrentUserType] = useState<UserRoles>(userType);
+  const { state } = useLocation();
+  const homeSelectedPlan = state?.plan;
+  console.log("homeSelectedPlan", homeSelectedPlan);
   const loginMutation = useMutation({
     mutationFn: (
       formInfo:
@@ -187,13 +194,24 @@ export default function FormModal({
           }, 100);
 
           if (!subscriptionData || subscriptionData?.start_date === null) {
-            toast("Redirecionando para a página de assinatura...", {
-              icon: "🍊",
+            dispatch(
+              updateAuthInfo({
+                auth: {
+                  error: "SUBSCRIPTION_NOT_FOUND",
+                  loading: false,
+                  subscription: null,
+                  success: true,
+                },
+                shouldEncrypt: true,
+              })
+            );
+            navigate("/interno/subscription", {
+              state: { plan: homeSelectedPlan },
             });
-            navigate("/interno/subscription");
           } else {
             navigate("/interno/choosen_account");
           }
+
           return data.message;
         },
         error: (error) => {

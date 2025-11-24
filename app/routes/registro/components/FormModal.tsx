@@ -1,7 +1,7 @@
 import { CNPJSchema } from "app/utils/typings/CNPJ";
 import { CPFSchema } from "app/utils/typings/CPF";
 import { useEffect, useReducer, useState } from "react";
-import { Form, Link, useActionData } from "react-router";
+import { Form, Link, useActionData, useLocation } from "react-router";
 import { z } from "zod";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { UserPasswordSchema } from "~/features/auth/typing";
@@ -17,6 +17,8 @@ import type { InputError } from "~/src/components/utils/_fields/typings";
 import type { clientAction } from "../route";
 type UserDocuments = "CPF" | "CNPJ";
 export default function FormModal() {
+  const { state } = useLocation();
+  const homeSelectedPlan = state?.plan;
   const data = useActionData<typeof clientAction>() as ApiResponse | null;
   const [actionData, setActionData] = useReducer(
     (
@@ -235,6 +237,7 @@ export default function FormModal() {
     >
       {/* <p>{JSON.stringify(actionData?.error_fields)}</p> */}
       <h1 className="text-beergam-blue-primary">Cadastre-se</h1>
+      <p>homeSelectedPlan: {JSON.stringify(homeSelectedPlan)}</p>
       <div>
         <Fields.wrapper>
           <Fields.label text="DIGITE SEU ENDEREÇO DE E-MAIL" />

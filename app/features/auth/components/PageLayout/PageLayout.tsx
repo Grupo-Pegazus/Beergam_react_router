@@ -1,6 +1,12 @@
+import { useMutation } from "@tanstack/react-query";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router";
+import { Tooltip } from "react-tooltip";
 import Svg from "~/src/assets/svgs/_index";
 import ParticlesBackground from "~/src/components/utils/ParticlesBackground";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
+import { logout } from "../../redux";
+import { authService } from "../../service";
 function CardComponent({ title, value }: { title: string; value: string }) {
   return (
     <div className="relative w-full max-w-44 h-26 group">
@@ -25,23 +31,50 @@ export default function PageLayout({
   children,
   tailwindClassName,
   showLogo = true,
+  showLogoutButton = false,
 }: {
   children: React.ReactNode;
   tailwindClassName?: string;
   showLogo?: boolean;
+  showLogoutButton?: boolean;
 }) {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const handleLogout = useMutation({
+    mutationFn: () => authService.logout(),
+  });
   return (
     <>
       <main className="flex min-h-full bg-beergam-orange overflow-x-hidden">
         <data className="absolute top-2 left-2 w-30 h-30 z-10 hidden lg:block">
           {showLogo && (
             <img
-              src={CDN_IMAGES.BEERGAM_FLOWER_LOGO}
+              src={CDN_IMAGES.BERGAMOTA_LOGO}
               alt="beergam_flower_logo"
               className="w-full h-full object-contain"
             />
           )}
         </data>
+
+        {showLogoutButton && (
+          <button
+            onClick={() => {
+              handleLogout.mutate();
+              dispatch(logout());
+              navigate("/login");
+            }}
+            data-tooltip-id="logout-tooltip"
+            className="size-12 md:size-16 flex items-center justify-center border border-beergam-white absolute top-2 right-2 z-1000 bg-beergam-red rounded-full p-2"
+          >
+            <Svg.logout tailWindClasses="text-beergam-white size-6 md:size-10" />
+            <Tooltip
+              id="logout-tooltip"
+              content="Sair do sistema"
+              className="z-9999"
+            />
+          </button>
+        )}
+
         <div className="absolute hidden lg:block top-0 left-0 max-w-screen max-h-screen overflow-hidden w-full h-full opacity-50">
           <div className="absolute top-0 left-0 w-3/4 max-w-6xl object-contain">
             <img
