@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useLocation } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { io, type Socket } from "socket.io-client";
 import { enforceUsageLimit } from "~/features/auth/utils/accessWindow";
@@ -179,6 +180,7 @@ export function SocketProvider({
   socketUrl,
   isAuthenticated = false,
 }: SocketProviderProps) {
+  const location = useLocation();
   const [sessionSocket, setSessionSocket] = useState<Socket | null>(null);
   const [onlineStatusSocket, setOnlineStatusSocket] = useState<Socket | null>(
     null
@@ -195,6 +197,11 @@ export function SocketProvider({
   );
   const isAuthenticatedRef = useRef(isAuthenticated);
   const userRef = useRef(user);
+
+  /**
+   * Verifica se a rota atual é uma rota interna (/interno)
+   */
+  const isInternalRoute = location.pathname.startsWith("/interno");
 
   // Atualizar ref quando isAuthenticated mudar
   useEffect(() => {
@@ -442,8 +449,10 @@ export function SocketProvider({
 
   // Conectar/desconectar baseado no estado de autenticação
   useEffect(() => {
-    // Só conectar se autenticado e ainda não conectado
-    if (isAuthenticated) {
+    // Só conectar se autenticado E estiver em rota interna (/interno)
+    const shouldConnect = isAuthenticated && isInternalRoute;
+    
+    if (shouldConnect) {
       if (!sessionSocketRef.current) {
         connectSession();
       }
@@ -454,7 +463,7 @@ export function SocketProvider({
       // Só desconectar se estiver conectado
       disconnectAll();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isInternalRoute]);
 
   useEffect(() => {
     // Cleanup ao desmontar o provider
