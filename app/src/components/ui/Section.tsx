@@ -10,14 +10,16 @@ export default function Section({
   children,
   title,
   actions,
- }: SectionProps) {
+}: SectionProps) {
   return (
-    <section className="w-full flex flex-col gap-4 border border-black/10 rounded-2xl p-4 mb-4 shadow-sm">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg md:text-xl font-semibold text-beergam-blue-primary">{title}</h3>
-        {actions ? actions : null}
+    <section className="w-full min-w-0 flex flex-col gap-4 border border-black/10 rounded-2xl p-4 mb-4 shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between min-w-0">
+        <h3 className="text-lg md:text-xl font-semibold text-beergam-blue-primary truncate">{title}</h3>
+        {actions ? <div className="shrink-0">{actions}</div> : null}
       </div>
-      {children}
+      <div className="w-full min-w-0">
+        {children}
+      </div>
     </section>
   );
 }

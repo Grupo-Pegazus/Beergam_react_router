@@ -181,6 +181,8 @@ export interface IBaseUser {
   marketplace_accounts?: BaseMarketPlace[] | null;
   pin?: string | null;
   master_pin?: string | null;
+  access_cutoff_at?: number | null;
+  access_window_reason?: string | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -229,6 +231,8 @@ export const BaseUserSchema = z.object({
   master_pin: z.string().optional().nullable(),
   status: z.enum(Object.keys(UserStatus) as [UserStatus, ...UserStatus[]]),
   marketplace_accounts: z.array(BaseMarketPlaceSchema).optional().nullable(),
+  access_cutoff_at: z.number().optional().nullable(),
+  access_window_reason: z.string().optional().nullable(),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date(),
   details: BaseUserDetailsSchema,

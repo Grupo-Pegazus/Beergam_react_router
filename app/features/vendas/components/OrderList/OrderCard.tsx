@@ -1,0 +1,173 @@
+import { useMemo } from "react";
+import { Chip, Divider, Typography } from "@mui/material";
+import MainCards from "~/src/components/ui/MainCards";
+import type { Order } from "../../typings";
+import dayjs from "dayjs";
+import Svg from "~/src/assets/svgs/_index";
+import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
+import { getStatusOrderMeliInfo } from "~/src/constants/status-order-meli";
+import OrderItemCard from "./OrderItemCard";
+import toast from "~/src/utils/toast";
+
+interface OrderCardProps {
+  order: Order;
+}
+
+const formatDate = (dateStr: string | null | undefined): string => {
+  if (!dateStr) return "—";
+  return dayjs(dateStr).format("DD MMM YYYY [às] HH:mm");
+};
+
+export default function OrderCard({ order }: OrderCardProps) {
+  const statusInfo = useMemo(() => getStatusOrderMeliInfo(order.status), [order.status]);
+  const logisticTypeInfo = useMemo(
+    () => getLogisticTypeMeliInfo(order.shipping_mode ?? ""),
+    [order.shipping_mode]
+  );
+
+  const deliveryInfo = useMemo(() => {
+    const now = dayjs();
+    
+    // Se tem estimated_delivery e ainda não passou, mostra a previsão
+    if (order.estimated_delivery) {
+      const estimatedDate = dayjs(order.estimated_delivery);
+      if (estimatedDate.isAfter(now) || estimatedDate.isSame(now, "day")) {
+        return {
+          type: "estimated" as const,
+          date: estimatedDate.format("dddd[, dia] D [de] MMMM"),
+          label: "Chega",
+          isPast: false,
+        };
+      }
+    }
+    
+    // Se a previsão já passou ou não existe, verifica expiration_date
+    if (order.expiration_date) {
+      const expirationDate = dayjs(order.expiration_date);
+      // Se expiration_date ainda não passou, mostra
+      if (expirationDate.isAfter(now) || expirationDate.isSame(now, "day")) {
+        return {
+          type: "expiration" as const,
+          date: expirationDate.format("dddd[, dia] D [de] MMMM"),
+          label: "Prazo limite para qualificar",
+          isPast: false,
+        };
+      }
+      // Se já passou, está entregue, retorna null
+      return null;
+    }
+    
+    return null;
+  }, [order.estimated_delivery, order.expiration_date]);
+
+  return (
+    <MainCards className="p-3 md:p-4 w-full min-w-0">
+      <div className="flex flex-col gap-2 w-full min-w-0">
+        {/* Header: ID e Data */}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
+            <div className="flex items-center gap-1">
+              <Typography variant="caption" color="text.secondary" className="font-mono text-xs md:text-sm">
+                #{order.order_id}
+              </Typography>
+              <button
+                className="flex items-center gap-1 text-slate-500 hover:text-slate-700"
+                onClick={() => {
+                  navigator.clipboard.writeText(order.order_id);
+                  toast.success("Order ID copiado para a área de transferência");
+                }}
+              >
+                <Svg.copy tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />
+              </button>
+            </div>
+            <span className="text-slate-300 hidden md:inline">|</span>
+            <Typography variant="caption" color="text.secondary" className="text-xs md:text-sm">
+                {formatDate(order.date_created)}
+            </Typography>
+            <span className="text-slate-300 hidden md:inline">|</span>
+            <Chip
+                label={logisticTypeInfo.label}
+                size="small"
+                sx={{
+                    height: 22,
+                    fontSize: "0.65rem",
+                    fontWeight: 600,
+                    backgroundColor: logisticTypeInfo.backgroundColor,
+                    color: logisticTypeInfo.color,
+                    "& .MuiChip-label": {
+                      px: 0.75,
+                    },
+                }}
+                />
+            </div>
+            {order.buyer_nickname && (
+                <div className="flex items-center gap-1.5 md:gap-2">
+                    <Svg.profile tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4 text-slate-500" />
+                    <Typography variant="body2" className="text-slate-900 text-sm md:text-base">
+                    {order.buyer_nickname}
+                    </Typography>
+                    {order.buyer_id && (
+                    <>
+                        <span className="text-slate-300 hidden md:inline">|</span>
+                        <Typography variant="caption" color="text.secondary" className="text-xs md:text-sm">
+                        {order.buyer_id}
+                        </Typography>
+                    </>
+                    )}
+                </div>
+            )}
+        </div>
+
+        <Divider sx={{ my: 0.5 }} />
+
+        {/* Status Chips e Botão de Expandir */}
+        <div className="flex flex-wrap items-center justify-between gap-1.5 md:gap-2">
+          <Chip
+            label={statusInfo.label}
+            size="small"
+            icon={
+              (() => {
+                const IconComponent = Svg[statusInfo.icon];
+                return <IconComponent tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />;
+              })()
+            }
+            sx={{
+              height: 22,
+              fontSize: "0.65rem",
+              fontWeight: 600,
+              backgroundColor: statusInfo.backgroundColor,
+              color: statusInfo.color,
+              "& .MuiChip-label": {
+                px: 0.75,
+              },
+            }}
+          />
+        </div>
+
+        {/* Status do envio */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            {(order.shipment_status || deliveryInfo) && (
+              <div className="mt-1 md:mt-2">
+                {order.shipment_status && (
+                  <Typography variant="body2" fontWeight={600} className="text-slate-900 mb-0.5 md:mb-1 text-sm md:text-base">
+                    {getStatusOrderMeliInfo(order.shipment_status)?.label || order.shipment_status}
+                  </Typography>
+                )}
+                {deliveryInfo && (
+                  <Typography variant="caption" fontWeight={400} className="text-slate-700 text-xs md:text-sm">
+                    {deliveryInfo.label} {deliveryInfo.date}
+                  </Typography>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Pedido */}
+        <OrderItemCard order={order} />
+      </div>
+    </MainCards>
+  );
+}
+

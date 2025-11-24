@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import { useDispatch } from "react-redux";
 
 import { useFetcher, useNavigate } from "react-router";
@@ -110,7 +110,7 @@ export default function ChoosenAccountPage({
   }, [marketplacesAccounts, searchTerm, typeFilter]);
   const resultsCount = filteredAccounts.length;
   return (
-    <PageLayout>
+    <PageLayout showLogoutButton>
       <div className="flex flex-col items-center w-full p-4">
         {/* Header */}
         <div className="mb-4 w-full max-w-[80vw]">
@@ -247,7 +247,11 @@ export default function ChoosenAccountPage({
       </Modal>
 
       {/* Modal de confirmação de deletar */}
-      <Modal title="Deletar conta" isOpen={showDeleteModal} onClose={handleCancelDelete}>
+      <Modal
+        title="Deletar conta"
+        isOpen={showDeleteModal}
+        onClose={handleCancelDelete}
+      >
         <DeleteMarketaplceAccount
           marketplaceToDelete={marketplaceToDelete}
           handleCancelDelete={handleCancelDelete}

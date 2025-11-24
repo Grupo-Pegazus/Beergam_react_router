@@ -1,21 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import { useDispatch } from "react-redux";
-import { useNavigate, useSearchParams } from "react-router";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { updateSubscription } from "~/features/auth/redux";
 import { plansService } from "~/features/plans/service";
 import { subscriptionService } from "~/features/plans/subscriptionService";
 import type { Plan } from "~/features/user/typings/BaseUser";
 import { SubscriptionSchema } from "~/features/user/typings/BaseUser";
 import SubscriptionPage from "./page";
-
 export default function SubscriptionRoute() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [processingSession, setProcessingSession] = useState(false);
   const processedRef = useRef(false);
+  const location = useLocation();
+  const subscriptionError = location.state?.error;
+  const homeSelectedPlan = location.state?.plan;
   const { data, isLoading, error } = useQuery({
     queryKey: ["plans"],
     queryFn: plansService.getPlans,
@@ -96,6 +98,11 @@ export default function SubscriptionRoute() {
   }
 
   return (
-    <SubscriptionPage plans={data?.data as Plan[]} isLoading={isLoading} />
+    <SubscriptionPage
+      subscriptionError={subscriptionError}
+      plans={Array.isArray(data?.data) ? (data.data as Plan[]) : []}
+      isLoading={isLoading}
+      homeSelectedPlan={homeSelectedPlan}
+    />
   );
 }

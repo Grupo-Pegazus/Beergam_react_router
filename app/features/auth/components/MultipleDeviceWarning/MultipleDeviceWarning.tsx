@@ -1,7 +1,9 @@
+import { useDispatch } from "react-redux";
 import { Link } from "react-router";
+import { logout } from "../../redux";
 import PageLayout from "../PageLayout/PageLayout";
-
 export default function MultipleDeviceWarning() {
+  const dispatch = useDispatch();
   return (
     <PageLayout tailwindClassName="flex items-center justify-center">
       <div
@@ -63,6 +65,9 @@ export default function MultipleDeviceWarning() {
         {/* Botão de ação */}
         <Link
           to="/login"
+          onClick={() => {
+            dispatch(logout());
+          }}
           className="rounded-xl w-fit bg-beergam-orange px-6 py-4 text-base font-semibold text-beergam-white hover:bg-beergam-orange-dark"
         >
           Fazer Login Novamente

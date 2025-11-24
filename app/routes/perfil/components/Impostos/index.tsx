@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import { MarketplaceType, type BaseMarketPlace, MarketplaceTypeLabel } from "~/features/marketplace/typings";
 import { marketplaceService } from "~/features/marketplace/service";
 import { useRecalcStatus, useRecalculatePeriod, useUpsertTax, useUserTaxes } from "~/features/taxes/hooks";
@@ -363,10 +363,11 @@ export default function Impostos() {
       )}
 
       <Modal
-        abrir={confirmModal.open}
+        isOpen={confirmModal.open}
         onClose={() => setConfirmModal({ open: false, month: null })}
-        titleModal={"Confirmar recálculo"}
-        style={{ width: "95vw", maxWidth: 560 }}
+        title="Confirmar recálculo"
+        className="px-4"
+        contentClassName="max-w-[560px]"
       >
         <div className="flex flex-col gap-4">
           <p>

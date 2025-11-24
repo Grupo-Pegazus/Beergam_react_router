@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import type {
   BaseMarketPlace,
   MarketplaceType,
@@ -166,12 +166,14 @@ export default function CreateMarketplaceModal({
             if (integrationWindow && integrationWindow.closed) {
               clearInterval(checkClosed);
               console.log("Janela de integração foi fechada");
-              stopPolling();
+              checkIntegrationStatus(integrationData.state);
+              setIsPolling(false);
             }
           }, 1000);
 
           setTimeout(() => {
             clearInterval(checkClosed);
+            setIsPolling(false);
           }, 300000);
         }
       }

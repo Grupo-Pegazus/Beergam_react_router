@@ -1,7 +1,7 @@
 import { Paper, Switch } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import { useDispatch, useSelector } from "react-redux";
 import { z } from "zod";
 import { authService } from "~/features/auth/service";

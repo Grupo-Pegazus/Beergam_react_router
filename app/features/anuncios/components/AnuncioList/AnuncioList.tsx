@@ -15,72 +15,17 @@ import MainCards from "~/src/components/ui/MainCards";
 import Svg from "~/src/assets/svgs/_index";
 import { useAnuncios, useChangeAdStatus } from "../../hooks";
 import type { AdsFilters, Anuncio } from "../../typings";
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import AnuncioListSkeleton from "./AnuncioListSkeleton";
 import Speedometer from "../Speedometer/Speedometer";
 import VisitsChart from "./VisitsChart";
 import VariationsList from "./Variations/VariationsList";
 import { formatCurrency, formatNumber } from "./utils";
-import Thumbnail from "../Thumbnail/Thumbnail";
+import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
+import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
 
 interface AnunciosListProps {
   filters?: Partial<AdsFilters>;
-}
-
-function getLogisticTypeInfo(logisticType: string) {
-  const mapping: Record<
-    string,
-    { label: string; backgroundColor: string; color: string }
-  > = {
-    xd_drop_off: {
-      label: "Agência",
-      backgroundColor: "#fef3c7",
-      color: "#92400e",
-    },
-    fulfillment: {
-      label: "FULL",
-      backgroundColor: "#dbeafe",
-      color: "#1e40af",
-    },
-    flex: {
-      label: "Flex",
-      backgroundColor: "#fef3c7",
-      color: "#92400e",
-    },
-    cross_docking: {
-      label: "Coleta",
-      backgroundColor: "#f0fdf4",
-      color: "#166534",
-    },
-    drop_off: {
-      label: "Correios",
-      backgroundColor: "#fce7f3",
-      color: "#9f1239",
-    },
-    me2: {
-      label: "Mercado Envios",
-      backgroundColor: "#dcfce7",
-      color: "#166534",
-    },
-    self_service: {
-      label: "Flex",
-      backgroundColor: "#fef3c7",
-      color: "#92400e",
-    },
-    not_specified: {
-      label: "Não especificado",
-      backgroundColor: "#f3f4f6",
-      color: "#374151",
-    },
-  };
-
-  return (
-    mapping[logisticType] || {
-      label: logisticType,
-      backgroundColor: "#f3f4f6",
-      color: "#374151",
-    }
-  );
 }
 
 export default function AnunciosList({ filters = {} }: AnunciosListProps) {
@@ -220,7 +165,7 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
         <div className="col-span-12 md:col-span-5 flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <div className="relative shrink-0">
-              <Thumbnail anuncio={anuncio} />
+              <Thumbnail thumbnail={anuncio.thumbnail ?? ""} />
               {hasVariations && (
                 <button
                   onClick={handleToggleExpansion}
@@ -289,17 +234,17 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
                   />
                 )}
                 {anuncio.logistic_type && (() => {
-                  const logisticInfo = getLogisticTypeInfo(anuncio.logistic_type);
+                  const logisticTypeInfo = getLogisticTypeMeliInfo(anuncio.logistic_type);
                   return (
                     <Chip
-                      label={logisticInfo.label}
+                      label={logisticTypeInfo.label}
                       size="small"
                       sx={{
                         height: 20,
                         fontSize: "0.65rem",
                         fontWeight: 600,
-                        backgroundColor: logisticInfo.backgroundColor,
-                        color: logisticInfo.color,
+                        backgroundColor: logisticTypeInfo.backgroundColor,
+                        color: logisticTypeInfo.color,
                       }}
                     />
                   );

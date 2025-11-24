@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { toast } from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import { useDispatch } from "react-redux";
 import { useActionData, useSearchParams } from "react-router";
 import type { ApiResponse } from "~/features/apiClient/typings";

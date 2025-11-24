@@ -1,34 +1,45 @@
 import { Typography } from "@mui/material";
 import Svg from "~/src/assets/svgs/_index";
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import type { Variation } from "../../../typings";
 import { formatNumber } from "../utils";
 
 interface VariationCardProps {
   variation: Variation;
-  varyingAttributeId: string | null;
+  varyingAttributeIds: string[];
 }
 
 export default function VariationCard({
   variation,
-  varyingAttributeId,
+  varyingAttributeIds,
 }: VariationCardProps) {
-  // Pega apenas o atributo que varia (ex: Tamanho)
-  const varyingAttribute = varyingAttributeId
-    ? variation.attributes.find((attr) => attr.id === varyingAttributeId)
-    : null;
+  // Pega todos os atributos que variam
+  const varyingAttributes = varyingAttributeIds.length > 0
+    ? variation.attributes.filter((attr) => varyingAttributeIds.includes(attr.id))
+    : variation.attributes;
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center md:max-w-[30%] sm:justify-between py-3 px-3 sm:py-2 sm:px-2 border-b border-slate-200 last:border-b-0 hover:bg-white sm:hover:bg-slate-50 transition-colors gap-2 sm:gap-0">
-      {varyingAttribute ? (
+      {varyingAttributes.length > 0 ? (
         <>
           <div className="flex-1 min-w-0">
-            <Typography variant="body2" className="text-slate-700 font-medium">
-              {varyingAttribute.name}:{" "}
-              <span className="text-slate-900 font-semibold">
-                {varyingAttribute.value_name}
-              </span>
-            </Typography>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              {varyingAttributes.map((attr, idx) => (
+                <Typography
+                  key={attr.id}
+                  variant="body2"
+                  className="text-slate-700 font-medium"
+                >
+                  {attr.name}:{" "}
+                  <span className="text-slate-900 font-semibold">
+                    {attr.value_name || "-"}
+                  </span>
+                  {idx < varyingAttributes.length - 1 && (
+                    <span className="text-slate-300 mx-1 hidden sm:inline">|</span>
+                  )}
+                </Typography>
+              ))}
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 sm:ml-auto">
             <span className="font-semibold whitespace-nowrap">

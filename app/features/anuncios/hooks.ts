@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { anuncioService } from "./service";
-import type { AdsFilters, ChangeAdStatusRequest, AdsResponse, WithoutSkuResponse, UpdateSkuRequest } from "./typings";
+import type { AdsFilters, ChangeAdStatusRequest, AdsResponse, WithoutSkuResponse, UpdateSkuRequest, AnuncioDetails } from "./typings";
 import type { ApiResponse } from "../apiClient/typings";
 import type { AdsMetrics, TopSoldAd } from "./service";
+import type { DailyRevenue } from "../vendas/typings";
 
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 
 export function useAnuncios(filters?: Partial<AdsFilters>) {
   return useQuery<ApiResponse<AdsResponse>>({
@@ -101,15 +102,54 @@ export function useUpdateSku() {
       }
       return res;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["anuncios", "without-sku"] });
       queryClient.invalidateQueries({ queryKey: ["anuncios"] });
+      // Invalida também a query de detalhes do anúncio específico
+      queryClient.invalidateQueries({ queryKey: ["anuncios", "details", variables.ad_id] });
       toast.success("SKU atualizado com sucesso");
     },
     onError: (error: unknown) => {
       const message = error instanceof Error ? error.message : "Erro ao atualizar SKU";
       toast.error(message);
     },
+  });
+}
+
+export function useAnuncioDetails(anuncioId: string) {
+  return useQuery<ApiResponse<AnuncioDetails>>({
+    queryKey: ["anuncios", "details", anuncioId],
+    queryFn: async () => {
+      const res = await anuncioService.getAnuncioDetails(anuncioId);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar detalhes do anúncio");
+      }
+      return res;
+    },
+    enabled: !!anuncioId,
+    staleTime: 1000 * 60 * 5, // 5 minutos
+  });
+}
+
+export function useAdOrdersChart(
+  anuncioId: string,
+  params?: {
+    days?: number;
+    date_from?: string;
+    date_to?: string;
+  }
+) {
+  return useQuery<ApiResponse<DailyRevenue>>({
+    queryKey: ["anuncios", "orders-chart", anuncioId, params],
+    queryFn: async () => {
+      const res = await anuncioService.getAdOrdersChart(anuncioId, params);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar dados de vendas do anúncio");
+      }
+      return res;
+    },
+    enabled: !!anuncioId,
+    staleTime: 1000 * 60 * 5, // 5 minutos
   });
 }
 

@@ -41,18 +41,19 @@ export function useAuth() {
         subscription: authState.subscription,
         error: authState.error,
         success: authState.success,
+        usageLimitData: authState.usageLimitData,
       }
     : (rootData?.authInfo ?? {
         loading: false,
         subscription: null,
         error: null,
         success: false,
+        usageLimitData: null,
       });
 
   return {
     userInfo,
     authInfo,
-    // Retorna também o estado do Redux diretamente para acesso completo
     authState,
   };
 }

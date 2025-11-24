@@ -4,7 +4,7 @@ import type { RootState } from "~/store";
 import { marketplaceService } from "~/features/marketplace/service";
 import { setMarketplace } from "~/features/marketplace/redux";
 import type { BaseMarketPlace, MarketplaceOrderParseStatus, MarketplaceStatusParse } from "~/features/marketplace/typings";
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 
 export function useMarketplaceAccounts() {
   const dispatch = useDispatch();

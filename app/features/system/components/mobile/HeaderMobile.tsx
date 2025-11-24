@@ -1,4 +1,4 @@
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { logout } from "~/features/auth/redux";

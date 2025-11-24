@@ -6,30 +6,42 @@ interface VariationSkuInputProps {
   variation: Variation;
   value: string;
   onChange: (value: string) => void;
-  varyingAttributeId: string | null;
+  varyingAttributeIds: string[];
 }
 
 export default function VariationSkuInput({
   variation,
   value,
   onChange,
-  varyingAttributeId,
+  varyingAttributeIds,
 }: VariationSkuInputProps) {
-  const varyingAttribute = varyingAttributeId
-    ? variation.attributes.find((attr) => attr.id === varyingAttributeId)
-    : null;
+  // Pega todos os atributos que variam
+  const varyingAttributes = varyingAttributeIds.length > 0
+    ? variation.attributes.filter((attr) => varyingAttributeIds.includes(attr.id))
+    : variation.attributes;
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-lg border border-slate-100 bg-slate-50 p-3">
       <div className="flex-1 min-w-0">
-        {varyingAttribute ? (
+        {varyingAttributes.length > 0 ? (
           <>
-            <Typography variant="body2" className="text-slate-700 font-medium mb-1 wrap-break-word">
-              {varyingAttribute.name}:{" "}
-              <span className="text-slate-900 font-semibold">
-                {varyingAttribute.value_name}
-              </span>
-            </Typography>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
+              {varyingAttributes.map((attr, idx) => (
+                <Typography
+                  key={attr.id}
+                  variant="body2"
+                  className="text-slate-700 font-medium wrap-break-word"
+                >
+                  {attr.name}:{" "}
+                  <span className="text-slate-900 font-semibold">
+                    {attr.value_name || "-"}
+                  </span>
+                  {idx < varyingAttributes.length - 1 && (
+                    <span className="text-slate-300 mx-1 hidden sm:inline">|</span>
+                  )}
+                </Typography>
+              ))}
+            </div>
             <Typography variant="caption" color="text.secondary" className="block">
               Preço: {formatCurrency(variation.price)} | Estoque: {variation.stock}
             </Typography>
