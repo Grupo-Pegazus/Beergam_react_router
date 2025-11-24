@@ -5,7 +5,7 @@ import type { ApiResponse } from "../apiClient/typings";
 import type { AdsMetrics, TopSoldAd } from "./service";
 import type { DailyRevenue } from "../vendas/typings";
 
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 
 export function useAnuncios(filters?: Partial<AdsFilters>) {
   return useQuery<ApiResponse<AdsResponse>>({

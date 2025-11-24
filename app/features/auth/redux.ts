@@ -11,14 +11,23 @@ export type TSubscriptionError =
 export type TAuthError =
   | "REFRESH_TOKEN_EXPIRED"
   | "REFRESH_TOKEN_REVOKED"
+  | "USAGE_TIME_LIMIT"
   | TSubscriptionError
   | "UNKNOWN_ERROR";
+
+export interface UsageLimitData {
+  message?: string;
+  next_allowed_at?: number | null;
+  weekday?: string | null;
+  reason?: string | null;
+}
 
 export interface IAuthState {
   loading: boolean;
   subscription: Subscription | null;
   error: TAuthError | null;
   success: boolean;
+  usageLimitData?: UsageLimitData | null;
 }
 
 const initialState: IAuthState = {
@@ -26,6 +35,7 @@ const initialState: IAuthState = {
   subscription: null,
   error: null,
   success: false,
+  usageLimitData: null,
 };
 
 const authSlice = createSlice({
@@ -43,6 +53,7 @@ const authSlice = createSlice({
       state.subscription = null;
       state.success = false;
       state.loading = false;
+      
       cryptoAuth.limparDados();
       cryptoMarketplace.limparDados();
       cryptoUser.limparDados();
@@ -55,10 +66,15 @@ const authSlice = createSlice({
       state.loading = false;
       cryptoAuth.encriptarDados(state);
     },
-    setAuthError(state, action: PayloadAction<TAuthError>) {
-      state.error = action.payload;
+    setAuthError(
+      state,
+      action: PayloadAction<{ error: TAuthError; usageLimitData?: UsageLimitData }>
+    ) {
+      state.error = action.payload.error;
+      state.success = false;
       state.loading = false;
       state.subscription = null;
+      state.usageLimitData = action.payload.usageLimitData ?? null;
     },
     updateAuthInfo(
       state,
@@ -68,6 +84,7 @@ const authSlice = createSlice({
       state.subscription = action.payload.auth.subscription;
       state.error = action.payload.auth.error;
       state.success = action.payload.auth.success;
+      state.usageLimitData = action.payload.auth.usageLimitData ?? null;
       if (action.payload.shouldEncrypt) {
         cryptoAuth.encriptarDados(action.payload.auth);
       }

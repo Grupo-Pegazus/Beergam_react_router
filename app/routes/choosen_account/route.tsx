@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import { Navigate, useRouteLoaderData } from "react-router";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import type { IAuthState } from "~/features/auth/redux";

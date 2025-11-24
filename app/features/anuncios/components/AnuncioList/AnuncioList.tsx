@@ -15,7 +15,7 @@ import MainCards from "~/src/components/ui/MainCards";
 import Svg from "~/src/assets/svgs/_index";
 import { useAnuncios, useChangeAdStatus } from "../../hooks";
 import type { AdsFilters, Anuncio } from "../../typings";
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import AnuncioListSkeleton from "./AnuncioListSkeleton";
 import Speedometer from "../Speedometer/Speedometer";
 import VisitsChart from "./VisitsChart";

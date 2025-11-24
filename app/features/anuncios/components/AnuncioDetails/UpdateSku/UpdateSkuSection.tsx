@@ -9,7 +9,7 @@ import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useUpdateSku } from "../../../hooks";
 import type { AnuncioDetails, UpdateSkuRequest } from "../../../typings";
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 
 interface UpdateSkuSectionProps {
   anuncio: AnuncioDetails;

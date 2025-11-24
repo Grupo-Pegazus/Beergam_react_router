@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { updateSubscription } from "~/features/auth/redux";

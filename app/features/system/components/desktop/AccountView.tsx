@@ -1,7 +1,7 @@
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import { useQueryClient } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { logout } from "~/features/auth/redux";
