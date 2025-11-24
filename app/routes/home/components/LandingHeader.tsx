@@ -1,6 +1,11 @@
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import ScrollTriggerModule from "gsap/ScrollTrigger";
 import { useEffect, useRef, useState } from "react";
+import type { ScrollTrigger as ScrollTriggerType } from "gsap/ScrollTrigger";
+
+// Compatibilidade com CommonJS/ESM
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ScrollTrigger = (ScrollTriggerModule as any).default || ScrollTriggerModule;
 import { Link } from "react-router";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
@@ -28,7 +33,7 @@ export default function LandingHeader() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [lockedSection, setLockedSection] = useState<string | null>(null);
   const lockedSectionRef = useRef<string | null>(null);
-  const triggersRef = useRef<Record<string, ScrollTrigger>>({});
+  const triggersRef = useRef<Record<string, ScrollTriggerType>>({});
 
   useEffect(() => {
     lockedSectionRef.current = lockedSection;
@@ -66,7 +71,7 @@ export default function LandingHeader() {
         trigger: section,
         start: "top 65px",
         end: "bottom",
-        onToggle: (self) => {
+        onToggle: (self: ScrollTriggerType) => {
           const currentLock = lockedSectionRef.current;
 
           if (currentLock && currentLock !== section.id) {
@@ -82,7 +87,7 @@ export default function LandingHeader() {
             return;
           }
 
-          const anyActive = ScrollTrigger.getAll().some((trigger) => {
+          const anyActive = ScrollTrigger.getAll().some((trigger: ScrollTriggerType) => {
             const triggerId = (trigger.trigger as HTMLElement | undefined)?.id;
             return (
               trigger.isActive && !!triggerId && navIds.includes(triggerId)
