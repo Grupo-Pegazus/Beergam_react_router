@@ -237,7 +237,6 @@ export default function FormModal() {
     >
       {/* <p>{JSON.stringify(actionData?.error_fields)}</p> */}
       <h1 className="text-beergam-blue-primary">Cadastre-se</h1>
-      <p>homeSelectedPlan: {JSON.stringify(homeSelectedPlan)}</p>
       <div>
         <Fields.wrapper>
           <Fields.label text="DIGITE SEU ENDEREÇO DE E-MAIL" />

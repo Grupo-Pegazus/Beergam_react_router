@@ -131,6 +131,7 @@ export default function LandingHeader() {
               <Link
                 key={link.id}
                 to={`#${link.id}`}
+                viewTransition
                 onClick={() => handleNavClick(link.id)}
                 aria-current={activeSection === link.id ? "page" : undefined}
                 className={`text-sm font-medium transition-colors ${
