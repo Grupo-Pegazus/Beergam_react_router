@@ -2,7 +2,7 @@ import { Button, Chip, CircularProgress, Typography } from "@mui/material";
 import MainCards from "~/src/components/ui/MainCards";
 import type { AdWithoutSku } from "../../../typings";
 import VariationsGroup from "../Variations/VariationsGroup";
-import Thumbnail from "../../Thumbnail/Thumbnail";
+import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 
 interface AdWithoutSkuCardProps {
   ad: AdWithoutSku;
@@ -27,7 +27,7 @@ export default function AdWithoutSkuCard({
         <div className="flex-1 min-w-0">
           <div className="mb-2 flex flex-col sm:flex-row sm:items-center gap-2">
             <div className="flex items-center gap-2 shrink-0">
-              <Thumbnail anuncio={ad} />
+              <Thumbnail thumbnail={ad.thumbnail ?? ""} />
               <Chip label={ad.mlb} size="small" variant="outlined" className="shrink-0" />
             </div>
             <Typography

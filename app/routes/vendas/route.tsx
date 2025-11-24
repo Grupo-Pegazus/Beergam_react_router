@@ -1,26 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
-import { vendasService } from "~/features/vendas/service";
+import type { Route } from ".react-router/types/app/routes/vendas/+types/route";
+import VendasPage from "./page";
 
-export default function VendasRoute() {
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "Beergam | Vendas" },
+    { name: "description", content: "Vendas" },
+  ];
+}
 
-    const { data, isLoading, error } = useQuery({
-        queryKey: ["vendas"],
-        queryFn: () => vendasService.getVendas(),
-    });
-
-    if (isLoading) {
-        return <h1>Carregando...</h1>;
-    }
-    if (error) {
-        return <h1>Erro ao carregar vendas</h1>;
-    }
-    if (data === null) {
-        return <h1>Nenhuma venda encontrada</h1>;
-    }
-
-    return (
-        <div>
-            {console.log(data?.data)}
-        </div>
-      );
-    }
+export default function Vendas() {
+  return (
+    <VendasPage />
+  );
+}

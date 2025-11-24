@@ -142,7 +142,7 @@ export default function StatCard({
       onClick={onClick}
       className={[
         "group relative flex flex-col justify-between",
-        "p-4 md:p-5",
+        "p-3 md:p-4 lg:p-5",
         "hover:-translate-y-px",
         "ring-1 ring-transparent hover:" + tokens.ring,
         tokens.cardBg,
@@ -152,23 +152,23 @@ export default function StatCard({
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 md:gap-3 min-w-0">
           {icon ? (
             <div
               className={[
-                "w-11 h-11 rounded-xl grid place-items-center shadow-inner",
+                "w-9 h-9 md:w-11 md:h-11 rounded-xl grid place-items-center shadow-inner shrink-0",
                 tokens.headerBg,
               ].join(" ")}
             >
               {icon}
             </div>
           ) : null}
-          <span className={["text-sm font-medium", tokens.titleColor].join(" ")}>
+          <span className={["text-xs md:text-sm font-medium truncate", tokens.titleColor].join(" ")}>
             {title}
           </span>
         </div>
-        <div className={["text-2xl font-extrabold", tokens.valueColor].join(" ")}>
+        <div className={["text-lg md:text-xl lg:text-2xl font-extrabold shrink-0", tokens.valueColor].join(" ")}>
           {loading ? "—" : value}
         </div>
       </div>

@@ -25,6 +25,7 @@ import Eye from "./Eye";
 import EyeSlash from "./EyeSlash";
 import GlobeIcon from "./GlobeIcon";
 import GraphIcon from "./GraphIcon";
+import GraphIconSolid from "./GraphIconSolid";
 import HomeIcon from "./HomeIcon";
 import HomeSolid from "./HomeSolid";
 import InBoxStackIcon from "./InBoxStackIcon";
@@ -46,6 +47,7 @@ import QuestionMark from "./QuestionMark";
 import Star from "./Star";
 import StarSolid from "./StarSolid";
 import Trash from "./Trash";
+import Truck from "./Truck";
 import UserPlus from "./UserPlus";
 import UserPlusSolid from "./UserPlusSolid";
 import WarningCircle from "./WarningCircle";
@@ -58,6 +60,7 @@ const Svg = {
   bag: BagIcon,
   bag_solid: BagSolid,
   graph: GraphIcon,
+  graph_solid: GraphIconSolid,
   chat: ChatIcon,
   card: CardIcon,
   globe: GlobeIcon,
@@ -106,6 +109,7 @@ const Svg = {
   copy: Copy,
   low_stock: LowStock,
   star_solid: StarSolid,
+  truck: Truck,
 };
 
 export default Svg;

@@ -62,9 +62,9 @@ export function Modal({
             }}
           >
             <div
-              className={`relative w-full max-w-3xl rounded-2xl bg-white p-3 md:p-6 shadow-2xl overflow-y-auto h-[80%] md:h-auto max-h-[80vh] ${contentClassName ?? ""}`.trim()}
+              className={`relative w-full max-w-3xl rounded-2xl bg-white pt-0! p-3 md:p-6 shadow-2xl overflow-y-auto h-[80%] md:h-auto max-h-[80vh] ${contentClassName ?? ""}`.trim()}
             >
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex sticky top-0 z-10 items-start justify-between bg-white py-4">
                 {title && (
                   <h2 className="text-beergam-blue-primary">{title}</h2>
                 )}
@@ -76,7 +76,7 @@ export function Modal({
                 </button>
               </div>
               {children && (
-                <div className="mt-4 rounded-lg bg-beergam-blue-primary/5 p-3 text-sm text-beergam-blue-primary">
+                <div className="rounded-lg p-3 text-sm text-beergam-blue-primary">
                   {children}
                 </div>
               )}

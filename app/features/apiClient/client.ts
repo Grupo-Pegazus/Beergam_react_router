@@ -192,6 +192,7 @@ typedApiClient.axiosInstance.interceptors.response.use(
               refreshPromise = null;
             });
         }
+        await refreshPromise;
         return typedApiClient.axiosInstance(original);
       }
       if (error.response?.data?.error_code === 1002) {
