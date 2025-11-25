@@ -94,7 +94,8 @@ export const MenuConfig = {
     label: "Calculadora",
     status: "yellow",
     path: "/calculadora",
-    icon: "bag",
+    icon: "calculator",
+    launched: true,
   },
   lucratividade: {
     label: "Lucratividade",
