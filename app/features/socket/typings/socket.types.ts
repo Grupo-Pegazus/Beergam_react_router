@@ -28,6 +28,18 @@ export interface SessionUsageLimitEvent extends SessionEvent {
   weekday?: string | null;
 }
 
+export interface SessionAllowedViewsEvent extends SessionEvent {
+  event_type: "allowed_views_updated";
+  allowed_views: Record<
+    string,
+    {
+      access: boolean;
+      notifications?: number;
+    }
+  >;
+  timestamp: number;
+}
+
 export interface TokenValidation {
   valid: boolean;
   user_pin: string;

@@ -50,7 +50,7 @@ export default function AuthLayout() {
     );
   }
   
-  if (!userInfo) return <Navigate to="/login" replace />;
+  // if (!userInfo) return <Navigate to="/login" replace />;
   return (
     <>
       <Outlet />

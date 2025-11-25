@@ -12,13 +12,15 @@ import { io, type Socket } from "socket.io-client";
 import { enforceUsageLimit } from "~/features/auth/utils/accessWindow";
 import { showNotification } from "~/features/notifications/showNotification";
 import type { OnlineStatusNotificationData } from "~/features/notifications/types";
-import { updateColab } from "~/features/user/redux";
+import { updateColab, updateAllowedViews } from "~/features/user/redux";
 import { isColab, isMaster } from "~/features/user/utils";
+import { BaseUserDetailsSchema } from "~/features/user/typings/BaseUser";
 import type { RootState } from "~/store";
 import type {
   OnlineStatusUpdate,
   SessionEvent,
   SessionUsageLimitEvent,
+  SessionAllowedViewsEvent,
   SocketContextValue,
   SocketNamespace,
 } from "../typings/socket.types";
@@ -284,6 +286,9 @@ export function SocketProvider({
       if (data.event_type === "usage_time_limit") {
         console.log("⏰ Evento usage_time_limit detectado, chamando handleUsageLimitEvent");
         handleUsageLimitEvent(data as SessionUsageLimitEvent);
+      } else if (data.event_type === "allowed_views_updated") {
+        console.log("👁️ Evento allowed_views_updated detectado, chamando handleAllowedViewsEvent");
+        handleAllowedViewsEvent(data as SessionAllowedViewsEvent);
       }
     });
 
@@ -499,6 +504,22 @@ export function SocketProvider({
       next_allowed_at: payload.next_allowed_at,
       weekday: payload.weekday,
     });
+  };
+
+  const handleAllowedViewsEvent = (payload: SessionAllowedViewsEvent) => {
+    try {
+      // Transformar o payload usando o schema para garantir formato correto
+      const parsed = BaseUserDetailsSchema.parse({
+        allowed_views: payload.allowed_views,
+      });
+      
+      if (parsed.allowed_views) {
+        dispatch(updateAllowedViews(parsed.allowed_views));
+        console.log("✅ Permissões de visualização atualizadas via socket");
+      }
+    } catch (error) {
+      console.error("❌ Erro ao processar atualização de allowed_views:", error);
+    }
   };
 
   const value: SocketContextValue = {

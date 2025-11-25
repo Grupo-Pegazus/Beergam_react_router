@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import toast from "~/src/utils/toast";
 import { Navigate, useRouteLoaderData } from "react-router";
+import { useSelector } from "react-redux";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import type { IAuthState } from "~/features/auth/redux";
 import { cryptoMarketplace } from "~/features/auth/utils";
@@ -10,6 +11,8 @@ import {
   type BaseMarketPlace,
   MarketplaceType,
 } from "~/features/marketplace/typings";
+import { getFirstAllowedRoute } from "~/features/menu/utils/getFirstAllowedRoute";
+import type { RootState } from "~/store";
 import ChoosenAccountPage from "./page";
 
 export async function clientAction({ request }: { request: Request }) {
@@ -109,8 +112,11 @@ export default function ChoosenAccountRoute() {
     | { marketplace?: BaseMarketPlace; authInfo?: IAuthState }
     | undefined;
   const marketplace = rootData?.marketplace;
+  const user = useSelector((state: RootState) => state.user.user);
+  
   if (marketplace) {
-    return <Navigate to="/interno" replace />;
+    const firstRoute = getFirstAllowedRoute(user);
+    return <Navigate to={firstRoute} replace />;
   }
   const { data, isLoading, error } = useQuery({
     queryKey: ["marketplacesAccounts"],

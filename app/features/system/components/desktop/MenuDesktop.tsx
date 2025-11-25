@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
 import { type RootState } from "~/store";
@@ -7,11 +7,21 @@ import { useActiveMenu } from "../../../menu/hooks";
 import { useMenuActions } from "../../../menu/hooks/useMenuActions";
 import { useMenuState } from "../../../menu/hooks/useMenuState";
 import { MenuHandler, type MenuState } from "../../../menu/typings";
+import { getDefaultViews } from "../../../menu/utils";
 function MenuDesktopContent() {
   useActiveMenu(MenuHandler.getMenu());
   const user = useSelector((state: RootState) => state.user);
-  const { closeMany, setIsExpanded } = useMenuActions();
+  const { closeMany, setIsExpanded, setViews } = useMenuActions();
   const { openKeys, isExpanded } = useMenuState();
+  const allowedViews = user?.user?.details.allowed_views;
+
+  useEffect(() => {
+    if (allowedViews) {
+      setViews(allowedViews);
+      return;
+    }
+    setViews(getDefaultViews());
+  }, [allowedViews, setViews]);
 
   const handleMouseLeave = useCallback(() => {
     if (openKeys.length > 0) {
