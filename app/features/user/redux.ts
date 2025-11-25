@@ -2,6 +2,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { cryptoUser } from "../auth/utils";
 import { type IColab } from "../user/typings/Colab";
 import { type IUser } from "../user/typings/User";
+import { type MenuState } from "../menu/typings";
 import { isMaster } from "./utils";
 
 interface IUserState {
@@ -71,9 +72,28 @@ const userSlice = createSlice({
         });
       }
     },
+    updateAllowedViews(state, action: PayloadAction<MenuState>) {
+      if (!state.user || !state.user.details) {
+        return;
+      }
+      
+      // Atualizar apenas allowed_views mantendo todos os outros campos
+      state.user.details.allowed_views = action.payload;
+      
+      // Criar uma cópia profunda do objeto atualizado para garantir persistência correta
+      // Isso é necessário porque o Immer cria drafts e precisamos do objeto finalizado
+      const userToSave = JSON.parse(JSON.stringify(state.user)) as IUser | IColab;
+      
+      // Usar updateUserInfo para garantir que tudo seja salvo corretamente
+      // Isso garante que a criptografia seja feita e os dados persistam
+      userSlice.caseReducers.updateUserInfo(state, {
+        payload: { user: userToSave, shouldEncrypt: true },
+        type: "updateUserInfo",
+      });
+    },
   },
 });
 
-export const { updateUserInfo, updateColab, updateColabs, deleteColab } =
+export const { updateUserInfo, updateColab, updateColabs, deleteColab, updateAllowedViews } =
   userSlice.actions;
 export default userSlice.reducer;

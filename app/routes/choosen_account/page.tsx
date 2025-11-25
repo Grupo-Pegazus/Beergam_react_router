@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import toast from "~/src/utils/toast";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { useFetcher, useNavigate } from "react-router";
 
@@ -16,6 +16,8 @@ import {
   MarketplaceTypeLabel,
   type BaseMarketPlace,
 } from "~/features/marketplace/typings";
+import { getFirstAllowedRoute } from "~/features/menu/utils/getFirstAllowedRoute";
+import type { RootState } from "~/store";
 import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
 import Hint from "~/src/components/utils/Hint";
@@ -41,6 +43,7 @@ export default function ChoosenAccountPage({
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const user = useSelector((state: RootState) => state.user.user);
   useEffect(() => {
     if (fetcher.data && fetcher.data.success && fetcher.state === "idle") {
       queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
@@ -221,7 +224,8 @@ export default function ChoosenAccountPage({
                         toast.success(
                           "Conta de marketplace selecionada com sucesso"
                         );
-                        navigate("/interno");
+                        const firstRoute = getFirstAllowedRoute(user);
+                        navigate(firstRoute);
                       } else {
                         toast.error(res.message);
                       }

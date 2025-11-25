@@ -254,7 +254,7 @@ typedApiClient.axiosInstance.interceptors.response.use(
     // }
     if (error.response?.data?.error_code === 6104) {
       if (typeof window !== "undefined") {
-        store.dispatch(setAuthError("SUBSCRIPTION_NOT_FOUND"));
+        store.dispatch(setAuthError({ error: "SUBSCRIPTION_NOT_FOUND" }));
         cryptoAuth.encriptarDados({
           loading: false,
           subscription: null,
@@ -265,7 +265,7 @@ typedApiClient.axiosInstance.interceptors.response.use(
     }
     if (error.response?.data?.error_code === 6100) {
       if (typeof window !== "undefined") {
-        store.dispatch(setAuthError("SUBSCRIPTION_CANCELLED"));
+        store.dispatch(setAuthError({ error: "SUBSCRIPTION_CANCELLED" }));
         cryptoAuth.encriptarDados({
           loading: false,
           subscription: null,
