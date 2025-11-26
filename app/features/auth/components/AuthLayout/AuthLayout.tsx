@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
+import UsageTimeLimitWarning from "~/features/auth/components/UsageTimeLimitWarning/UsageTimeLimitWarning";
 import authStore from "~/features/store-zustand";
-import UsageTimeLimitWarning from "../UsageTimeLimitWarning/UsageTimeLimitWarning";
-
 export default function AuthLayout() {
   const user = authStore.use.user();
   const subscription = authStore.use.subscription();
@@ -10,8 +9,30 @@ export default function AuthLayout() {
   const usageLimitData = authStore.use.usageLimitData();
   const navigate = useNavigate();
   const location = useLocation();
-  if (error === "USAGE_TIME_LIMIT") {
-    console.log("⏰ USAGE_TIME_LIMIT detectado, mostrando tela:", error);
+  const marketplace = authStore.use.marketplace();
+
+  // ✅ apenas calcula a condição, sem retornar ainda
+  const isUsageTimeLimit = error === "USAGE_TIME_LIMIT";
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login", { viewTransition: true });
+      return;
+    }
+
+    if (location.pathname !== "/interno/subscription") {
+      if (marketplace === null) {
+        navigate("/interno/choosen_account", { viewTransition: true });
+        return;
+      }
+      if (subscription === null) {
+        navigate("/interno/subscription", { viewTransition: true });
+        return;
+      }
+    }
+  }, [user, subscription, marketplace, location.pathname, navigate]);
+
+  if (isUsageTimeLimit) {
     return (
       <UsageTimeLimitWarning
         message={usageLimitData?.message}
@@ -20,25 +41,6 @@ export default function AuthLayout() {
       />
     );
   }
-  useEffect(() => {
-    if (!user) {
-      navigate("/login", { viewTransition: true });
-      return;
-    }
-
-    if (location.pathname !== "/interno/subscription") {
-      if (subscription === null) {
-        navigate("/interno/subscription", { viewTransition: true });
-        return;
-      }
-      if (error) {
-        navigate("/interno/subscription", {
-          state: { error },
-          viewTransition: true,
-        });
-      }
-    }
-  }, [user, subscription, error, location.pathname, navigate]);
 
   return <Outlet />;
 }

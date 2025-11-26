@@ -1,9 +1,7 @@
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import { useQueryClient } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
-import { logout } from "~/features/auth/redux";
 import StatusTag from "~/features/marketplace/components/StatusTag";
 import { useMarketplaceAccounts } from "~/features/marketplace/hooks/useMarketplaceAccounts";
 import {
@@ -11,6 +9,7 @@ import {
   MarketplaceType,
   MarketplaceTypeLabel,
 } from "~/features/marketplace/typings";
+import authStore from "~/features/store-zustand";
 import Loading from "~/src/assets/loading";
 import Svg from "~/src/assets/svgs/_index";
 import Modal from "~/src/components/utils/Modal";
@@ -30,7 +29,7 @@ export default function AccountView({
   const [open, setOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const dispatch = useDispatch();
+  const logout = authStore.use.logout();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const {
@@ -53,8 +52,7 @@ export default function AccountView({
   const handleLogout = async () => {
     const res = await menuService.logout();
     if (res.success) {
-      dispatch(logout());
-      navigate("/login");
+      logout();
     } else {
       toast.error(res.message);
     }

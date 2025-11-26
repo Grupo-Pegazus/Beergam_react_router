@@ -102,23 +102,32 @@ export async function clientAction({ request }: { request: Request }) {
   }
 }
 
+// ... existing code ...
+
 export default function ChoosenAccountRoute() {
   const marketplace = authStore.use.marketplace();
-  if (marketplace) {
-    return <Navigate to="/interno" replace />;
-  }
+
+  // ✅ SEMPRE chamamos o useQuery, independente do marketplace
   const { data, isLoading, error } = useQuery({
     queryKey: ["marketplacesAccounts"],
     queryFn: () => marketplaceService.getMarketplacesAccounts(),
     retry: false,
     refetchOnWindowFocus: false,
   });
+
+  // ✅ Depois dos hooks, fazemos os retornos condicionais
+  if (marketplace) {
+    return <Navigate to="/interno" replace />;
+  }
+
   if (isLoading) {
     return <ChoosenAccountPage marketplacesAccounts={[]} isLoading={true} />;
   }
+
   if (error) {
     return <div>Erro ao buscar contas de marketplace</div>;
   }
+
   if (data?.success) {
     return (
       <ChoosenAccountPage
@@ -126,4 +135,7 @@ export default function ChoosenAccountRoute() {
       />
     );
   }
+
+  // fallback seguro caso data exista mas não seja success
+  return <ChoosenAccountPage marketplacesAccounts={[]} />;
 }
