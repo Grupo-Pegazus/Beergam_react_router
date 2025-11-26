@@ -1,13 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
 
 import { useFetcher, useNavigate } from "react-router";
 
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import MarketplaceCard from "~/features/marketplace/components/MarketplaceCard";
-import { setMarketplace } from "~/features/marketplace/redux";
 import { marketplaceService } from "~/features/marketplace/service";
 import {
   MarketplaceOrderParseStatus,
@@ -16,6 +14,7 @@ import {
   MarketplaceTypeLabel,
   type BaseMarketPlace,
 } from "~/features/marketplace/typings";
+import authStore from "~/features/store-zustand";
 import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
 import Hint from "~/src/components/utils/Hint";
@@ -39,19 +38,18 @@ export default function ChoosenAccountPage({
   const [typeFilter, setTypeFilter] = useState<string | null>("");
   const fetcher = useFetcher();
   const queryClient = useQueryClient();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   useEffect(() => {
     if (fetcher.data && fetcher.data.success && fetcher.state === "idle") {
       queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
 
-      // Verifica se precisa limpar o Redux (quando a conta deletada era a selecionada)
-      const responseData = fetcher.data as { shouldClearRedux?: boolean };
-      if (responseData.shouldClearRedux) {
-        dispatch(setMarketplace(null));
+      // Verifica se precisa limpar o Zustand (quando a conta deletada era a selecionada)
+      const responseData = fetcher.data as { shouldCelarStore?: boolean };
+      if (responseData.shouldCelarStore) {
+        authStore.setState({ marketplace: null });
       }
     }
-  }, [fetcher.data, fetcher.state, queryClient, dispatch]);
+  }, [fetcher.data, fetcher.state, queryClient]);
 
   function handleAbrirModal({ abrir }: { abrir: boolean }) {
     setAbrirModal(abrir);
@@ -205,23 +203,11 @@ export default function ChoosenAccountPage({
                           marketplace.marketplace_type
                         );
                       if (res.success) {
-                        dispatch(
-                          setMarketplace({
-                            marketplace_shop_id: res.data.marketplace_shop_id,
-                            marketplace_name: res.data.marketplace_name,
-                            marketplace_image: res.data.marketplace_image,
-                            marketplace_type: res.data
-                              .marketplace_type as MarketplaceType,
-                            status_parse: res.data
-                              .status_parse as MarketplaceStatusParse,
-                            orders_parse_status: res.data
-                              .orders_parse_status as MarketplaceOrderParseStatus,
-                          })
-                        );
+                        authStore.setState({ marketplace: res.data });
                         toast.success(
                           "Conta de marketplace selecionada com sucesso"
                         );
-                        navigate("/interno");
+                        navigate("/interno", { viewTransition: true });
                       } else {
                         toast.error(res.message);
                       }

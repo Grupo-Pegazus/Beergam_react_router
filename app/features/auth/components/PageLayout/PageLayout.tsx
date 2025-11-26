@@ -1,5 +1,4 @@
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
 import { Tooltip } from "react-tooltip";
 import authStore from "~/features/store-zustand";
 import Svg from "~/src/assets/svgs/_index";
@@ -38,7 +37,6 @@ export default function PageLayout({
   showLogoutButton?: boolean;
 }) {
   const logout = authStore.use.logout();
-  const navigate = useNavigate();
   const handleLogout = useMutation({
     mutationFn: () => authService.logout(),
   });
@@ -60,7 +58,6 @@ export default function PageLayout({
             onClick={() => {
               handleLogout.mutate();
               logout();
-              navigate("/login");
             }}
             data-tooltip-id="logout-tooltip"
             className="size-12 md:size-16 flex items-center justify-center border border-beergam-white absolute top-2 right-2 z-1000 bg-beergam-red rounded-full p-2"

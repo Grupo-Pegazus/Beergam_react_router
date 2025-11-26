@@ -1,15 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
-import { Navigate, useRouteLoaderData } from "react-router";
 import type { ApiResponse } from "~/features/apiClient/typings";
-import type { IAuthState } from "~/features/auth/redux";
-import { cryptoMarketplace } from "~/features/auth/utils";
 import { marketplaceService } from "~/features/marketplace/service";
 import type { IntegrationData } from "~/features/marketplace/typings";
 import {
   type BaseMarketPlace,
   MarketplaceType,
 } from "~/features/marketplace/typings";
+import authStore from "~/features/store-zustand";
 import ChoosenAccountPage from "./page";
 
 export async function clientAction({ request }: { request: Request }) {
@@ -32,8 +30,7 @@ export async function clientAction({ request }: { request: Request }) {
       }
 
       // Recupera o marketplace selecionado do localStorage
-      const selectedMarketplace =
-        await cryptoMarketplace.recuperarDados<BaseMarketPlace>();
+      const selectedMarketplace = authStore.use.marketplace();
 
       // Verifica se a conta sendo deletada é a mesma que está selecionada
       const isSelectedMarketplace =
@@ -60,12 +57,12 @@ export async function clientAction({ request }: { request: Request }) {
 
       // Se a conta deletada era a selecionada, limpa o localStorage
       if (isSelectedMarketplace && response.success) {
-        await cryptoMarketplace.limparDados();
+        authStore.setState({ marketplace: null });
         // Adiciona uma flag na resposta para indicar que precisa limpar o Redux
         return Response.json({
           ...response,
-          shouldClearRedux: true,
-        } as ApiResponse<null> & { shouldClearRedux?: boolean });
+          shouldCelarStore: true,
+        } as ApiResponse<null> & { shouldCelarStore?: boolean });
       }
     } else if (action === "integration") {
       const Marketplace = formData.get("Marketplace") as string;
@@ -105,13 +102,6 @@ export async function clientAction({ request }: { request: Request }) {
 }
 
 export default function ChoosenAccountRoute() {
-  const rootData = useRouteLoaderData("root") as
-    | { marketplace?: BaseMarketPlace; authInfo?: IAuthState }
-    | undefined;
-  const marketplace = rootData?.marketplace;
-  if (marketplace) {
-    return <Navigate to="/interno" replace />;
-  }
   const { data, isLoading, error } = useQuery({
     queryKey: ["marketplacesAccounts"],
     queryFn: () => marketplaceService.getMarketplacesAccounts(),
