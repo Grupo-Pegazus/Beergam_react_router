@@ -1,25 +1,20 @@
 import { Navigate, Outlet } from "react-router";
-import { useAuth } from "../../hooks";
-import { isSubscriptionError } from "../../utils";
-import MultipleDeviceWarning from "../MultipleDeviceWarning/MultipleDeviceWarning";
+import authStore from "~/features/store-zustand";
 export default function AuthLayout() {
-  // Usa o hook useAuth que monitora mudanças no Redux e força re-render
-  const { userInfo, authInfo } = useAuth();
-
-  if (
-    authInfo?.error &&
-    isSubscriptionError(authInfo?.error) &&
-    window.location.pathname !== "/interno/subscription"
-  ) {
-    return <Navigate to="/interno/subscription" replace />;
-  }
-  if (authInfo?.error === "REFRESH_TOKEN_EXPIRED") {
+  const user = authStore.use.user();
+  const subscription = authStore.use.subscription();
+  const error = authStore.use.error();
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
-  if (authInfo?.error === "REFRESH_TOKEN_REVOKED") {
-    return <MultipleDeviceWarning />;
+  if (window.location.pathname !== "/interno/subscription") {
+    if (subscription === null) {
+      return <Navigate to="/interno/subscription" replace />;
+    }
+    if (error) {
+      return <Navigate to="/interno/subscription" state={{ error }} replace />;
+    }
   }
-  if (!userInfo) return <Navigate to="/login" replace />;
   return (
     <>
       <Outlet />

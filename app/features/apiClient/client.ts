@@ -4,9 +4,7 @@ import axios, {
   type AxiosRequestConfig,
   type AxiosResponse,
 } from "axios";
-import store from "~/store";
-import { setAuthError } from "../auth/redux";
-import { cryptoAuth } from "../auth/utils";
+import authStore from "../store-zustand";
 import { type ApiResponse } from "./typings";
 
 // Wrapper tipado que garante que todas as respostas sigam o padrão ApiResponse
@@ -198,48 +196,23 @@ typedApiClient.axiosInstance.interceptors.response.use(
       if (error.response?.data?.error_code === 1002) {
         //Deu erro no refresh token
         if (typeof window !== "undefined") {
-          store.dispatch(setAuthError("REFRESH_TOKEN_EXPIRED"));
-          // localStorage.removeItem("userInfo");
-          // localStorage.removeItem("userInfoIV");
-          // // window.location.href = "/login";
+          authStore.getState().setAuthError("REFRESH_TOKEN_EXPIRED");
         }
       }
     }
     if (error.response?.data?.error_code === 1005) {
       if (typeof window !== "undefined") {
-        // window.location.href = "/login";
-        // window.alert(
-        //   "Erro de refresh_token revogado, alguem logou na sua conta"
-        // );
-        store.dispatch(setAuthError("REFRESH_TOKEN_REVOKED"));
-        cryptoAuth.encriptarDados({
-          loading: false,
-          subscription: null,
-          error: "REFRESH_TOKEN_REVOKED",
-          success: false,
-        });
+        authStore.getState().setAuthError("REFRESH_TOKEN_REVOKED");
       }
     }
     if (error.response?.data?.error_code === 6104) {
       if (typeof window !== "undefined") {
-        store.dispatch(setAuthError("SUBSCRIPTION_NOT_FOUND"));
-        cryptoAuth.encriptarDados({
-          loading: false,
-          subscription: null,
-          error: "SUBSCRIPTION_NOT_FOUND",
-          success: false,
-        });
+        authStore.getState().setAuthError("SUBSCRIPTION_NOT_FOUND");
       }
     }
     if (error.response?.data?.error_code === 6100) {
       if (typeof window !== "undefined") {
-        store.dispatch(setAuthError("SUBSCRIPTION_CANCELLED"));
-        cryptoAuth.encriptarDados({
-          loading: false,
-          subscription: null,
-          error: "SUBSCRIPTION_CANCELLED",
-          success: false,
-        });
+        authStore.getState().setAuthError("SUBSCRIPTION_CANCELLED");
       }
     }
 

@@ -4,13 +4,12 @@ import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router";
 import { z } from "zod";
-import { cryptoAuth } from "~/features/auth/utils";
 import { useSocketContext } from "~/features/socket/context/SocketContext";
-import { updateUserInfo } from "~/features/user/redux";
+import authStore from "~/features/store-zustand";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import { Fields } from "~/src/components/utils/_fields";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
-import { login, updateAuthInfo } from "../../../../features/auth/redux";
+import { updateAuthInfo } from "../../../../features/auth/redux";
 import { authService } from "../../../../features/auth/service";
 import {
   type ColaboradorUserForm,
@@ -26,7 +25,6 @@ interface FormModalProps {
 function FormHelpNavigation() {
   const { state } = useLocation();
   const homeSelectedPlan = state?.plan;
-  console.log("homeSelectedPlan", homeSelectedPlan);
   return (
     <div className="flex flex-row gap-2 sm:flex-col sm:gap-0.5">
       <label className="text-beergam-gray font-medium" htmlFor="">
@@ -65,6 +63,7 @@ function ButtonChangeUserType({
 export default function FormModal({
   userType = UserRoles.MASTER,
 }: FormModalProps) {
+  const login = authStore.use.login();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { connectSession, connectOnlineStatus } = useSocketContext();
@@ -178,14 +177,16 @@ export default function FormModal({
         success: (data) => {
           const userData = data.data.user;
           const subscriptionData = data.data.subscription;
-          dispatch(updateUserInfo({ user: userData, shouldEncrypt: true }));
-          cryptoAuth.encriptarDados({
-            loading: false,
-            subscription: subscriptionData,
-            error: null,
-            success: true,
-          });
-          dispatch(login(subscriptionData));
+
+          login(subscriptionData, userData);
+          // dispatch(updateUserInfo({ user: userData, shouldEncrypt: true }));
+          // cryptoAuth.encriptarDados({
+          //   loading: false,
+          //   subscription: subscriptionData,
+          //   error: null,
+          //   success: true,
+          // });
+          // dispatch(login(subscriptionData));
 
           // Conectar sockets após login bem-sucedido (cookies já estão setados)
           setTimeout(() => {

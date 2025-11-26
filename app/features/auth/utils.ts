@@ -6,7 +6,7 @@ import type { IAuthState, TAuthError } from "./redux";
 
 // type AvailableData = IUser | BaseMarketPlace; //Tipos de dados que podem ser criptografados
 
-class Crypto<T> {
+export class Crypto<T> {
   private sessionName: string;
   private localStorageName: string;
   private PLAIN_PREFIX = "PLAINTEXT:";
@@ -32,12 +32,13 @@ class Crypto<T> {
     return bytes.buffer;
   }
   async encriptarDados(dados: T): Promise<void> {
+    // Verificar se estamos no ambiente do cliente
+    if (typeof window === "undefined" || typeof localStorage === "undefined") {
+      return;
+    }
+
     // Fallback: sem window/crypto.subtle salva em texto simples
-    if (
-      typeof window === "undefined" ||
-      !window.crypto ||
-      !window.crypto.subtle
-    ) {
+    if (!window.crypto || !window.crypto.subtle) {
       localStorage.setItem(
         this.localStorageName,
         this.PLAIN_PREFIX + JSON.stringify(dados)
@@ -100,6 +101,7 @@ class Crypto<T> {
   ): Promise<T> {
     if (
       typeof window === "undefined" ||
+      typeof localStorage === "undefined" ||
       !window.crypto ||
       !window.crypto.subtle
     ) {
@@ -141,6 +143,14 @@ class Crypto<T> {
   }
   async recuperarDados<T>(): Promise<T | null> {
     try {
+      // Verificar se estamos no ambiente do cliente
+      if (
+        typeof window === "undefined" ||
+        typeof localStorage === "undefined"
+      ) {
+        return null;
+      }
+
       const armazenado = localStorage.getItem(this.localStorageName);
       if (!armazenado) {
         return null;
@@ -177,6 +187,11 @@ class Crypto<T> {
     }
   }
   async limparDados(): Promise<void> {
+    // Verificar se estamos no ambiente do cliente
+    if (typeof window === "undefined" || typeof localStorage === "undefined") {
+      return;
+    }
+
     localStorage.removeItem(this.localStorageName);
     localStorage.removeItem(this.localStorageName + "IV");
     localStorage.removeItem(this.sessionName);
@@ -222,3 +237,11 @@ export function isSubscriptionError(error: TAuthError): boolean {
     error === "SUBSCRIPTION_NOT_ACTIVE"
   );
 }
+
+class CryptoZustand extends Crypto<Record<string, unknown>> {
+  constructor() {
+    super("zustandEncryptionKey", "zustandInfo");
+  }
+}
+
+export const cryptoZustand = new CryptoZustand();
