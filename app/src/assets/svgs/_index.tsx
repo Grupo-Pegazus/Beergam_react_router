@@ -53,6 +53,7 @@ import UserPlusSolid from "./UserPlusSolid";
 import WarningCircle from "./WarningCircle";
 import X from "./X";
 import XCircle from "./XCircle";
+import ChatIconSolid from "./ChatIconSolid";
 
 const Svg = {
   home: HomeIcon,
@@ -62,6 +63,7 @@ const Svg = {
   graph: GraphIcon,
   graph_solid: GraphIconSolid,
   chat: ChatIcon,
+  chat_solid: ChatIconSolid,
   card: CardIcon,
   globe: GlobeIcon,
   arrow_path: ArrowPathIcon,

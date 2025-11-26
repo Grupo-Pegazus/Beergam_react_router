@@ -4,12 +4,12 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useUpdateSku } from "../../../hooks";
 import type { AnuncioDetails, UpdateSkuRequest } from "../../../typings";
 import toast from "~/src/utils/toast";
+import { Fields } from "~/src/components/utils/_fields";
 
 interface UpdateSkuSectionProps {
   anuncio: AnuncioDetails;
@@ -92,16 +92,18 @@ export default function UpdateSkuSection({ anuncio }: UpdateSkuSectionProps) {
               Cadastrar SKU
             </Typography>
             <Stack direction="row" spacing={2} alignItems="flex-start">
-              <TextField
-                label="SKU"
-                value={skuValue}
-                onChange={(e) => setSkuValue(e.target.value)}
-                placeholder="Ex: PROD-001"
-                fullWidth
-                size="small"
-                disabled={updateSkuMutation.isPending}
-                helperText="Código único para identificar este produto no seu estoque"
-              />
+              <div className="flex-1">
+                <Fields.wrapper>
+                  <Fields.label text="SKU" />
+                  <Fields.input
+                    value={skuValue}
+                    onChange={(e) => setSkuValue(e.target.value)}
+                    placeholder="Ex: PROD-001"
+                    disabled={updateSkuMutation.isPending}
+                  />
+                </Fields.wrapper>
+                <p className="text-xs text-gray-500 mt-1">Código único para identificar este produto no seu estoque</p>
+              </div>
               <Button
                 variant="contained"
                 onClick={handleSaveSku}
