@@ -5,6 +5,7 @@ import { useMenuActions } from "../../hooks/useMenuActions";
 import { useMenuState } from "../../hooks/useMenuState";
 import { type IMenuItem } from "../../typings";
 import { DEFAULT_INTERNAL_PATH, getIcon, getRelativePath } from "../../utils";
+import { checkItemAccess } from "../../utils/checkItemAccess";
 
 interface IMenuItemProps {
   item: IMenuItem;
@@ -81,7 +82,9 @@ export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
   const { toggleOpen } = useMenuActions();
   const { views, open: openMap, currentSelected } = useMenuState();
 
-  const isVisible = views[itemKey as keyof typeof views]?.access ?? true;
+  // Verifica acesso: se tem parentKey, verifica o acesso do pai
+  // Se não tem parentKey, verifica o acesso direto
+  const isVisible = checkItemAccess(itemKey, parentKey, views);
   const open = openMap[currentKey] ?? false;
   const isSelected = currentSelected[currentKey] ?? false;
   const icon = item.icon

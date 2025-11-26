@@ -27,7 +27,7 @@ export default function OnlineStatus({
       <div>
         <p>
           O colaborador <span className="font-bold">{colab.name}</span>{" "}
-          <span className="font-bold">{statusLabel}</span> sistema.
+          <span className="font-italic">{statusLabel}</span> sistema.
         </p>
       </div>
     </div>
