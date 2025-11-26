@@ -1,16 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
 import { useReducer, useState } from "react";
-import toast from "~/src/utils/toast";
-import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router";
 import { z } from "zod";
-import { cryptoAuth } from "~/features/auth/utils";
 import { useSocketContext } from "~/features/socket/context/SocketContext";
-import { updateUserInfo } from "~/features/user/redux";
+import authStore from "~/features/store-zustand";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import { Fields } from "~/src/components/utils/_fields";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
-import { login, updateAuthInfo } from "../../../../features/auth/redux";
+import toast from "~/src/utils/toast";
 import { authService } from "../../../../features/auth/service";
 import {
   type ColaboradorUserForm,
@@ -26,7 +23,6 @@ interface FormModalProps {
 function FormHelpNavigation() {
   const { state } = useLocation();
   const homeSelectedPlan = state?.plan;
-  console.log("homeSelectedPlan", homeSelectedPlan);
   return (
     <div className="flex flex-row gap-2 sm:flex-col sm:gap-0.5">
       <label className="text-beergam-gray font-medium" htmlFor="">
@@ -65,7 +61,8 @@ function ButtonChangeUserType({
 export default function FormModal({
   userType = UserRoles.MASTER,
 }: FormModalProps) {
-  const dispatch = useDispatch();
+  const login = authStore.use.login();
+  const setAuthError = authStore.use.setAuthError();
   const navigate = useNavigate();
   const { connectSession, connectOnlineStatus } = useSocketContext();
   const [currentUserType, setCurrentUserType] = useState<UserRoles>(userType);
@@ -178,14 +175,8 @@ export default function FormModal({
         success: (data) => {
           const userData = data.data.user;
           const subscriptionData = data.data.subscription;
-          dispatch(updateUserInfo({ user: userData, shouldEncrypt: true }));
-          cryptoAuth.encriptarDados({
-            loading: false,
-            subscription: subscriptionData,
-            error: null,
-            success: true,
-          });
-          dispatch(login(subscriptionData));
+
+          login(subscriptionData, userData);
 
           // Conectar sockets após login bem-sucedido (cookies já estão setados)
           setTimeout(() => {
@@ -194,22 +185,13 @@ export default function FormModal({
           }, 100);
 
           if (!subscriptionData || subscriptionData?.start_date === null) {
-            dispatch(
-              updateAuthInfo({
-                auth: {
-                  error: "SUBSCRIPTION_NOT_FOUND",
-                  loading: false,
-                  subscription: null,
-                  success: true,
-                },
-                shouldEncrypt: true,
-              })
-            );
+            setAuthError("SUBSCRIPTION_NOT_FOUND");
             navigate("/interno/subscription", {
               state: { plan: homeSelectedPlan },
+              viewTransition: true,
             });
           } else {
-            navigate("/interno/choosen_account");
+            navigate("/interno/choosen_account", { viewTransition: true });
           }
 
           return data.message;

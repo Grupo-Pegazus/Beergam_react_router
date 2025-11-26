@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { useSelector } from "react-redux";
+import authStore from "~/features/store-zustand";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
-import { type RootState } from "~/store";
 import MenuItem from "../../../menu/components/MenuItem/MenuItem";
 import { useActiveMenu } from "../../../menu/hooks";
 import { useMenuActions } from "../../../menu/hooks/useMenuActions";
@@ -10,10 +9,10 @@ import { MenuHandler, type MenuState } from "../../../menu/typings";
 import { getDefaultViews } from "../../../menu/utils";
 function MenuDesktopContent() {
   useActiveMenu(MenuHandler.getMenu());
-  const user = useSelector((state: RootState) => state.user);
+  const user = authStore.use.user();
   const { closeMany, setIsExpanded, setViews } = useMenuActions();
   const { openKeys, isExpanded } = useMenuState();
-  const allowedViews = user?.user?.details.allowed_views;
+  const allowedViews = user?.details.allowed_views;
 
   useEffect(() => {
     if (allowedViews) {
@@ -31,10 +30,10 @@ function MenuDesktopContent() {
 
   const menu = useMemo(() => {
     return MenuHandler.setMenu(
-      user?.user?.details.allowed_views ??
+      user?.details.allowed_views ??
         (MenuHandler.getMenu() as unknown as MenuState)
     );
-  }, [user?.user?.details.allowed_views]);
+  }, [user?.details.allowed_views]);
 
   return (
     <>
