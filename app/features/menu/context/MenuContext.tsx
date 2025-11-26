@@ -19,7 +19,8 @@ type MenuAction =
   | { type: "SET_CURRENT_SELECTED"; payload: { path: string; value: boolean } }
   | { type: "SET_SELECTED_ONLY"; payload: { path: string } }
   | { type: "CLOSE_MANY"; payload: string[] }
-  | { type: "SET_IS_EXPANDED"; payload: boolean };
+  | { type: "SET_IS_EXPANDED"; payload: boolean }
+  | { type: "SET_VIEWS"; payload: MenuStateType };
 
 interface MenuContextValue {
   state: MenuReducerState;
@@ -100,6 +101,12 @@ function menuReducer(state: MenuReducerState, action: MenuAction): MenuReducerSt
       return {
         ...state,
         isExpanded: action.payload,
+      };
+    }
+    case "SET_VIEWS": {
+      return {
+        ...state,
+        views: action.payload,
       };
     }
     default:

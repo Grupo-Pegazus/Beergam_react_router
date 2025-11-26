@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "react-hot-toast";
+import { Navigate } from "react-router";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { marketplaceService } from "~/features/marketplace/service";
 import type { IntegrationData } from "~/features/marketplace/typings";
@@ -8,6 +8,7 @@ import {
   MarketplaceType,
 } from "~/features/marketplace/typings";
 import authStore from "~/features/store-zustand";
+import toast from "~/src/utils/toast";
 import ChoosenAccountPage from "./page";
 
 export async function clientAction({ request }: { request: Request }) {
@@ -102,6 +103,10 @@ export async function clientAction({ request }: { request: Request }) {
 }
 
 export default function ChoosenAccountRoute() {
+  const marketplace = authStore.use.marketplace();
+  if (marketplace) {
+    return <Navigate to="/interno" replace />;
+  }
   const { data, isLoading, error } = useQuery({
     queryKey: ["marketplacesAccounts"],
     queryFn: () => marketplaceService.getMarketplacesAccounts(),

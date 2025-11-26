@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material";
 import Svg from "~/src/assets/svgs/_index";
-import toast from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import type { Variation } from "../../../typings";
 import { formatNumber } from "../utils";
 

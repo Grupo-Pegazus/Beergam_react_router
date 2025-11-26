@@ -6,15 +6,21 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useLocation } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { io, type Socket } from "socket.io-client";
+import { enforceUsageLimit } from "~/features/auth/utils/accessWindow";
 import { showNotification } from "~/features/notifications/showNotification";
 import type { OnlineStatusNotificationData } from "~/features/notifications/types";
-import { updateColab } from "~/features/user/redux";
-import { isMaster } from "~/features/user/utils";
+import { updateColab, updateAllowedViews } from "~/features/user/redux";
+import { isColab, isMaster } from "~/features/user/utils";
+import { BaseUserDetailsSchema } from "~/features/user/typings/BaseUser";
 import type { RootState } from "~/store";
 import type {
   OnlineStatusUpdate,
+  SessionEvent,
+  SessionUsageLimitEvent,
+  SessionAllowedViewsEvent,
   SocketContextValue,
   SocketNamespace,
 } from "../typings/socket.types";
@@ -176,10 +182,14 @@ export function SocketProvider({
   socketUrl,
   isAuthenticated = false,
 }: SocketProviderProps) {
+  const location = useLocation();
   const [sessionSocket, setSessionSocket] = useState<Socket | null>(null);
   const [onlineStatusSocket, setOnlineStatusSocket] = useState<Socket | null>(
     null
   );
+  const sessionSocketRef = useRef<Socket | null>(null);
+  const onlineStatusSocketRef = useRef<Socket | null>(null);
+  const sessionRoomNameRef = useRef<string | null>(null);
   const user = useSelector((state: RootState) => state.user.user);
   const [isSessionConnected, setIsSessionConnected] = useState(false);
   const [isOnlineStatusConnected, setIsOnlineStatusConnected] = useState(false);
@@ -188,30 +198,47 @@ export function SocketProvider({
     socketUrl || import.meta.env.VITE_SOCKET_URL || "http://localhost:3001"
   );
   const isAuthenticatedRef = useRef(isAuthenticated);
+  const userRef = useRef(user);
+
+  /**
+   * Verifica se a rota atual é uma rota interna (/interno)
+   */
+  const isInternalRoute = location.pathname.startsWith("/interno");
 
   // Atualizar ref quando isAuthenticated mudar
   useEffect(() => {
     isAuthenticatedRef.current = isAuthenticated;
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    userRef.current = user;
+    if (!user?.pin) {
+      sessionRoomNameRef.current = null;
+    }
+    if (sessionSocketRef.current?.connected) {
+      sessionRoomNameRef.current = null;
+      tryJoinSessionRoom();
+    }
+  }, [user]);
+
   /**
    * Conectar ao namespace /session
    */
   const connectSession = () => {
-    if (sessionSocket?.connected) {
-      console.log("Socket /session já está conectado");
-      return;
+    const existingSocket = sessionSocketRef.current;
+    if (existingSocket) {
+      if (existingSocket.connected) {
+        console.log("Socket /session já está conectado");
+        return;
+      }
+      existingSocket.removeAllListeners();
+      existingSocket.disconnect();
+      sessionSocketRef.current = null;
     }
 
     if (!isAuthenticatedRef.current) {
       console.warn("Tentativa de conectar socket sem autenticação");
       return;
-    }
-
-    // Se já existe um socket desconectado, limpar antes de criar um novo
-    if (sessionSocket) {
-      sessionSocket.removeAllListeners();
-      sessionSocket.disconnect();
     }
 
     const token = getAccessTokenFromCookies();
@@ -230,6 +257,7 @@ export function SocketProvider({
     socket.on("connect", () => {
       console.log("✅ Conectado ao namespace /session");
       setIsSessionConnected(true);
+      tryJoinSessionRoom(socket);
     });
 
     socket.on("disconnect", (reason) => {
@@ -253,8 +281,15 @@ export function SocketProvider({
     });
 
     // Configurar listeners para eventos do servidor
-    socket.on("session_event", (data) => {
+    socket.on("session_event", (data: SessionEvent) => {
       console.log("📨 Evento de sessão recebido:", data);
+      if (data.event_type === "usage_time_limit") {
+        console.log("⏰ Evento usage_time_limit detectado, chamando handleUsageLimitEvent");
+        handleUsageLimitEvent(data as SessionUsageLimitEvent);
+      } else if (data.event_type === "allowed_views_updated") {
+        console.log("👁️ Evento allowed_views_updated detectado, chamando handleAllowedViewsEvent");
+        handleAllowedViewsEvent(data as SessionAllowedViewsEvent);
+      }
     });
 
     socket.on("heartbeat", (data) => {
@@ -265,8 +300,11 @@ export function SocketProvider({
     socket.on("reconnect", () => {
       console.log("🔄 Reconectado ao namespace /session");
       setIsSessionConnected(true);
+      sessionRoomNameRef.current = null;
+      tryJoinSessionRoom(socket);
     });
 
+    sessionSocketRef.current = socket;
     setSessionSocket(socket);
   };
 
@@ -274,20 +312,20 @@ export function SocketProvider({
    * Conectar ao namespace /online-status
    */
   const connectOnlineStatus = () => {
-    if (onlineStatusSocket?.connected) {
-      console.log("Socket /online-status já está conectado");
-      return;
+    const existingSocket = onlineStatusSocketRef.current;
+    if (existingSocket) {
+      if (existingSocket.connected) {
+        console.log("Socket /online-status já está conectado");
+        return;
+      }
+      existingSocket.removeAllListeners();
+      existingSocket.disconnect();
+      onlineStatusSocketRef.current = null;
     }
 
     if (!isAuthenticatedRef.current) {
       console.warn("Tentativa de conectar socket sem autenticação");
       return;
-    }
-
-    // Se já existe um socket desconectado, limpar antes de criar um novo
-    if (onlineStatusSocket) {
-      onlineStatusSocket.removeAllListeners();
-      onlineStatusSocket.disconnect();
     }
 
     const token = getAccessTokenFromCookies();
@@ -331,12 +369,13 @@ export function SocketProvider({
     // Configurar listeners para eventos do servidor
     socket.on("online_status_update", (data: OnlineStatusUpdate) => {
       console.log("📨 Atualização de status online recebida:", data);
-      if (user && isMaster(user)) {
-        const colab = user.colabs?.[data.user_pin];
+      const currentUser = userRef.current;
+      if (currentUser && isMaster(currentUser)) {
+        const colab = currentUser.colabs?.[data.user_pin];
         if (colab) {
           const notificationData: OnlineStatusNotificationData = {
             type: "online_status",
-            colab: colab,
+            colab,
             online: data.is_online,
           };
           dispatch(updateColab({ ...colab, is_online: data.is_online }));
@@ -359,6 +398,7 @@ export function SocketProvider({
       setIsOnlineStatusConnected(true);
     });
 
+    onlineStatusSocketRef.current = socket;
     setOnlineStatusSocket(socket);
   };
 
@@ -366,10 +406,13 @@ export function SocketProvider({
    * Desconectar do namespace /session
    */
   const disconnectSession = () => {
-    if (sessionSocket) {
-      sessionSocket.disconnect();
+    if (sessionSocketRef.current) {
+      sessionSocketRef.current.removeAllListeners();
+      sessionSocketRef.current.disconnect();
+      sessionSocketRef.current = null;
       setSessionSocket(null);
       setIsSessionConnected(false);
+      sessionRoomNameRef.current = null;
       console.log("🔌 Desconectado do namespace /session");
     }
   };
@@ -378,8 +421,10 @@ export function SocketProvider({
    * Desconectar do namespace /online-status
    */
   const disconnectOnlineStatus = () => {
-    if (onlineStatusSocket) {
-      onlineStatusSocket.disconnect();
+    if (onlineStatusSocketRef.current) {
+      onlineStatusSocketRef.current.removeAllListeners();
+      onlineStatusSocketRef.current.disconnect();
+      onlineStatusSocketRef.current = null;
       setOnlineStatusSocket(null);
       setIsOnlineStatusConnected(false);
       console.log("🔌 Desconectado do namespace /online-status");
@@ -409,28 +454,73 @@ export function SocketProvider({
 
   // Conectar/desconectar baseado no estado de autenticação
   useEffect(() => {
-    // Só conectar se autenticado e ainda não conectado
-    if (isAuthenticated) {
-      if (!sessionSocket?.connected) {
+    // Só conectar se autenticado E estiver em rota interna (/interno)
+    const shouldConnect = isAuthenticated && isInternalRoute;
+    
+    if (shouldConnect) {
+      if (!sessionSocketRef.current) {
         connectSession();
       }
-      if (!onlineStatusSocket?.connected) {
+      if (!onlineStatusSocketRef.current) {
         connectOnlineStatus();
       }
     } else {
       // Só desconectar se estiver conectado
-      if (sessionSocket?.connected || onlineStatusSocket?.connected) {
-        disconnectAll();
-      }
+      disconnectAll();
     }
+  }, [isAuthenticated, isInternalRoute]);
 
-    // Cleanup ao desmontar
+  useEffect(() => {
+    // Cleanup ao desmontar o provider
     return () => {
-      if (sessionSocket || onlineStatusSocket) {
-        disconnectAll();
-      }
+      disconnectAll();
     };
-  }, [isAuthenticated]);
+  }, []);
+
+  const tryJoinSessionRoom = (socketInstance?: Socket | null) => {
+    const socketToUse = socketInstance ?? sessionSocketRef.current;
+    if (!socketToUse || !socketToUse.connected) {
+      return;
+    }
+    const currentUser = userRef.current;
+    if (!currentUser || !isColab(currentUser) || !currentUser.pin) {
+      return;
+    }
+    const roomName = `user_${currentUser.pin}`;
+    if (sessionRoomNameRef.current === roomName) {
+      return;
+    }
+    socketToUse.emit("join_room", { room: roomName });
+    sessionRoomNameRef.current = roomName;
+    console.log(`📡 Assinado na sala ${roomName}`);
+  };
+
+  const handleUsageLimitEvent = (payload: SessionUsageLimitEvent) => {
+    enforceUsageLimit({
+      source: "socket",
+      event_type: payload.event_type,
+      message: payload.message,
+      timestamp: payload.timestamp,
+      next_allowed_at: payload.next_allowed_at,
+      weekday: payload.weekday,
+    });
+  };
+
+  const handleAllowedViewsEvent = (payload: SessionAllowedViewsEvent) => {
+    try {
+      // Transformar o payload usando o schema para garantir formato correto
+      const parsed = BaseUserDetailsSchema.parse({
+        allowed_views: payload.allowed_views,
+      });
+      
+      if (parsed.allowed_views) {
+        dispatch(updateAllowedViews(parsed.allowed_views));
+        console.log("✅ Permissões de visualização atualizadas via socket");
+      }
+    } catch (error) {
+      console.error("❌ Erro ao processar atualização de allowed_views:", error);
+    }
+  };
 
   const value: SocketContextValue = {
     sessionSocket,

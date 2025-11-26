@@ -1,9 +1,16 @@
 import { useCallback } from "react";
 import { useMenuContext } from "../context/MenuContext";
-import { type MenuKeys } from "../typings";
+import { type MenuKeys, type MenuState } from "../typings";
 
 export function useMenuActions() {
   const { dispatch } = useMenuContext();
+
+  const setViews = useCallback(
+    (views: MenuState) => {
+      dispatch({ type: "SET_VIEWS", payload: views });
+    },
+    [dispatch]
+  );
 
   const setMenuActive = useCallback(
     (key: MenuKeys, active: boolean) => {
@@ -55,6 +62,7 @@ export function useMenuActions() {
   );
 
   return {
+    setViews,
     setMenuActive,
     toggleOpen,
     setOpen,

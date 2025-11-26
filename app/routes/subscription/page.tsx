@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import type { TAuthError } from "~/features/auth/redux";
 import type { Plan } from "~/features/user/typings/BaseUser";

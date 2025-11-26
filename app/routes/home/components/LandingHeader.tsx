@@ -1,9 +1,15 @@
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import ScrollTriggerModule from "gsap/ScrollTrigger";
 import { useEffect, useRef, useState } from "react";
+import type { ScrollTrigger as ScrollTriggerType } from "gsap/ScrollTrigger";
+
 import { Link } from "react-router";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
+
+// Compatibilidade com CommonJS/ESM
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ScrollTrigger = (ScrollTriggerModule as any).default || ScrollTriggerModule;
 
 type NavLink = {
   id: string;
@@ -16,19 +22,18 @@ const NAV_LINKS: NavLink[] = [
   { id: "planos", label: "Planos" },
 ];
 
-let scrollTriggerRegistered = false;
-
-if (typeof window !== "undefined" && !scrollTriggerRegistered) {
+// Registrar ScrollTrigger apenas no cliente
+if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
-  scrollTriggerRegistered = true;
 }
+
 
 export default function LandingHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [lockedSection, setLockedSection] = useState<string | null>(null);
   const lockedSectionRef = useRef<string | null>(null);
-  const triggersRef = useRef<Record<string, ScrollTrigger>>({});
+  const triggersRef = useRef<Record<string, ScrollTriggerType>>({});
 
   useEffect(() => {
     lockedSectionRef.current = lockedSection;
@@ -41,7 +46,7 @@ export default function LandingHeader() {
     setMobileMenuOpen(false);
 
     const trigger = triggersRef.current[id];
-    if (trigger?.isActive) {
+    if (trigger && trigger.isActive) {
       lockedSectionRef.current = null;
       setLockedSection(null);
     }
@@ -66,7 +71,7 @@ export default function LandingHeader() {
         trigger: section,
         start: "top 65px",
         end: "bottom",
-        onToggle: (self) => {
+        onToggle: (self: ScrollTriggerType) => {
           const currentLock = lockedSectionRef.current;
 
           if (currentLock && currentLock !== section.id) {
@@ -82,7 +87,7 @@ export default function LandingHeader() {
             return;
           }
 
-          const anyActive = ScrollTrigger.getAll().some((trigger) => {
+          const anyActive = ScrollTrigger.getAll().some((trigger: ScrollTriggerType) => {
             const triggerId = (trigger.trigger as HTMLElement | undefined)?.id;
             return (
               trigger.isActive && !!triggerId && navIds.includes(triggerId)
@@ -102,7 +107,7 @@ export default function LandingHeader() {
     ScrollTrigger.refresh();
 
     return () => {
-      triggers.forEach((trigger) => {
+      triggers.forEach((trigger: ScrollTriggerType) => {
         const triggerId = (trigger.trigger as HTMLElement | undefined)?.id;
         if (triggerId) {
           delete triggersRef.current[triggerId];

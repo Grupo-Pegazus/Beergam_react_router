@@ -14,6 +14,7 @@ import {
   MarketplaceTypeLabel,
   type BaseMarketPlace,
 } from "~/features/marketplace/typings";
+import { getFirstAllowedRoute } from "~/features/menu/utils/getFirstAllowedRoute";
 import authStore from "~/features/store-zustand";
 import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
@@ -39,6 +40,7 @@ export default function ChoosenAccountPage({
   const fetcher = useFetcher();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const user = authStore.use.user();
   useEffect(() => {
     if (fetcher.data && fetcher.data.success && fetcher.state === "idle") {
       queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
@@ -207,7 +209,8 @@ export default function ChoosenAccountPage({
                         toast.success(
                           "Conta de marketplace selecionada com sucesso"
                         );
-                        navigate("/interno", { viewTransition: true });
+                        const firstRoute = getFirstAllowedRoute(user);
+                        navigate(firstRoute, { viewTransition: true });
                       } else {
                         toast.error(res.message);
                       }

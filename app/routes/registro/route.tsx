@@ -1,4 +1,4 @@
-import { toast } from "react-hot-toast";
+import toast from "~/src/utils/toast";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { authService } from "~/features/auth/service";
 import { UserRoles, UserStatus } from "~/features/user/typings/BaseUser";

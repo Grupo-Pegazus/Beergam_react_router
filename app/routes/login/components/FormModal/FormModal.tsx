@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
 import { useReducer, useState } from "react";
-import { toast } from "react-hot-toast";
 import { Link, useLocation, useNavigate } from "react-router";
 import { z } from "zod";
 import { useSocketContext } from "~/features/socket/context/SocketContext";
@@ -8,6 +7,7 @@ import authStore from "~/features/store-zustand";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import { Fields } from "~/src/components/utils/_fields";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
+import toast from "~/src/utils/toast";
 import { authService } from "../../../../features/auth/service";
 import {
   type ColaboradorUserForm,

@@ -20,6 +20,26 @@ export interface SessionEvent {
   [key: string]: unknown;
 }
 
+export interface SessionUsageLimitEvent extends SessionEvent {
+  event_type: "usage_time_limit";
+  message: string;
+  timestamp: number;
+  next_allowed_at?: number | null;
+  weekday?: string | null;
+}
+
+export interface SessionAllowedViewsEvent extends SessionEvent {
+  event_type: "allowed_views_updated";
+  allowed_views: Record<
+    string,
+    {
+      access: boolean;
+      notifications?: number;
+    }
+  >;
+  timestamp: number;
+}
+
 export interface TokenValidation {
   valid: boolean;
   user_pin: string;

@@ -14,8 +14,6 @@ export default function QualityMetrics({ anuncio }: QualityMetricsProps) {
   const qaScore = anuncio.quality_metrics?.qa_score ?? anuncio.health?.score ?? null;
   const ecScore = anuncio.quality_metrics?.ec_score ?? null;
 
-  console.log(qaScore, ecScore);
-
   const qaLabel = useMemo(() => {
     if (qaScore === null) return "Não disponível";
     if (qaScore >= 80) return "Excelente";

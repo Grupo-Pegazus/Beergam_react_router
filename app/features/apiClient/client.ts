@@ -4,6 +4,7 @@ import axios, {
   type AxiosRequestConfig,
   type AxiosResponse,
 } from "axios";
+import { enforceUsageLimit } from "~/features/auth/utils/accessWindow";
 import authStore from "../store-zustand";
 import { type ApiResponse } from "./typings";
 
@@ -205,6 +206,37 @@ typedApiClient.axiosInstance.interceptors.response.use(
         authStore.getState().setAuthError("REFRESH_TOKEN_REVOKED");
       }
     }
+    if (error.response?.status === 403) {
+      const body = error.response.data;
+      const violationCode = body?.error_code;
+      if (violationCode === "INSUFFICIENT_PERMISSIONS") {
+        enforceUsageLimit({
+          source: "http",
+          event_type: "usage_time_limit",
+          message: body?.message,
+          next_allowed_at: body?.data?.next_allowed_at,
+          weekday: body?.data?.weekday,
+          reason: body?.data?.reason,
+        });
+      }
+    }
+
+    // console.log("erro do interceptor", error);
+
+    // if (!error.response.data) {
+    //   return Promise.reject(error);
+    // }
+    // if (error.response.data.error_code === 1002) {
+    //   console.error("Erro de access_token expirado");
+    //   const response = await typedApiClient.post("/v1/auth/refresh");
+    //   if (response.success) {
+    //     console.log("access_token atualizado");
+    //     window.location.reload();
+    //     return response;
+    //   } else {
+    //     console.error("Erro ao atualizar access_token");
+    //   }
+    // }
     if (error.response?.data?.error_code === 6104) {
       if (typeof window !== "undefined") {
         authStore.getState().setAuthError("SUBSCRIPTION_NOT_FOUND");
