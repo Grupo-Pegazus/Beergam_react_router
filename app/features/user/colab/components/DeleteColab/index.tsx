@@ -1,8 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import toast from "~/src/utils/toast";
-import { useDispatch } from "react-redux";
-import { deleteColab } from "~/features/user/redux";
+import authStore from "~/features/store-zustand";
 import { userService } from "~/features/user/service";
 import Alert from "~/src/components/utils/Alert";
 import { type IColab } from "../../../typings/Colab";
@@ -18,7 +17,7 @@ export default function DeleteColab({
   onDeleteSuccess,
   onClose,
 }: DeleteColabProps) {
-  const dispatch = useDispatch();
+  const deleteColab = authStore.use.deleteColab();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   const deleteColabMutation = useMutation({
@@ -43,7 +42,7 @@ export default function DeleteColab({
           if (!data.success) {
             throw new Error(data.message);
           }
-          dispatch(deleteColab(colab.pin ?? ""));
+          deleteColab(colab.pin ?? "");
           setIsAlertOpen(false);
           onDeleteSuccess?.(colab);
           return data.message;
