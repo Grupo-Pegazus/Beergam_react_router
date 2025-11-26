@@ -1,10 +1,7 @@
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import { useQueryClient } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useState } from "react";
-import toast from "~/src/utils/toast";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { logout } from "~/features/auth/redux";
 import StatusTag from "~/features/marketplace/components/StatusTag";
 import { useMarketplaceAccounts } from "~/features/marketplace/hooks/useMarketplaceAccounts";
 import {
@@ -12,10 +9,11 @@ import {
   MarketplaceType,
   MarketplaceTypeLabel,
 } from "~/features/marketplace/typings";
+import authStore from "~/features/store-zustand";
 import Loading from "~/src/assets/loading";
 import Svg from "~/src/assets/svgs/_index";
 import Modal from "~/src/components/utils/Modal";
-import type { RootState } from "~/store";
+import toast from "~/src/utils/toast";
 import { menuService } from "../../../menu/service";
 
 // Lazy loading do modal de integração para otimizar performance
@@ -28,17 +26,15 @@ export default function AccountView({
 }: {
   expanded?: boolean;
 }) {
-  const marketplace = useSelector(
-    (state: RootState) => state.marketplace.marketplace
-  );
   const [open, setOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const dispatch = useDispatch();
+  const logout = authStore.use.logout();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const {
     accounts,
+    current,
     isLoading: accountsLoading,
     selectAccount,
   } = useMarketplaceAccounts();
@@ -56,8 +52,7 @@ export default function AccountView({
   const handleLogout = async () => {
     const res = await menuService.logout();
     if (res.success) {
-      dispatch(logout());
-      navigate("/login");
+      logout();
     } else {
       toast.error(res.message);
     }
@@ -81,7 +76,7 @@ export default function AccountView({
   }
 
   const otherAccounts = accounts.filter(
-    (acc) => acc.marketplace_shop_id !== marketplace?.marketplace_shop_id
+    (acc) => acc.marketplace_shop_id !== current?.marketplace_shop_id
   );
 
   return (
@@ -99,22 +94,22 @@ export default function AccountView({
               <div className="hidden md:flex flex-col min-w-0 text-right text-beergam-white">
                 <p
                   className="font-semibold leading-4 truncate max-w-[200px]"
-                  title={marketplace?.marketplace_name}
+                  title={current?.marketplace_name}
                 >
-                  {marketplace?.marketplace_name}
+                  {current?.marketplace_name}
                 </p>
                 <p className="text-xs opacity-70 leading-4">
                   {
                     MarketplaceTypeLabel[
-                      marketplace?.marketplace_type as MarketplaceType
+                      current?.marketplace_type as MarketplaceType
                     ]
                   }
                 </p>
               </div>
             )}
             <img
-              src={marketplace?.marketplace_image}
-              alt={marketplace?.marketplace_name}
+              src={current?.marketplace_image}
+              alt={current?.marketplace_name}
               className="w-8 h-8 rounded-full object-cover ring-2 ring-white/20"
             />
           </button>
@@ -126,44 +121,44 @@ export default function AccountView({
               }`}
             >
               {/* Current Account Info */}
-              {marketplace && (
+              {current && (
                 <div className="px-4 py-3 border-b border-gray-200 relative">
                   <div className="flex items-start gap-3 mb-2">
                     <div
-                      className={`w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center shrink-0 ${marketplace.status_parse === MarketplaceStatusParse.PROCESSING ? "opacity-60" : ""}`}
+                      className={`w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center shrink-0 ${current.status_parse === MarketplaceStatusParse.PROCESSING ? "opacity-60" : ""}`}
                     >
-                      {marketplace.marketplace_image ? (
+                      {current.marketplace_image ? (
                         <img
-                          src={marketplace.marketplace_image}
-                          alt={marketplace.marketplace_name}
+                          src={current.marketplace_image}
+                          alt={current.marketplace_name}
                           className="w-full h-full rounded-full object-cover"
                         />
                       ) : (
                         <span className="text-white font-bold text-xl">
-                          {marketplace.marketplace_name.charAt(0).toUpperCase()}
+                          {current.marketplace_name.charAt(0).toUpperCase()}
                         </span>
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p
-                        className={`font-semibold text-[#323130] truncate mb-1 ${marketplace.status_parse === MarketplaceStatusParse.PROCESSING ? "opacity-60" : ""}`}
-                        title={marketplace.marketplace_name}
+                        className={`font-semibold text-[#323130] truncate mb-1 ${current.status_parse === MarketplaceStatusParse.PROCESSING ? "opacity-60" : ""}`}
+                        title={current.marketplace_name}
                       >
-                        {marketplace.marketplace_name}
+                        {current.marketplace_name}
                       </p>
                       {/* Marketplace Type e Status de Pedidos na mesma linha */}
                       <div className="flex items-center gap-2 mb-2 flex-wrap">
                         <p
-                          className={`text-xs text-gray-600 ${marketplace.status_parse === MarketplaceStatusParse.PROCESSING ? "opacity-60" : ""}`}
+                          className={`text-xs text-gray-600 ${current.status_parse === MarketplaceStatusParse.PROCESSING ? "opacity-60" : ""}`}
                         >
                           {
                             MarketplaceTypeLabel[
-                              marketplace.marketplace_type as MarketplaceType
+                              current.marketplace_type as MarketplaceType
                             ]
                           }
                         </p>
                         <StatusTag
-                          status={marketplace.orders_parse_status}
+                          status={current.orders_parse_status}
                           type="orders"
                           className="text-[10px] py-0.5 px-2"
                         />

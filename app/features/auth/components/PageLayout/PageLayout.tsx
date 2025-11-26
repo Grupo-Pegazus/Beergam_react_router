@@ -1,11 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router";
 import { Tooltip } from "react-tooltip";
+import authStore from "~/features/store-zustand";
 import Svg from "~/src/assets/svgs/_index";
 import ParticlesBackground from "~/src/components/utils/ParticlesBackground";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
-import { logout } from "../../redux";
 import { authService } from "../../service";
 function CardComponent({ title, value }: { title: string; value: string }) {
   return (
@@ -38,8 +36,7 @@ export default function PageLayout({
   showLogo?: boolean;
   showLogoutButton?: boolean;
 }) {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const logout = authStore.use.logout();
   const handleLogout = useMutation({
     mutationFn: () => authService.logout(),
   });
@@ -60,8 +57,7 @@ export default function PageLayout({
           <button
             onClick={() => {
               handleLogout.mutate();
-              dispatch(logout());
-              navigate("/login");
+              logout();
             }}
             data-tooltip-id="logout-tooltip"
             className="size-12 md:size-16 flex items-center justify-center border border-beergam-white absolute top-2 right-2 z-1000 bg-beergam-red rounded-full p-2"

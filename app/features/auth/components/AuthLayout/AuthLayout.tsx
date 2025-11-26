@@ -1,59 +1,46 @@
-
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { Navigate, Outlet } from "react-router";
-import { useAuth } from "../../hooks";
-import { logout } from "../../redux";
-import { isSubscriptionError } from "../../utils";
-import MultipleDeviceWarning from "../MultipleDeviceWarning/MultipleDeviceWarning";
-import UsageTimeLimitWarning from "../UsageTimeLimitWarning/UsageTimeLimitWarning";
-
+import { Outlet, useLocation, useNavigate } from "react-router";
+import UsageTimeLimitWarning from "~/features/auth/components/UsageTimeLimitWarning/UsageTimeLimitWarning";
+import authStore from "~/features/store-zustand";
 export default function AuthLayout() {
-  // Usa o hook useAuth que monitora mudanças no Redux e força re-render
-  const { userInfo, authInfo } = useAuth();
-  const dispatch = useDispatch();
+  const user = authStore.use.user();
+  const subscription = authStore.use.subscription();
+  const error = authStore.use.error();
+  const usageLimitData = authStore.use.usageLimitData();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const marketplace = authStore.use.marketplace();
 
-  
-  if (
-    authInfo?.error &&
-    isSubscriptionError(authInfo?.error) &&
-    window.location.pathname !== "/interno/subscription"
-  ) {
-    return <Navigate to="/interno/subscription" replace />;
-  }
-  
-  console.log("🔍 AuthLayout - authInfo:", authInfo);
-  
-  // Faz logout para todos os erros
+  // ✅ apenas calcula a condição, sem retornar ainda
+  const isUsageTimeLimit = error === "USAGE_TIME_LIMIT";
+
   useEffect(() => {
-    if (authInfo?.error) {
-      dispatch(logout()); //Remove as informações de redux e local storage
+    if (!user) {
+      navigate("/login", { viewTransition: true });
+      return;
     }
-  }, [authInfo?.error, dispatch]);
-  
-  // Verifica erros e renderiza as telas correspondentes
-  // O logout já foi feito no useEffect acima, mas o erro ainda está no Redux neste momento
-  if (authInfo?.error === "REFRESH_TOKEN_EXPIRED") {
-    return <Navigate to="/login" replace />;
-  }
-  if (authInfo?.error === "REFRESH_TOKEN_REVOKED") {
-    return <MultipleDeviceWarning />;
-  }
-  if (authInfo?.error === "USAGE_TIME_LIMIT") {
-    console.log("⏰ USAGE_TIME_LIMIT detectado, mostrando tela:", authInfo.usageLimitData);
+
+    if (location.pathname !== "/interno/subscription") {
+      if (marketplace === null) {
+        navigate("/interno/choosen_account", { viewTransition: true });
+        return;
+      }
+      if (subscription === null) {
+        navigate("/interno/subscription", { viewTransition: true });
+        return;
+      }
+    }
+  }, [user, subscription, marketplace, location.pathname, navigate]);
+
+  if (isUsageTimeLimit) {
     return (
       <UsageTimeLimitWarning
-        message={authInfo.usageLimitData?.message}
-        nextAllowedAt={authInfo.usageLimitData?.next_allowed_at}
-        weekday={authInfo.usageLimitData?.weekday}
+        message={usageLimitData?.message}
+        nextAllowedAt={usageLimitData?.next_allowed_at}
+        weekday={usageLimitData?.weekday}
       />
     );
   }
-  
-  // if (!userInfo) return <Navigate to="/login" replace />;
-  return (
-    <>
-      <Outlet />
-    </>
-  );
+
+  return <Outlet />;
 }

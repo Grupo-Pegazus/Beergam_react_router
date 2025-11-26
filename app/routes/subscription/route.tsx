@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import toast from "~/src/utils/toast";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
-import { updateSubscription } from "~/features/auth/redux";
 import { plansService } from "~/features/plans/service";
 import { subscriptionService } from "~/features/plans/subscriptionService";
+import authStore from "~/features/store-zustand";
 import type { Plan } from "~/features/user/typings/BaseUser";
 import { SubscriptionSchema } from "~/features/user/typings/BaseUser";
 import SubscriptionPage from "./page";
@@ -22,7 +22,7 @@ export default function SubscriptionRoute() {
     queryKey: ["plans"],
     queryFn: plansService.getPlans,
   });
-
+  const setSubscription = authStore.use.setSubscription();
   /**
    * Trata o retorno do Stripe após pagamento
    * Quando há session_id na URL, significa que o usuário foi redirecionado após o pagamento
@@ -45,9 +45,8 @@ export default function SubscriptionRoute() {
           );
 
           if (validatedSubscription.success) {
-            dispatch(updateSubscription(validatedSubscription.data));
             toast.success("Assinatura confirmada! Redirecionando...");
-            // Limpa somente o session_id preservando outros parâmetros
+            setSubscription(validatedSubscription.data);
             const params = new URLSearchParams(searchParams);
             params.delete("session_id");
             setSearchParams(params);
