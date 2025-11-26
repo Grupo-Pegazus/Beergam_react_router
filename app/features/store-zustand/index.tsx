@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type { TAuthError } from "../auth/redux";
+import type { TAuthError, UsageLimitData } from "../auth/redux";
 import type { BaseMarketPlace } from "../marketplace/typings";
 import type { Subscription } from "../user/typings/BaseUser";
 import type { IColab } from "../user/typings/Colab";
@@ -13,6 +13,7 @@ interface IAuthStore {
   success: boolean;
   subscription: Subscription | null;
   user: IUser | IColab | null;
+  usageLimitData: UsageLimitData | null;
   marketplace: BaseMarketPlace | null;
   login: (
     subscription: Subscription | null,
@@ -32,6 +33,7 @@ const authBaseStore = create<IAuthStore>()(
       subscription: null,
       user: null,
       marketplace: null,
+      usageLimitData: null,
       login: (subscription: Subscription | null, user: IUser | IColab | null) =>
         set({ subscription, user, loading: false, success: true, error: null }),
       logout: () =>
