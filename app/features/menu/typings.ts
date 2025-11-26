@@ -33,6 +33,7 @@ export const MenuConfig = {
     status: "yellow",
     icon: "graph",
     path: "/vendas",
+    dinamic_id: "venda_id",
     launched: true,
   },
   anuncios: {

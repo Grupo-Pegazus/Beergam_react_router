@@ -1,0 +1,97 @@
+.timeline {
+    display: flex;
+    flex-direction: column;
+    align-self: flex-start;
+    text-align: left;
+
+    .container {
+        position: relative;
+        padding-left: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        .line {
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #4CAF50;
+            z-index: 0;
+        }
+
+        .item {
+            position: relative;
+
+            .circle {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                background-color: #4CAF50;
+                border: 2px solid var(--white);
+                box-sizing: content-box;
+                position: absolute;
+                left: -40px;
+                top: 0;
+                z-index: 1;
+            }
+
+            .content {
+                margin: 1rem;
+
+                .title {
+                    font-size: 16px;
+                }
+
+                .descriptionWrapper {
+                    max-height: 500px;
+                    opacity: 1;
+                    transform: translateY(0);
+                    overflow: hidden;
+                    transition: all 0.4s ease;
+
+                    .description {
+                        color: #3b3b3b;
+                        font-size: 14px;
+                        margin-top: 4px;
+                    }
+
+                    .location {
+                        color: #858585;
+                        font-style: italic;
+                    }
+
+                    &.hide {
+                        max-height: 0;
+                        opacity: 0;
+                        transform: translateY(-10px);
+                    }
+
+                    &.show {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            }
+        }
+    }
+
+    .btnEsconder {
+        width: fit-content;
+        padding: 8px;
+        background: transparent;
+        color: var(--blue);
+        cursor: pointer;
+        font-size: 16px;
+        transition: .3s ease-in-out;
+        margin: 1rem 0;
+        border-radius: 10px;
+        outline: none;
+    }
+
+    .btnEsconder:hover {
+        color: var(--white);
+        background-color: var(--blue);
+    }
+}

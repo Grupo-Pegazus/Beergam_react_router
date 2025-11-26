@@ -1,0 +1,253 @@
+export const mockOrderData = {
+    "data": {
+        "filters_applied": {},
+        "orders": [
+            {
+                "ad_type": "Clássico",
+                "bonus_por_envio_estorno": "0.00",
+                "buyer_id": "1939293161",
+                "buyer_nickname": "TESTUSER1596193352",
+                "category_id": "MLB430264",
+                "client": {
+                    "cpf": "19392931619",
+                    "destination_receiver_name": "guilherme fuarte"
+                },
+                "condition": "new",
+                "created_at": "2025-11-25T13:17:22",
+                "currency_id": "BRL",
+                "custo_envio_base": "78.00",
+                "custo_envio_buyer": "0.00",
+                "custo_envio_final": "45.90",
+                "custo_envio_seller": "45.90",
+                "date_closed": "2024-11-29T09:43:52",
+                "date_created": "2024-11-29T09:43:43",
+                "declared_value": "632.80",
+                "estimated_delivery": "2024-12-04T00:00:00",
+                "expiration_date": "2024-12-27T09:43:52",
+                "extra_cost": null,
+                "isRegisteredInternally": false,
+                "listing_type_id": "gold_special",
+                "marketplace_shop_id": "2054708538",
+                "mlb": "MLB5149800954",
+                "order_id": "2000009991672480",
+                "pack_id": "2000006727884173",
+                "packaging_cost": null,
+                "paid_amount": "58.00",
+                "price_cost": null,
+                "quantity": 2,
+                "sale_fee": "9.34",
+                "shipment_status": "delivered",
+                "shipment_substatus": "no_action_taken",
+                "shipping_destination_state": "SP",
+                "shipping_details": {
+                    "address_line": "Rua Deputado Fernando Mauro 90",
+                    "neighborhood": "Vila Fachini",
+                    "street_name": "Rua Deputado Fernando Mauro",
+                    "street_number": "90"
+                },
+                "shipping_id": "44151790597",
+                "shipping_mode": "drop_off",
+                "shipping_paid_by": "SELLER",
+                "sku": null,
+                "status": "paid",
+                "tags": [
+                    "pack_order",
+                    "paid",
+                    "delivered",
+                    "test_order"
+                ],
+                "tax_amount": null,
+                "tax_percentage": null,
+                "thumbnail": "http://http2.mlstatic.com/D_818161-MLU75572800439_042024-I.jpg",
+                "title": "Farol Led Recarregável De 350 Lúmens Com Sensor De Indução E",
+                "total_amount": "58.00",
+                "tracking_method": "Sedex",
+                "tracking_number": "101010803831427",
+                "unit_price": "29.00",
+                "updated_at": "2025-11-25T13:17:22",
+                "valor_base": "39.32",
+                "valor_liquido": "-6.58"
+            },
+            {
+                "ad_type": "Clássico",
+                "bonus_por_envio_estorno": "0.00",
+                "buyer_id": "1939293161",
+                "buyer_nickname": "TESTUSER1596193352",
+                "category_id": "MLB430264",
+                "client": {
+                    "cpf": "19392931619",
+                    "destination_receiver_name": "guilherme fuarte"
+                },
+                "condition": "new",
+                "created_at": "2025-11-25T13:17:22",
+                "currency_id": "BRL",
+                "custo_envio_base": "78.00",
+                "custo_envio_buyer": "0.00",
+                "custo_envio_final": "45.90",
+                "custo_envio_seller": "45.90",
+                "date_closed": "2024-11-29T09:43:48",
+                "date_created": "2024-11-29T09:43:43",
+                "declared_value": "632.80",
+                "estimated_delivery": "2024-12-04T00:00:00",
+                "expiration_date": "2024-12-27T09:43:48",
+                "extra_cost": null,
+                "isRegisteredInternally": false,
+                "listing_type_id": "gold_special",
+                "marketplace_shop_id": "2054708538",
+                "mlb": "MLB5149748826",
+                "order_id": "2000009991672478",
+                "pack_id": "2000006727884173",
+                "packaging_cost": null,
+                "paid_amount": "74.90",
+                "price_cost": null,
+                "quantity": 1,
+                "sale_fee": "14.61",
+                "shipment_status": "delivered",
+                "shipment_substatus": "no_action_taken",
+                "shipping_destination_state": "SP",
+                "shipping_details": {
+                    "address_line": "Rua Deputado Fernando Mauro 90",
+                    "neighborhood": "Vila Fachini",
+                    "street_name": "Rua Deputado Fernando Mauro",
+                    "street_number": "90"
+                },
+                "shipping_id": "44151790597",
+                "shipping_mode": "drop_off",
+                "shipping_paid_by": "SELLER",
+                "sku": null,
+                "status": "paid",
+                "tags": [
+                    "pack_order",
+                    "catalog",
+                    "paid",
+                    "delivered",
+                    "test_order"
+                ],
+                "tax_amount": null,
+                "tax_percentage": null,
+                "thumbnail": "http://http2.mlstatic.com/D_827113-MLU76531859546_052024-I.jpg",
+                "title": "Epsilon Eps-t9 Lanterna Tática Led Recarregável A Mais Potente Zoom Xhp Preto Luz Branco",
+                "total_amount": "74.90",
+                "tracking_method": "Sedex",
+                "tracking_number": "101010803831427",
+                "unit_price": "74.90",
+                "updated_at": "2025-11-25T13:17:22",
+                "valor_base": "60.29",
+                "valor_liquido": "14.39"
+            },
+            {
+                "ad_type": null,
+                "bonus_por_envio_estorno": "0.00",
+                "buyer_id": "1939293161",
+                "buyer_nickname": "TESTUSER1596193352",
+                "category_id": "MLB195961",
+                "client": {
+                    "cpf": "19392931619",
+                    "destination_receiver_name": "guilherme fuarte"
+                },
+                "condition": "new",
+                "created_at": "2025-11-25T13:17:22",
+                "currency_id": "BRL",
+                "custo_envio_base": "78.00",
+                "custo_envio_buyer": "0.00",
+                "custo_envio_final": "45.90",
+                "custo_envio_seller": "45.90",
+                "date_closed": "2024-11-29T09:43:47",
+                "date_created": "2024-11-29T09:43:43",
+                "declared_value": "632.80",
+                "estimated_delivery": "2024-12-04T00:00:00",
+                "expiration_date": "2024-12-27T09:43:47",
+                "extra_cost": "2.00",
+                "isRegisteredInternally": true,
+                "listing_type_id": "gold_pro",
+                "marketplace_shop_id": "2054708538",
+                "mlb": "MLB5173446722",
+                "order_id": "2000009991653396",
+                "pack_id": "2000006727884173",
+                "packaging_cost": "2.00",
+                "paid_amount": "499.90",
+                "price_cost": "1.00",
+                "quantity": 1,
+                "sale_fee": "89.98",
+                "shipment_status": "delivered",
+                "shipment_substatus": "no_action_taken",
+                "shipping_destination_state": "SP",
+                "shipping_details": {
+                    "address_line": "Rua Deputado Fernando Mauro 90",
+                    "neighborhood": "Vila Fachini",
+                    "street_name": "Rua Deputado Fernando Mauro",
+                    "street_number": "90"
+                },
+                "shipping_id": "44151790597",
+                "shipping_mode": "drop_off",
+                "shipping_paid_by": "SELLER",
+                "sku": "WAV-LINK-ADAP",
+                "status": "paid",
+                "tags": [
+                    "pack_order",
+                    "paid",
+                    "delivered",
+                    "test_order"
+                ],
+                "tax_amount": null,
+                "tax_percentage": null,
+                "thumbnail": null,
+                "title": "Adaptador Multi Telas Macbook M1 Notebook Usb C 3.0 Hdmi 4k",
+                "total_amount": "499.90",
+                "tracking_method": "Sedex",
+                "tracking_number": "101010803831427",
+                "unit_price": "499.90",
+                "updated_at": "2025-11-25T13:17:22",
+                "valor_base": "409.92",
+                "valor_liquido": "364.02"
+            }
+        ],
+        "pack_info": {
+            "pack_id": "2000006727884173",
+            "total_items": 4,
+            "total_orders": 3
+        },
+        "pagination": {
+            "has_next": false,
+            "has_prev": false,
+            "page": 1,
+            "per_page": 20,
+            "total_count": 1,
+            "total_pages": 1
+        },
+        "timeline_events": [
+            {
+                "date": "2024-11-29T09:43:44.852-04:00",
+                "status": "Frete pago",
+                "substatus": "Shipping cost has been paid"
+            },
+            {
+                "date": "2024-11-29T09:43:55.000-04:00",
+                "status": "Pacote em preparação",
+                "substatus": null
+            },
+            {
+                "date": "2024-11-29T09:43:56.129-04:00",
+                "status": "Pronto para envio",
+                "substatus": "Ready to print"
+            },
+            {
+                "date": "2024-12-04T14:37:04.039-04:00",
+                "status": "Etiqueta impressa - Pronto para envio",
+                "substatus": "Printed"
+            },
+            {
+                "date": "2024-12-14T23:35:58.000-04:00",
+                "status": "Ready to ship",
+                "substatus": "Stale Ready To Ship"
+            },
+            {
+                "date": "2024-12-27T19:36:17.782-04:00",
+                "status": "Entregue",
+                "substatus": "No action taken by buyer"
+            }
+        ]
+    },
+    "message": "3 pedido(s) encontrado(s)",
+    "success": true
+};

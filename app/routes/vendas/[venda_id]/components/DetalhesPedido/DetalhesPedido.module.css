@@ -1,0 +1,48 @@
+.detalhesPedido {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+    border-bottom: 1px solid #ffffff1a;
+
+    .header {
+        display: flex;
+        gap: 0.5rem;
+        color: #d9d9d9;
+
+        .hint {
+            font-size: 12px;
+        }
+    }
+
+    .value {
+        font-weight: 700;
+    }
+
+    .positivo {
+        color: #4caf50;
+    }
+
+    .negativo {
+        color: #ff5722;
+    }
+
+    &.highlight {
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        padding-top: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .highlightValue {
+        font-size: 1.2rem;
+        font-weight: 800;
+    }
+}
+
+@media (max-width: 488px) {
+    .detalhesPedido {
+        .header {
+            flex-direction: column;
+        }
+    }
+}

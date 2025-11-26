@@ -1,0 +1,252 @@
+.productPanel {
+    background: rgba(255, 255, 255, .1);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(255, 255, 255, .1);
+    overflow: hidden;
+    transition: all .3s ease;
+    display: flex;
+    flex-direction: column;
+
+    .header {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: 15px;
+        align-items: center;
+        gap: 1rem;
+        background-color: transparent;
+        cursor: pointer;
+
+        .headerLeft {
+            display: flex;
+            align-items: center;
+
+            .productNumber {
+                width: 25px;
+                height: 25px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 100%;
+                color: var(--white);
+                font-weight: 600;
+                background-color: var(--orange);
+            }
+
+            .productImage {
+                width: 40px;
+                height: 40px;
+                border-radius: 6px;
+                overflow: hidden;
+                margin: 0 12px;
+                flex-shrink: 0;
+
+                img {
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform .3s ease;
+                }
+            }
+
+            .info {
+                color: #fff;
+
+                .nomeProdutoFechado {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    max-width: 200px;
+                }
+
+                .infoInline {
+                    display: flex;
+                    gap: 0.5rem;
+
+                    .sku {
+                        background: rgba(255, 255, 255, .1);
+                        padding: 2px 6px;
+                        border-radius: 4px;
+                    }
+
+                    .quantTotal {
+                        display: flex;
+                        gap: 0.5rem;
+
+                        .quant {
+                            color: var(--orange);
+                        }
+
+                        .total {
+                            color: #4caf50;
+                        }
+                    }
+                }
+            }
+        }
+
+        .btnAbrir {
+            background: 0 0;
+            border: none;
+            color: var(--orange);
+            font-size: .9rem;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all .3s ease;
+
+            &.rotate {
+                transform: rotate(180deg);
+            }
+        }
+    }
+
+    .contentInfo {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        align-items: flex-start;
+        text-align: left;
+        gap: 1rem;
+
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        transform: translateY(-10px);
+        padding-top: 0;
+        padding-bottom: 0;
+
+        &.show {
+            max-height: 1000px;
+            opacity: 1;
+            transform: translateY(0);
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .columnInfo {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+
+            .titleInfo {
+                color: var(--orange);
+                font-weight: 500;
+                padding-bottom: 5px;
+                margin-bottom: 0.5rem;
+                border-bottom: 1px solid var(--orange);
+            }
+
+            .topicsInfo {
+                width: 100%;
+                color: #d9d9d9;
+
+                p {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 0.25rem;
+
+                    strong {
+                        color: #fff;
+                    }
+                }
+
+                .lucro {
+                    margin: 4px -8px;
+                    padding: 6px 8px;
+                    border-radius: 4px;
+                    border-left: 3px solid var(--orange);
+                    background: rgba(255, 138, 0, .1);
+
+                    strong {
+                        color: var(--green);
+                    }
+                }
+            }
+        }
+    }
+}
+
+.productPanel:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.233);
+
+    img {
+        transform: scale(1.1);
+    }
+}
+
+@media (max-width: 488px) {
+    .productPanel {
+        width: 100%;
+
+        .header {
+            width: 100%;
+            gap: 0;
+            align-items: flex-end;
+            flex-direction: column-reverse;
+
+            .headerLeft {
+                width: 100%;
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+                text-align: left;
+
+                .productNumber {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 5px;
+                }
+
+                .productImage {
+                    width: 100%;
+                    height: 250px;
+                    margin: 0;
+
+                    img {
+                        width: 100%;
+                    }
+                }
+
+                .info {
+                    gap: 0.5rem;
+                    display: flex;
+                    flex-direction: column;
+
+                    .infoInline {
+                        width: 100%;
+                        flex-direction: column;
+
+                        .sku {
+                            width: fit-content;
+                        }
+                    }
+                }
+            }
+        }
+
+        .contentInfo {
+            flex-direction: column;
+
+            .columnInfo {
+                width: 100%;
+
+                .topicsInfo {
+                    .lucro {
+                        margin: 1rem 0 0 0;
+                    }
+                }
+            }
+        }
+    }
+
+    .productPanel:hover {
+        transform: translateY(0);
+
+        img {
+            transform: none;
+        }
+    }
+}
