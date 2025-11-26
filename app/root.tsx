@@ -27,6 +27,7 @@ import { SocketStatusIndicator } from "./features/socket/components/SocketStatus
 import { SocketProvider } from "./features/socket/context/SocketContext";
 import authStore from "./features/store-zustand";
 import type { IUser } from "./features/user/typings/User";
+import GlobalLoadingSpinner from "./features/auth/components/GlobalLoadingSpinner/GlobalLoadingSpinner";
 import store from "./store";
 import "./zod";
 export const queryClient = new QueryClient();
@@ -342,6 +343,7 @@ export default function App() {
     <Provider store={store}>
       <Analytics />
       <QueryClientProvider client={queryClient}>
+        <GlobalLoadingSpinner />
         <SocketConnectionManager />
         <AuthStoreMonitor />
       </QueryClientProvider>
