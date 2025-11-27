@@ -1,4 +1,5 @@
-import { Navigate, Outlet } from "react-router";
+import { Outlet, useNavigate } from "react-router";
+import authStore from "~/features/store-zustand";
 import { useAuthError } from "../../context/AuthErrorContext";
 import MultipleDeviceWarning from "../MultipleDeviceWarning/MultipleDeviceWarning";
 
@@ -41,7 +42,9 @@ export default function AuthLayout() {
   //     />
   //   );
   // }
+  const navigate = useNavigate();
   const authError = useAuthError();
+  const user = authStore.use.user();
   if (
     authError !== null &&
     window.location.pathname !== "/interno/subscription"
@@ -52,11 +55,16 @@ export default function AuthLayout() {
       case "SUBSCRIPTION_NOT_FOUND":
       case "SUBSCRIPTION_CANCELLED":
       case "SUBSCRIPTION_NOT_ACTIVE":
-        return (
-          <Navigate to="/interno/subscription" state={{ error: authError }} />
-        );
+        return navigate("/interno/subscription", {
+          replace: true,
+          viewTransition: true,
+        });
     }
   } else {
-    return <Outlet />;
+    if (!user) {
+      return navigate("/login", { replace: true, viewTransition: true });
+    } else {
+      return <Outlet />;
+    }
   }
 }

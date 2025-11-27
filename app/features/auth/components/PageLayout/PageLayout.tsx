@@ -118,24 +118,6 @@ export default function PageLayout({
           )}
         </header>
 
-        {/* {showLogoutButton && (
-          <button
-            onClick={() => {
-              handleLogout.mutate();
-              logout();
-            }}
-            data-tooltip-id="logout-tooltip"
-            className="size-12 md:size-16 flex items-center justify-center border border-beergam-white absolute top-2 right-2 z-1000 bg-beergam-red rounded-full p-2"
-          >
-            <Svg.logout tailWindClasses="text-beergam-white size-6 md:size-10" />
-            <Tooltip
-              id="logout-tooltip"
-              content="Sair do sistema"
-              className="z-9999"
-            />
-          </button>
-        )} */}
-
         <div className="absolute hidden lg:block top-0 left-0 max-w-screen max-h-screen overflow-hidden w-full h-full opacity-50">
           <div className="absolute top-0 left-0 w-3/4 max-w-6xl object-contain">
             <img
