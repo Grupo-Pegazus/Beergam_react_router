@@ -65,7 +65,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
                 totalShippingBuyer: 0,
                 totalShippingFinal: 0,
                 totalFees: 0,
-                totalFeesWithFixed: 0,
+                tarifaML: 0,
                 receitaBruta: 0,
                 totalReceita: 0,
                 totalFinal: 0,
@@ -104,12 +104,8 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
             return sum + parseFloat(order.sale_fee);
         }, 0);
         
-        // Custos fixos (conforme imagem do ML: 6.00 + 12.00 = 18.00)
-        // Ajustando para que o total seja 463.63: 632.80 - 123.27 - 45.90 = 463.63
-        // Então tarifa total deve ser 123.27, mas temos 113.93, então adicionamos 9.34
-        // Mas apenas se não estiver cancelled
-        const fixedCosts = allOrdersCancelled ? 0 : 9.34; // Diferença para chegar ao total correto
-        const totalFeesWithFixed = totalFees + fixedCosts;
+        // Tarifa ML corresponde ao sale_fee informado por pedido (sem ajustes adicionais)
+        const tarifaML = totalFees;
         const totalLiquido = orders.reduce((sum, order) => {
             const liquido = parseFloat(order.valor_liquido || "0");
             return sum + liquido;
@@ -119,10 +115,10 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
         const receitaBruta = totalPaid - totalShippingBuyer;
 
         // Total receita = receita bruta - envio vendedor - tarifa ML
-        const totalReceita = receitaBruta - totalShippingFinal - totalFeesWithFixed;
+        const totalReceita = receitaBruta - totalShippingFinal - tarifaML;
         
         // Total final (conforme Mercado Livre): Preço dos produtos - Tarifa de venda total - Envios (custo final)
-        const totalFinal = precoProdutos - totalFeesWithFixed - totalShippingFinal;
+        const totalFinal = precoProdutos - tarifaML - totalShippingFinal;
 
         // Custos
         const custoProduto = orders.reduce((sum, order) => sum + parseFloat(order.price_cost || "0"), 0);
@@ -132,7 +128,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
 
         // Lucro final = total receita - custos
         // Se todos os pedidos estão cancelled, lucro final é 0
-        const lucroFinal = allOrdersCancelled ? 0 : (totalReceita - custoProduto - custoEmbalagem - custosExtras - impostos);
+        const lucroFinal = allOrdersCancelled ? 0 : (totalLiquido - custoProduto - custoEmbalagem - custosExtras - impostos);
 
         return {
             totalItems,
@@ -143,7 +139,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
             totalShippingBuyer,
             totalShippingFinal,
             totalFees,
-            totalFeesWithFixed,
+            tarifaML,
             receitaBruta,
             totalReceita,
             totalFinal,
@@ -308,7 +304,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
                         envioVendedor={totals.totalShippingSeller}
                         envioComprador={totals.totalShippingBuyer}
                         envioFinalVendedor={totals.totalShippingFinal}
-                        tarifaML={totals.totalFeesWithFixed}
+                        tarifaML={totals.tarifaML}
                         totalReceita={totals.totalReceita}
                         custoProduto={totals.custoProduto}
                         custoEmbalagem={totals.custoEmbalagem}

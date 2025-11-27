@@ -14,7 +14,7 @@ interface BreadcrumbItem {
 function SpanLink({ to, className, children }: { to?: string; className?: string; children: React.ReactNode }) {
   const navigate = useNavigate();
   function handleActivate() {
-    if (to) navigate(to);
+    if (to) navigate(to, { viewTransition: true });
   }
   return (
     <span
