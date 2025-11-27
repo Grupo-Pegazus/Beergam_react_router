@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router";
 import authStore from "~/features/store-zustand";
 import { UserRoles } from "~/features/user/typings/BaseUser";
-import { useAuthError } from "../../context/AuthErrorContext";
+import { useAuthError, useAuthUser } from "../../context/AuthStoreContext";
 import { authService } from "../../service";
 import MultipleDeviceWarning from "../MultipleDeviceWarning/MultipleDeviceWarning";
 import UsageTimeLimitWarning from "../UsageTimeLimitWarning/UsageTimeLimitWarning";
@@ -11,7 +11,7 @@ export default function AuthLayout() {
   const navigate = useNavigate();
   const authError = useAuthError();
   const queryClient = useQueryClient();
-  const user = authStore.use.user();
+  const user = useAuthUser();
   const { data } = useQuery({
     queryKey: ["verifyTimeColab", user?.pin, user?.master_pin, user?.role],
     queryFn: () =>
