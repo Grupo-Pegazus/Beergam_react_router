@@ -1,4 +1,3 @@
-import React from "react";
 import styles from "./AnaliseFinanceira.module.css";
 import DetalhesPedido from "../DetalhesPedido/DetalhesPedido";
 import AvisoProdutosNaoCadastrados from "../AvisoProdutosNaoCadastrados/AvisoProdutosNaoCadastrados";
@@ -55,7 +54,7 @@ function AnaliseFinanceira({
                 <DetalhesPedido
                     titulo="Envios - Vendedor"
                     hint="Custo de envio pago pelo vendedor"
-                    value={-envioVendedor}
+                    value={envioVendedor}
                     isCusto={true}
                 />
                 <DetalhesPedido

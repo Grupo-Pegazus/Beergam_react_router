@@ -9,10 +9,10 @@ import PagamentoHeader from "./components/PagamentoHeader/PagamentoHeader";
 import AnaliseFinanceira from "./components/AnaliseFinanceira/AnaliseFinanceira";
 import DetalhesEnvio from "./components/DetalhesEnvio/DetalhesEnvio";
 import LabelText from "./components/LabelText/LabelText";
-import ListaItensPedido from "./components/ListaItensPedido/ListaItensPedido";
 import OrderItemCard from "~/features/vendas/components/OrderList/OrderItemCard";
 import { getStatusOrderMeliInfo } from "~/src/constants/status-order-meli";
 import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
+import { getShippingPaidByLabel } from "~/src/constants/shipping-paid-by-meli";
 interface VendasPageProps {
     venda_id?: string;
 }
@@ -92,6 +92,8 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
         const totalPaid = orders.reduce((sum, order) => sum + parseFloat(order.paid_amount), 0);
         
         // Se todos os pedidos estão cancelled, não considerar envios e tarifas como negativos
+        // Nota: Mantemos os valores de envio para exibição mesmo quando < R$ 79
+        // O valor_liquido do backend já está calculado corretamente considerando a regra do R$ 79
         const totalShippingSeller = allOrdersCancelled ? 0 : parseFloat(firstOrder.custo_envio_seller || "0");
         const totalShippingBuyer = allOrdersCancelled ? 0 : parseFloat(firstOrder.custo_envio_buyer || "0");
         const totalShippingFinal = allOrdersCancelled ? 0 : parseFloat(firstOrder.custo_envio_final || "0");
@@ -106,6 +108,10 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
         
         // Tarifa ML corresponde ao sale_fee informado por pedido (sem ajustes adicionais)
         const tarifaML = totalFees;
+        
+        // Usar valor_liquido do backend - já é a receita final calculada
+        // O valor_liquido já tem todos os descontos aplicados (envios, tarifas)
+        // Não inclui apenas os custos internos (custo produto, embalagem, extras, impostos)
         const totalLiquido = orders.reduce((sum, order) => {
             const liquido = parseFloat(order.valor_liquido || "0");
             return sum + liquido;
@@ -114,13 +120,14 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
         // Receita bruta = total pago - envio comprador
         const receitaBruta = totalPaid - totalShippingBuyer;
 
-        // Total receita = receita bruta - envio vendedor - tarifa ML
-        const totalReceita = receitaBruta - totalShippingFinal - tarifaML;
+        // Total receita = valor_liquido do backend (já calculado com todas as deduções)
+        // O backend já aplica a regra do R$ 79 e calcula tudo corretamente
+        const totalReceita = totalLiquido;
         
         // Total final (conforme Mercado Livre): Preço dos produtos - Tarifa de venda total - Envios (custo final)
         const totalFinal = precoProdutos - tarifaML - totalShippingFinal;
 
-        // Custos
+        // Custos - usar valores do backend
         const custoProduto = orders.reduce((sum, order) => sum + parseFloat(order.price_cost || "0"), 0);
         const custoEmbalagem = orders.reduce((sum, order) => sum + parseFloat(order.packaging_cost || "0"), 0);
         const custosExtras = orders.reduce((sum, order) => sum + parseFloat(order.extra_cost || "0"), 0);
@@ -128,7 +135,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
 
         // Lucro final = total receita - custos
         // Se todos os pedidos estão cancelled, lucro final é 0
-        const lucroFinal = allOrdersCancelled ? 0 : (totalLiquido - custoProduto - custoEmbalagem - custosExtras - impostos);
+        const lucroFinal = allOrdersCancelled ? 0 : (totalReceita - custoProduto - custoEmbalagem - custosExtras - impostos);
 
         return {
             totalItems,
@@ -233,7 +240,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
                 <div style={{ padding: "20px", margin: "0 auto", width: "100%" }}>
             {/* Header */}
             <PedidoHeader
-                packId={packId || firstOrder.order_id}
+                packId={packId}
                 totalItems={packInfo?.total_items || totals.totalItems}
                 orderId={firstOrder.order_id}
                 date={formatDate(firstOrder.date_created)}
@@ -281,7 +288,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
                         <DetalhesEnvio icon="entrega">
                             {/* <LabelText label="Método" text={firstOrder.tracking_method || "N/A"} /> */}
                             <LabelText label="Modo de Envio" text={getLogisticTypeMeliInfo(firstOrder.shipping_mode ?? "")?.label || "N/A"} />
-                            <LabelText label="Frete Pago Por" text={firstOrder.shipping_paid_by || "N/A"} />
+                            <LabelText label="Frete Pago Por" text={getShippingPaidByLabel(firstOrder.shipping_paid_by)} />
                         </DetalhesEnvio>
                     </div>
                 </div>
