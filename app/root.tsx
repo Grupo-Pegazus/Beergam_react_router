@@ -210,6 +210,9 @@ const theme = createTheme(
         },
       },
     },
+    typography: {
+      fontFamily: "var(--default-font-family)",
+    },
   },
   ptBR,
   ptBRDayjs
