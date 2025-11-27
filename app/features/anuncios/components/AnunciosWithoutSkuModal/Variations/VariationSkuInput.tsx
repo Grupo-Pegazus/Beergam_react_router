@@ -1,6 +1,7 @@
-import { TextField, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import type { Variation } from "../../../typings";
 import { formatCurrency } from "../utils";
+import { Fields } from "~/src/components/utils/_fields";
 
 interface VariationSkuInputProps {
   variation: Variation;
@@ -57,15 +58,14 @@ export default function VariationSkuInput({
           </>
         )}
       </div>
-      <TextField
-        label="SKU"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        size="small"
-        placeholder="Digite o SKU"
-        sx={{ minWidth: { xs: "100%", sm: 200 }, width: { xs: "100%", sm: "auto" } }}
-        className="w-full sm:w-auto"
-      />
+      <Fields.wrapper tailWindClasses="w-full sm:w-auto sm:min-w-[200px]">
+        <Fields.label text="SKU" />
+        <Fields.input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Digite o SKU"
+        />
+      </Fields.wrapper>
     </div>
   );
 }

@@ -5,12 +5,13 @@ import { MarketplaceType, type BaseMarketPlace, MarketplaceTypeLabel } from "~/f
 import { marketplaceService } from "~/features/marketplace/service";
 import { useRecalcStatus, useRecalculatePeriod, useUpsertTax, useUserTaxes } from "~/features/taxes/hooks";
 import type { TaxesData } from "~/features/taxes/typings";
-import { TextField, MenuItem, Select, InputLabel, FormControl, Table, TableHead, TableRow, TableCell, TableBody, Button, Card, CardContent, CircularProgress, Box, Typography, InputAdornment, IconButton, Chip, Avatar } from "@mui/material";
+import { MenuItem, Select, InputLabel, FormControl, Table, TableHead, TableRow, TableCell, TableBody, Button, Card, CardContent, CircularProgress, Box, Typography, IconButton, Chip, Avatar } from "@mui/material";
 import { Tooltip } from "react-tooltip";
 import Modal from "~/src/components/utils/Modal";
 import Svg from "~/src/assets/svgs/_index";
 import Hint from "~/src/components/utils/Hint";
 import type { ApiResponse } from "~/features/apiClient/typings";
+import { Fields } from "~/src/components/utils/_fields";
 
 function formatRateInput(value: string): string {
   const normalized = value.replace(/[^0-9.,]/g, "");
@@ -153,14 +154,16 @@ export default function Impostos() {
           </Select>
         </FormControl>
 
-        <TextField
-          label="Ano"
-          type="number"
-          value={year}
-          onChange={(e) => setYear(Number(e.target.value))}
-          inputProps={{ min: 1900, max: 3000 }}
-          fullWidth
-        />
+        <Fields.wrapper>
+          <Fields.label text="Ano" />
+          <Fields.input
+            type="number"
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+            min={1900}
+            max={3000}
+          />
+        </Fields.wrapper>
       </div>
 
       {!isReady ? (
@@ -228,31 +231,31 @@ export default function Impostos() {
                       <TableRow key={m}>
                         <TableCell>{String(m).padStart(2, "0")}</TableCell>
                         <TableCell>
-                          <TextField
-                            size="small"
-                            value={value}
-                            onChange={(e) => {
-                              const next = sanitizePercentInput(e.target.value);
-                              setEditRates((prev) => ({ ...prev, [String(m)]: next }));
-                            }}
-                            inputProps={{ inputMode: "decimal" }}
-                            placeholder="0,00"
-                            InputProps={{
-                              endAdornment: <InputAdornment position="end">%</InputAdornment>,
-                            }}
-                            onBlur={(ev) => {
-                              const raw = ev.target.value;
-                              if (!raw) return;
-                              const num = Number(raw.replace(",", "."));
-                              if (Number.isFinite(num)) {
-                                setEditRates((prev) => ({ ...prev, [String(m)]: formatNumberToPercentString(num) }));
-                              }
-                            }}
-                            onFocus={() => {
-                              // ao focar, se o valor for apenas o fallback formatado, mantém; se for editado, não força seleção
-                              // comportamento natural de digitação funciona pois não reformatamos em onChange
-                            }}
-                          />
+                          <div className="relative">
+                            <Fields.input
+                              value={value}
+                              onChange={(e) => {
+                                const next = sanitizePercentInput(e.target.value);
+                                setEditRates((prev) => ({ ...prev, [String(m)]: next }));
+                              }}
+                              inputMode="decimal"
+                              placeholder="0,00"
+                              onBlur={(ev) => {
+                                const raw = ev.target.value;
+                                if (!raw) return;
+                                const num = Number(raw.replace(",", "."));
+                                if (Number.isFinite(num)) {
+                                  setEditRates((prev) => ({ ...prev, [String(m)]: formatNumberToPercentString(num) }));
+                                }
+                              }}
+                              onFocus={() => {
+                                // ao focar, se o valor for apenas o fallback formatado, mantém; se for editado, não força seleção
+                                // comportamento natural de digitação funciona pois não reformatamos em onChange
+                              }}
+                              tailWindClasses="pr-8"
+                            />
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">%</span>
+                          </div>
                         </TableCell>
                         <TableCell align="right">
                           <Box display="flex" gap={1} justifyContent="flex-end">
@@ -307,28 +310,27 @@ export default function Impostos() {
                             <span className="text-sm text-beergam-black-blue/70">Alíquota (%)</span>
                             <Hint message="Informe a alíquota do mês. Ex.: 1,25" anchorSelect={`impostos-aliquota-hint-${m}`} />
                           </div>
-                          <TextField
-                            size="small"
-                            value={value}
-                            onChange={(e) => {
-                              const next = sanitizePercentInput(e.target.value);
-                              setEditRates((prev) => ({ ...prev, [String(m)]: next }));
-                            }}
-                            inputProps={{ inputMode: "decimal" }}
-                            placeholder="0,00"
-                            fullWidth
-                            InputProps={{
-                              endAdornment: <InputAdornment position="end">%</InputAdornment>,
-                            }}
-                            onBlur={(ev) => {
-                              const raw = ev.target.value;
-                              if (!raw) return;
-                              const num = Number(raw.replace(",", "."));
-                              if (Number.isFinite(num)) {
-                                setEditRates((prev) => ({ ...prev, [String(m)]: formatNumberToPercentString(num) }));
-                              }
-                            }}
-                          />
+                          <div className="relative">
+                            <Fields.input
+                              value={value}
+                              onChange={(e) => {
+                                const next = sanitizePercentInput(e.target.value);
+                                setEditRates((prev) => ({ ...prev, [String(m)]: next }));
+                              }}
+                              inputMode="decimal"
+                              placeholder="0,00"
+                              onBlur={(ev) => {
+                                const raw = ev.target.value;
+                                if (!raw) return;
+                                const num = Number(raw.replace(",", "."));
+                                if (Number.isFinite(num)) {
+                                  setEditRates((prev) => ({ ...prev, [String(m)]: formatNumberToPercentString(num) }));
+                                }
+                              }}
+                              tailWindClasses="pr-8"
+                            />
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">%</span>
+                          </div>
                         </div>
                         <div className="flex gap-2 justify-end pt-2">
                           <IconButton

@@ -5,12 +5,12 @@ import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
-import TextField from "@mui/material/TextField";
 import { useUpdateSku } from "../../../hooks";
 import type { AnuncioDetails, Variation, UpdateSkuRequest } from "../../../typings";
 import { groupVariationsByCommonAttributes } from "../../AnuncioList/Variations/utils";
 import toast from "~/src/utils/toast";
 import Svg from "~/src/assets/svgs/_index";
+import { Fields } from "~/src/components/utils/_fields";
 
 interface VariationsSelectorProps {
   anuncio: AnuncioDetails;
@@ -332,14 +332,12 @@ export default function VariationsSelector({ anuncio }: VariationsSelectorProps)
                         />
                       ) : (
                         <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
-                          <TextField
-                            label="SKU"
+                          <Fields.input
                             value={skuValues[variation.variation_id] || ""}
                             onChange={(e) => handleSkuChange(variation.variation_id, e.target.value)}
                             placeholder="Digite o SKU"
-                            size="small"
-                            sx={{ minWidth: 150 }}
                             disabled={savingVariationId === variation.variation_id}
+                            tailWindClasses="min-w-[150px]"
                           />
                             <span>
                               <button

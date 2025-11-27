@@ -1,11 +1,12 @@
+import { Box, ClickAwayListener } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router";
-import { Tooltip } from "react-tooltip";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import authStore from "~/features/store-zustand";
+import { isMaster } from "~/features/user/utils";
 import Svg from "~/src/assets/svgs/_index";
 import ParticlesBackground from "~/src/components/utils/ParticlesBackground";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
-import { logout } from "../../redux";
 import { authService } from "../../service";
 function CardComponent({ title, value }: { title: string; value: string }) {
   return (
@@ -30,50 +31,89 @@ function CardComponent({ title, value }: { title: string; value: string }) {
 export default function PageLayout({
   children,
   tailwindClassName,
-  showLogo = true,
-  showLogoutButton = false,
 }: {
   children: React.ReactNode;
   tailwindClassName?: string;
-  showLogo?: boolean;
-  showLogoutButton?: boolean;
 }) {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const logout = authStore.use.logout();
+  const user = authStore.use.user();
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const handleLogout = useMutation({
     mutationFn: () => authService.logout(),
   });
+  // Função para gerar sigla customizada com base nas regras fornecidas
+  function generateUserInitials(name: string): string {
+    if (!name) return "";
+    const names = name.trim().split(/\s+/);
+    if (names.length > 1) {
+      // Nome composto: pega primeira letra do primeiro (maiúscula) e do segundo (minúscula)
+      const first = names[0][0]?.toUpperCase() ?? "";
+      const second = names[1][0]?.toLowerCase() ?? "";
+      return `${first}${second}`;
+    } else {
+      // Nome simples: pega primeira letra (maiúscula) e última (minúscula)
+      const onlyName = names[0];
+      const first = onlyName[0]?.toUpperCase() ?? "";
+      const last = onlyName[onlyName.length - 1]?.toLowerCase() ?? "";
+      return `${first}${last}`;
+    }
+  }
   return (
     <>
       <main className="flex min-h-full bg-beergam-orange overflow-x-hidden">
-        <data className="absolute top-2 left-2 w-30 h-30 z-10 hidden lg:block">
-          {showLogo && (
+        <header className="fixed z-10000 top-0 left-0 right-0 p-4 px-8 flex items-center justify-between">
+          <Link to="/" className="w-10 h-10 cursor-pointer hover:opacity-80">
             <img
               src={CDN_IMAGES.BERGAMOTA_LOGO}
               alt="beergam_flower_logo"
               className="w-full h-full object-contain"
             />
+          </Link>
+          {user && (
+            <div className="flex items-center gap-2">
+              <p className="text-beergam-white text-2xl font-bold">
+                Bem-vindo,{" "}
+                <span className="text-beergam-blue-primary">{user.name}</span>!
+              </p>
+              <ClickAwayListener onClickAway={() => setMenuOpen(false)}>
+                <Box sx={{ position: "relative" }}>
+                  <button
+                    onClick={() => setMenuOpen(!menuOpen)}
+                    className={`relative size-10 shadow-[2.5px_5px_5px_0px_rgba(0,0,0,0.65)] hover:translate-y-[2px] hover:shadow-transparent flex items-center text-xl! justify-center border ${menuOpen ? "shadow-transparent! translate-y-[2px]!" : ""} text-beergam-white bg-beergam-blue-primary border-beergam-white rounded-full`}
+                  >
+                    {generateUserInitials(user.name)}
+                  </button>
+                  <div
+                    className={`absolute p-2 top-12 w-[200px] right-4 bg-beergam-blue-primary rounded-xl shadow-[2.5px_5px_5px_0px_rgba(0,0,0,0.65)] border border-beergam-white ${menuOpen ? "opacity-100!" : "opacity-0!"}`}
+                  >
+                    <div className="text-left">
+                      <p className="text-beergam-white text-sm! font-bold!">
+                        {user.name}
+                      </p>
+                      <p className="text-beergam-gray-light">
+                        {isMaster(user) ? user.details?.email : user.pin}
+                      </p>
+                    </div>
+                    <hr className="my-2 border-beergam-white" />
+                    <button
+                      onClick={() => {
+                        if (!menuOpen || handleLogout.isPending) return;
+                        handleLogout.mutate();
+                        logout();
+                        navigate("/login", { replace: true });
+                      }}
+                      className={`flex items-center px-2 py-1 rounded-lg gap-2 justify-between w-full hover:bg-beergam-white/10 ${handleLogout.isPending ? "opacity-50! cursor-not-allowed!" : ""} ${!menuOpen ? "pointer-events-none! cursor-auto!" : ""}`}
+                    >
+                      <p className="text-beergam-white text-sm!">Sair</p>
+                      <Svg.logout tailWindClasses="text-beergam-white size-6" />
+                    </button>
+                  </div>
+                </Box>
+              </ClickAwayListener>
+            </div>
           )}
-        </data>
-
-        {showLogoutButton && (
-          <button
-            onClick={() => {
-              handleLogout.mutate();
-              dispatch(logout());
-              navigate("/login");
-            }}
-            data-tooltip-id="logout-tooltip"
-            className="size-12 md:size-16 flex items-center justify-center border border-beergam-white absolute top-2 right-2 z-1000 bg-beergam-red rounded-full p-2"
-          >
-            <Svg.logout tailWindClasses="text-beergam-white size-6 md:size-10" />
-            <Tooltip
-              id="logout-tooltip"
-              content="Sair do sistema"
-              className="z-9999"
-            />
-          </button>
-        )}
+        </header>
 
         <div className="absolute hidden lg:block top-0 left-0 max-w-screen max-h-screen overflow-hidden w-full h-full opacity-50">
           <div className="absolute top-0 left-0 w-3/4 max-w-6xl object-contain">
@@ -111,10 +151,18 @@ export default function PageLayout({
             </div>
           </div>
         </div>
-        <div className={`w-full min-h-full z-50 ${tailwindClassName}`}>
+        <div className={`w-full min-h-full z-50 ${tailwindClassName} mt-16`}>
           {children}
         </div>
       </main>
+      {/* <button
+        className="fixed bottom-4 right-4 z-9999 bg-beergam-blue-primary text-beergam-white px-4 py-2 rounded-md"
+        onClick={() => {
+          authStore.getState().setAuthError("USAGE_TIME_LIMIT");
+        }}
+      >
+        set auth error
+      </button> */}
       <ParticlesBackground />
     </>
   );

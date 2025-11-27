@@ -11,6 +11,7 @@ interface IMenuItemProps {
   item: IMenuItem;
   itemKey: string; // ex: "atendimento"
   parentKey: string; // ex: "atendimento.mercado_livre"
+  className?: string;
 }
 
 interface IMenuItemWrapperProps {
@@ -21,6 +22,7 @@ interface IMenuItemWrapperProps {
   isSelected?: boolean;
   target?: string | null;
   open?: boolean;
+  className?: string;
 }
 
 function MenuItemWrapper({
@@ -31,6 +33,7 @@ function MenuItemWrapper({
   isSelected,
   target,
   open,
+  className = "",
 }: IMenuItemWrapperProps) {
   const [prefetchActive, setPrefetchActive] = useState(false);
   if (isDropDown) {
@@ -41,6 +44,7 @@ function MenuItemWrapper({
           "text-white/50 border border-transparent hover:text-white hover:border-white/70",
           "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-8",
           "transition-[width,padding,color,border-color] duration-200",
+          className,
           isSelected || open
             ? "border-white text-beergam-orange! bg-beergam-orange/10!"
             : "",
@@ -59,6 +63,7 @@ function MenuItemWrapper({
           "text-white/50 border border-transparent hover:text-white hover:border-white/70",
           "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-8",
           "transition-[width,padding,color,border-color] duration-200",
+          className,
           isSelected || open
             ? "border-white text-beergam-orange! bg-beergam-orange/10!"
             : "",
@@ -77,7 +82,7 @@ function MenuItemWrapper({
   );
 }
 
-export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
+export default function MenuItem({ item, itemKey, parentKey, className = "" }: IMenuItemProps) {
   const currentKey = parentKey ? `${parentKey}.${itemKey}` : itemKey;
   const { toggleOpen } = useMenuActions();
   const { views, open: openMap, currentSelected } = useMenuState();
@@ -111,6 +116,7 @@ export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
         isSelected={isSelected}
         target={item.target}
         open={open}
+        className={className}
       >
         {item.icon && (
           <>
@@ -167,6 +173,7 @@ export default function MenuItem({ item, itemKey, parentKey }: IMenuItemProps) {
                 item={dropdownItem}
                 itemKey={key}
                 parentKey={currentKey}
+                className={"after:content-[''] after:absolute after:left-[-10px] after:top-[50%] after:translate-y-[-50%] after:w-[10px] after:h-px after:bg-beergam-white"}
               />
             ))}
           </ul>

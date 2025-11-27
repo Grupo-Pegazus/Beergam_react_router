@@ -1,59 +1,78 @@
-
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
 import { Navigate, Outlet } from "react-router";
-import { useAuth } from "../../hooks";
-import { logout } from "../../redux";
-import { isSubscriptionError } from "../../utils";
+import authStore from "~/features/store-zustand";
+import { UserRoles } from "~/features/user/typings/BaseUser";
+import { queryClient } from "~/root";
+import {
+  useAuthError,
+  useAuthMarketplace,
+  useAuthUser,
+} from "../../context/AuthStoreContext";
+import { authService } from "../../service";
 import MultipleDeviceWarning from "../MultipleDeviceWarning/MultipleDeviceWarning";
 import UsageTimeLimitWarning from "../UsageTimeLimitWarning/UsageTimeLimitWarning";
-
+const ROUTES_WITHOUT_MARKETPLACE = [
+  "/interno/subscription",
+  "/interno/choosen_account",
+  "/interno/config",
+  "/interno/perfil",
+];
 export default function AuthLayout() {
-  // Usa o hook useAuth que monitora mudanças no Redux e força re-render
-  const { userInfo, authInfo } = useAuth();
-  const dispatch = useDispatch();
-
-  
-  if (
-    authInfo?.error &&
-    isSubscriptionError(authInfo?.error) &&
-    window.location.pathname !== "/interno/subscription"
-  ) {
-    return <Navigate to="/interno/subscription" replace />;
-  }
-  
-  console.log("🔍 AuthLayout - authInfo:", authInfo);
-  
-  // Faz logout para todos os erros
+  const authError = useAuthError();
+  const user = useAuthUser();
+  const marketplace = useAuthMarketplace();
+  const { data } = useQuery({
+    queryKey: ["verifyTimeColab", user?.pin, user?.master_pin, user?.role],
+    queryFn: () =>
+      authService.verifyTimeColab(
+        user?.pin ?? "",
+        user?.master_pin ?? "",
+        user?.role ?? UserRoles.COLAB
+      ),
+    enabled: authError === "USAGE_TIME_LIMIT",
+  });
   useEffect(() => {
-    if (authInfo?.error) {
-      dispatch(logout()); //Remove as informações de redux e local storage
+    //UseEffect para fazer veiricação de colab quando da timeAccess negativo
+    if (!data) return;
+    if (data.success) {
+      authStore.setState({ error: null });
+      queryClient.invalidateQueries({ queryKey: ["verifyTimeColab"] });
+    } else {
+      authStore.setState({ error: "USAGE_TIME_LIMIT" });
     }
-  }, [authInfo?.error, dispatch]);
-  
-  // Verifica erros e renderiza as telas correspondentes
-  // O logout já foi feito no useEffect acima, mas o erro ainda está no Redux neste momento
-  if (authInfo?.error === "REFRESH_TOKEN_EXPIRED") {
-    return <Navigate to="/login" replace />;
+  }, [data, queryClient, authError]);
+  const canAccessOutlet = useMemo(() => {
+    //Aqui é quando o usuário NÃO consegue acessar rotas que precisam de informações ou segurança.
+    if (!user) return false;
+    if (authError) return false;
+    return true;
+  }, [authError, user]);
+  if (!canAccessOutlet) {
+    if (!user) return <Navigate to="/login" replace />; //Se as informações do usuário não existirem, mandar para o login. #TODO: Criar endpoint para recuperar informações do usuário
+    if (authError) {
+      switch (authError) {
+        case "REFRESH_TOKEN_EXPIRED":
+          return <Navigate to="/login" replace />;
+        case "REFRESH_TOKEN_REVOKED":
+          return <MultipleDeviceWarning />;
+        case "SUBSCRIPTION_NOT_FOUND": //Fazer verificação de se o usuário está na página de assinatura, se não estiver, mandar para a página de assinatura.
+        case "SUBSCRIPTION_CANCELLED":
+        case "SUBSCRIPTION_NOT_ACTIVE":
+          if (window.location.pathname !== "/interno/subscription")
+            return <Navigate to="/interno/subscription" replace />;
+          break;
+        case "USAGE_TIME_LIMIT":
+          return <UsageTimeLimitWarning />;
+      }
+    }
   }
-  if (authInfo?.error === "REFRESH_TOKEN_REVOKED") {
-    return <MultipleDeviceWarning />;
+  if (ROUTES_WITHOUT_MARKETPLACE.includes(window.location.pathname)) {
+    return <Outlet />;
+  } else {
+    if (!marketplace) {
+      return <Navigate to="/interno/choosen_account" replace />;
+    }
+    return <Outlet />;
   }
-  if (authInfo?.error === "USAGE_TIME_LIMIT") {
-    console.log("⏰ USAGE_TIME_LIMIT detectado, mostrando tela:", authInfo.usageLimitData);
-    return (
-      <UsageTimeLimitWarning
-        message={authInfo.usageLimitData?.message}
-        nextAllowedAt={authInfo.usageLimitData?.next_allowed_at}
-        weekday={authInfo.usageLimitData?.weekday}
-      />
-    );
-  }
-  
-  // if (!userInfo) return <Navigate to="/login" replace />;
-  return (
-    <>
-      <Outlet />
-    </>
-  );
 }

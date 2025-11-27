@@ -1,55 +1,7 @@
 import { Link } from "react-router";
 import PageLayout from "../PageLayout/PageLayout";
 
-interface UsageTimeLimitWarningProps {
-  message?: string;
-  nextAllowedAt?: number | null;
-  weekday?: string | null;
-}
-
-function formatNextAllowed(nextAllowedAt?: number | null) {
-  if (!nextAllowedAt) {
-    return null;
-  }
-  const date = new Date(nextAllowedAt * 1000);
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-  return new Intl.DateTimeFormat("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
-
-function formatWeekday(weekday?: string | null) {
-  if (!weekday) {
-    return "";
-  }
-  try {
-    // Mapeia o nome do dia em inglês para português
-    const weekdayMap: Record<string, string> = {
-      monday: "segunda-feira",
-      tuesday: "terça-feira",
-      wednesday: "quarta-feira",
-      thursday: "quinta-feira",
-      friday: "sexta-feira",
-      saturday: "sábado",
-      sunday: "domingo",
-    };
-    const normalized = weekday.toLowerCase();
-    return weekdayMap[normalized] || weekday;
-  } catch {
-    return weekday;
-  }
-}
-
-export default function UsageTimeLimitWarning({
-  message,
-  nextAllowedAt,
-  weekday,
-}: UsageTimeLimitWarningProps) {
-  const nextSlot = formatNextAllowed(nextAllowedAt);
-  const weekdayFormatted = formatWeekday(weekday);
+export default function UsageTimeLimitWarning() {
 
   return (
     <PageLayout tailwindClassName="flex items-center justify-center">
@@ -85,18 +37,8 @@ export default function UsageTimeLimitWarning({
         {/* Mensagem */}
         <div className="space-y-2">
           <p className="text-center text-base leading-relaxed text-beergam-gray">
-            {message ?? "Tempo máximo diário excedido"}
+            Tempo máximo diário excedido
           </p>
-          {nextSlot && (
-            <p className="text-center text-sm text-beergam-gray-light">
-              Liberado novamente às {nextSlot}.
-            </p>
-          )}
-          {weekdayFormatted && (
-            <p className="text-center text-sm text-beergam-gray-light">
-              Janela de acesso ativa apenas na(o) {weekdayFormatted}.
-            </p>
-          )}
           <p className="text-center text-sm text-beergam-gray-light">
             Para continuar, faça login novamente.
           </p>

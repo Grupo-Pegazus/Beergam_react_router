@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { MenuItem, TextField, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
+import { Fields } from "~/src/components/utils/_fields";
 
 const ACTIVE_TIME_OPTIONS: Array<{
   label: string;
@@ -56,7 +57,7 @@ export function ActiveTimeFilter({
     [state, minKey, maxKey],
   );
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const label = event.target.value;
     const option = resolveActiveTimeOption(label);
     onMinMaxChange(option?.value?.min, option?.value?.max);
@@ -67,24 +68,12 @@ export function ActiveTimeFilter({
       <Typography variant="subtitle2" color="text.secondary" fontWeight={600}>
         {label}
       </Typography>
-      <TextField
-        select
+      <Fields.select
         value={currentValue}
         onChange={handleChange}
-        size="small"
-        sx={{
-          "& .MuiOutlinedInput-root": {
-            borderRadius: 3,
-            backgroundColor: "#fff",
-          },
-        }}
-      >
-        {ACTIVE_TIME_OPTIONS.map((option) => (
-          <MenuItem key={option.label} value={option.label}>
-            {option.label}
-          </MenuItem>
-        ))}
-      </TextField>
+        options={ACTIVE_TIME_OPTIONS.map((option) => ({ value: option.label, label: option.label }))}
+        tailWindClasses="rounded-3xl"
+      />
     </div>
   );
 }

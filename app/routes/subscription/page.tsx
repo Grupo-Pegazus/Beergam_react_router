@@ -1,10 +1,10 @@
 import { useState } from "react";
-import toast from "~/src/utils/toast";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import type { TAuthError } from "~/features/auth/redux";
 import type { Plan } from "~/features/user/typings/BaseUser";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import Modal from "~/src/components/utils/Modal";
+import toast from "~/src/utils/toast";
 import PlansGrid from "../../features/plans/components/PlansGrid";
 import StripeCheckout from "../../features/plans/components/StripeCheckout";
 interface SubscriptionPageProps {
@@ -36,10 +36,7 @@ export default function SubscriptionPage({
   );
   return (
     <>
-      <PageLayout
-        showLogoutButton
-        tailwindClassName="flex items-center justify-center min-h-screen py-12"
-      >
+      <PageLayout tailwindClassName="flex items-center justify-center min-h-screen py-12">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scale-90 origin-top">
           {/* Header Section */}
           {subscriptionError !== null && !showContent && (

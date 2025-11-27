@@ -6,7 +6,6 @@ import {
   MenuItem,
   Pagination,
   Stack,
-  Switch,
   Typography,
 } from "@mui/material";
 import { Link } from "react-router";
@@ -23,6 +22,7 @@ import VariationsList from "./Variations/VariationsList";
 import { formatCurrency, formatNumber } from "./utils";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
+import AnuncioStatusToggle from "../AnuncioStatusToggle";
 
 interface AnunciosListProps {
   filters?: Partial<AdsFilters>;
@@ -139,11 +139,9 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const isActive = anuncio.status === "active";
-  const isClosed = anuncio.status === "closed";
   const healthScore = anuncio.health?.score ?? null;
   const reputation = anuncio.experience?.reputation;
   const conversionRate = anuncio.conversion_rate ? parseFloat(anuncio.conversion_rate) : null;
-  const statusMessage = getStatusMessage(anuncio.status, anuncio.sub_status);
   const hasVariations = anuncio.variations && anuncio.variations.length > 0;
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -400,87 +398,27 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
           {/* Status e Ações */}
           <div className="space-y-2 pt-2 border-t border-slate-200">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {isClosed ? (
-                  <Chip
-                    label="Fechado"
-                    size="small"
-                    sx={{
-                      height: 24,
-                      fontSize: "0.7rem",
-                      fontWeight: 600,
-                      backgroundColor: "#fee2e2",
-                      color: "#991b1b",
-                      "& .MuiChip-label": {
-                        px: 1.5,
-                      },
-                    }}
-                  />
-                ) : anuncio.status.toLowerCase().replace(/\s+/g, "_") === "under_review" ? (
-                  <Chip
-                    label="Em revisão"
-                    size="small"
-                    sx={{
-                      height: 24,
-                      fontSize: "0.7rem",
-                      fontWeight: 600,
-                      backgroundColor: "#fef3c7",
-                      color: "#92400e",
-                      "& .MuiChip-label": {
-                        px: 1.5,
-                      },
-                    }}
-                  />
-                ) : (
-                  <>
-                    <Typography
-                      variant="caption"
-                      color={isActive ? "text.secondary" : "text.disabled"}
-                      sx={{ fontSize: "0.7rem" }}
-                    >
-                      Pausado
-                    </Typography>
-                    <div className="relative">
-                      <Switch
-                        checked={isActive}
-                        onChange={onToggleStatus}
-                        disabled={isMutating || anuncio.status.toLowerCase().replace(/\s+/g, "_") === "under_review"}
-                        sx={{
-                          "& .MuiSwitch-thumb": {
-                            boxShadow: "0px 1px 2px rgba(15, 23, 42, 0.25)",
-                          },
-                        }}
-                      />
-                      {isMutating && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-                        </div>
-                      )}
-                    </div>
-                    <Typography
-                      variant="caption"
-                      color={isActive ? "text.primary" : "text.disabled"}
-                      sx={{ fontSize: "0.7rem", fontWeight: 600 }}
-                    >
-                      Ativo
-                    </Typography>
-                  </>
-                )}
-              </div>
+              <AnuncioStatusToggle
+                status={anuncio.status}
+                subStatus={anuncio.sub_status}
+                isActive={isActive}
+                isMutating={isMutating}
+                onToggle={onToggleStatus}
+                showStatusMessage={false}
+              />
               <IconButton size="small" onClick={handleMenuOpen}>
                 <Svg.elipsis_horizontal tailWindClasses="h-5 w-5" />
               </IconButton>
             </div>
-            {statusMessage && (
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                className="block text-xs"
-                sx={{ lineHeight: 1.4 }}
-              >
-                {statusMessage}
-              </Typography>
-            )}
+            <AnuncioStatusToggle
+              status={anuncio.status}
+              subStatus={anuncio.sub_status}
+              isActive={isActive}
+              isMutating={isMutating}
+              onToggle={onToggleStatus}
+              showStatusMessage={true}
+              showControl={false}
+            />
           </div>
           {hasVariations && (
                 <button
@@ -533,68 +471,4 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
       </Menu>
     </MainCards>
   );
-}
-
-
-function getStatusMessage(status: string, subStatus: string[]): string | null {
-  const normalizedStatus = status.toLowerCase().replace(/\s+/g, "_");
-  const normalizedSubStatus = subStatus.map((s) => s.toLowerCase());
-
-  // Closed
-  if (normalizedStatus === "closed") {
-    if (normalizedSubStatus.includes("moderation_penalty")) {
-      return "Item sem vendas.";
-    }
-    return null;
-  }
-
-  // Paused
-  if (normalizedStatus === "paused") {
-    if (normalizedSubStatus.includes("picture_downloading_pending")) {
-      return "Pausado por carregamento de imagem por URL.";
-    }
-    if (normalizedSubStatus.includes("moderation_penalty")) {
-      return "Alteração incomum de preços + item sem vendas.";
-    }
-    if (normalizedSubStatus.includes("out_of_stock")) {
-      return "Item sem estoque.";
-    }
-    return null;
-  }
-
-  // Under review
-  if (normalizedStatus === "under_review") {
-    if (normalizedSubStatus.includes("waiting_for_patch")) {
-      return "Item pausado porque foram detectadas infrações e o usuário deve modificá-lo para que fique ativo.";
-    }
-    if (normalizedSubStatus.includes("forbidden")) {
-      return "Item desativado pelo Mercado Livre. Substitui o status Inactive.";
-    }
-    if (normalizedSubStatus.includes("held")) {
-      return "Inativo. Em revisão pelo Mercado Livre.";
-    }
-    if (normalizedSubStatus.includes("pending_documentation")) {
-      return "Item com denúncia no Programa de Proteção de Marca.";
-    }
-    if (
-      normalizedSubStatus.includes("suspended") ||
-      normalizedSubStatus.includes("suspended_for_prevention")
-    ) {
-      return "Suspensão de itens com risco de operações fraudulentas.";
-    }
-    return null;
-  }
-
-  // Active
-  if (normalizedStatus === "active") {
-    if (normalizedSubStatus.includes("poor_quality_thumbnail")) {
-      return "Imagem de baixa qualidade.";
-    }
-    if (normalizedSubStatus.includes("moderation_penalty")) {
-      return "Item com alguma penalidade. Você pode modificar status, blur ou outros.";
-    }
-    return null;
-  }
-
-  return null;
 }

@@ -1,12 +1,11 @@
 import { Pagination, Paper } from "@mui/material";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import authStore from "~/features/store-zustand";
 import { type IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
 import { isMaster } from "~/features/user/utils";
 import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
-import type { RootState } from "~/store";
 import ColabLevelBadge from "../Badges/ColabLevelBadge";
 import ColabStatusBadge from "../Badges/ColabStatusBadge";
 import ColabPhoto from "../ColabPhoto";
@@ -33,7 +32,7 @@ export default function ColabListMobile({
   const searchRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const { user } = useSelector((state: RootState) => state.user);
+  const user = authStore.use.user();
 
   const masterPin = useMemo(() => {
     if (user && isMaster(user)) {

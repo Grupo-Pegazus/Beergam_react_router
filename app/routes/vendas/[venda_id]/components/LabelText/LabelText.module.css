@@ -1,0 +1,10 @@
+.content {
+    display: flex;
+    gap: 0.3rem;
+    margin-bottom: 5px;
+
+    .label {
+        font-weight: 700;
+        color: #11263c;
+    }
+}

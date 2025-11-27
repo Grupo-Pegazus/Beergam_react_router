@@ -17,15 +17,27 @@ function withPrefix(
 export function createMenuRoutes(): RouteConfigEntry[] {
   const routes: RouteConfigEntry[] = [];
 
+  function buildRoutePath(key: string, parentPath: string[]): string {
+    if (parentPath.length === 0) {
+      return `routes/${key}/route.tsx`;
+    }
+    const fullPath = [...parentPath, key].join("/");
+    return `routes/${fullPath}/route.tsx`;
+  }
+
   function processMenuItem(
     key: string,
     item: IMenuItem,
-    parentPath: string[] = []
+    parentPath: string[] = [],
+    parentItemPath?: string
   ): RouteConfigEntry[] {
     const itemRoutes: RouteConfigEntry[] = [];
 
-    if (item.path) {
-      // Só cria rota se TEM path
+    // Não cria rota se o path do filho for igual ao path do pai
+    const shouldCreateRoute = item.path && item.path !== parentItemPath;
+
+    if (shouldCreateRoute && item.path) {
+      // Só cria rota se TEM path e é diferente do pai
       if (item.path === "/") {
         itemRoutes.push(index("routes/inicio/route.tsx"));
       } else {
@@ -34,15 +46,19 @@ export function createMenuRoutes(): RouteConfigEntry[] {
         if (item.dinamic_id) {
           // Para rotas dinâmicas, cria DUAS rotas:
           // 1. Rota estática (lista)
-          itemRoutes.push(route(routeName, `routes/${key}/route.tsx`));
+          const routePath = buildRoutePath(key, parentPath);
+          itemRoutes.push(route(routeName, routePath));
 
           // 2. Rota dinâmica (item específico)
           const dynamicPath = `${routeName}/:${item.dinamic_id}`;
-          itemRoutes.push(
-            route(dynamicPath, `routes/${key}/[${item.dinamic_id}]/route.tsx`)
+          const dynamicRoutePath = buildRoutePath(key, parentPath).replace(
+            "/route.tsx",
+            `/[${item.dinamic_id}]/route.tsx`
           );
+          itemRoutes.push(route(dynamicPath, dynamicRoutePath));
         } else {
-          itemRoutes.push(route(routeName, `routes/${key}/route.tsx`));
+          const routePath = buildRoutePath(key, parentPath);
+          itemRoutes.push(route(routeName, routePath));
         }
       }
     }
@@ -50,18 +66,24 @@ export function createMenuRoutes(): RouteConfigEntry[] {
     if (item.dropdown) {
       // Se tem dropdown, processa os filhos (independente de ter path ou não)
       const childRoutes: RouteConfigEntry[] = [];
+      // Sempre inclui a key atual no parentPath para construir o caminho do arquivo corretamente
+      // Mesmo quando não tem path próprio, a estrutura de pastas pode incluir a chave do item
       const currentPath = [...parentPath, key];
 
       Object.entries(item.dropdown).forEach(([childKey, childItem]) => {
+        // Passa o path do item atual como parentItemPath para os filhos
         const childRoutesList = processMenuItem(
           childKey,
           childItem,
-          currentPath
+          currentPath,
+          item.path
         );
         childRoutes.push(...childRoutesList);
       });
 
       if (childRoutes.length > 0) {
+        // Sempre prefixa as rotas filhas com a chave do item na URL quando tem dropdown
+        // Isso garante que a estrutura da URL corresponda à estrutura de pastas
         itemRoutes.push(...prefix(key, childRoutes));
       }
     }
@@ -88,6 +110,7 @@ export default [
     withPrefix("interno", [
       route("subscription", "routes/subscription/route.tsx"),
       route("choosen_account", "routes/choosen_account/route.tsx"),
+      route("config", "routes/config/route.tsx"),
       route("perfil", "routes/perfil/route.tsx"),
       layout(
         "features/menu/components/layout/MenuLayout.tsx",

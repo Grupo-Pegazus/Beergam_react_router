@@ -1,5 +1,5 @@
-import { setAuthError } from "../redux";
-import store from "~/store";
+import authStore from "~/features/store-zustand";
+
 
 type RestrictionSource = "socket" | "http";
 
@@ -33,23 +33,10 @@ export function enforceUsageLimit(payload: EnforcementPayload) {
   lastSignature = signature;
   lastEnforcementAt = Date.now();
 
-  console.log("🚨 enforceUsageLimit chamado:", payload);
+  const setAuthError = authStore.getState().setAuthError;
+  setAuthError("USAGE_TIME_LIMIT");
 
-  // Seta o erro no Redux para mostrar a tela de aviso
-  // O backend já faz o logout automaticamente
-  store.dispatch(
-    setAuthError({
-      error: "USAGE_TIME_LIMIT",
-      usageLimitData: {
-        message: payload.message,
-        next_allowed_at: payload.next_allowed_at,
-        weekday: payload.weekday,
-        reason: payload.reason,
-      },
-    })
-  );
-
-  console.log("✅ Erro USAGE_TIME_LIMIT setado no Redux");
+  console.log("✅ UsageLimitData setado no Zustand:", payload);
 
   // Para requisições HTTP 403, ainda limpa cookies
   // pois pode ser que o backend não tenha invalidado a sessão ainda

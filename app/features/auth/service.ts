@@ -12,7 +12,9 @@ interface LoginResponse {
   user: IUser | IColab;
   subscription: Subscription | null;
 }
-
+interface VerifyTimeColabResponse {
+  allowed: boolean;
+}
 class AuthService {
   async login(
     formInfo:
@@ -132,6 +134,28 @@ class AuthService {
         data: {} as IColab,
         message:
           "Erro ao criar colaborador. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: {},
+      };
+    }
+  }
+  async verifyTimeColab(
+    pin: string,
+    master_pin: string,
+    role: UserRoles
+  ): Promise<ApiResponse<VerifyTimeColabResponse>> {
+    try {
+      const response = await typedApiClient.get<VerifyTimeColabResponse>(
+        `/v1/auth/verify_time_colab?pin=${pin}&master_pin=${master_pin}&role=${role}`
+      );
+      return response;
+    } catch (error) {
+      console.error("error do verifyTimeColab", error);
+      return {
+        success: false,
+        data: {} as VerifyTimeColabResponse,
+        message:
+          "Erro ao verificar tempo de colaborador. Tente novamente em alguns instantes.",
         error_code: 500,
         error_fields: {},
       };

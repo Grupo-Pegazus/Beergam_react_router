@@ -1,9 +1,14 @@
-import { useDispatch } from "react-redux";
-import { Link } from "react-router";
-import { logout } from "../../redux";
+import { useMutation } from "@tanstack/react-query";
+import { Link, useNavigate } from "react-router";
+import authStore from "~/features/store-zustand";
+import { authService } from "../../service";
 import PageLayout from "../PageLayout/PageLayout";
 export default function MultipleDeviceWarning() {
-  const dispatch = useDispatch();
+  const logout = authStore.use.logout();
+  const handleLogout = useMutation({
+    mutationFn: () => authService.logout(),
+  });
+  const navigate = useNavigate();
   return (
     <PageLayout tailwindClassName="flex items-center justify-center">
       <div
@@ -66,7 +71,9 @@ export default function MultipleDeviceWarning() {
         <Link
           to="/login"
           onClick={() => {
-            dispatch(logout());
+            handleLogout.mutate();
+            logout();
+            navigate("/login", { replace: true, viewTransition: true });
           }}
           className="rounded-xl w-fit bg-beergam-orange px-6 py-4 text-base font-semibold text-beergam-white hover:bg-beergam-orange-dark"
         >

@@ -1,4 +1,12 @@
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import {
+  isRouteErrorResponse,
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useLoaderData,
+} from "react-router";
 
 import { createTheme, ThemeProvider } from "@mui/material";
 // Enable MUI X Date Pickers component keys in theme.components
@@ -8,30 +16,21 @@ import "@mui/x-date-pickers/themeAugmentation";
 import * as Sentry from "@sentry/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
-import { useEffect } from "react";
+import dayjs from "dayjs";
+import "dayjs/locale/pt-br";
+import { useEffect, useMemo, useState } from "react";
 import { Toaster } from "react-hot-toast";
-import { Provider, useDispatch, useSelector } from "react-redux";
-import { isRouteErrorResponse, useLoaderData } from "react-router";
+import { Provider } from "react-redux";
 import type { Route } from "./+types/root";
 import "./app.css";
-import { type IAuthState, updateAuthInfo } from "./features/auth/redux";
-import {
-  cryptoAuth,
-  cryptoMarketplace,
-  cryptoUser,
-} from "./features/auth/utils";
-import { setMarketplace } from "./features/marketplace/redux";
-import type { BaseMarketPlace } from "./features/marketplace/typings";
+import GlobalLoadingSpinner from "./features/auth/components/GlobalLoadingSpinner/GlobalLoadingSpinner";
+import { AuthStoreProvider } from "./features/auth/context/AuthStoreContext";
 import { SocketStatusIndicator } from "./features/socket/components/SocketStatusIndicator";
 import { SocketProvider } from "./features/socket/context/SocketContext";
-import { updateUserInfo } from "./features/user/redux";
-import type { IUser } from "./features/user/typings/User";
-import type { RootState } from "./store";
+import authStore from "./features/store-zustand";
 import store from "./store";
 import "./zod";
 export const queryClient = new QueryClient();
-import dayjs from "dayjs";
-import "dayjs/locale/pt-br";
 
 dayjs.locale("pt-br");
 
@@ -76,11 +75,6 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     </main>
   );
 }
-// export async function loader({ request }: Route.LoaderArgs) {
-//   const session = await getSession(request.headers.get("Cookie"));
-//   const userInfo = session.get("userInfo") ?? null;
-//   return { userInfo };
-// }
 
 const theme = createTheme(
   {
@@ -216,19 +210,21 @@ const theme = createTheme(
         },
       },
     },
+    typography: {
+      fontFamily: "var(--default-font-family)",
+    },
   },
   ptBR,
   ptBRDayjs
 );
 
 export async function clientLoader() {
-  console.log("clientLoader");
-  console.log("authInfo", await cryptoAuth.recuperarDados<IAuthState>());
-  return {
-    userInfo: await cryptoUser.recuperarDados<IUser>(),
-    authInfo: await cryptoAuth.recuperarDados<IAuthState>(),
-    marketplace: await cryptoMarketplace.recuperarDados<BaseMarketPlace>(),
-  };
+  const state = authStore.getState();
+  const error = state.error;
+  const user = state.user;
+  const marketplace = state.marketplace;
+  console.log("rootError do clientLoader", error);
+  return { error, user, marketplace };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -262,66 +258,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-function BootstrapAuth() {
-  const { userInfo, authInfo } = useLoaderData<typeof clientLoader>() ?? {};
-  const dispatch = useDispatch();
-  const authState = useSelector((state: RootState) => state.auth);
-  const userFromRedux = useSelector((state: RootState) => state.user.user);
-
-  console.log("userInfo bootstrap", userInfo);
-  console.log("authInfo bootstrap", authInfo);
-  console.log("authState no Redux", authState);
-
-  useEffect(() => {
-    // Só atualiza userInfo se não houver no Redux
-    if (userInfo && !userFromRedux) {
-      dispatch(updateUserInfo({ user: userInfo, shouldEncrypt: false }));
-    }
-
-    // Só atualiza authInfo se o Redux ainda não foi inicializado com dados válidos
-    // Isso evita sobrescrever um login bem-sucedido com dados antigos do loader
-    if (authInfo) {
-      // Verifica se o Redux já tem um estado válido (login bem-sucedido)
-      // ou se já foi inicializado com algum estado (mesmo que seja um erro)
-      const isReduxInitialized =
-        authState.success === true ||
-        authState.error !== null ||
-        authState.subscription !== null ||
-        authState.loading !== false;
-
-      // Se o Redux já foi inicializado, não sobrescreve (prioriza o estado atual do Redux)
-      // Isso garante que um login bem-sucedido não seja sobrescrito por dados antigos do loader
-      if (!isReduxInitialized) {
-        dispatch(updateAuthInfo({ auth: authInfo, shouldEncrypt: false }));
-      }
-    }
-  }, [
-    dispatch,
-    userInfo,
-    authInfo,
-    authState.success,
-    authState.error,
-    authState.subscription,
-    authState.loading,
-    userFromRedux,
-  ]);
-  return null;
-}
-
-function BootstrapMarketplace() {
-  const { marketplace } = useLoaderData<typeof clientLoader>() ?? {};
-  const dispatch = useDispatch();
-  useEffect(() => {
-    if (marketplace) {
-      dispatch(setMarketplace(marketplace));
-    }
-  }, [dispatch, marketplace]);
-  return null;
-}
-
 function SocketConnectionManager() {
-  const authState = useSelector((state: RootState) => state.auth);
-  const isAuthenticated = authState.success === true;
+  const success = authStore.use.success();
+  const isAuthenticated = success === true;
   const showSocketDebug = false;
   return (
     <SocketProvider isAuthenticated={isAuthenticated}>
@@ -331,15 +270,92 @@ function SocketConnectionManager() {
   );
 }
 
+function AuthStoreMonitor() {
+  const authState = authStore();
+  const authKeys = useMemo(
+    () => Object.keys(authState) as Array<keyof typeof authState>,
+    [authState]
+  );
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    setOpenSections((prev) => {
+      let updated = false;
+      const next = { ...prev };
+      for (const key of authKeys) {
+        if (!(key in next)) {
+          next[key] = false;
+          updated = true;
+        }
+      }
+      return updated ? next : prev;
+    });
+  }, [authKeys]);
+
+  const toggleSection = (key: string) => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  return (
+    <div className="fixed bottom-4 left-4 z-9999 w-full max-w-sm rounded-xl border border-beergam-blue-primary/40 bg-white/90 p-4 shadow-lg backdrop-blur-sm">
+      <div className="mb-3 flex items-center justify-between text-sm font-semibold text-beergam-blue-primary">
+        <span>Zustand Auth Debug</span>
+        <span className="text-xs uppercase tracking-wide text-beergam-gray">
+          realtime
+        </span>
+      </div>
+      <div className="space-y-2 max-h-64 overflow-auto pr-1">
+        {authKeys.map((key) => {
+          const isOpen = openSections[key];
+          const value = authState[key];
+          return (
+            <div
+              key={key as string}
+              className="rounded-lg border border-beergam-blue-primary/20 bg-white/80"
+            >
+              <button
+                className="flex w-full items-center justify-between px-3 py-2 text-left text-sm font-medium text-beergam-blue-primary hover:bg-beergam-blue-primary/5"
+                onClick={() => toggleSection(String(key))}
+              >
+                <span>{String(key)}</span>
+                <span className="text-xs text-beergam-gray">
+                  {isOpen ? "ocultar" : "mostrar"}
+                </span>
+              </button>
+              {isOpen && (
+                <pre className="max-h-48 overflow-auto border-t border-beergam-blue-primary/20 px-3 py-2 text-xs text-beergam-gray">
+                  {JSON.stringify(value, null, 2)}
+                </pre>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
+  const {
+    error: initialError,
+    user: initialUser,
+    marketplace: initialMarketplace,
+  } = useLoaderData<typeof clientLoader>();
+
   return (
     <Provider store={store}>
-      <Analytics />
-      <BootstrapAuth />
-      <BootstrapMarketplace />
-      <QueryClientProvider client={queryClient}>
-        <SocketConnectionManager />
-      </QueryClientProvider>
+      <AuthStoreProvider
+        initialError={initialError}
+        initialUser={initialUser}
+        initialMarketplace={initialMarketplace}
+      >
+        <Analytics />
+        <QueryClientProvider client={queryClient}>
+          <GlobalLoadingSpinner />
+          <SocketConnectionManager />
+          {/* <AuthStoreMonitor /> */}
+        </QueryClientProvider>
+      </AuthStoreProvider>
     </Provider>
   );
 }
