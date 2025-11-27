@@ -88,11 +88,14 @@ export const MenuConfig = {
     label: "Produtos",
     status: "yellow",
     icon: "box",
+    path: "/produtos",
+    launched: true,
     dropdown: {
       gestao: {
         label: "Gestão",
         status: "yellow",
-        path: "/",
+        path: "/gestao",
+        launched: true,
       },
       cadastro: {
         label: "Cadastro",
@@ -102,11 +105,13 @@ export const MenuConfig = {
             label: "Simplificado",
             status: "yellow",
             path: "/cadastro_simplificado",
+            launched: true,
           },
           cadastro_completo: {
             label: "Completo",
             status: "yellow",
             path: "/cadastro_completo",
+            launched: true,
           },
         }
       },
@@ -114,21 +119,25 @@ export const MenuConfig = {
         label: "Categorias",
         status: "yellow",
         path: "/categorias",
+        launched: true,
       },
       atributos: {
         label: "Atributos",
         status: "yellow",
         path: "/atributos",
+        launched: true,
       },
       agendamento: {
         label: "Agendamento",
         status: "yellow",
         path: "/agendamento",
+        launched: true,
       },
       estoque: {
         label: "Estoque",
         status: "yellow",
         path: "/estoque",
+        launched: true,
       }
     }
   },
