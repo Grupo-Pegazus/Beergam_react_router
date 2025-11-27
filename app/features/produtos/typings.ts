@@ -25,6 +25,14 @@ const VariationBasicSchema = z.object({
   available_quantity: z.number().optional(),
   price_sale: z.string().optional(),
   sales_quantity: z.number().optional(),
+  attributes: z
+    .array(
+      z.object({
+        name: z.string(),
+        value: z.array(z.string()),
+      })
+    )
+    .optional(),
 });
 
 // Schema para produto (da lista)

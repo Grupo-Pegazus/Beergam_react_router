@@ -307,7 +307,12 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       {/* Seção de Variações Expandida */}
       {hasVariations && isExpanded && (
-        <div className="mt-2">
+        <div className="mt-2 pt-2 border-t border-slate-200">
+          <div className="mb-2 px-4">
+            <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase tracking-wide">
+              Variações ({variationsCount})
+            </Typography>
+          </div>
           <VariationsList
             variations={product.variations || []}
             product={product}

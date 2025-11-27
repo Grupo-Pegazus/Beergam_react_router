@@ -339,7 +339,7 @@ export default function App() {
         <QueryClientProvider client={queryClient}>
           <GlobalLoadingSpinner />
           <SocketConnectionManager />
-          <AuthStoreMonitor />
+          {/* <AuthStoreMonitor /> */}
         </QueryClientProvider>
       </AuthErrorProvider>
     </Provider>

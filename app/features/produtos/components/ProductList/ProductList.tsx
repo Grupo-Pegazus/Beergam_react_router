@@ -5,6 +5,7 @@ import {
   Typography,
 } from "@mui/material";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import MainCards from "~/src/components/ui/MainCards";
 import Svg from "~/src/assets/svgs/_index";
 import { useProducts } from "../../hooks";
 import type { ProductsFilters, Product } from "../../typings";
@@ -71,11 +72,62 @@ export default function ProductList({ filters = {} }: ProductListProps) {
             </Typography>
           </div>
         ) : (
-          <Stack spacing={2}>
-            {products.map((product) => (
-              <ProductCard key={product.product_id} product={product} />
-            ))}
-          </Stack>
+          <>
+            {/* Cabeçalho das colunas */}
+            <MainCards className="bg-slate-100/50 border-slate-200">
+              <div className="flex items-center gap-4 py-2 px-4">
+                <div className="shrink-0 w-16 flex justify-center">
+                  <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
+                    Status
+                  </Typography>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
+                    Produto
+                  </Typography>
+                </div>
+                <div className="shrink-0 w-20 text-center">
+                  <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
+                    Variações
+                  </Typography>
+                </div>
+                <div className="shrink-0 w-28">
+                  <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
+                    Preço
+                  </Typography>
+                </div>
+                <div className="shrink-0 w-32">
+                  <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
+                    SKU
+                  </Typography>
+                </div>
+                <div className="shrink-0 w-20 text-center">
+                  <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
+                    Anúncios
+                  </Typography>
+                </div>
+                <div className="shrink-0 w-24 text-center">
+                  <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
+                    Vendas
+                  </Typography>
+                </div>
+                <div className="shrink-0 w-28 text-center">
+                  <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
+                    Estoque
+                  </Typography>
+                </div>
+                <div className="shrink-0 w-10">
+                  {/* Espaço para ícone de configurações */}
+                </div>
+              </div>
+            </MainCards>
+
+            <Stack spacing={2}>
+              {products.map((product) => (
+                <ProductCard key={product.product_id} product={product} />
+              ))}
+            </Stack>
+          </>
         )}
 
         {totalPages > 1 ? (
