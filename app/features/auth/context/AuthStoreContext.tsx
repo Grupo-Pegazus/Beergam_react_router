@@ -5,13 +5,11 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import type { BaseMarketPlace } from "~/features/marketplace/typings";
 import type { TAuthError } from "~/features/auth/redux";
-import type { IUser } from "~/features/user/typings/User";
-import type { IColab } from "~/features/user/typings/Colab";
+import type { BaseMarketPlace } from "~/features/marketplace/typings";
 import authStore from "~/features/store-zustand";
-
-type AuthStoreState = ReturnType<typeof authStore.getState>;
+import type { IColab } from "~/features/user/typings/Colab";
+import type { IUser } from "~/features/user/typings/User";
 
 interface AuthStoreContextValue {
   error: TAuthError | null;
@@ -100,4 +98,3 @@ export function useAuthMarketplace() {
   const { marketplace } = useAuthStore();
   return marketplace;
 }
-
