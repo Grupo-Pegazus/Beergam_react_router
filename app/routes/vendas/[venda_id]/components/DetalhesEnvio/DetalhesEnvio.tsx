@@ -1,33 +1,24 @@
 import React from "react";
 import styles from "./DetalhesEnvio.module.css";
 
-type IconName = "endereco" | "produto" | "entrega" | "config";
-
 interface DetalhesEnvioProps {
-    icon: IconName;
     children: React.ReactNode;
+    title: string;
 }
 
-function DetalhesEnvio({ icon, children }: DetalhesEnvioProps) {
-    const iconMap: Record<IconName, React.JSX.Element> = {
-        endereco: <i className="fa-solid fa-location-dot"></i>,
-        produto: <i className="fa-solid fa-box"></i>,
-        entrega: <i className="fa-solid fa-truck"></i>,
-        config: <i className="fa-solid fa-cog"></i>,
-    };
+function DetalhesEnvio({ children, title }: DetalhesEnvioProps) {
 
-    const textMap: Record<IconName, string> = {
-        endereco: "Endereço de Entrega",
-        produto: "Detalhes do Produto",
-        entrega: "Detalhes da Entrega",
-        config: "Informações Técnicas:",
+    const textMap: Record<string, string> = {
+        "Endereço": "Endereço de Entrega",
+        "Produto": "Detalhes do Produto",
+        "Entrega": "Detalhes da Entrega",
+        "Informações Técnicas:": "Informações Técnicas:",
     };
 
     return (
         <div className={styles.card}>
             <div className={styles.header}>
-                <span>{iconMap[icon]}</span>
-                <p className={styles.title}>{textMap[icon]}</p>
+                <p className={styles.title}>{textMap[title]}</p>
             </div>
 
             <div className={styles.content}>

@@ -122,7 +122,7 @@ export default function OrderCard({ order }: OrderCardProps) {
         <Divider sx={{ my: 0.5 }} />
 
         {/* Status Chips e Botão de Expandir */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
         <div>
           <div className="flex flex-wrap items-center justify-between gap-1.5 md:gap-2">
             <Chip

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import styles from "./Timeline.module.css";
 
 interface TimelineItem {
@@ -6,6 +6,11 @@ interface TimelineItem {
     date: string;
     description: string;
     location?: string;
+}
+
+interface GroupedTimelineItem {
+    title: string;
+    items: TimelineItem[];
 }
 
 interface TimelineProps {
@@ -17,21 +22,45 @@ function Timeline({items}: TimelineProps) {
 
     function clickDetalhes() { setMostrarDetalhes(!mostrarDetalhes)}
 
+    // Agrupar itens por título
+    const groupedItems = useMemo(() => {
+        const groups: GroupedTimelineItem[] = [];
+        const titleMap = new Map<string, TimelineItem[]>();
+
+        items.forEach(item => {
+            if (!titleMap.has(item.title)) {
+                titleMap.set(item.title, []);
+            }
+            titleMap.get(item.title)!.push(item);
+        });
+
+        titleMap.forEach((groupItems, title) => {
+            groups.push({
+                title,
+                items: groupItems
+            });
+        });
+
+        return groups;
+    }, [items]);
+
     return (
         <div className={styles.timeline}>
             <div className={styles.container}>
                 <div className={styles.line} />
-                {items.map((item, index) => (
-                    <div key={index} className={styles.item}>
+                {groupedItems.map((group, groupIndex) => (
+                    <div key={groupIndex} className={styles.item}>
                         <div className={styles.circle} />
                         <div className={styles.content}>
-                            <strong className={styles.title}>{item.title}</strong>
+                            <strong className={styles.title}>{group.title}</strong>
                             <div
                                 className={`${styles.descriptionWrapper} ${mostrarDetalhes ? styles.show : styles.hide}`}>
-                                <div className={styles.description}>
-                                    {item.date} | {item.description}
-                                    {item.location && <span className={styles.location}> | {item.location}</span>}
-                                </div>
+                                {group.items.map((item, itemIndex) => (
+                                    <div key={itemIndex} className={styles.description}>
+                                        {item.date} | {item.description}
+                                        {item.location && <span className={styles.location}> | {item.location}</span>}
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>

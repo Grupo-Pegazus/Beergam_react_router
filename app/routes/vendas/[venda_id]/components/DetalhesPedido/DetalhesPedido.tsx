@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./DetalhesPedido.module.css";
+import Hint from "~/src/components/utils/Hint";
 
 interface DetalhesPedidoProps {
     titulo: string;
@@ -25,10 +26,10 @@ function DetalhesPedido({ titulo, hint, value, isCusto, isHighlight, style}: Det
         <div className={`${styles.detalhesPedido} ${isHighlight ? styles.highlight : ""}`} style={style}>
             <div className={styles.header}>
                 <p>{titulo}</p>
-                {hint && <span className={styles.hint}>{hint}</span>}
+                {hint && <Hint message={hint} anchorSelect={titulo.toLocaleLowerCase() + "-tooltip"} />}
             </div>
 
-            <p className={`${styles.value} ${isNegative ? styles.negativo : styles.positivo} ${isHighlight ? styles.highlightValue : ""}`}>
+            <p className={`${styles.value} ${isNegative ? styles.negativo : styles.positivo} ${isHighlight ? styles.highlightValue : ""} text-nowrap`}>
                 {valorFormatado}
             </p>
         </div>

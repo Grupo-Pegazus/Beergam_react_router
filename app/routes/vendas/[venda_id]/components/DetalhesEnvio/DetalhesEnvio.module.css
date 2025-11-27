@@ -18,6 +18,12 @@
         i {
             color: var(--orange);
         }
+        span {
+            font-size: 18px !important;
+        }
+        p {
+            font-size: 18px !important;
+        }
 
         .title {
             color: #11263c;

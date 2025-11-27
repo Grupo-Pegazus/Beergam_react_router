@@ -53,6 +53,30 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
     // Get the first order for pack info (safe access)
     const firstOrder = orders[0];
 
+    const totalsP = useMemo(() => {
+        const totalAmount = orders.reduce(
+          (sum, order) => sum + parseFloat(order.total_amount || "0"),
+          0
+        );
+        const totalQuantity = orders.reduce((sum, order) => sum + (order.quantity || 0), 0);
+        let totalLiquido = orders.reduce(
+          (sum, order) => sum + parseFloat(order.valor_base || "0"),
+          0
+        );
+    
+        totalLiquido = totalLiquido
+
+        if (orders.length > 1) {
+            totalLiquido = totalLiquido - parseFloat(firstOrder.custo_envio_final || "0");
+        }
+    
+        return {
+          totalAmount,
+          totalQuantity,
+          totalLiquido,
+        };
+      }, [orders]);
+
     // Calculate totals for the pack
     const totals = useMemo(() => {
         if (!firstOrder || orders.length === 0) {
@@ -81,22 +105,19 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
         // Verificar se todos os pedidos estão cancelled
         const allOrdersCancelled = orders.every(order => order.status?.toLowerCase() === "cancelled");
         
-        const totalItems = packInfo?.total_items || orders.reduce((sum, order) => sum + order.quantity, 0);
-        
         // Preço dos produtos = soma de (unit_price * quantity) de cada pedido
         const precoProdutos = orders.reduce((sum, order) => {
             return sum + (parseFloat(order.unit_price) * order.quantity);
         }, 0);
-        
-        const totalRevenue = orders.reduce((sum, order) => sum + parseFloat(order.total_amount), 0);
+
         const totalPaid = orders.reduce((sum, order) => sum + parseFloat(order.paid_amount), 0);
         
         // Se todos os pedidos estão cancelled, não considerar envios e tarifas como negativos
         // Nota: Mantemos os valores de envio para exibição mesmo quando < R$ 79
         // O valor_liquido do backend já está calculado corretamente considerando a regra do R$ 79
-        const totalShippingSeller = allOrdersCancelled ? 0 : parseFloat(firstOrder.custo_envio_seller || "0");
-        const totalShippingBuyer = allOrdersCancelled ? 0 : parseFloat(firstOrder.custo_envio_buyer || "0");
-        const totalShippingFinal = allOrdersCancelled ? 0 : parseFloat(firstOrder.custo_envio_final || "0");
+        const totalShippingSeller = orders.reduce((sum, order) => sum + parseFloat(order.custo_envio_seller || "0"), 0);
+        const totalShippingBuyer = orders.reduce((sum, order) => sum + parseFloat(order.custo_envio_buyer || "0"), 0);
+        const totalShippingFinal = orders.reduce((sum, order) => sum + parseFloat(order.custo_envio_final || "0"), 0);
         
         // Calcular tarifas apenas para pedidos não cancelled
         const totalFees = orders.reduce((sum, order) => {
@@ -109,23 +130,14 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
         // Tarifa ML corresponde ao sale_fee informado por pedido (sem ajustes adicionais)
         const tarifaML = totalFees;
         
-        // Usar valor_liquido do backend - já é a receita final calculada
-        // O valor_liquido já tem todos os descontos aplicados (envios, tarifas)
-        // Não inclui apenas os custos internos (custo produto, embalagem, extras, impostos)
-        const totalLiquido = orders.reduce((sum, order) => {
-            const liquido = parseFloat(order.valor_liquido || "0");
-            return sum + liquido;
-        }, 0);
+        // Calcular totalLiquido igual ao packageTotals: soma dos valor_base menos custo_envio_final do primeiro pedido
 
         // Receita bruta = total pago - envio comprador
-        const receitaBruta = totalPaid - totalShippingBuyer;
 
         // Total receita = valor_liquido do backend (já calculado com todas as deduções)
         // O backend já aplica a regra do R$ 79 e calcula tudo corretamente
-        const totalReceita = totalLiquido;
         
         // Total final (conforme Mercado Livre): Preço dos produtos - Tarifa de venda total - Envios (custo final)
-        const totalFinal = precoProdutos - tarifaML - totalShippingFinal;
 
         // Custos - usar valores do backend
         const custoProduto = orders.reduce((sum, order) => sum + parseFloat(order.price_cost || "0"), 0);
@@ -135,27 +147,21 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
 
         // Lucro final = total receita - custos
         // Se todos os pedidos estão cancelled, lucro final é 0
-        const lucroFinal = allOrdersCancelled ? 0 : (totalReceita - custoProduto - custoEmbalagem - custosExtras - impostos);
+        const lucroFinal = allOrdersCancelled ? 0 : (totalsP.totalLiquido - custoProduto - custoEmbalagem - custosExtras - impostos);
 
         return {
-            totalItems,
             precoProdutos,
-            totalRevenue,
             totalPaid,
             totalShippingSeller,
             totalShippingBuyer,
             totalShippingFinal,
             totalFees,
             tarifaML,
-            receitaBruta,
-            totalReceita,
-            totalFinal,
             custoProduto,
             custoEmbalagem,
             custosExtras,
             impostos,
             lucroFinal,
-            totalLiquido
         };
     }, [orders, firstOrder, packInfo]);
 
@@ -241,7 +247,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
             {/* Header */}
             <PedidoHeader
                 packId={packId}
-                totalItems={packInfo?.total_items || totals.totalItems}
+                totalItems={packInfo?.total_items || totalsP.totalQuantity}
                 orderId={firstOrder.order_id}
                 date={formatDate(firstOrder.date_created)}
                 status="FULL"
@@ -279,13 +285,13 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
 
                     {/* Shipping Details */}
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
-                        <DetalhesEnvio icon="endereco">
+                        <DetalhesEnvio title="Endereço">
                             <LabelText label="Endereço" text={firstOrder.shipping_details?.address_line || "N/A"} />
                             <LabelText label="Bairro" text={firstOrder.shipping_details?.neighborhood || "N/A"} />
                             <LabelText label="Estado" text={firstOrder.shipping_destination_state || "N/A"} />
                         </DetalhesEnvio>
 
-                        <DetalhesEnvio icon="entrega">
+                        <DetalhesEnvio title="Entrega">
                             {/* <LabelText label="Método" text={firstOrder.tracking_method || "N/A"} /> */}
                             <LabelText label="Modo de Envio" text={getLogisticTypeMeliInfo(firstOrder.shipping_mode ?? "")?.label || "N/A"} />
                             <LabelText label="Frete Pago Por" text={getShippingPaidByLabel(firstOrder.shipping_paid_by)} />
@@ -307,12 +313,12 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
                     {/* Financial Analysis */}
                     <AnaliseFinanceira
                         valorTotalVenda={totals.totalPaid}
-                        receitaBruta={totals.receitaBruta}
+                        receitaBruta={totalsP.totalAmount}
                         envioVendedor={totals.totalShippingSeller}
                         envioComprador={totals.totalShippingBuyer}
                         envioFinalVendedor={totals.totalShippingFinal}
                         tarifaML={totals.tarifaML}
-                        totalReceita={totals.totalReceita}
+                        totalReceita={totalsP.totalLiquido}
                         custoProduto={totals.custoProduto}
                         custoEmbalagem={totals.custoEmbalagem}
                         custosExtras={totals.custosExtras}

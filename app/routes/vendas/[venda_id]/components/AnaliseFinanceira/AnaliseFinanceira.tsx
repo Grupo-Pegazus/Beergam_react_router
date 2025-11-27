@@ -65,13 +65,13 @@ function AnaliseFinanceira({
                 <DetalhesPedido
                     titulo="Valor de envio final para o vendedor"
                     hint="Custo final de envio"
-                    value={-envioFinalVendedor}
+                    value={envioFinalVendedor}
                     isCusto={true}
                 />
                 <DetalhesPedido
                     titulo="Tarifa ML"
                     hint="Comissão descontada pelo ML"
-                    value={-tarifaML}
+                    value={tarifaML}
                     isCusto={true}
                 />
                 <DetalhesPedido
@@ -88,25 +88,25 @@ function AnaliseFinanceira({
                 <DetalhesPedido
                     titulo="Custo do Produto"
                     hint="Valor interno cadastrado no sistema"
-                    value={-custoProduto}
+                    value={custoProduto}
                     isCusto={true}
                 />
                 <DetalhesPedido
                     titulo="Custo de Embalagem"
                     hint="Custos extras internos"
-                    value={-custoEmbalagem}
+                    value={custoEmbalagem}
                     isCusto={true}
                 />
                 <DetalhesPedido
                     titulo="Custos Extras"
                     hint="Outros custos internos"
-                    value={-custosExtras}
+                    value={custosExtras}
                     isCusto={true}
                 />
                 <DetalhesPedido
                     titulo="Impostos"
                     hint="Informação interna da loja"
-                    value={-impostos}
+                    value={impostos}
                     isCusto={true}
                 />
             </div>
