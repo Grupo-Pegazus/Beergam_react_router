@@ -221,22 +221,6 @@ typedApiClient.axiosInstance.interceptors.response.use(
       }
     }
 
-    // console.log("erro do interceptor", error);
-
-    // if (!error.response.data) {
-    //   return Promise.reject(error);
-    // }
-    // if (error.response.data.error_code === 1002) {
-    //   console.error("Erro de access_token expirado");
-    //   const response = await typedApiClient.post("/v1/auth/refresh");
-    //   if (response.success) {
-    //     console.log("access_token atualizado");
-    //     window.location.reload();
-    //     return response;
-    //   } else {
-    //     console.error("Erro ao atualizar access_token");
-    //   }
-    // }
     if (error.response?.data?.error_code === 6104) {
       if (typeof window !== "undefined") {
         authStore.getState().setAuthError("SUBSCRIPTION_NOT_FOUND");

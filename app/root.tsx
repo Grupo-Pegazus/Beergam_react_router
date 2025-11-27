@@ -1,4 +1,12 @@
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import {
+  isRouteErrorResponse,
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useLoaderData,
+} from "react-router";
 
 import { createTheme, ThemeProvider } from "@mui/material";
 // Enable MUI X Date Pickers component keys in theme.components
@@ -13,21 +21,13 @@ import "dayjs/locale/pt-br";
 import { useEffect, useMemo, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { Provider } from "react-redux";
-import { isRouteErrorResponse } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
-import { type IAuthState } from "./features/auth/redux";
-import {
-  cryptoAuth,
-  cryptoMarketplace,
-  cryptoUser,
-} from "./features/auth/utils";
-import type { BaseMarketPlace } from "./features/marketplace/typings";
+import GlobalLoadingSpinner from "./features/auth/components/GlobalLoadingSpinner/GlobalLoadingSpinner";
+import { AuthErrorProvider } from "./features/auth/context/AuthErrorContext";
 import { SocketStatusIndicator } from "./features/socket/components/SocketStatusIndicator";
 import { SocketProvider } from "./features/socket/context/SocketContext";
 import authStore from "./features/store-zustand";
-import type { IUser } from "./features/user/typings/User";
-import GlobalLoadingSpinner from "./features/auth/components/GlobalLoadingSpinner/GlobalLoadingSpinner";
 import store from "./store";
 import "./zod";
 export const queryClient = new QueryClient();
@@ -75,11 +75,6 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     </main>
   );
 }
-// export async function loader({ request }: Route.LoaderArgs) {
-//   const session = await getSession(request.headers.get("Cookie"));
-//   const userInfo = session.get("userInfo") ?? null;
-//   return { userInfo };
-// }
 
 const theme = createTheme(
   {
@@ -221,13 +216,9 @@ const theme = createTheme(
 );
 
 export async function clientLoader() {
-  console.log("clientLoader");
-  console.log("authInfo", await cryptoAuth.recuperarDados<IAuthState>());
-  return {
-    userInfo: await cryptoUser.recuperarDados<IUser>(),
-    authInfo: await cryptoAuth.recuperarDados<IAuthState>(),
-    marketplace: await cryptoMarketplace.recuperarDados<BaseMarketPlace>(),
-  };
+  const error = authStore.getState().error;
+  console.log("rootError do clientLoader", error);
+  return { error };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -339,14 +330,18 @@ function AuthStoreMonitor() {
 }
 
 export default function App() {
+  const { error: initialError } = useLoaderData<typeof clientLoader>();
+
   return (
     <Provider store={store}>
-      <Analytics />
-      <QueryClientProvider client={queryClient}>
-        <GlobalLoadingSpinner />
-        <SocketConnectionManager />
-        {/* <AuthStoreMonitor /> */}
-      </QueryClientProvider>
+      <AuthErrorProvider initialError={initialError}>
+        <Analytics />
+        <QueryClientProvider client={queryClient}>
+          <GlobalLoadingSpinner />
+          <SocketConnectionManager />
+          <AuthStoreMonitor />
+        </QueryClientProvider>
+      </AuthErrorProvider>
     </Provider>
   );
 }
