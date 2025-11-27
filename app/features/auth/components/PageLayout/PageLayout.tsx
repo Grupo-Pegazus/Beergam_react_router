@@ -158,6 +158,14 @@ export default function PageLayout({
           {children}
         </div>
       </main>
+      <button
+        className="fixed bottom-4 right-4 z-9999 bg-beergam-blue-primary text-beergam-white px-4 py-2 rounded-md"
+        onClick={() => {
+          authStore.getState().setAuthError("USAGE_TIME_LIMIT");
+        }}
+      >
+        set auth error
+      </button>
       <ParticlesBackground />
     </>
   );

@@ -30,8 +30,10 @@ export function AuthErrorProvider({
   );
 
   const value = useMemo<AuthError | null>(() => {
-    return liveError ?? initialError ?? null;
-  }, [initialError, liveError]);
+    // Prioriza sempre o liveError (valor em tempo real do store)
+    // initialError só é usado no primeiro render (SSR/hidratação)
+    return liveError;
+  }, [liveError]);
 
   return (
     <AuthErrorContext.Provider value={value}>

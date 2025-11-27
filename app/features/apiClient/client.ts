@@ -198,6 +198,7 @@ typedApiClient.axiosInstance.interceptors.response.use(
         //Deu erro no refresh token
         if (typeof window !== "undefined") {
           authStore.getState().setAuthError("REFRESH_TOKEN_EXPIRED");
+          authStore.getState().logout();
         }
       }
     }
