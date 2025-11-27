@@ -31,7 +31,7 @@ export async function clientAction({ request }: { request: Request }) {
       }
 
       // Recupera o marketplace selecionado do localStorage
-      const selectedMarketplace = authStore.use.marketplace();
+      const selectedMarketplace = authStore.getState().marketplace;
 
       // Verifica se a conta sendo deletada é a mesma que está selecionada
       const isSelectedMarketplace =
