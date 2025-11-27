@@ -2,11 +2,10 @@ import { TableCell, TableRow } from "@mui/material";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
 import { useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import authStore from "~/features/store-zustand";
 import type { IUser } from "~/features/user/typings/User";
 import { isMaster } from "~/features/user/utils";
 import Svg from "~/src/assets/svgs/_index";
-import type { RootState } from "~/store";
 import { type IColab } from "../../../typings/Colab";
 import ColabLevelBadge from "../Badges/ColabLevelBadge";
 import ColabStatusBadge from "../Badges/ColabStatusBadge";
@@ -25,7 +24,7 @@ export default function ColabRow({
   isCurrentColab: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const { user } = useSelector((state: RootState) => state.user);
+  const user = authStore.use.user();
 
   const masterPin = useMemo(() => {
     if (user && isMaster(user)) {

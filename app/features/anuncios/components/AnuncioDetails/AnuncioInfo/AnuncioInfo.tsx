@@ -4,7 +4,6 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
-import Switch from "@mui/material/Switch";
 import { useChangeAdStatus } from "../../../hooks";
 import type { AnuncioDetails } from "../../../typings";
 import dayjs from "dayjs";
@@ -13,6 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import AnuncioFeatures from "../AnuncioFeatures/AnuncioFeatures";
 import Svg from "~/src/assets/svgs/_index";
 import { Button } from "@mui/material";
+import AnuncioStatusToggle from "../../AnuncioStatusToggle";
 
 interface AnuncioInfoProps {
   anuncio: AnuncioDetails;
@@ -36,10 +36,8 @@ export default function AnuncioInfo({ anuncio }: AnuncioInfoProps) {
   }, [anuncio.ad_type]);
 
   const isActive = anuncio.status === "active";
-  const isClosed = anuncio.status === "closed";
 
   const handleToggleStatus = () => {
-    if (isClosed) return;
     const nextStatus = isActive ? "paused" : "active";
     setIsMutating(true);
     changeStatusMutation.mutate(
@@ -164,64 +162,15 @@ export default function AnuncioInfo({ anuncio }: AnuncioInfoProps) {
         </Stack>
 
         <Stack direction="row" spacing={3} alignItems="center">
-        {/* Switch de Ativar/Pausar */}
-          {!isClosed && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Typography
-                variant="caption"
-                color={isActive ? "text.secondary" : "text.disabled"}
-                sx={{ fontSize: "0.7rem" }}
-              >
-                Pausado
-              </Typography>
-              <Box sx={{ position: "relative" }}>
-                <Switch
-                  checked={isActive}
-                  onChange={handleToggleStatus}
-                  disabled={isMutating}
-                  sx={{
-                    "& .MuiSwitch-thumb": {
-                      boxShadow: "0px 1px 2px rgba(15, 23, 42, 0.25)",
-                    },
-                  }}
-                />
-                {isMutating && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      inset: 0,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 16,
-                        height: 16,
-                        border: "2px solid",
-                        borderColor: "var(--color-beergam-orange)",
-                        borderTopColor: "transparent",
-                        borderRadius: "50%",
-                        animation: "spin 1s linear infinite",
-                        "@keyframes spin": {
-                          "0%": { transform: "rotate(0deg)" },
-                          "100%": { transform: "rotate(360deg)" },
-                        },
-                      }}
-                    />
-                  </Box>
-                )}
-              </Box>
-              <Typography
-                variant="caption"
-                color={isActive ? "text.primary" : "text.disabled"}
-                sx={{ fontSize: "0.7rem", fontWeight: 600 }}
-              >
-                Ativo
-              </Typography>
-            </Box>
-          )}
+          {/* Switch de Ativar/Pausar */}
+          <AnuncioStatusToggle
+            status={anuncio.status}
+            subStatus={anuncio.sub_status}
+            isActive={isActive}
+            isMutating={isMutating}
+            onToggle={handleToggleStatus}
+            showStatusMessage={true}
+          />
         </Stack>
         <Stack direction="row" spacing={3} alignItems="center">
             <Box>

@@ -37,7 +37,7 @@ export const MenuConfig = {
   },
   anuncios: {
     label: "Anúncios",
-    status: "red",
+    status: "green",
     path: "/anuncios",
     dinamic_id: "anuncio_id",
     icon: "bag",
@@ -45,16 +45,16 @@ export const MenuConfig = {
   },
   atendimento: {
     label: "Atendimento",
-    status: "yellow",
+    status: "red",
     icon: "chat",
     dropdown: {
       mercado_livre: {
         label: "Mercado Livre",
-        status: "yellow",
+        status: "red",
         dropdown: {
           perguntas_ml: {
             label: "Perguntas",
-            status: "yellow",
+            status: "red",
             path: "/perguntas",
             launched: true,
           },
@@ -80,39 +80,90 @@ export const MenuConfig = {
   },
   rastreio: {
     label: "Rastreio",
-    status: "yellow",
+    status: "red",
     path: "/rastreio",
     icon: "bag",
   },
   produtos: {
     label: "Produtos",
     status: "yellow",
+    icon: "box",
     path: "/produtos",
-    icon: "bag",
+    launched: true,
+    dropdown: {
+      gestao: {
+        label: "Gestão",
+        status: "yellow",
+        path: "/gestao",
+        launched: true,
+      },
+      cadastro: {
+        label: "Cadastro",
+        status: "yellow",
+        dropdown: {
+          cadastro_simplificado: {
+            label: "Simplificado",
+            status: "yellow",
+            path: "/cadastro_simplificado",
+            launched: true,
+          },
+          cadastro_completo: {
+            label: "Completo",
+            status: "yellow",
+            path: "/cadastro_completo",
+            launched: true,
+          },
+        }
+      },
+      categorias: {
+        label: "Categorias",
+        status: "yellow",
+        path: "/categorias",
+        launched: true,
+      },
+      atributos: {
+        label: "Atributos",
+        status: "yellow",
+        path: "/atributos",
+        launched: true,
+      },
+      agendamento: {
+        label: "Agendamento",
+        status: "yellow",
+        path: "/agendamento",
+        launched: true,
+      },
+      estoque: {
+        label: "Estoque",
+        status: "yellow",
+        path: "/estoque",
+        launched: true,
+      }
+    }
   },
   calculadora: {
     label: "Calculadora",
-    status: "yellow",
+    status: "green",
     path: "/calculadora",
     icon: "calculator",
     launched: true,
   },
   lucratividade: {
     label: "Lucratividade",
-    status: "yellow",
+    status: "red",
     path: "/lucratividade",
     icon: "bag",
   },
   networking: {
     label: "Networking",
-    status: "yellow",
+    status: "red",
     path: "/networking",
     icon: "bag",
     denyColabAccess: false,
   },
   gestao_interna: {
     label: "Gestão Interna",
-    status: "yellow",
+    status: "red",
     path: "/gestao_interna",
     icon: "bag",
   },

@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
-import { MenuItem, TextField, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import type { FilterFieldProps, FilterOption } from "../types";
+import { Fields } from "~/src/components/utils/_fields";
 
 export interface FilterSelectProps<T extends string = string>
   extends FilterFieldProps {
@@ -22,7 +23,7 @@ export function FilterSelect<T extends string = string>({
   );
 
   const handleChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
       const newValue = (event.target.value as T) ?? defaultValue;
       onChange(newValue);
     },
@@ -34,25 +35,13 @@ export function FilterSelect<T extends string = string>({
       <Typography variant="subtitle2" color="text.secondary" fontWeight={600}>
         {label}
       </Typography>
-      <TextField
-        select
+      <Fields.select
         value={currentValue}
         onChange={handleChange}
         disabled={disabled}
-        size="small"
-        sx={{
-          "& .MuiOutlinedInput-root": {
-            borderRadius: 3,
-            backgroundColor: "#fff",
-          },
-        }}
-      >
-        {options.map((option) => (
-          <MenuItem key={String(option.value)} value={option.value}>
-            {option.label}
-          </MenuItem>
-        ))}
-      </TextField>
+        options={options.map((opt) => ({ value: opt.value, label: opt.label }))}
+        tailWindClasses="rounded-3xl"
+      />
     </div>
   );
 }

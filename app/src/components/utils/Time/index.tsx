@@ -1,5 +1,5 @@
 import React from "react";
-import Swal from "sweetalert2";
+import toast from "~/src/utils/toast";
 import LockAnimated from "~/src/assets/LockAnimated";
 interface TimeProps {
   dia: string;
@@ -30,11 +30,7 @@ function Time({
     const novoFim = params.target.value;
 
     if (start_date && end_date && end_date < start_date) {
-      Swal.fire({
-        icon: "warning",
-        title: "Horário inválido",
-        text: "O horário de fim não pode ser menor que o horário de início",
-      });
+      toast.error("O horário de fim não pode ser menor que o horário de início");
 
       setHorario({ access, start_date, end_date: "" });
       return;

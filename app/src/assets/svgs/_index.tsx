@@ -53,6 +53,9 @@ import UserPlusSolid from "./UserPlusSolid";
 import WarningCircle from "./WarningCircle";
 import X from "./X";
 import XCircle from "./XCircle";
+import ChatIconSolid from "./ChatIconSolid";
+import BoxIcon from "./BoxIcon";
+import BoxIconSolid from "./BoxIconSolid";
 
 const Svg = {
   home: HomeIcon,
@@ -62,6 +65,7 @@ const Svg = {
   graph: GraphIcon,
   graph_solid: GraphIconSolid,
   chat: ChatIcon,
+  chat_solid: ChatIconSolid,
   card: CardIcon,
   globe: GlobeIcon,
   arrow_path: ArrowPathIcon,
@@ -110,6 +114,8 @@ const Svg = {
   low_stock: LowStock,
   star_solid: StarSolid,
   truck: Truck,
+  box_solid: BoxIconSolid,
+  box: BoxIcon,
 };
 
 export default Svg;

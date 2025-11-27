@@ -2,7 +2,6 @@ import { Paper, Switch } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import toast from "~/src/utils/toast";
-import { useDispatch, useSelector } from "react-redux";
 import { z } from "zod";
 import { authService } from "~/features/auth/service";
 import { UserPasswordSchema } from "~/features/auth/typing";
@@ -11,7 +10,7 @@ import {
   type MenuKeys,
   type MenuState,
 } from "~/features/menu/typings";
-import { updateColab } from "~/features/user/redux";
+import authStore from "~/features/store-zustand";
 import {
   createColabPhotoUploadService,
   userService,
@@ -36,7 +35,6 @@ import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
 import Time from "~/src/components/utils/Time";
 import Upload from "~/src/components/utils/upload";
-import type { RootState } from "~/store";
 import { EnumKeyFromValue } from "~/utils/typings/EnumKeysFromValues";
 import ColabDetails from "../ColabDetails";
 import ColabPhoto from "../ColabPhoto";
@@ -50,9 +48,9 @@ export default function ColabInfo({
   action: ColabAction | null;
   onColabCreated?: (createdColab: IColab) => void;
 }) {
-  const dispatch = useDispatch();
   const queryClient = useQueryClient();
-  const { user } = useSelector((state: RootState) => state.user);
+  const user = authStore.use.user();
+  const updateColab = authStore.use.updateColab();
   const [password, setPassword] = useState("");
   const updateColabMutation = useMutation({
     mutationFn: (colab: IColab) => userService.updateColab(colab, password),
@@ -128,11 +126,11 @@ export default function ColabInfo({
         },
       };
       setEditedColab(updatedColab);
-      dispatch(updateColab(updatedColab));
+      updateColab(updatedColab);
       queryClient.invalidateQueries({ refetchType: "active" });
       handleClosePhotoUploader();
     },
-    [editedColab, dispatch, handleClosePhotoUploader, queryClient]
+    [editedColab, updateColab, handleClosePhotoUploader, queryClient]
   );
 
   const passwordValidation = UserPasswordSchema.safeParse(password);
@@ -182,7 +180,7 @@ export default function ColabInfo({
               throw new Error(data.message);
             }
 
-            dispatch(updateColab(data.data));
+            updateColab(data.data);
             return data.message;
           },
           error: "Erro ao atualizar colaborador",

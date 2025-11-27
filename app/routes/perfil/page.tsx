@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import { type IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
-import { type RootState } from "~/store";
 import Colaboradores from "./components/Colaboradores";
 import Impostos from "./components/Impostos";
 import PerfilLayout from "./layout/PerfilLayout";
@@ -11,14 +9,16 @@ import MinhaAssinatura from "./components/MinhaAssinatura";
 import MinhaConta from "./components/MinhaConta";
 import { useNavigate } from "react-router";
 import Svg from "~/src/assets/svgs/_index";
+import authStore from "~/features/store-zustand";
+
 
 const LAST_ROUTE_BEFORE_PERFIL_KEY = "beergam:lastRouteBeforePerfil";
 export default function PerfilPage() {
   const [activeButton, setActiveButton] = useState<string>("Minha Conta");
-  const user = useSelector((state: RootState) => state.user.user);
+  const user = authStore.use.user();
   const navigate = useNavigate();
   const hasSavedRoute = useRef(false);
-  const marketplace = useSelector((state: RootState) => state.marketplace.marketplace);
+  const marketplace = authStore.use.marketplace();
 
   // Salvar a última rota quando montar o componente (primeira vez no perfil)
   useEffect(() => {

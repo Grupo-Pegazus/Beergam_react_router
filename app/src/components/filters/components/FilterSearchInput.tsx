@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
-import { MenuItem, Stack, TextField, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import type { FilterOption } from "../types";
+import { Fields } from "~/src/components/utils/_fields";
 
 export interface FilterSearchInputProps {
   value: string;
@@ -38,7 +39,7 @@ export function FilterSearchInput({
   );
 
   const handleSearchTypeChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
       if (onSearchTypeChange) {
         onSearchTypeChange(event.target.value);
       }
@@ -60,42 +61,21 @@ export function FilterSearchInput({
         spacing={2}
         alignItems={{ xs: "stretch", sm: "flex-start" }}
       >
-        <TextField
-          fullWidth
+        <Fields.input
           value={value ?? ""}
           onChange={handleInputChange}
           disabled={disabled}
           placeholder={placeholder}
-          size="small"
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: 3,
-              backgroundColor: "#fff",
-            },
-          }}
+          tailWindClasses="rounded-3xl"
         />
         {hasSearchType && (
-          <TextField
-            select
+          <Fields.select
             value={currentSearchType}
             onChange={handleSearchTypeChange}
             disabled={disabled}
-            size="small"
-            sx={{
-              width: { xs: "100%", sm: "auto" },
-              minWidth: { xs: "100%", sm: 180 },
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 3,
-                backgroundColor: "#fff",
-              },
-            }}
-          >
-            {searchTypeOptions?.map((option) => (
-              <MenuItem key={String(option.value)} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
+            options={searchTypeOptions?.map((opt) => ({ value: opt.value, label: opt.label })) || []}
+            tailWindClasses="rounded-3xl w-full sm:w-auto sm:min-w-[180px]"
+          />
         )}
       </Stack>
     </div>

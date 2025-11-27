@@ -1,18 +1,17 @@
 // import ColabCard from "~/features/user/colab/components/ColabCard";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useReducer, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
 import ColabInfo from "~/features/user/colab/components/ColabInfo";
 import ColabListMobile from "~/features/user/colab/components/ColabListMobile";
 import ColabTable from "~/features/user/colab/components/ColabTable";
-import { updateColabs } from "~/features/user/redux";
+import authStore from "~/features/store-zustand";
 import { userService } from "~/features/user/service";
 import { getDefaultColab, type IColab } from "~/features/user/typings/Colab";
 import Svg from "~/src/assets/svgs/_index";
 import type { ColabAction } from "../../typings";
 
 export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
-  const dispatch = useDispatch();
+  const updateColabs = authStore.use.updateColabs();
   const availableActions = {
     Editar: { icon: <Svg.pencil width={20} height={20} /> },
     Excluir: { icon: <Svg.trash width={20} height={20} /> },
@@ -52,9 +51,9 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
   });
   useEffect(() => {
     if (data?.success) {
-      dispatch(updateColabs(data.data as Record<string, IColab>));
+      updateColabs(data.data as Record<string, IColab>);
     }
-  }, [data]);
+  }, [data, updateColabs]);
   const colabInfoRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 

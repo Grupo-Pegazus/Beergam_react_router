@@ -7,15 +7,13 @@ import {
   type ReactNode,
 } from "react";
 import { useLocation } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
 import { io, type Socket } from "socket.io-client";
 import { enforceUsageLimit } from "~/features/auth/utils/accessWindow";
 import { showNotification } from "~/features/notifications/showNotification";
 import type { OnlineStatusNotificationData } from "~/features/notifications/types";
-import { updateColab, updateAllowedViews } from "~/features/user/redux";
+import authStore from "~/features/store-zustand";
 import { isColab, isMaster } from "~/features/user/utils";
 import { BaseUserDetailsSchema } from "~/features/user/typings/BaseUser";
-import type { RootState } from "~/store";
 import type {
   OnlineStatusUpdate,
   SessionEvent,
@@ -190,10 +188,11 @@ export function SocketProvider({
   const sessionSocketRef = useRef<Socket | null>(null);
   const onlineStatusSocketRef = useRef<Socket | null>(null);
   const sessionRoomNameRef = useRef<string | null>(null);
-  const user = useSelector((state: RootState) => state.user.user);
+  const user = authStore.use.user();
+  const updateColab = authStore.use.updateColab();
+  const updateAllowedViews = authStore.use.updateAllowedViews();
   const [isSessionConnected, setIsSessionConnected] = useState(false);
   const [isOnlineStatusConnected, setIsOnlineStatusConnected] = useState(false);
-  const dispatch = useDispatch();
   const socketUrlRef = useRef<string>(
     socketUrl || import.meta.env.VITE_SOCKET_URL || "http://localhost:3001"
   );
@@ -220,6 +219,33 @@ export function SocketProvider({
       tryJoinSessionRoom();
     }
   }, [user]);
+
+  const handleUsageLimitEvent = (payload: SessionUsageLimitEvent) => {
+    enforceUsageLimit({
+      source: "socket",
+      event_type: payload.event_type,
+      message: payload.message,
+      timestamp: payload.timestamp,
+      next_allowed_at: payload.next_allowed_at,
+      weekday: payload.weekday,
+    });
+  };
+
+  const handleAllowedViewsEvent = (payload: SessionAllowedViewsEvent) => {
+    try {
+      // Transformar o payload usando o schema para garantir formato correto
+      const parsed = BaseUserDetailsSchema.parse({
+        allowed_views: payload.allowed_views,
+      });
+      
+      if (parsed.allowed_views) {
+        updateAllowedViews(parsed.allowed_views);
+        console.log("✅ Permissões de visualização atualizadas via socket");
+      }
+    } catch (error) {
+      console.error("❌ Erro ao processar atualização de allowed_views:", error);
+    }
+  };
 
   /**
    * Conectar ao namespace /session
@@ -378,7 +404,7 @@ export function SocketProvider({
             colab,
             online: data.is_online,
           };
-          dispatch(updateColab({ ...colab, is_online: data.is_online }));
+          updateColab({ ...colab, is_online: data.is_online });
           showNotification(notificationData);
         }
       }
@@ -493,33 +519,6 @@ export function SocketProvider({
     socketToUse.emit("join_room", { room: roomName });
     sessionRoomNameRef.current = roomName;
     console.log(`📡 Assinado na sala ${roomName}`);
-  };
-
-  const handleUsageLimitEvent = (payload: SessionUsageLimitEvent) => {
-    enforceUsageLimit({
-      source: "socket",
-      event_type: payload.event_type,
-      message: payload.message,
-      timestamp: payload.timestamp,
-      next_allowed_at: payload.next_allowed_at,
-      weekday: payload.weekday,
-    });
-  };
-
-  const handleAllowedViewsEvent = (payload: SessionAllowedViewsEvent) => {
-    try {
-      // Transformar o payload usando o schema para garantir formato correto
-      const parsed = BaseUserDetailsSchema.parse({
-        allowed_views: payload.allowed_views,
-      });
-      
-      if (parsed.allowed_views) {
-        dispatch(updateAllowedViews(parsed.allowed_views));
-        console.log("✅ Permissões de visualização atualizadas via socket");
-      }
-    } catch (error) {
-      console.error("❌ Erro ao processar atualização de allowed_views:", error);
-    }
   };
 
   const value: SocketContextValue = {
