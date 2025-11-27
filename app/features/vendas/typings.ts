@@ -1,8 +1,26 @@
 import { z } from "zod";
 
+// Schema para cliente
+export const ClientSchema = z.object({
+  cpf: z.string().optional(),
+  destination_receiver_name: z.string().nullable().optional(),
+});
+
+export type Client = z.infer<typeof ClientSchema>;
+
+// Schema para detalhes de envio
+export const ShippingDetailsSchema = z.object({
+  address_line: z.string(),
+  neighborhood: z.string(),
+  street_name: z.string(),
+  street_number: z.string(),
+});
+
+export type ShippingDetails = z.infer<typeof ShippingDetailsSchema>;
+
 // Schema para pedido (baseado no MeliOrderSchema do backend)
 export const OrderSchema = z.object({
-  id: z.number(),
+  id: z.number().optional(),
   order_id: z.string(),
   marketplace_shop_id: z.string(),
   pack_id: z.string().nullable().optional(),
@@ -18,7 +36,7 @@ export const OrderSchema = z.object({
   shipping_id: z.string(),
   tags: z.array(z.string()).nullable().optional(),
   payments: z.array(z.unknown()).nullable().optional(),
-  sku: z.string(),
+  sku: z.string().nullable().optional(),
   mlb: z.string(),
   title: z.string(),
   category_id: z.string(),
@@ -36,25 +54,31 @@ export const OrderSchema = z.object({
   declared_value: z.string().nullable().optional(),
   shipping_method_name: z.string().nullable().optional(),
   shipping_paid_by: z.string().nullable().optional(),
-  custo_envio_base: z.number().nullable().optional(),
-  custo_envio_final: z.number().nullable().optional(),
-  custo_envio_buyer: z.number().nullable().optional(),
-  custo_envio_seller: z.number().nullable().optional(),
+  shipping_destination_state: z.string().nullable().optional(),
+  shipping_details: ShippingDetailsSchema.nullable().optional(),
+  custo_envio_base: z.string().nullable().optional(),
+  custo_envio_final: z.string().nullable().optional(),
+  custo_envio_buyer: z.string().nullable().optional(),
+  custo_envio_seller: z.string().nullable().optional(),
   custo_envio_desconto: z.number().nullable().optional(),
   custo_envio_compensacao: z.number().nullable().optional(),
   custo_envio_promoted_amount: z.number().nullable().optional(),
   frete_recebido_total: z.number().nullable().optional(),
   valor_base: z.string(),
   valor_liquido: z.string().nullable().optional(),
-  bonus_por_envio_estorno: z.number().nullable().optional(),
-  tax_percentage: z.number().nullable().optional(),
-  tax_amount: z.number().nullable().optional(),
-  price_cost: z.number().nullable().optional(),
-  packaging_cost: z.number().nullable().optional(),
-  extra_cost: z.number().nullable().optional(),
+  bonus_por_envio_estorno: z.string().nullable().optional(),
+  tax_percentage: z.string().nullable().optional(),
+  tax_amount: z.string().nullable().optional(),
+  price_cost: z.string().nullable().optional(),
+  packaging_cost: z.string().nullable().optional(),
+  extra_cost: z.string().nullable().optional(),
   shipment_costs: z.record(z.string(), z.unknown()).nullable().optional(),
-  thumbnail: z.string(),
-  ad_type: z.string(),
+  thumbnail: z.string().nullable().optional(),
+  ad_type: z.string().nullable().optional(),
+  client: ClientSchema.nullable().optional(),
+  isRegisteredInternally: z.boolean().optional(), // Presente apenas no endpoint de detalhes
+  created_at: z.string().optional(),
+  updated_at: z.string().optional(),
 });
 
 export type Order = z.infer<typeof OrderSchema>;
@@ -179,4 +203,33 @@ export const TopCategoriesSchema = z.object({
 
 export type TopCategories = z.infer<typeof TopCategoriesSchema>;
 export type TopCategory = z.infer<typeof TopCategorySchema>;
+
+// Schema para evento da timeline
+export const TimelineEventSchema = z.object({
+  date: z.string(),
+  status: z.string(),
+  substatus: z.string().nullable().optional(),
+});
+
+export type TimelineEvent = z.infer<typeof TimelineEventSchema>;
+
+// Schema para informações do pack
+export const PackInfoSchema = z.object({
+  pack_id: z.string(),
+  total_items: z.number(),
+  total_orders: z.number(),
+});
+
+export type PackInfo = z.infer<typeof PackInfoSchema>;
+
+// Schema para resposta de detalhes do pedido
+export const OrderDetailsResponseSchema = z.object({
+  filters_applied: z.record(z.string(), z.unknown()).optional(),
+  orders: z.array(OrderSchema),
+  pack_info: PackInfoSchema,
+  pagination: PaginationSchema,
+  timeline_events: z.array(TimelineEventSchema),
+});
+
+export type OrderDetailsResponse = z.infer<typeof OrderDetailsResponseSchema>;
 

@@ -10,6 +10,7 @@ import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import OrderItemCard from "./OrderItemCard";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 import toast from "~/src/utils/toast";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface OrderPackageProps {
   packId: string;
@@ -166,45 +167,51 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
         <Divider sx={{ my: 0.5 }} />
 
         {/* Status Chips e Botão de Expandir */}
-        <div className="flex flex-wrap items-center justify-between gap-1.5 md:gap-2">
-          <Chip
-            label={statusInfo.label}
-            size="small"
-            icon={
-              (() => {
-                const IconComponent = Svg[statusInfo.icon];
-                return <IconComponent tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />;
-              })()
-            }
-            sx={{
-              height: 22,
-              fontSize: "0.65rem",
-              fontWeight: 600,
-              backgroundColor: statusInfo.backgroundColor,
-              color: statusInfo.color,
-              "& .MuiChip-label": {
-                px: 0.75,
-              },
-            }}
-          />
-        </div>
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
+          <div>
+            <div className="flex flex-wrap items-center justify-between gap-1.5 md:gap-2">
+              <Chip
+                label={statusInfo.label}
+                size="small"
+                icon={
+                  (() => {
+                    const IconComponent = Svg[statusInfo.icon];
+                    return <IconComponent tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />;
+                  })()
+                }
+                sx={{
+                  height: 22,
+                  fontSize: "0.65rem",
+                  fontWeight: 600,
+                  backgroundColor: statusInfo.backgroundColor,
+                  color: statusInfo.color,
+                  "& .MuiChip-label": {
+                    px: 0.75,
+                  },
+                }}
+              />
+            </div>
 
-        {/* Status do envio */}
-        {(firstOrder.shipment_status || deliveryInfo) && (
-          <div className="block mt-1 md:mt-2">
-            {firstOrder.shipment_status && (
-              <Typography variant="body2" fontWeight={600} className="text-slate-900 mb-0.5 md:mb-1 text-sm md:text-base">
-                {getStatusOrderMeliInfo(firstOrder.shipment_status)?.label ||
-                  firstOrder.shipment_status}
-              </Typography>
-            )}
-            {deliveryInfo && (
-              <Typography variant="caption" fontWeight={400} className="text-slate-700 text-xs md:text-sm">
-                {deliveryInfo.label} {deliveryInfo.date}
-              </Typography>
+            {/* Status do envio */}
+            {(firstOrder.shipment_status || deliveryInfo) && (
+              <div className="block mt-1 md:mt-2">
+                {firstOrder.shipment_status && (
+                  <Typography variant="body2" fontWeight={600} className="text-slate-900 mb-0.5 md:mb-1 text-sm md:text-base">
+                    {getStatusOrderMeliInfo(firstOrder.shipment_status)?.label ||
+                      firstOrder.shipment_status}
+                  </Typography>
+                )}
+                {deliveryInfo && (
+                  <Typography variant="caption" fontWeight={400} className="text-slate-700 text-xs md:text-sm">
+                    {deliveryInfo.label} {deliveryInfo.date}
+                  </Typography>
+                )}
+              </div>
             )}
           </div>
-        )}
+
+          <BeergamButton title="Ver detalhes" mainColor="beergam-blue-primary" link={`/interno/vendas/${packId}`} className="bg-beergam-orange! text-beergam-white!" />
+        </div>
 
         {/* Resumo do Pacote */}
         <div
