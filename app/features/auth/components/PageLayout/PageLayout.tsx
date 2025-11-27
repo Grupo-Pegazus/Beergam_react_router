@@ -63,10 +63,7 @@ export default function PageLayout({
     <>
       <main className="flex min-h-full bg-beergam-orange overflow-x-hidden">
         <header className="fixed z-10000 top-0 left-0 right-0 p-4 px-8 flex items-center justify-between">
-          <Link
-            to="/"
-            className="w-10 h-10 cursor-pointer hover:opacity-80 hidden lg:block"
-          >
+          <Link to="/" className="w-10 h-10 cursor-pointer hover:opacity-80">
             <img
               src={CDN_IMAGES.BERGAMOTA_LOGO}
               alt="beergam_flower_logo"
@@ -154,18 +151,18 @@ export default function PageLayout({
             </div>
           </div>
         </div>
-        <div className={`w-full min-h-full z-50 ${tailwindClassName}`}>
+        <div className={`w-full min-h-full z-50 ${tailwindClassName} mt-16`}>
           {children}
         </div>
       </main>
-      <button
+      {/* <button
         className="fixed bottom-4 right-4 z-9999 bg-beergam-blue-primary text-beergam-white px-4 py-2 rounded-md"
         onClick={() => {
           authStore.getState().setAuthError("USAGE_TIME_LIMIT");
         }}
       >
         set auth error
-      </button>
+      </button> */}
       <ParticlesBackground />
     </>
   );
