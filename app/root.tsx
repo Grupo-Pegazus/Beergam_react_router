@@ -24,7 +24,7 @@ import { Provider } from "react-redux";
 import type { Route } from "./+types/root";
 import "./app.css";
 import GlobalLoadingSpinner from "./features/auth/components/GlobalLoadingSpinner/GlobalLoadingSpinner";
-import { AuthErrorProvider } from "./features/auth/context/AuthErrorContext";
+import { AuthStoreProvider } from "./features/auth/context/AuthStoreContext";
 import { SocketStatusIndicator } from "./features/socket/components/SocketStatusIndicator";
 import { SocketProvider } from "./features/socket/context/SocketContext";
 import authStore from "./features/store-zustand";
@@ -219,9 +219,12 @@ const theme = createTheme(
 );
 
 export async function clientLoader() {
-  const error = authStore.getState().error;
+  const state = authStore.getState();
+  const error = state.error;
+  const user = state.user;
+  const marketplace = state.marketplace;
   console.log("rootError do clientLoader", error);
-  return { error };
+  return { error, user, marketplace };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -333,18 +336,26 @@ function AuthStoreMonitor() {
 }
 
 export default function App() {
-  const { error: initialError } = useLoaderData<typeof clientLoader>();
+  const {
+    error: initialError,
+    user: initialUser,
+    marketplace: initialMarketplace,
+  } = useLoaderData<typeof clientLoader>();
 
   return (
     <Provider store={store}>
-      <AuthErrorProvider initialError={initialError}>
+      <AuthStoreProvider
+        initialError={initialError}
+        initialUser={initialUser}
+        initialMarketplace={initialMarketplace}
+      >
         <Analytics />
         <QueryClientProvider client={queryClient}>
           <GlobalLoadingSpinner />
           <SocketConnectionManager />
           {/* <AuthStoreMonitor /> */}
         </QueryClientProvider>
-      </AuthErrorProvider>
+      </AuthStoreProvider>
     </Provider>
   );
 }
