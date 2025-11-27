@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
-import toast from "react-hot-toast";
 import { Navigate, Outlet } from "react-router";
 import authStore from "~/features/store-zustand";
 import { UserRoles } from "~/features/user/typings/BaseUser";
@@ -36,7 +35,6 @@ export default function AuthLayout() {
   useEffect(() => {
     //UseEffect para fazer veiricação de colab quando da timeAccess negativo
     if (!data) return;
-    toast.success(JSON.stringify(data));
     if (data.success) {
       authStore.setState({ error: null });
       queryClient.invalidateQueries({ queryKey: ["verifyTimeColab"] });
@@ -65,12 +63,7 @@ export default function AuthLayout() {
             return <Navigate to="/interno/subscription" replace />;
           break;
         case "USAGE_TIME_LIMIT":
-          return (
-            <>
-              <p>{JSON.stringify(data)}</p>
-              <UsageTimeLimitWarning />
-            </>
-          );
+          return <UsageTimeLimitWarning />;
       }
     }
   }
