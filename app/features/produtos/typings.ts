@@ -22,6 +22,9 @@ const VariationBasicSchema = z.object({
   description: z.string().optional(),
   images: ProductImagesSchema.optional(),
   categories: z.array(CategorySchema).optional(),
+  available_quantity: z.number().optional(),
+  price_sale: z.string().optional(),
+  sales_quantity: z.number().optional(),
 });
 
 // Schema para produto (da lista)

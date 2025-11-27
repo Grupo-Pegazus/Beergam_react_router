@@ -291,7 +291,7 @@ function AuthStoreMonitor() {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-9999 w-full max-w-sm rounded-xl border border-beergam-blue-primary/40 bg-white/90 p-4 shadow-lg backdrop-blur-sm">
+    <div className="fixed bottom-4 left-4 z-9999 w-full max-w-sm rounded-xl border border-beergam-blue-primary/40 bg-white/90 p-4 shadow-lg backdrop-blur-sm">
       <div className="mb-3 flex items-center justify-between text-sm font-semibold text-beergam-blue-primary">
         <span>Zustand Auth Debug</span>
         <span className="text-xs uppercase tracking-wide text-beergam-gray">

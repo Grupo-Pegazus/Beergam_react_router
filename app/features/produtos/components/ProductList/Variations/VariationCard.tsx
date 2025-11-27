@@ -3,9 +3,15 @@ import { Chip, Typography } from "@mui/material";
 import Svg from "~/src/assets/svgs/_index";
 import toast from "~/src/utils/toast";
 import type { Product } from "../../../typings";
-import ProductImage from "../../ProductImage/ProductImage";
 import { ProductStatusToggle } from "../../ProductStatusToggle";
 import { useChangeVariationStatus } from "../../../hooks";
+import MainCards from "~/src/components/ui/MainCards";
+import ProductImage from "../../ProductImage/ProductImage";
+import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+
+function formatNumber(value: number | null | undefined) {
+  return (value ?? 0).toLocaleString("pt-BR");
+}
 
 interface VariationCardProps {
   variation: Product["variations"][0];
@@ -36,37 +42,34 @@ export default function VariationCard({ variation, productId }: VariationCardPro
   };
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 px-3 sm:py-2 sm:px-2 border-b border-slate-200 last:border-b-0 hover:bg-white sm:hover:bg-slate-50 transition-colors gap-2 sm:gap-0">
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        {variationImageId && (
-          <ProductImage
-            imageId={variationImageId}
-            alt={variation.title}
-            size="small"
-            className="hidden sm:block"
+    <MainCards className="hover:bg-slate-50/50 transition-colors">
+      <div className="flex items-center gap-4 py-2 px-4">
+        {/* Toggle Switch */}
+        <div className="shrink-0 w-16 flex justify-center">
+          <ProductStatusToggle
+            status={variation.status}
+            isActive={variation.status.toLowerCase().trim() === "ativo"}
+            isMutating={isMutating}
+            onToggle={handleToggleStatus}
           />
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <Typography
-              variant="body2"
-              fontWeight={600}
-              className="text-slate-900"
-            >
-              {variation.title}
-            </Typography>
-            {variation.status && (
-              <span
-                className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                  variation.status.toLowerCase().trim() === "ativo"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-slate-100 text-slate-700"
-                }`}
-              >
-                {variation.status}
-              </span>
-            )}
+        </div>
+
+        {/* Imagem */}
+        {variationImageId && (
+          <div className="shrink-0">
+            <ProductImage imageId={variationImageId} alt={variation.title} size="small" />
           </div>
+        )}
+
+        {/* Conteúdo */}
+        <div className="flex-1 min-w-0">
+          <Typography
+            variant="body2"
+            fontWeight={600}
+            className="text-slate-900 mb-1"
+          >
+            {variation.title}
+          </Typography>
           {variation.description && (
             <Typography variant="caption" color="text.secondary" className="block mb-1">
               {variation.description}
@@ -136,22 +139,66 @@ export default function VariationCard({ variation, productId }: VariationCardPro
             )}
           </div>
         </div>
-      </div>
-      <div className="flex items-center gap-3 text-xs text-slate-600 sm:ml-auto sm:shrink-0">
-        <div className="flex flex-col items-end gap-2">
-          {variation.images?.product && variation.images.product.length > 0 && (
+
+        {/* Preço */}
+        <div className="shrink-0 w-28">
+          {variation.price_sale ? (
+            <Typography variant="body2" fontWeight={600} className="text-slate-900">
+              {formatCurrency(variation.price_sale)}
+            </Typography>
+          ) : (
             <Typography variant="caption" color="text.secondary">
-              {variation.images.product.length} imagem{variation.images.product.length !== 1 ? "s" : ""}
+              —
             </Typography>
           )}
-          <ProductStatusToggle
-            status={variation.status}
-            isActive={variation.status.toLowerCase().trim() === "ativo"}
-            isMutating={isMutating}
-            onToggle={handleToggleStatus}
-          />
+        </div>
+
+        {/* Vendas */}
+        <div className="shrink-0 w-24 flex items-center gap-1 justify-center">
+          {variation.sales_quantity !== undefined ? (
+            <>
+              <Svg.bag tailWindClasses="h-4 w-4 text-slate-500" />
+              <Typography variant="body2" fontWeight={600} className="text-slate-900">
+                {formatNumber(variation.sales_quantity)}
+              </Typography>
+            </>
+          ) : (
+            <Typography variant="caption" color="text.secondary">
+              —
+            </Typography>
+          )}
+        </div>
+
+        {/* Estoque */}
+        <div className="shrink-0 w-28 flex items-center gap-1.5 justify-center">
+          {variation.available_quantity !== undefined ? (
+            <>
+              <Typography variant="caption" color="text.secondary" className="text-xs">
+                Qt:
+              </Typography>
+              <Chip
+                label={formatNumber(variation.available_quantity)}
+                size="small"
+                sx={{
+                  height: 22,
+                  fontSize: "0.7rem",
+                  backgroundColor: "#d1fae5",
+                  color: "#065f46",
+                  fontWeight: 600,
+                  "& .MuiChip-label": {
+                    px: 1,
+                  },
+                }}
+              />
+              <div className="w-2 h-2 rounded-full bg-green-500" />
+            </>
+          ) : (
+            <Typography variant="caption" color="text.secondary">
+              —
+            </Typography>
+          )}
         </div>
       </div>
-    </div>
+    </MainCards>
   );
 }

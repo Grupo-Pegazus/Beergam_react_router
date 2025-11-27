@@ -2,6 +2,7 @@ import { Outlet, useNavigate } from "react-router";
 import authStore from "~/features/store-zustand";
 import { useAuthError } from "../../context/AuthErrorContext";
 import MultipleDeviceWarning from "../MultipleDeviceWarning/MultipleDeviceWarning";
+import UsageTimeLimitWarning from "../UsageTimeLimitWarning/UsageTimeLimitWarning";
 
 export default function AuthLayout() {
   // const user = authStore.use.user();
@@ -59,6 +60,8 @@ export default function AuthLayout() {
           replace: true,
           viewTransition: true,
         });
+      case "USAGE_TIME_LIMIT":
+        return <UsageTimeLimitWarning />
     }
   } else {
     if (!user) {
