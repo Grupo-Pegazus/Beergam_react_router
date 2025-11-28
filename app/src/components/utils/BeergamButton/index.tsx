@@ -1,18 +1,17 @@
-import type { UseMutationResult } from "@tanstack/react-query";
 import type { ButtonHTMLAttributes, CSSProperties } from "react";
 import { useEffect } from "react";
 import { Link } from "react-router";
 import Svg from "~/src/assets/svgs/_index";
-interface BeergamButtonFetcherProps<
-  TData = unknown,
-  TError = unknown,
-  TVariables = unknown,
-  TContext = unknown,
-> {
+interface BeergamButtonFetcherProps {
   fecthing: boolean;
   completed: boolean;
   error: boolean;
-  mutation: UseMutationResult<TData, TError, TVariables, TContext>;
+  mutation: {
+    reset: () => void;
+    isPending: boolean;
+    isSuccess: boolean;
+    isError: boolean;
+  };
 }
 interface BeergamButtonWrapperProps {
   mainColor?: string;
