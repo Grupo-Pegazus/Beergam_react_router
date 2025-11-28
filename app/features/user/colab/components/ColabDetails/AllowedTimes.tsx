@@ -3,6 +3,7 @@ import {
   WeekDay,
   WeekDayToPortuguese,
 } from "~/features/user/typings/AllowedTimes";
+import ColabItem from "./ColabItem";
 
 export default function AllowedTimes({
   schedule,
@@ -26,24 +27,28 @@ export default function AllowedTimes({
       {(Object.values(WeekDay) as WeekDay[]).map((day) => {
         const item = schedule[day];
         return (
-          <div
-            key={day}
-            className="flex items-center justify-start gap-3 bg-beergam-white text-beergam-blue-primary border border-beergam-gray-light rounded-md px-3 py-2"
-          >
+          <ColabItem key={day} active={item.access}>
             <span className="text-sm font-medium">
               {WeekDayToPortuguese[day]}
             </span>
             <div className="text-sm">
-              {item.access ? (
+              {/* {item.access ? (
                 <span>
                   {formatTime(item.start_date)} <span className="mx-1">—</span>{" "}
                   {formatTime(item.end_date)}
                 </span>
               ) : (
                 <span className="opacity-60">Sem acesso</span>
-              )}
+              )} */}
+              <span className="text-xs font-semibold">
+                {item.access
+                  ? formatTime(item.start_date) +
+                    " - " +
+                    formatTime(item.end_date)
+                  : "Sem acesso"}
+              </span>
             </div>
-          </div>
+          </ColabItem>
         );
       })}
     </div>
