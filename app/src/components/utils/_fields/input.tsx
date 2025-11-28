@@ -1,6 +1,7 @@
 import { useEffect, useState, type InputHTMLAttributes } from "react";
 import { Tooltip } from "react-tooltip";
 import Svg from "~/src/assets/svgs/_index";
+import CopyButton from "~/src/components/ui/CopyButton";
 
 // interface InputProps {
 //   placeholder?: string;
@@ -28,6 +29,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   wrapperSize?: string | undefined;
   showPassword?: boolean;
   onEyeChange?: (showPassword: boolean) => void;
+  clipboard?: boolean;
 }
 export default function Input({
   error,
@@ -50,6 +52,7 @@ export default function Input({
   wrapperSize,
   onEyeChange,
   showPassword,
+  clipboard,
   ...props
 }: InputProps) {
   const isValid = value && (!error || error != "") && success;
@@ -67,7 +70,7 @@ export default function Input({
     : "";
   const focusClasses = "focus:border-[#ff8a00] outline-beergam-orange";
   const disabledClasses = disabled
-    ? "bg-gray-50 cursor-not-allowed border-gray-300 text-slate-500"
+    ? "bg-gray-50 cursor-not-allowed border-gray-300 text-beergam-blue-primary"
     : "";
   const [isShowPassword, setIsShowPassword] = useState(showPassword);
   // State para verificar se o usuário está focado ou interagindo com o input
@@ -112,7 +115,7 @@ export default function Input({
           // onMouseLeave={() => setIsInteracting(false)}
           {...props}
         />
-        {type === "password" && (
+        {/* {type === "password" && (
           <button
             type="button"
             onClick={() => {
@@ -130,6 +133,41 @@ export default function Input({
             )}
           </button>
         )}
+        {clipboard && (
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(value?.toString() ?? "");
+            }}
+          >
+            <Svg.copy tailWindClasses="text-beergam-blue-primary size-6" />
+          </button>
+        )} */}
+        <div className="absolute flex items-center gap-2 justify-center right-3 top-1/2 transform -translate-y-1/2">
+          {type === "password" && (
+            <button
+              type="button"
+              onClick={() => {
+                setIsShowPassword(!isShowPassword);
+                onEyeChange?.(isShowPassword ?? false);
+              }}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              {isShowPassword ? (
+                <div className="flex items-center gap-2">
+                  <Svg.eye width={20} height={20} />
+                </div>
+              ) : (
+                <Svg.eye_slash width={20} height={20} />
+              )}
+            </button>
+          )}
+          {clipboard && (
+            <CopyButton
+              iconSize="h-5 w-5"
+              textToCopy={value?.toString() ?? ""}
+            />
+          )}
+        </div>
       </div>
       {dataTooltipId && (
         <Tooltip

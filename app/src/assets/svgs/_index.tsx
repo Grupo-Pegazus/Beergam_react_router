@@ -4,19 +4,24 @@ import ArrowUturnLeft from "./ArrowUturnLeft";
 import BagIcon from "./BagIcon";
 import BagSolid from "./BagSolid";
 import Bell from "./Bell";
+import BoxIcon from "./BoxIcon";
+import BoxIconSolid from "./BoxIconSolid";
 import BuildingLibrary from "./BuildingLibrary";
 import CalculatorIcon from "./Calculator";
 import CalculatorSolid from "./CalculatorSolid";
 import CardIcon from "./CardIcon";
 import CardSolid from "./CardSolid";
 import ChatIcon from "./ChatIcon";
+import ChatIconSolid from "./ChatIconSolid";
 import Check from "./Check";
 import CheckCircle from "./CheckCircle";
+import CheckSolid from "./CheckSolid";
 import Chevron from "./Chevron";
 import CircleX from "./CircleX";
 import ClockIcon from "./ClockIcon";
 import Cog8Tooth from "./Cog8Tooth";
 import Copy from "./Copy";
+import CopySolid from "./CopySolid";
 import CurrencyDollar from "./CurrencyDollar";
 import DocumentIcon from "./DocumentIcon";
 import DollyIcon from "./DollyIcon";
@@ -48,15 +53,12 @@ import Star from "./Star";
 import StarSolid from "./StarSolid";
 import Trash from "./Trash";
 import Truck from "./Truck";
+import User from "./User";
 import UserPlus from "./UserPlus";
 import UserPlusSolid from "./UserPlusSolid";
 import WarningCircle from "./WarningCircle";
 import X from "./X";
 import XCircle from "./XCircle";
-import ChatIconSolid from "./ChatIconSolid";
-import BoxIcon from "./BoxIcon";
-import BoxIconSolid from "./BoxIconSolid";
-
 const Svg = {
   home: HomeIcon,
   home_solid: HomeSolid,
@@ -116,6 +118,9 @@ const Svg = {
   truck: Truck,
   box_solid: BoxIconSolid,
   box: BoxIcon,
+  user: User,
+  copy_solid: CopySolid,
+  check_solid: CheckSolid,
 };
 
 export default Svg;
