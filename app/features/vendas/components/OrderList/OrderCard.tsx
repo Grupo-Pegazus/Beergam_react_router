@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Chip, Divider, Typography } from "@mui/material";
 import MainCards from "~/src/components/ui/MainCards";
+import CopyButton from "~/src/components/ui/CopyButton";
 import type { Order } from "../../typings";
 import dayjs from "dayjs";
 import Svg from "~/src/assets/svgs/_index";
@@ -71,15 +72,11 @@ export default function OrderCard({ order }: OrderCardProps) {
               <Typography variant="caption" color="text.secondary" className="font-mono text-xs md:text-sm">
                 #{order.order_id}
               </Typography>
-              <button
-                className="flex items-center gap-1 text-slate-500 hover:text-slate-700"
-                onClick={() => {
-                  navigator.clipboard.writeText(order.order_id);
-                  toast.success("Order ID copiado para a área de transferência");
-                }}
-              >
-                <Svg.copy tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />
-              </button>
+              <CopyButton
+                textToCopy={order.order_id}
+                successMessage="Order ID copiado para a área de transferência"
+                ariaLabel="Copiar Order ID"
+              />
             </div>
             <span className="text-slate-300 hidden md:inline">|</span>
             <Typography variant="caption" color="text.secondary" className="text-xs md:text-sm">

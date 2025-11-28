@@ -24,6 +24,7 @@ export function FilterContainer({
         background:
           "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95))",
         boxShadow: "0 20px 35px -25px rgba(15, 23, 42, 0.4)",
+        mb: 4,
       }}
     >
       <Stack spacing={3}>

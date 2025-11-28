@@ -5,6 +5,14 @@ import type {
   ProductsResponse,
   ProductDetails,
   ProductsMetrics,
+  StockTrackingResponse,
+  StockTrackingFilters,
+  RecalculateAverageCostResponse,
+  StockMovementForm,
+  StockMovementApiPayload,
+  StockMovementResponse,
+  StockDashboardResponse,
+  StockSyncDashboardResponse,
 } from "./typings";
 import type { ApiResponse } from "../apiClient/typings";
 import toast from "~/src/utils/toast";
@@ -111,4 +119,128 @@ export function useChangeVariationStatus() {
 }
 
 export { useProdutosFilters } from "./hooks/useProdutosFilters";
+
+export function useStockTracking(
+  productId: string,
+  filters?: Partial<StockTrackingFilters>
+) {
+  return useQuery<ApiResponse<StockTrackingResponse>>({
+    queryKey: ["products", "stock-tracking", productId, filters],
+    queryFn: async () => {
+      const res = await produtosService.getStockTracking(productId, filters);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar histórico de estoque");
+      }
+      return res;
+    },
+    enabled: !!productId,
+    staleTime: 1000 * 60 * 2, // 2 minutos
+  });
+}
+
+export function useRecalculateAverageCost() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (productId: string) => {
+      const res = await produtosService.recalculateAverageCost(productId);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao recalcular custo médio");
+      }
+      return res;
+    },
+    onSuccess: (_, productId) => {
+      queryClient.invalidateQueries({
+        queryKey: ["products", "stock-tracking", productId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["products", "details", productId],
+      });
+      toast.success("Custo médio recalculado com sucesso");
+    },
+    onError: (error: unknown) => {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Erro ao recalcular custo médio";
+      toast.error(message);
+    },
+  });
+}
+
+export function useCreateStockMovement() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: StockMovementApiPayload) => {
+      const res = await produtosService.createStockMovement(data);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao criar movimentação de estoque");
+      }
+      return res;
+    },
+    onSuccess: (data) => {
+      const productId = data.data?.product_id;
+      if (productId) {
+        queryClient.invalidateQueries({
+          queryKey: ["products", "stock-tracking", productId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["products", "details", productId],
+        });
+      }
+      queryClient.invalidateQueries({
+        queryKey: ["products"],
+      });
+      toast.success("Movimentação de estoque criada com sucesso");
+    },
+    onError: (error: unknown) => {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Erro ao criar movimentação de estoque";
+      toast.error(message);
+    },
+  });
+}
+
+export function useDeleteProduct() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (productId: string) => produtosService.deleteProduct(productId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["products-metrics"] });
+    },
+  });
+}
+
+export function useStockDashboard(limit: number = 20) {
+  return useQuery<ApiResponse<StockDashboardResponse>>({
+    queryKey: ["stock-dashboard", limit],
+    queryFn: async () => {
+      const res = await produtosService.getStockDashboard(limit);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar dashboard de estoque");
+      }
+      return res;
+    },
+    staleTime: 1000 * 60 * 2, // 2 minutos
+  });
+}
+
+export function useStockSyncDashboard() {
+  return useQuery<ApiResponse<StockSyncDashboardResponse>>({
+    queryKey: ["stock-sync-dashboard"],
+    queryFn: async () => {
+      const res = await produtosService.getStockSyncDashboard();
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar dashboard de sincronização");
+      }
+      return res;
+    },
+    staleTime: 1000 * 60 * 2, // 2 minutos
+  });
+}
 

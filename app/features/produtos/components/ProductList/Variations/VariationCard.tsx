@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Chip, Typography } from "@mui/material";
 import Svg from "~/src/assets/svgs/_index";
-import toast from "~/src/utils/toast";
+import CopyButton from "~/src/components/ui/CopyButton";
 import type { Product } from "../../../typings";
 import { ProductStatusToggle } from "../../ProductStatusToggle";
 import { useChangeVariationStatus } from "../../../hooks";
@@ -119,18 +119,14 @@ export default function VariationCard({ variation, productId }: VariationCardPro
                     <Typography variant="caption" color="text.secondary" className="font-mono">
                       SKU {variation.sku}
                     </Typography>
-                    <button
-                      className="flex items-center gap-1 text-slate-500 hover:text-slate-700"
-                      onClick={() => {
-                        if (variation.sku) {
-                          navigator.clipboard.writeText(variation.sku);
-                          toast.success("SKU copiado");
-                        }
-                      }}
-                      aria-label="Copiar SKU"
-                    >
-                      <Svg.copy tailWindClasses="h-3 w-3" />
-                    </button>
+                    {variation.sku && (
+                      <CopyButton
+                        textToCopy={variation.sku}
+                        successMessage="SKU copiado"
+                        iconSize="h-3 w-3"
+                        ariaLabel="Copiar SKU"
+                      />
+                    )}
                   </div>
                 </>
               )}
