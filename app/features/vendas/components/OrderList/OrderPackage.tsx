@@ -50,7 +50,7 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
       0
     );
 
-    totalLiquido = totalLiquido - (orders[0].custo_envio_final || 0);
+    totalLiquido = totalLiquido - Number(orders[0].custo_envio_final || "0");
 
     return {
       totalAmount,
