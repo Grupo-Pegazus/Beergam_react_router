@@ -1,0 +1,51 @@
+import {
+  type IAllowedTimes,
+  WeekDay,
+  WeekDayToPortuguese,
+} from "~/features/user/typings/AllowedTimes";
+
+export default function AllowedTimes({
+  schedule,
+}: {
+  schedule: IAllowedTimes;
+}) {
+  function formatTime(value: unknown): string {
+    if (!value) return "--:--";
+    if (typeof value === "string" && /^\d{2}:\d{2}$/.test(value)) return value;
+    const date: Date =
+      typeof value === "string" ? new Date(value) : (value as Date);
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      const h = date.getHours().toString().padStart(2, "0");
+      const m = date.getMinutes().toString().padStart(2, "0");
+      return `${h}:${m}`;
+    }
+    return "--:--";
+  }
+  return (
+    <div className="grid grid-cols-4 gap-4">
+      {(Object.values(WeekDay) as WeekDay[]).map((day) => {
+        const item = schedule[day];
+        return (
+          <div
+            key={day}
+            className="flex items-center justify-start gap-3 bg-beergam-white text-beergam-blue-primary border border-beergam-gray-light rounded-md px-3 py-2"
+          >
+            <span className="text-sm font-medium">
+              {WeekDayToPortuguese[day]}
+            </span>
+            <div className="text-sm">
+              {item.access ? (
+                <span>
+                  {formatTime(item.start_date)} <span className="mx-1">—</span>{" "}
+                  {formatTime(item.end_date)}
+                </span>
+              ) : (
+                <span className="opacity-60">Sem acesso</span>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
