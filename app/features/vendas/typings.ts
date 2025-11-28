@@ -1,9 +1,17 @@
 import { z } from "zod";
 
+// Schema para documento do cliente
+export const ReceiverDocumentSchema = z.object({
+  id: z.string(), // "CPF" ou "CNPJ"
+  value: z.string(),
+});
+
+export type ReceiverDocument = z.infer<typeof ReceiverDocumentSchema>;
+
 // Schema para cliente
 export const ClientSchema = z.object({
-  cpf: z.string().optional(),
-  destination_receiver_name: z.string().nullable().optional(),
+  receiver_name: z.string().nullable().optional(),
+  receiver_document: ReceiverDocumentSchema.nullable().optional(),
 });
 
 export type Client = z.infer<typeof ClientSchema>;

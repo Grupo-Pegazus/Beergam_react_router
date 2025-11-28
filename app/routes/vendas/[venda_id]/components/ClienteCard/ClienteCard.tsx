@@ -4,9 +4,10 @@ interface VendaSummaryProps {
     img?: string;
     name: string;
     doc: string;
+    docType?: string;
 }
 
-function VendaSummary({ img, name, doc }: VendaSummaryProps) {
+function VendaSummary({ img, name, doc, docType }: VendaSummaryProps) {
     const formatDocument = (document: string): string => {
         const cleaned = document.replace(/\D/g, '');
         if (cleaned.length === 11) {
@@ -19,7 +20,7 @@ function VendaSummary({ img, name, doc }: VendaSummaryProps) {
         return document;
     };
 
-    const tipoDocumento = doc.replace(/\D/g, '').length === 14 ? 'CNPJ' : 'CPF';
+    const tipoDocumento = docType || (doc.replace(/\D/g, '').length === 14 ? 'CNPJ' : 'CPF');
     const docFormatado = formatDocument(doc);
 
     const getInitials = (nome: string) => {
