@@ -7,13 +7,15 @@ import {
   Typography,
 } from "@mui/material";
 import { Link } from "react-router";
+import toast from "~/src/utils/toast";
 import MainCards from "~/src/components/ui/MainCards";
 import Svg from "~/src/assets/svgs/_index";
+import Alert from "~/src/components/utils/Alert";
 import ProductImage from "../ProductImage/ProductImage";
 import type { Product } from "../../typings";
 import VariationsList from "./Variations/VariationsList";
 import { ProductStatusToggle } from "../ProductStatusToggle";
-import { useChangeProductStatus } from "../../hooks";
+import { useChangeProductStatus, useDeleteProduct } from "../../hooks";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 
 function formatNumber(value: number | null | undefined) {
@@ -28,8 +30,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const hasVariations = product.variations && product.variations.length > 0;
   const changeStatusMutation = useChangeProductStatus();
+  const deleteProductMutation = useDeleteProduct();
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -55,6 +59,25 @@ export default function ProductCard({ product }: ProductCardProps) {
         },
       }
     );
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteAlert(true);
+    handleMenuClose();
+  };
+
+  const handleConfirmDelete = () => {
+    toast.promise(deleteProductMutation.mutateAsync(product.product_id), {
+      loading: "Excluindo produto...",
+      success: (data) => {
+        if (!data.success) {
+          throw new Error(data.message);
+        }
+        setShowDeleteAlert(false);
+        return data.message || "Produto excluído com sucesso";
+      },
+      error: "Erro ao excluir produto",
+    });
   };
 
   const mainImageId =
@@ -328,8 +351,34 @@ export default function ProductCard({ product }: ProductCardProps) {
         >
           Ver detalhes
         </MenuItem>
+        {product.available_quantity !== undefined && (
+          <MenuItem
+            component={Link}
+            to={`/interno/produtos/estoque/${product.product_id}`}
+            onClick={handleMenuClose}
+          >
+            Controle de estoque
+          </MenuItem>
+        )}
         <MenuItem onClick={handleMenuClose}>Editar produto</MenuItem>
+        <MenuItem onClick={handleDeleteClick} sx={{ color: "error.main" }}>
+          Excluir produto
+        </MenuItem>
       </Menu>
+
+      <Alert
+        isOpen={showDeleteAlert}
+        onClose={() => setShowDeleteAlert(false)}
+        onConfirm={handleConfirmDelete}
+        type="warning"
+        title="Confirmar exclusão"
+      >
+        <h3>Tem certeza que deseja excluir o produto?</h3>
+        <p>
+          O produto <strong>{product.title}</strong> será excluído permanentemente.
+          Esta ação não pode ser desfeita.
+        </p>
+      </Alert>
     </>
   );
 }

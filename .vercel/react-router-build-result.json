@@ -1,0 +1,596 @@
+{
+  "buildManifest": {
+    "serverBundles": {
+      "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0": {
+        "id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+        "file": "build/server/nodejs_eyJydW50aW1lIjoibm9kZWpzIn0/index.js",
+        "config": {
+          "runtime": "nodejs"
+        }
+      }
+    },
+    "routeIdToServerBundleId": {
+      "routes/home/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/login/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/registro/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/subscription/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/choosen_account/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/config/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/perfil/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/inicio/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/vendas/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/anuncios/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/anuncios/[anuncio_id]/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/produtos/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/produtos/gestao/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/produtos/cadastro/cadastro_simplificado/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/produtos/cadastro/cadastro_completo/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/produtos/categorias/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/produtos/atributos/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/produtos/agendamento/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/produtos/estoque/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/calculadora/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
+    },
+    "routes": {
+      "root": {
+        "id": "root",
+        "file": "app/root.tsx",
+        "path": "",
+        "config": {}
+      },
+      "routes/home/route": {
+        "id": "routes/home/route",
+        "parentId": "root",
+        "file": "app/routes/home/route.tsx",
+        "index": true,
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/login/route": {
+        "id": "routes/login/route",
+        "parentId": "root",
+        "file": "app/routes/login/route.tsx",
+        "path": "login",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/registro/route": {
+        "id": "routes/registro/route",
+        "parentId": "root",
+        "file": "app/routes/registro/route.tsx",
+        "path": "registro",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "features/auth/components/AuthLayout/AuthLayout": {
+        "id": "features/auth/components/AuthLayout/AuthLayout",
+        "parentId": "root",
+        "file": "app/features/auth/components/AuthLayout/AuthLayout.tsx",
+        "config": {}
+      },
+      "routes/subscription/route": {
+        "id": "routes/subscription/route",
+        "parentId": "features/auth/components/AuthLayout/AuthLayout",
+        "file": "app/routes/subscription/route.tsx",
+        "path": "interno/subscription",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/choosen_account/route": {
+        "id": "routes/choosen_account/route",
+        "parentId": "features/auth/components/AuthLayout/AuthLayout",
+        "file": "app/routes/choosen_account/route.tsx",
+        "path": "interno/choosen_account",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/config/route": {
+        "id": "routes/config/route",
+        "parentId": "features/auth/components/AuthLayout/AuthLayout",
+        "file": "app/routes/config/route.tsx",
+        "path": "interno/config",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/perfil/route": {
+        "id": "routes/perfil/route",
+        "parentId": "features/auth/components/AuthLayout/AuthLayout",
+        "file": "app/routes/perfil/route.tsx",
+        "path": "interno/perfil",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "features/menu/components/layout/MenuLayout": {
+        "id": "features/menu/components/layout/MenuLayout",
+        "parentId": "features/auth/components/AuthLayout/AuthLayout",
+        "file": "app/features/menu/components/layout/MenuLayout.tsx",
+        "config": {}
+      },
+      "routes/inicio/route": {
+        "id": "routes/inicio/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/inicio/route.tsx",
+        "path": "interno",
+        "index": true,
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/vendas/route": {
+        "id": "routes/vendas/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/vendas/route.tsx",
+        "path": "interno/vendas",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/anuncios/route": {
+        "id": "routes/anuncios/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/anuncios/route.tsx",
+        "path": "interno/anuncios",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/anuncios/[anuncio_id]/route": {
+        "id": "routes/anuncios/[anuncio_id]/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/anuncios/[anuncio_id]/route.tsx",
+        "path": "interno/anuncios/:anuncio_id",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/produtos/route": {
+        "id": "routes/produtos/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/produtos/route.tsx",
+        "path": "interno/produtos",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/produtos/gestao/route": {
+        "id": "routes/produtos/gestao/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/produtos/gestao/route.tsx",
+        "path": "interno/produtos/gestao",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/produtos/cadastro/cadastro_simplificado/route": {
+        "id": "routes/produtos/cadastro/cadastro_simplificado/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/produtos/cadastro/cadastro_simplificado/route.tsx",
+        "path": "interno/produtos/cadastro/cadastro_simplificado",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/produtos/cadastro/cadastro_completo/route": {
+        "id": "routes/produtos/cadastro/cadastro_completo/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/produtos/cadastro/cadastro_completo/route.tsx",
+        "path": "interno/produtos/cadastro/cadastro_completo",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/produtos/categorias/route": {
+        "id": "routes/produtos/categorias/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/produtos/categorias/route.tsx",
+        "path": "interno/produtos/categorias",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/produtos/atributos/route": {
+        "id": "routes/produtos/atributos/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/produtos/atributos/route.tsx",
+        "path": "interno/produtos/atributos",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/produtos/agendamento/route": {
+        "id": "routes/produtos/agendamento/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/produtos/agendamento/route.tsx",
+        "path": "interno/produtos/agendamento",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/produtos/estoque/route": {
+        "id": "routes/produtos/estoque/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/produtos/estoque/route.tsx",
+        "path": "interno/produtos/estoque",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/calculadora/route": {
+        "id": "routes/calculadora/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/calculadora/route.tsx",
+        "path": "interno/calculadora",
+        "config": {
+          "runtime": "nodejs"
+        }
+      }
+    }
+  },
+  "reactRouterConfig": {
+    "appDirectory": "C:/Users/geren/OneDrive/Documentos/GitHub/Beergam_react_router/app",
+    "basename": "/",
+    "buildDirectory": "C:/Users/geren/OneDrive/Documentos/GitHub/Beergam_react_router/build",
+    "future": {
+      "v8_middleware": false,
+      "unstable_optimizeDeps": false,
+      "unstable_splitRouteModules": false,
+      "unstable_subResourceIntegrity": false,
+      "unstable_viteEnvironmentApi": false
+    },
+    "routes": {
+      "root": {
+        "id": "root",
+        "file": "root.tsx",
+        "path": ""
+      },
+      "routes/home/route": {
+        "id": "routes/home/route",
+        "parentId": "root",
+        "file": "routes/home/route.tsx",
+        "index": true
+      },
+      "routes/login/route": {
+        "id": "routes/login/route",
+        "parentId": "root",
+        "file": "routes/login/route.tsx",
+        "path": "login"
+      },
+      "routes/registro/route": {
+        "id": "routes/registro/route",
+        "parentId": "root",
+        "file": "routes/registro/route.tsx",
+        "path": "registro"
+      },
+      "features/auth/components/AuthLayout/AuthLayout": {
+        "id": "features/auth/components/AuthLayout/AuthLayout",
+        "parentId": "root",
+        "file": "features/auth/components/AuthLayout/AuthLayout.tsx"
+      },
+      "routes/subscription/route": {
+        "id": "routes/subscription/route",
+        "parentId": "features/auth/components/AuthLayout/AuthLayout",
+        "file": "routes/subscription/route.tsx",
+        "path": "interno/subscription"
+      },
+      "routes/choosen_account/route": {
+        "id": "routes/choosen_account/route",
+        "parentId": "features/auth/components/AuthLayout/AuthLayout",
+        "file": "routes/choosen_account/route.tsx",
+        "path": "interno/choosen_account"
+      },
+      "routes/config/route": {
+        "id": "routes/config/route",
+        "parentId": "features/auth/components/AuthLayout/AuthLayout",
+        "file": "routes/config/route.tsx",
+        "path": "interno/config"
+      },
+      "routes/perfil/route": {
+        "id": "routes/perfil/route",
+        "parentId": "features/auth/components/AuthLayout/AuthLayout",
+        "file": "routes/perfil/route.tsx",
+        "path": "interno/perfil"
+      },
+      "features/menu/components/layout/MenuLayout": {
+        "id": "features/menu/components/layout/MenuLayout",
+        "parentId": "features/auth/components/AuthLayout/AuthLayout",
+        "file": "features/menu/components/layout/MenuLayout.tsx"
+      },
+      "routes/inicio/route": {
+        "id": "routes/inicio/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/inicio/route.tsx",
+        "path": "interno",
+        "index": true
+      },
+      "routes/vendas/route": {
+        "id": "routes/vendas/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/vendas/route.tsx",
+        "path": "interno/vendas"
+      },
+      "routes/anuncios/route": {
+        "id": "routes/anuncios/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/anuncios/route.tsx",
+        "path": "interno/anuncios"
+      },
+      "routes/anuncios/[anuncio_id]/route": {
+        "id": "routes/anuncios/[anuncio_id]/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/anuncios/[anuncio_id]/route.tsx",
+        "path": "interno/anuncios/:anuncio_id"
+      },
+      "routes/produtos/route": {
+        "id": "routes/produtos/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/produtos/route.tsx",
+        "path": "interno/produtos"
+      },
+      "routes/produtos/gestao/route": {
+        "id": "routes/produtos/gestao/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/produtos/gestao/route.tsx",
+        "path": "interno/produtos/gestao"
+      },
+      "routes/produtos/cadastro/cadastro_simplificado/route": {
+        "id": "routes/produtos/cadastro/cadastro_simplificado/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/produtos/cadastro/cadastro_simplificado/route.tsx",
+        "path": "interno/produtos/cadastro/cadastro_simplificado"
+      },
+      "routes/produtos/cadastro/cadastro_completo/route": {
+        "id": "routes/produtos/cadastro/cadastro_completo/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/produtos/cadastro/cadastro_completo/route.tsx",
+        "path": "interno/produtos/cadastro/cadastro_completo"
+      },
+      "routes/produtos/categorias/route": {
+        "id": "routes/produtos/categorias/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/produtos/categorias/route.tsx",
+        "path": "interno/produtos/categorias"
+      },
+      "routes/produtos/atributos/route": {
+        "id": "routes/produtos/atributos/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/produtos/atributos/route.tsx",
+        "path": "interno/produtos/atributos"
+      },
+      "routes/produtos/agendamento/route": {
+        "id": "routes/produtos/agendamento/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/produtos/agendamento/route.tsx",
+        "path": "interno/produtos/agendamento"
+      },
+      "routes/produtos/estoque/route": {
+        "id": "routes/produtos/estoque/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/produtos/estoque/route.tsx",
+        "path": "interno/produtos/estoque"
+      },
+      "routes/calculadora/route": {
+        "id": "routes/calculadora/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/calculadora/route.tsx",
+        "path": "interno/calculadora"
+      }
+    },
+    "routeDiscovery": {
+      "mode": "lazy",
+      "manifestPath": "/__manifest"
+    },
+    "serverBuildFile": "index.js",
+    "serverModuleFormat": "esm",
+    "ssr": true,
+    "unstable_routeConfig": [
+      {
+        "id": "root",
+        "path": "",
+        "file": "root.tsx",
+        "children": [
+          {
+            "file": "routes/home/route.tsx",
+            "index": true
+          },
+          {
+            "file": "routes/login/route.tsx",
+            "path": "login"
+          },
+          {
+            "file": "routes/registro/route.tsx",
+            "path": "registro"
+          },
+          {
+            "file": "features/auth/components/AuthLayout/AuthLayout.tsx",
+            "children": [
+              {
+                "file": "routes/subscription/route.tsx",
+                "path": "interno/subscription"
+              },
+              {
+                "file": "routes/choosen_account/route.tsx",
+                "path": "interno/choosen_account"
+              },
+              {
+                "file": "routes/config/route.tsx",
+                "path": "interno/config"
+              },
+              {
+                "file": "routes/perfil/route.tsx",
+                "path": "interno/perfil"
+              },
+              {
+                "file": "features/menu/components/layout/MenuLayout.tsx",
+                "children": [
+                  {
+                    "file": "routes/inicio/route.tsx",
+                    "index": true,
+                    "path": "interno"
+                  },
+                  {
+                    "file": "routes/vendas/route.tsx",
+                    "path": "interno/vendas"
+                  },
+                  {
+                    "file": "routes/anuncios/route.tsx",
+                    "path": "interno/anuncios"
+                  },
+                  {
+                    "file": "routes/anuncios/[anuncio_id]/route.tsx",
+                    "path": "interno/anuncios/:anuncio_id"
+                  },
+                  {
+                    "file": "routes/produtos/route.tsx",
+                    "path": "interno/produtos"
+                  },
+                  {
+                    "file": "routes/produtos/gestao/route.tsx",
+                    "path": "interno/produtos/gestao"
+                  },
+                  {
+                    "file": "routes/produtos/cadastro/cadastro_simplificado/route.tsx",
+                    "path": "interno/produtos/cadastro/cadastro_simplificado"
+                  },
+                  {
+                    "file": "routes/produtos/cadastro/cadastro_completo/route.tsx",
+                    "path": "interno/produtos/cadastro/cadastro_completo"
+                  },
+                  {
+                    "file": "routes/produtos/categorias/route.tsx",
+                    "path": "interno/produtos/categorias"
+                  },
+                  {
+                    "file": "routes/produtos/atributos/route.tsx",
+                    "path": "interno/produtos/atributos"
+                  },
+                  {
+                    "file": "routes/produtos/agendamento/route.tsx",
+                    "path": "interno/produtos/agendamento"
+                  },
+                  {
+                    "file": "routes/produtos/estoque/route.tsx",
+                    "path": "interno/produtos/estoque"
+                  },
+                  {
+                    "file": "routes/calculadora/route.tsx",
+                    "path": "interno/calculadora"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "root",
+        "path": "",
+        "file": "root.tsx",
+        "children": [
+          {
+            "file": "routes/home/route.tsx",
+            "index": true
+          },
+          {
+            "file": "routes/login/route.tsx",
+            "path": "login"
+          },
+          {
+            "file": "routes/registro/route.tsx",
+            "path": "registro"
+          },
+          {
+            "file": "features/auth/components/AuthLayout/AuthLayout.tsx",
+            "children": [
+              {
+                "file": "routes/subscription/route.tsx",
+                "path": "interno/subscription"
+              },
+              {
+                "file": "routes/choosen_account/route.tsx",
+                "path": "interno/choosen_account"
+              },
+              {
+                "file": "routes/config/route.tsx",
+                "path": "interno/config"
+              },
+              {
+                "file": "routes/perfil/route.tsx",
+                "path": "interno/perfil"
+              },
+              {
+                "file": "features/menu/components/layout/MenuLayout.tsx",
+                "children": [
+                  {
+                    "file": "routes/inicio/route.tsx",
+                    "index": true,
+                    "path": "interno"
+                  },
+                  {
+                    "file": "routes/vendas/route.tsx",
+                    "path": "interno/vendas"
+                  },
+                  {
+                    "file": "routes/anuncios/route.tsx",
+                    "path": "interno/anuncios"
+                  },
+                  {
+                    "file": "routes/anuncios/[anuncio_id]/route.tsx",
+                    "path": "interno/anuncios/:anuncio_id"
+                  },
+                  {
+                    "file": "routes/produtos/route.tsx",
+                    "path": "interno/produtos"
+                  },
+                  {
+                    "file": "routes/produtos/gestao/route.tsx",
+                    "path": "interno/produtos/gestao"
+                  },
+                  {
+                    "file": "routes/produtos/cadastro/cadastro_simplificado/route.tsx",
+                    "path": "interno/produtos/cadastro/cadastro_simplificado"
+                  },
+                  {
+                    "file": "routes/produtos/cadastro/cadastro_completo/route.tsx",
+                    "path": "interno/produtos/cadastro/cadastro_completo"
+                  },
+                  {
+                    "file": "routes/produtos/categorias/route.tsx",
+                    "path": "interno/produtos/categorias"
+                  },
+                  {
+                    "file": "routes/produtos/atributos/route.tsx",
+                    "path": "interno/produtos/atributos"
+                  },
+                  {
+                    "file": "routes/produtos/agendamento/route.tsx",
+                    "path": "interno/produtos/agendamento"
+                  },
+                  {
+                    "file": "routes/produtos/estoque/route.tsx",
+                    "path": "interno/produtos/estoque"
+                  },
+                  {
+                    "file": "routes/calculadora/route.tsx",
+                    "path": "interno/calculadora"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "viteConfig": {
+    "build": {
+      "assetsDir": "assets"
+    }
+  }
+}

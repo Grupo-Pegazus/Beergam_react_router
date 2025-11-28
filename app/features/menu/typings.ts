@@ -138,6 +138,7 @@ export const MenuConfig = {
         status: "yellow",
         path: "/estoque",
         launched: true,
+        dinamic_id: "product_id",
       }
     }
   },

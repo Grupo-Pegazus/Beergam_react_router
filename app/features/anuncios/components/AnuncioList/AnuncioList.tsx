@@ -11,10 +11,10 @@ import {
 import { Link } from "react-router";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import MainCards from "~/src/components/ui/MainCards";
+import CopyButton from "~/src/components/ui/CopyButton";
 import Svg from "~/src/assets/svgs/_index";
 import { useAnuncios, useChangeAdStatus } from "../../hooks";
 import type { AdsFilters, Anuncio } from "../../typings";
-import toast from "~/src/utils/toast";
 import AnuncioListSkeleton from "./AnuncioListSkeleton";
 import Speedometer from "../Speedometer/Speedometer";
 import VisitsChart from "./VisitsChart";
@@ -184,9 +184,12 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
                   <Typography variant="caption" color="text.secondary" className="font-mono">
                     # {anuncio.mlb}
                   </Typography>
-                  <button className="flex items-center gap-1 text-slate-500 hover:text-slate-700" onClick={() => {navigator.clipboard.writeText(anuncio.mlb); toast.success("MLB copiado para a área de transferência")}}>
-                    <Svg.copy tailWindClasses="h-4 w-4" />
-                  </button>
+                  <CopyButton
+                    textToCopy={anuncio.mlb}
+                    successMessage="MLB copiado para a área de transferência"
+                    iconSize="h-4 w-4"
+                    ariaLabel="Copiar MLB"
+                  />
                 </div>
                 {anuncio.sku && (
                   <>
@@ -195,17 +198,14 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
                       <Typography variant="caption" color="text.secondary">
                         SKU {anuncio.sku}
                       </Typography>
-                      <button
-                        className="flex items-center gap-1 text-slate-500 hover:text-slate-700"
-                        onClick={() => {
-                          if (anuncio.sku) {
-                            navigator.clipboard.writeText(anuncio.sku);
-                            toast.success("SKU copiado para a área de transferência");
-                          }
-                        }}
-                      >
-                        <Svg.copy tailWindClasses="h-4 w-4" />
-                      </button>
+                      {anuncio.sku && (
+                        <CopyButton
+                          textToCopy={anuncio.sku}
+                          successMessage="SKU copiado para a área de transferência"
+                          iconSize="h-4 w-4"
+                          ariaLabel="Copiar SKU"
+                        />
+                      )}
                     </div>
                   </>
                 )}

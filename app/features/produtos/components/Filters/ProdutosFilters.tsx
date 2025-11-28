@@ -100,7 +100,6 @@ export default function ProdutosFilters({
         delete updated.q;
       }
 
-      // Remove campos antigos se existirem
       delete updated.searchType;
 
       onChange(updated);

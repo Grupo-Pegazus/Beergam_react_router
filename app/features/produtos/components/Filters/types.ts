@@ -8,10 +8,9 @@ export interface ProdutosFiltersState extends Partial<ProductsFilters> {
   statusFilter?: ProdutoStatusFilter;
   registrationTypeFilter?: RegistrationTypeFilter;
   searchType?: "title" | "sku";
-  // Campos auxiliares para UI
-  q?: string; // Texto livre de busca
-  name?: string; // Nome do produto
-  has_variations?: boolean | "all"; // "all" para "todos", boolean para filtro específico
+  q?: string;
+  name?: string;
+  has_variations?: boolean | "all";
   category_name?: string;
 }
 

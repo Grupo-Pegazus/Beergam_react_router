@@ -1,6 +1,5 @@
 import { Typography } from "@mui/material";
-import Svg from "~/src/assets/svgs/_index";
-import toast from "~/src/utils/toast";
+import CopyButton from "~/src/components/ui/CopyButton";
 import type { Variation } from "../../../typings";
 import { formatNumber } from "../utils";
 
@@ -52,18 +51,15 @@ export default function VariationCard({
                   <span className="font-mono break-all sm:break-normal">
                     SKU {variation.sku}
                   </span>
-                  <button
-                    className="flex items-center gap-1 text-slate-500 hover:text-slate-700 ml-1 shrink-0 touch-manipulation"
-                    onClick={() => {
-                      if (variation.sku) {
-                        navigator.clipboard.writeText(variation.sku);
-                        toast.success("SKU copiado");
-                      }
-                    }}
-                    aria-label="Copiar SKU"
-                  >
-                    <Svg.copy tailWindClasses="h-4 w-4 sm:h-3 sm:w-3" />
-                  </button>
+                  {variation.sku && (
+                    <CopyButton
+                      textToCopy={variation.sku}
+                      successMessage="SKU copiado"
+                      className="flex items-center gap-1 text-slate-500 hover:text-slate-700 ml-1 shrink-0 touch-manipulation"
+                      iconSize="h-4 w-4 sm:h-3 sm:w-3"
+                      ariaLabel="Copiar SKU"
+                    />
+                  )}
                 </div>
               </>
             )}
@@ -81,18 +77,15 @@ export default function VariationCard({
                 <span className="font-mono break-all sm:break-normal">
                   SKU {variation.sku}
                 </span>
-                <button
-                  className="flex items-center gap-1 text-slate-500 hover:text-slate-700 ml-1 shrink-0 touch-manipulation"
-                  onClick={() => {
-                    if (variation.sku) {
-                      navigator.clipboard.writeText(variation.sku);
-                      toast.success("SKU copiado");
-                    }
-                  }}
-                  aria-label="Copiar SKU"
-                >
-                  <Svg.copy tailWindClasses="h-4 w-4 sm:h-3 sm:w-3" />
-                </button>
+                {variation.sku && (
+                  <CopyButton
+                    textToCopy={variation.sku}
+                    successMessage="SKU copiado"
+                    className="flex items-center gap-1 text-slate-500 hover:text-slate-700 ml-1 shrink-0 touch-manipulation"
+                    iconSize="h-4 w-4 sm:h-3 sm:w-3"
+                    ariaLabel="Copiar SKU"
+                  />
+                )}
               </div>
             </>
           )}
