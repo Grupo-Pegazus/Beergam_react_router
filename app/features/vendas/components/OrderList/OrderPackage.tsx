@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Chip, Divider, IconButton, Stack, Typography } from "@mui/material";
 import MainCards from "~/src/components/ui/MainCards";
+import CopyButton from "~/src/components/ui/CopyButton";
 import type { Order } from "../../typings";
 import dayjs from "dayjs";
 import Svg from "~/src/assets/svgs/_index";
@@ -50,7 +51,7 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
       0
     );
 
-    totalLiquido = totalLiquido - (orders[0].custo_envio_final || 0);
+    totalLiquido = totalLiquido - Number(orders[0].custo_envio_final || "0");
 
     return {
       totalAmount,
@@ -116,15 +117,11 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
               <Typography variant="caption" color="text.secondary" className="font-mono text-xs md:text-sm">
                 #{packId}
               </Typography>
-              <button
-                className="flex items-center gap-1 text-slate-500 hover:text-slate-700"
-                onClick={() => {
-                  navigator.clipboard.writeText(packId);
-                  toast.success("Pack ID copiado para a área de transferência");
-                }}
-              >
-                <Svg.copy tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />
-              </button>
+              <CopyButton
+                textToCopy={packId}
+                successMessage="Pack ID copiado para a área de transferência"
+                ariaLabel="Copiar Pack ID"
+              />
             </div>
             <span className="text-slate-300 hidden md:inline">|</span>
             <Typography variant="caption" color="text.secondary" className="text-xs md:text-sm">
@@ -150,7 +147,7 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
             <div className="flex items-center gap-1.5 md:gap-2">
               <Svg.profile tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4 text-slate-500" />
               <Typography variant="body2" className="text-slate-900 text-sm md:text-base">
-                {firstOrder.buyer_nickname}
+                {firstOrder.buyer_nickname} - {firstOrder.client?.receiver_name} 
               </Typography>
               {firstOrder.buyer_id && (
                 <>

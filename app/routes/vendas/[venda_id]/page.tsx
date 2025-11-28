@@ -188,10 +188,6 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
             }));
     }, [orders]);
 
-    // Get client info
-    const clientName = firstOrder?.client?.destination_receiver_name || firstOrder?.buyer_nickname || "";
-    const clientDoc = firstOrder?.client?.cpf || firstOrder?.buyer_id || "";
-
     // Payment info (mantido para quando o backend retornar)
     // TODO: Quando o backend retornar payment_id, payment_date e payment_status no pack_info, usar esses valores
     const paymentId = "84576616865"; // Valor padrão até o backend retornar
@@ -238,8 +234,15 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
     const packId = packInfo?.pack_id || firstOrder.pack_id;
 
     // Get client info (after error check, so we know firstOrder exists)
-    const clientNameFinal = firstOrder.client?.destination_receiver_name || firstOrder.buyer_nickname;
-    const clientDocFinal = firstOrder.client?.cpf || firstOrder.buyer_id;
+    const clientNameFinal = firstOrder.client?.receiver_name || firstOrder.buyer_nickname;
+    const clientDocFinal = firstOrder.client?.receiver_document?.value || firstOrder.buyer_id;
+    const clientDocType = firstOrder.client?.receiver_document?.id || (clientDocFinal.replace(/\D/g, '').length === 14 ? 'CNPJ' : 'CPF');
+
+    // Get logistic type status and colors
+    const logisticTypeInfo = getLogisticTypeMeliInfo(firstOrder.shipping_mode ?? "");
+    const logisticTypeStatus = logisticTypeInfo?.label || "Não especificado";
+    const logisticTypeBackgroundColor = logisticTypeInfo?.backgroundColor || "#f3f4f6";
+    const logisticTypeColor = logisticTypeInfo?.color || "#374151";
 
     return (
         <> 
@@ -250,7 +253,9 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
                 totalItems={packInfo?.total_items || totalsP.totalQuantity}
                 orderId={firstOrder.order_id}
                 date={formatDate(firstOrder.date_created)}
-                status="FULL"
+                status={logisticTypeStatus}
+                statusBackgroundColor={logisticTypeBackgroundColor}
+                statusColor={logisticTypeColor}
             />
 
             {/* Main Layout - Two Columns */}
@@ -261,6 +266,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
                     <ClienteCard
                         name={clientNameFinal}
                         doc={clientDocFinal}
+                        docType={clientDocType}
                     />
 
                     {/* Shipping Summary */}

@@ -1,14 +1,13 @@
 import type { Route } from ".react-router/types/app/routes/produtos/estoque/+types/route";
+import StockDashboardPage from "./page";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Beergam | Estoque" },
-    { name: "description", content: "Estoque" },
+    { title: "Beergam | Dashboard de Estoque" },
+    { name: "description", content: "Dashboard de controle de estoque" },
   ];
 }
 
-export default function Estoque() {
-  return (
-    <p>Estoque</p>
-  );
+export default function StockDashboardRoute() {
+  return <StockDashboardPage />;
 }

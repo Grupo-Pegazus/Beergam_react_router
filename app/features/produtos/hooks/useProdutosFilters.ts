@@ -9,6 +9,7 @@ function buildDefaultState(
     statusFilter: "all",
     registrationTypeFilter: "all",
     searchType: "title",
+    has_variations: undefined,
     per_page: 20,
     page: 1,
     sort_by: "created_at",
@@ -22,25 +23,49 @@ function sanitizeFilters(
 ): Partial<ProductsFilters> {
   const apiFilters: Partial<ProductsFilters> = {};
 
-  if (state.title) {
-    apiFilters.title = state.title;
+  // Texto livre (q) - busca em SKU ou título
+  if (state.q?.trim()) {
+    apiFilters.q = state.q.trim();
   }
 
-  if (state.sku) {
-    apiFilters.sku = state.sku;
+  // Nome do produto (name) - filtro específico por título
+  if (state.name?.trim()) {
+    apiFilters.name = state.name.trim();
   }
 
+  // Status
   if (state.statusFilter && state.statusFilter !== "all") {
     apiFilters.status = state.statusFilter;
   }
 
+  // Tipo de registro - converte valores do frontend para formato do backend
   if (
     state.registrationTypeFilter &&
     state.registrationTypeFilter !== "all"
   ) {
-    apiFilters.registration_type = state.registrationTypeFilter;
+    const rt = state.registrationTypeFilter.toLowerCase();
+    // Backend aceita: "simplified", "simplificado", "simples" ou "complete", "completo", "completa"
+    if (rt === "simplificado") {
+      apiFilters.registration_type = "simplified";
+    } else if (rt === "completo") {
+      apiFilters.registration_type = "complete";
+    } else {
+      // Mantém o valor original caso seja outro formato
+      apiFilters.registration_type = state.registrationTypeFilter;
+    }
   }
 
+  // Tem variações
+  if (state.has_variations !== undefined && state.has_variations !== "all") {
+    apiFilters.has_variations = state.has_variations === true;
+  }
+
+  // Nome da categoria
+  if (state.category_name?.trim()) {
+    apiFilters.category_name = state.category_name.trim();
+  }
+
+  // Paginação
   if (state.per_page) {
     apiFilters.per_page = state.per_page;
   }
@@ -49,6 +74,7 @@ function sanitizeFilters(
     apiFilters.page = state.page;
   }
 
+  // Ordenação
   if (state.sort_by) {
     apiFilters.sort_by = state.sort_by;
   }
