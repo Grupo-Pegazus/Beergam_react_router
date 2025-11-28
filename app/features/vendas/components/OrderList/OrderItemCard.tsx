@@ -11,7 +11,7 @@ interface OrderItemCardProps {
 
 function CardInfo({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="flex flex-col gap-0.5 md:gap-1 w-full md:w-[25%] text-center flex-1 bg-white rounded-lg py-1 px-1.5 md:px-2 border border-slate-200">
+    <div className="flex flex-col gap-0.5 md:gap-1 w-max text-nowrap text-center flex-1 bg-white rounded-lg py-1 px-1.5 md:px-2 border border-slate-200">
       <p className="text-slate-500 text-xs! md:text-sm! font-medium">{label}</p>
       <h3 className="text-slate-900 text-xs! md:text-sm! font-bold">{value}</h3>
     </div>
@@ -116,7 +116,7 @@ export default function OrderItemCard({ order }: OrderItemCardProps) {
       )}
 
       {/* Desktop: Detalhes financeiros - Sempre visíveis */}
-      <div className="hidden md:flex flex-col items-center gap-2 w-[30%] bg-slate-100 p-2 rounded-lg shrink-0">
+      <div className="hidden md:flex flex-col items-center gap-2 w-[max-content] bg-slate-100 p-2 rounded-lg shrink-0">
         <div className="flex items-center gap-2 w-full">
           <CardInfo label="Qtd:" value={order.quantity || 0} />
           <CardInfo label="Bruto:" value={formatCurrency(order.valor_base)} />

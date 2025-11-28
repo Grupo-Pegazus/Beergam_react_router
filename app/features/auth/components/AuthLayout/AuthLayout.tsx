@@ -1,73 +1,78 @@
-import { Outlet, useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
+import { Navigate, Outlet } from "react-router";
 import authStore from "~/features/store-zustand";
-import { useAuthError } from "../../context/AuthErrorContext";
+import { UserRoles } from "~/features/user/typings/BaseUser";
+import { queryClient } from "~/root";
+import {
+  useAuthError,
+  useAuthMarketplace,
+  useAuthUser,
+} from "../../context/AuthStoreContext";
+import { authService } from "../../service";
 import MultipleDeviceWarning from "../MultipleDeviceWarning/MultipleDeviceWarning";
 import UsageTimeLimitWarning from "../UsageTimeLimitWarning/UsageTimeLimitWarning";
-
+const ROUTES_WITHOUT_MARKETPLACE = [
+  "/interno/subscription",
+  "/interno/choosen_account",
+  "/interno/config",
+  "/interno/perfil",
+];
 export default function AuthLayout() {
-  // const user = authStore.use.user();
-  // const subscription = authStore.use.subscription();
-  // const error = authStore.use.error();
-  // const usageLimitData = authStore.use.usageLimitData();
-  // const navigate = useNavigate();
-  // const location = useLocation();
-  // const marketplace = authStore.use.marketplace();
-
-  // // ✅ apenas calcula a condição, sem retornar ainda
-  // const isUsageTimeLimit = error === "USAGE_TIME_LIMIT";
-
-  // useEffect(() => {
-  //   if (!user) {
-  //     navigate("/login", { viewTransition: true });
-  //     return;
-  //   }
-
-  //   if (location.pathname !== "/interno/subscription") {
-  //     if (marketplace === null && location.pathname != "/interno/perfil") {
-  //       navigate("/interno/choosen_account", { viewTransition: true });
-  //       return;
-  //     }
-  //     if (subscription === null) {
-  //       navigate("/interno/subscription", { viewTransition: true });
-  //       return;
-  //     }
-  //   }
-  // }, [user, subscription, marketplace, location.pathname, navigate]);
-
-  // if (isUsageTimeLimit) {
-  //   return (
-  //     <UsageTimeLimitWarning
-  //       message={usageLimitData?.message}
-  //       nextAllowedAt={usageLimitData?.next_allowed_at}
-  //       weekday={usageLimitData?.weekday}
-  //     />
-  //   );
-  // }
-  const navigate = useNavigate();
   const authError = useAuthError();
-  const user = authStore.use.user();
-  if (
-    authError !== null &&
-    window.location.pathname !== "/interno/subscription"
-  ) {
-    switch (authError) {
-      case "REFRESH_TOKEN_REVOKED":
-        return <MultipleDeviceWarning />;
-      case "SUBSCRIPTION_NOT_FOUND":
-      case "SUBSCRIPTION_CANCELLED":
-      case "SUBSCRIPTION_NOT_ACTIVE":
-        return navigate("/interno/subscription", {
-          replace: true,
-          viewTransition: true,
-        });
-      case "USAGE_TIME_LIMIT":
-        return <UsageTimeLimitWarning />
-    }
-  } else {
-    if (!user) {
-      return navigate("/login", { replace: true, viewTransition: true });
+  const user = useAuthUser();
+  const marketplace = useAuthMarketplace();
+  const { data } = useQuery({
+    queryKey: ["verifyTimeColab", user?.pin, user?.master_pin, user?.role],
+    queryFn: () =>
+      authService.verifyTimeColab(
+        user?.pin ?? "",
+        user?.master_pin ?? "",
+        user?.role ?? UserRoles.COLAB
+      ),
+    enabled: authError === "USAGE_TIME_LIMIT",
+  });
+  useEffect(() => {
+    //UseEffect para fazer veiricação de colab quando da timeAccess negativo
+    if (!data) return;
+    if (data.success) {
+      authStore.setState({ error: null });
+      queryClient.invalidateQueries({ queryKey: ["verifyTimeColab"] });
     } else {
-      return <Outlet />;
+      authStore.setState({ error: "USAGE_TIME_LIMIT" });
     }
+  }, [data, queryClient, authError]);
+  const canAccessOutlet = useMemo(() => {
+    //Aqui é quando o usuário NÃO consegue acessar rotas que precisam de informações ou segurança.
+    if (!user) return false;
+    if (authError) return false;
+    return true;
+  }, [authError, user]);
+  if (!canAccessOutlet) {
+    if (!user) return <Navigate to="/login" replace />; //Se as informações do usuário não existirem, mandar para o login. #TODO: Criar endpoint para recuperar informações do usuário
+    if (authError) {
+      switch (authError) {
+        case "REFRESH_TOKEN_EXPIRED":
+          return <Navigate to="/login" replace />;
+        case "REFRESH_TOKEN_REVOKED":
+          return <MultipleDeviceWarning />;
+        case "SUBSCRIPTION_NOT_FOUND": //Fazer verificação de se o usuário está na página de assinatura, se não estiver, mandar para a página de assinatura.
+        case "SUBSCRIPTION_CANCELLED":
+        case "SUBSCRIPTION_NOT_ACTIVE":
+          if (window.location.pathname !== "/interno/subscription")
+            return <Navigate to="/interno/subscription" replace />;
+          break;
+        case "USAGE_TIME_LIMIT":
+          return <UsageTimeLimitWarning />;
+      }
+    }
+  }
+  if (ROUTES_WITHOUT_MARKETPLACE.includes(window.location.pathname)) {
+    return <Outlet />;
+  } else {
+    if (!marketplace) {
+      return <Navigate to="/interno/choosen_account" replace />;
+    }
+    return <Outlet />;
   }
 }

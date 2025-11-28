@@ -15,7 +15,7 @@ interface BreadcrumbItem {
 function SpanLink({ to, className, children }: { to?: string; className?: string; children: React.ReactNode }) {
   const navigate = useNavigate();
   function handleActivate() {
-    if (to) navigate(to);
+    if (to) navigate(to, { viewTransition: true });
   }
   return (
     <span
@@ -28,7 +28,7 @@ function SpanLink({ to, className, children }: { to?: string; className?: string
           handleActivate();
         }
       }}
-      className={["cursor-pointer select-none", className].filter(Boolean).join(" ")}
+      className={["cursor-pointer select-none truncate max-w-[40vw]", className].filter(Boolean).join(" ")}
     >
       {children}
     </span>
@@ -270,7 +270,7 @@ export default function SystemBreadcrumb() {
           return (
             <span key={`${item.path}-${index}`} className="flex items-center gap-2">
               {isLast ? (
-                <span className="text-beergam-black-blue">
+                <span className="text-beergam-black-blue truncate max-w-[40vw]">
                   {item.label}
                 </span>
               ) : (
@@ -282,12 +282,12 @@ export default function SystemBreadcrumb() {
                   {item.path ? (
                     <SpanLink
                       to={item.path}
-                      className="text-beergam-black-blue opacity-50 hover:opacity-100 transition-colors inline-flex"
+                      className="text-beergam-black-blue opacity-50 hover:opacity-100 transition-colors inline-flex truncate"
                     >
                       {item.label}
                     </SpanLink>
                   ) : (
-                    <span className="text-[#6b7280] inline-flex">
+                    <span className="text-[#6b7280] inline-flex truncate max-w-[40vw]">
                       {item.label}
                     </span>
                   )}

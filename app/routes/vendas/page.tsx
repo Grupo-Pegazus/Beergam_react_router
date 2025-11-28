@@ -29,19 +29,19 @@ export default function VendasPage() {
   return (
     <>
       <Section title="Resumo">
-        <Grid cols={{ base: 1, lg: 1 }}>
+        <Grid cols={{ base: 1 }}>
           <MetricasCards />
         </Grid>
       </Section>
 
       <Section title="Faturamento Diário">
-        <Grid cols={{ base: 1, lg: 1 }}>
+        <Grid cols={{ base: 1 }}>
           <DailyRevenueChart days={30} />
         </Grid>
       </Section>
 
       <Section title="Distribuição Geográfica">
-        <Grid cols={{ base: 1, lg: 2 }}>
+        <Grid cols={{ base: 1 }}>
           <GeographicMap period="last_day" />
         </Grid>
       </Section>
