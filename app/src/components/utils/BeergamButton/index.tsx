@@ -1,9 +1,23 @@
+import type { UseMutationResult } from "@tanstack/react-query";
 import type { ButtonHTMLAttributes, CSSProperties } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router";
-
+import Svg from "~/src/assets/svgs/_index";
+interface BeergamButtonFetcherProps<
+  TData = unknown,
+  TError = unknown,
+  TVariables = unknown,
+  TContext = unknown,
+> {
+  fecthing: boolean;
+  completed: boolean;
+  error: boolean;
+  mutation: UseMutationResult<TData, TError, TVariables, TContext>;
+}
 interface BeergamButtonWrapperProps {
   mainColor?: string;
-  animationStyle?: "slider" | "fade";
+  animationStyle?: "slider" | "fade" | "fetcher";
+  fetcher?: BeergamButtonFetcherProps;
   link?: string | undefined;
 }
 
@@ -23,16 +37,24 @@ function BeergamButtonWrapper({
   className,
   onClick,
   disabled,
+  fetcher,
   ...props
 }: BeergamButtonProps) {
   const { style, ...buttonProps } = props;
-  const isSlider = animationStyle === "slider";
+  const isSlider = animationStyle === "slider" || animationStyle === "fetcher";
   const sliderClasses = disabled
     ? "cursor-not-allowed!"
     : isSlider
-      ? "bg-[linear-gradient(90deg,var(--bg-slider-color)_0%,var(--bg-slider-color)_100%)] bg-[length:0%_100%] bg-no-repeat bg-left transition-[background-size,color] duration-300 ease-out hover:bg-[length:100%_100%]"
+      ? `bg-[linear-gradient(90deg,var(--bg-slider-color)_0%,var(--bg-slider-color)_100%)] bg-[length:0%_100%] bg-no-repeat bg-left transition-[background-size,color] duration-300 ease-out ${fetcher?.fecthing ? "opacity-50!" : "hover:bg-[length:100%_100%]"}`
       : "hover:opacity-80";
-  const wrapperClass = `${sliderClasses} relative overflow-hidden text-${mainColor} font-semibold py-2 px-4 rounded-lg shadow-sm group ${className}`;
+  const fectherClasses = fetcher?.error
+    ? "bg-[linear-gradient(90deg,var(--color-beergam-red)_0%,var(--color-beergam-red)_100%)]! bg-[length:100%_100%]! "
+    : fetcher?.completed
+      ? "bg-[linear-gradient(90deg,var(--color-beergam-green)_0%,var(--color-beergam-green)_100%)]! bg-[length:100%_100%]! "
+      : fetcher?.fecthing
+        ? "bg-[linear-gradient(90deg,var(--color-beergam-gray)_0%,var(--color-beergam-gray)_100%)]! bg-[length:100%_100%]! "
+        : "";
+  const wrapperClass = `${sliderClasses} ${fectherClasses} relative overflow-hidden text-${mainColor} font-semibold py-2 px-4 rounded-lg shadow-sm group ${className}`;
   const sliderStyle: CSSPropertiesWithVars | undefined = isSlider
     ? { "--bg-slider-color": `var(--color-${mainColor})` }
     : undefined;
@@ -52,7 +74,9 @@ function BeergamButtonWrapper({
         </Link>
       ) : (
         <button
-          onClick={onClick}
+          onClick={(e) => {
+            onClick?.(e);
+          }}
           className={`${wrapperClass}`}
           style={combinedStyle}
           {...buttonProps}
@@ -72,7 +96,16 @@ export default function BeergamButton({
   link,
   onClick,
   disabled,
+  fetcher,
 }: BeergamButtonProps) {
+  useEffect(() => {
+    if (fetcher?.completed || fetcher?.error) {
+      const timeout = setTimeout(() => {
+        fetcher.mutation.reset();
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [fetcher?.completed, fetcher?.error, fetcher?.mutation]);
   return (
     <BeergamButtonWrapper
       link={link}
@@ -81,13 +114,26 @@ export default function BeergamButton({
       className={className}
       onClick={disabled ? undefined : onClick}
       disabled={disabled}
+      fetcher={fetcher}
     >
-      <span
-        className={`relative z-10 ${disabled ? "" : animationStyle == "fade" ? "" : "group-hover:text-beergam-white"}`}
-        style={{ fontSize: "inherit" }}
-      >
-        {title}
-      </span>
+      <>
+        <span
+          className={`relative ${fetcher?.completed || fetcher?.error || fetcher?.fecthing ? "opacity-0" : "opacity-100"} z-10 ${disabled ? "" : animationStyle == "fade" ? "" : "group-hover:text-beergam-white"}`}
+          style={{ fontSize: "inherit" }}
+        >
+          {title}
+        </span>
+        {fetcher?.error && (
+          <span className="text-beergam-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <Svg.x width={20} height={20} />
+          </span>
+        )}
+        {fetcher?.completed && (
+          <span className="text-beergam-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <Svg.check width={20} height={20} />
+          </span>
+        )}
+      </>
     </BeergamButtonWrapper>
   );
 }
