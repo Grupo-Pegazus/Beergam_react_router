@@ -238,6 +238,12 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
     const clientDocFinal = firstOrder.client?.receiver_document?.value || firstOrder.buyer_id;
     const clientDocType = firstOrder.client?.receiver_document?.id || (clientDocFinal.replace(/\D/g, '').length === 14 ? 'CNPJ' : 'CPF');
 
+    // Get logistic type status and colors
+    const logisticTypeInfo = getLogisticTypeMeliInfo(firstOrder.shipping_mode ?? "");
+    const logisticTypeStatus = logisticTypeInfo?.label || "Não especificado";
+    const logisticTypeBackgroundColor = logisticTypeInfo?.backgroundColor || "#f3f4f6";
+    const logisticTypeColor = logisticTypeInfo?.color || "#374151";
+
     return (
         <> 
                 <div style={{ padding: "20px", margin: "0 auto", width: "100%" }}>
@@ -247,7 +253,9 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
                 totalItems={packInfo?.total_items || totalsP.totalQuantity}
                 orderId={firstOrder.order_id}
                 date={formatDate(firstOrder.date_created)}
-                status="FULL"
+                status={logisticTypeStatus}
+                statusBackgroundColor={logisticTypeBackgroundColor}
+                statusColor={logisticTypeColor}
             />
 
             {/* Main Layout - Two Columns */}
