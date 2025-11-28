@@ -150,7 +150,7 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
             <div className="flex items-center gap-1.5 md:gap-2">
               <Svg.profile tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4 text-slate-500" />
               <Typography variant="body2" className="text-slate-900 text-sm md:text-base">
-                {firstOrder.buyer_nickname}
+                {firstOrder.buyer_nickname} - {firstOrder.client?.receiver_name} 
               </Typography>
               {firstOrder.buyer_id && (
                 <>
