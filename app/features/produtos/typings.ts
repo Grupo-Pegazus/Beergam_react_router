@@ -161,15 +161,27 @@ export type ProductsResponse = z.infer<typeof ProductsResponseSchema>;
 
 // Schema para filtros de produtos
 export const ProductsFiltersSchema = z.object({
-  title: z.string().optional(),
-  sku: z.string().optional(),
+  // Texto livre (SKU ou título) - usado pelo backend
+  q: z.string().optional(),
+  // Nome do produto (título)
+  name: z.string().optional(),
+  // Status do produto
   status: z.string().optional(),
-  registration_type: z.enum(["Completo", "Simplificado"]).optional(),
+  // Tipo de registro (aceita valores como "simplified", "simplificado", "simples", "complete", "completo", "completa")
+  registration_type: z.string().optional(),
+  // Tem variações
+  has_variations: z.boolean().optional(),
+  // Nome da categoria
+  category_name: z.string().optional(),
+  // Paginação
   page: z.number().default(1),
-  per_page: z.number().default(20).refine((val) => val <= 1000, {
-    message: "per_page deve ser no máximo 1000",
+  per_page: z.number().default(20).refine((val) => val <= 100, {
+    message: "per_page deve ser no máximo 100",
   }),
-  sort_by: z.string().default("created_at"),
+  // Ordenação
+  sort_by: z
+    .enum(["created_at", "sku", "title", "status", "registration_type"])
+    .default("created_at"),
   sort_order: z.enum(["asc", "desc"]).default("desc"),
 });
 

@@ -14,8 +14,8 @@ import type {
 
 const STATUS_OPTIONS: Array<{ label: string; value: ProdutoStatusFilter }> = [
   { label: "Todos", value: "all" },
-  { label: "Ativos", value: "Ativo" },
-  { label: "Inativos", value: "Inativo" },
+  { label: "Ativos", value: "ACTIVE" },
+  { label: "Inativos", value: "INACTIVE" },
 ];
 
 const REGISTRATION_TYPE_OPTIONS: Array<{
@@ -23,13 +23,8 @@ const REGISTRATION_TYPE_OPTIONS: Array<{
   value: RegistrationTypeFilter;
 }> = [
   { label: "Todos", value: "all" },
-  { label: "Completo", value: "Completo" },
-  { label: "Simplificado", value: "Simplificado" },
-];
-
-const SEARCH_TYPE_OPTIONS = [
-  { label: "Por título", value: "title" },
-  { label: "Por SKU", value: "sku" },
+  { label: "Completo", value: "COMPLETE" },
+  { label: "Simplificado", value: "SIMPLIFIED" },
 ];
 
 export default function ProdutosFilters({
@@ -55,6 +50,16 @@ export default function ProdutosFilters({
             : (newValue as RegistrationTypeFilter);
       }
 
+      if (key === "has_variations") {
+        updated.has_variations =
+          newValue === "all" ? undefined : (newValue as boolean | "all");
+      }
+
+      if (key === "category_name") {
+        updated.category_name =
+          newValue === "" || newValue === null ? undefined : (newValue as string);
+      }
+
       onChange(updated);
     },
     [value, onChange]
@@ -70,67 +75,37 @@ export default function ProdutosFilters({
     [value.registrationTypeFilter]
   );
 
-  const currentSearchType = useMemo(() => {
-    if (value.searchType) {
-      return value.searchType;
-    }
-    if (value.title) return "title";
-    if (value.sku) return "sku";
-    return "title";
-  }, [value.searchType, value.title, value.sku]);
+  const hasVariationsValue = useMemo(
+    () => (value.has_variations ?? "all") as boolean | "all",
+    [value.has_variations]
+  );
 
+  const categoryNameValue = useMemo(
+    () => value.category_name || "",
+    [value.category_name]
+  );
+
+  // Campo de busca unificado (q) - busca em SKU ou título
   const searchValue = useMemo(() => {
-    return value.title || value.sku || "";
-  }, [value.title, value.sku]);
+    return value.q || "";
+  }, [value.q]);
 
   const handleSearchChange = useCallback(
     (searchTerm: string) => {
       const updated = { ...value };
 
-      if (!updated.searchType) {
-        updated.searchType = currentSearchType;
-      }
-
-      delete updated.title;
-      delete updated.sku;
-
       if (searchTerm.trim()) {
-        const typeToUse = updated.searchType || currentSearchType;
-        if (typeToUse === "title") {
-          updated.title = searchTerm;
-        } else if (typeToUse === "sku") {
-          updated.sku = searchTerm;
-        }
+        updated.q = searchTerm.trim();
       } else {
-        delete updated.searchType;
+        delete updated.q;
       }
+
+      // Remove campos antigos se existirem
+      delete updated.searchType;
 
       onChange(updated);
     },
-    [value, currentSearchType, onChange]
-  );
-
-  const handleSearchTypeChange = useCallback(
-    (searchType: string) => {
-      const updated = { ...value };
-      const currentValue = searchValue;
-
-      updated.searchType = searchType as "title" | "sku";
-
-      delete updated.title;
-      delete updated.sku;
-
-      if (currentValue.trim()) {
-        if (searchType === "title") {
-          updated.title = currentValue;
-        } else if (searchType === "sku") {
-          updated.sku = currentValue;
-        }
-      }
-
-      onChange(updated);
-    },
-    [value, searchValue, onChange]
+    [value, onChange]
   );
 
   const sections = useMemo(
@@ -144,11 +119,16 @@ export default function ProdutosFilters({
           <FilterSearchInput
             value={searchValue}
             onChange={handleSearchChange}
-            label="Pesquisar"
-            placeholder="Digite para pesquisar..."
-            searchType={currentSearchType}
-            onSearchTypeChange={handleSearchTypeChange}
-            searchTypeOptions={SEARCH_TYPE_OPTIONS}
+            label="Pesquisar (SKU ou título)"
+            placeholder="Digite SKU ou título do produto..."
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <FilterSearchInput
+            value={categoryNameValue}
+            onChange={(val) => handleFilterChange("category_name", val)}
+            label="Categoria"
+            placeholder="Digite o nome da categoria..."
           />
         </div>
       </Stack>,
@@ -178,15 +158,42 @@ export default function ProdutosFilters({
             defaultValue="all"
           />
         </div>
+        <div style={{ flex: 1 }}>
+          <FilterSelect<"all" | "true" | "false">
+            value={
+              hasVariationsValue === "all"
+                ? "all"
+                : hasVariationsValue === true
+                  ? "true"
+                  : "false"
+            }
+            onChange={(newValue) => {
+              const val =
+                newValue === "all"
+                  ? "all"
+                  : newValue === "true"
+                    ? true
+                    : false;
+              handleFilterChange("has_variations", val);
+            }}
+            label="Variações"
+            options={[
+              { label: "Todos", value: "all" },
+              { label: "Com variações", value: "true" },
+              { label: "Sem variações", value: "false" },
+            ]}
+            defaultValue="all"
+          />
+        </div>
       </Stack>,
     ],
     [
       searchValue,
-      currentSearchType,
+      categoryNameValue,
       handleSearchChange,
-      handleSearchTypeChange,
       statusValue,
       registrationTypeValue,
+      hasVariationsValue,
       handleFilterChange,
     ]
   );
