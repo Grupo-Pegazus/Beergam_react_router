@@ -4,10 +4,12 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import StatusTag from "~/features/marketplace/components/StatusTag";
 import { useMarketplaceAccounts } from "~/features/marketplace/hooks/useMarketplaceAccounts";
+import { marketplaceService } from "~/features/marketplace/service";
 import {
   MarketplaceStatusParse,
   MarketplaceType,
   MarketplaceTypeLabel,
+  type BaseMarketPlace,
 } from "~/features/marketplace/typings";
 import authStore from "~/features/store-zustand";
 import Loading from "~/src/assets/loading";
@@ -15,6 +17,7 @@ import Svg from "~/src/assets/svgs/_index";
 import Modal from "~/src/components/utils/Modal";
 import toast from "~/src/utils/toast";
 import { menuService } from "../../../menu/service";
+import DeleteMarketaplceAccount from "~/routes/choosen_account/components/DeleteMarketaplceAccount";
 
 // Lazy loading do modal de integração para otimizar performance
 const CreateMarketplaceModal = lazy(
@@ -29,6 +32,9 @@ export default function AccountView({
   const [open, setOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [marketplaceToDelete, setMarketplaceToDelete] =
+    useState<BaseMarketPlace | null>(null);
   const logout = authStore.use.logout();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -63,6 +69,52 @@ export default function AccountView({
   const handleModalClose = () => {
     setModalOpen(false);
     queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
+  };
+
+  const handleDeleteMarketplace = (marketplace: BaseMarketPlace) => {
+    setMarketplaceToDelete(marketplace);
+    setShowDeleteModal(true);
+    setOpen(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!marketplaceToDelete) return;
+
+    const selectedMarketplace = authStore.getState().marketplace;
+    const isSelectedMarketplace =
+      selectedMarketplace?.marketplace_shop_id ===
+      marketplaceToDelete.marketplace_shop_id;
+
+    try {
+      const response = await marketplaceService.deleteMarketplaceAccount(
+        marketplaceToDelete.marketplace_shop_id || "",
+        marketplaceToDelete.marketplace_type as MarketplaceType
+      );
+
+      if (response.success) {
+        toast.success(response.message || "Conta deletada com sucesso");
+
+        // Se a conta deletada era a selecionada, limpa o store
+        if (isSelectedMarketplace) {
+          authStore.setState({ marketplace: null });
+        }
+
+        // Invalida queries para atualizar a lista
+        queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
+      } else {
+        toast.error(response.message || "Erro ao deletar conta");
+      }
+    } catch {
+      toast.error("Erro ao deletar conta. Tente novamente.");
+    } finally {
+      setShowDeleteModal(false);
+      setMarketplaceToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setMarketplaceToDelete(null);
   };
 
   if (accountsLoading) {
@@ -163,7 +215,7 @@ export default function AccountView({
                           className="text-[10px] py-0.5 px-2"
                         />
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <button
                           type="button"
                           onClick={() => {
@@ -172,6 +224,22 @@ export default function AccountView({
                           className="text-xs text-blue-600 hover:text-blue-700 hover:underline font-medium"
                         >
                           Minha conta
+                        </button>
+                        <span className="text-gray-300">•</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (current) {
+                              handleDeleteMarketplace(current);
+                            }
+                          }}
+                          disabled={
+                            current?.status_parse ===
+                            MarketplaceStatusParse.PROCESSING
+                          }
+                          className="text-xs text-red-600 hover:text-red-700 hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Excluir conta
                         </button>
                         <span className="text-gray-300">•</span>
                         <button
@@ -248,6 +316,21 @@ export default function AccountView({
                                 />
                               </div>
                             </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteMarketplace(acc);
+                              }}
+                              disabled={isProcessing}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-red-50 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                              aria-label="Excluir conta"
+                              title="Excluir conta"
+                            >
+                              <Svg.trash
+                                tailWindClasses="stroke-red-600 w-4 h-4"
+                              />
+                            </button>
                           </button>
                         </div>
                       );
@@ -296,6 +379,19 @@ export default function AccountView({
             modalOpen={modalOpen}
           />
         </Suspense>
+      </Modal>
+
+      {/* Modal de confirmação de deletar */}
+      <Modal
+        title="Deletar conta"
+        isOpen={showDeleteModal}
+        onClose={handleCancelDelete}
+      >
+        <DeleteMarketaplceAccount
+          marketplaceToDelete={marketplaceToDelete}
+          handleCancelDelete={handleCancelDelete}
+          handleConfirmDelete={handleConfirmDelete}
+        />
       </Modal>
     </>
   );
