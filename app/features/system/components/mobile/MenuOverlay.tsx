@@ -2,8 +2,7 @@ import { useEffect, useRef, useCallback, useState, useMemo } from "react";
 import { MenuConfig, type IMenuItem, type IMenuConfig, type MenuKeys } from "~/features/menu/typings";
 import Svg from "~/src/assets/svgs/_index";
 import { PrefetchPageLinks, useLocation, useNavigate } from "react-router";
-import { useSelector } from "react-redux";
-import { type RootState } from "~/store";
+import authStore from "~/features/store-zustand";
 import { useOverlay } from "../../hooks/useOverlay";
 import OverlayFrame from "../../shared/OverlayFrame";
 import { getRelativePath, DEFAULT_INTERNAL_PATH, findKeyPathByRoute, getIcon } from "~/features/menu/utils";
@@ -16,7 +15,7 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
   const location = useLocation();
   const firstFocusable = useRef<HTMLButtonElement | null>(null);
   const { isOpen, shouldRender, open, requestClose } = useOverlay();
-  const user = useSelector((state: RootState) => state.user);
+  const user = authStore.use.user();
   const [submenuState, setSubmenuState] = useState<{
     items: IMenuConfig;
     parentLabel: string;
@@ -24,12 +23,12 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
   } | null>(null);
 
   const allowedViews = useMemo(() => {
-    return user?.user?.details.allowed_views;
-  }, [user?.user?.details.allowed_views]);
+    return user?.details.allowed_views;
+  }, [user?.details.allowed_views]);
 
   const isUserMaster = useMemo(() => {
-    return user?.user ? isMaster(user.user) : false;
-  }, [user?.user]);
+    return user ? isMaster(user) : false;
+  }, [user]);
 
   const hasAccess = useCallback((key: string): boolean => {
     // Se for master, sempre tem acesso a tudo
