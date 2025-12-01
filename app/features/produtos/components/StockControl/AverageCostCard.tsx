@@ -42,16 +42,18 @@ export default function AverageCostCard({
   return (
     <>
       <Card variant="outlined" sx={{ mb: 3 }}>
-        <CardContent>
+        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
           <Box
             sx={{
               display: "flex",
-              alignItems: "center",
+              flexDirection: { xs: "column", sm: "row" },
+              alignItems: { xs: "flex-start", sm: "center" },
               justifyContent: "space-between",
+              gap: { xs: 2, sm: 0 },
               mb: 2,
             }}
           >
-            <Typography variant="h6" fontWeight={600}>
+            <Typography variant="h6" fontWeight={600} className="text-base sm:text-lg">
               Custo Médio de Estoque
             </Typography>
             <BeergamButton
@@ -60,7 +62,7 @@ export default function AverageCostCard({
               animationStyle="fade"
               onClick={handleRecalculate}
               disabled={recalculateMutation.isPending}
-              className="text-sm"
+              className="text-xs sm:text-sm w-full sm:w-auto"
             />
           </Box>
 
@@ -68,17 +70,19 @@ export default function AverageCostCard({
             <Box
               sx={{
                 display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
                 justifyContent: "space-between",
-                alignItems: "center",
-                p: 2,
+                alignItems: { xs: "flex-start", sm: "center" },
+                gap: { xs: 1, sm: 0 },
+                p: { xs: 1.5, sm: 2 },
                 bgcolor: "grey.50",
                 borderRadius: 1,
               }}
             >
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" className="text-xs sm:text-sm">
                 Custo Médio Armazenado:
               </Typography>
-              <Typography variant="h6" fontWeight={600}>
+              <Typography variant="h6" fontWeight={600} className="text-sm sm:text-base md:text-lg">
                 {formatCurrency(average_cost.stored || "0.00")}
               </Typography>
             </Box>
@@ -86,17 +90,19 @@ export default function AverageCostCard({
             <Box
               sx={{
                 display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
                 justifyContent: "space-between",
-                alignItems: "center",
-                p: 2,
+                alignItems: { xs: "flex-start", sm: "center" },
+                gap: { xs: 1, sm: 0 },
+                p: { xs: 1.5, sm: 2 },
                 bgcolor: "grey.50",
                 borderRadius: 1,
               }}
             >
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" className="text-xs sm:text-sm">
                 Custo Médio Calculado:
               </Typography>
-              <Typography variant="h6" fontWeight={600}>
+              <Typography variant="h6" fontWeight={600} className="text-sm sm:text-base md:text-lg">
                 {formatCurrency(average_cost.calculated || "0.00")}
               </Typography>
             </Box>

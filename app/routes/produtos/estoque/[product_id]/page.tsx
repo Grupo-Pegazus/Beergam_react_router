@@ -158,13 +158,13 @@ export default function StockControlPage({
     <>
       <Section>
         {product.sku && (
-          <p className="text-sm text-gray-600 mb-3">
+          <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
             SKU: {product.sku}
           </p>
         )}
 
         {hasVariations && (
-          <Grid cols={{ base: 1, md: 2 }} className="mb-4">
+          <Grid cols={{ base: 1, md: 2 }} className="mb-3 sm:mb-4">
             <Fields.wrapper>
               <Fields.label text="Variação" required />
               <Fields.select
@@ -212,15 +212,15 @@ export default function StockControlPage({
         >
           {stockTracking && (
             <>
-              <Grid cols={{ base: 1, lg: 1 }} className="mb-4">
+              <Grid cols={{ base: 1, lg: 1 }} className="mb-3 sm:mb-4">
                 <StockSummary data={stockTracking} />
               </Grid>
 
-              <Grid cols={{ base: 1, lg: 1 }} className="mb-4">
+              <Grid cols={{ base: 1, lg: 1 }} className="mb-3 sm:mb-4">
                 <AverageCostCard data={stockTracking} productId={productId} />
               </Grid>
 
-              <Grid cols={{ base: 1, lg: 1 }} className="mb-4">
+              <Grid cols={{ base: 1, lg: 1 }} className="mb-3 sm:mb-4">
                 <StockMovementForm
                   productId={productId}
                   variationId={hasVariations && selectedVariationId !== null ? String(selectedVariationId) : undefined}
@@ -236,7 +236,7 @@ export default function StockControlPage({
               </Grid>
 
               <Section title="Histórico de Movimentações">
-                <Grid cols={{ base: 1, lg: 1 }} className="mb-3">
+                <Grid cols={{ base: 1, lg: 1 }} className="mb-2 sm:mb-3">
                   <StockTrackingFilters
                     value={filters}
                     onChange={handleFiltersChange}

@@ -148,13 +148,13 @@ export default function StockMovementForm({
 
   return (
     <Card variant="outlined" sx={{ mb: 3 }}>
-      <CardContent>
-        <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
+      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+        <Typography variant="h6" fontWeight={600} sx={{ mb: { xs: 2, sm: 3 } }} className="text-base sm:text-lg">
           Nova Movimentação de Estoque
         </Typography>
 
         <form onSubmit={handleSubmit}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 2, sm: 3 } }}>
             <Fields.wrapper>
               <Fields.label text="Tipo de Movimentação" required />
               <ToggleButtonGroup
@@ -303,6 +303,7 @@ export default function StockMovementForm({
                 animationStyle="slider"
                 type="submit"
                 disabled={!isFormValid || createMutation.isPending}
+                className="w-full sm:w-auto"
                 fetcher={{
                   fecthing: createMutation.isPending,
                   completed: false,
