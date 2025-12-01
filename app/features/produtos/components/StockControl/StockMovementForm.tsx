@@ -3,12 +3,10 @@ import {
   Card,
   CardContent,
   Typography,
-  Button,
   Box,
   ToggleButton,
   ToggleButtonGroup,
   Alert,
-  CircularProgress,
 } from "@mui/material";
 import { z } from "zod";
 import { Fields } from "~/src/components/utils/_fields";
@@ -19,6 +17,7 @@ import type {
 import { StockMovementFormSchema } from "../../typings";
 import { useCreateStockMovement } from "../../hooks";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface StockMovementFormProps {
   productId: string;
@@ -149,13 +148,13 @@ export default function StockMovementForm({
 
   return (
     <Card variant="outlined" sx={{ mb: 3 }}>
-      <CardContent>
-        <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
+      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+        <Typography variant="h6" fontWeight={600} sx={{ mb: { xs: 2, sm: 3 } }} className="text-base sm:text-lg">
           Nova Movimentação de Estoque
         </Typography>
 
         <form onSubmit={handleSubmit}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 2, sm: 3 } }}>
             <Fields.wrapper>
               <Fields.label text="Tipo de Movimentação" required />
               <ToggleButtonGroup
@@ -298,18 +297,20 @@ export default function StockMovementForm({
             )}
 
             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-              <Button
+              <BeergamButton
+                title={createMutation.isPending ? "Salvando..." : "Salvar Movimentação"}
+                mainColor="beergam-blue-primary"
+                animationStyle="slider"
                 type="submit"
-                variant="contained"
                 disabled={!isFormValid || createMutation.isPending}
-                startIcon={
-                  createMutation.isPending ? (
-                    <CircularProgress size={16} />
-                  ) : null
-                }
-              >
-                {createMutation.isPending ? "Salvando..." : "Salvar Movimentação"}
-              </Button>
+                className="w-full sm:w-auto"
+                fetcher={{
+                  fecthing: createMutation.isPending,
+                  completed: false,
+                  error: false,
+                  mutation: createMutation,
+                }}
+              />
             </Box>
           </Box>
         </form>

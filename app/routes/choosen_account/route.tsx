@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Navigate } from "react-router";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { marketplaceService } from "~/features/marketplace/service";
+import { useAccountPolling } from "~/features/marketplace/hooks/useAccountPolling";
 import type { IntegrationData } from "~/features/marketplace/typings";
 import {
   type BaseMarketPlace,
@@ -114,6 +115,11 @@ export default function ChoosenAccountRoute() {
     retry: false,
     refetchOnWindowFocus: false,
   });
+
+  const accounts: BaseMarketPlace[] = (data?.data as BaseMarketPlace[]) || [];
+  
+  // Faz polling de contas em processamento
+  useAccountPolling(accounts);
 
   // ✅ Depois dos hooks, fazemos os retornos condicionais
   if (marketplace) {

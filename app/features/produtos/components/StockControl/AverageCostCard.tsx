@@ -3,20 +3,14 @@ import {
   Card,
   CardContent,
   Typography,
-  Button,
   Box,
-  Alert,
-  CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
+  Alert as MuiAlert,
 } from "@mui/material";
 import type { StockTrackingResponse } from "../../typings";
 import { useRecalculateAverageCost } from "../../hooks";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
-import Svg from "~/src/assets/svgs/_index";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import Alert from "~/src/components/utils/Alert";
 
 interface AverageCostCardProps {
   data: StockTrackingResponse;
@@ -44,56 +38,51 @@ export default function AverageCostCard({
   };
 
   const isSynced = average_cost.is_synced;
-  const calculated = parseFloat(average_cost.calculated || "0");
-  const stored = parseFloat(average_cost.stored || "0");
 
   return (
     <>
       <Card variant="outlined" sx={{ mb: 3 }}>
-        <CardContent>
+        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
           <Box
             sx={{
               display: "flex",
-              alignItems: "center",
+              flexDirection: { xs: "column", sm: "row" },
+              alignItems: { xs: "flex-start", sm: "center" },
               justifyContent: "space-between",
+              gap: { xs: 2, sm: 0 },
               mb: 2,
             }}
           >
-            <Typography variant="h6" fontWeight={600}>
+            <Typography variant="h6" fontWeight={600} className="text-base sm:text-lg">
               Custo Médio de Estoque
             </Typography>
-            <Button
-              variant="outlined"
-              size="small"
+            <BeergamButton
+              title="Recalcular"
+              mainColor="beergam-blue-primary"
+              animationStyle="fade"
               onClick={handleRecalculate}
               disabled={recalculateMutation.isPending}
-              startIcon={
-                recalculateMutation.isPending ? (
-                  <CircularProgress size={16} />
-                ) : (
-                  <Svg.arrow_path tailWindClasses="h-4 w-4" />
-                )
-              }
-            >
-              Recalcular
-            </Button>
+              className="text-xs sm:text-sm w-full sm:w-auto"
+            />
           </Box>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Box
               sx={{
                 display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
                 justifyContent: "space-between",
-                alignItems: "center",
-                p: 2,
+                alignItems: { xs: "flex-start", sm: "center" },
+                gap: { xs: 1, sm: 0 },
+                p: { xs: 1.5, sm: 2 },
                 bgcolor: "grey.50",
                 borderRadius: 1,
               }}
             >
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" className="text-xs sm:text-sm">
                 Custo Médio Armazenado:
               </Typography>
-              <Typography variant="h6" fontWeight={600}>
+              <Typography variant="h6" fontWeight={600} className="text-sm sm:text-base md:text-lg">
                 {formatCurrency(average_cost.stored || "0.00")}
               </Typography>
             </Box>
@@ -101,57 +90,54 @@ export default function AverageCostCard({
             <Box
               sx={{
                 display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
                 justifyContent: "space-between",
-                alignItems: "center",
-                p: 2,
+                alignItems: { xs: "flex-start", sm: "center" },
+                gap: { xs: 1, sm: 0 },
+                p: { xs: 1.5, sm: 2 },
                 bgcolor: "grey.50",
                 borderRadius: 1,
               }}
             >
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" className="text-xs sm:text-sm">
                 Custo Médio Calculado:
               </Typography>
-              <Typography variant="h6" fontWeight={600}>
+              <Typography variant="h6" fontWeight={600} className="text-sm sm:text-base md:text-lg">
                 {formatCurrency(average_cost.calculated || "0.00")}
               </Typography>
             </Box>
 
             {!isSynced && (
-              <Alert severity="warning" sx={{ mt: 1 }}>
+              <MuiAlert severity="warning" sx={{ mt: 1 }}>
                 Os valores não estão sincronizados. Considere recalcular o custo
                 médio.
-              </Alert>
+              </MuiAlert>
             )}
 
             {isSynced && (
-              <Alert severity="success" sx={{ mt: 1 }}>
+              <MuiAlert severity="success" sx={{ mt: 1 }}>
                 Os valores estão sincronizados.
-              </Alert>
+              </MuiAlert>
             )}
           </Box>
         </CardContent>
       </Card>
 
-      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
-        <DialogTitle>Confirmar Recálculo</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Tem certeza que deseja recalcular o custo médio de estoque? Esta
-            ação irá atualizar o valor armazenado com base em todas as
-            movimentações de entrada registradas.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setConfirmOpen(false)}>Cancelar</Button>
-          <Button
-            onClick={handleConfirmRecalculate}
-            variant="contained"
-            disabled={recalculateMutation.isPending}
-          >
-            {recalculateMutation.isPending ? "Recalculando..." : "Confirmar"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <Alert
+        isOpen={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title="Confirmar Recálculo"
+        type="warning"
+        onConfirm={handleConfirmRecalculate}
+        confirmText={recalculateMutation.isPending ? "Recalculando..." : "Confirmar"}
+        cancelText="Cancelar"
+      >
+        <p>
+          Tem certeza que deseja recalcular o custo médio de estoque? Esta
+          ação irá atualizar o valor armazenado com base em todas as
+          movimentações de entrada registradas.
+        </p>
+      </Alert>
     </>
   );
 }

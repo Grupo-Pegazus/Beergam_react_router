@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Stack, Typography } from "@mui/material";
 import type { FilterOption } from "../types";
 import { Fields } from "~/src/components/utils/_fields";
@@ -26,16 +26,35 @@ export function FilterSearchInput({
   searchTypeOptions,
   fullWidth = true,
 }: FilterSearchInputProps) {
+  // Estado interno para evitar disparar requisição a cada tecla
+  const [internalValue, setInternalValue] = useState(value ?? "");
+
   const currentSearchType = useMemo(
     () => searchType ?? searchTypeOptions?.[0]?.value ?? "",
     [searchType, searchTypeOptions],
   );
 
+  // Sempre que o value externo mudar (ex: reset vindo de fora), sincroniza o interno
+  useEffect(() => {
+    setInternalValue(value ?? "");
+  }, [value]);
+
+  // Debounce simples: só chama onChange depois que o usuário para de digitar
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (internalValue !== value) {
+        onChange(internalValue);
+      }
+    }, 400); // 400ms costuma ser um bom equilíbrio UX x carga no backend
+
+    return () => clearTimeout(handler);
+  }, [internalValue, onChange, value]);
+
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      onChange(event.target.value);
+      setInternalValue(event.target.value);
     },
-    [onChange],
+    [],
   );
 
   const handleSearchTypeChange = useCallback(
@@ -62,7 +81,7 @@ export function FilterSearchInput({
         alignItems={{ xs: "stretch", sm: "flex-start" }}
       >
         <Fields.input
-          value={value ?? ""}
+          value={internalValue}
           onChange={handleInputChange}
           disabled={disabled}
           placeholder={placeholder}

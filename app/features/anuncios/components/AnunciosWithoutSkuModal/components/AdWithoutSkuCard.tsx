@@ -1,8 +1,9 @@
-import { Button, Chip, CircularProgress, Typography } from "@mui/material";
+import { Chip, Typography } from "@mui/material";
 import MainCards from "~/src/components/ui/MainCards";
 import type { AdWithoutSku } from "../../../typings";
 import VariationsGroup from "../Variations/VariationsGroup";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface AdWithoutSkuCardProps {
   ad: AdWithoutSku;
@@ -43,17 +44,20 @@ export default function AdWithoutSkuCard({
           </Typography>
         </div>
         {hasPendingChanges && (
-          <Button
-            variant="contained"
-            color="primary"
+          <BeergamButton
+            title={isSaving ? "Salvando..." : "Salvar SKUs"}
+            mainColor="beergam-blue-primary"
+            animationStyle="slider"
             onClick={onSave}
             disabled={isSaving}
-            startIcon={isSaving ? <CircularProgress size={16} /> : null}
-            size="small"
-            className="w-full md:w-auto shrink-0"
-          >
-            {isSaving ? "Salvando..." : "Salvar SKUs"}
-          </Button>
+            className="text-sm w-full md:w-auto shrink-0"
+            fetcher={{
+              fecthing: isSaving,
+              completed: false,
+              error: false,
+              mutation: { reset: () => {}, isPending: isSaving, isSuccess: false, isError: false },
+            }}
+          />
         )}
       </div>
 

@@ -10,6 +10,7 @@ import authStore from "~/features/store-zustand";
 import Svg from "~/src/assets/svgs/_index";
 import toast from "~/src/utils/toast";
 import AvailableMarketplaceCard from "./AvailableMarketplaceCard";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 export default function CreateMarketplaceModal({
   marketplacesAccounts,
@@ -220,7 +221,7 @@ export default function CreateMarketplaceModal({
             </div>
             <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-lg">
-                <Svg.globe />
+                <Svg.globe tailWindClasses="w-6 h-6" />
               </span>
             </div>
           </div>
@@ -238,7 +239,7 @@ export default function CreateMarketplaceModal({
             </div>
             <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-lg">
-                <Svg.alert />
+                <Svg.alert tailWindClasses="w-6 h-6" />
               </span>
             </div>
           </div>
@@ -277,9 +278,13 @@ export default function CreateMarketplaceModal({
               <p className="text-gray-600 mb-4">
                 Você atingiu o limite máximo de contas disponíveis no seu plano.
               </p>
-              <button className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors">
-                Ver Planos
-              </button>
+              <BeergamButton
+                title="Ver Planos"
+                mainColor="beergam-red"
+                animationStyle="fade"
+                onClick={() => window.location.href = "/subscription"}
+                className="px-6 py-2"
+              />
             </div>
           </div>
         )}
@@ -288,30 +293,20 @@ export default function CreateMarketplaceModal({
       {/* Action Button */}
       {selectedMarketplace && (
         <div className="flex justify-center mb-6">
-          <button
+          <BeergamButton
+            title={isPolling ? "Aguardando integração..." : `Conectar ${selectedMarketplace.toUpperCase()}`}
+            mainColor="beergam-blue-primary"
+            animationStyle="slider"
             onClick={handleSubmit}
             disabled={isPolling}
-            className={`
-              px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform
-              ${
-                isPolling
-                  ? "bg-gray-400 cursor-not-allowed scale-95"
-                  : "bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 hover:scale-105 shadow-lg hover:shadow-xl"
-              }
-              text-white
-            `}
-          >
-            {isPolling ? (
-              <div className="flex items-center gap-3">
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                Aguardando integração...
-              </div>
-            ) : (
-              <div className="flex items-center gap-3">
-                Conectar {selectedMarketplace.toUpperCase()}
-              </div>
-            )}
-          </button>
+            className="px-8 py-4 rounded-xl font-semibold text-lg"
+            fetcher={{
+              fecthing: isPolling,
+              completed: false,
+              error: false,
+              mutation: { reset: () => {}, isPending: isPolling, isSuccess: false, isError: false },
+            }}
+          />
         </div>
       )}
 

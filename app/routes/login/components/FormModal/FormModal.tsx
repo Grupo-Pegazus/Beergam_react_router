@@ -8,6 +8,7 @@ import { UserRoles } from "~/features/user/typings/BaseUser";
 import { Fields } from "~/src/components/utils/_fields";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
 import toast from "~/src/utils/toast";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 import { authService } from "../../../../features/auth/service";
 import {
   type ColaboradorUserForm,
@@ -204,7 +205,7 @@ export default function FormModal({
   }
   return (
     <div
-      className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-white h-full w-[100%] mx-auto my-auto p-8 sm:w-2/3 sm:max-w-[32rem] sm:rounded-4xl sm:h-[490px]`}
+      className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-white h-full w-full mx-auto my-auto p-8 sm:w-2/3 sm:max-w-lg sm:rounded-4xl sm:h-[490px]`}
     >
       <div className="block w-16 h-16 sm:hidden">
         <img
@@ -349,9 +350,13 @@ export default function FormModal({
         <div className="flex gap-2 sm:hidden">
           <FormHelpNavigation />
         </div>
-        <button className="p-2 rounded-2xl bg-beergam-blue-primary text-beergam-white hover:bg-beergam-orange">
-          Entrar
-        </button>
+        <BeergamButton
+          title="Entrar"
+          mainColor="beergam-blue-primary"
+          animationStyle="slider"
+          type="submit"
+          className="w-full rounded-2xl"
+        />
       </form>
     </div>
   );

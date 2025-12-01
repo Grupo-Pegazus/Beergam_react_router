@@ -73,10 +73,10 @@ export default function ProductList({ filters = {} }: ProductListProps) {
           </div>
         ) : (
           <>
-            {/* Cabeçalho das colunas */}
-            <MainCards className="bg-slate-100/50 border-slate-200">
-              <div className="flex items-center gap-4 py-2 px-4">
-                <div className="shrink-0 w-16 flex justify-center">
+            {/* Cabeçalho das colunas - Oculto em mobile */}
+            <MainCards className="bg-slate-100/50 border-slate-200 hidden md:block">
+              <div className="flex items-center gap-2 md:gap-4 py-2 px-2 md:px-4">
+                <div className="shrink-0 w-12 md:w-16 flex justify-center">
                   <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
                     Status
                   </Typography>
@@ -86,37 +86,37 @@ export default function ProductList({ filters = {} }: ProductListProps) {
                     Produto
                   </Typography>
                 </div>
-                <div className="shrink-0 w-20 text-center">
+                <div className="shrink-0 w-16 md:w-20 text-center">
                   <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
                     Variações
                   </Typography>
                 </div>
-                <div className="shrink-0 w-28">
+                <div className="shrink-0 w-20 md:w-28">
                   <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
                     Preço
                   </Typography>
                 </div>
-                <div className="shrink-0 w-32">
+                <div className="shrink-0 w-24 md:w-32 hidden lg:block">
                   <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
                     SKU
                   </Typography>
                 </div>
-                <div className="shrink-0 w-20 text-center">
+                <div className="shrink-0 w-16 md:w-20 text-center">
                   <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
                     Anúncios
                   </Typography>
                 </div>
-                <div className="shrink-0 w-24 text-center">
+                <div className="shrink-0 w-20 md:w-24 text-center hidden lg:block">
                   <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
                     Vendas
                   </Typography>
                 </div>
-                <div className="shrink-0 w-28 text-center">
+                <div className="shrink-0 w-20 md:w-28 text-center">
                   <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
                     Estoque
                   </Typography>
                 </div>
-                <div className="shrink-0 w-10">
+                <div className="shrink-0 w-8 md:w-10">
                   {/* Espaço para ícone de configurações */}
                 </div>
               </div>
@@ -132,14 +132,14 @@ export default function ProductList({ filters = {} }: ProductListProps) {
 
         {totalPages > 1 ? (
           <Stack
-            direction="row"
+            direction={{ xs: "column", sm: "row" }}
+            spacing={{ xs: 2, sm: 0 }}
             justifyContent="space-between"
-            alignItems="center"
+            alignItems={{ xs: "stretch", sm: "center" }}
             sx={{ pt: 2 }}
           >
-            <Typography variant="body2" color="text.secondary">
-              Mostrando página {page} de {totalPages} — {totalCount} produtos
-              no total
+            <Typography variant="body2" color="text.secondary" className="text-xs sm:text-sm text-center sm:text-left">
+              Mostrando página {page} de {totalPages} — {totalCount} produtos no total
             </Typography>
             <Pagination
               count={totalPages}
@@ -147,6 +147,12 @@ export default function ProductList({ filters = {} }: ProductListProps) {
               onChange={handlePageChange}
               shape="rounded"
               color="primary"
+              size="small"
+              sx={{
+                "& .MuiPagination-ul": {
+                  justifyContent: "center",
+                },
+              }}
             />
           </Stack>
         ) : null}

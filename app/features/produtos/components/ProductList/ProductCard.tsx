@@ -91,9 +91,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <>
       <MainCards className="hover:bg-slate-50/50 transition-colors">
-        <div className="flex items-center gap-4 py-3 px-4">
+        {/* Layout Desktop */}
+        <div className="hidden md:flex items-center gap-2 lg:gap-4 py-2 lg:py-3 px-2 lg:px-4">
           {/* Toggle Switch ou Status */}
-          <div className="shrink-0 w-16 flex justify-center">
+          <div className="shrink-0 w-12 lg:w-16 flex justify-center">
             {!hasVariations ? (
               <ProductStatusToggle
                 status={product.status}
@@ -142,7 +143,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <Typography
               variant="body2"
               fontWeight={600}
-              className="text-slate-900 truncate"
+              className="text-slate-900 truncate text-sm lg:text-base"
             >
               {product.title}
             </Typography>
@@ -186,7 +187,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* Variações */}
-          <div className="shrink-0 w-20 text-center">
+          <div className="shrink-0 w-16 lg:w-20 text-center">
             {variationsCount > 0 ? (
               <Chip
                 label={variationsCount}
@@ -210,9 +211,9 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* Preço */}
-          <div className="shrink-0 w-28">
+          <div className="shrink-0 w-20 lg:w-28">
             {product.price_sale ? (
-              <Typography variant="body2" fontWeight={600} className="text-slate-900">
+              <Typography variant="body2" fontWeight={600} className="text-slate-900 text-sm lg:text-base">
                 {formatCurrency(product.price_sale)}
               </Typography>
             ) : (
@@ -222,8 +223,8 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          {/* SKU */}
-          <div className="shrink-0 w-32">
+          {/* SKU - Oculto em tablet, visível em desktop */}
+          <div className="shrink-0 w-24 lg:w-32 hidden lg:block">
             {product.sku ? (
               <Chip
                 label={product.sku}
@@ -250,7 +251,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* Anúncios */}
-          <div className="shrink-0 w-20 text-center">
+          <div className="shrink-0 w-16 lg:w-20 text-center">
             {relatedAdsCount > 0 ? (
               <Chip
                 label={relatedAdsCount}
@@ -273,12 +274,12 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          {/* Vendas */}
-          <div className="shrink-0 w-24 flex items-center gap-1 justify-center">
+          {/* Vendas - Oculto em tablet, visível em desktop */}
+          <div className="shrink-0 w-20 lg:w-24 items-center gap-1 justify-center hidden lg:flex">
             {product.sales_quantity !== undefined ? (
               <>
                 <Svg.bag tailWindClasses="h-4 w-4 text-slate-500" />
-                <Typography variant="body2" fontWeight={600} className="text-slate-900">
+                <Typography variant="body2" fontWeight={600} className="text-slate-900 text-sm">
                   {formatNumber(product.sales_quantity)}
                 </Typography>
               </>
@@ -290,10 +291,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* Estoque */}
-          <div className="shrink-0 w-28 flex items-center gap-1.5 justify-center">
+          <div className="shrink-0 w-20 lg:w-28 flex items-center gap-1 lg:gap-1.5 justify-center">
             {product.available_quantity !== undefined ? (
               <>
-                <Typography variant="caption" color="text.secondary" className="text-xs">
+                <Typography variant="caption" color="text.secondary" className="text-xs hidden xl:block">
                   Qt:
                 </Typography>
                 <Chip
@@ -310,7 +311,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                     },
                   }}
                 />
-                <div className="w-2 h-2 rounded-full bg-green-500" />
+                <div className="w-2 h-2 rounded-full bg-green-500 hidden xl:block" />
               </>
             ) : (
               <Typography variant="caption" color="text.secondary">
@@ -322,8 +323,222 @@ export default function ProductCard({ product }: ProductCardProps) {
           {/* Configurações */}
           <div className="shrink-0">
             <IconButton size="small" onClick={handleMenuOpen}>
-              <Svg.cog_8_tooth tailWindClasses="h-5 w-5 text-slate-500" />
+              <Svg.cog_8_tooth tailWindClasses="h-4 w-4 lg:h-5 lg:w-5 text-slate-500" />
             </IconButton>
+          </div>
+        </div>
+
+        {/* Layout Mobile */}
+        <div className="md:hidden p-3">
+          <div className="flex items-start gap-3 mb-3">
+            {/* Status e Imagem */}
+            <div className="flex flex-col items-center gap-2 shrink-0">
+              {!hasVariations ? (
+                <ProductStatusToggle
+                  status={product.status}
+                  isActive={isActive}
+                  isMutating={isMutating}
+                  onToggle={handleToggleStatus}
+                />
+              ) : (
+                <Chip
+                  label={product.status}
+                  size="small"
+                  sx={{
+                    height: 20,
+                    fontSize: "0.65rem",
+                    fontWeight: 600,
+                    backgroundColor: isActive ? "#d1fae5" : "#fee2e2",
+                    color: isActive ? "#065f46" : "#991b1b",
+                    "& .MuiChip-label": {
+                      px: 1,
+                    },
+                  }}
+                />
+              )}
+              <div className="relative">
+                <ProductImage imageId={mainImageId} alt={product.title} size="small" />
+                {hasVariations && (
+                  <button
+                    onClick={handleToggleExpansion}
+                    className="absolute -right-1 -top-1 flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white shadow-md active:bg-blue-700 transition-colors z-10"
+                    aria-label={isExpanded ? "Recolher variações" : "Expandir variações"}
+                  >
+                    <Svg.chevron
+                      tailWindClasses={`h-3 w-3 transition-transform duration-200 ${
+                        isExpanded ? "rotate-270" : "rotate-90"
+                      }`}
+                    />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Informações do Produto */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <Typography
+                  variant="body2"
+                  fontWeight={600}
+                  className="text-slate-900 text-sm leading-tight"
+                >
+                  {product.title}
+                </Typography>
+                <IconButton size="small" onClick={handleMenuOpen} className="shrink-0">
+                  <Svg.cog_8_tooth tailWindClasses="h-4 w-4 text-slate-500" />
+                </IconButton>
+              </div>
+              
+              <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+                <Chip
+                  label={product.registration_type}
+                  size="small"
+                  sx={{
+                    height: 18,
+                    fontSize: "0.6rem",
+                    fontWeight: 600,
+                    backgroundColor:
+                      product.registration_type === "Completo"
+                        ? "#dbeafe"
+                        : "#f3e8ff",
+                    color:
+                      product.registration_type === "Completo"
+                        ? "#1e40af"
+                        : "#7c3aed",
+                    "& .MuiChip-label": {
+                      px: 0.75,
+                    },
+                  }}
+                />
+                {product.categories && product.categories.length > 0 && (
+                  <Chip
+                    label={product.categories[0].name}
+                    size="small"
+                    sx={{
+                      height: 18,
+                      fontSize: "0.6rem",
+                      backgroundColor: "#f1f5f9",
+                      color: "#475569",
+                      "& .MuiChip-label": {
+                        px: 0.75,
+                      },
+                    }}
+                  />
+                )}
+              </div>
+
+              {/* Grid de informações em mobile */}
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="flex items-center gap-1">
+                  <Typography variant="caption" color="text.secondary" className="text-xs">
+                    Preço:
+                  </Typography>
+                  {product.price_sale ? (
+                    <Typography variant="body2" fontWeight={600} className="text-slate-900 text-xs">
+                      {formatCurrency(product.price_sale)}
+                    </Typography>
+                  ) : (
+                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                      —
+                    </Typography>
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Typography variant="caption" color="text.secondary" className="text-xs">
+                    Estoque:
+                  </Typography>
+                  {product.available_quantity !== undefined ? (
+                    <div className="flex items-center gap-1">
+                      <Chip
+                        label={formatNumber(product.available_quantity)}
+                        size="small"
+                        sx={{
+                          height: 18,
+                          fontSize: "0.65rem",
+                          backgroundColor: "#d1fae5",
+                          color: "#065f46",
+                          fontWeight: 600,
+                          "& .MuiChip-label": {
+                            px: 0.5,
+                          },
+                        }}
+                      />
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    </div>
+                  ) : (
+                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                      —
+                    </Typography>
+                  )}
+                </div>
+                {variationsCount > 0 && (
+                  <div className="flex items-center gap-1">
+                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                      Variações:
+                    </Typography>
+                    <Chip
+                      label={variationsCount}
+                      size="small"
+                      sx={{
+                        height: 18,
+                        fontSize: "0.65rem",
+                        backgroundColor: "#f1f5f9",
+                        color: "#475569",
+                        fontWeight: 600,
+                        "& .MuiChip-label": {
+                          px: 0.5,
+                        },
+                      }}
+                    />
+                  </div>
+                )}
+                {relatedAdsCount > 0 && (
+                  <div className="flex items-center gap-1">
+                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                      Anúncios:
+                    </Typography>
+                    <Chip
+                      label={relatedAdsCount}
+                      size="small"
+                      sx={{
+                        height: 18,
+                        fontSize: "0.65rem",
+                        backgroundColor: "#f1f5f9",
+                        color: "#475569",
+                        fontWeight: 600,
+                        "& .MuiChip-label": {
+                          px: 0.5,
+                        },
+                      }}
+                    />
+                  </div>
+                )}
+                {product.sku && (
+                  <div className="flex items-center gap-1 col-span-2">
+                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                      SKU:
+                    </Typography>
+                    <Chip
+                      label={product.sku}
+                      size="small"
+                      sx={{
+                        height: 18,
+                        fontSize: "0.65rem",
+                        backgroundColor: "#f1f5f9",
+                        color: "#475569",
+                        fontWeight: 500,
+                        "& .MuiChip-label": {
+                          px: 0.5,
+                          maxWidth: "150px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        },
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </MainCards>
@@ -331,8 +546,8 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Seção de Variações Expandida */}
       {hasVariations && isExpanded && (
         <div className="mt-2 pt-2 border-t border-slate-200">
-          <div className="mb-2 px-4">
-            <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase tracking-wide">
+          <div className="mb-2 px-2 md:px-4">
+            <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase tracking-wide text-xs sm:text-sm">
               Variações ({variationsCount})
             </Typography>
           </div>

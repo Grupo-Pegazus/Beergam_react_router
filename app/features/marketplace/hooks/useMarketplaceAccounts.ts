@@ -3,6 +3,7 @@ import { marketplaceService } from "~/features/marketplace/service";
 import type { BaseMarketPlace } from "~/features/marketplace/typings";
 import authStore from "~/features/store-zustand";
 import toast from "~/src/utils/toast";
+import { useAccountPolling } from "./useAccountPolling";
 
 export function useMarketplaceAccounts() {
   const queryClient = useQueryClient();
@@ -38,6 +39,9 @@ export function useMarketplaceAccounts() {
   });
 
   const accounts: BaseMarketPlace[] = (data?.data as BaseMarketPlace[]) || [];
+
+  // Faz polling de contas em processamento
+  useAccountPolling(accounts);
 
   return {
     current,

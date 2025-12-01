@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import styles from "./Timeline.module.css";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface TimelineItem {
     title: string;
@@ -67,9 +68,13 @@ function Timeline({items}: TimelineProps) {
                 ))}
             </div>
 
-            <button className={styles.btnEsconder} onClick={clickDetalhes}>
-                {mostrarDetalhes ? "Esconder detalhes" : "Mostrar detalhes"}
-            </button>
+            <BeergamButton
+              title={mostrarDetalhes ? "Esconder detalhes" : "Mostrar detalhes"}
+              mainColor="beergam-gray"
+              animationStyle="fade"
+              onClick={clickDetalhes}
+              className={styles.btnEsconder}
+            />
         </div>
     );
 };
