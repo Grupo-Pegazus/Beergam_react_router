@@ -22,7 +22,7 @@ export default function FormStepContent({
 }: FormStepContentProps) {
   const visibleFields = getVisibleFields(step.fields, values);
 
-  const getGridSize = (cols?: 1 | 2 | 3 | 4 | 6 | 12): number => {
+  const getGridSize = (cols?: 1 | 2 | 3 | 4 | 6 | 12) => {
     const colMap: Record<number, number> = {
       1: 12,
       2: 6,
@@ -60,7 +60,10 @@ export default function FormStepContent({
           const fieldError = getFieldError(field.name);
 
           return (
-            <Grid item xs={12} sm={gridSize === 12 ? 12 : 6} md={gridSize} key={field.id}>
+            <Grid 
+              key={field.id}
+              size={{ xs: 12, sm: gridSize === 12 ? 12 : 6, md: gridSize }}
+            >
               <FormFieldRenderer
                 field={field}
                 value={fieldValue}
