@@ -124,28 +124,44 @@ export interface IUserDetails extends IBaseUserDetails {
   calc_tax?: CalcTax | null;
   current_billing?: CurrentBilling | null;
   website?: string | null;
-  tax_percent_fixed?: number | null;
+  tax_percent_fixed?: string | null;
   sells_meli?: MarketplaceSells;
   sells_shopee?: MarketplaceSells;
   sells_amazon?: MarketplaceSells;
   sells_shein?: MarketplaceSells;
   sells_own_site?: MarketplaceSells;
-  sub_count?: number | null;
   invoice_in_flex?: boolean | null;
 }
 export interface IUser extends IBaseUser {
   details: IUserDetails;
   colabs: Record<string, IColab>;
+  sub_count: number;
 }
 
 const BeergamCodeSchema = z.string().min(10).max(10);
 const BeergamReferralCodeSchema = z.string().max(20);
 
-const NumberCoerced = z.coerce
-  .number()
-  .min(0, "Número tem que ser maior que 0")
-  .nullable()
-  .optional();
+const NumberCoerced = z.preprocess(
+  (v) => {
+    if (v === null || v === undefined || v === "") return 0;
+    return Number(v);
+  },
+  z.number().min(0, "Número tem que ser maior que 0")
+);
+
+/**
+ * Helper que transforma string vazia em null antes da validação
+ * Útil para campos opcionais que podem ser string vazia do formulário
+ */
+function nullableEnum<T extends z.ZodTypeAny>(enumSchema: T) {
+  return z
+    .preprocess((v) => {
+      // Transforma string vazia em null
+      if (v === "" || v === null || v === undefined) return null;
+      return v;
+    }, enumSchema.nullable())
+    .optional();
+}
 export const UserDetailsSchema = BaseUserDetailsSchema.extend({
   email: z.email("Email inválido"),
   cpf: CPFSchema.optional().nullable(),
@@ -163,46 +179,62 @@ export const UserDetailsSchema = BaseUserDetailsSchema.extend({
     .optional()
     .nullable(),
   notify_newsletter: z.coerce.boolean().optional().nullable(),
-  calc_profit_product: z
-    .enum(
+  calc_profit_product: nullableEnum(
+    z.enum(
       Object.keys(CalcProfitProduct) as [
         CalcProfitProduct,
         ...CalcProfitProduct[],
       ]
     )
-    .optional()
-    .nullable(),
+  ),
   calc_tax: z
     .enum(Object.keys(CalcTax) as [CalcTax, ...CalcTax[]])
     .optional()
     .nullable(),
-  current_billing: z
-    .enum(Object.keys(CurrentBilling) as [CurrentBilling, ...CurrentBilling[]])
-    .optional()
-    .nullable(),
+  current_billing: nullableEnum(
+    z.enum(Object.keys(CurrentBilling) as [CurrentBilling, ...CurrentBilling[]])
+  ),
   website: z.url("URL inválida").optional().nullable(),
-  tax_percent_fixed: z.coerce
-    .number()
-    .refine((n) => !isNaN(n), "Valor inválido")
-    .min(0, "Número tem que ser maior que 0")
-    .max(100, "Número tem que ser menor que 100")
+  tax_percent_fixed: z
+    .preprocess(
+      (v) => {
+        if (v === null || v === undefined || v === "") return "0";
+        return String(v).replace(/%/g, "");
+      },
+      z
+        .string()
+        .refine((v) => {
+          // Verifica se é um número após remover o "%"
+          const num = Number(String(v).replace(/%/g, ""));
+          return !isNaN(num) && v.trim() !== "";
+        }, "Valor inválido")
+        .refine((v) => {
+          const num = Number(v);
+          return num >= 0;
+        }, "Número tem que ser maior que 0")
+        .refine((v) => {
+          const num = Number(v);
+          return num <= 100;
+        }, "Número tem que ser menor que 100")
+    )
     .optional()
-    .nullable(),
+    .transform((v) => {
+      // Adiciona o caractere "%" de volta
+      return `${v}%`;
+    }),
   sells_meli: NumberCoerced,
   sells_shopee: NumberCoerced,
   sells_amazon: NumberCoerced,
   sells_shein: NumberCoerced,
   sells_own_site: NumberCoerced,
-  sub_count: NumberCoerced,
-  number_of_employees: z
-    .enum(
+  number_of_employees: nullableEnum(
+    z.enum(
       Object.keys(NumberOfEmployees) as [
         NumberOfEmployees,
         ...NumberOfEmployees[],
       ]
     )
-    .optional()
-    .nullable(),
+  ),
   segment: z
     .enum(Object.keys(Segment) as [Segment, ...Segment[]])
     .optional()
@@ -215,6 +247,7 @@ export const UserDetailsSchema = BaseUserDetailsSchema.extend({
 export const UserSchema = BaseUserSchema.extend({
   details: UserDetailsSchema,
   colabs: z.record(z.string(), ColabSchema).default({}),
+  sub_count: NumberCoerced,
 }) satisfies z.ZodType<IUser>;
 
 export function isAtributeUser(
