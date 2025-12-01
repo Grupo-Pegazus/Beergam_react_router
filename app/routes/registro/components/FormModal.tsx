@@ -1,7 +1,7 @@
 import { CNPJSchema } from "app/utils/typings/CNPJ";
 import { CPFSchema } from "app/utils/typings/CPF";
 import { useEffect, useReducer, useState } from "react";
-import { Form, Link, useActionData, useLocation } from "react-router";
+import { Form, Link, useActionData } from "react-router";
 import { z } from "zod";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { UserPasswordSchema } from "~/features/auth/typing";
@@ -15,10 +15,9 @@ import {
 import { Fields } from "~/src/components/utils/_fields";
 import type { InputError } from "~/src/components/utils/_fields/typings";
 import type { clientAction } from "../route";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 type UserDocuments = "CPF" | "CNPJ";
 export default function FormModal() {
-  const { state } = useLocation();
-  const homeSelectedPlan = state?.plan;
   const data = useActionData<typeof clientAction>() as ApiResponse | null;
   const [actionData, setActionData] = useReducer(
     (
@@ -478,12 +477,13 @@ export default function FormModal() {
           ></Fields.select>
         </Fields.wrapper>
       </div>
-      <button
+      <BeergamButton
+        title="Criar conta grátis"
+        mainColor="beergam-orange"
+        animationStyle="slider"
         type="submit"
-        className="p-2 rounded-2xl bg-beergam-orange text-beergam-white roundend hover:bg-beergam-blue-primary"
-      >
-        Criar conta grátis
-      </button>
+        className="w-full rounded-2xl"
+      />
       {UserInfo.details.personal_reference_code == "14_DIAS_FREE" && (
         <p className="text-center font-bold text-beergam-blue-primary">
           Não pedimos cartão de crédito.

@@ -5,13 +5,14 @@ import { MarketplaceType, type BaseMarketPlace, MarketplaceTypeLabel } from "~/f
 import { marketplaceService } from "~/features/marketplace/service";
 import { useRecalcStatus, useRecalculatePeriod, useUpsertTax, useUserTaxes } from "~/features/taxes/hooks";
 import type { TaxesData } from "~/features/taxes/typings";
-import { MenuItem, Select, InputLabel, FormControl, Table, TableHead, TableRow, TableCell, TableBody, Button, Card, CardContent, CircularProgress, Box, Typography, IconButton, Chip, Avatar } from "@mui/material";
+import { Table, TableHead, TableRow, TableCell, TableBody, Card, CardContent, CircularProgress, Box, Typography, IconButton, Chip, Avatar } from "@mui/material";
 import { Tooltip } from "react-tooltip";
 import Modal from "~/src/components/utils/Modal";
 import Svg from "~/src/assets/svgs/_index";
 import Hint from "~/src/components/utils/Hint";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { Fields } from "~/src/components/utils/_fields";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 function formatRateInput(value: string): string {
   const normalized = value.replace(/[^0-9.,]/g, "");
@@ -135,24 +136,23 @@ export default function Impostos() {
   return (
     <div className="flex flex-col gap-6 md:mb-0 mb-16">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <FormControl fullWidth>
-          <InputLabel id="account-select-label">Conta</InputLabel>
-          <Select
-            labelId="account-select-label"
-            label="Conta"
+        <Fields.wrapper>
+          <Fields.label text="Conta" />
+          <Fields.select
             value={selectedAccount?.marketplace_shop_id ?? ""}
             onChange={(e) => {
               const acc = accountsQuery.data?.find((a) => a.marketplace_shop_id === e.target.value);
               setSelectedAccount(acc ?? null);
             }}
-          >
-            {(accountsQuery.data ?? []).map((acc) => (
-              <MenuItem key={`${acc.marketplace_type}-${acc.marketplace_shop_id}`} value={acc.marketplace_shop_id}>
-                {acc.marketplace_name} ({MarketplaceTypeLabel[acc.marketplace_type as MarketplaceType]})
-              </MenuItem>)
-            )}
-          </Select>
-        </FormControl>
+            options={[
+              { value: "", label: "Selecione uma conta" },
+              ...(accountsQuery.data ?? []).map((acc) => ({
+                value: acc.marketplace_shop_id,
+                label: `${acc.marketplace_name} (${MarketplaceTypeLabel[acc.marketplace_type as MarketplaceType]})`,
+              })),
+            ]}
+          />
+        </Fields.wrapper>
 
         <Fields.wrapper>
           <Fields.label text="Ano" />
@@ -171,7 +171,7 @@ export default function Impostos() {
           <CardContent>
             <div className="flex items-center gap-4">
               <div className="rounded-xl bg-beergam-blue-primary/10 p-3">
-                <Svg.graph />
+                <Svg.graph tailWindClasses="w-5 h-5" />
               </div>
               <div>
                 <p className="text-beergam-blue-primary font-semibold">Selecione uma conta</p>
@@ -267,17 +267,20 @@ export default function Impostos() {
                               <Svg.arrow_path tailWindClasses="w-5 h-5" />
                             </IconButton>
                             <Tooltip id={`recalc-${m}`} content="Recalcular período" className="z-50" />
-                            <Button
-                              variant="contained"
-                              size="small"
+                            <BeergamButton
+                              title="Salvar"
+                              mainColor="beergam-blue-primary"
+                              animationStyle="slider"
                               onClick={() => handleSaveMonth(m)}
                               disabled={!selectedAccount || disabledSave}
-                            >
-                              <div className="flex items-center gap-1">
-                                <Svg.check width={16} height={16} tailWindClasses="stroke-beergam-white" />
-                                <span>Salvar</span>
-                              </div>
-                            </Button>
+                              className="text-sm"
+                              fetcher={{
+                                fecthing: upsert.isPending,
+                                completed: false,
+                                error: false,
+                                mutation: upsert,
+                              }}
+                            />
                           </Box>
                         </TableCell>
                       </TableRow>
@@ -342,17 +345,20 @@ export default function Impostos() {
                             <Svg.arrow_path tailWindClasses="w-5 h-5" />
                           </IconButton>
                           <Tooltip id={`recalc-mobile-${m}`} content="Recalcular período" className="z-50" />
-                          <Button
-                            variant="contained"
-                            size="small"
+                          <BeergamButton
+                            title="Salvar"
+                            mainColor="beergam-blue-primary"
+                            animationStyle="slider"
                             onClick={() => handleSaveMonth(m)}
                             disabled={!selectedAccount || disabledSave}
-                          >
-                            <div className="flex items-center gap-1">
-                              <Svg.check width={16} height={16} tailWindClasses="stroke-beergam-white" />
-                              <span>Salvar</span>
-                            </div>
-                          </Button>
+                            className="text-sm"
+                            fetcher={{
+                              fecthing: upsert.isPending,
+                              completed: false,
+                              error: false,
+                              mutation: upsert,
+                            }}
+                          />
                         </div>
                       </div>
                     </Card>
@@ -402,14 +408,25 @@ export default function Impostos() {
             </CardContent>
           </Card>
           <div className="flex gap-2 justify-end">
-            <Button onClick={() => setConfirmModal({ open: false, month: null })}>Cancelar</Button>
-            <Button
-              variant="contained"
+            <BeergamButton
+              title="Cancelar"
+              mainColor="beergam-gray"
+              animationStyle="fade"
+              onClick={() => setConfirmModal({ open: false, month: null })}
+            />
+            <BeergamButton
+              title="Confirmar"
+              mainColor="beergam-blue-primary"
+              animationStyle="slider"
               onClick={confirmRecalc}
               disabled={!recalcStatus.data?.can_recalculate || recalc.isPending}
-            >
-              Confirmar
-            </Button>
+              fetcher={{
+                fecthing: recalc.isPending,
+                completed: false,
+                error: false,
+                mutation: recalc,
+              }}
+            />
           </div>
         </div>
       </Modal>

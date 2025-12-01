@@ -44,6 +44,7 @@ export interface FormField {
   disabled?: boolean;
   placeholder?: string;
   defaultValue?: unknown;
+  width?: "100%" | "50%" | "33.33%" | "25%";
   validation?: {
     min?: number;
     max?: number;

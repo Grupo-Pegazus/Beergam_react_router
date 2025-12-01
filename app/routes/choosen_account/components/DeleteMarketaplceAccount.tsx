@@ -1,4 +1,5 @@
 import { type BaseMarketPlace, MarketplaceType, MarketplaceTypeLabel } from "~/features/marketplace/typings";
+import Alert from "~/src/components/utils/Alert";
 
 interface DeleteMarketplaceAccountProps {
   marketplaceToDelete: BaseMarketPlace | null;
@@ -27,34 +28,20 @@ export default function DeleteMarketaplceAccount({
   }
 
   return (
-    <div className="flex flex-col gap-6 items-center justify-center p-8 max-w-md">
-      <div className="text-center">
-        <p className="text-gray-600 mb-2">
-          Tem certeza que deseja deletar a conta do marketplace:
-        </p>
-        <p className="text-lg font-semibold text-gray-800">
-          {marketplaceToDelete?.marketplace_name} ({MarketplaceTypeLabel[marketplaceToDelete?.marketplace_type as MarketplaceType]})
-        </p>
-        <p className="text-sm text-gray-500 mt-2">
-          Esta ação não pode ser desfeita.
-        </p>
-      </div>
-      
-      <div className="flex gap-3 w-full">
-        <button 
-          onClick={handleCancelDelete}
-          className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-        >
-          Cancelar
-        </button>
-        <button
-          onClick={handleConfirmDeleteClick}
-          disabled={!isValidMarketplace(marketplaceToDelete)}
-          className="flex-1 px-6 py-3 bg-beergam-red text-white rounded-lg hover:bg-red-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Sim, Deletar
-        </button>
-      </div>
-    </div>
+    <Alert
+    isOpen={true}
+    onClose={handleCancelDelete}
+    onConfirm={handleConfirmDeleteClick}
+    type="warning"
+    title="Deletar conta do marketplace"
+    >
+      <h3>Tem certeza que deseja deletar a conta do marketplace:</h3>
+      <p className="text-center text-lg font-bold">
+        {marketplaceToDelete?.marketplace_name} ({MarketplaceTypeLabel[marketplaceToDelete?.marketplace_type as MarketplaceType]})
+      </p>
+      <p>
+        Esta ação não pode ser desfeita.
+      </p>
+    </Alert>
   );
 }

@@ -1,25 +1,23 @@
 import toast from "~/src/utils/toast";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { logout } from "~/features/auth/redux";
 import type { IUser } from "~/features/user/typings/User";
 import { isMaster } from "~/features/user/utils";
 import Svg from "~/src/assets/svgs/_index";
-import type { RootState } from "~/store";
+import authStore from "~/features/store-zustand";
 import { menuService } from "../../../menu/service";
 import { useOverlay } from "../../hooks/useOverlay";
 import OverlayFrame from "../../shared/OverlayFrame";
 
 export default function HeaderMobile() {
-  const { user } = useSelector((state: RootState) => state.user);
+  const user = authStore.use.user();
+  const logout = authStore.use.logout();
   const { isOpen, shouldRender, open, requestClose } = useOverlay();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     const res = await menuService.logout();
     if (res.success) {
-      dispatch(logout());
+      logout();
       navigate("/login");
     } else {
       toast.error(res.message);

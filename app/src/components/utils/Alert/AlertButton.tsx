@@ -1,26 +1,31 @@
-import React from "react";
-import Svg from "~/src/assets/svgs/_index";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 interface AlertButtonProps {
-  onClick: (e: MouseEvent | TouchEvent) => void;
+  onClick: () => void;
   type?: "confirm" | "cancel" | undefined;
   className?: string;
-  icon?: keyof typeof Svg;
   text?: string;
 }
 export default function AlertButton({
   onClick,
   type,
   className,
-  icon,
   text,
 }: AlertButtonProps) {
+  const mainColor =
+    type === "confirm"
+      ? "beergam-orange"
+      : type === "cancel"
+        ? "beergam-blue"
+        : "beergam-blue-primary";
+
   return (
-    <button
-      onClick={(e) => onClick(e.nativeEvent)}
-      className={`${className} ${type === "confirm" ? "bg-beergam-orange" : type === "cancel" ? "bg-beergam-blue" : ""} px-4 py-2 text-beergam-white rounded-md text-xl font-bold hover:opacity-80`}
-    >
-      {text && text}
-      {icon && React.createElement(Svg[icon], { width: 20, height: 20 })}
-    </button>
+    <BeergamButton
+      title={text ?? ""}
+      mainColor={mainColor}
+      animationStyle="slider"
+      onClick={onClick}
+      className={`${className ?? ""} text-beergam-black border-amber-100 rounded-md text-xl font-bold`}
+
+    />
   );
 }

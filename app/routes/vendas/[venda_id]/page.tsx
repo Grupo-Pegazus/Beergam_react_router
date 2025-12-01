@@ -60,11 +60,9 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
         );
         const totalQuantity = orders.reduce((sum, order) => sum + (order.quantity || 0), 0);
         let totalLiquido = orders.reduce(
-          (sum, order) => sum + parseFloat(order.valor_base || "0"),
+          (sum, order) => sum + parseFloat(order.valor_liquido || "0"),
           0
         );
-    
-        totalLiquido = totalLiquido
 
         if (orders.length > 1) {
             totalLiquido = totalLiquido - parseFloat(firstOrder.custo_envio_final || "0");

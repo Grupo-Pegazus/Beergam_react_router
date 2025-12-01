@@ -8,7 +8,8 @@ import type { AnunciosFiltersState } from "~/features/anuncios/components/Filter
 import { useAnunciosFilters, useAdsWithoutSku } from "~/features/anuncios/hooks";
 import AnuncioList from "~/features/anuncios/components/AnuncioList/AnuncioList";
 import AnunciosWithoutSkuModal from "~/features/anuncios/components/AnunciosWithoutSkuModal";
-import { Alert, Button } from "@mui/material";
+import { Alert } from "@mui/material";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 export default function AnunciosPage() {
   const {
     filters,
@@ -46,13 +47,13 @@ export default function AnunciosPage() {
             <Alert
               severity="warning"
               action={
-                <Button
-                  color="inherit"
-                  size="small"
+                <BeergamButton
+                  title="Ver pendências"
+                  mainColor="beergam-orange"
+                  animationStyle="fade"
                   onClick={() => setIsModalOpen(true)}
-                >
-                  Ver pendências
-                </Button>
+                  className="text-sm"
+                />
               }
             >
               Você possui {totalWithoutSku} anúncio(s) sem SKU cadastrado. Clique para

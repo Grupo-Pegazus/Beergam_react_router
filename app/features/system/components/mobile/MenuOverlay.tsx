@@ -2,20 +2,20 @@ import { useEffect, useRef, useCallback, useState, useMemo } from "react";
 import { MenuConfig, type IMenuItem, type IMenuConfig, type MenuKeys } from "~/features/menu/typings";
 import Svg from "~/src/assets/svgs/_index";
 import { PrefetchPageLinks, useLocation, useNavigate } from "react-router";
-import { useSelector } from "react-redux";
-import { type RootState } from "~/store";
+import authStore from "~/features/store-zustand";
 import { useOverlay } from "../../hooks/useOverlay";
 import OverlayFrame from "../../shared/OverlayFrame";
 import { getRelativePath, DEFAULT_INTERNAL_PATH, findKeyPathByRoute, getIcon } from "~/features/menu/utils";
 import SubmenuOverlay from "./SubmenuOverlay";
 import { Paper } from "@mui/material";
+import { isMaster } from "~/features/user/utils";
 
 export default function MenuOverlay({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate();
   const location = useLocation();
   const firstFocusable = useRef<HTMLButtonElement | null>(null);
   const { isOpen, shouldRender, open, requestClose } = useOverlay();
-  const user = useSelector((state: RootState) => state.user);
+  const user = authStore.use.user();
   const [submenuState, setSubmenuState] = useState<{
     items: IMenuConfig;
     parentLabel: string;
@@ -23,12 +23,25 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
   } | null>(null);
 
   const allowedViews = useMemo(() => {
-    return user?.user?.details.allowed_views;
-  }, [user?.user?.details.allowed_views]);
+    return user?.details.allowed_views;
+  }, [user?.details.allowed_views]);
+
+  const isUserMaster = useMemo(() => {
+    return user ? isMaster(user) : false;
+  }, [user]);
 
   const hasAccess = useCallback((key: string): boolean => {
-    return allowedViews?.[key as MenuKeys]?.access ?? false;
-  }, [allowedViews]);
+    // Se for master, sempre tem acesso a tudo
+    if (isUserMaster) {
+      return true;
+    }
+    // Se não há allowedViews definido, mostra todos os itens (fallback)
+    if (!allowedViews) {
+      return true;
+    }
+    // Verifica acesso baseado em allowedViews
+    return allowedViews[key as MenuKeys]?.access ?? false;
+  }, [allowedViews, isUserMaster]);
 
   const handleClose = useCallback(() => {
     requestClose(onClose);

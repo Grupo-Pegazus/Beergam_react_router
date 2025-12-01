@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import {
   Box,
-  Button,
   Stepper,
   Step,
   StepLabel,
@@ -13,6 +12,7 @@ import { useProductForm } from "./hooks/useProductForm";
 import FormStepContent from "./FormStepContent";
 import CustomStepIcon, { setStepIconMap } from "./CustomStepIcon";
 import type { FormConfig } from "./types";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface ProductFormProps {
   config: FormConfig;
@@ -155,40 +155,26 @@ export default function ProductForm({ config }: ProductFormProps) {
 
               {/* Botões de Navegação */}
               <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4, pt: 3 }}>
-                <Button
-                  variant="outlined"
+                <BeergamButton
+                  title="Voltar"
+                  mainColor="beergam-gray"
+                  animationStyle="fade"
                   onClick={handleBack}
                   disabled={state.activeStep === 0}
-                  sx={{
-                    minWidth: 120,
-                    borderColor: "grey.300",
-                    color: "text.primary",
-                    "&:hover": {
-                      borderColor: "grey.400",
-                      bgcolor: "grey.50",
-                    },
-                  }}
-                >
-                  Voltar
-                </Button>
-                <Button
-                  variant="contained"
+                  className="min-w-[120px]"
+                />
+                <BeergamButton
+                  title={isLastStep ? "Finalizar Cadastro" : "Próximo"}
+                  mainColor="beergam-blue-primary"
+                  animationStyle="slider"
                   onClick={isLastStep ? handleSubmit : handleNext}
                   disabled={
                     !isLastStep &&
                     currentStep?.validateBeforeNext &&
                     !validateStepByIndex(state.activeStep)
                   }
-                  sx={{
-                    minWidth: 120,
-                    bgcolor: "primary.main",
-                    "&:hover": {
-                      bgcolor: "primary.dark",
-                    },
-                  }}
-                >
-                  {isLastStep ? "Finalizar Cadastro" : "Próximo"}
-                </Button>
+                  className="min-w-[120px]"
+                />
               </Box>
             </Paper>
           </Box>
