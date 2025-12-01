@@ -9,6 +9,7 @@ import OverlayFrame from "../../shared/OverlayFrame";
 import { getRelativePath, DEFAULT_INTERNAL_PATH, findKeyPathByRoute, getIcon } from "~/features/menu/utils";
 import SubmenuOverlay from "./SubmenuOverlay";
 import { Paper } from "@mui/material";
+import { isMaster } from "~/features/user/utils";
 
 export default function MenuOverlay({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate();
@@ -26,9 +27,22 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
     return user?.user?.details.allowed_views;
   }, [user?.user?.details.allowed_views]);
 
+  const isUserMaster = useMemo(() => {
+    return user?.user ? isMaster(user.user) : false;
+  }, [user?.user]);
+
   const hasAccess = useCallback((key: string): boolean => {
-    return allowedViews?.[key as MenuKeys]?.access ?? false;
-  }, [allowedViews]);
+    // Se for master, sempre tem acesso a tudo
+    if (isUserMaster) {
+      return true;
+    }
+    // Se não há allowedViews definido, mostra todos os itens (fallback)
+    if (!allowedViews) {
+      return true;
+    }
+    // Verifica acesso baseado em allowedViews
+    return allowedViews[key as MenuKeys]?.access ?? false;
+  }, [allowedViews, isUserMaster]);
 
   const handleClose = useCallback(() => {
     requestClose(onClose);
