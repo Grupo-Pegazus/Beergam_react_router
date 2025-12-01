@@ -94,12 +94,15 @@ export default function AccountView({
       if (response.success) {
         toast.success(response.message || "Conta deletada com sucesso");
 
-        // Se a conta deletada era a selecionada, limpa o store
+        // Se a conta deletada era a selecionada
         if (isSelectedMarketplace) {
+
           authStore.setState({ marketplace: null });
+
+          navigate("/interno/choosen_account", { replace: true });
         }
 
-        // Invalida queries para atualizar a lista
+        // Invalida queries para atualizar a lista de contas
         queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
       } else {
         toast.error(response.message || "Erro ao deletar conta");
