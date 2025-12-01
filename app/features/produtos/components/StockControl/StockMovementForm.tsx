@@ -3,12 +3,10 @@ import {
   Card,
   CardContent,
   Typography,
-  Button,
   Box,
   ToggleButton,
   ToggleButtonGroup,
   Alert,
-  CircularProgress,
 } from "@mui/material";
 import { z } from "zod";
 import { Fields } from "~/src/components/utils/_fields";
@@ -19,6 +17,7 @@ import type {
 import { StockMovementFormSchema } from "../../typings";
 import { useCreateStockMovement } from "../../hooks";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface StockMovementFormProps {
   productId: string;
@@ -298,18 +297,19 @@ export default function StockMovementForm({
             )}
 
             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-              <Button
+              <BeergamButton
+                title={createMutation.isPending ? "Salvando..." : "Salvar Movimentação"}
+                mainColor="beergam-blue-primary"
+                animationStyle="slider"
                 type="submit"
-                variant="contained"
                 disabled={!isFormValid || createMutation.isPending}
-                startIcon={
-                  createMutation.isPending ? (
-                    <CircularProgress size={16} />
-                  ) : null
-                }
-              >
-                {createMutation.isPending ? "Salvando..." : "Salvar Movimentação"}
-              </Button>
+                fetcher={{
+                  fecthing: createMutation.isPending,
+                  completed: false,
+                  error: false,
+                  mutation: createMutation,
+                }}
+              />
             </Box>
           </Box>
         </form>

@@ -3,20 +3,14 @@ import {
   Card,
   CardContent,
   Typography,
-  Button,
   Box,
-  Alert,
-  CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
+  Alert as MuiAlert,
 } from "@mui/material";
 import type { StockTrackingResponse } from "../../typings";
 import { useRecalculateAverageCost } from "../../hooks";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
-import Svg from "~/src/assets/svgs/_index";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import Alert from "~/src/components/utils/Alert";
 
 interface AverageCostCardProps {
   data: StockTrackingResponse;
@@ -44,8 +38,6 @@ export default function AverageCostCard({
   };
 
   const isSynced = average_cost.is_synced;
-  const calculated = parseFloat(average_cost.calculated || "0");
-  const stored = parseFloat(average_cost.stored || "0");
 
   return (
     <>
@@ -62,21 +54,14 @@ export default function AverageCostCard({
             <Typography variant="h6" fontWeight={600}>
               Custo Médio de Estoque
             </Typography>
-            <Button
-              variant="outlined"
-              size="small"
+            <BeergamButton
+              title="Recalcular"
+              mainColor="beergam-blue-primary"
+              animationStyle="fade"
               onClick={handleRecalculate}
               disabled={recalculateMutation.isPending}
-              startIcon={
-                recalculateMutation.isPending ? (
-                  <CircularProgress size={16} />
-                ) : (
-                  <Svg.arrow_path tailWindClasses="h-4 w-4" />
-                )
-              }
-            >
-              Recalcular
-            </Button>
+              className="text-sm"
+            />
           </Box>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -117,41 +102,36 @@ export default function AverageCostCard({
             </Box>
 
             {!isSynced && (
-              <Alert severity="warning" sx={{ mt: 1 }}>
+              <MuiAlert severity="warning" sx={{ mt: 1 }}>
                 Os valores não estão sincronizados. Considere recalcular o custo
                 médio.
-              </Alert>
+              </MuiAlert>
             )}
 
             {isSynced && (
-              <Alert severity="success" sx={{ mt: 1 }}>
+              <MuiAlert severity="success" sx={{ mt: 1 }}>
                 Os valores estão sincronizados.
-              </Alert>
+              </MuiAlert>
             )}
           </Box>
         </CardContent>
       </Card>
 
-      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
-        <DialogTitle>Confirmar Recálculo</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Tem certeza que deseja recalcular o custo médio de estoque? Esta
-            ação irá atualizar o valor armazenado com base em todas as
-            movimentações de entrada registradas.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setConfirmOpen(false)}>Cancelar</Button>
-          <Button
-            onClick={handleConfirmRecalculate}
-            variant="contained"
-            disabled={recalculateMutation.isPending}
-          >
-            {recalculateMutation.isPending ? "Recalculando..." : "Confirmar"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <Alert
+        isOpen={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title="Confirmar Recálculo"
+        type="warning"
+        onConfirm={handleConfirmRecalculate}
+        confirmText={recalculateMutation.isPending ? "Recalculando..." : "Confirmar"}
+        cancelText="Cancelar"
+      >
+        <p>
+          Tem certeza que deseja recalcular o custo médio de estoque? Esta
+          ação irá atualizar o valor armazenado com base em todas as
+          movimentações de entrada registradas.
+        </p>
+      </Alert>
     </>
   );
 }

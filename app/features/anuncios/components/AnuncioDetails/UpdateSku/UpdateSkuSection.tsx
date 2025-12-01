@@ -3,13 +3,12 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
-import CircularProgress from "@mui/material/CircularProgress";
 import { useUpdateSku } from "../../../hooks";
 import type { AnuncioDetails, UpdateSkuRequest } from "../../../typings";
 import toast from "~/src/utils/toast";
 import { Fields } from "~/src/components/utils/_fields";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface UpdateSkuSectionProps {
   anuncio: AnuncioDetails;
@@ -104,22 +103,20 @@ export default function UpdateSkuSection({ anuncio }: UpdateSkuSectionProps) {
                 </Fields.wrapper>
                 <p className="text-xs text-gray-500 mt-1">Código único para identificar este produto no seu estoque</p>
               </div>
-              <Button
-                variant="contained"
+              <BeergamButton
+                title={updateSkuMutation.isPending ? "Salvando..." : "Salvar SKU"}
+                mainColor="beergam-orange"
+                animationStyle="slider"
                 onClick={handleSaveSku}
                 disabled={updateSkuMutation.isPending || !skuValue.trim()}
-                startIcon={updateSkuMutation.isPending ? <CircularProgress size={16} /> : null}
-                sx={{
-                  bgcolor: "var(--color-beergam-orange)",
-                  "&:hover": {
-                    bgcolor: "var(--color-beergam-orange-dark)",
-                  },
-                  minWidth: 120,
-                  mt: 0.5,
+                className="min-w-[120px] mt-0.5"
+                fetcher={{
+                  fecthing: updateSkuMutation.isPending,
+                  completed: false,
+                  error: false,
+                  mutation: updateSkuMutation,
                 }}
-              >
-                {updateSkuMutation.isPending ? "Salvando..." : "Salvar SKU"}
-              </Button>
+              />
             </Stack>
           </Box>
         )}

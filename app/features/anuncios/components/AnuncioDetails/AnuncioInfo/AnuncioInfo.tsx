@@ -10,9 +10,8 @@ import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
 import { useQueryClient } from "@tanstack/react-query";
 import AnuncioFeatures from "../AnuncioFeatures/AnuncioFeatures";
-import Svg from "~/src/assets/svgs/_index";
-import { Button } from "@mui/material";
 import AnuncioStatusToggle from "../../AnuncioStatusToggle";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface AnuncioInfoProps {
   anuncio: AnuncioDetails;
@@ -174,9 +173,12 @@ export default function AnuncioInfo({ anuncio }: AnuncioInfoProps) {
         </Stack>
         <Stack direction="row" spacing={3} alignItems="center">
             <Box>
-                <Button variant="contained" color="primary" onClick={() => window.open(anuncio.link, "_blank")} startIcon={<Svg.globe tailWindClasses="h-5 w-5" />}>
-                    Ver no Mercado Livre
-                </Button>
+                <BeergamButton
+                  title="Ver no Mercado Livre"
+                  mainColor="beergam-blue-primary"
+                  animationStyle="slider"
+                  onClick={() => window.open(anuncio.link, "_blank")}
+                />
             </Box>
         </Stack>
       </Stack>

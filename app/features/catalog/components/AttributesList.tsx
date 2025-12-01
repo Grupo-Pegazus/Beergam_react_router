@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Pagination, Stack, Typography, Button } from "@mui/material";
+import { Pagination, Stack, Typography } from "@mui/material";
 import { useAttributes } from "../hooks";
 import AttributeCard from "./AttributeCard";
 import AttributeFormModal from "./AttributeFormModal";
@@ -8,6 +8,7 @@ import MainCards from "~/src/components/ui/MainCards";
 import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import { FilterSearchInput } from "~/src/components/filters/components/FilterSearchInput";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface AttributesListProps {
   filters?: {
@@ -93,20 +94,13 @@ export default function AttributesList({ filters = {} }: AttributesListProps) {
                 placeholder="Pesquisar atributo por nome..."
               />
             </div>
-            <Button
-              variant="contained"
+            <BeergamButton
+              title="Criar Atributo"
+              mainColor="beergam-blue-primary"
+              animationStyle="slider"
               onClick={handleCreateClick}
-              startIcon={<Svg.plus tailWindClasses="w-5 h-5" />}
-              sx={{
-                backgroundColor: "var(--color-beergam-blue-primary)",
-                "&:hover": {
-                  backgroundColor: "var(--color-beergam-orange)",
-                },
-                whiteSpace: "nowrap",
-              }}
-            >
-              Criar Atributo
-            </Button>
+              className="whitespace-nowrap"
+            />
           </div>
         </MainCards>
 

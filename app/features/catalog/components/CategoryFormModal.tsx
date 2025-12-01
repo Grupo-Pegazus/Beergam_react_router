@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Button, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import Modal from "~/src/components/utils/Modal";
 import { Fields } from "~/src/components/utils/_fields";
 import type { Category, CreateCategory, UpdateCategory } from "../typings";
 import { useCreateCategory, useUpdateCategory } from "../hooks";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface CategoryFormModalProps {
   isOpen: boolean;
@@ -120,39 +121,27 @@ export default function CategoryFormModal({
         </Fields.wrapper>
 
         <div className="flex gap-3 justify-end mt-4">
-          <Button
-            type="button"
+          <BeergamButton
+            title="Cancelar"
+            mainColor="beergam-gray"
+            animationStyle="fade"
             onClick={onClose}
             disabled={isLoading}
-            variant="outlined"
-            sx={{
-              borderColor: "var(--color-beergam-blue-primary)",
-              color: "var(--color-beergam-blue-primary)",
-              "&:hover": {
-                borderColor: "var(--color-beergam-orange)",
-                color: "var(--color-beergam-orange)",
-              },
-            }}
-          >
-            Cancelar
-          </Button>
-          <Button
-            type="submit"
+            type="button"
+          />
+          <BeergamButton
+            title={isLoading ? "Salvando..." : isEditing ? "Atualizar" : "Criar"}
+            mainColor="beergam-blue-primary"
+            animationStyle="slider"
             disabled={isLoading}
-            variant="contained"
-            sx={{
-              backgroundColor: "var(--color-beergam-blue-primary)",
-              "&:hover": {
-                backgroundColor: "var(--color-beergam-orange)",
-              },
+            type="submit"
+            fetcher={{
+              fecthing: isLoading,
+              completed: false,
+              error: false,
+              mutation: isEditing ? updateMutation : createMutation,
             }}
-          >
-            {isLoading
-              ? "Salvando..."
-              : isEditing
-                ? "Atualizar"
-                : "Criar"}
-          </Button>
+          />
         </div>
       </form>
     </Modal>

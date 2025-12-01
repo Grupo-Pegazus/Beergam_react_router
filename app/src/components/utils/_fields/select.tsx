@@ -1,6 +1,7 @@
-import React from "react";
-// import GrupoCampos from ".";
+import React, { useState, useRef, useEffect } from "react";
 import { type InputError } from "./typings";
+import Svg from "~/src/assets/svgs/_index";
+
 interface Option {
   value: string | null;
   label: string;
@@ -40,65 +41,249 @@ function Select({
   tailWindClasses,
   icon,
 }: SelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const selectRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
   const isValid = required && value && !error;
 
-  const wrapperBase =
-    "w-full inline-block relative border border-black/20 !flex items-center bg-white rounded-[20px] shadow-[0_0_10px_0_rgba(0,0,0,0.2)] overflow-hidden p-[10px] gap-2 transition-[border,box-shadow] ease-in-out";
-  const wrapperState = error?.error
-    ? "border-red-500"
-    : isValid
-      ? "border-[rgb(7,255,7)]"
-      : "";
+  // Classes baseadas no Input para manter consistência visual
+  const baseClasses = "w-full px-3 py-2.5 border border-black/20 rounded text-sm bg-white text-[#1e1f21] transition-colors duration-200 outline-none appearance-none cursor-pointer";
+  const errorClasses = error?.error
+    ? "!border-beergam-red focus:!border-beergam-red/90"
+    : "";
+  const successClasses = isValid
+    ? "!border-beergam-green focus:!border-beergam-green/90"
+    : "";
+  const focusClasses = isOpen
+    ? "border-[#ff8a00] outline-beergam-orange"
+    : "focus:border-[#ff8a00] outline-beergam-orange";
+  const disabledClasses = disabled
+    ? "bg-gray-50 cursor-not-allowed border-gray-300 text-slate-500"
+    : "";
+
+  // Encontrar o label da opção selecionada
+  const selectedOption = options?.find((opt) => opt.value === value);
+  const displayValue = selectedOption?.label || "";
+
+  // Fechar dropdown ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        selectRef.current &&
+        !selectRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+        setFocusedIndex(null);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [isOpen]);
+
+  // Scroll para opção selecionada quando abrir
+  useEffect(() => {
+    if (isOpen && dropdownRef.current && value) {
+      const selectedIndex = options?.findIndex((opt) => opt.value === value) ?? -1;
+      if (selectedIndex >= 0) {
+        const optionElement = dropdownRef.current.children[selectedIndex] as HTMLElement;
+        if (optionElement) {
+          optionElement.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+      }
+    }
+  }, [isOpen, value, options]);
+
+  const handleToggle = () => {
+    if (!disabled) {
+      setIsOpen(!isOpen);
+      setFocusedIndex(null);
+    }
+  };
+
+  const handleSelect = (optionValue: string | null) => {
+    if (onChange) {
+      // Criar um evento sintético compatível com React.ChangeEvent<HTMLSelectElement>
+      const syntheticEvent = {
+        target: {
+          value: optionValue || "",
+          name: name || "",
+        },
+        currentTarget: {
+          value: optionValue || "",
+          name: name || "",
+        },
+      } as React.ChangeEvent<HTMLSelectElement>;
+
+      onChange(syntheticEvent);
+    }
+    setIsOpen(false);
+    setFocusedIndex(null);
+    buttonRef.current?.focus();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (disabled) return;
+
+    switch (e.key) {
+      case "Enter":
+      case " ":
+        e.preventDefault();
+        if (isOpen && focusedIndex !== null && options) {
+          const option = options[focusedIndex];
+          if (option && !option.disabled) {
+            handleSelect(option.value);
+          }
+        } else {
+          setIsOpen(true);
+        }
+        break;
+      case "Escape":
+        setIsOpen(false);
+        setFocusedIndex(null);
+        buttonRef.current?.focus();
+        break;
+      case "ArrowDown":
+        e.preventDefault();
+        if (!isOpen) {
+          setIsOpen(true);
+        } else if (options) {
+          const nextIndex =
+            focusedIndex === null
+              ? 0
+              : Math.min(focusedIndex + 1, options.length - 1);
+          setFocusedIndex(nextIndex);
+        }
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        if (isOpen && options) {
+          const prevIndex =
+            focusedIndex === null
+              ? options.length - 1
+              : Math.max(focusedIndex - 1, 0);
+          setFocusedIndex(prevIndex);
+        }
+        break;
+    }
+  };
 
   return (
     <>
-      <div
-        className={`${wrapperBase} ${wrapperState} ${tailWindClasses}`}
-        style={{
-          ...style,
-          backgroundColor: backgroundColor ? backgroundColor : undefined,
-        }}
-      >
-        {icon && icon}
-        <select
-          className={[
-            // base
-            "w-full appearance-none bg-inherit text-[14px] text-[#333] cursor-pointer outline-none",
-            // built-in arrow
-            "bg-position-[right_center] bg-no-repeat bg-size-[15px]",
-            // states
-            "focus:outline-none disabled:bg-[#f9f9f9] disabled:cursor-not-allowed disabled:text-[#64748b]",
-          ].join(" ")}
-          // Tailwind arbitrary value for background-image (caret)
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg width='2' height='5' viewBox='0 0 16 9' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 1L8 8L1 1' stroke='%23182847' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")",
-            color: textColor ? textColor : "#333",
-          }}
-          value={value || ""}
-          required={required}
-          onChange={onChange}
-          name={name}
-          disabled={disabled}
-        >
-          {options &&
-            options.map((opt, idx) => (
-              <option
-                style={{ backgroundColor: "#fff", color: "#333" }}
-                key={idx}
-                value={opt.value || ""}
-                disabled={opt.disabled}
-              >
-                {opt.label}
-              </option>
-            ))}
+      <div ref={selectRef} className="relative w-fit">
+        <div className="relative w-full flex items-center">
+          {icon && (
+            <div className="absolute left-3 z-10 pointer-events-none">
+              {icon}
+            </div>
+          )}
+          <button
+            ref={buttonRef}
+            type="button"
+            className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses} ${icon ? "pl-10" : ""} ${tailWindClasses} text-left flex gap-2 items-center justify-between`}
+            style={{
+              ...style,
+              backgroundColor: backgroundColor ? backgroundColor : undefined,
+              color: textColor ? textColor : "#1e1f21",
+            }}
+            onClick={handleToggle}
+            onKeyDown={handleKeyDown}
+            disabled={disabled}
+            aria-haspopup="listbox"
+            aria-expanded={isOpen}
+            aria-label={name || "Select"}
+          >
+            <span className={value ? "" : "text-gray-400"}>
+              {displayValue || "Selecione uma opção"}
+            </span>
+            <Svg.chevron
+              tailWindClasses={`w-4 h-4 transition-transform duration-200 ${
+                isOpen ? "rotate-270" : "rotate-90"
+              }`}
+            />
+          </button>
 
-          {children}
-        </select>
+          {/* Hidden select para compatibilidade com formulários */}
+          <select
+            className="sr-only"
+            value={value || ""}
+            required={required}
+            onChange={onChange}
+            name={name}
+            disabled={disabled}
+            tabIndex={-1}
+            aria-hidden="true"
+          >
+            {options &&
+              options.map((opt, idx) => (
+                <option key={idx} value={opt.value || ""} disabled={opt.disabled}>
+                  {opt.label}
+                </option>
+              ))}
+            {children}
+          </select>
+        </div>
+
+        {/* Dropdown customizado */}
+        {isOpen && !disabled && (
+          <div
+            ref={dropdownRef}
+            className="absolute z-50 w-full mt-1 bg-white border border-black/20 rounded shadow-lg max-h-60 overflow-auto"
+            role="listbox"
+          >
+            {options && options.length > 0 ? (
+              options.map((opt, idx) => {
+                const isSelected = opt.value === value;
+                const isFocused = focusedIndex === idx;
+                const isDisabled = opt.disabled;
+
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    className={`
+                      w-full px-3 py-2.5 text-left text-sm text-[#1e1f21] transition-colors duration-150
+                      ${isSelected ? "bg-beergam-orange/10 font-semibold" : ""}
+                      ${isFocused && !isSelected ? "bg-gray-100" : ""}
+                      ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-50"}
+                      ${idx === 0 ? "rounded-t" : ""}
+                      ${idx === options.length - 1 ? "rounded-b" : ""}
+                    `}
+                    onClick={() => !isDisabled && handleSelect(opt.value)}
+                    disabled={isDisabled}
+                    onMouseEnter={() => !isDisabled && setFocusedIndex(idx)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{opt.label}</span>
+                      {isSelected && (
+                        <Svg.check
+                          tailWindClasses="w-4 h-4 text-beergam-orange"
+                        />
+                      )}
+                    </div>
+                  </button>
+                );
+              })
+            ) : (
+              <div className="px-3 py-2.5 text-sm text-gray-500 text-center">
+                Nenhuma opção disponível
+              </div>
+            )}
+          </div>
+        )}
       </div>
       {hasError && (
         <p
-          className={`text-xs text-red-500 min-h-5 mt-1 lg:min-h-[16px] 2xl:min-h-5  ${error?.error ? "opacity-100" : "opacity-0"}`}
+          className={`text-xs text-red-500 min-h-5 mt-1 lg:min-h-[16px] 2xl:min-h-5 ${error?.error ? "opacity-100" : "opacity-0"}`}
         >
           {error?.message || ""}
         </p>

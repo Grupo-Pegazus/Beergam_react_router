@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Pagination, Stack, Typography, Button } from "@mui/material";
+import { Pagination, Stack, Typography } from "@mui/material";
 import { useCategories } from "../hooks";
 import CategoryCard from "./CategoryCard";
 import CategoryFormModal from "./CategoryFormModal";
@@ -8,6 +8,7 @@ import MainCards from "~/src/components/ui/MainCards";
 import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import { FilterSearchInput } from "~/src/components/filters/components/FilterSearchInput";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface CategoriesListProps {
   filters?: {
@@ -94,20 +95,13 @@ export default function CategoriesList({ filters = {} }: CategoriesListProps) {
                 placeholder="Pesquisar categoria por nome..."
               />
             </div>
-            <Button
-              variant="contained"
+            <BeergamButton
+              title="Criar Categoria"
+              mainColor="beergam-blue-primary"
+              animationStyle="slider"
               onClick={handleCreateClick}
-              startIcon={<Svg.plus tailWindClasses="w-5 h-5" />}
-              sx={{
-                backgroundColor: "var(--color-beergam-blue-primary)",
-                "&:hover": {
-                  backgroundColor: "var(--color-beergam-orange)",
-                },
-                whiteSpace: "nowrap",
-              }}
-            >
-              Criar Categoria
-            </Button>
+              className="whitespace-nowrap"
+            />
           </div>
         </MainCards>
 

@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Box, Chip, Collapse, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import MainCards from "~/src/components/ui/MainCards";
 import Svg from "~/src/assets/svgs/_index";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface RelatedItem {
   id: string;
@@ -156,17 +157,13 @@ export default function RelatedEntityCardBase({
                     color: "#1e40af",
                   }}
                 />
-                <button
+                <BeergamButton
+                  title={`${isExpanded ? "Ocultar" : "Ver"} produtos`}
+                  mainColor="beergam-blue-primary"
+                  animationStyle="fade"
                   onClick={handleToggleClick}
-                  className="flex items-center gap-1 text-xs text-beergam-blue-primary hover:text-beergam-orange transition-colors mt-1"
-                >
-                  <span>{isExpanded ? "Ocultar" : "Ver"} produtos</span>
-                  <Svg.chevron
-                    tailWindClasses={`h-3 w-3 transition-transform duration-200 ${
-                      isExpanded ? "rotate-270" : "rotate-90"
-                    }`}
-                  />
-                </button>
+                  className="text-xs mt-1 flex items-center gap-1"
+                />
               </div>
             )}
 

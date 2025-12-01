@@ -1,4 +1,5 @@
-import { Button, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 export interface FilterActionsProps {
   onReset?: () => void;
@@ -27,36 +28,23 @@ export function FilterActions({
       justifyContent="flex-end"
     >
       {onReset && (
-        <Button
-          variant="outlined"
-          color="error"
+        <BeergamButton
+          title={resetLabel}
+          mainColor="beergam-red"
+          animationStyle="slider"
           onClick={onReset}
-          sx={{
-            borderRadius: 999,
-            px: 3,
-            textTransform: "none",
-            fontWeight: 600,
-          }}
-        >
-          {resetLabel}
-        </Button>
+          className="rounded-full px-3"
+        />
       )}
       {onSubmit && (
-        <Button
-          variant="contained"
-          color="success"
+        <BeergamButton
+          title={isSubmitting ? submittingLabel : submitLabel}
+          mainColor="beergam-green"
+          animationStyle="slider"
           onClick={onSubmit}
           disabled={isSubmitting}
-          sx={{
-            borderRadius: 999,
-            px: 4,
-            textTransform: "none",
-            fontWeight: 700,
-            boxShadow: "0 10px 25px -12px rgba(34,197,94,0.65)",
-          }}
-        >
-          {isSubmitting ? submittingLabel : submitLabel}
-        </Button>
+          className="rounded-full px-4"
+        />
       )}
     </Stack>
   );

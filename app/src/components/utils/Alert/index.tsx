@@ -26,7 +26,7 @@ function Icon({
       case "error":
         return <Svg.circle_x {...SvgBaseProps} stroke="white" />;
       case "warning":
-        return <Svg.megaphone {...SvgBaseProps} stroke="white" />;
+        return <Svg.megaphone {...SvgBaseProps} fill="white" />;
       case "info":
         return <Svg.information_circle {...SvgBaseProps} stroke="white" />;
     }
@@ -62,7 +62,7 @@ export default function Alert({
 }: AlertProps) {
   return (
     <Modal isOpen={props.isOpen} onClose={props.onClose} title={props.title}>
-      <Paper className="flex flex-col items-center justify-center gap-4 w-full md:min-w-2xl">
+      <Paper className="flex flex-col items-center justify-center gap-4 w-full md:min-w-2xl shadow-none! border-none!">
         <div>
           <Icon
             type={type}
