@@ -23,7 +23,7 @@ class UserService {
         message:
           "Erro ao editar informações do usuário. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }
@@ -42,7 +42,7 @@ class UserService {
         data: {} as IColab,
         message: "Pin do colaborador não encontrado.",
         error_code: 400,
-        error_fields: {},
+        error_fields: [],
       };
     }
     try {
@@ -59,7 +59,7 @@ class UserService {
         message:
           "Erro ao editar informações do colaborador. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }
@@ -77,7 +77,7 @@ class UserService {
         message:
           "Erro ao buscar colaboradores. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }
@@ -112,7 +112,7 @@ class UserService {
         message:
           "Erro ao enviar foto do colaborador. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }
@@ -130,7 +130,7 @@ class UserService {
         message:
           "Erro ao excluir colaborador. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }
