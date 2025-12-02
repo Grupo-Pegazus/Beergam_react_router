@@ -1,18 +1,13 @@
-import { useMutation } from "@tanstack/react-query";
-import { Link, useNavigate } from "react-router";
-import authStore from "~/features/store-zustand";
-import { authService } from "../../service";
+import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 import PageLayout from "../PageLayout/PageLayout";
 export default function MultipleDeviceWarning() {
-  const logout = authStore.use.logout();
-  const handleLogout = useMutation({
-    mutationFn: () => authService.logout(),
+  const { isLoggingOut, logout } = useLogoutFlow({
+    redirectTo: "/login",
   });
-  const navigate = useNavigate();
   return (
     <PageLayout tailwindClassName="flex items-center justify-center">
       <div
-        className={`flex shadow-lg/55 relative z-10 flex-col justify-center items-center gap-4 bg-beergam-white w-[100%] mx-auto my-auto p-8 sm:w-2/3 sm:max-w-[32rem] sm:rounded-4xl`}
+        className={`flex shadow-lg/55 relative z-10 flex-col justify-center items-center gap-4 bg-beergam-white w-full mx-auto my-auto p-8 sm:w-2/3 sm:max-w-lg sm:rounded-4xl`}
       >
         <div className="flex justify-center">
           <div className="relative">
@@ -68,17 +63,16 @@ export default function MultipleDeviceWarning() {
         </div>
 
         {/* Botão de ação */}
-        <Link
-          to="/login"
-          onClick={() => {
-            handleLogout.mutate();
-            logout();
-            navigate("/login", { replace: true, viewTransition: true });
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            void logout();
           }}
-          className="rounded-xl w-fit bg-beergam-orange px-6 py-4 text-base font-semibold text-beergam-white hover:bg-beergam-orange-dark"
+          className="rounded-xl w-fit bg-beergam-orange px-6 py-4 text-base font-semibold text-beergam-white hover:bg-beergam-orange-dark disabled:opacity-60"
+          aria-disabled={isLoggingOut}
         >
           Fazer Login Novamente
-        </Link>
+        </button>
 
         {/* Informação adicional */}
         <p className="text-center text-xs leading-relaxed text-beergam-gray-light">
