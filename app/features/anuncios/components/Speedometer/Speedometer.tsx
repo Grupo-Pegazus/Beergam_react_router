@@ -6,6 +6,7 @@ interface SpeedometerProps {
   size?: number;
   className?: string;
   numberToCompare?: number;
+  mode?: "asc" | "desc";
 }
 
 export default function Speedometer({
@@ -13,6 +14,7 @@ export default function Speedometer({
   size = 40,
   className = "",
   numberToCompare = 100,
+  mode = "desc",
 }: SpeedometerProps) {
   const normalizedValue = useMemo(() => {
     if (value === null || numberToCompare === null || numberToCompare === 0)
@@ -29,17 +31,35 @@ export default function Speedometer({
 
   const color = useMemo(() => {
     if (normalizedValue === null) return "#94a3b8"; // slate-400
-    if (normalizedValue >= 80) return "#22c55e"; // green-500
-    if (normalizedValue >= 60) return "#eab308"; // yellow-500
-    return "#ef4444"; // red-500
-  }, [normalizedValue]);
+
+    if (mode === "asc") {
+      // Ascendente: quanto mais próximo do numberToCompare, mais vermelho
+      if (normalizedValue >= 80) return "#ef4444"; // red-500
+      if (normalizedValue >= 60) return "#eab308"; // yellow-500
+      return "#22c55e"; // green-500
+    } else {
+      // Decrescente: quanto mais longe do numberToCompare, mais vermelho
+      if (normalizedValue >= 80) return "#22c55e"; // green-500
+      if (normalizedValue >= 60) return "#eab308"; // yellow-500
+      return "#ef4444"; // red-500
+    }
+  }, [normalizedValue, mode]);
 
   const trackColor = useMemo(() => {
     if (normalizedValue === null) return "#cbd5e1"; // slate-300
-    if (normalizedValue >= 80) return "#dcfce7"; // green-100
-    if (normalizedValue >= 60) return "#fef9c3"; // yellow-100
-    return "#fee2e2"; // red-100
-  }, [normalizedValue]);
+
+    if (mode === "asc") {
+      // Ascendente: quanto mais próximo do numberToCompare, mais vermelho
+      if (normalizedValue >= 80) return "#fee2e2"; // red-100
+      if (normalizedValue >= 60) return "#fef9c3"; // yellow-100
+      return "#dcfce7"; // green-100
+    } else {
+      // Decrescente: quanto mais longe do numberToCompare, mais vermelho
+      if (normalizedValue >= 80) return "#dcfce7"; // green-100
+      if (normalizedValue >= 60) return "#fef9c3"; // yellow-100
+      return "#fee2e2"; // red-100
+    }
+  }, [normalizedValue, mode]);
 
   const centerX = size / 2;
   const centerY = size / 2;
@@ -110,7 +130,7 @@ export default function Speedometer({
             lineHeight: 1,
           }}
         >
-          {normalizedValue !== null ? `${value}/${normalizedValue}` : "—"}
+          {normalizedValue !== null ? value : "—"}
         </Typography>
       </div>
     </div>
