@@ -177,7 +177,7 @@ function Select({
 
   return (
     <>
-      <div ref={selectRef} className="relative w-fit">
+      <div ref={selectRef} className="relative w-fit min-w-[150px]">
         <div className="relative w-full flex items-center">
           {icon && (
             <div className="absolute left-3 z-10 pointer-events-none">

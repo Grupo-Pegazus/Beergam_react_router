@@ -15,11 +15,10 @@ import type { VendasFiltersProps, VendasFiltersState, OrderStatusFilter, Deliver
 
 const STATUS_OPTIONS: Array<{ label: string; value: OrderStatusFilter }> = [
   { label: "Todos", value: "all" },
-  { label: "Confirmado", value: "confirmed" },
-  { label: "Pagamento necessário", value: "payment_required" },
-  { label: "Pagamento em processo", value: "payment_in_process" },
   { label: "Pago", value: "paid" },
   { label: "Cancelado", value: "cancelled" },
+  { label: "Pagamento necessário", value: "payment_required" },
+  { label: "Pagamento em processo", value: "payment_in_process" },
 ];
 
 const SEARCH_TYPE_OPTIONS = [
@@ -31,6 +30,7 @@ const SEARCH_TYPE_OPTIONS = [
 const DELIVERY_STATUS_OPTIONS: Array<{ label: string; value: DeliveryStatusFilter }> = [
   { label: "Todos", value: "all" },
   { label: "Pronto para enviar", value: "ready_to_ship" },
+  { label: "Em processamento", value: "handling" },
   { label: "Pendente", value: "pending" },
   { label: "Enviado", value: "shipped" },
   { label: "Entregue", value: "delivered" },

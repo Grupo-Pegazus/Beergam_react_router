@@ -37,6 +37,12 @@ export const getStatusOrderMeliInfo = (status: string | null | undefined) => {
         color: "#92400e",
         icon: "dolly",
       },
+      handling: {
+        label: "Em processamento",
+        backgroundColor: "#fef3c7",
+        color: "#92400e",
+        icon: "clock",
+      },
       shipped: {
         label: "Enviado",
         backgroundColor: "#dbeafe",
