@@ -1,17 +1,24 @@
-import { useMemo } from "react";
 import Typography from "@mui/material/Typography";
+import { useMemo } from "react";
 
 interface SpeedometerProps {
   value: number | null;
   size?: number;
   className?: string;
+  numberToCompare?: number;
 }
 
-export default function Speedometer({ value, size = 40, className = "" }: SpeedometerProps) {
+export default function Speedometer({
+  value,
+  size = 40,
+  className = "",
+  numberToCompare = 100,
+}: SpeedometerProps) {
   const normalizedValue = useMemo(() => {
-    if (value === null) return null;
-    return Math.max(0, Math.min(100, value));
-  }, [value]);
+    if (value === null || numberToCompare === null || numberToCompare === 0)
+      return null;
+    return Math.max(0, Math.min(100, (value / numberToCompare) * 100));
+  }, [value, numberToCompare]);
 
   const angle = useMemo(() => {
     if (normalizedValue === null) return 0;
@@ -40,21 +47,39 @@ export default function Speedometer({ value, size = 40, className = "" }: Speedo
   const strokeWidth = size * 0.08;
 
   // Calcular o ponto final do arco
-  const endAngleRad = (angle * Math.PI) / 180;
-  const endX = centerX + radius * Math.cos(endAngleRad);
-  const endY = centerY + radius * Math.sin(endAngleRad);
-
-  // Criar o path do arco (semicírculo de -135° a 135°)
   const startAngleRad = (-135 * Math.PI) / 180;
-  const largeArcFlag = normalizedValue !== null && normalizedValue > 50 ? 1 : 0;
 
-  const arcPath = normalizedValue !== null
-    ? `M ${centerX + radius * Math.cos(startAngleRad)} ${centerY + radius * Math.sin(startAngleRad)} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY}`
-    : "";
+  // Garantir que o ângulo final não ultrapasse os limites do velocímetro
+  const clampedEndAngle = Math.max(-135, Math.min(135, angle));
+  const clampedEndAngleRad = (clampedEndAngle * Math.PI) / 180;
+
+  const startX = centerX + radius * Math.cos(startAngleRad);
+  const startY = centerY + radius * Math.sin(startAngleRad);
+  const endX = centerX + radius * Math.cos(clampedEndAngleRad);
+  const endY = centerY + radius * Math.sin(clampedEndAngleRad);
+
+  // Calcular largeArcFlag baseado na diferença angular real
+  // Se a diferença angular for maior que 180°, usar largeArcFlag = 1
+  const angleDifference = clampedEndAngle - -135;
+  const largeArcFlag =
+    normalizedValue !== null && angleDifference > 180 ? 1 : 0;
+
+  const arcPath =
+    normalizedValue !== null && normalizedValue > 0
+      ? `M ${startX} ${startY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY}`
+      : "";
 
   return (
-    <div className={`relative ${className}`} style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="absolute inset-0">
+    <div
+      className={`relative ${className}`}
+      style={{ width: size, height: size }}
+    >
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className="absolute inset-0"
+      >
         {/* Track (fundo cinza) */}
         <path
           d={`M ${centerX + radius * Math.cos(startAngleRad)} ${centerY + radius * Math.sin(startAngleRad)} A ${radius} ${radius} 0 1 1 ${centerX + radius * Math.cos((135 * Math.PI) / 180)} ${centerY + radius * Math.sin((135 * Math.PI) / 180)}`}
@@ -85,10 +110,9 @@ export default function Speedometer({ value, size = 40, className = "" }: Speedo
             lineHeight: 1,
           }}
         >
-          {normalizedValue !== null ? Math.round(normalizedValue) : "—"}
+          {normalizedValue !== null ? `${value}/${normalizedValue}` : "—"}
         </Typography>
       </div>
     </div>
   );
 }
-
