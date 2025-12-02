@@ -153,13 +153,13 @@ const NumberCoerced = z.preprocess(
  * Helper que transforma string vazia em null antes da validação
  * Útil para campos opcionais que podem ser string vazia do formulário
  */
-function nullableEnum<T extends z.ZodTypeAny>(enumSchema: T) {
+function nullableField<T extends z.ZodTypeAny>(fieldValue: T) {
   return z
     .preprocess((v) => {
       // Transforma string vazia em null
       if (v === "" || v === null || v === undefined) return null;
       return v;
-    }, enumSchema.nullable())
+    }, fieldValue.nullable())
     .optional();
 }
 export const UserDetailsSchema = BaseUserDetailsSchema.extend({
@@ -167,7 +167,7 @@ export const UserDetailsSchema = BaseUserDetailsSchema.extend({
   cpf: CPFSchema.optional().nullable(),
   cnpj: CNPJSchema.optional().nullable(),
   phone: TelefoneSchema,
-  secondary_phone: TelefoneSchema.optional().nullable(),
+  secondary_phone: nullableField(TelefoneSchema),
   personal_reference_code: BeergamCodeSchema.optional(),
   referral_code: BeergamReferralCodeSchema.optional().nullable(),
   profit_range: z
@@ -179,7 +179,7 @@ export const UserDetailsSchema = BaseUserDetailsSchema.extend({
     .optional()
     .nullable(),
   notify_newsletter: z.coerce.boolean().optional().nullable(),
-  calc_profit_product: nullableEnum(
+  calc_profit_product: nullableField(
     z.enum(
       Object.keys(CalcProfitProduct) as [
         CalcProfitProduct,
@@ -191,7 +191,7 @@ export const UserDetailsSchema = BaseUserDetailsSchema.extend({
     .enum(Object.keys(CalcTax) as [CalcTax, ...CalcTax[]])
     .optional()
     .nullable(),
-  current_billing: nullableEnum(
+  current_billing: nullableField(
     z.enum(Object.keys(CurrentBilling) as [CurrentBilling, ...CurrentBilling[]])
   ),
   website: z.url("URL inválida").optional().nullable(),
@@ -220,14 +220,14 @@ export const UserDetailsSchema = BaseUserDetailsSchema.extend({
     .optional()
     .transform((v) => {
       // Adiciona o caractere "%" de volta
-      return `${v}%`;
+      return `${v}`;
     }),
   sells_meli: NumberCoerced,
   sells_shopee: NumberCoerced,
   sells_amazon: NumberCoerced,
   sells_shein: NumberCoerced,
   sells_own_site: NumberCoerced,
-  number_of_employees: nullableEnum(
+  number_of_employees: nullableField(
     z.enum(
       Object.keys(NumberOfEmployees) as [
         NumberOfEmployees,

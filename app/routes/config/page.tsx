@@ -65,7 +65,7 @@ export default function ConfigPage() {
     }
   }, [selectedSectionUrl]);
   return (
-    <PageLayout tailwindClassName="flex items-start justify-center py-12">
+    <PageLayout tailwindClassName="flex justify-center">
       <div className="grid w-[80%] grid-cols-[300px_1fr] gap-4">
         <div className="flex flex-col w-full gap-4">
           <div className="text-beergam-white">
