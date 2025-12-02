@@ -146,6 +146,7 @@ export default function UserFields({
           onChange={onChange}
           error={error}
           dataTooltipId={`${name}-input`}
+          value={value}
           {...props}
         />
       )}

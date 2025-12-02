@@ -42,7 +42,7 @@ function BeergamButtonWrapper({
   const { style, ...buttonProps } = props;
   const isSlider = animationStyle === "slider" || animationStyle === "fetcher";
   const sliderClasses = disabled
-    ? "cursor-not-allowed!"
+    ? "cursor-not-allowed! opacity-50!"
     : isSlider
       ? `bg-[linear-gradient(90deg,var(--bg-slider-color)_0%,var(--bg-slider-color)_100%)] bg-[length:0%_100%] bg-no-repeat bg-left transition-[background-size,color] duration-300 ease-out ${fetcher?.fecthing ? "opacity-50!" : "hover:bg-[length:100%_100%]"}`
       : "hover:opacity-80";

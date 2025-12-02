@@ -38,7 +38,7 @@ export interface IColab extends IBaseUser {
 export const ColabSchema = BaseUserSchema.extend({
   details: ColabDetailsSchema,
   is_online: z.boolean().optional().default(false),
-  last_online_update: z.string().optional().nullable(),
+  last_online_update: z.coerce.string().optional().nullable(), // Converter number para string
 }) satisfies z.ZodType<IColab>;
 
 export function FormatColabLevel(level: ColabLevel): keyof typeof ColabLevel {

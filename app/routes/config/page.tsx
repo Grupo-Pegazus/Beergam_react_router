@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import { useAuthUser } from "~/features/auth/context/AuthStoreContext";
 import Svg from "~/src/assets/svgs/_index";
+import ConfigSectionComponent from "./components/ConfigSectionComponent";
 import MinhaConta from "./components/MinhaConta";
 type SECTIONS =
   | "Minha Conta"
@@ -66,7 +67,7 @@ export default function ConfigPage() {
   }, [selectedSectionUrl]);
   return (
     <PageLayout tailwindClassName="flex justify-center">
-      <div className="grid w-[80%] grid-cols-[300px_1fr] gap-4">
+      <div className="grid w-[80%] grid-cols-1 md:grid-cols-[300px_1fr] gap-4">
         <div className="flex flex-col w-full gap-4">
           <div className="text-beergam-white">
             <p className="text-lg! font-medium">{user?.name}</p>
@@ -84,13 +85,11 @@ export default function ConfigPage() {
             ))}
           </div>
         </div>
-        <div className="flex flex-col w-full gap-4">
-          <div className="grid gap-4">
-            {selectedSection === "Minha Conta" && user && (
-              <MinhaConta user={user} />
-            )}
-          </div>
-        </div>
+        <ConfigSectionComponent>
+          {selectedSection === "Minha Conta" && user && (
+            <MinhaConta user={user} />
+          )}
+        </ConfigSectionComponent>
       </div>
     </PageLayout>
   );

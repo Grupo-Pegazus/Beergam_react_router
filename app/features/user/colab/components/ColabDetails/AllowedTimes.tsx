@@ -23,7 +23,7 @@ export default function AllowedTimes({
     return "--:--";
   }
   return (
-    <div className="grid grid-cols-4 gap-4">
+    <div className="grid md:grid-cols-4 grid-cols-1 gap-4">
       {(Object.values(WeekDay) as WeekDay[]).map((day) => {
         const item = schedule[day];
         return (

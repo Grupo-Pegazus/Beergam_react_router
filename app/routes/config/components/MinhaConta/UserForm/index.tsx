@@ -102,7 +102,7 @@ export default function UserForm({ user }: { user: IUser }) {
             />
           }
         >
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <UserFields
               label="Nome"
               {...register("name")}
@@ -177,7 +177,7 @@ export default function UserForm({ user }: { user: IUser }) {
             />
           }
         >
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <UserFields
               label="Faturamento Mensal"
               {...register("details.profit_range")}

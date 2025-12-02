@@ -111,37 +111,8 @@ export default function Input({
           min={min}
           max={max}
           disabled={disabled}
-          // onMouseEnter={() => setIsInteracting(true)}
-          // onMouseLeave={() => setIsInteracting(false)}
           {...props}
         />
-        {/* {type === "password" && (
-          <button
-            type="button"
-            onClick={() => {
-              setIsShowPassword(!isShowPassword);
-              onEyeChange?.(isShowPassword ?? false);
-            }}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-          >
-            {isShowPassword ? (
-              <div className="flex items-center gap-2">
-                <Svg.eye width={20} height={20} />
-              </div>
-            ) : (
-              <Svg.eye_slash width={20} height={20} />
-            )}
-          </button>
-        )}
-        {clipboard && (
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(value?.toString() ?? "");
-            }}
-          >
-            <Svg.copy tailWindClasses="text-beergam-blue-primary size-6" />
-          </button>
-        )} */}
         <div className="absolute flex items-center gap-2 justify-center right-3 top-1/2 transform -translate-y-1/2">
           {type === "password" && (
             <button
@@ -161,6 +132,15 @@ export default function Input({
               )}
             </button>
           )}
+          {error && (
+            <div className="flex items-center gap-2">
+              <Svg.x_circle
+                width={20}
+                height={20}
+                tailWindClasses="text-beergam-red"
+              />
+            </div>
+          )}
           {clipboard && (
             <CopyButton
               iconSize="h-5 w-5"
@@ -173,7 +153,7 @@ export default function Input({
         <Tooltip
           id={dataTooltipId}
           content={error || ""}
-          isOpen={isInteracting}
+          isOpen={!isInteracting}
           className="z-50"
         />
       )}
