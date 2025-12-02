@@ -25,10 +25,11 @@ export interface IAllowedTimes {
   sunday: DayTimeAccess;
 }
 
+// Modificar o DayTimeAccessSchema para aceitar strings e converter para Date
 const DayTimeAccessSchema = z
   .object({
-    start_date: z.date().nullable(),
-    end_date: z.date().nullable(),
+    start_date: z.coerce.date().nullable(),
+    end_date: z.coerce.date().nullable(),
     access: z.boolean(),
   })
   .refine(
