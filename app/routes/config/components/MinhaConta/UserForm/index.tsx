@@ -29,7 +29,7 @@ export default function UserForm({ user }: { user: IUser }) {
     watch,
     setError,
     reset,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<editUserFormData>({
     resolver: zodResolver(
       UpdateUserSchema
@@ -42,19 +42,23 @@ export default function UserForm({ user }: { user: IUser }) {
     mutationFn: (data: IUser) => userService.editUserInformation(data),
     onSuccess: (data) => {
       if (!data.success) {
+        if (!Array.isArray(data.error_fields)) {
+          throw new Error(data.message);
+          return;
+        }
         data.error_fields?.forEach((error) => {
           setError(`details.${error.key}` as Path<editUserFormData>, {
             type: "server",
             message: error.error,
           });
         });
-        throw new Error(data.message);
+        const errorMessage = `${data.error_fields?.map((error) => `${error.error}`).join("\n")}`;
+        throw new Error(errorMessage);
       }
       reset(UserSchema.parse(data.data) as editUserFormData);
     },
   });
   const onSubmit = async (data: editUserFormData) => {
-    if (!isValid) return;
     if (editUserMutation.isPending) return;
     const dataToSend = UpdateUserSchema.parse(data) as IUser;
     if (user.details?.cpf) {
@@ -75,34 +79,14 @@ export default function UserForm({ user }: { user: IUser }) {
       }
     } catch (error) {
       console.error("error do onSubmit", error);
-      toast.error("Erro ao salvar informações");
+      toast.error(`${error}`);
     }
   };
   return (
     <>
-      <form
-        onSubmit={handleSubmit(onSubmit, (errors) => {
-          toast.error("Você possui erros pendentes no formulário.");
-          console.log("Erros de validação:", errors);
-        })}
-      >
-        <Section
-          title="Dados Pessoais"
-          className="bg-beergam-white"
-          actions={
-            <BeergamButton
-              fetcher={{
-                fecthing: editUserMutation.isPending,
-                completed: editUserMutation.isSuccess,
-                error: editUserMutation.isError,
-                mutation: editUserMutation,
-              }}
-              title="Salvar"
-              type="submit"
-            />
-          }
-        >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <form>
+        <Section title="Dados Pessoais" className="bg-beergam-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <UserFields
               label="Nome"
               {...register("name")}
@@ -145,6 +129,7 @@ export default function UserForm({ user }: { user: IUser }) {
               error={errors.pin?.message}
               canAlter={false}
               clipboard={true}
+              hint="O PIN é usado para acessar o sistema de colaboradores e gerenciar as contas dos colaboradores."
             />
             <UserFields
               label="Código de Referência"
@@ -152,32 +137,19 @@ export default function UserForm({ user }: { user: IUser }) {
               error={errors.details?.personal_reference_code?.message}
               canAlter={false}
               clipboard={true}
+              hint="Mande seu código de referência para seus colegas para que eles tenham 14 dias grátis."
             />
             <UserFields
               label="Usuários Indicados"
               {...register("sub_count")}
               error={errors.sub_count?.message}
               canAlter={false}
+              hint="Quantidade de usuários que usaram seu código de referência para se cadastrar."
             />
           </div>
         </Section>
-        <Section
-          title="Dados Financeiros"
-          className="bg-beergam-white"
-          actions={
-            <BeergamButton
-              title="Salvar"
-              fetcher={{
-                fecthing: editUserMutation.isPending,
-                completed: editUserMutation.isSuccess,
-                error: editUserMutation.isError,
-                mutation: editUserMutation,
-              }}
-              type="submit"
-            />
-          }
-        >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Section title="Dados Financeiros" className="bg-beergam-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <UserFields
               label="Faturamento Mensal"
               {...register("details.profit_range")}
@@ -288,6 +260,21 @@ export default function UserForm({ user }: { user: IUser }) {
           </div>
         </Section>
       </form>
+      <BeergamButton
+        fetcher={{
+          fecthing: editUserMutation.isPending,
+          completed: editUserMutation.isSuccess,
+          error: editUserMutation.isError,
+          mutation: editUserMutation,
+        }}
+        title="Salvar"
+        type="submit"
+        className="bg-beergam-white mb-4 md:mb-0 md:w-xs"
+        onClick={handleSubmit(onSubmit, (errors) => {
+          toast.error("Você possui erros pendentes no formulário.");
+          console.log("Erros de validação:", errors);
+        })}
+      />
     </>
   );
 }
