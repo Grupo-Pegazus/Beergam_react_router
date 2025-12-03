@@ -1,5 +1,6 @@
 import { Fields } from "~/src/components/utils/_fields";
 import type { InputProps } from "~/src/components/utils/_fields/input";
+import Hint from "~/src/components/utils/Hint";
 // export default function UserFields({
 //   canAlter,
 //   value,
@@ -101,6 +102,7 @@ export default function UserFields({
   options,
   value,
   nullable = false,
+  hint,
   ...props
 }: UserFieldsProps) {
   const selectValue = value
@@ -115,7 +117,15 @@ export default function UserFields({
     : options;
   return (
     <Fields.wrapper className="w-full!">
-      <Fields.label text={label} />
+      <div className="flex items-center gap-1">
+        <Fields.label text={label} />
+        {hint && (
+          <Hint
+            message={hint}
+            anchorSelect={label.toLocaleLowerCase() + "-tooltip"}
+          />
+        )}
+      </div>
       {options ? (
         <>
           <Fields.select
