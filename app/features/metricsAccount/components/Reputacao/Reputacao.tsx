@@ -1,57 +1,29 @@
 import { useQuery } from "@tanstack/react-query";
-import { useSelector } from "react-redux";
-import { metricsAccountService } from "../../service";
-import ReputacaoSkeleton from "./Skeleton";
+import type { ApiResponse } from "~/features/apiClient/typings";
+import { MarketplaceType } from "~/features/marketplace/typings";
+import authStore from "~/features/store-zustand";
+import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import StatCard from "~/src/components/ui/StatCard";
-import Svg from "~/src/assets/svgs/_index";
-import type { RootState } from "~/store";
-import { MarketplaceType } from "~/features/marketplace/typings";
+import { metricsAccountService } from "../../service";
 import type { MarketplaceReputationData } from "../../typings";
-import type { ApiResponse } from "~/features/apiClient/typings";
+import { getColorName, getMeliReputationColor } from "../../utils";
+import ReputacaoSkeleton from "./Skeleton";
 
-type ReputationResponse = ApiResponse<MarketplaceReputationData<MarketplaceType>>;
+type ReputationResponse = ApiResponse<
+  MarketplaceReputationData<MarketplaceType>
+>;
 
 function isReputationOfType<T extends MarketplaceType>(
   payload: MarketplaceReputationData<MarketplaceType> | null | undefined,
-  type: T,
+  type: T
 ): payload is MarketplaceReputationData<T> {
   return payload?.marketplace_type === type;
 }
 
 /**
- * Mapeia o level_id do Mercado Livre para cores de reputação
- * Níveis: 1 (red) → 2 (orange) → 3 (yellow) → 4 (light_green) → 5 (green)
- */
-function getMeliReputationColor(levelId: string | null | undefined): "red" | "orange" | "yellow" | "light_green" | "green" | "slate" {
-  if (!levelId) return "slate";
-  
-  const level = parseInt(levelId, 10);
-  if (isNaN(level)) return "slate";
-  
-  if (level <= 1) return "red";
-  if (level === 2) return "orange";
-  if (level === 3) return "yellow";
-  if (level === 4) return "light_green";
-  if (level >= 5) return "green";
-  
-  return "slate";
-}
-
-/**
  * Retorna o nome da cor em português
  */
-function getColorName(color: ReturnType<typeof getMeliReputationColor>): string {
-  const names: Record<typeof color, string> = {
-    red: "vermelho",
-    orange: "laranja",
-    yellow: "amarelo",
-    light_green: "verde claro",
-    green: "verde",
-    slate: "cinza",
-  };
-  return names[color];
-}
 
 function MeliColorBar({ currentLevel }: { currentLevel: number }) {
   const colors = [
@@ -76,9 +48,7 @@ function MeliColorBar({ currentLevel }: { currentLevel: number }) {
 }
 
 export default function Reputacao() {
-  const selectedMarketplace = useSelector(
-    (state: RootState) => state.marketplace.marketplace,
-  );
+  const selectedMarketplace = authStore.use.marketplace();
   const marketplaceType = selectedMarketplace?.marketplace_type;
 
   const { data, isLoading, error } = useQuery<ReputationResponse>({
@@ -114,7 +84,13 @@ export default function Reputacao() {
   const payload = success ? data?.data : null;
 
   let description: string | null = null;
-  let cardColor: "red" | "orange" | "yellow" | "light_green" | "green" | "slate" = "slate";
+  let cardColor:
+    | "red"
+    | "orange"
+    | "yellow"
+    | "light_green"
+    | "green"
+    | "slate" = "slate";
   let iconColor = "text-yellow-500";
 
   let meliLevel: number | null = null;
@@ -123,11 +99,11 @@ export default function Reputacao() {
   if (isReputationOfType(payload, MarketplaceType.MELI)) {
     const reputation = payload.reputation;
     const levelId = reputation.seller_reputation.level_id;
-    
+
     // Aplica cores baseadas no level_id do MELI
     cardColor = getMeliReputationColor(levelId);
     meliColorName = getColorName(cardColor);
-    
+
     // Calcula o nível numérico para a barra de cores
     if (levelId) {
       const level = parseInt(levelId, 10);
@@ -135,9 +111,12 @@ export default function Reputacao() {
         meliLevel = level;
       }
     }
-    
+
     // Ajusta cor do ícone para combinar com o card
-    const iconColorMap: Record<"red" | "orange" | "yellow" | "light_green" | "green" | "slate", string> = {
+    const iconColorMap: Record<
+      "red" | "orange" | "yellow" | "light_green" | "green" | "slate",
+      string
+    > = {
       red: "text-red-500",
       orange: "text-orange-500",
       yellow: "text-yellow-500",
@@ -169,14 +148,16 @@ export default function Reputacao() {
         color={cardColor}
         variant="soft"
       >
-        {isReputationOfType(payload, MarketplaceType.MELI) && meliLevel && meliColorName ? (
+        {isReputationOfType(payload, MarketplaceType.MELI) &&
+        meliLevel &&
+        meliColorName ? (
           <div className="mt-4 space-y-3">
             <h4 className="text-base font-bold text-[#0f172a]">
               Você tem cor {meliColorName}
             </h4>
-            
+
             <MeliColorBar currentLevel={meliLevel} />
-            
+
             <div className="flex items-center gap-2">
               <p className="text-sm text-[#475569]">
                 Você aparece assim para os compradores.
