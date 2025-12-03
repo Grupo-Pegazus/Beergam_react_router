@@ -61,7 +61,7 @@ export default function PageLayout({
   }
   return (
     <>
-      <main className="flex min-h-full overflow-x-hidden">
+      <main className="relative h-screen md:pt-16 overflow-hidden">
         <header className="fixed top-0 left-0 right-0 p-4 px-8 flex z-99 items-center justify-between">
           <Link to="/" className="w-10 h-10 cursor-pointer hover:opacity-80">
             <img
@@ -153,7 +153,7 @@ export default function PageLayout({
             </div>
           </div>
         </div>
-        <div className={`w-full min-h-full z-50 ${tailwindClassName} mt-16`}>
+        <div className={`w-full mt-16 md:mt-0 ${tailwindClassName}`}>
           {children}
         </div>
       </main>
