@@ -10,6 +10,7 @@ import AnaliseFinanceira from "./components/AnaliseFinanceira/AnaliseFinanceira"
 import DetalhesEnvio from "./components/DetalhesEnvio/DetalhesEnvio";
 import LabelText from "./components/LabelText/LabelText";
 import OrderItemCard from "~/features/vendas/components/OrderList/OrderItemCard";
+import VendaDetailsSkeleton from "./components/VendaDetailsSkeleton/VendaDetailsSkeleton";
 import { getStatusOrderMeliInfo } from "~/src/constants/status-order-meli";
 import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
 import { getShippingPaidByLabel } from "~/src/constants/shipping-paid-by-meli";
@@ -35,7 +36,6 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0");
         const hours = String(date.getHours()).padStart(2, "0");
         const minutes = String(date.getMinutes()).padStart(2, "0");
         return `${day} ${getMonthName(date.getMonth())} ${hours}h${minutes}`;
@@ -190,7 +190,6 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
     // TODO: Quando o backend retornar payment_id, payment_date e payment_status no pack_info, usar esses valores
     const paymentId = "84576616865"; // Valor padrão até o backend retornar
     const paymentDate = firstOrder?.date_closed || "";
-    const paymentStatus = "approved"; // Valor padrão até o backend retornar
     const showPaymentHeader = false; // Esconder por enquanto até o backend retornar
 
     // Create order item cards
@@ -201,22 +200,9 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
         ));
     }, [orders]);
 
-    // Create items list for right column
-    const itemsList = useMemo(() => {
-        return orders.map(order => ({
-            title: order.title,
-            unit_price: parseFloat(order.unit_price),
-            quantity: order.quantity
-        }));
-    }, [orders]);
-
     // Loading state
     if (isLoading) {
-        return (
-            <div style={{ padding: "20px", textAlign: "center" }}>
-                <p>Carregando detalhes do pedido...</p>
-            </div>
-        );
+        return <VendaDetailsSkeleton />;
     }
 
     // Error state

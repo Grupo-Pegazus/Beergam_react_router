@@ -42,6 +42,24 @@ function sanitizeFilters(state: VendasFiltersState): Partial<OrdersFilters> {
     apiFilters.shipment_status = shipmentStatus;
   }
 
+  // Mapeamento dos valores do filtro para os valores do backend (shipping_mode)
+  const deliveryTypeToShippingMode: Record<string, string | undefined> = {
+    all: undefined,
+    agency: "xd_drop_off",
+    full: "fulfillment",
+    collection: "cross_docking",
+    correios: "drop_off",
+    me2: "me2",
+    flex: "flex",
+    not_specified: "not_specified",
+  };
+
+  if (state.deliveryTypeFilter && state.deliveryTypeFilter !== "all") {
+    apiFilters.shipping_mode = deliveryTypeToShippingMode[state.deliveryTypeFilter] || state.deliveryTypeFilter;
+  } else if (state.shipping_mode) {
+    apiFilters.shipping_mode = state.shipping_mode;
+  }
+
   if (state.dateCreatedFrom) {
     apiFilters.date_created_from = state.dateCreatedFrom;
   }

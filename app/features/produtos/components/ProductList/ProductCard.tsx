@@ -564,6 +564,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           to={`/interno/produtos/${product.product_id}`}
           onClick={handleMenuClose}
         >
+          <Svg.eye tailWindClasses="w-4 h-4 mr-2" />
           Ver detalhes
         </MenuItem>
         {product.available_quantity !== undefined && (
@@ -572,11 +573,16 @@ export default function ProductCard({ product }: ProductCardProps) {
             to={`/interno/produtos/estoque/${product.product_id}`}
             onClick={handleMenuClose}
           >
+            <Svg.box tailWindClasses="w-4 h-4 mr-2" />
             Controle de estoque
           </MenuItem>
         )}
-        <MenuItem onClick={handleMenuClose}>Editar produto</MenuItem>
+        <MenuItem onClick={handleMenuClose}>
+          <Svg.pencil tailWindClasses="w-4 h-4 mr-2" />
+          Editar produto
+        </MenuItem>
         <MenuItem onClick={handleDeleteClick} sx={{ color: "error.main" }}>
+          <Svg.trash tailWindClasses="w-4 h-4 mr-2" />
           Excluir produto
         </MenuItem>
       </Menu>

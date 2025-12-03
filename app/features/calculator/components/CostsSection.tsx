@@ -1,27 +1,47 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Fields } from "~/src/components/utils/_fields";
 import RadioGroup from "./RadioGroup";
 import NumberInput from "./NumberInput";
 
 interface CostsSectionProps {
-  adType: "classico" | "premium";
+  adType: "classico" | "premium" | "normal" | "indicado";
   commissionPercentage: string;
-  commissionAmount: string;
   salePrice: string;
-  onAdTypeChange: (value: "classico" | "premium") => void;
+  calculatorType: "ml" | "shopee";
+  onAdTypeChange: (value: "classico" | "premium" | "normal" | "indicado") => void;
   onCommissionPercentageChange: (value: string) => void;
-  onCommissionAmountChange: (value: string) => void;
 }
 
 export default function CostsSection({
   adType,
   commissionPercentage,
-  commissionAmount,
   salePrice,
+  calculatorType,
   onAdTypeChange,
   onCommissionPercentageChange,
-  onCommissionAmountChange,
 }: CostsSectionProps) {
+  const isShopee = calculatorType === "shopee";
+  const prevAdTypeRef = useRef(adType);
+  const prevCalculatorTypeRef = useRef(calculatorType);
+
+  // Para Shopee, definir porcentagem fixa baseada no tipo de taxa
+  React.useEffect(() => {
+    if (isShopee) {
+      const fixedPercentage = adType === "normal" ? "14" : adType === "indicado" ? "20" : "14";
+      // Só atualizar se o adType ou calculatorType mudou
+      if (
+        adType !== prevAdTypeRef.current ||
+        calculatorType !== prevCalculatorTypeRef.current
+      ) {
+        if (commissionPercentage !== fixedPercentage) {
+          onCommissionPercentageChange(fixedPercentage);
+        }
+      }
+    }
+    prevAdTypeRef.current = adType;
+    prevCalculatorTypeRef.current = calculatorType;
+  }, [isShopee, adType, calculatorType, commissionPercentage, onCommissionPercentageChange]);
+
   const calculatedCommission = React.useMemo(() => {
     if (!salePrice || !commissionPercentage) return "0,00";
     const price = parseFloat(salePrice) || 0;
@@ -29,6 +49,26 @@ export default function CostsSection({
     return (price * (percentage / 100)).toFixed(2);
   }, [salePrice, commissionPercentage]);
 
+  const getAdTypeOptions = () => {
+    if (isShopee) {
+      return [
+        { value: "normal", label: "Normal" },
+        { value: "indicado", label: "Indicado" },
+      ];
+    }
+    return [
+      { value: "classico", label: "Clássico" },
+      { value: "premium", label: "Premium" },
+    ];
+  };
+
+  const getAdTypeLabel = () => {
+    return isShopee ? "Tipo de taxa" : "Tipo de anúncio";
+  };
+
+  const getCommissionLabel = () => {
+    return isShopee ? "Taxa" : "Comissão";
+  };
   return (
     <div className="space-y-5 bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
       <h2 className="text-lg font-semibold text-beergam-blue-primary">
@@ -37,24 +77,19 @@ export default function CostsSection({
 
       <Fields.wrapper>
         <Fields.label
-          text="Tipo de anúncio"
-          hint="Tipo de anúncio no marketplace"
+          text={getAdTypeLabel()}
         />
         <RadioGroup
           name="adType"
           value={adType}
-          options={[
-            { value: "classico", label: "Clássico" },
-            { value: "premium", label: "Premium" },
-          ]}
-          onChange={(value) => onAdTypeChange(value as "classico" | "premium")}
+          options={getAdTypeOptions()}
+          onChange={(value) => onAdTypeChange(value as "classico" | "premium" | "normal" | "indicado")}
         />
       </Fields.wrapper>
 
       <Fields.wrapper>
         <Fields.label
-          text="Comissão"
-          hint="Porcentagem de comissão do marketplace"
+          text={getCommissionLabel()}
         />
         <div className="flex gap-4">
           <div className="flex-1">
@@ -65,12 +100,13 @@ export default function CostsSection({
               suffix="%"
               step={0.01}
               min={0}
+              disabled={isShopee}
             />
           </div>
           <div className="flex-1">
             <div className="px-4 py-3.5 border-2 border-gray-200 rounded-lg bg-gray-50 text-sm">
               <span className="text-beergam-gray text-xs block mb-1">
-                Comissão em R$
+                {isShopee ? "Taxa em R$" : "Comissão em R$"}
               </span>
               <div className="text-beergam-blue-primary font-semibold text-base">
                 R$ {calculatedCommission}
@@ -79,7 +115,7 @@ export default function CostsSection({
           </div>
         </div>
         <p className="text-xs text-beergam-gray mt-1.5">
-          É aplicada uma média de comissão
+          {isShopee ? "A taxa é fixa conforme o tipo selecionado" : "É aplicada uma média de comissão"}
         </p>
       </Fields.wrapper>
     </div>
