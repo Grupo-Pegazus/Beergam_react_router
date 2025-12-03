@@ -15,9 +15,21 @@ export type DeliveryStatusFilter =
   | "shipped"
   | "delivered"
 
+export type DeliveryTypeFilter =
+  | "all"
+  | "xd_drop_off"
+  | "fulfillment"
+  | "cross_docking"
+  | "drop_off"
+  | "me2"
+  | "self_service"
+  | "flex"
+  | "not_specified";
+
 export interface VendasFiltersState extends Partial<OrdersFilters> {
   statusFilter?: OrderStatusFilter;
   deliveryStatusFilter?: DeliveryStatusFilter;
+  deliveryTypeFilter?: DeliveryTypeFilter;
   searchType?: "order_id" | "sku" | "buyer_nickname";
   dateCreatedFrom?: string;
   dateCreatedTo?: string;
