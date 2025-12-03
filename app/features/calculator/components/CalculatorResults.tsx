@@ -8,6 +8,7 @@ interface CalculatorResultsProps {
     salePrice: string;
     weeklySales: string;
   };
+  calculatorType: "ml" | "shopee";
 }
 
 function formatCurrency(value: number): string {
@@ -68,10 +69,13 @@ function getDefaultResults(formData: {
 export default function CalculatorResults({
   results,
   formData,
+  calculatorType,
 }: CalculatorResultsProps) {
   const displayResults = results || getDefaultResults(formData);
   const { costs, unit_calculation, weekly_calculation, margins } =
     displayResults;
+  
+  const isShopee = calculatorType === "shopee";
 
   return (
     <div className="sticky top-4 space-y-6 bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
@@ -98,13 +102,17 @@ export default function CalculatorResults({
               </span>
             </div>
             <div className="flex justify-between items-center py-1">
-              <span className="text-sm text-beergam-gray">Comissão</span>
+              <span className="text-sm text-beergam-gray">
+                {isShopee ? "Taxa" : "Comissão"}
+              </span>
               <span className="text-sm font-medium">
                 {formatCurrency(costs.commission_ml)}
               </span>
             </div>
             <div className="flex justify-between items-center py-1">
-              <span className="text-sm text-beergam-gray">Frete</span>
+              <span className="text-sm text-beergam-gray">
+                {isShopee ? "Taxa fixa" : "Frete"}
+              </span>
               <span className="text-sm font-medium">
                 {formatCurrency(costs.shipping_cost)}
               </span>
