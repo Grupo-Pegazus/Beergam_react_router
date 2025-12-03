@@ -154,7 +154,7 @@ export default function PageLayout({
           </div>
         </div>
         <div
-          className={`w-full mt-16 max-h-[90%] z-50 relative md:mt-0 ${tailwindClassName}`}
+          className={`w-full mt-16 max-h-[90%] md:max-h-full z-50 relative md:mt-0 ${tailwindClassName}`}
         >
           {children}
         </div>

@@ -8,6 +8,8 @@ import type { IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
 import Svg from "~/src/assets/svgs/_index";
 import ConfigSectionComponent from "./components/ConfigSectionComponent";
+import Impostos from "./components/Impostos";
+import MinhaAssinatura from "./components/MinhaAssinatura/index";
 import MinhaConta from "./components/MinhaConta";
 import VisaoGeral from "./components/VisaoGeral";
 type SECTIONS =
@@ -21,6 +23,7 @@ type SECTIONS =
 interface IConfigSection {
   label: SECTIONS;
   icon: keyof typeof Svg;
+  emBreve?: boolean;
 }
 const CONFIG_SECTIONS: IConfigSection[] = [
   { label: "Visão Geral", icon: "cog_8_tooth" },
@@ -29,24 +32,31 @@ const CONFIG_SECTIONS: IConfigSection[] = [
   { label: "Colaboradores", icon: "user_plus" },
   { label: "Minha Assinatura", icon: "card" },
   { label: "Impostos", icon: "building_library" },
-  { label: "Afiliados", icon: "box" },
+  { label: "Afiliados", icon: "box", emBreve: true },
 ];
 
 function ConfigSection({
   section,
   onClick,
   isSelected,
+  emBreve = false,
 }: {
   section: IConfigSection;
   onClick: () => void;
   isSelected: boolean;
+  emBreve?: boolean;
 }) {
   const Icon = Svg[section.icon];
   return (
     <button
-      className={`flex p-2 w-full rounded-lg text-left cursor-pointer gap-2 border border-transparent items-center text-beergam-white hover:bg-beergam-blue-primary/10 ${isSelected ? "bg-beergam-blue-primary! border-beergam-white!" : ""}`}
-      onClick={onClick}
+      className={`flex relative p-2 w-full rounded-lg text-left gap-2 border border-transparent items-center text-beergam-white ${emBreve ? "text-white/50 cursor-not-allowed!" : "hover:bg-beergam-blue-primary/10"} ${isSelected ? "bg-beergam-blue-primary! border-beergam-white!" : ""}`}
+      onClick={!emBreve ? onClick : undefined}
     >
+      {emBreve && (
+        <span className="absolute top-1/2 right-2 translate-y-[-50%] font-bold text-beergam-white">
+          Em breve
+        </span>
+      )}
       <Icon width={26} height={26} />
       <span className="text-sm font-medium">{section.label}</span>
     </button>
@@ -63,6 +73,10 @@ function HandleSection(section: SECTIONS, user: IUser | IColab) {
       return <VisaoGeral user={user} />;
     case "Minha Conta":
       return <MinhaConta user={user} />;
+    case "Minha Assinatura":
+      return <MinhaAssinatura />;
+    case "Impostos":
+      return <Impostos />;
   }
 }
 export default function ConfigPage() {
@@ -114,6 +128,7 @@ export default function ConfigPage() {
                       }, 300);
                     }}
                     isSelected={selectedSection === section.label}
+                    emBreve={section.emBreve}
                   />
                 ))}
                 <button
@@ -141,6 +156,7 @@ export default function ConfigPage() {
                     }, 300);
                   }}
                   isSelected={selectedSection === section.label}
+                  emBreve={section.emBreve}
                 />
               ))}
               <button
