@@ -62,7 +62,7 @@ export default function PageLayout({
   return (
     <>
       <main className="relative h-screen md:pt-16 overflow-hidden">
-        <header className="fixed top-0 left-0 right-0 p-4 px-8 flex z-99 items-center justify-between">
+        <header className="fixed top-0 left-0 right-0 p-4 px-4 md:px-8 flex z-99 items-center justify-between">
           <Link to="/" className="w-10 h-10 cursor-pointer hover:opacity-80">
             <img
               src={CDN_IMAGES.BERGAMOTA_LOGO}
@@ -153,7 +153,9 @@ export default function PageLayout({
             </div>
           </div>
         </div>
-        <div className={`w-full mt-16 md:mt-0 ${tailwindClassName}`}>
+        <div
+          className={`w-full mt-16 max-h-[90%] z-50 relative md:mt-0 ${tailwindClassName}`}
+        >
           {children}
         </div>
       </main>
