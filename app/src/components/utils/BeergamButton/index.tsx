@@ -53,7 +53,7 @@ function BeergamButtonWrapper({
       : fetcher?.fecthing
         ? "opacity-50!"
         : "";
-  const wrapperClass = `${sliderClasses} ${fectherClasses} relative overflow-hidden text-${mainColor} font-semibold py-2 px-4 rounded-lg shadow-sm group ${className}`;
+  const wrapperClass = `${sliderClasses} ${fectherClasses} relative overflow-hidden text-${mainColor} font-semibold py-2! px-4! rounded-lg shadow-sm group ${className}`;
   const sliderStyle: CSSPropertiesWithVars | undefined = isSlider
     ? { "--bg-slider-color": `var(--color-${mainColor})` }
     : undefined;
@@ -118,8 +118,7 @@ export default function BeergamButton({
     >
       <>
         <span
-          className={`relative ${fetcher?.completed || fetcher?.error ? "opacity-0" : "opacity-100"} z-10 ${disabled ? "" : animationStyle == "fade" ? "" : "group-hover:text-beergam-white"}`}
-          style={{ fontSize: "inherit" }}
+          className={`relative text-base! lg:text-lg!  ${fetcher?.completed || fetcher?.error ? "opacity-0" : "opacity-100"} z-10 ${disabled ? "" : animationStyle == "fade" ? "" : "group-hover:text-beergam-white"}`}
         >
           {title}
         </span>
