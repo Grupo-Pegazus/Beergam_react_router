@@ -1,6 +1,7 @@
 import AlertIcon from "./AlertIcon";
 import ArrowPathIcon from "./ArrowPathIcon";
 import ArrowUturnLeft from "./ArrowUturnLeft";
+import ArrowUturnRight from "./ArrowUturnRight";
 import BagIcon from "./BagIcon";
 import BagSolid from "./BagSolid";
 import Bell from "./Bell";
@@ -31,6 +32,7 @@ import EyeSlash from "./EyeSlash";
 import GlobeIcon from "./GlobeIcon";
 import GraphIcon from "./GraphIcon";
 import GraphIconSolid from "./GraphIconSolid";
+import Hamburguer from "./Hamburguer";
 import HomeIcon from "./HomeIcon";
 import HomeSolid from "./HomeSolid";
 import InBoxStackIcon from "./InBoxStackIcon";
@@ -121,6 +123,8 @@ const Svg = {
   user: User,
   copy_solid: CopySolid,
   check_solid: CheckSolid,
+  arrow_uturn_right: ArrowUturnRight,
+  hamburguer: Hamburguer,
 };
 
 export default Svg;
