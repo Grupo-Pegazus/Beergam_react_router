@@ -2,7 +2,6 @@ import type { OrdersFilters } from "../../typings";
 
 export type OrderStatusFilter =
   | "all"
-  | "confirmed"
   | "payment_required"
   | "payment_in_process"
   | "paid"
@@ -11,6 +10,7 @@ export type OrderStatusFilter =
 export type DeliveryStatusFilter =
   | "all"
   | "ready_to_ship"
+  | "handling"
   | "pending"
   | "shipped"
   | "delivered"

@@ -1,5 +1,10 @@
+import type React from "react";
 import Svg from "~/src/assets/svgs/_index";
-import { type BaseMarketPlace, MarketplaceType, MarketplaceStatusParse } from "../typings";
+import {
+  type BaseMarketPlace,
+  MarketplaceType,
+  MarketplaceStatusParse,
+} from "../typings";
 import { getMarketplaceImageUrl } from "~/src/constants/cdn-images";
 import StatusTag from "./StatusTag";
 
@@ -16,7 +21,8 @@ export default function MarketplaceCard({
   onCardClick,
   onDelete,
 }: MarketplaceCardProps) {
-  const isProcessing = marketplace?.status_parse === MarketplaceStatusParse.PROCESSING;
+  const isProcessing =
+    marketplace?.status_parse === MarketplaceStatusParse.PROCESSING;
   const isDisabled = isProcessing;
 
   const handleDeleteClick = (e: React.MouseEvent) => {
@@ -32,14 +38,25 @@ export default function MarketplaceCard({
     }
   };
   return (
-    <button
+    <div
       className={`group flex justify-center items-center relative mb-4 p-8 shadow-lg/55 rounded-2xl flex-col gap-2 border-2 ${
-        marketplace 
-          ? `bg-beergam-white border-transparent ${isDisabled ? 'opacity-60 cursor-not-allowed' : 'hover:opacity-75'}` 
+        marketplace
+          ? `bg-beergam-white border-transparent ${
+              isDisabled ? "opacity-60 cursor-not-allowed" : "hover:opacity-75"
+            }`
           : "bg-beergam-blue-primary/75 border-dashed border-beergam-white hover:opacity-75"
       }`}
       onClick={handleCardClick}
-      disabled={isDisabled}
+      role="button"
+      tabIndex={isDisabled ? -1 : 0}
+      onKeyDown={(e) => {
+        if (isDisabled) return;
+
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleCardClick();
+        }
+      }}
     >
       {marketplace ? (
         <>
@@ -54,15 +71,17 @@ export default function MarketplaceCard({
               />
             </div>
           </div>
-          <div className="absolute top-2 left-2 flex items-start gap-2 z-20">
-            <button 
-              className="bg-beergam-red-primary opacity-90 hover:opacity-100 active:opacity-100 md:opacity-0 md:group-hover:opacity-100 w-10 h-10 rounded-full flex items-center justify-center transition-opacity duration-200 shadow-lg"
-              onClick={handleDeleteClick}
-              aria-label="Deletar conta"
-            >
-              <Svg.trash tailWindClasses="stroke-beergam-white w-5 h-5" />
-            </button>
-          </div>
+          {!isDisabled && (
+            <div className="absolute top-2 left-2 flex items-start gap-2 z-20">
+              <button
+                className="bg-beergam-red-primary opacity-90 hover:opacity-100 active:opacity-100 md:opacity-0 md:group-hover:opacity-100 w-10 h-10 rounded-full flex items-center justify-center transition-opacity duration-200 shadow-lg"
+                onClick={handleDeleteClick}
+                aria-label="Deletar conta"
+              >
+                <Svg.trash tailWindClasses="stroke-beergam-white w-5 h-5" />
+              </button>
+            </div>
+          )}
           
           <img
             src={marketplace.marketplace_image}
@@ -101,6 +120,6 @@ export default function MarketplaceCard({
           <Svg.plus_circle tailWindClasses="stroke-beergam-white w-14 lg:w-20" />
         </>
       )}
-    </button>
+    </div>
   );
 }

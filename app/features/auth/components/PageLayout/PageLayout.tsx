@@ -1,13 +1,13 @@
 import { Box, ClickAwayListener } from "@mui/material";
-import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import authStore from "~/features/store-zustand";
 import { isMaster } from "~/features/user/utils";
 import Svg from "~/src/assets/svgs/_index";
 import ParticlesBackground from "~/src/components/utils/ParticlesBackground";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
-import { authService } from "../../service";
+import LogoutOverlay from "~/features/auth/components/LogoutOverlay/LogoutOverlay";
+import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 function CardComponent({ title, value }: { title: string; value: string }) {
   return (
     <div className="relative w-full max-w-44 h-26 group">
@@ -35,12 +35,10 @@ export default function PageLayout({
   children: React.ReactNode;
   tailwindClassName?: string;
 }) {
-  const navigate = useNavigate();
-  const logout = authStore.use.logout();
   const user = authStore.use.user();
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
-  const handleLogout = useMutation({
-    mutationFn: () => authService.logout(),
+  const { isLoggingOut, logout } = useLogoutFlow({
+    redirectTo: "/login",
   });
   // Função para gerar sigla customizada com base nas regras fornecidas
   function generateUserInitials(name: string): string {
@@ -61,6 +59,7 @@ export default function PageLayout({
   }
   return (
     <>
+      {isLoggingOut && <LogoutOverlay />}
       <main className="flex min-h-full bg-beergam-orange overflow-x-hidden">
         <header className="fixed z-10000 top-0 left-0 right-0 p-4 px-8 flex items-center justify-between">
           <Link to="/" className="w-10 h-10 cursor-pointer hover:opacity-80">
@@ -97,13 +96,12 @@ export default function PageLayout({
                     </div>
                     <hr className="my-2 border-beergam-white" />
                     <button
-                      onClick={() => {
-                        if (!menuOpen || handleLogout.isPending) return;
-                        handleLogout.mutate();
-                        logout();
-                        navigate("/login", { replace: true });
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (!menuOpen) return;
+                        void logout();
                       }}
-                      className={`flex items-center px-2 py-1 rounded-lg gap-2 justify-between w-full hover:bg-beergam-white/10 ${handleLogout.isPending ? "opacity-50! cursor-not-allowed!" : ""} ${!menuOpen ? "pointer-events-none! cursor-auto!" : ""}`}
+                      className={`flex items-center px-2 py-1 rounded-lg gap-2 justify-between w-full hover:bg-beergam-white/10 ${isLoggingOut ? "opacity-50! cursor-not-allowed!" : ""} ${!menuOpen ? "pointer-events-none! cursor-auto!" : ""}`}
                     >
                       <p className="text-beergam-white text-sm!">Sair</p>
                       <Svg.logout tailWindClasses="text-beergam-white size-6" />

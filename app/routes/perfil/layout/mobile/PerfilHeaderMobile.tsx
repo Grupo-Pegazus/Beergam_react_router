@@ -1,28 +1,18 @@
-import { useNavigate } from "react-router";
-import toast from "~/src/utils/toast";
 import Svg from "~/src/assets/svgs/_index";
 import OverlayFrame from "~/features/system/shared/OverlayFrame";
 import { useOverlay } from "~/features/system/hooks/useOverlay";
 import authStore from "~/features/store-zustand";
-import { authService } from "~/features/auth/service";
+import LogoutOverlay from "~/features/auth/components/LogoutOverlay/LogoutOverlay";
+import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 import type { IUser } from "~/features/user/typings/User";
 import { isMaster } from "~/features/user/utils";
 
 export default function PerfilHeaderMobile() {
   const user = authStore.use.user();
-  const logout = authStore.use.logout();
   const { isOpen, shouldRender, open, requestClose } = useOverlay();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    const res = await authService.logout();
-    if (res.success) {
-      logout();
-      navigate("/login");
-    } else {
-      toast.error(res.message);
-    }
-  };
+  const { isLoggingOut, logout } = useLogoutFlow({
+    redirectTo: "/login",
+  });
 
   const userEmail =
     user && isMaster(user as unknown as IUser)
@@ -32,6 +22,7 @@ export default function PerfilHeaderMobile() {
 
   return (
     <>
+      {isLoggingOut && <LogoutOverlay />}
       <OverlayFrame
         title="Usuário"
         isOpen={isOpen}
@@ -66,7 +57,10 @@ export default function PerfilHeaderMobile() {
                 <button
                   type="button"
                   aria-label="Sair da conta"
-                  onClick={handleLogout}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    void logout();
+                  }}
                   className="w-full px-4 py-3 rounded-lg bg-beergam-red-light text-beergam-red-primary font-medium text-sm active:scale-[0.98] transition-transform"
                 >
                   Sair

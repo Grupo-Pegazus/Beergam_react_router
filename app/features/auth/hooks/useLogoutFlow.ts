@@ -1,0 +1,47 @@
+import { useCallback, useState } from "react";
+import { useNavigate } from "react-router";
+import authStore from "~/features/store-zustand";
+import { authService } from "../service";
+import toast from "~/src/utils/toast";
+
+interface UseLogoutFlowParams {
+  redirectTo?: string;
+}
+
+interface UseLogoutFlowResult {
+  isLoggingOut: boolean;
+  logout: () => Promise<void>;
+}
+
+export function useLogoutFlow({
+  redirectTo = "/login",
+}: UseLogoutFlowParams): UseLogoutFlowResult {
+  const navigate = useNavigate();
+  const logoutLocal = authStore.use.logout();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const logout = useCallback(async () => {
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+    try {
+      logoutLocal();
+      const res = await authService.logout();
+
+      if (res.success) {
+        navigate(redirectTo, { replace: true });
+      } else {
+        toast.error(res.message || "Erro ao sair. Tente novamente.");
+        setIsLoggingOut(false);
+      }
+    } catch (error) {
+      console.error("Erro inesperado no fluxo de logout", error);
+      toast.error("Erro ao sair. Tente novamente em alguns instantes.");
+      setIsLoggingOut(false);
+    }
+  }, [isLoggingOut, logoutLocal, navigate, redirectTo]);
+
+  return { isLoggingOut, logout };
+}
+
+

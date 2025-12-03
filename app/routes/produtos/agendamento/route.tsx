@@ -1,4 +1,5 @@
 import type { Route } from ".react-router/types/app/routes/produtos/agendamento/+types/route";
+import AgendamentoPage from "./page";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,6 +10,6 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Agendamento() {
   return (
-    <p>Agendamento</p>
+    <AgendamentoPage />
   );
 }

@@ -12,11 +12,12 @@ import {
   type BaseMarketPlace,
 } from "~/features/marketplace/typings";
 import authStore from "~/features/store-zustand";
+import LogoutOverlay from "~/features/auth/components/LogoutOverlay/LogoutOverlay";
+import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 import Loading from "~/src/assets/loading";
 import Svg from "~/src/assets/svgs/_index";
 import Modal from "~/src/components/utils/Modal";
 import toast from "~/src/utils/toast";
-import { menuService } from "../../../menu/service";
 import DeleteMarketaplceAccount from "~/routes/choosen_account/components/DeleteMarketaplceAccount";
 
 // Lazy loading do modal de integração para otimizar performance
@@ -35,9 +36,11 @@ export default function AccountView({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [marketplaceToDelete, setMarketplaceToDelete] =
     useState<BaseMarketPlace | null>(null);
-  const logout = authStore.use.logout();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { isLoggingOut, logout } = useLogoutFlow({
+    redirectTo: "/login",
+  });
   const {
     accounts,
     current,
@@ -55,14 +58,6 @@ export default function AccountView({
     }
   }, [open]);
 
-  const handleLogout = async () => {
-    const res = await menuService.logout();
-    if (res.success) {
-      logout();
-    } else {
-      toast.error(res.message);
-    }
-  };
   // seleção de conta delegada à hook compartilhada
 
   // Invalida queries quando modal fecha para garantir dados atualizados
@@ -136,6 +131,7 @@ export default function AccountView({
 
   return (
     <>
+      {isLoggingOut && <LogoutOverlay />}
       <ClickAwayListener onClickAway={() => setOpen(false)}>
         <div className="relative">
           <button
@@ -247,7 +243,10 @@ export default function AccountView({
                         <span className="text-gray-300">•</span>
                         <button
                           type="button"
-                          onClick={handleLogout}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            void logout();
+                          }}
                           className="text-xs text-red-600 hover:text-red-700 hover:underline font-medium"
                         >
                           Sair

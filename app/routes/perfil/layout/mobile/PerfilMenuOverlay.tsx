@@ -1,14 +1,10 @@
 import { Paper } from "@mui/material";
-import { menuService } from "~/features/menu/service";
-import toast from "~/src/utils/toast";
 import { useCallback, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router";
-import { logout } from "~/features/auth/redux";
-import { authService } from "~/features/auth/service";
 import { useOverlay } from "~/features/system/hooks/useOverlay";
 import OverlayFrame from "~/features/system/shared/OverlayFrame";
 import Svg from "~/src/assets/svgs/_index";
+import LogoutOverlay from "~/features/auth/components/LogoutOverlay/LogoutOverlay";
+import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 
 type PerfilMenuItem = {
   key: string;
@@ -35,8 +31,9 @@ export default function PerfilMenuOverlay({
   onSelect: (button: string) => void;
 }) {
   const { isOpen, shouldRender, open, requestClose } = useOverlay();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const { isLoggingOut, logout } = useLogoutFlow({
+    redirectTo: "/login",
+  });
   const handleClose = useCallback(() => {
     requestClose(onClose);
   }, [requestClose, onClose]);
@@ -61,16 +58,6 @@ export default function PerfilMenuOverlay({
     handleClose();
   }
 
-  const handleLogout = async () => {
-    const res = await authService.logout();
-    if (res.success) {
-      dispatch(logout());
-      navigate("/login");
-    } else {
-      toast.error(res.message);
-    }
-  };
-
   return (
     <OverlayFrame
       title="Configurações de Usuário"
@@ -79,6 +66,7 @@ export default function PerfilMenuOverlay({
       onRequestClose={handleClose}
     >
       <div className="p-2 grid grid-cols-3 gap-2">
+        {isLoggingOut && <LogoutOverlay />}
         {PERFIL_MENU_ITEMS.map((item) => {
           const Icon = Svg[item.icon];
           const maybeSolid = item.icon
@@ -123,8 +111,12 @@ export default function PerfilMenuOverlay({
         })}
         <button
           type="button"
-          onClick={handleLogout}
-          className="fixed w-[90%] mx-auto bottom-6 left-0 right-0 flex items-center gap-3 p-3 rounded-xl border border-black/10 bg-beergam-red-light text-beergam-red-primary shadow-sm"
+          onClick={(e) => {
+            e.preventDefault();
+            void logout();
+          }}
+          className="fixed w-[90%] mx-auto bottom-6 left-0 right-0 flex items-center gap-3 p-3 rounded-xl border border-black/10 bg-beergam-red-light text-beergam-red-primary shadow-sm disabled:opacity-60"
+          disabled={isLoggingOut}
         >
           <Svg.logout
             width={20}
