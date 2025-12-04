@@ -5,6 +5,13 @@ import type {
   ProductsFilters,
   ProductDetails,
   ProductsMetrics,
+  StockTrackingResponse,
+  StockTrackingFilters,
+  RecalculateAverageCostResponse,
+  StockMovementApiPayload,
+  StockMovementResponse,
+  StockDashboardResponse,
+  StockSyncDashboardResponse,
 } from "./typings";
 
 class ProdutosService {
@@ -44,6 +51,13 @@ class ProdutosService {
     return response as ApiResponse<ProductsMetrics>;
   }
 
+  async deleteProduct(productId: string): Promise<ApiResponse<{ message: string }>> {
+    const response = await typedApiClient.delete<{ message: string }>(
+      `/v1/products/${productId}`
+    );
+    return response as ApiResponse<{ message: string }>;
+  }
+
   async changeProductStatus(
     productId: string,
     status: "Ativo" | "Inativo"
@@ -65,6 +79,62 @@ class ProdutosService {
       { status }
     );
     return response as ApiResponse<{ success: boolean; message?: string }>;
+  }
+
+  async getStockTracking(
+    productId: string,
+    filters?: Partial<StockTrackingFilters>
+  ): Promise<ApiResponse<StockTrackingResponse>> {
+    const params = new URLSearchParams();
+
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value));
+        }
+      });
+    }
+
+    const queryString = params.toString();
+    const url = `/v1/products/${productId}/stock-tracking${queryString ? `?${queryString}` : ""}`;
+
+    const response = await typedApiClient.get<StockTrackingResponse>(url);
+    return response as ApiResponse<StockTrackingResponse>;
+  }
+
+  async recalculateAverageCost(
+    productId: string
+  ): Promise<ApiResponse<RecalculateAverageCostResponse>> {
+    const response = await typedApiClient.post<RecalculateAverageCostResponse>(
+      `/v1/products/${productId}/stock-tracking/recalculate-average-cost`
+    );
+    return response as ApiResponse<RecalculateAverageCostResponse>;
+  }
+
+  async createStockMovement(
+    data: StockMovementApiPayload
+  ): Promise<ApiResponse<StockMovementResponse>> {
+    const response = await typedApiClient.post<StockMovementResponse>(
+      `/v1/stock-sync/register-stock-change`,
+      data
+    );
+    return response as ApiResponse<StockMovementResponse>;
+  }
+
+  async getStockDashboard(
+    limit: number = 20
+  ): Promise<ApiResponse<StockDashboardResponse>> {
+    const response = await typedApiClient.get<StockDashboardResponse>(
+      `/v1/products/stock-dashboard?limit=${limit}`
+    );
+    return response as ApiResponse<StockDashboardResponse>;
+  }
+
+  async getStockSyncDashboard(): Promise<ApiResponse<StockSyncDashboardResponse>> {
+    const response = await typedApiClient.get<StockSyncDashboardResponse>(
+      `/v1/stock-sync/dashboard`
+    );
+    return response as ApiResponse<StockSyncDashboardResponse>;
   }
 }
 

@@ -10,6 +10,14 @@ function Icon({
   customIcon?: keyof typeof Svg;
 }) {
   function getSvg() {
+    // Tamanhos responsivos: menor em mobile, maior em desktop
+    const baseSize = "40px";
+    const svgProps = {
+      ...SvgBaseProps,
+      width: SvgBaseProps.width || baseSize,
+      height: SvgBaseProps.height || baseSize,
+    };
+
     if (customIcon) {
       return React.createElement(Svg[customIcon], {
         stroke: "white",
@@ -52,7 +60,7 @@ function Icon({
   }
   return (
     <div
-      className={`size-20 flex items-center justify-center rounded-full ${type === "success" ? "bg-beergam-green-primary" : type === "error" ? "bg-beergam-red-primary" : type === "warning" ? "bg-beergam-yellow" : type === "info" ? "bg-beergam-blue" : "bg-beergam-blue-primary"}`}
+      className={`w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-full ${type === "success" ? "bg-beergam-green-primary" : type === "error" ? "bg-beergam-red-primary" : type === "warning" ? "bg-beergam-yellow" : type === "info" ? "bg-beergam-blue" : "bg-beergam-blue-primary"}`}
     >
       {getSvg()}
     </div>

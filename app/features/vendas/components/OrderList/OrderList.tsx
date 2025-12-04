@@ -34,39 +34,72 @@ export default function OrderList({ filters = {} }: OrderListProps) {
     return data.data.orders;
   }, [data]);
 
-  // Agrupa pedidos por pack_id
-  const groupedOrders = useMemo(() => {
-    const groups: Map<string, Order[]> = new Map();
-    const standaloneOrders: Order[] = [];
+  /**
+   * A lista final é uma sequência de “itens de lista”, onde cada item é:
+   * - um pack (vários pedidos com o mesmo pack_id), ou
+   * - um pedido standalone.
+   */
+  type OrderListItem =
+    | { type: "pack"; packId: string; orders: Order[] }
+    | { type: "single"; order: Order };
+
+  const listItems = useMemo<OrderListItem[]>(() => {
+    if (!orders.length) return [];
+
+    const packMap: Map<string, Order[]> = new Map();
+    const standaloneCandidates: Order[] = [];
 
     orders.forEach((order) => {
       const packId = order.pack_id;
-      
       if (packId) {
-        if (!groups.has(packId)) {
-          groups.set(packId, []);
+        if (!packMap.has(packId)) {
+          packMap.set(packId, []);
         }
-        groups.get(packId)!.push(order);
+        packMap.get(packId)!.push(order);
       } else {
-        // Pedido standalone (sem pack_id)
-        standaloneOrders.push(order);
+        standaloneCandidates.push(order);
       }
     });
 
-    // Segundo passo: separa grupos com apenas 1 pedido (não são carrinhos)
-    const validGroups: Map<string, Order[]> = new Map();
-    
-    groups.forEach((packOrders, packId) => {
+    // Packs com apenas 1 pedido não são carrinhos: viram pedidos standalone.
+    const validPacks: Map<string, Order[]> = new Map();
+    const standaloneOrders: Order[] = [...standaloneCandidates];
+
+    packMap.forEach((packOrders, packId) => {
       if (packOrders.length >= 2) {
-        // É um carrinho (2 ou mais pedidos)
-        validGroups.set(packId, packOrders);
+        validPacks.set(packId, packOrders);
       } else {
-        // Não é carrinho, trata como standalone
         standaloneOrders.push(...packOrders);
       }
     });
 
-    return { groups: validGroups, standaloneOrders };
+    const seenPacks = new Set<string>();
+    const items: OrderListItem[] = [];
+
+    orders.forEach((order) => {
+      const packId = order.pack_id;
+
+      if (packId && validPacks.has(packId)) {
+        // É um pack válido (2+ pedidos)
+        if (!seenPacks.has(packId)) {
+          seenPacks.add(packId);
+          items.push({
+            type: "pack",
+            packId,
+            orders: validPacks.get(packId)!,
+          });
+        }
+        // Se já vimos esse packId, não adicionamos de novo (evita duplicar).
+      } else {
+        // Pedido standalone (sem pack_id ou pack com apenas 1 pedido)
+        items.push({
+          type: "single",
+          order,
+        });
+      }
+    });
+
+    return items;
   }, [orders]);
 
   const pagination = data?.success ? data.data?.pagination : null;
@@ -97,15 +130,20 @@ export default function OrderList({ filters = {} }: OrderListProps) {
           </div>
         ) : (
           <div className="flex flex-col gap-2 w-full min-w-0">
-            {/* Renderiza pacotes agrupados */}
-            {Array.from(groupedOrders.groups.entries()).map(([packId, packOrders]) => (
-              <OrderPackage key={packId} packId={packId} orders={packOrders} />
-            ))}
-            
-            {/* Renderiza pedidos standalone */}
-            {groupedOrders.standaloneOrders.map((order) => (
-              <OrderCard key={order.order_id} order={order} />
-            ))}
+            {listItems.map((item) =>
+              item.type === "pack" ? (
+                <OrderPackage
+                  key={`pack-${item.packId}`}
+                  packId={item.packId}
+                  orders={item.orders}
+                />
+              ) : (
+                <OrderCard
+                  key={`order-${item.order.order_id}`}
+                  order={item.order}
+                />
+              )
+            )}
           </div>
         )}
 

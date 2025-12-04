@@ -7,6 +7,7 @@ import type {
   DailyRevenue,
   GeographicDistribution,
   TopCategories,
+  OrderDetailsResponse,
 } from "./typings";
 import type { ApiResponse } from "../apiClient/typings";
 
@@ -97,6 +98,21 @@ export function useTopCategories(params?: {
       }
       return res;
     },
+    staleTime: 1000 * 60 * 5, // 5 minutos
+  });
+}
+
+export function useOrderDetails(orderIdOrPackId: string) {
+  return useQuery<ApiResponse<OrderDetailsResponse>>({
+    queryKey: ["orders", "details", orderIdOrPackId],
+    queryFn: async () => {
+      const res = await vendasService.getOrderDetails(orderIdOrPackId);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar detalhes do pedido");
+      }
+      return res;
+    },
+    enabled: !!orderIdOrPackId,
     staleTime: 1000 * 60 * 5, // 5 minutos
   });
 }

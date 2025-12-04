@@ -11,15 +11,14 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { ptBR } from "@mui/x-date-pickers/locales";
 import dayjs, { type Dayjs } from "dayjs";
-import type { VendasFiltersProps, VendasFiltersState, OrderStatusFilter, DeliveryStatusFilter } from "./types";
+import type { VendasFiltersProps, VendasFiltersState, OrderStatusFilter, DeliveryStatusFilter, DeliveryTypeFilter } from "./types";
 
 const STATUS_OPTIONS: Array<{ label: string; value: OrderStatusFilter }> = [
   { label: "Todos", value: "all" },
-  { label: "Confirmado", value: "confirmed" },
-  { label: "Pagamento necessário", value: "payment_required" },
-  { label: "Pagamento em processo", value: "payment_in_process" },
   { label: "Pago", value: "paid" },
   { label: "Cancelado", value: "cancelled" },
+  { label: "Pagamento necessário", value: "payment_required" },
+  { label: "Pagamento em processo", value: "payment_in_process" },
 ];
 
 const SEARCH_TYPE_OPTIONS = [
@@ -31,9 +30,21 @@ const SEARCH_TYPE_OPTIONS = [
 const DELIVERY_STATUS_OPTIONS: Array<{ label: string; value: DeliveryStatusFilter }> = [
   { label: "Todos", value: "all" },
   { label: "Pronto para enviar", value: "ready_to_ship" },
+  { label: "Em processamento", value: "handling" },
   { label: "Pendente", value: "pending" },
   { label: "Enviado", value: "shipped" },
   { label: "Entregue", value: "delivered" },
+];
+
+const DELIVERY_TYPE_OPTIONS: Array<{ label: string; value: DeliveryTypeFilter }> = [
+  { label: "Todos", value: "all" },
+  { label: "Agência", value: "xd_drop_off" },
+  { label: "FULL", value: "fulfillment" },
+  { label: "Coleta", value: "cross_docking" },
+  { label: "Correios", value: "drop_off" },
+  { label: "Mercado Envios", value: "me2" },
+  { label: "Flex", value: "self_service" },
+  { label: "Não especificado", value: "not_specified" },
 ];
 export default function VendasFilters({
   value,
@@ -57,6 +68,12 @@ export default function VendasFilters({
         updated.shipment_status =
           newValue === "all" ? undefined : (newValue as DeliveryStatusFilter);
       }
+      if (key === "deliveryTypeFilter") {
+        updated.deliveryTypeFilter =
+          newValue === "all" ? undefined : (newValue as DeliveryTypeFilter);
+        updated.shipping_mode =
+          newValue === "all" ? undefined : newValue as DeliveryTypeFilter;
+      }
 
       onChange(updated);
     },
@@ -71,6 +88,11 @@ export default function VendasFilters({
   const deliveryStatusValue = useMemo(
     () => (value.deliveryStatusFilter ?? "all") as DeliveryStatusFilter,
     [value.deliveryStatusFilter]
+  );
+
+  const deliveryTypeValue = useMemo(
+    () => (value.deliveryTypeFilter ?? "all") as DeliveryTypeFilter,
+    [value.deliveryTypeFilter]
   );
 
   const currentSearchType = useMemo(() => {
@@ -217,6 +239,15 @@ export default function VendasFilters({
             onChange={(newValue) => handleFilterChange("deliveryStatusFilter", newValue)}
             label="Status da entrega"
             options={DELIVERY_STATUS_OPTIONS}
+            defaultValue="all"
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <FilterSelect
+            value={deliveryTypeValue}
+            onChange={(newValue) => handleFilterChange("deliveryTypeFilter", newValue)}
+            label="Forma de entrega"
+            options={DELIVERY_TYPE_OPTIONS}
             defaultValue="all"
           />
         </div>

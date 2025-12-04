@@ -19,7 +19,6 @@ const initialFormData: CalculatorFormData = {
   shippingCost: "",
   adType: "classico",
   commissionPercentage: "",
-  commissionAmount: "",
   taxRegime: "",
   annualRevenue: "",
   taxesPercentage: "",
@@ -30,6 +29,21 @@ const initialFormData: CalculatorFormData = {
 
 export default function CalculadoraPage() {
   const [formData, setFormData] = useState<CalculatorFormData>(initialFormData);
+
+  // Ajustar adType quando mudar de ML para Shopee ou vice-versa
+  useEffect(() => {
+    if (formData.calculatorType === "shopee") {
+      // Se for Shopee e o adType não for válido para Shopee, mudar para "normal"
+      if (formData.adType === "classico" || formData.adType === "premium") {
+        setFormData((prev) => ({ ...prev, adType: "normal" }));
+      }
+    } else {
+      // Se for ML e o adType não for válido para ML, mudar para "classico"
+      if (formData.adType === "normal" || formData.adType === "indicado") {
+        setFormData((prev) => ({ ...prev, adType: "classico" }));
+      }
+    }
+  }, [formData.calculatorType]);
 
   const calculateMutation = useMutation({
     mutationFn: (data: CalculatorRequest) =>
@@ -105,15 +119,6 @@ export default function CalculadoraPage() {
     calculateMutation.mutate(requestData);
   }, [formData, calculateCommissionAmount, calculateMutation]);
 
-  useEffect(() => {
-    if (calculateCommissionAmount !== formData.commissionAmount) {
-      setFormData((prev) => ({
-        ...prev,
-        commissionAmount: calculateCommissionAmount,
-      }));
-    }
-  }, [calculateCommissionAmount]);
-
   return (
     <>
       <p className="text-sm text-beergam-gray mb-6">
@@ -132,7 +137,7 @@ export default function CalculadoraPage() {
               type="button"
               onClick={handleCalculate}
               disabled={calculateMutation.isPending}
-              className="px-8 py-3 bg-beergam-orange text-white rounded-lg hover:bg-beergam-orange-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-lg"
+              className="px-8 py-3 md:w-auto w-full bg-beergam-orange text-white rounded-lg hover:bg-beergam-orange-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-lg"
             >
               {calculateMutation.isPending ? "Calculando..." : "Calcular"}
             </button>
@@ -146,6 +151,7 @@ export default function CalculadoraPage() {
               salePrice: formData.salePrice,
               weeklySales: formData.weeklySales,
             }}
+            calculatorType={formData.calculatorType}
           />
         </div>
       </Grid>

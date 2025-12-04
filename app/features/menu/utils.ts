@@ -118,10 +118,25 @@ export const findKeyPathByRoute = (
   const dfs = (node: IMenuConfig, acc: string[]): boolean => {
     for (const [key, item] of Object.entries(node)) {
       const rel = getRelativePath(key);
+      
+      // Match exato
       if (rel === currentPath) {
         chain.push(...acc, key);
         return true;
       }
+      
+      // Match para rotas dinâmicas: verifica se currentPath começa com rel + "/"
+      // e se o item tem dinamic_id configurado
+      if (rel && item.dinamic_id && currentPath.startsWith(rel + "/")) {
+        // Verifica se há um segmento adicional após o path base
+        const remainingPath = currentPath.slice(rel.length + 1);
+        // Se não há mais "/" no remainingPath, significa que é o parâmetro dinâmico
+        if (remainingPath && !remainingPath.includes("/")) {
+          chain.push(...acc, key);
+          return true;
+        }
+      }
+      
       if (item.dropdown && dfs(item.dropdown, [...acc, key])) {
         return true;
       }

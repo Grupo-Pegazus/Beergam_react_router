@@ -43,23 +43,22 @@ export default function CalculatorForm({
       <CostsSection
         adType={formData.adType}
         commissionPercentage={formData.commissionPercentage}
-        commissionAmount={formData.commissionAmount}
         salePrice={formData.salePrice}
+        calculatorType={formData.calculatorType}
         onAdTypeChange={(value) => updateField("adType", value)}
         onCommissionPercentageChange={(value) =>
           updateField("commissionPercentage", value)
         }
-        onCommissionAmountChange={(value) =>
-          updateField("commissionAmount", value)
-        }
       />
 
-      <ShippingSection
-        freeShipping={formData.freeShipping}
-        shippingCost={formData.shippingCost}
-        onFreeShippingChange={(value) => updateField("freeShipping", value)}
-        onShippingCostChange={(value) => updateField("shippingCost", value)}
-      />
+        {formData.calculatorType === "ml" && (
+          <ShippingSection
+            freeShipping={formData.freeShipping}
+            shippingCost={formData.shippingCost}
+            onFreeShippingChange={(value) => updateField("freeShipping", value)}
+            onShippingCostChange={(value) => updateField("shippingCost", value)}
+          />
+        )}
 
       <TaxesSection
         taxRegime={formData.taxRegime}

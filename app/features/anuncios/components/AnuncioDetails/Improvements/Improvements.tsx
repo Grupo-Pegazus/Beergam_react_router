@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import type { AnuncioDetails } from "../../../typings";
-import { Button } from "@mui/material";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface ImprovementsProps {
   anuncio: AnuncioDetails;
@@ -112,25 +112,13 @@ export default function Improvements({ anuncio }: ImprovementsProps) {
                         )}
                         {opportunity.action && (
                           <Box sx={{ pt: 0.5 }}>
-                            <Button
-                              variant="contained"
-                              size="small"
+                            <BeergamButton
+                              title={opportunity.label_action || "Ver mais"}
+                              mainColor="beergam-orange"
+                              animationStyle="slider"
                               onClick={() => window.open(opportunity.action, "_blank")}
-                              sx={{
-                                bgcolor: "#f59e0b",
-                                color: "#fff",
-                                fontWeight: 600,
-                                textTransform: "none",
-                                borderRadius: 1.5,
-                                px: 2,
-                                py: 0.75,
-                                "&:hover": {
-                                  bgcolor: "#d97706",
-                                },
-                              }}
-                            >
-                              {opportunity.label_action || "Ver mais"}
-                            </Button>
+                              className="text-sm"
+                            />
                           </Box>
                         )}
                       </Stack>

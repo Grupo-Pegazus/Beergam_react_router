@@ -1,13 +1,14 @@
 import { useMemo } from "react";
 import { Chip, Divider, Typography } from "@mui/material";
 import MainCards from "~/src/components/ui/MainCards";
+import CopyButton from "~/src/components/ui/CopyButton";
 import type { Order } from "../../typings";
 import dayjs from "dayjs";
 import Svg from "~/src/assets/svgs/_index";
 import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
 import { getStatusOrderMeliInfo } from "~/src/constants/status-order-meli";
 import OrderItemCard from "./OrderItemCard";
-import toast from "~/src/utils/toast";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface OrderCardProps {
   order: Order;
@@ -70,15 +71,11 @@ export default function OrderCard({ order }: OrderCardProps) {
               <Typography variant="caption" color="text.secondary" className="font-mono text-xs md:text-sm">
                 #{order.order_id}
               </Typography>
-              <button
-                className="flex items-center gap-1 text-slate-500 hover:text-slate-700"
-                onClick={() => {
-                  navigator.clipboard.writeText(order.order_id);
-                  toast.success("Order ID copiado para a área de transferência");
-                }}
-              >
-                <Svg.copy tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />
-              </button>
+              <CopyButton
+                textToCopy={order.order_id}
+                successMessage="Order ID copiado para a área de transferência"
+                ariaLabel="Copiar Order ID"
+              />
             </div>
             <span className="text-slate-300 hidden md:inline">|</span>
             <Typography variant="caption" color="text.secondary" className="text-xs md:text-sm">
@@ -104,7 +101,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                 <div className="flex items-center gap-1.5 md:gap-2">
                     <Svg.profile tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4 text-slate-500" />
                     <Typography variant="body2" className="text-slate-900 text-sm md:text-base">
-                    {order.buyer_nickname}
+                    {order.buyer_nickname} - {order.client?.receiver_name} 
                     </Typography>
                     {order.buyer_id && (
                     <>
@@ -121,48 +118,54 @@ export default function OrderCard({ order }: OrderCardProps) {
         <Divider sx={{ my: 0.5 }} />
 
         {/* Status Chips e Botão de Expandir */}
-        <div className="flex flex-wrap items-center justify-between gap-1.5 md:gap-2">
-          <Chip
-            label={statusInfo.label}
-            size="small"
-            icon={
-              (() => {
-                const IconComponent = Svg[statusInfo.icon];
-                return <IconComponent tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />;
-              })()
-            }
-            sx={{
-              height: 22,
-              fontSize: "0.65rem",
-              fontWeight: 600,
-              backgroundColor: statusInfo.backgroundColor,
-              color: statusInfo.color,
-              "& .MuiChip-label": {
-                px: 0.75,
-              },
-            }}
-          />
-        </div>
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
+        <div>
+          <div className="flex flex-wrap items-center justify-between gap-1.5 md:gap-2">
+            <Chip
+              label={statusInfo.label}
+              size="small"
+              icon={
+                (() => {
+                  const IconComponent = Svg[statusInfo.icon];
+                  return <IconComponent tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />;
+                })()
+              }
+              sx={{
+                height: 22,
+                fontSize: "0.65rem",
+                fontWeight: 600,
+                backgroundColor: statusInfo.backgroundColor,
+                color: statusInfo.color,
+                "& .MuiChip-label": {
+                  px: 0.75,
+                },
+              }}
+            />
+          </div>
 
-        {/* Status do envio */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            {(order.shipment_status || deliveryInfo) && (
-              <div className="mt-1 md:mt-2">
-                {order.shipment_status && (
-                  <Typography variant="body2" fontWeight={600} className="text-slate-900 mb-0.5 md:mb-1 text-sm md:text-base">
-                    {getStatusOrderMeliInfo(order.shipment_status)?.label || order.shipment_status}
-                  </Typography>
-                )}
-                {deliveryInfo && (
-                  <Typography variant="caption" fontWeight={400} className="text-slate-700 text-xs md:text-sm">
-                    {deliveryInfo.label} {deliveryInfo.date}
-                  </Typography>
-                )}
-              </div>
-            )}
+          {/* Status do envio */}
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              {(order.shipment_status || deliveryInfo) && (
+                <div className="mt-1 md:mt-2">
+                  {order.shipment_status && (
+                    <Typography variant="body2" fontWeight={600} className="text-slate-900 mb-0.5 md:mb-1 text-sm md:text-base">
+                      {getStatusOrderMeliInfo(order.shipment_status)?.label || order.shipment_status}
+                    </Typography>
+                  )}
+                  {deliveryInfo && (
+                    <Typography variant="caption" fontWeight={400} className="text-slate-700 text-xs md:text-sm">
+                      {deliveryInfo.label} {deliveryInfo.date}
+                    </Typography>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
+        <BeergamButton title="Ver detalhes" mainColor="beergam-blue-primary" link={`/interno/vendas/${order.order_id}`} className="bg-beergam-orange! text-beergam-white!" />
+      </div>
 
         {/* Pedido */}
         <OrderItemCard order={order} />

@@ -1,6 +1,7 @@
 import { useLocation, useParams, useNavigate } from "react-router";
 import { MenuConfig, type IMenuConfig, type IMenuItem } from "~/features/menu/typings";
 import { findKeyPathByRoute, getRelativePath, DEFAULT_INTERNAL_PATH } from "~/features/menu/utils";
+import { useBreadcrumbCustomization } from "~/features/system/context/BreadcrumbContext";
 
 interface BreadcrumbItem {
   label: string;
@@ -14,7 +15,7 @@ interface BreadcrumbItem {
 function SpanLink({ to, className, children }: { to?: string; className?: string; children: React.ReactNode }) {
   const navigate = useNavigate();
   function handleActivate() {
-    if (to) navigate(to);
+    if (to) navigate(to, { viewTransition: true });
   }
   return (
     <span
@@ -27,7 +28,7 @@ function SpanLink({ to, className, children }: { to?: string; className?: string
           handleActivate();
         }
       }}
-      className={["cursor-pointer select-none", className].filter(Boolean).join(" ")}
+      className={["cursor-pointer select-none truncate max-w-[40vw]", className].filter(Boolean).join(" ")}
     >
       {children}
     </span>
@@ -69,14 +70,43 @@ function getPathByKeyChain(keyChain: string[]): string {
     return DEFAULT_INTERNAL_PATH;
   }
 
-  const lastKey = keyChain[keyChain.length - 1];
-  return getRelativePath(lastKey) || DEFAULT_INTERNAL_PATH;
+  // Se a keyChain tem apenas um item, usa getRelativePath normalmente
+  if (keyChain.length === 1) {
+    return getRelativePath(keyChain[0]) || DEFAULT_INTERNAL_PATH;
+  }
+
+  // Para keyChains aninhadas, constrói o path manualmente baseado na hierarquia
+  // Exemplo: ["produtos", "estoque"] -> /interno/produtos/estoque
+  const segments: string[] = [];
+  
+  for (let i = 0; i < keyChain.length; i++) {
+    const chainUntilNow = keyChain.slice(0, i + 1);
+    const menuItem = getMenuItemByChain(MenuConfig, chainUntilNow);
+    
+    if (menuItem?.path) {
+      // Remove a barra inicial do path e adiciona aos segments
+      const pathSegment = menuItem.path.replace(/^\/+/, "");
+      if (pathSegment) {
+        segments.push(pathSegment);
+      }
+    } else if (i === keyChain.length - 1) {
+      // Se o último item não tem path, usa a chave
+      segments.push(keyChain[i]);
+    }
+  }
+  
+  if (segments.length === 0) {
+    return DEFAULT_INTERNAL_PATH;
+  }
+  
+  return DEFAULT_INTERNAL_PATH + "/" + segments.join("/");
 }
 
 function useBreadcrumbItems(): BreadcrumbItem[] {
   const location = useLocation();
   const params = useParams();
   const currentPath = location.pathname;
+  const { customLabel } = useBreadcrumbCustomization();
 
   const { keyChain } = findKeyPathByRoute(MenuConfig, currentPath);
   
@@ -85,10 +115,66 @@ function useBreadcrumbItems(): BreadcrumbItem[] {
   if (keyChain.length === 0) {
     const segments = currentPath.replace(/^\/interno\/?/, "").split("/").filter(Boolean);
     
+    // Tenta encontrar rota dinâmica aninhada (ex: produtos/estoque/[product_id])
     if (segments.length >= 2) {
       const parentKey = segments[0];
-      const parentItem = MenuConfig[parentKey as keyof typeof MenuConfig];
+      const parentItem = MenuConfig[parentKey as keyof typeof MenuConfig] as IMenuItem | undefined;
       
+      // Verifica se o parent tem dropdown e se algum filho tem dinamic_id
+      if (parentItem && parentItem.dropdown) {
+        for (const [childKey, childItem] of Object.entries(parentItem.dropdown)) {
+          const childMenuItem = childItem as IMenuItem;
+          if (
+            childMenuItem &&
+            childMenuItem.dinamic_id &&
+            segments[1] === childKey
+          ) {
+            // Encontrou rota dinâmica aninhada
+            const parentPath = getRelativePath(parentKey);
+            if (parentPath) {
+              items.push({
+                label: parentItem.label,
+                path: parentPath,
+                isLast: false,
+              });
+            }
+            
+            // Constrói o path completo do filho manualmente
+            // Pega o path do parent (ex: /interno/produtos) e junta com o path do filho (ex: /estoque)
+            // IMPORTANTE: Sempre constrói manualmente para garantir o path correto
+            const parentPathValue = parentPath?.replace(DEFAULT_INTERNAL_PATH, "").replace(/^\/+/, "") || "";
+            const childPathValue = childMenuItem.path?.replace(/^\/+/, "") || childKey;
+            
+            // Sempre constrói o path completo: /interno/produtos/estoque
+            // Não usa getRelativePath aqui porque ele pode não considerar o contexto do parent
+            let childPath: string | undefined;
+            if (parentPathValue && childPathValue) {
+              childPath = `${DEFAULT_INTERNAL_PATH}/${parentPathValue}/${childPathValue}`;
+            } else {
+              // Fallback: tenta usar getRelativePath
+              childPath = getRelativePath(childKey);
+            }
+            
+            if (childPath) {
+              items.push({
+                label: childMenuItem.label,
+                path: childPath,
+                isLast: false,
+              });
+            }
+            
+            const dynamicValue = params[childMenuItem.dinamic_id] || segments[segments.length - 1];
+            items.push({
+              label: customLabel || dynamicValue,
+              path: currentPath,
+              isLast: true,
+            });
+            return items;
+          }
+        }
+      }
+      
+      // Fallback para rota dinâmica direta no parent
       if (parentItem && "dinamic_id" in parentItem && parentItem.dinamic_id) {
         items.push({
           label: parentItem.label,
@@ -98,7 +184,7 @@ function useBreadcrumbItems(): BreadcrumbItem[] {
         
         const dynamicValue = params[parentItem.dinamic_id] || segments[segments.length - 1];
         items.push({
-          label: dynamicValue,
+          label: customLabel || dynamicValue,
           path: currentPath,
           isLast: true,
         });
@@ -125,35 +211,38 @@ function useBreadcrumbItems(): BreadcrumbItem[] {
     const isLast = i === keyChain.length - 1;
     
     if (isLast && menuItem.dinamic_id && params[menuItem.dinamic_id]) {
-      const parentPath = getPathByKeyChain(keyChain.slice(0, -1));
+      // Quando o último item tem dinamic_id e estamos na rota dinâmica,
+      // usa o path base do próprio item (sem o parâmetro dinâmico) como parentPath
+      // Exemplo: para "estoque" com dinamic_id, usa /interno/produtos/estoque
+      const basePath = getPathByKeyChain(chainUntilNow);
       items.push({
         label: menuItem.label,
-        path: parentPath,
+        path: basePath,
         isLast: false,
       });
       const dynamicValue = params[menuItem.dinamic_id];
       if (dynamicValue) {
         items.push({
-          label: dynamicValue,
+          label: customLabel || dynamicValue,
           path: currentPath,
           isLast: true,
         });
       } else {
         items.push({
-          label: menuItem.label,
+          label: customLabel || menuItem.label,
           path: currentPath,
           isLast: true,
         });
       }
     } else {
-      // Para itens intermediários, só adiciona path se o item tiver path próprio
-      // Itens sem path próprio (apenas dropdowns) não devem ser clicáveis
+      // Para itens intermediários, constrói o path baseado na keyChain completa
+      // Isso garante que paths aninhados sejam construídos corretamente
       const path = isLast 
         ? currentPath 
-        : (menuItem.path ? getPathByKeyChain(chainUntilNow) : undefined);
+        : getPathByKeyChain(chainUntilNow);
       items.push({
         label: menuItem.label,
-        path,
+        path: path !== DEFAULT_INTERNAL_PATH ? path : undefined,
         isLast,
       });
     }
@@ -181,7 +270,7 @@ export default function SystemBreadcrumb() {
           return (
             <span key={`${item.path}-${index}`} className="flex items-center gap-2">
               {isLast ? (
-                <span className="text-beergam-black-blue">
+                <span className="text-beergam-black-blue truncate max-w-[40vw]">
                   {item.label}
                 </span>
               ) : (
@@ -193,12 +282,12 @@ export default function SystemBreadcrumb() {
                   {item.path ? (
                     <SpanLink
                       to={item.path}
-                      className="text-beergam-black-blue opacity-50 hover:opacity-100 transition-colors inline-flex"
+                      className="text-beergam-black-blue opacity-50 hover:opacity-100 transition-colors inline-flex truncate"
                     >
                       {item.label}
                     </SpanLink>
                   ) : (
-                    <span className="text-[#6b7280] inline-flex">
+                    <span className="text-[#6b7280] inline-flex truncate max-w-[40vw]">
                       {item.label}
                     </span>
                   )}

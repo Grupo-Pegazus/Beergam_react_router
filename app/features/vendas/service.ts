@@ -7,6 +7,7 @@ import type {
   DailyRevenue,
   GeographicDistribution,
   TopCategories,
+  OrderDetailsResponse,
 } from "./typings";
 
 class VendasService {
@@ -86,6 +87,11 @@ class VendasService {
 
     const response = await typedApiClient.get<TopCategories>(url);
     return response as ApiResponse<TopCategories>;
+  }
+
+  async getOrderDetails(orderIdOrPackId: string): Promise<ApiResponse<OrderDetailsResponse>> {
+    const response = await typedApiClient.get<OrderDetailsResponse>(`/v1/orders/${orderIdOrPackId}`);
+    return response as ApiResponse<OrderDetailsResponse>;
   }
 }
 

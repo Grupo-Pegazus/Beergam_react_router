@@ -1,17 +1,41 @@
-import { useMemo, useState, useEffect } from "react";
+import {
+  Avatar,
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import toast from "~/src/utils/toast";
-import { MarketplaceType, type BaseMarketPlace, MarketplaceTypeLabel } from "~/features/marketplace/typings";
-import { marketplaceService } from "~/features/marketplace/service";
-import { useRecalcStatus, useRecalculatePeriod, useUpsertTax, useUserTaxes } from "~/features/taxes/hooks";
-import type { TaxesData } from "~/features/taxes/typings";
-import { MenuItem, Select, InputLabel, FormControl, Table, TableHead, TableRow, TableCell, TableBody, Button, Card, CardContent, CircularProgress, Box, Typography, IconButton, Chip, Avatar } from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
 import { Tooltip } from "react-tooltip";
-import Modal from "~/src/components/utils/Modal";
-import Svg from "~/src/assets/svgs/_index";
-import Hint from "~/src/components/utils/Hint";
 import type { ApiResponse } from "~/features/apiClient/typings";
+import { marketplaceService } from "~/features/marketplace/service";
+import {
+  MarketplaceType,
+  MarketplaceTypeLabel,
+  type BaseMarketPlace,
+} from "~/features/marketplace/typings";
+import {
+  useRecalcStatus,
+  useRecalculatePeriod,
+  useUpsertTax,
+  useUserTaxes,
+} from "~/features/taxes/hooks";
+import type { TaxesData } from "~/features/taxes/typings";
+import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import Hint from "~/src/components/utils/Hint";
+import Modal from "~/src/components/utils/Modal";
+import toast from "~/src/utils/toast";
 
 function formatRateInput(value: string): string {
   const normalized = value.replace(/[^0-9.,]/g, "");
@@ -46,14 +70,21 @@ function sanitizePercentInput(value: string): string {
 
 function formatNumberToPercentString(n: number | null | undefined): string {
   if (n == null || Number.isNaN(n) || !Number.isFinite(n)) return "0,00";
-  return n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return n.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
 export default function Impostos() {
-  const [selectedAccount, setSelectedAccount] = useState<BaseMarketPlace | null>(null);
+  const [selectedAccount, setSelectedAccount] =
+    useState<BaseMarketPlace | null>(null);
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [editRates, setEditRates] = useState<Record<string, string>>({});
-  const [confirmModal, setConfirmModal] = useState<{ open: boolean; month: number | null }>({ open: false, month: null });
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean;
+    month: number | null;
+  }>({ open: false, month: null });
 
   // Contas do usuário
   const accountsQuery = useQuery({
@@ -71,7 +102,9 @@ export default function Impostos() {
 
   const { data: taxes, isLoading: taxesLoading } = useUserTaxes({
     marketplace_shop_id: selectedAccount?.marketplace_shop_id,
-    marketplace_type: selectedAccount?.marketplace_type as MarketplaceType | undefined,
+    marketplace_type: selectedAccount?.marketplace_type as
+      | MarketplaceType
+      | undefined,
     year,
   });
 
@@ -79,7 +112,11 @@ export default function Impostos() {
 
   const handleSaveMonth = async (month: number) => {
     if (!selectedAccount) return;
-    const raw = editRates[String(month)] ?? String(taxes?.impostos?.[String(month) as keyof TaxesData["impostos"]] ?? "0");
+    const raw =
+      editRates[String(month)] ??
+      String(
+        taxes?.impostos?.[String(month) as keyof TaxesData["impostos"]] ?? "0"
+      );
     const formatted = formatRateInput(raw);
 
     const payload = {
@@ -107,10 +144,20 @@ export default function Impostos() {
 
   useEffect(() => {
     setEditRates({});
-  }, [selectedAccount?.marketplace_shop_id, selectedAccount?.marketplace_type, year]);
+  }, [
+    selectedAccount?.marketplace_shop_id,
+    selectedAccount?.marketplace_type,
+    year,
+  ]);
 
-  const [recalcContext, setRecalcContext] = useState<{ year: number; month: number } | null>(null);
-  const recalcStatus = useRecalcStatus({ year: recalcContext?.year, month: recalcContext?.month });
+  const [recalcContext, setRecalcContext] = useState<{
+    year: number;
+    month: number;
+  } | null>(null);
+  const recalcStatus = useRecalcStatus({
+    year: recalcContext?.year,
+    month: recalcContext?.month,
+  });
   const recalc = useRecalculatePeriod();
 
   const openRecalc = (month: number) => {
@@ -120,11 +167,16 @@ export default function Impostos() {
 
   const confirmRecalc = async () => {
     if (!recalcContext) return;
-    const p = recalc.mutateAsync({ year: recalcContext.year, month: recalcContext.month });
+    const p = recalc.mutateAsync({
+      year: recalcContext.year,
+      month: recalcContext.month,
+    });
     toast.promise(p, {
       loading: "Iniciando recálculo...",
-      success: (res: ApiResponse<unknown>) => res?.message || "Recálculo iniciado",
-      error: (err: ApiResponse<unknown>) => err?.message || "Erro ao iniciar recálculo",
+      success: (res: ApiResponse<unknown>) =>
+        res?.message || "Recálculo iniciado",
+      error: (err: ApiResponse<unknown>) =>
+        err?.message || "Erro ao iniciar recálculo",
     });
     await p;
     setConfirmModal({ open: false, month: null });
@@ -135,24 +187,25 @@ export default function Impostos() {
   return (
     <div className="flex flex-col gap-6 md:mb-0 mb-16">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <FormControl fullWidth>
-          <InputLabel id="account-select-label">Conta</InputLabel>
-          <Select
-            labelId="account-select-label"
-            label="Conta"
+        <Fields.wrapper>
+          <Fields.label text="Conta" />
+          <Fields.select
             value={selectedAccount?.marketplace_shop_id ?? ""}
             onChange={(e) => {
-              const acc = accountsQuery.data?.find((a) => a.marketplace_shop_id === e.target.value);
+              const acc = accountsQuery.data?.find(
+                (a) => a.marketplace_shop_id === e.target.value
+              );
               setSelectedAccount(acc ?? null);
             }}
-          >
-            {(accountsQuery.data ?? []).map((acc) => (
-              <MenuItem key={`${acc.marketplace_type}-${acc.marketplace_shop_id}`} value={acc.marketplace_shop_id}>
-                {acc.marketplace_name} ({MarketplaceTypeLabel[acc.marketplace_type as MarketplaceType]})
-              </MenuItem>)
-            )}
-          </Select>
-        </FormControl>
+            options={[
+              { value: "", label: "Selecione uma conta" },
+              ...(accountsQuery.data ?? []).map((acc) => ({
+                value: acc.marketplace_shop_id,
+                label: `${acc.marketplace_name} (${MarketplaceTypeLabel[acc.marketplace_type as MarketplaceType]})`,
+              })),
+            ]}
+          />
+        </Fields.wrapper>
 
         <Fields.wrapper>
           <Fields.label text="Ano" />
@@ -171,11 +224,15 @@ export default function Impostos() {
           <CardContent>
             <div className="flex items-center gap-4">
               <div className="rounded-xl bg-beergam-blue-primary/10 p-3">
-                <Svg.graph />
+                <Svg.graph tailWindClasses="w-5 h-5" />
               </div>
               <div>
-                <p className="text-beergam-blue-primary font-semibold">Selecione uma conta</p>
-                <p className="text-sm text-beergam-black-blue/70">Escolha a conta e o ano para configurar as alíquotas mensais.</p>
+                <p className="text-beergam-blue-primary font-semibold">
+                  Selecione uma conta
+                </p>
+                <p className="text-sm text-beergam-black-blue/70">
+                  Escolha a conta e o ano para configurar as alíquotas mensais.
+                </p>
               </div>
             </div>
           </CardContent>
@@ -183,27 +240,41 @@ export default function Impostos() {
       ) : (
         <Card>
           <CardContent>
-            <Box 
-              display="flex" 
+            <Box
+              display="flex"
               flexDirection={{ xs: "column", md: "row" }}
               alignItems={{ xs: "flex-start", md: "center" }}
-              justifyContent="space-between" 
+              justifyContent="space-between"
               mb={2}
               gap={2}
             >
               <div className="flex items-center gap-3 flex-1 min-w-0">
-                <Avatar src={selectedAccount?.marketplace_image} alt={selectedAccount?.marketplace_name} />
+                <Avatar
+                  src={selectedAccount?.marketplace_image}
+                  alt={selectedAccount?.marketplace_name}
+                />
                 <div className="min-w-0 flex-1">
-                  <Typography variant="h6" className="truncate">{selectedAccount?.marketplace_name}</Typography>
+                  <Typography variant="h6" className="truncate">
+                    {selectedAccount?.marketplace_name}
+                  </Typography>
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <Chip size="small" label={MarketplaceTypeLabel[selectedAccount?.marketplace_type as MarketplaceType]} color="primary" variant="outlined" />
+                    <Chip
+                      size="small"
+                      label={
+                        MarketplaceTypeLabel[
+                          selectedAccount?.marketplace_type as MarketplaceType
+                        ]
+                      }
+                      color="primary"
+                      variant="outlined"
+                    />
                     <Chip size="small" label={`Ano ${year}`} />
                   </div>
                 </div>
               </div>
               {taxesLoading && <CircularProgress size={20} />}
             </Box>
-            
+
             {/* Desktop: Tabela */}
             <Box sx={{ display: { xs: "none", md: "block" } }}>
               <Table size="small">
@@ -213,7 +284,10 @@ export default function Impostos() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <span>Alíquota (%)</span>
-                        <Hint message="Informe a alíquota do mês. Ex.: 1,25" anchorSelect="impostos-aliquota-hint" />
+                        <Hint
+                          message="Informe a alíquota do mês. Ex.: 1,25"
+                          anchorSelect="impostos-aliquota-hint"
+                        />
                       </div>
                     </TableCell>
                     <TableCell align="right">Ações</TableCell>
@@ -221,12 +295,18 @@ export default function Impostos() {
                 </TableHead>
                 <TableBody>
                   {months.map((m) => {
-                    const current = taxes?.impostos?.[String(m) as keyof TaxesData["impostos"]] ?? 0;
-                    const fallback = formatNumberToPercentString(Number(current));
+                    const current =
+                      taxes?.impostos?.[
+                        String(m) as keyof TaxesData["impostos"]
+                      ] ?? 0;
+                    const fallback = formatNumberToPercentString(
+                      Number(current)
+                    );
                     const value = editRates[String(m)] ?? fallback;
                     const disabledSave =
                       upsert.isPending ||
-                      (editRates[String(m)] === undefined && Number(current) === Number(fallback.replace(',', '.')));
+                      (editRates[String(m)] === undefined &&
+                        Number(current) === Number(fallback.replace(",", ".")));
                     return (
                       <TableRow key={m}>
                         <TableCell>{String(m).padStart(2, "0")}</TableCell>
@@ -235,8 +315,13 @@ export default function Impostos() {
                             <Fields.input
                               value={value}
                               onChange={(e) => {
-                                const next = sanitizePercentInput(e.target.value);
-                                setEditRates((prev) => ({ ...prev, [String(m)]: next }));
+                                const next = sanitizePercentInput(
+                                  e.target.value
+                                );
+                                setEditRates((prev) => ({
+                                  ...prev,
+                                  [String(m)]: next,
+                                }));
                               }}
                               inputMode="decimal"
                               placeholder="0,00"
@@ -245,7 +330,11 @@ export default function Impostos() {
                                 if (!raw) return;
                                 const num = Number(raw.replace(",", "."));
                                 if (Number.isFinite(num)) {
-                                  setEditRates((prev) => ({ ...prev, [String(m)]: formatNumberToPercentString(num) }));
+                                  setEditRates((prev) => ({
+                                    ...prev,
+                                    [String(m)]:
+                                      formatNumberToPercentString(num),
+                                  }));
                                 }
                               }}
                               onFocus={() => {
@@ -254,7 +343,9 @@ export default function Impostos() {
                               }}
                               tailWindClasses="pr-8"
                             />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">%</span>
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
+                              %
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell align="right">
@@ -266,18 +357,25 @@ export default function Impostos() {
                             >
                               <Svg.arrow_path tailWindClasses="w-5 h-5" />
                             </IconButton>
-                            <Tooltip id={`recalc-${m}`} content="Recalcular período" className="z-50" />
-                            <Button
-                              variant="contained"
-                              size="small"
+                            <Tooltip
+                              id={`recalc-${m}`}
+                              content="Recalcular período"
+                              className="z-50"
+                            />
+                            <BeergamButton
+                              title="Salvar"
+                              mainColor="beergam-blue-primary"
+                              animationStyle="slider"
                               onClick={() => handleSaveMonth(m)}
                               disabled={!selectedAccount || disabledSave}
-                            >
-                              <div className="flex items-center gap-1">
-                                <Svg.check width={16} height={16} tailWindClasses="stroke-beergam-white" />
-                                <span>Salvar</span>
-                              </div>
-                            </Button>
+                              className="text-sm"
+                              fetcher={{
+                                fecthing: upsert.isPending,
+                                completed: false,
+                                error: false,
+                                mutation: upsert,
+                              }}
+                            />
                           </Box>
                         </TableCell>
                       </TableRow>
@@ -291,12 +389,16 @@ export default function Impostos() {
             <Box sx={{ display: { xs: "block", md: "none" } }}>
               <div className="flex flex-col gap-3">
                 {months.map((m) => {
-                  const current = taxes?.impostos?.[String(m) as keyof TaxesData["impostos"]] ?? 0;
+                  const current =
+                    taxes?.impostos?.[
+                      String(m) as keyof TaxesData["impostos"]
+                    ] ?? 0;
                   const fallback = formatNumberToPercentString(Number(current));
                   const value = editRates[String(m)] ?? fallback;
                   const disabledSave =
                     upsert.isPending ||
-                    (editRates[String(m)] === undefined && Number(current) === Number(fallback.replace(',', '.')));
+                    (editRates[String(m)] === undefined &&
+                      Number(current) === Number(fallback.replace(",", ".")));
                   return (
                     <Card key={m} variant="outlined" className="p-4">
                       <div className="flex flex-col gap-3">
@@ -307,15 +409,25 @@ export default function Impostos() {
                         </div>
                         <div className="flex flex-col gap-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-beergam-black-blue/70">Alíquota (%)</span>
-                            <Hint message="Informe a alíquota do mês. Ex.: 1,25" anchorSelect={`impostos-aliquota-hint-${m}`} />
+                            <span className="text-sm text-beergam-black-blue/70">
+                              Alíquota (%)
+                            </span>
+                            <Hint
+                              message="Informe a alíquota do mês. Ex.: 1,25"
+                              anchorSelect={`impostos-aliquota-hint-${m}`}
+                            />
                           </div>
                           <div className="relative">
                             <Fields.input
                               value={value}
                               onChange={(e) => {
-                                const next = sanitizePercentInput(e.target.value);
-                                setEditRates((prev) => ({ ...prev, [String(m)]: next }));
+                                const next = sanitizePercentInput(
+                                  e.target.value
+                                );
+                                setEditRates((prev) => ({
+                                  ...prev,
+                                  [String(m)]: next,
+                                }));
                               }}
                               inputMode="decimal"
                               placeholder="0,00"
@@ -324,12 +436,18 @@ export default function Impostos() {
                                 if (!raw) return;
                                 const num = Number(raw.replace(",", "."));
                                 if (Number.isFinite(num)) {
-                                  setEditRates((prev) => ({ ...prev, [String(m)]: formatNumberToPercentString(num) }));
+                                  setEditRates((prev) => ({
+                                    ...prev,
+                                    [String(m)]:
+                                      formatNumberToPercentString(num),
+                                  }));
                                 }
                               }}
                               tailWindClasses="pr-8"
                             />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">%</span>
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
+                              %
+                            </span>
                           </div>
                         </div>
                         <div className="flex gap-2 justify-end pt-2">
@@ -341,18 +459,25 @@ export default function Impostos() {
                           >
                             <Svg.arrow_path tailWindClasses="w-5 h-5" />
                           </IconButton>
-                          <Tooltip id={`recalc-mobile-${m}`} content="Recalcular período" className="z-50" />
-                          <Button
-                            variant="contained"
-                            size="small"
+                          <Tooltip
+                            id={`recalc-mobile-${m}`}
+                            content="Recalcular período"
+                            className="z-50"
+                          />
+                          <BeergamButton
+                            title="Salvar"
+                            mainColor="beergam-blue-primary"
+                            animationStyle="slider"
                             onClick={() => handleSaveMonth(m)}
                             disabled={!selectedAccount || disabledSave}
-                          >
-                            <div className="flex items-center gap-1">
-                              <Svg.check width={16} height={16} tailWindClasses="stroke-beergam-white" />
-                              <span>Salvar</span>
-                            </div>
-                          </Button>
+                            className="text-sm"
+                            fetcher={{
+                              fecthing: upsert.isPending,
+                              completed: false,
+                              error: false,
+                              mutation: upsert,
+                            }}
+                          />
                         </div>
                       </div>
                     </Card>
@@ -385,7 +510,9 @@ export default function Impostos() {
               ) : (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`rounded-full p-2 ${recalcStatus.data?.can_recalculate ? "bg-green-100" : "bg-red-100"}`}>
+                    <div
+                      className={`rounded-full p-2 ${recalcStatus.data?.can_recalculate ? "bg-green-100" : "bg-red-100"}`}
+                    >
                       {recalcStatus.data?.can_recalculate ? (
                         <Svg.check tailWindClasses="stroke-beergam-green w-5 h-5" />
                       ) : (
@@ -393,8 +520,12 @@ export default function Impostos() {
                       )}
                     </div>
                     <div>
-                      <p className="text-sm text-beergam-black-blue/70">Recálculos restantes</p>
-                      <p className="font-semibold">{recalcStatus.data?.remaining_recalculations ?? 0}</p>
+                      <p className="text-sm text-beergam-black-blue/70">
+                        Recálculos restantes
+                      </p>
+                      <p className="font-semibold">
+                        {recalcStatus.data?.remaining_recalculations ?? 0}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -402,19 +533,28 @@ export default function Impostos() {
             </CardContent>
           </Card>
           <div className="flex gap-2 justify-end">
-            <Button onClick={() => setConfirmModal({ open: false, month: null })}>Cancelar</Button>
-            <Button
-              variant="contained"
+            <BeergamButton
+              title="Cancelar"
+              mainColor="beergam-gray"
+              animationStyle="fade"
+              onClick={() => setConfirmModal({ open: false, month: null })}
+            />
+            <BeergamButton
+              title="Confirmar"
+              mainColor="beergam-blue-primary"
+              animationStyle="slider"
               onClick={confirmRecalc}
               disabled={!recalcStatus.data?.can_recalculate || recalc.isPending}
-            >
-              Confirmar
-            </Button>
+              fetcher={{
+                fecthing: recalc.isPending,
+                completed: false,
+                error: false,
+                mutation: recalc,
+              }}
+            />
           </div>
         </div>
       </Modal>
     </div>
   );
 }
-
-

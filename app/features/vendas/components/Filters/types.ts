@@ -2,7 +2,6 @@ import type { OrdersFilters } from "../../typings";
 
 export type OrderStatusFilter =
   | "all"
-  | "confirmed"
   | "payment_required"
   | "payment_in_process"
   | "paid"
@@ -11,13 +10,26 @@ export type OrderStatusFilter =
 export type DeliveryStatusFilter =
   | "all"
   | "ready_to_ship"
+  | "handling"
   | "pending"
   | "shipped"
   | "delivered"
 
+export type DeliveryTypeFilter =
+  | "all"
+  | "xd_drop_off"
+  | "fulfillment"
+  | "cross_docking"
+  | "drop_off"
+  | "me2"
+  | "self_service"
+  | "flex"
+  | "not_specified";
+
 export interface VendasFiltersState extends Partial<OrdersFilters> {
   statusFilter?: OrderStatusFilter;
   deliveryStatusFilter?: DeliveryStatusFilter;
+  deliveryTypeFilter?: DeliveryTypeFilter;
   searchType?: "order_id" | "sku" | "buyer_nickname";
   dateCreatedFrom?: string;
   dateCreatedTo?: string;

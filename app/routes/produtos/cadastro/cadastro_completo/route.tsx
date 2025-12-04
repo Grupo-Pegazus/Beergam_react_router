@@ -1,4 +1,5 @@
 import type { Route } from ".react-router/types/app/routes/produtos/cadastro/cadastro_completo/+types/route";
+import { ProductForm, getFormConfig } from "~/features/produtos/components/ProductForm";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -8,7 +9,19 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function CadastroCompleto() {
+  const config = getFormConfig("completo");
+
+  const handleSubmit = async (data: Record<string, unknown>) => {
+    console.log("Dados do formulário completo:", data);
+    // Aqui você pode fazer a chamada à API para salvar o produto
+  };
+
   return (
-    <p>Cadastro Completo</p>
+    <ProductForm
+      config={{
+        ...config,
+        onSubmit: handleSubmit,
+      }}
+    />
   );
 }

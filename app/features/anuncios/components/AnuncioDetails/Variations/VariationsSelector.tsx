@@ -9,8 +9,8 @@ import { useUpdateSku } from "../../../hooks";
 import type { AnuncioDetails, Variation, UpdateSkuRequest } from "../../../typings";
 import { groupVariationsByCommonAttributes } from "../../AnuncioList/Variations/utils";
 import toast from "~/src/utils/toast";
-import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface VariationsSelectorProps {
   anuncio: AnuncioDetails;
@@ -339,19 +339,19 @@ export default function VariationsSelector({ anuncio }: VariationsSelectorProps)
                             disabled={savingVariationId === variation.variation_id}
                             tailWindClasses="min-w-[150px]"
                           />
-                            <span>
-                              <button
-                                onClick={() => handleSaveSku(variation)}
-                                disabled={savingVariationId === variation.variation_id || !skuValues[variation.variation_id]?.trim()}
-                                className="bg-beergam-orange text-white hover:bg-beergam-orange-dark disabled:bg-gray-100 p-2 rounded-md flex items-center justify-center gap-2"
-                              >
-                                {savingVariationId === variation.variation_id ? (
-                                  <Svg.arrow_path tailWindClasses="size-4 stroke-beergam-blue-primary animate-spin" />
-                                ) : (
-                                  <Svg.check tailWindClasses="size-4 stroke-beergam-white" />
-                                )}
-                              </button>
-                            </span>
+                            <BeergamButton
+                              title={savingVariationId === variation.variation_id ? "Salvando..." : "Salvar"}
+                              mainColor="beergam-orange"
+                              animationStyle="slider"
+                              onClick={() => handleSaveSku(variation)}
+                              disabled={savingVariationId === variation.variation_id || !skuValues[variation.variation_id]?.trim()}
+                              fetcher={{
+                                fecthing: savingVariationId === variation.variation_id,
+                                completed: false,
+                                error: false,
+                                mutation: { reset: () => {}, isPending: savingVariationId === variation.variation_id, isSuccess: false, isError: false },
+                              }}
+                            />
                         </Box>
                       )}
                     </Stack>

@@ -121,7 +121,10 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
       </Section>
       {/* <div className="flex flex-col md:flex-row items-center justify-between pb-4">
         <p>Quantidade de colaboradores registrados: {colabs.length}</p>
-        <button
+        <BeergamButton
+          title="Adicionar colaborador"
+          mainColor="beergam-blue-primary"
+          animationStyle="slider"
           onClick={() => {
             setCurrentColab({ colab: null, action: "Criar" });
             if (isMobile) {
@@ -133,15 +136,15 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
               }, 100);
             }
           }}
-          className="flex items-center gap-2 p-2 rounded-md bg-beergam-blue-primary hover:bg-beergam-orange text-beergam-white"
+          className="flex items-center gap-2"
         >
-          <p>Adicionar colaborador</p>
           <Svg.plus_circle
             width={20}
             height={20}
             tailWindClasses="stroke-beergam-white"
           />
-        </button>
+          <span>Adicionar colaborador</span>
+        </BeergamButton>
       </div>
       <div className="flex flex-col">
         <div className="hidden md:block">

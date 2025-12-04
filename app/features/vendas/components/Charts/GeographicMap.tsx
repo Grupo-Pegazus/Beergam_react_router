@@ -10,16 +10,13 @@ import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import { 
   Skeleton, 
   Typography, 
-  Select, 
-  MenuItem, 
-  FormControl, 
-  InputLabel, 
   Stack,
   Pagination,
   Box,
   Paper,
 } from "@mui/material";
 import MainCards from "~/src/components/ui/MainCards";
+import { Fields } from "~/src/components/utils/_fields";
 import { DatePicker } from "@mui/x-date-pickers";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -97,7 +94,7 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
   );
 
   const handlePeriodChange = useCallback(
-    (event: { target: { value: unknown } }) => {
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
       const newPeriod = event.target.value as "last_day" | "last_7_days" | "last_30_days" | "custom";
       setSelectedPeriod(newPeriod);
       
@@ -198,19 +195,19 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
                   </Stack>
                 )}
               </div>
-              <FormControl size="small" sx={{ minWidth: { xs: "100%", sm: 150 }, width: { xs: "100%", sm: "auto" } }}>
-                <InputLabel>Período</InputLabel>
-                <Select
+              <Fields.wrapper className="min-w-[150px] w-full sm:w-auto">
+                <Fields.label text="Período" />
+                <Fields.select
                   value={selectedPeriod}
-                  label="Período"
                   onChange={handlePeriodChange}
-                >
-                  <MenuItem value="last_day">Último dia</MenuItem>
-                  <MenuItem value="last_7_days">Últimos 7 dias</MenuItem>
-                  <MenuItem value="last_30_days">Últimos 30 dias</MenuItem>
-                  <MenuItem value="custom">Período personalizado</MenuItem>
-                </Select>
-              </FormControl>
+                  options={[
+                    { value: "last_day", label: "Último dia" },
+                    { value: "last_7_days", label: "Últimos 7 dias" },
+                    { value: "last_30_days", label: "Últimos 30 dias" },
+                    { value: "custom", label: "Período personalizado" },
+                  ]}
+                />
+              </Fields.wrapper>
             </div>
           </div>
 

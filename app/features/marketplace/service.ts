@@ -127,6 +127,24 @@ class MarketplaceService {
       };
     }
   }
+
+  async checkAccountProcessingStatus(accountId: string): Promise<ApiResponse<{ processed: boolean }>> {
+    try {
+      const response = await typedApiClient.get<{ processed: boolean }>(
+        `/v1/accounts/${accountId}`
+      );
+      return response;
+    } catch (error) {
+      console.error("error do checkAccountProcessingStatus", error);
+      return {
+        success: false,
+        data: { processed: false },
+        message: "Erro ao verificar status de processamento da conta. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: {},
+      };
+    }
+  }
 }
 
 export const marketplaceService = new MarketplaceService();

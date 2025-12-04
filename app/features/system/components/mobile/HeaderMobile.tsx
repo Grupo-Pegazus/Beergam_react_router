@@ -1,30 +1,20 @@
-import toast from "~/src/utils/toast";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { logout } from "~/features/auth/redux";
 import type { IUser } from "~/features/user/typings/User";
 import { isMaster } from "~/features/user/utils";
 import Svg from "~/src/assets/svgs/_index";
-import type { RootState } from "~/store";
-import { menuService } from "../../../menu/service";
+import authStore from "~/features/store-zustand";
+import LogoutOverlay from "~/features/auth/components/LogoutOverlay/LogoutOverlay";
+import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 import { useOverlay } from "../../hooks/useOverlay";
 import OverlayFrame from "../../shared/OverlayFrame";
 
 export default function HeaderMobile() {
-  const { user } = useSelector((state: RootState) => state.user);
+  const user = authStore.use.user();
   const { isOpen, shouldRender, open, requestClose } = useOverlay();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    const res = await menuService.logout();
-    if (res.success) {
-      dispatch(logout());
-      navigate("/login");
-    } else {
-      toast.error(res.message);
-    }
-  };
+  const { isLoggingOut, logout } = useLogoutFlow({
+    redirectTo: "/login",
+  });
 
   const userEmail =
     user && isMaster(user as unknown as IUser)
@@ -34,6 +24,7 @@ export default function HeaderMobile() {
 
   return (
     <>
+      {isLoggingOut && <LogoutOverlay />}
       <OverlayFrame
         title="Usuário"
         isOpen={isOpen}
@@ -79,7 +70,10 @@ export default function HeaderMobile() {
                 <button
                   type="button"
                   aria-label="Sair da conta"
-                  onClick={handleLogout}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    void logout();
+                  }}
                   className="w-full px-4 py-3 rounded-lg bg-beergam-red-light text-beergam-red-primary font-medium text-sm active:scale-[0.98] transition-transform"
                 >
                   Sair
