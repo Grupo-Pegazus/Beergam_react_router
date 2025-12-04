@@ -1,16 +1,15 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
+import authStore from "~/features/store-zustand";
 import { type IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
-import Colaboradores from "./components/Colaboradores";
-import Impostos from "./components/Impostos";
-import PerfilLayout from "./layout/PerfilLayout";
-import MinhaAssinatura from "./components/MinhaAssinatura";
-import MinhaConta from "./components/MinhaConta";
-import { useNavigate } from "react-router";
 import Svg from "~/src/assets/svgs/_index";
-import authStore from "~/features/store-zustand";
-
+import Colaboradores from "../config/components/Colaboradores";
+import Impostos from "../config/components/Impostos";
+import MinhaAssinatura from "../config/components/MinhaAssinatura/index";
+import MinhaConta from "./components/MinhaConta";
+import PerfilLayout from "./layout/PerfilLayout";
 
 const LAST_ROUTE_BEFORE_PERFIL_KEY = "beergam:lastRouteBeforePerfil";
 export default function PerfilPage() {
@@ -23,7 +22,7 @@ export default function PerfilPage() {
   // Salvar a última rota quando montar o componente (primeira vez no perfil)
   useEffect(() => {
     if (hasSavedRoute.current || typeof window === "undefined") return;
-    
+
     // Tentar pegar do referrer ou do histórico
     const referrer = document.referrer;
     if (referrer && !referrer.includes("/perfil")) {
@@ -39,7 +38,7 @@ export default function PerfilPage() {
         // Ignorar erro ao criar URL
       }
     }
-    
+
     // Fallback: usar a rota do início do sistema
     const lastRoute = sessionStorage.getItem(LAST_ROUTE_BEFORE_PERFIL_KEY);
     if (!lastRoute || lastRoute.includes("/perfil")) {
@@ -51,12 +50,12 @@ export default function PerfilPage() {
   const handleVoltar = () => {
     // Tentar usar a rota salva primeiro (mais confiável)
     const lastRoute = sessionStorage.getItem(LAST_ROUTE_BEFORE_PERFIL_KEY);
-    
+
     if (lastRoute && !lastRoute.includes("/perfil")) {
       navigate(lastRoute);
       return;
     }
-    
+
     // Se não houver rota salva, tentar voltar no histórico
     try {
       navigate(-1);
@@ -129,7 +128,7 @@ export default function PerfilPage() {
                 CONFIGURAÇÕES DE USUÁRIO
               </h3>
               <nav className="flex flex-col gap-2 items-start w-full">
-                <button 
+                <button
                   onClick={handleVoltar}
                   className="text-beergam-white text-sm flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-beergam-white/10 transition-colors duration-200 font-medium group"
                 >

@@ -1,4 +1,4 @@
-import { UserRoles } from "./typings/BaseUser";
+import { GestaoFinanceira, UserRoles } from "./typings/BaseUser";
 import { ColabLevel, type IColab } from "./typings/Colab";
 import {
   CalcProfitProduct,
@@ -52,4 +52,11 @@ export function FormatSegment(segment: Segment): string {
 }
 export function FormatColabLevel(level: ColabLevel): string {
   return ColabLevel[level as unknown as keyof typeof ColabLevel];
+}
+export function FormatGestaoFinanceira(
+  gestaoFinanceira: GestaoFinanceira
+): string {
+  return GestaoFinanceira[
+    gestaoFinanceira as unknown as keyof typeof GestaoFinanceira
+  ];
 }

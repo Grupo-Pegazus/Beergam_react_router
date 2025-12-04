@@ -1,7 +1,6 @@
 import { Paper, Switch } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
-import toast from "~/src/utils/toast";
 import { z } from "zod";
 import { authService } from "~/features/auth/service";
 import { UserPasswordSchema } from "~/features/auth/typing";
@@ -35,8 +34,8 @@ import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
 import Time from "~/src/components/utils/Time";
 import Upload from "~/src/components/utils/upload";
+import toast from "~/src/utils/toast";
 import { EnumKeyFromValue } from "~/utils/typings/EnumKeysFromValues";
-import ColabDetails from "../ColabDetails";
 import ColabPhoto from "../ColabPhoto";
 import ViewAccess from "../ViewAccess";
 export default function ColabInfo({
@@ -244,250 +243,229 @@ export default function ColabInfo({
   }, [action, colab]);
   return (
     <>
-      <hr className="h-px mb-3.5 mt-5 border-beergam-gray-light" />
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-2">
-          <h3 className="text-beergam-blue-primary font-bold! uppercase">
-            {action === "Editar"
-              ? "Editar Colaborador"
-              : action === "Visualizar"
-                ? "Visualizar Colaborador"
-                : action === "Criar"
-                  ? "Criar Colaborador"
-                  : "Nenhum colaborador encontrado"}
-          </h3>
-        </div>
-      </div>
       <div>
-        {action === "Visualizar" ? (
-          <ColabDetails colab={colab} />
-        ) : (
-          <div>
-            <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[1fr_1.3fr]">
-              <Paper className="grid md:grid-rows-2 gap-4 border border-beergam-gray-light rounded-md p-4">
-                <div className="grid grid-cols-1 md:grid-cols-[80px_1fr] gap-4 w-full justify-items-center md:justify-items-start">
-                  <div className="rounded-full flex items-center justify-center">
-                    <button
-                      type="button"
-                      className="relative flex items-center justify-center rounded-full bg-beergam-orange text-white transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-beergam-blue-primary disabled:cursor-not-allowed disabled:opacity-60"
-                      disabled={!canUploadPhoto}
-                      onMouseEnter={() => setIsHoveringPhoto(true)}
-                      onMouseLeave={() => setIsHoveringPhoto(false)}
-                      onFocus={() => setIsHoveringPhoto(true)}
-                      onBlur={() => setIsHoveringPhoto(false)}
-                      onClick={handleOpenPhotoUploader}
+        <div>
+          <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[1fr_1.3fr]">
+            <Paper className="grid md:grid-rows-2 gap-4 border border-beergam-gray-light rounded-md p-4">
+              <div className="grid grid-cols-1 md:grid-cols-[80px_1fr] gap-4 w-full justify-items-center md:justify-items-start">
+                <div className="rounded-full flex items-center justify-center">
+                  <button
+                    type="button"
+                    className="relative flex items-center justify-center rounded-full bg-beergam-orange text-white transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-beergam-blue-primary disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={!canUploadPhoto}
+                    onMouseEnter={() => setIsHoveringPhoto(true)}
+                    onMouseLeave={() => setIsHoveringPhoto(false)}
+                    onFocus={() => setIsHoveringPhoto(true)}
+                    onBlur={() => setIsHoveringPhoto(false)}
+                    onClick={handleOpenPhotoUploader}
+                  >
+                    <ColabPhoto
+                      photo_id={editedColab.details.photo_id}
+                      masterPin={masterPin}
+                      name={editedColab.name}
+                      size="large"
+                    />
+                    <span
+                      className={`pointer-events-none absolute inset-0 flex items-center justify-center px-3 text-center rounded-full text-[11px] font-semibold uppercase transition-opacity duration-150 bg-beergam-black-blue/60 ${
+                        isHoveringPhoto || !canUploadPhoto
+                          ? "opacity-100"
+                          : "opacity-0"
+                      }`}
                     >
-                      <ColabPhoto
-                        photo_id={editedColab.details.photo_id}
-                        masterPin={masterPin}
-                        name={editedColab.name}
-                        size="large"
-                      />
-                      <span
-                        className={`pointer-events-none absolute inset-0 flex items-center justify-center px-3 text-center rounded-full text-[11px] font-semibold uppercase transition-opacity duration-150 bg-beergam-black-blue/60 ${
-                          isHoveringPhoto || !canUploadPhoto
-                            ? "opacity-100"
-                            : "opacity-0"
-                        }`}
-                      >
-                        {canUploadPhoto
-                          ? "Clique para alterar"
-                          : "Salve o colaborador para adicionar foto"}
-                      </span>
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
-                    <Fields.wrapper>
-                      <Fields.label text="NOME" />
-                      <Fields.input
-                        onChange={(e) =>
-                          setEditedColab({ name: e.target.value })
-                        }
-                        value={editedColab.name}
-                        dataTooltipId="name-input"
-                        error={editedColabError?.properties?.name?.errors?.[0]}
-                      />
-                    </Fields.wrapper>
-                    <Fields.wrapper>
-                      <Fields.label text="SENHA DE ACESSO" />
-                      <Fields.input
-                        error={
-                          action === "Editar" && isShowPassword
-                            ? passwordValidationError?.errors?.[0]
-                            : undefined
-                        }
-                        dataTooltipId="password-input"
-                        onChange={(e) => {
-                          if (isShowPassword) {
-                            setPassword(e.target.value);
-                          }
-                        }}
-                        onEyeChange={(showPassword) =>
-                          setIsShowPassword(!showPassword)
-                        }
-                        showPassword={isShowPassword}
-                        value={
-                          (action === "Editar" || action === "Criar") &&
-                          isShowPassword
-                            ? password
-                            : "asokaoksas"
-                        }
-                        type="password"
-                      />
-                    </Fields.wrapper>
-                  </div>
+                      {canUploadPhoto
+                        ? "Clique para alterar"
+                        : "Salve o colaborador para adicionar foto"}
+                    </span>
+                  </button>
                 </div>
-                <div className="flex flex-col md:flex-row gap-2">
-                  <div className="flex justify-end items-end gap-2 w-[80px]">
-                    <div className="flex flex-row items-start md:flex-col justify-between gap-2 w-full min-h-[68px]">
-                      <Fields.label
-                        text="STATUS"
-                        hint="Ativar/Desativar colaborador do sistema."
-                      />
-                      <Switch
-                        title="Ativar/Desativar colaborador"
-                        checked={
-                          FormatUserStatus(editedColab.status as UserStatus) ===
-                          UserStatus.ACTIVE
-                        }
-                        onChange={(e) => {
-                          setEditedColab({
-                            status: EnumKeyFromValue(
-                              UserStatus,
-                              e.target.checked
-                                ? UserStatus.ACTIVE
-                                : UserStatus.INACTIVE
-                            ) as UserStatus,
-                          });
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-end items-end gap-2 w-full">
-                    <div className="flex flex-col justify-between gap-2 w-full min-h-[68px]">
-                      <Fields.label
-                        text="NÍVEL"
-                        hint="Nível de acesso do colaborador ao sistema."
-                      />
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
-                        {Object.keys(ColabLevel).map((level) => (
-                          <button
-                            key={level}
-                            className={`text-white p-2 rounded-md hover:bg-beergam-orange ${
-                              editedColab.details.level === level
-                                ? "bg-beergam-orange"
-                                : "bg-beergam-blue-primary"
-                            }`}
-                            onClick={() =>
-                              setEditedColab({
-                                details: {
-                                  ...editedColab.details,
-                                  level: level as ColabLevel,
-                                },
-                              })
-                            }
-                          >
-                            <p>{FormatColabLevel(level as ColabLevel)}</p>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Paper>
-
-              <Paper className="flex flex-col border border-beergam-gray-light rounded-md p-4">
-                <Fields.label text="HORÁRIOS DE FUNCIONAMENTO" />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.values(WeekDay).map((day: WeekDay) => (
-                    <Time
-                      key={day}
-                      dia={WeekDayToPortuguese[day]}
-                      access={
-                        editedColab.details.allowed_times[day as WeekDay].access
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
+                  <Fields.wrapper>
+                    <Fields.label text="NOME" />
+                    <Fields.input
+                      onChange={(e) => setEditedColab({ name: e.target.value })}
+                      value={editedColab.name}
+                      dataTooltipId="name-input"
+                      error={editedColabError?.properties?.name?.errors?.[0]}
+                    />
+                  </Fields.wrapper>
+                  <Fields.wrapper>
+                    <Fields.label text="SENHA DE ACESSO" />
+                    <Fields.input
+                      error={
+                        action === "Editar" && isShowPassword
+                          ? passwordValidationError?.errors?.[0]
+                          : undefined
                       }
-                      start_date={toHHmm(
-                        editedColab.details.allowed_times[day as WeekDay]
-                          .start_date
-                      )}
-                      end_date={toHHmm(
-                        editedColab.details.allowed_times[day as WeekDay]
-                          .end_date
-                      )}
-                      setHorario={(params: {
-                        access: boolean;
-                        start_date: string;
-                        end_date: string;
-                      }) => {
+                      dataTooltipId="password-input"
+                      onChange={(e) => {
+                        if (isShowPassword) {
+                          setPassword(e.target.value);
+                        }
+                      }}
+                      onEyeChange={(showPassword) =>
+                        setIsShowPassword(!showPassword)
+                      }
+                      showPassword={isShowPassword}
+                      value={
+                        (action === "Editar" || action === "Criar") &&
+                        isShowPassword
+                          ? password
+                          : "asokaoksas"
+                      }
+                      type="password"
+                    />
+                  </Fields.wrapper>
+                </div>
+              </div>
+              <div className="flex flex-col md:flex-row gap-2">
+                <div className="flex justify-end items-end gap-2 w-[80px]">
+                  <div className="flex flex-row items-start md:flex-col justify-between gap-2 w-full min-h-[68px]">
+                    <Fields.label
+                      text="STATUS"
+                      hint="Ativar/Desativar colaborador do sistema."
+                    />
+                    <Switch
+                      title="Ativar/Desativar colaborador"
+                      checked={
+                        FormatUserStatus(editedColab.status as UserStatus) ===
+                        UserStatus.ACTIVE
+                      }
+                      onChange={(e) => {
                         setEditedColab({
-                          details: {
-                            ...editedColab.details,
-                            allowed_times: {
-                              ...editedColab.details.allowed_times,
-                              [day]: {
-                                access: params.access,
-                                start_date: parseTimeString(params.start_date),
-                                end_date: parseTimeString(params.end_date),
-                              },
-                            },
-                          },
+                          status: EnumKeyFromValue(
+                            UserStatus,
+                            e.target.checked
+                              ? UserStatus.ACTIVE
+                              : UserStatus.INACTIVE
+                          ) as UserStatus,
                         });
                       }}
                     />
-                  ))}
-                  <button
-                    onClick={setHorarioComercial}
-                    className="bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange flex items-center justify-center gap-2"
-                  >
-                    <Svg.clock width={20} height={20} />
-                    <p>Horário Comercial</p>
-                  </button>
+                  </div>
                 </div>
-              </Paper>
-            </div>
-            <Paper className="grid grid-cols-1 gap-4 p-4 mt-4">
-              <Fields.wrapper>
-                <Fields.label text="ACESSOS" />
-                <ViewAccess
-                  views={editedColab.details.allowed_views}
-                  onChange={(key, value) => {
-                    const currentViews = editedColab.details.allowed_views;
-                    const menuKeys = Object.keys(MenuConfig) as MenuKeys[];
-                    const updatedViews: MenuState = {} as MenuState;
-
-                    // Garante que todas as chaves estejam presentes
-                    for (const menuKey of menuKeys) {
-                      if (menuKey === key) {
-                        updatedViews[menuKey] = { access: value };
-                      } else {
-                        const existingView = currentViews?.[menuKey];
-                        updatedViews[menuKey] = existingView
-                          ? {
-                              access: existingView.access,
-                              notifications: existingView.notifications,
-                            }
-                          : { access: false };
-                      }
-                    }
-
-                    setEditedColab({
-                      details: {
-                        ...editedColab.details,
-                        allowed_views: updatedViews,
-                      },
-                    });
-                  }}
-                />
-              </Fields.wrapper>
+                <div className="flex justify-end items-end gap-2 w-full">
+                  <div className="flex flex-col justify-between gap-2 w-full min-h-[68px]">
+                    <Fields.label
+                      text="NÍVEL"
+                      hint="Nível de acesso do colaborador ao sistema."
+                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
+                      {Object.keys(ColabLevel).map((level) => (
+                        <button
+                          key={level}
+                          className={`text-white p-2 rounded-md hover:bg-beergam-orange ${
+                            editedColab.details.level === level
+                              ? "bg-beergam-orange"
+                              : "bg-beergam-blue-primary"
+                          }`}
+                          onClick={() =>
+                            setEditedColab({
+                              details: {
+                                ...editedColab.details,
+                                level: level as ColabLevel,
+                              },
+                            })
+                          }
+                        >
+                          <p>{FormatColabLevel(level as ColabLevel)}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </Paper>
-            <button
-              onClick={handleFetch}
-              className="static mb-10 md:mb-0 md:sticky mt-2.5 bottom-0 left-0 right-0 bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange"
-            >
-              Salvar Informações
-            </button>
+
+            <Paper className="flex flex-col border border-beergam-gray-light rounded-md p-4">
+              <Fields.label text="HORÁRIOS DE FUNCIONAMENTO" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Object.values(WeekDay).map((day: WeekDay) => (
+                  <Time
+                    key={day}
+                    dia={WeekDayToPortuguese[day]}
+                    access={
+                      editedColab.details.allowed_times[day as WeekDay].access
+                    }
+                    start_date={toHHmm(
+                      editedColab.details.allowed_times[day as WeekDay]
+                        .start_date
+                    )}
+                    end_date={toHHmm(
+                      editedColab.details.allowed_times[day as WeekDay].end_date
+                    )}
+                    setHorario={(params: {
+                      access: boolean;
+                      start_date: string;
+                      end_date: string;
+                    }) => {
+                      setEditedColab({
+                        details: {
+                          ...editedColab.details,
+                          allowed_times: {
+                            ...editedColab.details.allowed_times,
+                            [day]: {
+                              access: params.access,
+                              start_date: parseTimeString(params.start_date),
+                              end_date: parseTimeString(params.end_date),
+                            },
+                          },
+                        },
+                      });
+                    }}
+                  />
+                ))}
+                <button
+                  onClick={setHorarioComercial}
+                  className="bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange flex items-center justify-center gap-2"
+                >
+                  <Svg.clock width={20} height={20} />
+                  <p>Horário Comercial</p>
+                </button>
+              </div>
+            </Paper>
           </div>
-        )}
+          <Paper className="grid grid-cols-1 gap-4 p-4 mt-4">
+            <Fields.wrapper>
+              <Fields.label text="ACESSOS" />
+              <ViewAccess
+                views={editedColab.details.allowed_views}
+                onChange={(key, value) => {
+                  const currentViews = editedColab.details.allowed_views;
+                  const menuKeys = Object.keys(MenuConfig) as MenuKeys[];
+                  const updatedViews: MenuState = {} as MenuState;
+
+                  // Garante que todas as chaves estejam presentes
+                  for (const menuKey of menuKeys) {
+                    if (menuKey === key) {
+                      updatedViews[menuKey] = { access: value };
+                    } else {
+                      const existingView = currentViews?.[menuKey];
+                      updatedViews[menuKey] = existingView
+                        ? {
+                            access: existingView.access,
+                            notifications: existingView.notifications,
+                          }
+                        : { access: false };
+                    }
+                  }
+
+                  setEditedColab({
+                    details: {
+                      ...editedColab.details,
+                      allowed_views: updatedViews,
+                    },
+                  });
+                }}
+              />
+            </Fields.wrapper>
+          </Paper>
+          <button
+            onClick={handleFetch}
+            className="static mb-10 md:mb-0 md:sticky mt-2.5 bottom-0 left-0 right-0 bg-beergam-blue-primary text-beergam-white p-2 rounded-md hover:bg-beergam-orange"
+          >
+            Salvar Informações
+          </button>
+        </div>
       </div>
       {colabPhotoUploadService && (
         <Upload

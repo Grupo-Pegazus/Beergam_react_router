@@ -46,11 +46,32 @@ const validateCPF = (cpf: string) => {
   return true;
 };
 
-export const CPFSchema = z
-  .string()
-  .transform((v) => v.replace(/\D/g, ""))
-  .refine((v) => v.length === 11, { message: "CPF deve ter 11 dígitos" })
-  .refine((v) => validateCPF(v), { message: "CPF inválido" })
-  .transform((v) => v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4"));
+export const CPFSchema = z.preprocess(
+  (v) => {
+    // Se for null ou undefined, retorna null
+    if (v === null || v === undefined) return null;
+    // Converte para string e verifica se está vazia
+    const str = String(v);
+    if (str.trim() === "") return null;
+    return str;
+  },
+  z
+    .string()
+    .nullable()
+    .transform((v) => {
+      // Se for null, retorna null
+      if (v === null) return null;
+      // Remove caracteres não numéricos
+      return v.replace(/\D/g, "");
+    })
+    .refine((v) => v === null || v.length === 11, {
+      message: "CPF deve ter 11 dígitos",
+    })
+    .refine((v) => v === null || validateCPF(v), { message: "CPF inválido" })
+    .transform((v) => {
+      if (v === null) return null;
+      return v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    })
+);
 
 export type CPF = z.infer<typeof CPFSchema>;

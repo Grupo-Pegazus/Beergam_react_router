@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { TAuthError, UsageLimitData } from "../auth/redux";
-import type { MenuState } from "../menu/typings";
 import type { BaseMarketPlace } from "../marketplace/typings";
+import type { MenuState } from "../menu/typings";
 import type { Subscription } from "../user/typings/BaseUser";
 import type { IColab } from "../user/typings/Colab";
 import type { IUser } from "../user/typings/User";
@@ -28,6 +28,7 @@ interface IAuthStore {
   updateColabs: (colabs: Record<string, IColab>) => void;
   deleteColab: (colabPin: string) => void;
   updateAllowedViews: (allowedViews: MenuState) => void;
+  updateUserDetails: (user: IUser | IColab) => void;
 }
 
 const authBaseStore = create<IAuthStore>()(
@@ -108,6 +109,23 @@ const authBaseStore = create<IAuthStore>()(
           } as IUser | IColab;
           set({
             user: updatedUser,
+          });
+        }
+      },
+      updateUserDetails: (user: IUser | IColab) => {
+        const currentUser = get().user;
+        if (!currentUser || !currentUser.details) return;
+
+        // Garante que os tipos sejam compatíveis (ambos IUser ou ambos IColab)
+        if (isMaster(currentUser) === isMaster(user)) {
+          set({
+            user: {
+              ...currentUser,
+              details: {
+                ...currentUser.details,
+                ...user.details,
+              },
+            } as IUser | IColab,
           });
         }
       },

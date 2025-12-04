@@ -25,13 +25,19 @@ export enum SubscriptionStatus {
   PENDING = "PENDING",
 }
 
+export enum GestaoFinanceira {
+  básica = "Básica",
+  intermediário = "Intermediário",
+  avançada = "Avançada",
+}
+
 export interface PlanBenefits {
   ML_accounts: number;
   colab_accounts: number;
   catalog_monitoring: number;
   dias_historico_vendas: number;
   dias_registro_atividades: number;
-  gestao_financeira?: string | null;
+  gestao_financeira?: GestaoFinanceira | null;
   marketplaces_integrados: number;
   sincronizacao_estoque: boolean;
   clube_beergam?: boolean;
@@ -75,7 +81,12 @@ export const PlanBenefitsSchema = z.object({
   catalog_monitoring: z.number(),
   dias_historico_vendas: z.number(),
   dias_registro_atividades: z.number(),
-  gestao_financeira: z.string().optional().nullable(),
+  gestao_financeira: z
+    .enum(
+      Object.keys(GestaoFinanceira) as [GestaoFinanceira, ...GestaoFinanceira[]]
+    )
+    .optional()
+    .nullable(),
   marketplaces_integrados: z.number(),
   sincronizacao_estoque: z.boolean(),
   clube_beergam: z.boolean().optional(),
@@ -124,7 +135,15 @@ export const SubscriptionSchema = z.object({
           catalog_monitoring: z.number(),
           dias_historico_vendas: z.number(),
           dias_registro_atividades: z.number(),
-          gestao_financeira: z.string().optional().nullable(),
+          gestao_financeira: z
+            .enum(
+              Object.keys(GestaoFinanceira) as [
+                GestaoFinanceira,
+                ...GestaoFinanceira[],
+              ]
+            )
+            .optional()
+            .nullable(),
           marketplaces_integrados: z.number(),
           sincronizacao_estoque: z.boolean(),
           clube_beergam: z.boolean().optional(),

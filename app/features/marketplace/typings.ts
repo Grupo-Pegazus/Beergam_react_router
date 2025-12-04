@@ -31,11 +31,30 @@ export enum MarketplaceStatusParse {
   ERROR = "ERROR",
 }
 
+export const MarketplaceStatusParseLabel: Record<
+  MarketplaceStatusParse,
+  string
+> = {
+  [MarketplaceStatusParse.PENDING]: "Pendente",
+  [MarketplaceStatusParse.PROCESSING]: "Processando",
+  [MarketplaceStatusParse.COMPLETED]: "Completo",
+  [MarketplaceStatusParse.ERROR]: "Erro",
+};
+
 export enum MarketplaceOrderParseStatus {
   NONE = "NONE",
   FIFTEEN_DAYS = "FIFTEEN_DAYS",
   COMPLETED = "COMPLETED",
 }
+
+export const MarketplaceOrderParseStatusLabel: Record<
+  MarketplaceOrderParseStatus,
+  string
+> = {
+  [MarketplaceOrderParseStatus.NONE]: "Nenhum",
+  [MarketplaceOrderParseStatus.FIFTEEN_DAYS]: "15 dias",
+  [MarketplaceOrderParseStatus.COMPLETED]: "Completo",
+};
 
 export interface BaseMarketPlace {
   marketplace_shop_id: string;

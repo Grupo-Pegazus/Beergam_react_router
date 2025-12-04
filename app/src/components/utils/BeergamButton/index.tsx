@@ -42,7 +42,7 @@ function BeergamButtonWrapper({
   const { style, ...buttonProps } = props;
   const isSlider = animationStyle === "slider" || animationStyle === "fetcher";
   const sliderClasses = disabled
-    ? "cursor-not-allowed!"
+    ? "cursor-not-allowed! opacity-50!"
     : isSlider
       ? `bg-[linear-gradient(90deg,var(--bg-slider-color)_0%,var(--bg-slider-color)_100%)] bg-[length:0%_100%] bg-no-repeat bg-left transition-[background-size,color] duration-300 ease-out ${fetcher?.fecthing ? "opacity-50!" : "hover:bg-[length:100%_100%]"}`
       : "hover:opacity-80";
@@ -53,7 +53,7 @@ function BeergamButtonWrapper({
       : fetcher?.fecthing
         ? "opacity-50!"
         : "";
-  const wrapperClass = `${sliderClasses} ${fectherClasses} relative overflow-hidden text-${mainColor} font-semibold py-2 px-4 rounded-lg shadow-sm group ${className}`;
+  const wrapperClass = `${sliderClasses} ${fectherClasses} bg-beergam-white relative overflow-hidden text-${mainColor} font-semibold py-2! px-4! rounded-lg shadow-sm group ${className}`;
   const sliderStyle: CSSPropertiesWithVars | undefined = isSlider
     ? { "--bg-slider-color": `var(--color-${mainColor})` }
     : undefined;
@@ -119,7 +119,6 @@ export default function BeergamButton({
       <>
         <span
           className={`relative ${fetcher?.completed || fetcher?.error ? "opacity-0" : "opacity-100"} z-10 ${disabled ? "" : animationStyle == "fade" ? "" : "group-hover:text-beergam-white"}`}
-          style={{ fontSize: "inherit" }}
         >
           {title}
         </span>
