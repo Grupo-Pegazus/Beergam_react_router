@@ -7,6 +7,7 @@ import authStore from "~/features/store-zustand";
 import type { IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
 import Svg from "~/src/assets/svgs/_index";
+import Colaboradores from "./components/Colaboradores";
 import ConfigSectionComponent from "./components/ConfigSectionComponent";
 import Impostos from "./components/Impostos";
 import MinhaAssinatura from "./components/MinhaAssinatura/index";
@@ -73,6 +74,10 @@ function HandleSection(section: SECTIONS, user: IUser | IColab) {
       return <VisaoGeral user={user} />;
     case "Minha Conta":
       return <MinhaConta user={user} />;
+    case "Colaboradores":
+      return (
+        <Colaboradores colabs={Object.values((user as IUser).colabs ?? {})} />
+      );
     case "Minha Assinatura":
       return <MinhaAssinatura />;
     case "Impostos":

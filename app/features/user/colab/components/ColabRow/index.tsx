@@ -1,15 +1,16 @@
 import { TableCell, TableRow } from "@mui/material";
-import SpeedDial from "@mui/material/SpeedDial";
-import SpeedDialAction from "@mui/material/SpeedDialAction";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import authStore from "~/features/store-zustand";
 import type { IUser } from "~/features/user/typings/User";
 import { isMaster } from "~/features/user/utils";
-import Svg from "~/src/assets/svgs/_index";
+import Alert from "~/src/components/utils/Alert";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import { useModal } from "~/src/components/utils/Modal/useModal";
 import { type IColab } from "../../../typings/Colab";
 import ColabLevelBadge from "../Badges/ColabLevelBadge";
 import ColabStatusBadge from "../Badges/ColabStatusBadge";
 import ColabPhoto from "../ColabPhoto";
+import DeleteColab from "../DeleteColab";
 export default function ColabRow({
   colab,
   index,
@@ -23,9 +24,8 @@ export default function ColabRow({
   onAction: (params: { action: string; colab: IColab }) => void;
   isCurrentColab: boolean;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
   const user = authStore.use.user();
-
+  const { openModal, closeModal } = useModal();
   const masterPin = useMemo(() => {
     if (user && isMaster(user)) {
       return (user as IUser).pin;
@@ -73,50 +73,34 @@ export default function ColabRow({
         <ColabLevelBadge level={colab.details.level} className="!w-[140px]" />
       </TableCell>
       <TableCell>
-        <SpeedDial
-          ariaLabel="Ações do colaborador"
-          icon={<Svg.elipsis_horizontal width={24} height={24} />}
-          direction="down"
-          open={isOpen}
-          onClick={() => setIsOpen(!isOpen)}
-          onClose={() => setIsOpen(false)}
-          sx={{
-            // backgroundColor: "green",
-            position: "relative",
-            display: "flex",
-            alignItems: "start",
-            justifyContent: "left",
-            paddingLeft: "5px",
-            zIndex: 10 - index, //Tive que fazer isso apra a ação dos botões ficarem por cima de outros botões lol
-            "& .MuiSpeedDial-fab": {
-              backgroundColor: "var(--color-beergam-orange)",
-              width: "36px",
-              height: "36px",
-            },
-            "& .MuiSpeedDial-actions": {
-              // backgroundColor: "pink",
-              position: "absolute",
-              left: "-2.5px",
-              zIndex: 2000,
-              paddingTop: "10px",
-              bottom: "-120px",
-              height: "150px",
-            },
-          }}
-        >
+        <div className="flex items-center gap-2">
           {actions.map((action) => (
-            <SpeedDialAction
+            <BeergamButton
               key={action.label}
-              icon={action.icon}
+              // icon={action.icon}
               onClick={() => {
+                if (action.label === "Excluir") {
+                  openModal(
+                    <Alert type="warning" onClose={closeModal}>
+                      <DeleteColab
+                        colab={colab}
+                        onDeleteSuccess={() => {
+                          onAction({ action: action.label, colab: colab });
+                          closeModal();
+                        }}
+                      />
+                    </Alert>,
+                    { title: "Excluir Colaborador" }
+                  );
+                }
                 onAction({ action: action.label, colab: colab });
               }}
-              slotProps={{
-                tooltip: { title: action.label },
-              }}
+              title={action.label}
+              className={`text-xs!`}
+              mainColor={`${action.label === "Excluir" ? "beergam-red" : "beergam-blue-primary"}`}
             />
           ))}
-        </SpeedDial>
+        </div>
       </TableCell>
     </TableRow>
   );

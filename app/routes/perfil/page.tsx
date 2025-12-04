@@ -5,9 +5,9 @@ import authStore from "~/features/store-zustand";
 import { type IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
 import Svg from "~/src/assets/svgs/_index";
+import Colaboradores from "../config/components/Colaboradores";
 import Impostos from "../config/components/Impostos";
 import MinhaAssinatura from "../config/components/MinhaAssinatura/index";
-import Colaboradores from "./components/Colaboradores";
 import MinhaConta from "./components/MinhaConta";
 import PerfilLayout from "./layout/PerfilLayout";
 
