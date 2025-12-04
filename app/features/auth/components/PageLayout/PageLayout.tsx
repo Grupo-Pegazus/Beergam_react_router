@@ -98,12 +98,10 @@ export default function PageLayout({
                       <hr className="my-2 border-beergam-white" />
                       <button
                         onClick={() => {
-                          if (!menuOpen || handleLogout.isPending) return;
-                          handleLogout.mutate();
+                          if (!menuOpen || isLoggingOut) return;
                           logout();
-                          navigate("/login", { replace: true });
                         }}
-                        className={`flex items-center px-2 py-1 rounded-lg gap-2 justify-between w-full hover:bg-beergam-white/10 ${handleLogout.isPending ? "opacity-50! cursor-not-allowed!" : ""} ${!menuOpen ? "pointer-events-none! cursor-auto!" : ""}`}
+                        className={`flex items-center px-2 py-1 rounded-lg gap-2 justify-between w-full hover:bg-beergam-white/10 ${isLoggingOut ? "opacity-50! cursor-not-allowed!" : ""} ${!menuOpen ? "pointer-events-none! cursor-auto!" : ""}`}
                       >
                         <p className="text-beergam-white text-sm!">Sair</p>
                         <Svg.logout tailWindClasses="text-beergam-white size-6" />
