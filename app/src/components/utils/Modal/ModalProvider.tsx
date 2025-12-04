@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Modal } from "./index";
 import { ModalContext, type ModalOptions } from "./ModalContext";
 
@@ -6,6 +6,12 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<React.ReactNode>(null);
   const [modalOptions, setModalOptions] = useState<ModalOptions>({});
+  const onCloseRef = useRef<(() => void) | undefined>(undefined);
+
+  // Atualiza a ref sempre que modalOptions.onClose mudar
+  useEffect(() => {
+    onCloseRef.current = modalOptions.onClose;
+  }, [modalOptions.onClose]);
 
   const openModal = useCallback(
     (content: React.ReactNode, options?: ModalOptions) => {
@@ -17,6 +23,10 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   );
 
   const closeModal = useCallback(() => {
+    // Executa a função onClose se foi fornecida nas opções
+    if (onCloseRef.current) {
+      onCloseRef.current();
+    }
     setIsOpen(false);
   }, []);
 
@@ -35,4 +45,3 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
     </ModalContext.Provider>
   );
 }
-
