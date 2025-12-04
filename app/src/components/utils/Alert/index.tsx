@@ -1,13 +1,16 @@
 import { Paper } from "@mui/material";
 import React from "react";
 import Svg from "~/src/assets/svgs/_index";
+import type { SvgBaseProps } from "~/src/assets/svgs/IconBase";
 import BeergamButton from "../BeergamButton";
 function Icon({
   type,
   customIcon,
+  SvgBaseProps,
 }: {
   type?: AlertProps["type"];
   customIcon?: keyof typeof Svg;
+  SvgBaseProps: SvgBaseProps;
 }) {
   function getSvg() {
     // Tamanhos responsivos: menor em mobile, maior em desktop
@@ -16,46 +19,24 @@ function Icon({
       ...SvgBaseProps,
       width: SvgBaseProps.width || baseSize,
       height: SvgBaseProps.height || baseSize,
+      tailWindClasses: `${SvgBaseProps.tailWindClasses ?? ""} text-beergam-white!`,
     };
 
     if (customIcon) {
       return React.createElement(Svg[customIcon], {
         stroke: "white",
+        ...svgProps,
       });
     }
     switch (type) {
       case "success":
-        return (
-          <Svg.check
-            className="text-beergam-white stroke-beergam-white"
-            width={26}
-            height={26}
-          />
-        );
+        return <Svg.check_circle {...svgProps} />;
       case "error":
-        return (
-          <Svg.circle_x
-            className="text-beergam-white stroke-beergam-white"
-            width={26}
-            height={26}
-          />
-        );
+        return <Svg.circle_x {...svgProps} />;
       case "warning":
-        return (
-          <Svg.warning_circle
-            className="text-beergam-white! stroke-beergam-white"
-            width={26}
-            height={26}
-          />
-        );
+        return <Svg.warning_circle {...svgProps} />;
       case "info":
-        return (
-          <Svg.information_circle
-            className="text-beergam-white stroke-beergam-white"
-            width={26}
-            height={26}
-          />
-        );
+        return <Svg.information_circle {...svgProps} />;
     }
   }
   return (
@@ -94,7 +75,11 @@ export default function Alert({
       <div>
         <Icon
           type={type}
-          SvgBaseProps={{ width: "60px", height: "60px" }}
+          SvgBaseProps={{
+            width: "60px",
+            height: "60px",
+            tailWindClasses: "text-beergam-white!",
+          }}
           customIcon={customIcon}
         />
       </div>
