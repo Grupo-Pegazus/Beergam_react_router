@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, CSSProperties } from "react";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router";
+import { getIcon } from "~/features/menu/utils";
 import Svg from "~/src/assets/svgs/_index";
 interface BeergamButtonFetcherProps {
   fecthing: boolean;
@@ -22,7 +23,9 @@ interface BeergamButtonWrapperProps {
 
 interface BeergamButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
-    BeergamButtonWrapperProps {}
+    BeergamButtonWrapperProps {
+  icon?: keyof typeof Svg | null;
+}
 
 type CSSPropertiesWithVars = CSSProperties & {
   [key: `--${string}`]: string | number;
@@ -37,6 +40,7 @@ function BeergamButtonWrapper({
   onClick,
   disabled,
   fetcher,
+  icon,
   ...props
 }: BeergamButtonProps) {
   const { style, ...buttonProps } = props;
@@ -53,7 +57,7 @@ function BeergamButtonWrapper({
       : fetcher?.fecthing
         ? "opacity-50!"
         : "";
-  const wrapperClass = `${sliderClasses} ${fectherClasses} bg-beergam-white relative overflow-hidden text-${mainColor} font-semibold py-2! px-4! rounded-lg shadow-sm group ${className}`;
+  const wrapperClass = `${sliderClasses} ${fectherClasses} bg-beergam-white relative overflow-hidden text-${mainColor} font-semibold py-2! px-4! rounded-lg shadow-sm group ${className} flex items-center gap-2 justify-center`;
   const sliderStyle: CSSPropertiesWithVars | undefined = isSlider
     ? { "--bg-slider-color": `var(--color-${mainColor})` }
     : undefined;
@@ -81,6 +85,16 @@ function BeergamButtonWrapper({
           style={combinedStyle}
           {...buttonProps}
         >
+          {icon && (
+            <span>
+              {React.createElement(getIcon(icon as keyof typeof Svg), {
+                width: "22px",
+                height: "22px",
+                tailWindClasses:
+                  "group-hover:text-beergam-white! max-w-[unset]!",
+              })}
+            </span>
+          )}
           {children}
         </button>
       )}
@@ -97,6 +111,7 @@ export default function BeergamButton({
   onClick,
   disabled,
   fetcher,
+  icon,
 }: BeergamButtonProps) {
   useEffect(() => {
     if (fetcher?.completed || fetcher?.error) {
@@ -115,13 +130,16 @@ export default function BeergamButton({
       onClick={disabled ? undefined : onClick}
       disabled={disabled}
       fetcher={fetcher}
+      icon={icon}
     >
       <>
-        <span
-          className={`relative ${fetcher?.completed || fetcher?.error ? "opacity-0" : "opacity-100"} z-10 ${disabled ? "" : animationStyle == "fade" ? "" : "group-hover:text-beergam-white"}`}
-        >
-          {title}
-        </span>
+        {title && (
+          <span
+            className={`relative ${fetcher?.completed || fetcher?.error ? "opacity-0" : "opacity-100"} z-10 ${disabled ? "" : animationStyle == "fade" ? "" : "group-hover:text-beergam-white"}`}
+          >
+            {title}
+          </span>
+        )}
         {fetcher?.error && (
           <span className="text-beergam-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <Svg.x width={20} height={20} />

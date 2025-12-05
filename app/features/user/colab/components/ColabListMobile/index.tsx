@@ -1,28 +1,32 @@
 import { Pagination, Paper } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "react-hot-toast";
 import authStore from "~/features/store-zustand";
+import { userService } from "~/features/user/service";
 import { type IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
 import { isMaster } from "~/features/user/utils";
-import Svg from "~/src/assets/svgs/_index";
+import type { ColabAction } from "~/routes/perfil/typings";
 import { Fields } from "~/src/components/utils/_fields";
+import Alert from "~/src/components/utils/Alert";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import { useModal } from "~/src/components/utils/Modal/useModal";
 import ColabLevelBadge from "../Badges/ColabLevelBadge";
 import ColabStatusBadge from "../Badges/ColabStatusBadge";
 import ColabPhoto from "../ColabPhoto";
 import DeleteColab from "../DeleteColab";
-
 type ColabListMobileProps = {
   colabs: IColab[];
   currentColabPin: string | null;
-  onAction: (params: {
-    action: "Editar" | "Visualizar" | "Excluir";
-    colab: IColab;
-  }) => void;
+  currentAction: ColabAction | null;
+  onAction: (params: { action: ColabAction; colab: IColab }) => void;
 };
 
 export default function ColabListMobile({
   colabs,
   currentColabPin,
+  currentAction,
   onAction,
 }: ColabListMobileProps) {
   const ROWS_PER_PAGE = 4;
@@ -31,8 +35,25 @@ export default function ColabListMobile({
   const [colabToDelete, setColabToDelete] = useState<IColab | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-
+  const { openModal, closeModal } = useModal();
   const user = authStore.use.user();
+  const deleteColabMutation = useMutation({
+    mutationFn: (colab: IColab) => userService.deleteColab(colab.pin ?? ""),
+    onSuccess: (data, colab) => {
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+      setColabToDelete(null);
+      toast.success(data.message);
+      setTimeout(() => {
+        onAction({ action: "Excluir", colab: colab });
+        closeModal();
+      }, 500);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   const masterPin = useMemo(() => {
     if (user && isMaster(user)) {
@@ -84,20 +105,28 @@ export default function ColabListMobile({
       onAction(params);
     }
   };
-
+  const actionColor =
+    currentAction === "Visualizar"
+      ? "bg-beergam-blue-primary/20! border-beergam-blue-primary!"
+      : currentAction === "Editar"
+        ? "bg-beergam-orange/20! border-beergam-orange!"
+        : currentAction === "Excluir" && colabToDelete?.pin === currentColabPin
+          ? "bg-beergam-red/20! border-beergam-red!"
+          : "";
   return (
     <div ref={searchRef} className="flex flex-col gap-4 w-full">
       {/* Barra de pesquisa */}
-      <Paper className="p-4">
-        <Fields.input
-          placeholder="Pesquisar colaborador por nome ou pin"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </Paper>
+      <Fields.input
+        placeholder="Pesquisar colaborador por nome ou pin"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
 
       {/* Lista de colaboradores */}
-      <div ref={listRef} className="flex flex-col gap-3">
+      <div
+        ref={listRef}
+        className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4"
+      >
         {filteredColabs.length === 0 ? (
           <Paper className="p-6 text-center">
             <p className="text-beergam-gray">Nenhum colaborador encontrado</p>
@@ -109,8 +138,8 @@ export default function ColabListMobile({
               <Paper
                 key={colab?.pin || `empty-${index}`}
                 className={`p-4 flex flex-col gap-3 border-1 border-beergam-gray-light relative ${
-                  isEmpty ? "opacity-0 pointer-events-none" : ""
-                } ${currentColabPin === colab?.pin ? "!bg-beergam-orange-light !border-beergam-orange" : ""}`}
+                  isEmpty ? "bg-beergam-gray/50! md:hidden" : ""
+                } ${currentColabPin === colab?.pin ? `${actionColor}` : ""} ${colabToDelete?.pin === colab?.pin ? "bg-beergam-red/20! border-beergam-red!" : ""}`}
               >
                 {/* Botão de excluir - posicionado absolutamente no canto superior direito */}
                 <div className="flex items-center justify-between">
@@ -121,14 +150,41 @@ export default function ColabListMobile({
                       masterPin={masterPin}
                     />
                   </div>
-                  <button
+                  {/* <button
                     onClick={() => colab && setColabToDelete(colab)}
                     className="p-2 rounded-full bg-beergam-red hover:bg-beergam-red/90 text-white transition-colors z-10"
                     aria-label="Excluir colaborador"
                     disabled={isEmpty}
                   >
                     <Svg.trash width={18} height={18} />
-                  </button>
+                  </button> */}
+                  <BeergamButton
+                    icon="trash"
+                    mainColor="beergam-red"
+                    onClick={() => {
+                      setColabToDelete(colab);
+                      if (!colab) return;
+                      openModal(
+                        <Alert
+                          type="warning"
+                          confirmText="Excluir"
+                          onClose={closeModal}
+                          mutation={deleteColabMutation}
+                          onConfirm={() => {
+                            if (!colab) return;
+                            deleteColabMutation.mutate(colab);
+                          }}
+                        >
+                          <DeleteColab colab={colab} />
+                        </Alert>,
+                        {
+                          title: "Excluir Colaborador",
+                          onClose: () => setColabToDelete(null),
+                        }
+                      );
+                    }}
+                    disabled={isEmpty}
+                  />
                 </div>
                 {/* Header do card - Foto e informações principais */}
                 <div className="flex items-start gap-3">
@@ -150,27 +206,24 @@ export default function ColabListMobile({
                 </div>
 
                 {/* Botões de ação */}
-                <div className="flex gap-2 pt-2 border-t border-beergam-gray-light">
-                  <button
+                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-beergam-gray-light">
+                  <BeergamButton
+                    title="Visualizar"
+                    icon="eye"
                     onClick={() =>
                       colab && handleAction({ action: "Visualizar", colab })
                     }
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-beergam-blue-primary hover:bg-beergam-blue-primary/90 text-white text-sm font-medium transition-colors"
                     disabled={isEmpty}
-                  >
-                    <Svg.eye width={18} height={18} />
-                    <span>Visualizar</span>
-                  </button>
-                  <button
+                  />
+                  <BeergamButton
+                    title="Editar"
+                    mainColor="beergam-orange"
+                    icon="pencil_solid"
                     onClick={() =>
                       colab && handleAction({ action: "Editar", colab })
                     }
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-beergam-orange hover:bg-beergam-orange/90 text-white text-sm font-medium transition-colors"
                     disabled={isEmpty}
-                  >
-                    <Svg.pencil width={18} height={18} />
-                    <span>Editar</span>
-                  </button>
+                  />
                 </div>
               </Paper>
             );
@@ -202,14 +255,6 @@ export default function ColabListMobile({
           />
         </div>
       )}
-      <DeleteColab
-        colab={colabToDelete}
-        onDeleteSuccess={(colab) => {
-          onAction({ action: "Excluir", colab });
-          setColabToDelete(null);
-        }}
-        onClose={() => setColabToDelete(null)}
-      />
     </div>
   );
 }

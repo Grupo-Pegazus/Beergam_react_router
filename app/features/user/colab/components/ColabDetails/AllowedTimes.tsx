@@ -3,12 +3,16 @@ import {
   WeekDay,
   WeekDayToPortuguese,
 } from "~/features/user/typings/AllowedTimes";
+import type { ColabAction } from "~/routes/perfil/typings";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import Time from "~/src/components/utils/Time";
 import ColabItem from "./ColabItem";
-
 export default function AllowedTimes({
   schedule,
+  action = "Visualizar",
 }: {
   schedule: IAllowedTimes;
+  action: ColabAction;
 }) {
   function formatTime(value: unknown): string {
     if (!value) return "--:--";
@@ -23,34 +27,48 @@ export default function AllowedTimes({
     return "--:--";
   }
   return (
-    <div className="grid md:grid-cols-4 grid-cols-1 gap-4">
+    <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
       {(Object.values(WeekDay) as WeekDay[]).map((day) => {
         const item = schedule[day];
-        return (
-          <ColabItem key={day} active={item.access}>
-            <span className="text-sm font-medium">
-              {WeekDayToPortuguese[day]}
-            </span>
-            <div className="text-sm">
-              {/* {item.access ? (
-                <span>
-                  {formatTime(item.start_date)} <span className="mx-1">—</span>{" "}
-                  {formatTime(item.end_date)}
-                </span>
-              ) : (
-                <span className="opacity-60">Sem acesso</span>
-              )} */}
-              <span className="text-xs font-semibold">
-                {item.access
-                  ? formatTime(item.start_date) +
-                    " - " +
-                    formatTime(item.end_date)
-                  : "Sem acesso"}
+        if (action === "Visualizar") {
+          return (
+            <ColabItem key={day} active={item.access}>
+              <span className="text-sm font-medium">
+                {WeekDayToPortuguese[day]}
               </span>
-            </div>
-          </ColabItem>
-        );
+              <div className="text-sm">
+                <span className="text-xs font-semibold">
+                  {item.access
+                    ? formatTime(item.start_date) +
+                      " - " +
+                      formatTime(item.end_date)
+                    : "Sem acesso"}
+                </span>
+              </div>
+            </ColabItem>
+          );
+        } else if (action === "Editar" || action === "Criar") {
+          return (
+            <Time
+              key={day}
+              dia={WeekDayToPortuguese[day]}
+              access={item.access}
+              start_date={formatTime(item.start_date)}
+              end_date={formatTime(item.end_date)}
+              setHorario={() => {}}
+            />
+          );
+        }
       })}
+      {action !== "Visualizar" && (
+        <BeergamButton
+          title="Horário Comercial"
+          mainColor="beergam-blue-primary"
+          animationStyle="slider"
+          onClick={() => {}}
+          icon="clock"
+        />
+      )}
     </div>
   );
 }

@@ -4,9 +4,9 @@ import type {
 } from "~/src/components/utils/upload/types";
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
+import authStore from "../store-zustand";
 import type { IColab } from "./typings/Colab";
 import type { IUser } from "./typings/User";
-
 class UserService {
   async editUserInformation(editUser: IUser): Promise<ApiResponse<IUser>> {
     try {
@@ -121,6 +121,9 @@ class UserService {
       const response = await typedApiClient.delete<void>(
         `/v1/users/me/colabs/${colabPin}`
       );
+      if (response.success) {
+        authStore.getState().deleteColab(colabPin);
+      }
       return response;
     } catch (error) {
       console.error("error do deleteColab", error);

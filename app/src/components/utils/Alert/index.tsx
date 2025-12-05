@@ -1,4 +1,3 @@
-import { Paper } from "@mui/material";
 import React from "react";
 import Svg from "~/src/assets/svgs/_index";
 import type { SvgBaseProps } from "~/src/assets/svgs/IconBase";
@@ -58,6 +57,12 @@ interface AlertProps {
   cancelClassName?: string;
   confirmText?: string;
   confirmClassName?: string;
+  mutation?: {
+    reset: () => void;
+    isPending: boolean;
+    isSuccess: boolean;
+    isError: boolean;
+  } | null;
 }
 export default function Alert({
   type,
@@ -69,9 +74,10 @@ export default function Alert({
   confirmClassName,
   children,
   onClose,
+  mutation,
 }: AlertProps) {
   return (
-    <Paper className="flex flex-col items-center justify-center gap-4 w-full md:min-w-2xl">
+    <div className="flex flex-col items-center justify-center gap-4 w-full md:min-w-2xl">
       <div>
         <Icon
           type={type}
@@ -90,10 +96,23 @@ export default function Alert({
       <div className="flex items-center justify-center gap-4">
         {onConfirm && (
           <BeergamButton
-            onClick={onConfirm}
+            onClick={() => {
+              console.log("cliquei no confirm");
+              onConfirm();
+            }}
             mainColor="beergam-orange"
             title={confirmText ?? "Confirmar"}
             className={confirmClassName}
+            fetcher={
+              mutation
+                ? {
+                    fecthing: mutation.isPending,
+                    completed: mutation.isSuccess,
+                    error: mutation.isError,
+                    mutation: mutation,
+                  }
+                : undefined
+            }
           />
         )}
         <BeergamButton
@@ -105,6 +124,6 @@ export default function Alert({
           className={cancelClassName}
         />
       </div>
-    </Paper>
+    </div>
   );
 }

@@ -4,20 +4,21 @@ import { useEffect, useReducer, useRef, useState } from "react";
 import authStore from "~/features/store-zustand";
 // import ColabInfo from "~/features/user/colab/components/ColabInfo";
 // import ColabListMobile from "~/features/user/colab/components/ColabListMobile";
-import ColabInfo from "~/features/user/colab/components/ColabInfo";
-import ColabTable from "~/features/user/colab/components/ColabTable";
+import ColabListMobile from "~/features/user/colab/components/ColabListMobile";
 import { userService } from "~/features/user/service";
 import { getDefaultColab, type IColab } from "~/features/user/typings/Colab";
 import Svg from "~/src/assets/svgs/_index";
 import Section from "~/src/components/ui/Section";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import type { ColabAction } from "../../../perfil/typings";
+import ColabForm from "../MinhaConta/ColabForm";
 
 export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
   const updateColabs = authStore.use.updateColabs();
   const availableActions = {
     Editar: { icon: <Svg.pencil width={20} height={20} /> },
     Excluir: { icon: <Svg.trash width={20} height={20} /> },
+    Visualizar: { icon: <Svg.eye width={20} height={20} /> },
     Criar: { icon: <Svg.plus_circle width={20} height={20} /> },
   };
   const initialColabState = {
@@ -39,6 +40,8 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
           }
         case "Criar":
           return { ...state, ...action, colab: getDefaultColab() };
+        case "Visualizar":
+          return { ...state, ...action };
         default:
           return state;
       }
@@ -91,30 +94,34 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
         }
       >
         <p>Quantidade de colaboradores registrados: {colabs.length}</p>
-        <div className="hidden md:block">
-          <ColabTable
-            availableActions={Object.fromEntries(
-              Object.entries(availableActions).filter(
-                ([action]) => action !== "Criar"
-              )
-            )}
-            colabs={colabs}
-            onTableAction={(params) =>
-              setCurrentColab({
-                colab: params.colab,
-                action: params.action as ColabAction,
-              })
-            }
-            currentColabPin={currentColab.colab?.pin ?? null}
-          />
-        </div>
+        <ColabListMobile
+          colabs={colabs}
+          currentAction={currentColab.action ?? null}
+          currentColabPin={currentColab.colab?.pin ?? null}
+          onAction={(params) =>
+            setCurrentColab({
+              colab: params.colab,
+              action: params.action as ColabAction,
+            })
+          }
+        />
       </Section>
-      <Section title="Editar Colaborador" className="bg-beergam-white">
+      <Section
+        title={
+          currentColab.action === "Visualizar"
+            ? "Visualizar Colaborador"
+            : currentColab.action === "Criar"
+              ? "Criar Colaborador"
+              : "Editar Colaborador"
+        }
+        className="bg-beergam-white"
+      >
         {currentColab.colab && currentColab.action ? (
-          <ColabInfo
-            colab={currentColab.colab}
-            action={currentColab.action as ColabAction}
-          />
+          // <ColabInfo
+          //   colab={currentColab.colab}
+          //   action={currentColab.action as ColabAction}
+          // />
+          <ColabForm user={currentColab.colab} action={currentColab.action} />
         ) : (
           <p>Nenhum colaborador selecionado</p>
         )}

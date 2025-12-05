@@ -44,6 +44,7 @@ import Logout from "./Logout";
 import LowStock from "./LowStock";
 import Megaphone from "./Megaphone";
 import Pencil from "./Pencil";
+import PencilSolid from "./PencilSolid";
 import PhoneIcon from "./PhoneIcon";
 import Plus from "./Plus";
 import PlusCircle from "./PlusCircle";
@@ -81,6 +82,7 @@ const Svg = {
   building_library: BuildingLibrary,
   clock: ClockIcon,
   dolly: DollyIcon,
+  pencil_solid: PencilSolid,
   alert: AlertIcon,
   eye: Eye,
   eye_slash: EyeSlash,
