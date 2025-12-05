@@ -26,13 +26,32 @@ const validateCNPJ = (cnpj: string) => {
 
   return true;
 };
-export const CNPJSchema = z
-  .string()
-  .transform((v) => v.replace(/\D/g, ""))
-  .refine((v) => v.length === 14, { message: "CNPJ deve ter 14 dígitos" })
-  .refine((v) => validateCNPJ(v), { message: "CNPJ inválido" })
-  .transform((v) =>
-    v.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5")
-  );
+export const CNPJSchema = z.preprocess(
+  (v) => {
+    // Se for null ou undefined, retorna null
+    if (v === null || v === undefined) return null;
+    // Converte para string e verifica se está vazia
+    const str = String(v);
+    if (str.trim() === "") return null;
+    return str;
+  },
+  z
+    .string()
+    .nullable()
+    .transform((v) => {
+      // Se for null, retorna null
+      if (v === null) return null;
+      // Remove caracteres não numéricos
+      return v.replace(/\D/g, "");
+    })
+    .refine((v) => v === null || v.length === 14, {
+      message: "CNPJ deve ter 14 dígitos",
+    })
+    .refine((v) => v === null || validateCNPJ(v), { message: "CNPJ inválido" })
+    .transform((v) => {
+      if (v === null) return null;
+      return v.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+    })
+);
 
 export type CNPJ = z.infer<typeof CNPJSchema>;

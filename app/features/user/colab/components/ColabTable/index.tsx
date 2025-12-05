@@ -11,10 +11,10 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { Fields } from "~/src/components/utils/_fields";
+import { useModal } from "~/src/components/utils/Modal/useModal";
 import { UserStatus } from "../../../typings/BaseUser";
 import { ColabLevel, type IColab } from "../../../typings/Colab";
 import ColabRow from "../ColabRow";
-import DeleteColab from "../DeleteColab";
 export default function ColabTable({
   colabs,
   onTableAction,
@@ -27,6 +27,7 @@ export default function ColabTable({
   currentColabPin: string | null;
 }) {
   const ROWS_PER_PAGE = 3;
+  const { openModal, closeModal } = useModal();
   const [search, setSearch] = useState("");
   const [colabToDelete, setColabToDelete] = useState<IColab | null>(null);
 
@@ -102,7 +103,7 @@ export default function ColabTable({
 
   return (
     <>
-      <Paper className="grid grid-cols-2 gap-4 mb-4 p-2">
+      <div className="grid grid-cols-2 gap-4 mb-4">
         <Fields.input
           placeholder="Pesquisar colaborador por nome ou pin"
           value={search}
@@ -123,7 +124,7 @@ export default function ColabTable({
           }}
           onPageChange={handlePageChange}
         />
-      </Paper>
+      </div>
       <TableContainer
         component={Paper}
         sx={{
@@ -214,14 +215,14 @@ export default function ColabTable({
           </TableBody>
         </Table>
       </TableContainer>
-      <DeleteColab
+      {/* <DeleteColab
         colab={colabToDelete}
         onDeleteSuccess={(colab) => {
           onTableAction({ action: "Excluir", colab });
           setColabToDelete(null);
         }}
         onClose={() => setColabToDelete(null)}
-      />
+      /> */}
     </>
   );
 }

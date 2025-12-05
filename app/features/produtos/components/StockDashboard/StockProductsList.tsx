@@ -93,6 +93,14 @@ export default function StockProductsList() {
                 product.images?.product?.[0] ||
                 product.variations?.[0]?.images?.product?.[0];
               const variationsCount = product.variations?.length || 0;
+              const hasVariations = variationsCount > 0;
+
+              // Calcula o estoque total: se tem variações, soma o estoque de todas elas
+              const totalStock = hasVariations
+                ? (product.variations || []).reduce((sum, variation) => {
+                    return sum + (variation.available_quantity || 0);
+                  }, 0)
+                : product.available_quantity || 0;
 
               return (
                 <Link
@@ -135,7 +143,7 @@ export default function StockProductsList() {
                       <div className="flex items-center justify-between pt-1.5 border-t border-slate-100">
                         <span className="text-xs text-slate-500">Estoque:</span>
                         <span className="text-xs font-semibold text-slate-900">
-                          {formatNumber(product.available_quantity)}
+                          {formatNumber(totalStock)}
                         </span>
                       </div>
                     </div>

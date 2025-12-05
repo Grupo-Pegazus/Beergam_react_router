@@ -4,9 +4,9 @@ import type {
 } from "~/src/components/utils/upload/types";
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
+import authStore from "../store-zustand";
 import type { IColab } from "./typings/Colab";
 import type { IUser } from "./typings/User";
-
 class UserService {
   async editUserInformation(editUser: IUser): Promise<ApiResponse<IUser>> {
     try {
@@ -23,18 +23,22 @@ class UserService {
         message:
           "Erro ao editar informações do usuário. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }
   async updateColab(
     editColab: IColab,
-    password: string
+    password: string | null
   ): Promise<ApiResponse<IColab>> {
     const colabPin = editColab.pin;
     const body = {
       ...editColab,
-      password: password.length > 0 ? password : undefined,
+      password: password
+        ? password.length > 0
+          ? password
+          : undefined
+        : undefined,
     };
     if (!colabPin) {
       return {
@@ -42,7 +46,7 @@ class UserService {
         data: {} as IColab,
         message: "Pin do colaborador não encontrado.",
         error_code: 400,
-        error_fields: {},
+        error_fields: [],
       };
     }
     try {
@@ -59,7 +63,7 @@ class UserService {
         message:
           "Erro ao editar informações do colaborador. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }
@@ -77,7 +81,7 @@ class UserService {
         message:
           "Erro ao buscar colaboradores. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }
@@ -112,7 +116,7 @@ class UserService {
         message:
           "Erro ao enviar foto do colaborador. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }
@@ -121,6 +125,9 @@ class UserService {
       const response = await typedApiClient.delete<void>(
         `/v1/users/me/colabs/${colabPin}`
       );
+      if (response.success) {
+        authStore.getState().deleteColab(colabPin);
+      }
       return response;
     } catch (error) {
       console.error("error do deleteColab", error);
@@ -130,7 +137,7 @@ class UserService {
         message:
           "Erro ao excluir colaborador. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }

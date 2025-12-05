@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { TAuthError, UsageLimitData } from "../auth/redux";
-import type { MenuState } from "../menu/typings";
 import type { BaseMarketPlace } from "../marketplace/typings";
+import type { MenuState } from "../menu/typings";
 import type { Subscription } from "../user/typings/BaseUser";
 import type { IColab } from "../user/typings/Colab";
 import type { IUser } from "../user/typings/User";
@@ -25,9 +25,11 @@ interface IAuthStore {
   setAuthError: (error: TAuthError) => void;
   setSubscription: (subscription: Subscription | null) => void;
   updateColab: (colab: IColab) => void;
+  createColab: (colab: IColab) => void;
   updateColabs: (colabs: Record<string, IColab>) => void;
   deleteColab: (colabPin: string) => void;
   updateAllowedViews: (allowedViews: MenuState) => void;
+  updateUserDetails: (user: IUser | IColab) => void;
 }
 
 const authBaseStore = create<IAuthStore>()(
@@ -58,16 +60,39 @@ const authBaseStore = create<IAuthStore>()(
       updateColab: (colab: IColab) => {
         const currentUser = get().user;
         if (currentUser && isMaster(currentUser) && colab.pin) {
-          const updatedColabs = {
-            ...(currentUser.colabs ?? {}),
-            [colab.pin]: colab,
-          };
-          set({
-            user: {
-              ...currentUser,
-              colabs: updatedColabs,
-            },
-          });
+          const currentColabs = currentUser.colabs ?? {};
+          // Garante que o colaborador existe antes de atualizar
+          if (colab.pin in currentColabs) {
+            const updatedColabs = {
+              ...currentColabs,
+              [colab.pin]: colab,
+            };
+            set({
+              user: {
+                ...currentUser,
+                colabs: updatedColabs,
+              },
+            });
+          }
+        }
+      },
+      createColab: (colab: IColab) => {
+        const currentUser = get().user;
+        if (currentUser && isMaster(currentUser) && colab.pin) {
+          const currentColabs = currentUser.colabs ?? {};
+          // Adiciona o novo colaborador apenas se ele não existir
+          if (!(colab.pin in currentColabs)) {
+            const updatedColabs = {
+              ...currentColabs,
+              [colab.pin]: colab,
+            };
+            set({
+              user: {
+                ...currentUser,
+                colabs: updatedColabs,
+              },
+            });
+          }
         }
       },
       updateColabs: (colabs: Record<string, IColab>) => {
@@ -108,6 +133,23 @@ const authBaseStore = create<IAuthStore>()(
           } as IUser | IColab;
           set({
             user: updatedUser,
+          });
+        }
+      },
+      updateUserDetails: (user: IUser | IColab) => {
+        const currentUser = get().user;
+        if (!currentUser || !currentUser.details) return;
+
+        // Garante que os tipos sejam compatíveis (ambos IUser ou ambos IColab)
+        if (isMaster(currentUser) === isMaster(user)) {
+          set({
+            user: {
+              ...currentUser,
+              details: {
+                ...currentUser.details,
+                ...user.details,
+              },
+            } as IUser | IColab,
           });
         }
       },

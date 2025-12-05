@@ -28,6 +28,7 @@ import { AuthStoreProvider } from "./features/auth/context/AuthStoreContext";
 import { SocketStatusIndicator } from "./features/socket/components/SocketStatusIndicator";
 import { SocketProvider } from "./features/socket/context/SocketContext";
 import authStore from "./features/store-zustand";
+import { ModalProvider } from "./src/components/utils/Modal/ModalProvider";
 import store from "./store";
 import "./zod";
 export const queryClient = new QueryClient();
@@ -351,9 +352,11 @@ export default function App() {
       >
         <Analytics />
         <QueryClientProvider client={queryClient}>
-          <GlobalLoadingSpinner />
-          <SocketConnectionManager />
-          {/* <AuthStoreMonitor /> */}
+          <ModalProvider>
+            <GlobalLoadingSpinner />
+            <SocketConnectionManager />
+            {/* <AuthStoreMonitor /> */}
+          </ModalProvider>
         </QueryClientProvider>
       </AuthStoreProvider>
     </Provider>

@@ -1,13 +1,12 @@
-import { Box, ClickAwayListener } from "@mui/material";
+import { Box, ClickAwayListener, Fade } from "@mui/material";
 import { useState } from "react";
 import { Link } from "react-router";
+import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 import authStore from "~/features/store-zustand";
 import { isMaster } from "~/features/user/utils";
 import Svg from "~/src/assets/svgs/_index";
 import ParticlesBackground from "~/src/components/utils/ParticlesBackground";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
-import LogoutOverlay from "~/features/auth/components/LogoutOverlay/LogoutOverlay";
-import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 function CardComponent({ title, value }: { title: string; value: string }) {
   return (
     <div className="relative w-full max-w-44 h-26 group">
@@ -59,9 +58,8 @@ export default function PageLayout({
   }
   return (
     <>
-      {isLoggingOut && <LogoutOverlay />}
-      <main className="flex min-h-full bg-beergam-orange overflow-x-hidden">
-        <header className="fixed z-10000 top-0 left-0 right-0 p-4 px-8 flex items-center justify-between">
+      <main className="relative h-screen flex flex-col justify-center items-center overflow-hidden">
+        <header className="w-full p-4 px-4 md:px-8 flex z-99 items-center justify-between">
           <Link to="/" className="w-10 h-10 cursor-pointer hover:opacity-80">
             <img
               src={CDN_IMAGES.BERGAMOTA_LOGO}
@@ -83,37 +81,38 @@ export default function PageLayout({
                   >
                     {generateUserInitials(user.name)}
                   </button>
-                  <div
-                    className={`absolute p-2 top-12 w-[200px] right-4 bg-beergam-blue-primary rounded-xl shadow-[2.5px_5px_5px_0px_rgba(0,0,0,0.65)] border border-beergam-white ${menuOpen ? "opacity-100!" : "opacity-0!"}`}
-                  >
-                    <div className="text-left">
-                      <p className="text-beergam-white text-sm! font-bold!">
-                        {user.name}
-                      </p>
-                      <p className="text-beergam-gray-light">
-                        {isMaster(user) ? user.details?.email : user.pin}
-                      </p>
-                    </div>
-                    <hr className="my-2 border-beergam-white" />
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (!menuOpen) return;
-                        void logout();
-                      }}
-                      className={`flex items-center px-2 py-1 rounded-lg gap-2 justify-between w-full hover:bg-beergam-white/10 ${isLoggingOut ? "opacity-50! cursor-not-allowed!" : ""} ${!menuOpen ? "pointer-events-none! cursor-auto!" : ""}`}
+                  <Fade in={menuOpen} timeout={200}>
+                    <div
+                      className={`absolute p-2 top-12 w-[200px] right-4 bg-beergam-blue-primary rounded-xl shadow-[2.5px_5px_5px_0px_rgba(0,0,0,0.65)] border border-beergam-white`}
                     >
-                      <p className="text-beergam-white text-sm!">Sair</p>
-                      <Svg.logout tailWindClasses="text-beergam-white size-6" />
-                    </button>
-                  </div>
+                      <div className="text-left">
+                        <p className="text-beergam-white text-sm! font-bold!">
+                          {user.name}
+                        </p>
+                        <p className="text-beergam-gray-light">
+                          {isMaster(user) ? user.details?.email : user.pin}
+                        </p>
+                      </div>
+                      <hr className="my-2 border-beergam-white" />
+                      <button
+                        onClick={() => {
+                          if (!menuOpen || isLoggingOut) return;
+                          logout();
+                        }}
+                        className={`flex items-center px-2 py-1 rounded-lg gap-2 justify-between w-full hover:bg-beergam-white/10 ${isLoggingOut ? "opacity-50! cursor-not-allowed!" : ""} ${!menuOpen ? "pointer-events-none! cursor-auto!" : ""}`}
+                      >
+                        <p className="text-beergam-white text-sm!">Sair</p>
+                        <Svg.logout tailWindClasses="text-beergam-white size-6" />
+                      </button>
+                    </div>
+                  </Fade>
                 </Box>
               </ClickAwayListener>
             </div>
           )}
         </header>
-
-        <div className="absolute hidden lg:block top-0 left-0 max-w-screen max-h-screen overflow-hidden w-full h-full opacity-50">
+        <div className="bg-beergam-orange absolute top-0 left-0 w-full h-full -z-1000"></div>
+        <div className="absolute -z-10 hidden lg:block top-0 left-0 max-w-screen max-h-screen overflow-hidden w-full h-full opacity-50">
           <div className="absolute top-0 left-0 w-3/4 max-w-6xl object-contain">
             <img
               src={CDN_IMAGES.AUTH_WORLD_BG}
@@ -149,18 +148,12 @@ export default function PageLayout({
             </div>
           </div>
         </div>
-        <div className={`w-full min-h-full z-50 ${tailwindClassName} mt-16`}>
+        <div
+          className={`w-full  max-h-[90%] md:max-h-full z-50 relative h-full ${tailwindClassName}`}
+        >
           {children}
         </div>
       </main>
-      {/* <button
-        className="fixed bottom-4 right-4 z-9999 bg-beergam-blue-primary text-beergam-white px-4 py-2 rounded-md"
-        onClick={() => {
-          authStore.getState().setAuthError("USAGE_TIME_LIMIT");
-        }}
-      >
-        set auth error
-      </button> */}
       <ParticlesBackground />
     </>
   );

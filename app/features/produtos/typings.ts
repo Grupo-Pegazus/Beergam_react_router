@@ -211,6 +211,8 @@ const StockTrackingMetaSchema = z.object({
   product_id: z.string().optional(),
   variation_id: z.string().nullable().optional(),
   variation_sku: z.string().nullable().optional(),
+  product_variation_id: z.union([z.string(), z.number()]).nullable().optional(),
+  sku: z.string().nullable().optional(),
 }).passthrough(); // Permite campos adicionais
 
 // Schema para entrada individual de stock tracking

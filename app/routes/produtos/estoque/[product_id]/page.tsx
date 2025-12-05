@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { Alert } from "@mui/material";
+import { useSearchParams } from "react-router";
 import Section from "~/src/components/ui/Section";
 import Grid from "~/src/components/ui/Grid";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
@@ -13,6 +14,7 @@ import StockMovementForm from "~/features/produtos/components/StockControl/Stock
 import StockTrackingTable from "~/features/produtos/components/StockControl/StockTrackingTable";
 import StockTrackingFilters from "~/features/produtos/components/StockControl/StockTrackingFilters";
 import type { StockTrackingFilters as StockTrackingFiltersType } from "~/features/produtos/typings";
+import StockControlSkeleton from "./StockControlSkeleton";
 
 interface StockControlPageProps {
   productId: string;
@@ -22,6 +24,7 @@ export default function StockControlPage({
   productId,
 }: StockControlPageProps) {
   const { setCustomLabel } = useBreadcrumbCustomization();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState<Partial<StockTrackingFiltersType>>({
     page: 1,
     page_size: 50,
@@ -86,44 +89,86 @@ export default function StockControlPage({
     
     if (!productVariationId) return null;
     
-    const numericId = Number(productVariationId);
-    
-    if (!isNaN(numericId) && numericId > 0) {
-      return numericId;
-    }
-    
-    return productVariationId;
+    // Mantém como string para consistência
+    return String(productVariationId);
   }, [hasVariations, variationsWithStockHandling]);
 
+  // Sincroniza o variation_id com a URL
   useEffect(() => {
-    if (product && hasVariations && firstVariationId && filters.variation_id === undefined) {
+    if (!hasVariations || !product) return;
+
+    const variationFromUrl = searchParams.get("variation");
+    
+    if (variationFromUrl) {
+      // Verifica se a variação da URL existe na lista de variações
+      const variationExists = variationsWithStockHandling.some(
+        (v) => String(v.product_variation_id) === variationFromUrl
+      );
+      
+      if (variationExists) {
+        // Sincroniza o filtro com a URL se for diferente
+        if (filters.variation_id !== variationFromUrl) {
+          setFilters((prev) => ({
+            ...prev,
+            variation_id: variationFromUrl,
+            page: 1, // Reseta a página ao mudar variação
+          }));
+        }
+      } else {
+        // Se a variação da URL não existe, remove da URL e usa a primeira
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.delete("variation");
+        setSearchParams(newSearchParams, { replace: true });
+        
+        if (firstVariationId) {
+          setFilters((prev) => ({
+            ...prev,
+            variation_id: firstVariationId,
+            page: 1,
+          }));
+        }
+      }
+    } else if (firstVariationId && filters.variation_id !== firstVariationId) {
+      // Se não há variation na URL mas há primeira variação, atualiza URL e filtro
       setFilters((prev) => ({
         ...prev,
         variation_id: firstVariationId,
+        page: 1,
       }));
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.set("variation", firstVariationId);
+      setSearchParams(newSearchParams, { replace: true });
     }
-  }, [product, hasVariations, firstVariationId, filters.variation_id]);
+  }, [searchParams, hasVariations, variationsWithStockHandling, product, firstVariationId, filters.variation_id, setSearchParams]);
 
-  const selectedVariationId = useMemo((): number | string | null => {
+  const selectedVariationId = useMemo((): string | null => {
     if (hasVariations) {
       if (filters.variation_id !== undefined && filters.variation_id !== null) {
-        return filters.variation_id;
+        return String(filters.variation_id);
       }
       if (firstVariationId) {
-        return firstVariationId;
+        return String(firstVariationId);
       }
     }
     return null;
   }, [filters.variation_id, hasVariations, firstVariationId]);
   
-  console.log("selectedVariationId:", selectedVariationId, "hasVariations:", hasVariations, "firstVariationId:", firstVariationId, "filters.variation_id:", filters.variation_id);
-  const handleVariationChange = useCallback((variationId: number | string | null) => {
+  const handleVariationChange = useCallback((variationId: string | null) => {
     setFilters((prev) => ({
       ...prev,
       variation_id: variationId ?? undefined,
       page: 1,
     }));
-  }, []);
+    
+    // Atualiza a URL com o novo variation_id
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (variationId) {
+      newSearchParams.set("variation", variationId);
+    } else {
+      newSearchParams.delete("variation");
+    }
+    setSearchParams(newSearchParams, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   setCustomLabel(product?.title || "");
 
@@ -168,27 +213,19 @@ export default function StockControlPage({
             <Fields.wrapper>
               <Fields.label text="Variação" required />
               <Fields.select
-                value={
-                  selectedVariationId !== null && selectedVariationId !== undefined
-                    ? String(selectedVariationId)
-                    : firstVariationId !== null
-                    ? String(firstVariationId)
-                    : ""
-                }
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                      const value = e.target.value;
-                      if (value === "") {
-                        const firstId = Number(variationsWithStockHandling[0]?.product_variation_id);
-                        if (firstId && !isNaN(firstId)) {
-                          handleVariationChange(firstId);
-                        }
-                      } else {
-                        const numValue = Number(value);
-                        if (!isNaN(numValue)) {
-                          handleVariationChange(numValue);
-                        }
-                      }
-                    }}
+                value={selectedVariationId || ""}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                  const value = e.target.value;
+                  if (value === "" && variationsWithStockHandling.length > 0) {
+                    // Se vazio, seleciona a primeira variação
+                    const firstId = String(variationsWithStockHandling[0]?.product_variation_id);
+                    if (firstId) {
+                      handleVariationChange(firstId);
+                    }
+                  } else if (value !== "") {
+                    handleVariationChange(value);
+                  }
+                }}
                 options={variationsWithStockHandling.map((variation) => ({
                   value: String(variation.product_variation_id),
                   label: `${variation.title}${variation.sku ? ` (SKU: ${variation.sku})` : ""}`,
@@ -202,6 +239,7 @@ export default function StockControlPage({
         <AsyncBoundary
           isLoading={isLoadingStock}
           error={stockError as unknown}
+          Skeleton={StockControlSkeleton}
           ErrorFallback={() => (
             <Alert severity="error" sx={{ mb: 3 }}>
               {stockError instanceof Error
@@ -223,11 +261,11 @@ export default function StockControlPage({
               <Grid cols={{ base: 1, lg: 1 }} className="mb-3 sm:mb-4">
                 <StockMovementForm
                   productId={productId}
-                  variationId={hasVariations && selectedVariationId !== null ? String(selectedVariationId) : undefined}
+                  variationId={hasVariations && selectedVariationId !== null ? selectedVariationId : undefined}
                   variationSku={
                     hasVariations && selectedVariationId !== null
                       ? variationsWithStockHandling.find(
-                          (v) => v.product_variation_id === String(selectedVariationId)
+                          (v) => String(v.product_variation_id) === selectedVariationId
                         )?.sku ?? null
                       : undefined
                   }
@@ -248,6 +286,7 @@ export default function StockControlPage({
                   onPageChange={handlePageChange}
                   onPageSizeChange={handlePageSizeChange}
                   hasVariations={hasVariations}
+                  variations={variationsWithStockHandling}
                 />
               </Section>
             </>

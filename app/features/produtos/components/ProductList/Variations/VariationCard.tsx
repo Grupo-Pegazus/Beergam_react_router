@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Chip, Typography } from "@mui/material";
+import { Chip, Typography, IconButton, Menu, MenuItem } from "@mui/material";
+import { Link } from "react-router";
 import Svg from "~/src/assets/svgs/_index";
 import CopyButton from "~/src/components/ui/CopyButton";
 import type { Product } from "../../../typings";
@@ -20,8 +21,9 @@ interface VariationCardProps {
 
 export default function VariationCard({ variation, productId }: VariationCardProps) {
   const [isMutating, setIsMutating] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const changeStatusMutation = useChangeVariationStatus();
-  const variationImageId = variation.images?.product?.[0];
+  const variationImageUrl = variation.images?.product?.[0];
 
   const handleToggleStatus = () => {
     const normalizedStatus = variation.status.toLowerCase().trim();
@@ -39,6 +41,14 @@ export default function VariationCard({ variation, productId }: VariationCardPro
         },
       }
     );
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
   };
 
   return (
@@ -60,9 +70,9 @@ export default function VariationCard({ variation, productId }: VariationCardPro
           </div>
 
           {/* Imagem */}
-          {variationImageId && (
+          {variationImageUrl && (
             <div className="shrink-0">
-              <ProductImage imageId={variationImageId} alt={variation.title} size="small" />
+              <ProductImage imageUrl={variationImageUrl} alt={variation.title} size="small" />
             </div>
           )}
 
@@ -187,6 +197,17 @@ export default function VariationCard({ variation, productId }: VariationCardPro
               </Typography>
             )}
           </div>
+
+          {/* Menu de ações */}
+          <div className="shrink-0 w-8 lg:w-10 flex justify-center">
+            <IconButton
+              size="small"
+              onClick={handleMenuOpen}
+              className="text-slate-500 hover:text-slate-700"
+            >
+              <Svg.cog_8_tooth tailWindClasses="h-4 w-4 lg:h-5 lg:w-5 text-slate-500" />
+            </IconButton>
+          </div>
         </div>
 
         {/* Layout Mobile */}
@@ -200,13 +221,19 @@ export default function VariationCard({ variation, productId }: VariationCardPro
                 isMutating={isMutating}
                 onToggle={handleToggleStatus}
               />
-              {variationImageId && (
-                <ProductImage imageId={variationImageId} alt={variation.title} size="small" />
+              {variationImageUrl && (
+                <ProductImage imageUrl={variationImageUrl} alt={variation.title} size="small" />
               )}
             </div>
 
             {/* Informações da Variação */}
             <div className="flex-1 min-w-0">
+              {/* Menu de ações - Mobile */}
+              <div className="flex justify-end mb-2">
+                <IconButton size="small" onClick={handleMenuOpen} className="shrink-0">
+                  <Svg.cog_8_tooth tailWindClasses="h-4 w-4 text-slate-500" />
+                </IconButton>
+              </div>
               <div className="flex items-center gap-2 mb-2">
                 <Chip
                   label="Variação"
@@ -329,6 +356,19 @@ export default function VariationCard({ variation, productId }: VariationCardPro
           </div>
         </div>
       </MainCards>
+
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+        {variation.available_quantity !== undefined && (
+          <MenuItem
+            component={Link}
+            to={`/interno/produtos/estoque/${productId}?variation=${variation.product_variation_id}`}
+            onClick={handleMenuClose}
+          >
+            <Svg.box tailWindClasses="w-4 h-4 mr-2" />
+            Controle de estoque
+          </MenuItem>
+        )}
+      </Menu>
     </div>
   );
 }

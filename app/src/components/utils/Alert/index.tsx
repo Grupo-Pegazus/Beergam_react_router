@@ -1,17 +1,16 @@
-import { Paper } from "@mui/material";
 import React from "react";
 import Svg from "~/src/assets/svgs/_index";
 import type { SvgBaseProps } from "~/src/assets/svgs/IconBase";
-import { Modal, type ModalProps } from "../Modal";
-import AlertButton from "./AlertButton";
+import BeergamButton from "../BeergamButton";
+import Modal from "../Modal";
 function Icon({
   type,
-  SvgBaseProps,
   customIcon,
+  SvgBaseProps,
 }: {
   type?: AlertProps["type"];
-  SvgBaseProps: SvgBaseProps;
   customIcon?: keyof typeof Svg;
+  SvgBaseProps: SvgBaseProps;
 }) {
   function getSvg() {
     // Tamanhos responsivos: menor em mobile, maior em desktop
@@ -20,23 +19,24 @@ function Icon({
       ...SvgBaseProps,
       width: SvgBaseProps.width || baseSize,
       height: SvgBaseProps.height || baseSize,
+      tailWindClasses: `${SvgBaseProps.tailWindClasses ?? ""} text-beergam-white!`,
     };
-    
+
     if (customIcon) {
       return React.createElement(Svg[customIcon], {
-        ...svgProps,
         stroke: "white",
+        ...svgProps,
       });
     }
     switch (type) {
       case "success":
-        return <Svg.check {...svgProps} stroke="white" />;
+        return <Svg.check_circle {...svgProps} />;
       case "error":
-        return <Svg.circle_x {...svgProps} stroke="white" />;
+        return <Svg.circle_x {...svgProps} />;
       case "warning":
-        return <Svg.megaphone {...svgProps} fill="white" />;
+        return <Svg.warning_circle {...svgProps} />;
       case "info":
-        return <Svg.information_circle {...svgProps} stroke="white" />;
+        return <Svg.information_circle {...svgProps} />;
     }
   }
   return (
@@ -48,14 +48,22 @@ function Icon({
   );
 }
 
-interface AlertProps extends ModalProps {
+interface AlertProps {
   type?: "success" | "error" | "warning" | "info" | undefined;
   customIcon?: keyof typeof Svg;
   onConfirm?: () => void;
+  onClose?: () => void;
+  children?: React.ReactNode | React.ReactNode[];
   cancelText?: string;
   cancelClassName?: string;
   confirmText?: string;
   confirmClassName?: string;
+  mutation?: {
+    reset: () => void;
+    isPending: boolean;
+    isSuccess: boolean;
+    isError: boolean;
+  } | null;
 }
 export default function Alert({
   type,
@@ -66,41 +74,70 @@ export default function Alert({
   confirmText,
   confirmClassName,
   children,
-  ...props
+  onClose,
+  mutation,
 }: AlertProps) {
   return (
-    <Modal isOpen={props.isOpen} onClose={props.onClose} title={props.title}>
-      <Paper className="flex flex-col items-center justify-center gap-3 sm:gap-4 w-full shadow-none! border-none! px-2 sm:px-4 py-2 sm:py-4">
-        <div className="shrink-0">
-          <Icon
-            type={type}
-            SvgBaseProps={{ width: "45px", height: "45px" }}
-            customIcon={customIcon}
-          />
-        </div>
-        <div className="flex text-center sm:text-left flex-col items-center sm:items-start justify-center gap-2 w-full">
-          {children}
-        </div>
+    <div className="flex flex-col items-center justify-center gap-4 w-full md:min-w-2xl">
+      <div>
+        <Icon
+          type={type}
+          SvgBaseProps={{
+            width: "60px",
+            height: "60px",
+            tailWindClasses: "text-beergam-white!",
+          }}
+          customIcon={customIcon}
+        />
+      </div>
+      <div className="flex text-center md:text-left flex-col items-center justify-center gap-2">
+        {children}
+      </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 sm:gap-4 w-full sm:w-auto">
-          {onConfirm && (
-            <AlertButton
-              onClick={onConfirm}
-              type="confirm"
-              text={confirmText ?? "Confirmar"}
-              className={`${confirmClassName ?? ""} w-full sm:w-auto`}
-            />
-          )}
-          <AlertButton
+      <div className="flex items-center justify-center gap-4">
+        {onConfirm && (
+          <BeergamButton
             onClick={() => {
-              props.onClose();
+              console.log("cliquei no confirm");
+              onConfirm();
             }}
-            type="cancel"
-            text={cancelText ?? "Voltar"}
-            className={`${cancelClassName ?? ""} w-full sm:w-auto`}
+            mainColor="beergam-orange"
+            title={confirmText ?? "Confirmar"}
+            className={confirmClassName}
+            fetcher={
+              mutation
+                ? {
+                    fecthing: mutation.isPending,
+                    completed: mutation.isSuccess,
+                    error: mutation.isError,
+                    mutation: mutation,
+                  }
+                : undefined
+            }
           />
-        </div>
-      </Paper>
+        )}
+        <BeergamButton
+          onClick={() => {
+            onClose?.();
+          }}
+          mainColor="beergam-blue-primary"
+          title={cancelText ?? "Voltar"}
+          className={cancelClassName}
+        />
+      </div>
+    </div>
+  );
+
+  // Se isOpen for false, não renderiza nada
+  if (isOpen === false) {
+    return null;
+  }
+
+  // Se isOpen for true ou undefined, renderiza com Modal se necessário
+  // Se já estiver dentro de um Modal, renderiza apenas o conteúdo
+  return (
+    <Modal isOpen={isOpen} onClose={onClose || (() => {})} title={title}>
+      {content}
     </Modal>
   );
 }

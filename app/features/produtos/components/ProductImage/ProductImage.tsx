@@ -1,7 +1,7 @@
 import Svg from "~/src/assets/svgs/_index";
 
 interface ProductImageProps {
-  imageId: string | null | undefined;
+  imageUrl: string | null | undefined;
   alt: string;
   className?: string;
   size?: "small" | "medium" | "large";
@@ -14,14 +14,11 @@ const sizeClasses = {
 };
 
 export default function ProductImage({
-  imageId,
+  imageUrl,
   alt,
   className = "",
   size = "medium",
 }: ProductImageProps) {
-  // TODO: Quando o backend estiver pronto, substituir por URL do R2
-  // const imageUrl = imageId ? `https://cdn.beergam.com.br/products/${imageId}.webp` : null;
-  const imageUrl = null;
 
   if (imageUrl) {
     return (
