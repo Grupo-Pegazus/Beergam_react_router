@@ -138,6 +138,15 @@ export default function AttributeFormModal({
               placeholder="Digite um valor e pressione Enter"
               value={allowedValueInput}
               onChange={(e) => setAllowedValueInput(e.target.value as string)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (allowedValueInput.trim()) {
+                    handleAddAllowedValue();
+                  }
+                }
+              }}
               disabled={isLoading}
               error={errors.allowed_values}
             />
@@ -145,7 +154,11 @@ export default function AttributeFormModal({
               title="Adicionar"
               mainColor="beergam-blue-primary"
               animationStyle="fade"
-              onClick={handleAddAllowedValue}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleAddAllowedValue();
+              }}
               disabled={isLoading || !allowedValueInput.trim()}
               type="button"
               className="min-w-[100px]"

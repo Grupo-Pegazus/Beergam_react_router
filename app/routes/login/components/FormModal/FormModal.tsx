@@ -1,7 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
-import { useReducer, useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
-import { z } from "zod";
+import { useMutation } from "@tanstack/react-query";
 import { useSocketContext } from "~/features/socket/context/SocketContext";
 import authStore from "~/features/store-zustand";
 import { UserRoles } from "~/features/user/typings/BaseUser";
@@ -10,6 +9,8 @@ import { CDN_IMAGES } from "~/src/constants/cdn-images";
 import toast from "~/src/utils/toast";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { authService } from "../../../../features/auth/service";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   type ColaboradorUserForm,
   ColaboradorUserFormSchema,
@@ -69,140 +70,76 @@ export default function FormModal({
   const [currentUserType, setCurrentUserType] = useState<UserRoles>(userType);
   const { state } = useLocation();
   const homeSelectedPlan = state?.plan;
-  console.log("homeSelectedPlan", homeSelectedPlan);
+
+  // Form para Master
+  const masterForm = useForm<MasterUserForm>({
+    resolver: zodResolver(MasterUserFormSchema),
+    defaultValues: { email: "", password: "" },
+    mode: "onBlur", // Valida no blur (quando sai do campo)
+  });
+
+  // Form para Colaborador
+  const colaboradorForm = useForm<ColaboradorUserForm>({
+    resolver: zodResolver(ColaboradorUserFormSchema),
+    defaultValues: { pin: "", password: "" },
+    mode: "onBlur",
+  });
+
+  // Seleciona o form ativo baseado no tipo de usuário
+  const activeForm = currentUserType === UserRoles.MASTER ? masterForm : colaboradorForm;
+  const { handleSubmit, reset } = activeForm;
+
+  // Mutation para login
   const loginMutation = useMutation({
-    mutationFn: (
-      formInfo:
-        | { email: string; password: string }
-        | { pin: string; password: string }
-    ) => {
-      return authService.login(formInfo, currentUserType as UserRoles);
+    mutationFn: async (data: MasterUserForm | ColaboradorUserForm) => {
+      const response = await authService.login(data, currentUserType as UserRoles);
+      
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+
+      const userData = response.data.user;
+      const subscriptionData = response.data.subscription;
+
+      login(subscriptionData, userData);
+
+      // Conectar sockets após login bem-sucedido
+      setTimeout(() => {
+        connectSession();
+        connectOnlineStatus();
+      }, 100);
+
+      if (!subscriptionData || subscriptionData?.start_date === null) {
+        setAuthError("SUBSCRIPTION_NOT_FOUND");
+        navigate("/interno/subscription", {
+          state: { plan: homeSelectedPlan },
+          viewTransition: true,
+        });
+      } else {
+        navigate("/interno/choosen_account", { viewTransition: true });
+      }
+
+      return response;
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Erro ao fazer login. Tente novamente.");
     },
   });
 
-  const [isSubmited, setIsSubmited] = useState(false);
-  const [MasterUserInfo, setMasterUserInfo] = useReducer(
-    (state: MasterUserForm, action: Partial<MasterUserForm>) => {
-      return { ...state, ...action };
-    },
-    { email: "", password: "" } as MasterUserForm
-  );
-  const [ColaboradorUserInfo, setColaboradorUserInfo] = useReducer(
-    (state: ColaboradorUserForm, action: Partial<ColaboradorUserForm>) => {
-      return { ...state, ...action };
-    },
-    { pin: "", password: "" } as ColaboradorUserForm
-  );
-  const parseMasterUserResult = MasterUserFormSchema.safeParse(MasterUserInfo);
-  const masterFieldErrors = parseMasterUserResult.success
-    ? {
-        properties: { email: { errors: [""] }, password: { errors: [""] } },
-      }
-    : z.treeifyError(parseMasterUserResult.error);
-  const parseColaboradorUserResult =
-    ColaboradorUserFormSchema.safeParse(ColaboradorUserInfo);
-  const colaboradorFieldErrors = parseColaboradorUserResult.success
-    ? {
-        properties: {
-          pin: { errors: [""] },
-          password: { errors: [""] },
-        },
-      }
-    : z.treeifyError(parseColaboradorUserResult.error);
+  // Reset do form quando trocar o tipo de usuário
+  useEffect(() => {
+    reset();
+    loginMutation.reset();
+  }, [currentUserType]);
+
   function ChangeUserType(userType: UserRoles) {
     setCurrentUserType(userType);
-    setIsSubmited(false);
-  }
-  type MasterResult = ReturnType<typeof MasterUserFormSchema.safeParse>;
-  type ColabResult = ReturnType<typeof ColaboradorUserFormSchema.safeParse>;
-  function HandleSubmit(
-    userResult: MasterResult | ColabResult,
-    userType: UserRoles
-  ) {
-    let onlyPasswordError = true;
-    if (!userResult.success) {
-      if (userType === UserRoles.MASTER) {
-        if (MasterUserInfo.password.length === 0) {
-          return false;
-        }
-        onlyPasswordError =
-          !masterFieldErrors.properties?.email?.errors?.[0] &&
-          !!masterFieldErrors.properties?.password?.errors?.[0];
-      }
-      if (userType === UserRoles.COLAB) {
-        if (ColaboradorUserInfo.password.length === 0) {
-          return false;
-        }
-        onlyPasswordError =
-          !colaboradorFieldErrors.properties?.pin?.errors?.[0] &&
-          !!colaboradorFieldErrors.properties?.password?.errors?.[0];
-      }
-      if (!onlyPasswordError) {
-        return false;
-      }
-    }
-    return true;
   }
 
-  function HandleFetch() {
-    const result = HandleSubmit(
-      currentUserType === UserRoles.MASTER
-        ? parseMasterUserResult
-        : parseColaboradorUserResult,
-      currentUserType
-    );
-    console.log("result do handle fetch", result);
-    console.log("colaboradorFieldErrors", colaboradorFieldErrors);
-    if (!result) {
-      setIsSubmited(true);
-      return;
-    }
-    if (loginMutation.status === "pending") return;
-    toast.promise(
-      loginMutation
-        .mutateAsync(
-          currentUserType === UserRoles.MASTER
-            ? MasterUserInfo
-            : ColaboradorUserInfo
-        )
-        .then((data) => {
-          if (!data.success) {
-            throw new Error(data.message);
-          }
-          return data;
-        }),
-      {
-        loading: "Carregando...",
-        success: (data) => {
-          const userData = data.data.user;
-          const subscriptionData = data.data.subscription;
-
-          login(subscriptionData, userData);
-
-          // Conectar sockets após login bem-sucedido (cookies já estão setados)
-          setTimeout(() => {
-            connectSession();
-            connectOnlineStatus();
-          }, 100);
-
-          if (!subscriptionData || subscriptionData?.start_date === null) {
-            setAuthError("SUBSCRIPTION_NOT_FOUND");
-            navigate("/interno/subscription", {
-              state: { plan: homeSelectedPlan },
-              viewTransition: true,
-            });
-          } else {
-            navigate("/interno/choosen_account", { viewTransition: true });
-          }
-
-          return data.message;
-        },
-        error: (error) => {
-          return error.message;
-        },
-      }
-    );
+  function onFormSubmit(data: MasterUserForm | ColaboradorUserForm) {
+    loginMutation.mutate(data);
   }
+
   return (
     <div
       className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-white h-full w-full mx-auto my-auto p-8 sm:w-2/3 sm:max-w-lg sm:rounded-4xl sm:h-[490px]`}
@@ -233,10 +170,7 @@ export default function FormModal({
         />
       </div>
       <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          HandleFetch();
-        }}
+        onSubmit={handleSubmit(onFormSubmit)}
         className="flex flex-col gap-4"
       >
         <input type="hidden" name="role" value={currentUserType} />
@@ -249,20 +183,9 @@ export default function FormModal({
               />
               <Fields.input
                 type="text"
-                name="email"
                 placeholder="Email"
-                value={MasterUserInfo.email}
-                onChange={(e) =>
-                  setMasterUserInfo({ email: e.target.value as string })
-                }
-                error={
-                  MasterUserInfo.email.length == 0 && isSubmited
-                    ? "Por favor, preencha o e-mail."
-                    : masterFieldErrors.properties?.email?.errors?.[0] &&
-                        MasterUserInfo.email.length > 0
-                      ? masterFieldErrors.properties.email.errors[0]
-                      : undefined
-                }
+                {...masterForm.register("email")}
+                error={masterForm.formState.errors.email?.message}
                 dataTooltipId="email-input"
               />
             </Fields.wrapper>
@@ -273,18 +196,10 @@ export default function FormModal({
               />
               <Fields.input
                 type="password"
-                name="password"
                 placeholder="Senha"
-                value={MasterUserInfo.password}
-                onChange={(e) =>
-                  setMasterUserInfo({ password: e.target.value as string })
-                }
+                {...masterForm.register("password")}
+                error={masterForm.formState.errors.password?.message}
                 dataTooltipId="password-input"
-                error={
-                  MasterUserInfo.password.length === 0 && isSubmited
-                    ? "Por favor, preencha a senha."
-                    : undefined
-                }
               />
             </Fields.wrapper>
           </>
@@ -297,22 +212,9 @@ export default function FormModal({
               />
               <Fields.input
                 type="text"
-                name="pin"
                 placeholder="Pin"
-                value={ColaboradorUserInfo.pin}
-                onChange={(e) =>
-                  setColaboradorUserInfo({
-                    pin: e.target.value as string,
-                  })
-                }
-                error={
-                  ColaboradorUserInfo.pin.length == 0 && isSubmited
-                    ? "Por favor, preencha o pin do colaborador."
-                    : colaboradorFieldErrors.properties?.pin?.errors?.[0] &&
-                        ColaboradorUserInfo.pin.length > 0
-                      ? colaboradorFieldErrors.properties.pin.errors[0]
-                      : undefined
-                }
+                {...colaboradorForm.register("pin")}
+                error={colaboradorForm.formState.errors.pin?.message}
                 dataTooltipId="pin-input"
               />
             </Fields.wrapper>
@@ -323,19 +225,9 @@ export default function FormModal({
               />
               <Fields.input
                 type="password"
-                name="password"
                 placeholder="Senha"
-                value={ColaboradorUserInfo.password}
-                onChange={(e) =>
-                  setColaboradorUserInfo({
-                    password: e.target.value as string,
-                  })
-                }
-                error={
-                  ColaboradorUserInfo.password.length === 0 && isSubmited
-                    ? "Por favor, preencha a senha."
-                    : undefined
-                }
+                {...colaboradorForm.register("password")}
+                error={colaboradorForm.formState.errors.password?.message}
                 dataTooltipId="password-colab-input"
               />
             </Fields.wrapper>
@@ -356,6 +248,13 @@ export default function FormModal({
           animationStyle="slider"
           type="submit"
           className="w-full rounded-2xl"
+          disabled={loginMutation.isPending}
+          fetcher={{
+            fecthing: loginMutation.isPending,
+            completed: loginMutation.isSuccess,
+            error: loginMutation.isError,
+            mutation: loginMutation,
+          }}
         />
       </form>
     </div>

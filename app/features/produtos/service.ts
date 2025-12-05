@@ -13,6 +13,7 @@ import type {
   StockDashboardResponse,
   StockSyncDashboardResponse,
 } from "./typings";
+import type { CreateProduct } from "./typings/createProduct";
 
 class ProdutosService {
   async getProducts(
@@ -135,6 +136,16 @@ class ProdutosService {
       `/v1/stock-sync/dashboard`
     );
     return response as ApiResponse<StockSyncDashboardResponse>;
+  }
+
+  async createProduct(
+    data: CreateProduct
+  ): Promise<ApiResponse<{ product_id: string; message: string }>> {
+    const response = await typedApiClient.post<{ product_id: string; message: string }>(
+      "/v1/products",
+      data
+    );
+    return response as ApiResponse<{ product_id: string; message: string }>;
   }
 }
 

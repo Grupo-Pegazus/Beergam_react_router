@@ -210,8 +210,11 @@ export function useDeleteProduct() {
   return useMutation({
     mutationFn: (productId: string) => produtosService.deleteProduct(productId),
     onSuccess: () => {
+      // Invalida todas as queries relacionadas a produtos
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["products-metrics"] });
+
+      queryClient.refetchQueries({ queryKey: ["products"] });
     },
   });
 }
