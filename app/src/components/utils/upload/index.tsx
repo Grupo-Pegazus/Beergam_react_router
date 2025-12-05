@@ -20,6 +20,8 @@ type BaseUploadProps = {
   onUploadSuccess?: (ids: string[]) => void;
   emptyStateLabel?: string;
   draggingLabel?: string;
+  title?: string;
+  initialFiles?: string[];
   isOpen: boolean;
   onClose: () => void;
 };
@@ -118,6 +120,8 @@ export default function Upload<ResponseSchema = unknown>(
     onUploadSuccess,
     emptyStateLabel = "Arraste e solte ou clique para selecionar arquivos",
     draggingLabel = "Solte para iniciar o upload",
+    title = "Upload de arquivos",
+    initialFiles = [],
     isOpen,
     onClose,
   } = props;
@@ -127,6 +131,8 @@ export default function Upload<ResponseSchema = unknown>(
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const generatedUrlsRef = useRef(new Set<string>());
+  const previousIsOpenRef = useRef(false);
+  const previousInitialFilesRef = useRef<string[]>([]);
 
   const availableSlots = useMemo(() => {
     if (typeof maxFiles !== "number") {
@@ -142,6 +148,101 @@ export default function Upload<ResponseSchema = unknown>(
     };
   }, []);
 
+  // Sincroniza items com initialFiles quando o modal abre ou initialFiles muda
+  useEffect(() => {
+    // Função auxiliar para comparar arrays
+    const arraysEqual = (a: string[], b: string[]) => {
+      if (a.length !== b.length) return false;
+      return a.every((val, index) => val === b[index]);
+    };
+
+    // Quando o modal abre (isOpen muda de false para true)
+    if (isOpen && !previousIsOpenRef.current) {
+      // Cria items para as fotos já enviadas (initialFiles)
+      const uploadedItems: UploadItem[] = initialFiles.map((url, index) => ({
+        key: `initial-${url}-${index}`,
+        filename: url.substring(url.lastIndexOf('/') + 1) || `imagem-${index + 1}`,
+        previewUrl: url,
+        status: "uploaded" as const,
+        origin: "internal" as const,
+        isImage: true,
+        generatedPreview: false,
+        remoteId: url,
+      }));
+
+      // Mantém os items que já existem (fotos selecionadas mas não enviadas)
+      // e adiciona os novos items de initialFiles que ainda não existem
+      setItems((current) => {
+        const currentUrls = current
+          .filter((item) => item.status === "uploaded" && item.remoteId)
+          .map((item) => item.remoteId!);
+        
+        const newUploadedItems = uploadedItems.filter(
+          (item) => !currentUrls.includes(item.remoteId!)
+        );
+
+        return [...current, ...newUploadedItems];
+      });
+
+      previousInitialFilesRef.current = [...initialFiles];
+      previousIsOpenRef.current = isOpen;
+      return;
+    }
+    
+    // Quando initialFiles muda (fotos adicionadas ou removidas) E o modal está aberto
+    if (isOpen && !arraysEqual(previousInitialFilesRef.current, initialFiles)) {
+      setItems((current) => {
+        // Remove items que não estão mais em initialFiles
+        const itemsToKeep = current.filter((item) => {
+          // Mantém items que não foram enviados (pending, error, uploading)
+          if (item.status !== "uploaded" || !item.remoteId) {
+            return true;
+          }
+          // Mantém apenas items enviados que ainda estão em initialFiles
+          return initialFiles.includes(item.remoteId);
+        });
+
+        // Adiciona novos items de initialFiles que ainda não existem
+        const currentUrls = itemsToKeep
+          .filter((item) => item.status === "uploaded" && item.remoteId)
+          .map((item) => item.remoteId!);
+
+        const newUrls = initialFiles.filter((url) => !currentUrls.includes(url));
+        const newUploadedItems: UploadItem[] = newUrls.map((url, index) => ({
+          key: `initial-${url}-${Date.now()}-${index}`,
+          filename: url.substring(url.lastIndexOf('/') + 1) || `imagem-${index + 1}`,
+          previewUrl: url,
+          status: "uploaded" as const,
+          origin: "internal" as const,
+          isImage: true,
+          generatedPreview: false,
+          remoteId: url,
+        }));
+
+        return [...itemsToKeep, ...newUploadedItems];
+      });
+
+      previousInitialFilesRef.current = [...initialFiles];
+    }
+
+    // Quando o modal fecha, atualiza a referência mas não modifica os items
+    if (!isOpen) {
+      previousIsOpenRef.current = false;
+      // Atualiza previousInitialFilesRef para que quando o modal abrir novamente,
+      // ele sincronize corretamente com o initialFiles atual
+      previousInitialFilesRef.current = [...initialFiles];
+    } else {
+      previousIsOpenRef.current = isOpen;
+    }
+  }, [isOpen, initialFiles]);
+
+  const releasePreviewUrl = useCallback((url?: string, generated?: boolean) => {
+    if (url && generated && generatedUrlsRef.current.has(url)) {
+      URL.revokeObjectURL(url);
+      generatedUrlsRef.current.delete(url);
+    }
+  }, []);
+
   const notifyIds = useCallback(
     (nextItems: UploadItem[]) => {
       if (!onChange) {
@@ -155,13 +256,6 @@ export default function Upload<ResponseSchema = unknown>(
     },
     [onChange]
   );
-
-  const releasePreviewUrl = useCallback((url?: string, generated?: boolean) => {
-    if (url && generated && generatedUrlsRef.current.has(url)) {
-      URL.revokeObjectURL(url);
-      generatedUrlsRef.current.delete(url);
-    }
-  }, []);
 
   const appendFiles = useCallback(
     (files: File[], origin: UploadItemOrigin) => {
@@ -271,7 +365,7 @@ export default function Upload<ResponseSchema = unknown>(
             const nextItem: UploadItem = {
               ...item,
               status: STATUS.uploaded,
-              remoteId: response.image_id,
+              remoteId: response.image_url, // Usa image_url como remoteId para sincronizar com initialFiles
               filename: response.filename,
               previewUrl: response.image_url,
               generatedPreview: false,
@@ -519,7 +613,7 @@ export default function Upload<ResponseSchema = unknown>(
   const dropzoneLabel = isDragging ? draggingLabel : emptyStateLabel;
 
   return (
-    <Modal title="Upload de foto do colaborador" isOpen={isOpen} onClose={onClose}>
+    <Modal title={title} isOpen={isOpen} onClose={onClose}>
       <section className="flex w-full flex-col gap-4">
         <div
           className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 text-center transition-colors ${

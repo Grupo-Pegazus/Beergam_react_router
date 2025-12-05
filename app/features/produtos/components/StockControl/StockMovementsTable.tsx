@@ -200,26 +200,38 @@ export default function StockMovementsTable({
                     <TableCell sx={{ fontSize: { md: "0.875rem" } }}>{formatDate(movement.created_at)}</TableCell>
                     {showVariationColumn && (
                       <TableCell sx={{ fontSize: { md: "0.875rem" } }}>
-                        {movement.meta?.variation_id ? (
-                          <Box>
-                            <Typography variant="body2" sx={{ fontWeight: 500, fontSize: { md: "0.875rem" } }}>
-                              Variação #{movement.meta.variation_id}
+                        {(() => {
+                          const meta = movement.meta as { product_variation_id?: string | number | null; variation_id?: string | null; sku?: string | null; variation_sku?: string | null } | null;
+                          const variationId = meta?.product_variation_id 
+                            ? String(meta.product_variation_id)
+                            : meta?.variation_id 
+                              ? String(meta.variation_id)
+                              : null;
+                          
+                          if (variationId) {
+                            return (
+                              <Box>
+                                <Typography variant="body2" sx={{ fontWeight: 500, fontSize: { md: "0.875rem" } }}>
+                                  Variação #{variationId}
+                                </Typography>
+                                {(meta?.variation_sku || meta?.sku) && (
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{ display: "block", fontSize: { md: "0.75rem" } }}
+                                  >
+                                    SKU: {meta?.variation_sku || meta?.sku}
+                                  </Typography>
+                                )}
+                              </Box>
+                            );
+                          }
+                          return (
+                            <Typography variant="body2" color="text.secondary" sx={{ fontSize: { md: "0.875rem" } }}>
+                              Produto Principal
                             </Typography>
-                            {movement.meta?.variation_sku && (
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                                sx={{ display: "block", fontSize: { md: "0.75rem" } }}
-                              >
-                                SKU: {movement.meta.variation_sku}
-                              </Typography>
-                            )}
-                          </Box>
-                        ) : (
-                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { md: "0.875rem" } }}>
-                            Produto Principal
-                          </Typography>
-                        )}
+                          );
+                        })()}
                       </TableCell>
                     )}
                     {showProductColumn && (
@@ -377,18 +389,27 @@ export default function StockMovementsTable({
                     <Typography variant="caption" color="text.secondary" className="text-xs">
                       {formatDate(movement.created_at)}
                     </Typography>
-                    {showVariationColumn && movement.meta?.variation_id && (
-                      <Box sx={{ mt: 0.5 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 500, fontSize: "0.75rem" }}>
-                          Variação #{movement.meta.variation_id}
-                        </Typography>
-                        {movement.meta?.variation_sku && (
-                          <Typography variant="caption" color="text.secondary" className="text-xs">
-                            SKU: {movement.meta.variation_sku}
+                    {showVariationColumn && (() => {
+                      const meta = movement.meta as { product_variation_id?: string | number | null; variation_id?: string | null; sku?: string | null; variation_sku?: string | null } | null;
+                      const variationId = meta?.product_variation_id 
+                        ? String(meta.product_variation_id)
+                        : meta?.variation_id 
+                          ? String(meta.variation_id)
+                          : null;
+                      
+                      return variationId ? (
+                        <Box sx={{ mt: 0.5 }}>
+                          <Typography variant="body2" sx={{ fontWeight: 500, fontSize: "0.75rem" }}>
+                            Variação #{variationId}
                           </Typography>
-                        )}
-                      </Box>
-                    )}
+                          {(meta?.variation_sku || meta?.sku) && (
+                            <Typography variant="caption" color="text.secondary" className="text-xs">
+                              SKU: {meta?.variation_sku || meta?.sku}
+                            </Typography>
+                          )}
+                        </Box>
+                      ) : null;
+                    })()}
                     {showProductColumn && (
                       <Box sx={{ mt: 0.5 }}>
                         {movement.variation ? (

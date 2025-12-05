@@ -2,6 +2,7 @@ import React from "react";
 import Svg from "~/src/assets/svgs/_index";
 import type { SvgBaseProps } from "~/src/assets/svgs/IconBase";
 import BeergamButton from "../BeergamButton";
+import Modal from "../Modal";
 function Icon({
   type,
   customIcon,
@@ -125,5 +126,18 @@ export default function Alert({
         />
       </div>
     </div>
+  );
+
+  // Se isOpen for false, não renderiza nada
+  if (isOpen === false) {
+    return null;
+  }
+
+  // Se isOpen for true ou undefined, renderiza com Modal se necessário
+  // Se já estiver dentro de um Modal, renderiza apenas o conteúdo
+  return (
+    <Modal isOpen={isOpen} onClose={onClose || (() => {})} title={title}>
+      {content}
+    </Modal>
   );
 }

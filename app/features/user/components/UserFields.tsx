@@ -1,6 +1,7 @@
 import { Fields } from "~/src/components/utils/_fields";
 import type { InputProps } from "~/src/components/utils/_fields/input";
 import Hint from "~/src/components/utils/Hint";
+
 interface UserFieldsProps extends InputProps {
   label: string;
   hint?: string;

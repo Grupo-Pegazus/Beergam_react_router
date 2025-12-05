@@ -7,7 +7,7 @@ import ProdutosFilters from "~/features/produtos/components/Filters/ProdutosFilt
 import type { ProdutosFiltersState } from "~/features/produtos/components/Filters/types";
 import { useProdutosFilters } from "~/features/produtos/hooks";
 import ProductList from "~/features/produtos/components/ProductList/ProductList";
-import CatalogQuickAccess from "~/features/catalog/components/CatalogQuickAccess";
+import QuickAccess from "~/features/produtos/components/QuickAccess/QuickAccess";
 
 export default function ProdutosGestaoPage() {
   const {
@@ -33,9 +33,9 @@ export default function ProdutosGestaoPage() {
         </Grid>
       </Section>
 
-      <Section title="Gestão de Catálogo">
+      <Section title="Acesso Rápido">
         <Grid cols={{ base: 1, lg: 1 }}>
-          <CatalogQuickAccess />
+          <QuickAccess />
         </Grid>
       </Section>
 
