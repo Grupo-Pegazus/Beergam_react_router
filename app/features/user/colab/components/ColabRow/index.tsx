@@ -1,6 +1,8 @@
 import { TableCell, TableRow } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
 import { useMemo } from "react";
 import authStore from "~/features/store-zustand";
+import { userService } from "~/features/user/service";
 import type { IUser } from "~/features/user/typings/User";
 import { isMaster } from "~/features/user/utils";
 import Alert from "~/src/components/utils/Alert";
@@ -25,6 +27,11 @@ export default function ColabRow({
   isCurrentColab: boolean;
 }) {
   const user = authStore.use.user();
+  const deleteColabMutation = useMutation({
+    mutationFn: async () => {
+      await userService.deleteColab(colab.pin ?? "");
+    },
+  });
   const { openModal, closeModal } = useModal();
   const masterPin = useMemo(() => {
     if (user && isMaster(user)) {
@@ -81,14 +88,15 @@ export default function ColabRow({
               onClick={() => {
                 if (action.label === "Excluir") {
                   openModal(
-                    <Alert type="warning" onClose={closeModal}>
-                      <DeleteColab
-                        colab={colab}
-                        onDeleteSuccess={() => {
-                          onAction({ action: action.label, colab: colab });
-                          closeModal();
-                        }}
-                      />
+                    <Alert
+                      type="success"
+                      onClose={closeModal}
+                      mutation={deleteColabMutation}
+                      onConfirm={() => {
+                        deleteColabMutation.mutate();
+                      }}
+                    >
+                      <DeleteColab colab={colab} />
                     </Alert>,
                     { title: "Excluir Colaborador" }
                   );

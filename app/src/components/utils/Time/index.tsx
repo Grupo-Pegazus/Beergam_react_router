@@ -1,6 +1,6 @@
 import React from "react";
-import toast from "~/src/utils/toast";
 import LockAnimated from "~/src/assets/LockAnimated";
+import toast from "~/src/utils/toast";
 interface TimeProps {
   dia: string;
   access: boolean;
@@ -30,7 +30,9 @@ function Time({
     const novoFim = params.target.value;
 
     if (start_date && end_date && end_date < start_date) {
-      toast.error("O horário de fim não pode ser menor que o horário de início");
+      toast.error(
+        "O horário de fim não pode ser menor que o horário de início"
+      );
 
       setHorario({ access, start_date, end_date: "" });
       return;
@@ -46,7 +48,6 @@ function Time({
       <LockAnimated
         tailwindClasses={`absolute top-[50%] translate-y-[-50%] right-0 ${access ? "opacity-0 pointer-events-none" : "opacity-100"}`}
         open={access}
-        size="sm"
       />
       <button
         className="w-28 text-left font-semibold cursor-pointer text-gray-500 bg-transparent"

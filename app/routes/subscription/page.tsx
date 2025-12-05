@@ -36,11 +36,11 @@ export default function SubscriptionPage({
   );
   return (
     <>
-      <PageLayout tailwindClassName="flex items-center justify-center min-h-screen py-12">
+      <PageLayout tailwindClassName="flex items-center justify-center py-12">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scale-90 origin-top">
           {/* Header Section */}
           {subscriptionError !== null && !showContent && (
-            <div className="text-center mb-16">
+            <div className="text-center">
               <h1 className="text-beergam-white mb-6">
                 Você não possui uma assinatura ativa
               </h1>
@@ -61,7 +61,7 @@ export default function SubscriptionPage({
           )}
           {showContent && (
             <>
-              <div className="text-center mb-16">
+              <div className="text-center">
                 <h1 className="text-beergam-white text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
                   Escolha seu Plano
                 </h1>

@@ -65,6 +65,7 @@ export default function UserFields({
             }}
             disabled={canAlter ? false : true}
             error={error ? { message: error, error: true } : undefined}
+            widthType="full"
           />
         </>
       ) : (

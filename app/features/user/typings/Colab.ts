@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getDefaultViews } from "~/features/menu/utils";
 import {
   AllowedTimesSchema,
   getEmptyAllowedTimes,
@@ -50,6 +51,10 @@ export function FormatColabLevel(level: ColabLevel): keyof typeof ColabLevel {
   ] as unknown as keyof typeof ColabLevel;
 }
 
+export function getEmptyAllowedViews() {
+  return getDefaultViews();
+}
+
 export function getDefaultColab(): IColab {
   return {
     name: "",
@@ -58,8 +63,9 @@ export function getDefaultColab(): IColab {
     status: "ACTIVE" as UserStatus,
     details: {
       level: "NORMAL" as ColabLevel,
-      photo_id: null,
+      photo_id: "",
       allowed_times: getEmptyAllowedTimes(),
+      allowed_views: getEmptyAllowedViews(),
     },
     created_at: new Date(),
     updated_at: new Date(),

@@ -25,6 +25,7 @@ interface IAuthStore {
   setAuthError: (error: TAuthError) => void;
   setSubscription: (subscription: Subscription | null) => void;
   updateColab: (colab: IColab) => void;
+  createColab: (colab: IColab) => void;
   updateColabs: (colabs: Record<string, IColab>) => void;
   deleteColab: (colabPin: string) => void;
   updateAllowedViews: (allowedViews: MenuState) => void;
@@ -59,16 +60,39 @@ const authBaseStore = create<IAuthStore>()(
       updateColab: (colab: IColab) => {
         const currentUser = get().user;
         if (currentUser && isMaster(currentUser) && colab.pin) {
-          const updatedColabs = {
-            ...(currentUser.colabs ?? {}),
-            [colab.pin]: colab,
-          };
-          set({
-            user: {
-              ...currentUser,
-              colabs: updatedColabs,
-            },
-          });
+          const currentColabs = currentUser.colabs ?? {};
+          // Garante que o colaborador existe antes de atualizar
+          if (colab.pin in currentColabs) {
+            const updatedColabs = {
+              ...currentColabs,
+              [colab.pin]: colab,
+            };
+            set({
+              user: {
+                ...currentUser,
+                colabs: updatedColabs,
+              },
+            });
+          }
+        }
+      },
+      createColab: (colab: IColab) => {
+        const currentUser = get().user;
+        if (currentUser && isMaster(currentUser) && colab.pin) {
+          const currentColabs = currentUser.colabs ?? {};
+          // Adiciona o novo colaborador apenas se ele não existir
+          if (!(colab.pin in currentColabs)) {
+            const updatedColabs = {
+              ...currentColabs,
+              [colab.pin]: colab,
+            };
+            set({
+              user: {
+                ...currentUser,
+                colabs: updatedColabs,
+              },
+            });
+          }
         }
       },
       updateColabs: (colabs: Record<string, IColab>) => {

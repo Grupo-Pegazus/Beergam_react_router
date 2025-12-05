@@ -12,7 +12,7 @@ export function getDefaultViews() {
   const views: MenuState = {} as MenuState;
   for (const key in MenuConfig) {
     views[key as MenuKeys] = {
-      access: true,
+      access: false,
     };
   }
   return views;
@@ -118,13 +118,13 @@ export const findKeyPathByRoute = (
   const dfs = (node: IMenuConfig, acc: string[]): boolean => {
     for (const [key, item] of Object.entries(node)) {
       const rel = getRelativePath(key);
-      
+
       // Match exato
       if (rel === currentPath) {
         chain.push(...acc, key);
         return true;
       }
-      
+
       // Match para rotas dinâmicas: verifica se currentPath começa com rel + "/"
       // e se o item tem dinamic_id configurado
       if (rel && item.dinamic_id && currentPath.startsWith(rel + "/")) {
@@ -136,7 +136,7 @@ export const findKeyPathByRoute = (
           return true;
         }
       }
-      
+
       if (item.dropdown && dfs(item.dropdown, [...acc, key])) {
         return true;
       }

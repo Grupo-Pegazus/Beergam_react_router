@@ -1,56 +1,42 @@
-import { Paper } from "@mui/material";
 import React from "react";
 import Svg from "~/src/assets/svgs/_index";
+import type { SvgBaseProps } from "~/src/assets/svgs/IconBase";
 import BeergamButton from "../BeergamButton";
 import Modal from "../Modal";
 function Icon({
   type,
   customIcon,
+  SvgBaseProps,
 }: {
   type?: AlertProps["type"];
   customIcon?: keyof typeof Svg;
+  SvgBaseProps: SvgBaseProps;
 }) {
   function getSvg() {
     // Tamanhos responsivos: menor em mobile, maior em desktop
+    const baseSize = "40px";
+    const svgProps = {
+      ...SvgBaseProps,
+      width: SvgBaseProps.width || baseSize,
+      height: SvgBaseProps.height || baseSize,
+      tailWindClasses: `${SvgBaseProps.tailWindClasses ?? ""} text-beergam-white!`,
+    };
 
     if (customIcon) {
       return React.createElement(Svg[customIcon], {
         stroke: "white",
+        ...svgProps,
       });
     }
     switch (type) {
       case "success":
-        return (
-          <Svg.check
-            className="text-beergam-white stroke-beergam-white"
-            width={26}
-            height={26}
-          />
-        );
+        return <Svg.check_circle {...svgProps} />;
       case "error":
-        return (
-          <Svg.circle_x
-            className="text-beergam-white stroke-beergam-white"
-            width={26}
-            height={26}
-          />
-        );
+        return <Svg.circle_x {...svgProps} />;
       case "warning":
-        return (
-          <Svg.warning_circle
-            className="text-beergam-white! stroke-beergam-white"
-            width={26}
-            height={26}
-          />
-        );
+        return <Svg.warning_circle {...svgProps} />;
       case "info":
-        return (
-          <Svg.information_circle
-            className="text-beergam-white stroke-beergam-white"
-            width={26}
-            height={26}
-          />
-        );
+        return <Svg.information_circle {...svgProps} />;
     }
   }
   return (
@@ -72,8 +58,12 @@ interface AlertProps {
   cancelClassName?: string;
   confirmText?: string;
   confirmClassName?: string;
-  isOpen?: boolean;
-  title?: string;
+  mutation?: {
+    reset: () => void;
+    isPending: boolean;
+    isSuccess: boolean;
+    isError: boolean;
+  } | null;
 }
 export default function Alert({
   type,
@@ -85,14 +75,18 @@ export default function Alert({
   confirmClassName,
   children,
   onClose,
-  isOpen = true,
-  title,
+  mutation,
 }: AlertProps) {
-  const content = (
-    <Paper className="flex flex-col items-center justify-center gap-4 w-full md:min-w-2xl">
+  return (
+    <div className="flex flex-col items-center justify-center gap-4 w-full md:min-w-2xl">
       <div>
         <Icon
           type={type}
+          SvgBaseProps={{
+            width: "60px",
+            height: "60px",
+            tailWindClasses: "text-beergam-white!",
+          }}
           customIcon={customIcon}
         />
       </div>
@@ -103,10 +97,23 @@ export default function Alert({
       <div className="flex items-center justify-center gap-4">
         {onConfirm && (
           <BeergamButton
-            onClick={onConfirm}
+            onClick={() => {
+              console.log("cliquei no confirm");
+              onConfirm();
+            }}
             mainColor="beergam-orange"
             title={confirmText ?? "Confirmar"}
             className={confirmClassName}
+            fetcher={
+              mutation
+                ? {
+                    fecthing: mutation.isPending,
+                    completed: mutation.isSuccess,
+                    error: mutation.isError,
+                    mutation: mutation,
+                  }
+                : undefined
+            }
           />
         )}
         <BeergamButton
@@ -118,7 +125,7 @@ export default function Alert({
           className={cancelClassName}
         />
       </div>
-    </Paper>
+    </div>
   );
 
   // Se isOpen for false, não renderiza nada

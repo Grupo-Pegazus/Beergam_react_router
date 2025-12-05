@@ -1,7 +1,6 @@
 import { Box, ClickAwayListener, Fade } from "@mui/material";
 import { useState } from "react";
 import { Link } from "react-router";
-import LogoutOverlay from "~/features/auth/components/LogoutOverlay/LogoutOverlay";
 import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 import authStore from "~/features/store-zustand";
 import { isMaster } from "~/features/user/utils";
@@ -59,9 +58,8 @@ export default function PageLayout({
   }
   return (
     <>
-      {isLoggingOut && <LogoutOverlay />}
-      <main className="flex min-h-full bg-beergam-orange overflow-x-hidden">
-        <header className="fixed z-10000 top-0 left-0 right-0 p-4 px-8 flex items-center justify-between">
+      <main className="relative h-screen flex flex-col justify-center items-center overflow-hidden">
+        <header className="w-full p-4 px-4 md:px-8 flex z-99 items-center justify-between">
           <Link to="/" className="w-10 h-10 cursor-pointer hover:opacity-80">
             <img
               src={CDN_IMAGES.BERGAMOTA_LOGO}
@@ -151,7 +149,7 @@ export default function PageLayout({
           </div>
         </div>
         <div
-          className={`w-full mt-16 max-h-[90%] md:max-h-full z-50 relative md:mt-0 ${tailwindClassName}`}
+          className={`w-full  max-h-[90%] md:max-h-full z-50 relative h-full ${tailwindClassName}`}
         >
           {children}
         </div>

@@ -4,12 +4,12 @@ import type { ApiResponse } from "../apiClient/typings";
 import { MarketplaceType } from "../marketplace/typings";
 import {
   MarketplaceReputationSchemas,
+  MeliScheduleSchema,
+  MeliVisitsSchema,
   type MarketplaceReputationData,
   type MarketplaceReputationPayload,
-  MeliScheduleSchema,
   type MarketplaceScheduleData,
   type MarketplaceSchedulePayload,
-  MeliVisitsSchema,
   type MarketplaceVisitsData,
   type MarketplaceVisitsPayload,
 } from "./typings";
@@ -24,11 +24,11 @@ type RawReputationData = z.infer<typeof BaseReputationSchema>;
 
 class MetricsAccountService {
   async getReputationAccount<T extends MarketplaceType>(
-    marketplaceType: T,
+    marketplaceType: T
   ): Promise<ApiResponse<MarketplaceReputationData<T>>> {
     try {
       const response = await typedApiClient.get<RawReputationData>(
-        "/v1/metrics-account/reputation",
+        "/v1/metrics-account/reputation"
       );
 
       if (!response.success || !response.data) {
@@ -57,7 +57,7 @@ class MetricsAccountService {
 
       const schema = MarketplaceReputationSchemas[marketplaceType];
       const parsedReputation = schema.parse(
-        parsedBase.data.reputation,
+        parsedBase.data.reputation
       ) as MarketplaceReputationPayload<T>;
 
       return {
@@ -86,11 +86,11 @@ class MetricsAccountService {
   }
 
   async getScheduleTimes<T extends MarketplaceType>(
-    marketplaceType: T,
+    marketplaceType: T
   ): Promise<ApiResponse<MarketplaceScheduleData<T>>> {
     try {
       const response = await typedApiClient.get<unknown>(
-        "/v1/metrics-account/schedule_times",
+        "/v1/metrics-account/schedule_times"
       );
 
       if (!response.success || !response.data) {
@@ -147,7 +147,7 @@ class MetricsAccountService {
 
   async getVisits<T extends MarketplaceType>(
     marketplaceType: T,
-    seriesWindows: number[] = [90],
+    seriesWindows: number[] = [90]
   ): Promise<ApiResponse<MarketplaceVisitsData<T>>> {
     try {
       const params = new URLSearchParams();
@@ -156,7 +156,7 @@ class MetricsAccountService {
       });
 
       const response = await typedApiClient.get<unknown>(
-        `/v1/metrics-account/visits?${params.toString()}`,
+        `/v1/metrics-account/visits?${params.toString()}`
       );
 
       if (!response.success || !response.data) {

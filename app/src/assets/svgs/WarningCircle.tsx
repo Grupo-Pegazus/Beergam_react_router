@@ -1,9 +1,19 @@
 import IconBase, { type SvgBaseProps } from "./IconBase";
 
 export default function WarningCircle(props: SvgBaseProps) {
-    return (
-        <IconBase fill="currentCOlor" viewBox="0 0 24 24" {...props}>
-            <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
-        </IconBase>
-    )
+  return (
+    <IconBase
+      strokeWidth={1.5}
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      fill="none"
+      {...props}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+      />
+    </IconBase>
+  );
 }
