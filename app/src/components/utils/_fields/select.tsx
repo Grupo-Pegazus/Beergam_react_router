@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
-import { type InputError } from "./typings";
+import React, { useEffect, useRef, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
+import { type InputError } from "./typings";
 
 interface Option {
   value: string | null;
@@ -23,6 +23,7 @@ interface SelectProps {
   children?: React.ReactNode;
   disabled?: boolean;
   tailWindClasses?: string;
+  widthType?: "fit" | "full";
 }
 
 function Select({
@@ -40,6 +41,7 @@ function Select({
   disabled,
   tailWindClasses,
   icon,
+  widthType = "fit",
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
@@ -50,7 +52,8 @@ function Select({
   const isValid = required && value && !error;
 
   // Classes baseadas no Input para manter consistência visual
-  const baseClasses = "w-full px-3 py-2.5 border border-black/20 rounded text-sm bg-white text-[#1e1f21] transition-colors duration-200 outline-none appearance-none cursor-pointer";
+  const baseClasses =
+    "w-full px-3 py-2.5 border border-black/20 rounded text-sm bg-white text-[#1e1f21] transition-colors duration-200 outline-none appearance-none";
   const errorClasses = error?.error
     ? "!border-beergam-red focus:!border-beergam-red/90"
     : "";
@@ -61,7 +64,7 @@ function Select({
     ? "border-[#ff8a00] outline-beergam-orange"
     : "focus:border-[#ff8a00] outline-beergam-orange";
   const disabledClasses = disabled
-    ? "bg-gray-50 cursor-not-allowed border-gray-300 text-slate-500"
+    ? "cursor-not-allowed! border-gray-300! text-beergam-blue-primary!"
     : "";
 
   // Encontrar o label da opção selecionada
@@ -91,11 +94,17 @@ function Select({
   // Scroll para opção selecionada quando abrir
   useEffect(() => {
     if (isOpen && dropdownRef.current && value) {
-      const selectedIndex = options?.findIndex((opt) => opt.value === value) ?? -1;
+      const selectedIndex =
+        options?.findIndex((opt) => opt.value === value) ?? -1;
       if (selectedIndex >= 0) {
-        const optionElement = dropdownRef.current.children[selectedIndex] as HTMLElement;
+        const optionElement = dropdownRef.current.children[
+          selectedIndex
+        ] as HTMLElement;
         if (optionElement) {
-          optionElement.scrollIntoView({ block: "nearest", behavior: "smooth" });
+          optionElement.scrollIntoView({
+            block: "nearest",
+            behavior: "smooth",
+          });
         }
       }
     }
@@ -177,7 +186,11 @@ function Select({
 
   return (
     <>
-      <div ref={selectRef} className="relative w-fit min-w-[150px]">
+      <div
+        ref={selectRef}
+        className={`relative ${widthType === "fit" ? "w-fit min-w-[150px]" : "w-full"}`}
+        style={{ isolation: "isolate" }}
+      >
         <div className="relative w-full flex items-center">
           {icon && (
             <div className="absolute left-3 z-10 pointer-events-none">
@@ -223,7 +236,11 @@ function Select({
           >
             {options &&
               options.map((opt, idx) => (
-                <option key={idx} value={opt.value || ""} disabled={opt.disabled}>
+                <option
+                  key={idx}
+                  value={opt.value || ""}
+                  disabled={opt.disabled}
+                >
                   {opt.label}
                 </option>
               ))}
@@ -237,6 +254,12 @@ function Select({
             ref={dropdownRef}
             className="absolute z-50 w-full mt-1 bg-white border border-black/20 rounded shadow-lg max-h-60 overflow-auto"
             role="listbox"
+            style={{ 
+              position: "absolute",
+              top: "100%",
+              left: 0,
+              right: 0,
+            }}
           >
             {options && options.length > 0 ? (
               options.map((opt, idx) => {
@@ -254,7 +277,7 @@ function Select({
                       w-full px-3 py-2.5 text-left text-sm text-[#1e1f21] transition-colors duration-150
                       ${isSelected ? "bg-beergam-orange/10 font-semibold" : ""}
                       ${isFocused && !isSelected ? "bg-gray-100" : ""}
-                      ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-50"}
+                      ${isDisabled ? "opacity-50 cursor-not-allowed!" : "hover:bg-gray-50"}
                       ${idx === 0 ? "rounded-t" : ""}
                       ${idx === options.length - 1 ? "rounded-b" : ""}
                     `}
@@ -265,9 +288,7 @@ function Select({
                     <div className="flex items-center justify-between">
                       <span>{opt.label}</span>
                       {isSelected && (
-                        <Svg.check
-                          tailWindClasses="w-4 h-4 text-beergam-orange"
-                        />
+                        <Svg.check tailWindClasses="w-4 h-4 text-beergam-orange" />
                       )}
                     </div>
                   </button>
