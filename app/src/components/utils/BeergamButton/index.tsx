@@ -41,6 +41,7 @@ function BeergamButtonWrapper({
   disabled,
   fetcher,
   icon,
+  type,
   ...props
 }: BeergamButtonProps) {
   const { style, ...buttonProps } = props;
@@ -72,6 +73,7 @@ function BeergamButtonWrapper({
           className={`${wrapperClass}`}
           to={link}
           style={combinedStyle}
+          type={type}
         >
           {children}
         </Link>
@@ -83,6 +85,7 @@ function BeergamButtonWrapper({
           }}
           className={`${wrapperClass}`}
           style={combinedStyle}
+          type={type}
           {...buttonProps}
         >
           {icon && (
@@ -112,6 +115,7 @@ export default function BeergamButton({
   disabled,
   fetcher,
   icon,
+  type = "button",
 }: BeergamButtonProps) {
   useEffect(() => {
     if (fetcher?.completed || fetcher?.error) {
@@ -131,6 +135,7 @@ export default function BeergamButton({
       disabled={disabled}
       fetcher={fetcher}
       icon={icon}
+      type={type}
     >
       <>
         {title && (

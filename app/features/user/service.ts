@@ -29,12 +29,16 @@ class UserService {
   }
   async updateColab(
     editColab: IColab,
-    password: string
+    password: string | null
   ): Promise<ApiResponse<IColab>> {
     const colabPin = editColab.pin;
     const body = {
       ...editColab,
-      password: password.length > 0 ? password : undefined,
+      password: password
+        ? password.length > 0
+          ? password
+          : undefined
+        : undefined,
     };
     if (!colabPin) {
       return {

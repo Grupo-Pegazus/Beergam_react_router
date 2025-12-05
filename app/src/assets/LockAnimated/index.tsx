@@ -5,11 +5,9 @@ import styles from "./index.module.css";
 export default function LockAnimated({
   open = false,
   tailwindClasses = "",
-  size = "sm",
 }: {
   open: boolean;
   tailwindClasses?: string;
-  size?: "sm" | "md" | "lg";
 }) {
   const [lockOpen, setLockOpen] = useState(!open);
   const [additionalClass, setAdditionalClass] = useState("");
@@ -31,8 +29,8 @@ export default function LockAnimated({
         className={`${styles.lock} ${
           lockOpen ? styles.open : styles.closed
         } ${additionalClass}`}
-        width={size === "sm" ? 50 : size === "md" ? 75 : 100}
-        height={size === "sm" ? 50 : size === "md" ? 75 : 100}
+        width={50}
+        height={50}
         viewBox="0 0 184 220.19"
       >
         <clipPath id="clip-path">

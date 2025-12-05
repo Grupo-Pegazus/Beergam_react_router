@@ -3,12 +3,13 @@ import { useMutation } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import authStore from "~/features/store-zustand";
+import UserFields from "~/features/user/components/UserFields";
 import { userService } from "~/features/user/service";
+import { UserStatus } from "~/features/user/typings/BaseUser";
 import { type IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
 import { isMaster } from "~/features/user/utils";
 import type { ColabAction } from "~/routes/perfil/typings";
-import { Fields } from "~/src/components/utils/_fields";
 import Alert from "~/src/components/utils/Alert";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
@@ -29,7 +30,7 @@ export default function ColabListMobile({
   currentAction,
   onAction,
 }: ColabListMobileProps) {
-  const ROWS_PER_PAGE = 4;
+  const ROWS_PER_PAGE = 3;
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [colabToDelete, setColabToDelete] = useState<IColab | null>(null);
@@ -116,11 +117,35 @@ export default function ColabListMobile({
   return (
     <div ref={searchRef} className="flex flex-col gap-4 w-full">
       {/* Barra de pesquisa */}
-      <Fields.input
-        placeholder="Pesquisar colaborador por nome ou pin"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div className="flex gap-2 items-center">
+        <UserFields
+          label="Pesquisar"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          name="search"
+          canAlter={true}
+        />
+        <UserFields
+          value={null}
+          label="Status"
+          nullable
+          canAlter
+          options={Object.keys(UserStatus).map((status) => ({
+            value: status,
+            label: status,
+          }))}
+        />
+        <UserFields
+          value={null}
+          label="Nivel"
+          nullable
+          canAlter
+          options={Object.keys(UserStatus).map((status) => ({
+            value: status,
+            label: status,
+          }))}
+        />
+      </div>
 
       {/* Lista de colaboradores */}
       <div
@@ -138,7 +163,7 @@ export default function ColabListMobile({
               <Paper
                 key={colab?.pin || `empty-${index}`}
                 className={`p-4 flex flex-col gap-3 border-1 border-beergam-gray-light relative ${
-                  isEmpty ? "bg-beergam-gray/50! md:hidden" : ""
+                  isEmpty ? "bg-beergam-gray/50! hidden opacity-0" : ""
                 } ${currentColabPin === colab?.pin ? `${actionColor}` : ""} ${colabToDelete?.pin === colab?.pin ? "bg-beergam-red/20! border-beergam-red!" : ""}`}
               >
                 {/* Botão de excluir - posicionado absolutamente no canto superior direito */}
@@ -162,6 +187,7 @@ export default function ColabListMobile({
                     icon="trash"
                     mainColor="beergam-red"
                     onClick={() => {
+                      if (isEmpty) return;
                       setColabToDelete(colab);
                       if (!colab) return;
                       openModal(
@@ -210,18 +236,22 @@ export default function ColabListMobile({
                   <BeergamButton
                     title="Visualizar"
                     icon="eye"
-                    onClick={() =>
-                      colab && handleAction({ action: "Visualizar", colab })
-                    }
+                    onClick={() => {
+                      if (isEmpty) return;
+                      if (!colab) return;
+                      handleAction({ action: "Visualizar", colab });
+                    }}
                     disabled={isEmpty}
                   />
                   <BeergamButton
                     title="Editar"
                     mainColor="beergam-orange"
                     icon="pencil_solid"
-                    onClick={() =>
-                      colab && handleAction({ action: "Editar", colab })
-                    }
+                    onClick={() => {
+                      if (isEmpty) return;
+                      if (!colab) return;
+                      handleAction({ action: "Editar", colab });
+                    }}
                     disabled={isEmpty}
                   />
                 </div>

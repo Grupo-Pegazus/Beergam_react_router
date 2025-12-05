@@ -189,7 +189,6 @@ function Select({
       <div
         ref={selectRef}
         className={`relative ${widthType === "fit" ? "w-fit min-w-[150px]" : "w-full"}`}
-        style={{ isolation: "isolate" }}
       >
         <div className="relative w-full flex items-center">
           {icon && (
@@ -252,13 +251,14 @@ function Select({
         {isOpen && !disabled && (
           <div
             ref={dropdownRef}
-            className="absolute z-50 w-full mt-1 bg-white border border-black/20 rounded shadow-lg max-h-60 overflow-auto"
+            className="absolute z-[9999] w-full mt-1 bg-white border border-black/20 rounded shadow-lg max-h-60 overflow-auto"
             role="listbox"
-            style={{ 
+            style={{
               position: "absolute",
               top: "100%",
               left: 0,
               right: 0,
+              zIndex: 9999,
             }}
           >
             {options && options.length > 0 ? (

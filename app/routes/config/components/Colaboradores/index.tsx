@@ -1,26 +1,95 @@
 // import ColabCard from "~/features/user/colab/components/ColabCard";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef } from "react";
 import authStore from "~/features/store-zustand";
 // import ColabInfo from "~/features/user/colab/components/ColabInfo";
 // import ColabListMobile from "~/features/user/colab/components/ColabListMobile";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { type Resolver, useForm } from "react-hook-form";
+import { z } from "zod";
+import { authService } from "~/features/auth/service";
+import { UserPasswordSchema } from "~/features/auth/typing";
 import ColabListMobile from "~/features/user/colab/components/ColabListMobile";
 import { userService } from "~/features/user/service";
-import { getDefaultColab, type IColab } from "~/features/user/typings/Colab";
-import Svg from "~/src/assets/svgs/_index";
+import {
+  ColabSchema,
+  getDefaultColab,
+  type IColab,
+} from "~/features/user/typings/Colab";
 import Section from "~/src/components/ui/Section";
 import BeergamButton from "~/src/components/utils/BeergamButton";
+import toast from "~/src/utils/toast";
 import type { ColabAction } from "../../../perfil/typings";
 import ColabForm from "../MinhaConta/ColabForm";
 
+// Função para criar schema baseado na ação
+const createColabFormSchema = (action: ColabAction | null) => {
+  if (action === "Criar") {
+    // Ao criar, senha é obrigatória
+    return ColabSchema.extend({
+      password: UserPasswordSchema,
+    });
+  } else {
+    // Ao editar, senha é opcional, mas se fornecida, deve ser válida
+    return ColabSchema.extend({
+      password: z
+        .string()
+        .optional()
+        .nullable()
+        .refine(
+          (password) => {
+            // Se não forneceu senha, está ok (opcional)
+            if (!password || password.trim() === "") {
+              return true;
+            }
+            // Se forneceu senha, valida usando o UserPasswordSchema
+            return UserPasswordSchema.safeParse(password).success;
+          },
+          {
+            message:
+              "Senha inválida. Deve conter pelo menos uma letra maiúscula, uma minúscula, um número, um caractere especial e ter no mínimo 8 caracteres.",
+          }
+        ),
+    });
+  }
+};
+
+type editColabFormData = z.infer<ReturnType<typeof createColabFormSchema>>;
 export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
+  const updateColab = authStore.use.updateColab();
+  const createColab = authStore.use.createColab();
   const updateColabs = authStore.use.updateColabs();
-  const availableActions = {
-    Editar: { icon: <Svg.pencil width={20} height={20} /> },
-    Excluir: { icon: <Svg.trash width={20} height={20} /> },
-    Visualizar: { icon: <Svg.eye width={20} height={20} /> },
-    Criar: { icon: <Svg.plus_circle width={20} height={20} /> },
-  };
+  const createColabMutation = useMutation({
+    mutationFn: ({ colab, password }: { colab: IColab; password: string }) =>
+      authService.createColab(colab, password ?? ""),
+    onSuccess: (data) => {
+      if (data.success) {
+        createColab(data.data);
+        toast.success("Colaborador criado com sucesso");
+      } else {
+        throw new Error(data.message);
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+  const updateColabMutation = useMutation({
+    mutationFn: ({ colab, password }: { colab: IColab; password: string }) =>
+      userService.updateColab(colab, password ?? ""),
+    onSuccess: (data) => {
+      if (data.success) {
+        updateColab(data.data);
+        toast.success("Colaborador atualizado com sucesso");
+      } else {
+        throw new Error(data.message);
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
   const initialColabState = {
     colab: null as IColab | null,
     action: null as ColabAction | null,
@@ -48,6 +117,33 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
     },
     initialColabState
   );
+
+  // Cria o schema baseado na ação atual usando useMemo
+  const formSchema = useMemo(
+    () => createColabFormSchema(currentColab.action),
+    [currentColab.action]
+  );
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<editColabFormData>({
+    resolver: zodResolver(formSchema) as unknown as Resolver<editColabFormData>,
+    defaultValues: formSchema.safeParse(currentColab.colab ?? getDefaultColab())
+      .data,
+  });
+
+  // Atualiza os valores do form quando a ação ou colaborador mudar
+  useEffect(() => {
+    const newDefaultValues = formSchema.safeParse(
+      currentColab.colab ?? getDefaultColab()
+    ).data;
+    reset(newDefaultValues);
+  }, [currentColab.action, currentColab.colab, formSchema, reset]);
   const { data } = useQuery({
     queryKey: ["getColabList"],
     queryFn: () => userService.getColabs(),
@@ -58,19 +154,22 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
     }
   }, [data, updateColabs]);
   const colabInfoRef = useRef<HTMLDivElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
 
-  // Detectar se é dispositivo móvel
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768); // 768px é o breakpoint 'md' do Tailwind
-    };
+  const onSubmit = (data: editColabFormData) => {
+    if (createColabMutation.isPending || updateColabMutation.isPending) return;
+    if (currentColab.action === "Criar") {
+      createColabMutation.mutate({
+        colab: data,
+        password: data.password ?? "",
+      });
+    } else if (currentColab.action === "Editar") {
+      updateColabMutation.mutate({
+        colab: data,
+        password: data.password ?? "",
+      });
+    }
+  };
 
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
   return (
     <>
       <Section
@@ -81,14 +180,12 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
             title="Criar Colaborador"
             onClick={() => {
               setCurrentColab({ colab: null, action: "Criar" });
-              if (isMobile) {
-                setTimeout(() => {
-                  colabInfoRef.current?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start",
-                  });
-                }, 100);
-              }
+              setTimeout(() => {
+                colabInfoRef.current?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+              }, 100);
             }}
           />
         }
@@ -114,98 +211,61 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
               ? "Criar Colaborador"
               : "Editar Colaborador"
         }
+        actions={
+          (currentColab.action === "Editar" ||
+            currentColab.action === "Criar") && (
+            <BeergamButton
+              title="Salvar Informações"
+              fetcher={{
+                fecthing:
+                  currentColab.action === "Criar"
+                    ? createColabMutation.isPending
+                    : updateColabMutation.isPending,
+                completed:
+                  currentColab.action === "Criar"
+                    ? createColabMutation.isSuccess
+                    : updateColabMutation.isSuccess,
+                error:
+                  currentColab.action === "Criar"
+                    ? createColabMutation.isError
+                    : updateColabMutation.isError,
+                mutation:
+                  currentColab.action === "Criar"
+                    ? createColabMutation
+                    : updateColabMutation,
+              }}
+              onClick={() => {
+                handleSubmit(onSubmit, (errors) => {
+                  toast.error("Você possui erros pendentes no formulário.");
+                  console.warn("Erros de validação:", errors);
+                })();
+                // if (currentColab.action === "Criar") {
+                //   createColabMutation.mutate({
+                //     colab: watch(),
+                //     password: watch("password") ?? "",
+                //   });
+                // }
+              }}
+            />
+          )
+        }
         className="bg-beergam-white"
       >
         {currentColab.colab && currentColab.action ? (
-          // <ColabInfo
-          //   colab={currentColab.colab}
-          //   action={currentColab.action as ColabAction}
-          // />
-          <ColabForm user={currentColab.colab} action={currentColab.action} />
+          <ColabForm
+            user={currentColab.colab}
+            register={register}
+            watch={watch}
+            // handleSubmit={handleSubmit(onSubmit)}
+            reset={reset}
+            setValue={setValue}
+            errors={errors}
+            action={currentColab.action}
+          />
         ) : (
           <p>Nenhum colaborador selecionado</p>
         )}
       </Section>
-      {/* <div className="flex flex-col md:flex-row items-center justify-between pb-4">
-        <p>Quantidade de colaboradores registrados: {colabs.length}</p>
-        <BeergamButton
-          title="Adicionar colaborador"
-          mainColor="beergam-blue-primary"
-          animationStyle="slider"
-          onClick={() => {
-            setCurrentColab({ colab: null, action: "Criar" });
-            if (isMobile) {
-              setTimeout(() => {
-                colabInfoRef.current?.scrollIntoView({
-                  behavior: "smooth",
-                  block: "start",
-                });
-              }, 100);
-            }
-          }}
-          className="flex items-center gap-2"
-        >
-          <Svg.plus_circle
-            width={20}
-            height={20}
-            tailWindClasses="stroke-beergam-white"
-          />
-          <span>Adicionar colaborador</span>
-        </BeergamButton>
-      </div>
-      <div className="flex flex-col">
-        <div className="hidden md:block">
-          <ColabTable
-            availableActions={Object.fromEntries(
-              Object.entries(availableActions).filter(
-                ([action]) => action !== "Criar"
-              )
-            )}
-            colabs={colabs}
-            onTableAction={(params) =>
-              setCurrentColab({
-                colab: params.colab,
-                action: params.action as ColabAction,
-              })
-            }
-            currentColabPin={currentColab.colab?.pin ?? null}
-          />
-        </div>
-        <div className="md:hidden">
-          <ColabListMobile
-            colabs={colabs}
-            onAction={(params) => {
-              setCurrentColab({
-                colab: params.colab,
-                action: params.action as ColabAction,
-              });
-              if (params.action != "Excluir") {
-                setTimeout(() => {
-                  colabInfoRef.current?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start",
-                  });
-                }, 100);
-              }
-            }}
-            currentColabPin={currentColab.colab?.pin ?? null}
-          />
-        </div>
-        <div ref={colabInfoRef}>
-          {currentColab.colab && currentColab.action && (
-            <ColabInfo
-              colab={currentColab.colab}
-              action={currentColab.action as ColabAction}
-              onColabCreated={(createdColab) => {
-                setCurrentColab({
-                  colab: createdColab,
-                  action: "Editar",
-                });
-              }}
-            />
-          )}
-        </div>
-      </div> */}
     </>
   );
 }
