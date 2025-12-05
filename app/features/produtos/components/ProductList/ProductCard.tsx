@@ -67,26 +67,35 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   const handleConfirmDelete = () => {
-    toast.promise(deleteProductMutation.mutateAsync(product.product_id), {
-      loading: "Excluindo produto...",
-      success: (data) => {
+    deleteProductMutation.mutate(product.product_id, {
+      onSuccess: (data) => {
         if (!data.success) {
-          throw new Error(data.message);
+          toast.error(data.message || "Erro ao excluir produto");
+          return;
         }
         setShowDeleteAlert(false);
-        return data.message || "Produto excluído com sucesso";
+        toast.success(data.message || "Produto excluído com sucesso");
       },
-      error: "Erro ao excluir produto",
+      onError: (error) => {
+        toast.error(error instanceof Error ? error.message : "Erro ao excluir produto");
+      },
     });
   };
 
-  const mainImageId =
+  const mainImageUrl =
     product.images?.product?.[0] ||
     product.variations?.[0]?.images?.product?.[0];
 
   const variationsCount = product.variations?.length || 0;
   const relatedAdsCount = product.related_ads?.length || 0;
   const isActive = product.status.toLowerCase().trim() === "ativo";
+
+  // Calcula o estoque total: se tem variações, soma o estoque de todas elas
+  const totalStock = hasVariations
+    ? (product.variations || []).reduce((sum, variation) => {
+        return sum + (variation.available_quantity || 0);
+      }, 0)
+    : product.available_quantity;
 
   return (
     <>
@@ -122,7 +131,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           {/* Imagem */}
           <div className="shrink-0 relative">
-            <ProductImage imageId={mainImageId} alt={product.title} size="small" />
+            <ProductImage imageUrl={mainImageUrl} alt={product.title} size="small" />
             {hasVariations && (
               <button
                 onClick={handleToggleExpansion}
@@ -210,9 +219,13 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          {/* Preço */}
+          {/* Preço - Não mostra se tiver variações */}
           <div className="shrink-0 w-20 lg:w-28">
-            {product.price_sale ? (
+            {hasVariations ? (
+              <Typography variant="caption" color="text.secondary">
+                —
+              </Typography>
+            ) : product.price_sale ? (
               <Typography variant="body2" fontWeight={600} className="text-slate-900 text-sm lg:text-base">
                 {formatCurrency(product.price_sale)}
               </Typography>
@@ -292,13 +305,13 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           {/* Estoque */}
           <div className="shrink-0 w-20 lg:w-28 flex items-center gap-1 lg:gap-1.5 justify-center">
-            {product.available_quantity !== undefined ? (
+            {totalStock !== undefined ? (
               <>
                 <Typography variant="caption" color="text.secondary" className="text-xs hidden xl:block">
                   Qt:
                 </Typography>
                 <Chip
-                  label={formatNumber(product.available_quantity)}
+                  label={formatNumber(totalStock)}
                   size="small"
                   sx={{
                     height: 22,
@@ -357,7 +370,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 />
               )}
               <div className="relative">
-                <ProductImage imageId={mainImageId} alt={product.title} size="small" />
+                <ProductImage imageUrl={mainImageUrl} alt={product.title} size="small" />
                 {hasVariations && (
                   <button
                     onClick={handleToggleExpansion}
@@ -433,7 +446,11 @@ export default function ProductCard({ product }: ProductCardProps) {
                   <Typography variant="caption" color="text.secondary" className="text-xs">
                     Preço:
                   </Typography>
-                  {product.price_sale ? (
+                  {hasVariations ? (
+                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                      —
+                    </Typography>
+                  ) : product.price_sale ? (
                     <Typography variant="body2" fontWeight={600} className="text-slate-900 text-xs">
                       {formatCurrency(product.price_sale)}
                     </Typography>
@@ -447,10 +464,10 @@ export default function ProductCard({ product }: ProductCardProps) {
                   <Typography variant="caption" color="text.secondary" className="text-xs">
                     Estoque:
                   </Typography>
-                  {product.available_quantity !== undefined ? (
+                  {totalStock !== undefined ? (
                     <div className="flex items-center gap-1">
                       <Chip
-                        label={formatNumber(product.available_quantity)}
+                        label={formatNumber(totalStock)}
                         size="small"
                         sx={{
                           height: 18,
@@ -567,7 +584,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <Svg.eye tailWindClasses="w-4 h-4 mr-2" />
           Ver detalhes
         </MenuItem>
-        {product.available_quantity !== undefined && (
+        {(totalStock !== undefined || hasVariations) && (
           <MenuItem
             component={Link}
             to={`/interno/produtos/estoque/${product.product_id}`}

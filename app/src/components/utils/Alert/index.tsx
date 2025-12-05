@@ -2,6 +2,7 @@ import { Paper } from "@mui/material";
 import React from "react";
 import Svg from "~/src/assets/svgs/_index";
 import BeergamButton from "../BeergamButton";
+import Modal from "../Modal";
 function Icon({
   type,
   customIcon,
@@ -11,12 +12,6 @@ function Icon({
 }) {
   function getSvg() {
     // Tamanhos responsivos: menor em mobile, maior em desktop
-    const baseSize = "40px";
-    const svgProps = {
-      ...SvgBaseProps,
-      width: SvgBaseProps.width || baseSize,
-      height: SvgBaseProps.height || baseSize,
-    };
 
     if (customIcon) {
       return React.createElement(Svg[customIcon], {
@@ -77,6 +72,8 @@ interface AlertProps {
   cancelClassName?: string;
   confirmText?: string;
   confirmClassName?: string;
+  isOpen?: boolean;
+  title?: string;
 }
 export default function Alert({
   type,
@@ -88,13 +85,14 @@ export default function Alert({
   confirmClassName,
   children,
   onClose,
+  isOpen = true,
+  title,
 }: AlertProps) {
-  return (
+  const content = (
     <Paper className="flex flex-col items-center justify-center gap-4 w-full md:min-w-2xl">
       <div>
         <Icon
           type={type}
-          SvgBaseProps={{ width: "60px", height: "60px" }}
           customIcon={customIcon}
         />
       </div>
@@ -121,5 +119,18 @@ export default function Alert({
         />
       </div>
     </Paper>
+  );
+
+  // Se isOpen for false, não renderiza nada
+  if (isOpen === false) {
+    return null;
+  }
+
+  // Se isOpen for true ou undefined, renderiza com Modal se necessário
+  // Se já estiver dentro de um Modal, renderiza apenas o conteúdo
+  return (
+    <Modal isOpen={isOpen} onClose={onClose || (() => {})} title={title}>
+      {content}
+    </Modal>
   );
 }
