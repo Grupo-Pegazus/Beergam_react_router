@@ -1,5 +1,5 @@
 import { createElement, useMemo } from "react";
-import { useOrdersMetrics, useDailyRevenue } from "../../hooks";
+import { useOrdersMetrics } from "../../hooks";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import StatCard from "~/src/components/ui/StatCard";
 import Svg from "~/src/assets/svgs/_index";
@@ -50,11 +50,17 @@ const REVENUE_CARDS: SummaryCardDefinition[] = [
     color: "green",
     formatter: formatCurrency,
   },
+  {
+    key: "media_faturamento_diario_90d",
+    label: "Média diária",
+    icon: "graph",
+    color: "slate",
+    formatter: formatCurrency,
+  }
 ];
 
 export default function VendasResumo() {
   const { data: metricsData, isLoading: isLoadingMetrics, error: metricsError } = useOrdersMetrics();
-  const { data: revenueData, isLoading: isLoadingRevenue } = useDailyRevenue({ days: 90 });
 
   const ordersByStatus = useMemo(() => {
     if (!metricsData?.success || !metricsData.data) {
@@ -76,26 +82,17 @@ export default function VendasResumo() {
       return {
         faturamento_bruto_90d: "0",
         faturamento_liquido_90d: "0",
+        media_faturamento_diario_90d: "0",
       };
     }
     return {
       faturamento_bruto_90d: metricsData.data.faturamento_bruto_90d,
       faturamento_liquido_90d: metricsData.data.faturamento_liquido_90d,
+      media_faturamento_diario_90d: metricsData.data.media_faturamento_diario_90d,
     };
   }, [metricsData]);
 
-  // Calcula faturamento dos últimos 7 dias
-  const last7DaysRevenue = useMemo(() => {
-    if (!revenueData?.success || !revenueData.data?.daily_revenue) return "0";
-    
-    const total = revenueData.data.daily_revenue.reduce((sum, item) => {
-      return sum + parseFloat(item.faturamento_bruto || "0");
-    }, 0);
-    
-    return formatCurrency(total);
-  }, [revenueData]);
-
-  const isLoading = isLoadingMetrics || isLoadingRevenue;
+  const isLoading = isLoadingMetrics;
 
   return (
     <AsyncBoundary
@@ -163,15 +160,6 @@ export default function VendasResumo() {
                 />
               );
             })}
-            <StatCard
-              icon={createElement(Svg.currency_dollar, {
-                tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
-              })}
-              title="Últimos 90 dias"
-              value={last7DaysRevenue}
-              variant="soft"
-              color="slate"
-            />
           </div>
         </div>
       </div>

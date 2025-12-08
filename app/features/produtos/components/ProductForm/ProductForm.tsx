@@ -32,7 +32,7 @@ export default function ProductForm({ config }: ProductFormProps) {
     validateStepByIndex,
   } = useProductForm(config);
 
-  // Mapeia os ícones dos steps baseado no índice (seguindo padrão da documentação MUI)
+  // Mapeia os ícones dos steps baseado no índice
   useEffect(() => {
     const iconMapping: Record<number, string | React.ReactNode> = {};
     visibleSteps.forEach((step, index) => {

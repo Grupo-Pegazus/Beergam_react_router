@@ -93,8 +93,7 @@ function BeergamButtonWrapper({
               {React.createElement(getIcon(icon as keyof typeof Svg), {
                 width: "22px",
                 height: "22px",
-                tailWindClasses:
-                  "group-hover:text-beergam-white! max-w-[unset]!",
+                tailWindClasses: `group-hover:text-beergam-white! max-w-[unset]! ${fetcher?.completed || fetcher?.error ? "opacity-0!" : ""}`,
               })}
             </span>
           )}

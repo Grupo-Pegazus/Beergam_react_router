@@ -14,6 +14,7 @@ export interface IMenuItem {
   currentSelected?: boolean;
   denyColabAccess?: boolean; //Se o item é acessível para o colaborador
   launched?: boolean; //Se o item foi lançado para o usuário
+  showMenu?: boolean; //Se o item deve aparecer no menu ou não, por padrão é true
 }
 
 export type IMenuConfig = {
@@ -97,10 +98,12 @@ export const MenuConfig = {
         status: "yellow",
         path: "/gestao",
         launched: true,
+        dinamic_id: "product_id",
       },
       cadastro: {
         label: "Cadastro",
         status: "yellow",
+        launched: true,
         dropdown: {
           cadastro_simplificado: {
             label: "Simplificado",
@@ -133,6 +136,14 @@ export const MenuConfig = {
         status: "yellow",
         path: "/agendamento",
         launched: true,
+      },
+      editar: {
+        label: "Editar",
+        status: "yellow",
+        path: "/editar",
+        launched: true,
+        dinamic_id: "public_id_prod",
+        showMenu: false,
       },
       estoque: {
         label: "Estoque",
@@ -229,6 +240,7 @@ export class MenuClass {
         dropdown,
         denyColabAccess: item.denyColabAccess ?? false,
         launched: item.launched ?? false,
+        showMenu: item.showMenu ?? true,
       };
     };
     return Object.fromEntries(

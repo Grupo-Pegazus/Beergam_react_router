@@ -18,7 +18,6 @@ interface AnuncioDetailsProps {
 
 /**
  * Componente principal que integra todos os componentes de detalhe do anúncio
- * Seguindo Single Responsibility Principle e Dependency Inversion Principle
  */
 export default function AnuncioDetails({ anuncioId }: AnuncioDetailsProps) {
   const { data, isLoading, error } = useAnuncioDetails(anuncioId);

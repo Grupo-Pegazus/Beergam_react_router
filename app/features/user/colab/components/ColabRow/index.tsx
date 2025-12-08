@@ -15,13 +15,11 @@ import ColabPhoto from "../ColabPhoto";
 import DeleteColab from "../DeleteColab";
 export default function ColabRow({
   colab,
-  index,
   actions,
   onAction,
   isCurrentColab,
 }: {
   colab: IColab;
-  index: number;
   actions: { icon: React.ReactNode; label: string }[];
   onAction: (params: { action: string; colab: IColab }) => void;
   isCurrentColab: boolean;
@@ -91,7 +89,6 @@ export default function ColabRow({
                     <Alert
                       type="success"
                       onClose={closeModal}
-                      mutation={deleteColabMutation}
                       onConfirm={() => {
                         deleteColabMutation.mutate();
                       }}

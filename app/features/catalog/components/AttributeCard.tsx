@@ -1,10 +1,10 @@
-import { useState } from "react";
 import { Chip } from "@mui/material";
 import type { Attribute, RelatedProduct } from "../typings";
 import { useDeleteAttribute } from "../hooks";
 import toast from "~/src/utils/toast";
 import DeleteAttributeModal from "./DeleteAttributeModal";
 import RelatedEntityCardBase from "./RelatedEntityCardBase";
+import { useModal } from "~/src/components/utils/Modal/useModal";
 
 interface AttributeCardProps {
   attribute: Attribute;
@@ -19,8 +19,8 @@ export default function AttributeCard({
   isExpanded = false,
   onToggleExpand,
 }: AttributeCardProps) {
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const deleteAttributeMutation = useDeleteAttribute();
+  const { openModal, closeModal } = useModal();
 
   const handleConfirmDelete = () => {
     toast.promise(deleteAttributeMutation.mutateAsync(attribute.id), {
@@ -29,7 +29,7 @@ export default function AttributeCard({
         if (!data.success) {
           throw new Error(data.message);
         }
-        setShowDeleteModal(false);
+        closeModal();
         return data.message || "Atributo excluído com sucesso";
       },
       error: (error: unknown) => {
@@ -39,6 +39,21 @@ export default function AttributeCard({
         return "Erro ao excluir atributo";
       },
     });
+  };
+
+  const handleDeleteClick = () => {
+    openModal(
+      <DeleteAttributeModal
+        attribute={attribute}
+        onClose={closeModal}
+        onConfirm={handleConfirmDelete}
+      />,
+      {
+        title: attribute.related_products_count > 0 
+          ? "Não é possível excluir este atributo"
+          : "Confirmar exclusão",
+      }
+    );
   };
 
   const hasRelatedProducts = attribute.related_products_count > 0;
@@ -98,15 +113,8 @@ export default function AttributeCard({
           ) : null
         }
         onEdit={() => onEdit(attribute)}
-        onDelete={() => setShowDeleteModal(true)}
+        onDelete={handleDeleteClick}
         canDelete={canDelete}
-      />
-
-      <DeleteAttributeModal
-        attribute={attribute}
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={handleConfirmDelete}
       />
     </>
   );

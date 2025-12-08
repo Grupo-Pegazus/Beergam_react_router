@@ -89,7 +89,7 @@ export default function StockProductsList() {
         <Stack spacing={2}>
           <MainCards className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {products.map((product) => {
-              const mainImageId =
+              const mainImageUrl =
                 product.images?.product?.[0] ||
                 product.variations?.[0]?.images?.product?.[0];
               const variationsCount = product.variations?.length || 0;
@@ -112,7 +112,7 @@ export default function StockProductsList() {
                     <div className="flex flex-col gap-2 p-2.5">
                       <div className="flex flex-col items-center gap-2">
                         <ProductImage
-                          imageId={mainImageId}
+                          imageUrl={mainImageUrl}
                           alt={product.title}
                           size="small"
                         />

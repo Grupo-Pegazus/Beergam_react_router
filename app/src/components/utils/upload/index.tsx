@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, KeyboardEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
 import toast from "~/src/utils/toast";
-import Modal from "../Modal";
-
+import { useModal } from "../Modal/useModal";
 import type {
   ExternalMarketplace,
   ExternalUploadService,
@@ -91,7 +90,10 @@ function truncateFilename(filename: string): string {
     return `${filename.slice(0, FILENAME_TRUNCATE_THRESHOLD - 3)}...`;
   }
   const extension = filename.slice(extensionIndex);
-  const base = filename.slice(0, FILENAME_TRUNCATE_THRESHOLD - extension.length - 3);
+  const base = filename.slice(
+    0,
+    FILENAME_TRUNCATE_THRESHOLD - extension.length - 3
+  );
   return `${base}...${extension}`;
 }
 
@@ -104,7 +106,10 @@ function isImageFilename(filename: string): boolean {
   return KNOWN_IMAGE_EXTENSIONS.has(extension);
 }
 
-function buildErrorContext(origin: UploadItemOrigin, cause: unknown): UploadErrorContext {
+function buildErrorContext(
+  origin: UploadItemOrigin,
+  cause: unknown
+): UploadErrorContext {
   const message = cause instanceof Error ? cause.message : "Falha no upload";
   return { origin, message, cause };
 }
@@ -125,7 +130,7 @@ export default function Upload<ResponseSchema = unknown>(
     isOpen,
     onClose,
   } = props;
-
+  const { openModal, closeModal } = useModal();
   const [items, setItems] = useState<UploadItem[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -161,7 +166,8 @@ export default function Upload<ResponseSchema = unknown>(
       // Cria items para as fotos já enviadas (initialFiles)
       const uploadedItems: UploadItem[] = initialFiles.map((url, index) => ({
         key: `initial-${url}-${index}`,
-        filename: url.substring(url.lastIndexOf('/') + 1) || `imagem-${index + 1}`,
+        filename:
+          url.substring(url.lastIndexOf("/") + 1) || `imagem-${index + 1}`,
         previewUrl: url,
         status: "uploaded" as const,
         origin: "internal" as const,
@@ -176,7 +182,7 @@ export default function Upload<ResponseSchema = unknown>(
         const currentUrls = current
           .filter((item) => item.status === "uploaded" && item.remoteId)
           .map((item) => item.remoteId!);
-        
+
         const newUploadedItems = uploadedItems.filter(
           (item) => !currentUrls.includes(item.remoteId!)
         );
@@ -188,7 +194,7 @@ export default function Upload<ResponseSchema = unknown>(
       previousIsOpenRef.current = isOpen;
       return;
     }
-    
+
     // Quando initialFiles muda (fotos adicionadas ou removidas) E o modal está aberto
     if (isOpen && !arraysEqual(previousInitialFilesRef.current, initialFiles)) {
       setItems((current) => {
@@ -207,10 +213,13 @@ export default function Upload<ResponseSchema = unknown>(
           .filter((item) => item.status === "uploaded" && item.remoteId)
           .map((item) => item.remoteId!);
 
-        const newUrls = initialFiles.filter((url) => !currentUrls.includes(url));
+        const newUrls = initialFiles.filter(
+          (url) => !currentUrls.includes(url)
+        );
         const newUploadedItems: UploadItem[] = newUrls.map((url, index) => ({
           key: `initial-${url}-${Date.now()}-${index}`,
-          filename: url.substring(url.lastIndexOf('/') + 1) || `imagem-${index + 1}`,
+          filename:
+            url.substring(url.lastIndexOf("/") + 1) || `imagem-${index + 1}`,
           previewUrl: url,
           status: "uploaded" as const,
           origin: "internal" as const,
@@ -257,38 +266,36 @@ export default function Upload<ResponseSchema = unknown>(
     [onChange]
   );
 
-  const appendFiles = useCallback(
-    (files: File[], origin: UploadItemOrigin) => {
-      if (!files.length) {
-        return [] as UploadItem[];
+  const appendFiles = useCallback((files: File[], origin: UploadItemOrigin) => {
+    if (!files.length) {
+      return [] as UploadItem[];
+    }
+
+    const nextItems = files.map((file, index) => {
+      const key = `${file.name}-${Date.now()}-${index}`;
+      const isImage =
+        file.type.startsWith(IMAGE_MIME_PREFIX) || isImageFilename(file.name);
+      let previewUrl: string | undefined;
+      if (isImage) {
+        previewUrl = URL.createObjectURL(file);
+        generatedUrlsRef.current.add(previewUrl);
       }
+      const item: UploadItem = {
+        key,
+        filename: file.name,
+        previewUrl,
+        status: STATUS.pending,
+        origin,
+        isImage,
+        generatedPreview: Boolean(previewUrl),
+        file,
+      };
+      return item;
+    });
 
-      const nextItems = files.map((file, index) => {
-        const key = `${file.name}-${Date.now()}-${index}`;
-        const isImage = file.type.startsWith(IMAGE_MIME_PREFIX) || isImageFilename(file.name);
-        let previewUrl: string | undefined;
-        if (isImage) {
-          previewUrl = URL.createObjectURL(file);
-          generatedUrlsRef.current.add(previewUrl);
-        }
-        const item: UploadItem = {
-          key,
-          filename: file.name,
-          previewUrl,
-          status: STATUS.pending,
-          origin,
-          isImage,
-          generatedPreview: Boolean(previewUrl),
-          file,
-        };
-        return item;
-      });
-
-      setItems((current) => [...current, ...nextItems]);
-      return nextItems;
-    },
-    []
-  );
+    setItems((current) => [...current, ...nextItems]);
+    return nextItems;
+  }, []);
 
   const awaitingUploadCount = useMemo(
     () =>
@@ -342,7 +349,7 @@ export default function Upload<ResponseSchema = unknown>(
         const uploadedIds = responses
           .filter((response) => response && response.image_id)
           .map((response) => response.image_id);
-        
+
         setItems((current) => {
           const next = current.map((item) => {
             const index = keys.indexOf(item.key);
@@ -354,7 +361,7 @@ export default function Upload<ResponseSchema = unknown>(
               releasePreviewUrl(item.previewUrl, item.generatedPreview);
               const errorItem: UploadItem = {
                 ...item,
-              status: STATUS.error,
+                status: STATUS.error,
                 errorMessage: "Resposta inválida do serviço",
               };
               return errorItem;
@@ -403,7 +410,7 @@ export default function Upload<ResponseSchema = unknown>(
         });
         const ids = props.service.extractIds(response);
         const uploadedIds = ids.filter((id) => Boolean(id));
-        
+
         setItems((current) => {
           const next = current.map((item) => {
             const index = keys.indexOf(item.key);
@@ -414,14 +421,14 @@ export default function Upload<ResponseSchema = unknown>(
             if (!remoteId) {
               const errorItem: UploadItem = {
                 ...item,
-              status: STATUS.error,
+                status: STATUS.error,
                 errorMessage: "ID não retornado pelo serviço",
               };
               return errorItem;
             }
             const nextItem: UploadItem = {
               ...item,
-            status: STATUS.uploaded,
+              status: STATUS.uploaded,
               remoteId,
               errorMessage: undefined,
               file: undefined,
@@ -466,23 +473,30 @@ export default function Upload<ResponseSchema = unknown>(
     const loadingToast = toast.loading("Enviando arquivos...");
     try {
       let uploadedIds: string[] = [];
-      
+
       if (props.typeImport === "internal") {
         uploadedIds = await uploadInternal(itemsToUpload);
       } else {
         uploadedIds = await uploadExternal(itemsToUpload);
       }
-      
+
       toast.success("Arquivos enviados com sucesso!", { id: loadingToast });
       onUploadSuccess?.(uploadedIds);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erro ao enviar arquivos.";
+      const message =
+        error instanceof Error ? error.message : "Erro ao enviar arquivos.";
       toast.error(message, { id: loadingToast });
       throw error;
     } finally {
       setIsProcessing(false);
     }
-  }, [items, props.typeImport, uploadExternal, uploadInternal, onUploadSuccess]);
+  }, [
+    items,
+    props.typeImport,
+    uploadExternal,
+    uploadInternal,
+    onUploadSuccess,
+  ]);
 
   const handleFilesSelection = useCallback(
     (fileList: FileList | null) => {
@@ -494,7 +508,10 @@ export default function Upload<ResponseSchema = unknown>(
         return;
       }
       const files = Array.from(fileList);
-      const allowedFiles = files.slice(0, availableSlots === Infinity ? files.length : availableSlots);
+      const allowedFiles = files.slice(
+        0,
+        availableSlots === Infinity ? files.length : availableSlots
+      );
       appendFiles(allowedFiles, props.typeImport);
       toast.success(
         `${allowedFiles.length} arquivo(s) adicionado(s). Clique em "Enviar arquivos" para concluir.`,
@@ -528,12 +545,15 @@ export default function Upload<ResponseSchema = unknown>(
     [handleFilesSelection]
   );
 
-  const handleDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    if (!isDragging) {
-      setIsDragging(true);
-    }
-  }, [isDragging]);
+  const handleDragOver = useCallback(
+    (event: DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      if (!isDragging) {
+        setIsDragging(true);
+      }
+    },
+    [isDragging]
+  );
 
   const handleDragLeave = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -572,48 +592,47 @@ export default function Upload<ResponseSchema = unknown>(
     [maxFiles, notifyIds, releasePreviewUrl]
   );
 
-  const handleRetry = useCallback(
-    (itemKey: string) => {
-      setItems((current) => {
-        return current.map((item) => {
-          if (item.key !== itemKey || item.status !== "error") {
-            return item;
-          }
-          return {
-            ...item,
-            status: STATUS.pending,
-            errorMessage: undefined,
-          };
-        });
+  const handleRetry = useCallback((itemKey: string) => {
+    setItems((current) => {
+      return current.map((item) => {
+        if (item.key !== itemKey || item.status !== "error") {
+          return item;
+        }
+        return {
+          ...item,
+          status: STATUS.pending,
+          errorMessage: undefined,
+        };
       });
-    },
-    []
-  );
+    });
+  }, []);
 
-  const renderPreviewContent = useCallback(
-    (item: UploadItem) => {
-      if (item.isImage && item.previewUrl) {
-        return (
-          <img
-            src={item.previewUrl}
-            alt={item.filename}
-            className="w-full h-full object-cover rounded-lg"
-          />
-        );
-      }
+  const renderPreviewContent = useCallback((item: UploadItem) => {
+    if (item.isImage && item.previewUrl) {
       return (
-        <div className="flex h-full w-full items-center justify-center bg-beergam-gray-100 rounded-lg">
-          <Svg.document width={40} height={40} tailWindClasses="text-beergam-gray" />
-        </div>
+        <img
+          src={item.previewUrl}
+          alt={item.filename}
+          className="w-full h-full object-cover rounded-lg"
+        />
       );
-    },
-    []
-  );
+    }
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-beergam-gray-100 rounded-lg">
+        <Svg.document
+          width={40}
+          height={40}
+          tailWindClasses="text-beergam-gray"
+        />
+      </div>
+    );
+  }, []);
 
   const dropzoneLabel = isDragging ? draggingLabel : emptyStateLabel;
 
-  return (
-    <Modal title={title} isOpen={isOpen} onClose={onClose}>
+  // Memoiza o conteúdo do modal para evitar recriações desnecessárias
+  const modalContent = useMemo(
+    () => (
       <section className="flex w-full flex-col gap-4">
         <div
           className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
@@ -637,9 +656,12 @@ export default function Upload<ResponseSchema = unknown>(
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-beergam-blue-primary/10 text-beergam-blue-primary">
             <Svg.in_box_stack />
           </div>
-          <p className="font-medium text-beergam-blue-primary">{dropzoneLabel}</p>
+          <p className="font-medium text-beergam-blue-primary">
+            {dropzoneLabel}
+          </p>
           <p className="text-sm text-beergam-gray-400">
-            {availableSlots !== Infinity && `Resta${availableSlots === 1 ? "" : "m"} ${availableSlots} arquivo${availableSlots === 1 ? "" : "s"}`}
+            {availableSlots !== Infinity &&
+              `Resta${availableSlots === 1 ? "" : "m"} ${availableSlots} arquivo${availableSlots === 1 ? "" : "s"}`}
           </p>
           <button
             type="button"
@@ -698,7 +720,8 @@ export default function Upload<ResponseSchema = unknown>(
                           <Svg.arrow_path width={18} height={18} />
                         </button>
                       )}
-                      {((maxFiles === undefined || maxFiles > 1) ||
+                      {(maxFiles === undefined ||
+                        maxFiles > 1 ||
                         item.status === "error" ||
                         item.status === "pending") &&
                         item.status !== "uploaded" && (
@@ -715,12 +738,12 @@ export default function Upload<ResponseSchema = unknown>(
                     </div>
                   </div>
                   {item.errorMessage && (
-                      <span
+                    <span
                       className="text-xs text-beergam-red"
                       title={item.errorMessage}
-                      >
-                          {item.errorMessage}
-                      </span>
+                    >
+                      {item.errorMessage}
+                    </span>
                   )}
                 </article>
               ))}
@@ -728,7 +751,9 @@ export default function Upload<ResponseSchema = unknown>(
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
                 {isProcessing && (
-                  <span className="text-sm text-beergam-gray-500">Processando uploads...</span>
+                  <span className="text-sm text-beergam-gray-500">
+                    Processando uploads...
+                  </span>
                 )}
                 <button
                   type="button"
@@ -743,6 +768,45 @@ export default function Upload<ResponseSchema = unknown>(
           </div>
         )}
       </section>
-    </Modal>
-    );
+    ),
+    [
+      dropzoneLabel,
+      availableSlots,
+      isDragging,
+      items,
+      isProcessing,
+      hasAwaitingUploads,
+      accept,
+      handleDrop,
+      handleDragOver,
+      handleDragLeave,
+      openFileDialog,
+      handleInputChange,
+      handleRetry,
+      handleRemove,
+      uploadPending,
+      renderPreviewContent,
+      maxFiles,
+    ]
+  );
+
+  // Controla abertura/fechamento do modal baseado na prop isOpen
+  const modalIsOpenRef = useRef(isOpen);
+
+  useEffect(() => {
+    if (isOpen && !modalIsOpenRef.current) {
+      // Modal está sendo aberto
+      openModal(modalContent, { title, onClose });
+      modalIsOpenRef.current = true;
+    } else if (!isOpen && modalIsOpenRef.current) {
+      // Modal está sendo fechado
+      closeModal();
+      modalIsOpenRef.current = false;
+    } else if (isOpen && modalIsOpenRef.current) {
+      // Modal já está aberto, apenas atualiza o conteúdo
+      openModal(modalContent, { title, onClose });
+    }
+  }, [isOpen, modalContent, title, onClose, openModal, closeModal]);
+
+  return null;
 }

@@ -369,7 +369,7 @@ function renderUpload(
               >
                 {imageId ? (
                   <img
-                    src={`/api/images/${imageId}`}
+                    src={`${imageId}`}
                     alt={`Imagem ${index + 1}`}
                     style={{
                       width: "100%",

@@ -1,4 +1,5 @@
 import React from "react";
+import ColabItem from "~/features/user/colab/components/ColabDetails/ColabItem";
 import LockAnimated from "~/src/assets/LockAnimated";
 import toast from "~/src/utils/toast";
 interface TimeProps {
@@ -34,17 +35,23 @@ function Time({
         "O horário de fim não pode ser menor que o horário de início"
       );
 
-      setHorario({ access, start_date, end_date: "" });
+      // Cria uma nova data baseada no start_date e adiciona um minuto
+      if (start_date) {
+        const [h, m] = start_date.split(":").map(Number);
+        const date = new Date();
+        date.setHours(h, m + 1, 0, 0); // adiciona 1 minuto
+        const newEndDate = date.toTimeString().slice(0, 5); // formato HH:mm
+        setHorario({ access, start_date, end_date: newEndDate });
+      } else {
+        setHorario({ access, start_date, end_date: "" });
+      }
       return;
     }
 
     setHorario({ access, start_date, end_date: novoFim });
   };
   return (
-    <div
-      className={`flex items-center justify-between relative gap-2 py-2 border-b border-gray-300`}
-      style={style}
-    >
+    <ColabItem active={access} onClick={clickDia} canInteract={true}>
       <LockAnimated
         tailwindClasses={`absolute top-[50%] translate-y-[-50%] right-0 ${access ? "opacity-0 pointer-events-none" : "opacity-100"}`}
         open={access}
@@ -75,7 +82,7 @@ function Time({
           className={`outline-none ${access ? "opacity-100" : "opacity-0"} ${!access ? "pointer-events-none" : ""}`}
         />
       </div>
-    </div>
+    </ColabItem>
   );
 }
 

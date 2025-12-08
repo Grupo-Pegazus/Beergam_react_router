@@ -1,6 +1,5 @@
 import { useMemo, useState, useCallback, memo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useSelector } from "react-redux";
 import {
   LineChart,
   Line,
@@ -15,9 +14,9 @@ import VisitasSkeleton from "./Skeleton";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import StatCard from "~/src/components/ui/StatCard";
 import Svg from "~/src/assets/svgs/_index";
-import type { RootState } from "~/store";
 import { MarketplaceType } from "~/features/marketplace/typings";
 import type { MarketplaceVisitsData } from "../../typings";
+import authStore from "~/features/store-zustand";
 import type { ApiResponse } from "~/features/apiClient/typings";
 
 type VisitsResponse = ApiResponse<MarketplaceVisitsData<MarketplaceType>>;
@@ -294,9 +293,7 @@ export default function Visitas() {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>(90);
   const isMobile = useIsMobile();
   
-  const selectedMarketplace = useSelector(
-    (state: RootState) => state.marketplace.marketplace,
-  );
+  const selectedMarketplace = authStore.use.marketplace();
   const marketplaceType = selectedMarketplace?.marketplace_type;
   const marketplaceShopId = selectedMarketplace?.marketplace_shop_id;
 

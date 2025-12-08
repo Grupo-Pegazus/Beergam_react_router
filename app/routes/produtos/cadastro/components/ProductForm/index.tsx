@@ -3,7 +3,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
-import { Stepper, Step, StepLabel, Box } from "@mui/material";
+import { Stepper, Step, StepLabel, Box, Button, Alert } from "@mui/material";
 import toast from "~/src/utils/toast";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { produtosService } from "~/features/produtos/service";
@@ -14,6 +14,8 @@ import {
   type CreateCompleteProduct,
   type RegistrationType,
 } from "~/features/produtos/typings/createProduct";
+import { transformProductDetailsToCreateProduct } from "~/features/produtos/utils/productTransform";
+import { useProductDetails } from "~/features/produtos/hooks";
 import ProductBasicFields from "./ProductBasicFields";
 import PricingFields from "./PricingFields";
 import MeasuresFields from "./MeasuresFields";
@@ -25,6 +27,8 @@ import { validateStep } from "./stepValidation";
 
 interface ProductFormProps {
   registrationType: RegistrationType;
+  productId?: string;
+  allowUpgradeToComplete?: boolean;
 }
 
 type TabId = "basic" | "pricing" | "measures" | "stock" | "extras" | "images" | "variations";
@@ -35,13 +39,25 @@ interface Tab {
   visible: boolean;
 }
 
-export default function ProductForm({ registrationType }: ProductFormProps) {
+export default function ProductForm({
+  registrationType: initialRegistrationType,
+  productId,
+  allowUpgradeToComplete = false,
+}: ProductFormProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showVariationsTab, setShowVariationsTab] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [hasVariations, setHasVariations] = useState(false);
   const [highestStepVisited, setHighestStepVisited] = useState(0);
+  const [registrationType, setRegistrationType] = useState<RegistrationType>(initialRegistrationType);
+  const [showUpgradeAlert, setShowUpgradeAlert] = useState(false);
+  const [hasLoadedProductData, setHasLoadedProductData] = useState(false);
+
+  const isEditMode = !!productId;
+  const { data: productDetailsResponse, isLoading: isLoadingProduct } = useProductDetails(
+    productId || ""
+  );
 
   const schema =
     registrationType === "simplified"
@@ -96,31 +112,127 @@ export default function ProductForm({ registrationType }: ProductFormProps) {
     mode: "onBlur",
   });
 
-  const { watch, setValue, trigger } = form;
+  const { watch, setValue, trigger, reset } = form;
   const watchedHasVariations = watch("variations");
+
+  // Carrega os dados do produto quando estiver em modo de edição
+  useEffect(() => {
+    if (isEditMode && productDetailsResponse?.success && productDetailsResponse.data && !hasLoadedProductData) {
+      const productDetails = productDetailsResponse.data;
+      const currentRegistrationType =
+        productDetails.product_registration_type === "Completo" ? "complete" : "simplified";
+
+      // Sincroniza o registrationType com o tipo real do produto
+      // Isso evita problemas quando o registrationType inicial não corresponde ao produto
+      // (pode acontecer quando a query ainda não retornou na página de edição)
+      // Sempre sincroniza o tipo com o produto real no primeiro carregamento
+      if (registrationType !== currentRegistrationType) {
+        // Atualiza o registrationType para corresponder ao produto
+        setRegistrationType(currentRegistrationType);
+      }
+
+      // Se o produto é simplificado e permite upgrade, mostra o alerta
+      if (
+        currentRegistrationType === "simplified" &&
+        allowUpgradeToComplete
+      ) {
+        setShowUpgradeAlert(true);
+      }
+
+      try {
+        // Usa o currentRegistrationType para garantir que está correto
+        const formData = transformProductDetailsToCreateProduct(
+          productDetails,
+          currentRegistrationType
+        );
+        reset(formData);
+
+        // Configura o estado de variações
+        const hasVariationsValue =
+          productDetails.variations && productDetails.variations.length > 0;
+        setHasVariations(hasVariationsValue);
+        setShowVariationsTab(hasVariationsValue);
+        
+        // Marca que os dados foram carregados
+        setHasLoadedProductData(true);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Erro ao carregar dados do produto";
+        toast.error(message);
+        navigate("/interno/produtos/gestao");
+      }
+    }
+  }, [
+    isEditMode,
+    productDetailsResponse,
+    registrationType,
+    initialRegistrationType,
+    allowUpgradeToComplete,
+    hasLoadedProductData,
+    reset,
+    navigate,
+  ]);
 
   const createProductMutation = useMutation({
     mutationFn: async (data: CreateSimplifiedProduct | CreateCompleteProduct) => {
-      const response = await produtosService.createProduct(data);
-      if (!response.success) {
-        throw new Error(response.message || "Erro ao criar produto");
+      if (isEditMode && productId) {
+        const response = await produtosService.updateProduct(productId, data);
+        if (!response.success) {
+          throw new Error(response.message || "Erro ao atualizar produto");
+        }
+        return response;
+      } else {
+        const response = await produtosService.createProduct(data);
+        if (!response.success) {
+          throw new Error(response.message || "Erro ao criar produto");
+        }
+        return response;
       }
-      return response;
     },
     onSuccess: (response) => {
       // Invalida o cache de produtos para atualizar a lista
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["products-metrics"] });
-      toast.success(response.data?.message || "Produto criado com sucesso!");
+      if (isEditMode) {
+        queryClient.invalidateQueries({ queryKey: ["products", "details", productId] });
+      }
+      toast.success(
+        response.data?.message ||
+          (isEditMode ? "Produto atualizado com sucesso!" : "Produto criado com sucesso!")
+      );
       navigate("/interno/produtos/gestao");
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Erro ao criar produto. Tente novamente.");
+      toast.error(
+        error.message ||
+          (isEditMode
+            ? "Erro ao atualizar produto. Tente novamente."
+            : "Erro ao criar produto. Tente novamente.")
+      );
     },
   });
 
   const onSubmit = (data: CreateSimplifiedProduct | CreateCompleteProduct) => {
     createProductMutation.mutate(data);
+  };
+
+  const handleUpgradeToComplete = () => {
+    setRegistrationType("complete");
+    setShowUpgradeAlert(false);
+    // Recarrega os dados com o novo tipo de registro
+    if (productDetailsResponse?.success && productDetailsResponse.data) {
+      try {
+        const formData = transformProductDetailsToCreateProduct(
+          productDetailsResponse.data,
+          "complete"
+        );
+        reset(formData);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Erro ao atualizar formulário";
+        toast.error(message);
+      }
+    }
   };
 
   const handleVariationsChange = (value: string) => {
@@ -440,6 +552,18 @@ export default function ProductForm({ registrationType }: ProductFormProps) {
     }
   };
 
+  // Mostra loading enquanto carrega os dados do produto
+  if (isEditMode && isLoadingProduct) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-beergam-blue-primary mx-auto mb-4"></div>
+          <p className="text-beergam-gray-dark">Carregando dados do produto...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <FormProvider {...form}>
       <form
@@ -447,6 +571,34 @@ export default function ProductForm({ registrationType }: ProductFormProps) {
         className="flex flex-col gap-6 p-6 bg-beergam-white rounded-xl"
       >
         <div className="flex flex-col gap-4">
+          {/* Alerta de upgrade para cadastro completo */}
+          {showUpgradeAlert && (
+            <Alert
+              severity="info"
+              action={
+                <div className="flex gap-2">
+                  <Button
+                    color="inherit"
+                    size="small"
+                    onClick={() => setShowUpgradeAlert(false)}
+                  >
+                    Manter Simplificado
+                  </Button>
+                  <Button
+                    color="primary"
+                    size="small"
+                    onClick={handleUpgradeToComplete}
+                  >
+                    Deixar Completo
+                  </Button>
+                </div>
+              }
+              sx={{ mb: 2 }}
+            >
+              Este produto está cadastrado como simplificado. Você pode atualizá-lo para cadastro
+              completo para ter acesso a mais campos e funcionalidades.
+            </Alert>
+          )}
 
           {/* Stepper do MUI */}
           <Box sx={{ width: "100%", mb: 4 }}>
@@ -572,7 +724,7 @@ export default function ProductForm({ registrationType }: ProductFormProps) {
             )}
             {isLastStep && (
               <BeergamButton
-                title="Salvar Produto"
+                title={isEditMode ? "Atualizar Produto" : "Salvar Produto"}
                 mainColor="beergam-blue-primary"
                 animationStyle="slider"
                 type="submit"

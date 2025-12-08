@@ -3,14 +3,12 @@ import type { Category } from "../typings";
 
 interface DeleteCategoryModalProps {
   category: Category;
-  isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
 }
 
 export default function DeleteCategoryModal({
   category,
-  isOpen,
   onClose,
   onConfirm,
 }: DeleteCategoryModalProps) {
@@ -19,11 +17,8 @@ export default function DeleteCategoryModal({
   if (hasRelatedProducts) {
     return (
       <Alert
-        isOpen={isOpen}
         onClose={onClose}
         type="warning"
-        title="Não é possível excluir esta categoria"
-        confirmText={undefined}
       >
         <h3 className="font-semibold text-lg mb-2">
           Esta categoria está sendo usada por {category.related_products_count} produto(s)
@@ -55,11 +50,10 @@ export default function DeleteCategoryModal({
 
   return (
     <Alert
-      isOpen={isOpen}
       onClose={onClose}
       onConfirm={onConfirm}
       type="warning"
-      title="Confirmar exclusão"
+      confirmText="Excluir"
     >
       <h3 className="font-semibold text-lg mb-2">
         Tem certeza que deseja excluir a categoria?

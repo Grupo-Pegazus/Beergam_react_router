@@ -1,16 +1,15 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useSelector } from "react-redux";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import StatCard from "~/src/components/ui/StatCard";
 import Svg from "~/src/assets/svgs/_index";
-import type { RootState } from "~/store";
 import { MarketplaceType } from "~/features/marketplace/typings";
 import { metricsAccountService } from "../../service";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import type { MarketplaceScheduleData } from "../../typings";
 import ScheduleTimesSkeleton from "./Skeleton";
-import { Modal } from "~/src/components/utils/Modal";	
+import { Modal } from "~/src/components/utils/Modal";
+import authStore from "~/features/store-zustand";
 
 
 type ScheduleResponse = ApiResponse<MarketplaceScheduleData<MarketplaceType>>;
@@ -49,9 +48,7 @@ function isMeliSchedule(
 
 export default function ScheduleTimes() {
   const [open, setOpen] = useState(false);
-  const selectedMarketplace = useSelector(
-    (state: RootState) => state.marketplace.marketplace,
-  );
+  const selectedMarketplace = authStore.use.marketplace();
   const marketplaceType = selectedMarketplace?.marketplace_type;
 
   const { data, isLoading, error } = useQuery<ScheduleResponse>({
