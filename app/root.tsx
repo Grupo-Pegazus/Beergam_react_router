@@ -42,6 +42,47 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+export function meta({}: Route.MetaArgs) {
+  const siteUrl = "https://beergam.com.br";
+  const siteName = "Beergam";
+  const title = "Beergam | ERP Completo para E-commerce";
+  const description =
+    "Gerencie seu e-commerce com inteligência. Simplifique processos, automatize vendas e expanda seu negócio com a plataforma mais completa para vendedores de e-commerce.";
+  const image = `https://cdn2.beergam.com.br/landing_page/Bergamota.webp`;
+  const locale = "pt_BR";
+
+  return [
+    // Meta tags básicas
+    { title },
+    { name: "description", content: description },
+    { name: "author", content: siteName },
+
+    // Open Graph - Facebook, LinkedIn, etc.
+    { property: "og:type", content: "website" },
+    { property: "og:url", content: siteUrl },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:image", content: image },
+    { property: "og:image:width", content: "449" },
+    { property: "og:image:height", content: "532" },
+    { property: "og:image:alt", content: title },
+    { property: "og:site_name", content: siteName },
+    { property: "og:locale", content: locale },
+
+    // Twitter Card
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:url", content: siteUrl },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
+    { name: "twitter:image", content: image },
+    { name: "twitter:image:alt", content: title },
+
+    // Meta tags adicionais
+    { name: "robots", content: "index, follow" },
+    { name: "theme-color", content: "#ff8a00" },
+  ];
+}
+
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";
   let details = "An unexpected error occurred.";
