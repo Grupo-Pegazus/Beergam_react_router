@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,6 +10,7 @@ import { useRecalculateAverageCost } from "../../hooks";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import Alert from "~/src/components/utils/Alert";
+import { useModal } from "~/src/components/utils/Modal/useModal";
 
 interface AverageCostCardProps {
   data: StockTrackingResponse;
@@ -22,19 +22,35 @@ export default function AverageCostCard({
   productId,
 }: AverageCostCardProps) {
   const { average_cost } = data;
-  const [confirmOpen, setConfirmOpen] = useState(false);
   const recalculateMutation = useRecalculateAverageCost();
+  const { openModal, closeModal } = useModal();
 
   const handleRecalculate = () => {
-    setConfirmOpen(true);
-  };
-
-  const handleConfirmRecalculate = () => {
-    recalculateMutation.mutate(productId, {
-      onSuccess: () => {
-        setConfirmOpen(false);
-      },
-    });
+    openModal(
+      <Alert
+        type="warning"
+        confirmText={recalculateMutation.isPending ? "Recalculando..." : "Confirmar"}
+        cancelText="Cancelar"
+        onClose={closeModal}
+        mutation={recalculateMutation}
+        onConfirm={() => {
+          recalculateMutation.mutate(productId, {
+            onSuccess: () => {
+              closeModal();
+            },
+          });
+        }}
+      >
+        <p>
+          Tem certeza que deseja recalcular o custo médio de estoque? Esta
+          ação irá atualizar o valor armazenado com base em todas as
+          movimentações de entrada registradas.
+        </p>
+      </Alert>,
+      {
+        title: "Confirmar Recálculo",
+      }
+    );
   };
 
   const isSynced = average_cost.is_synced;
@@ -123,21 +139,6 @@ export default function AverageCostCard({
         </CardContent>
       </Card>
 
-      <Alert
-        isOpen={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
-        title="Confirmar Recálculo"
-        type="warning"
-        onConfirm={handleConfirmRecalculate}
-        confirmText={recalculateMutation.isPending ? "Recalculando..." : "Confirmar"}
-        cancelText="Cancelar"
-      >
-        <p>
-          Tem certeza que deseja recalcular o custo médio de estoque? Esta
-          ação irá atualizar o valor armazenado com base em todas as
-          movimentações de entrada registradas.
-        </p>
-      </Alert>
     </>
   );
 }

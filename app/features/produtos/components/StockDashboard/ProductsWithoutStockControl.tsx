@@ -25,20 +25,20 @@ export default function ProductsWithoutStockControl({
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {products.map((product) => {
-        const mainImageId =
+        const mainImageUrl =
           product.images?.product?.[0] ||
           product.variations?.[0]?.images?.product?.[0];
 
         return (
           <Link
             key={product.product_id}
-            to={`/interno/produtos/${product.product_id}`}
+            to={`/interno/produtos/gestao/${product.product_id}`}
             className="block"
           >
             <MainCards className="hover:bg-slate-50/50 transition-colors h-full">
               <div className="flex items-start gap-3 p-4">
                 <ProductImage
-                  imageId={mainImageId}
+                  imageUrl={mainImageUrl}
                   alt={product.title}
                   size="medium"
                 />

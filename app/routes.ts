@@ -45,11 +45,13 @@ export function createMenuRoutes(): RouteConfigEntry[] {
 
         if (item.dinamic_id) {
           // Para rotas dinâmicas, cria DUAS rotas:
-          // 1. Rota estática (lista)
-          const routePath = buildRoutePath(key, parentPath);
-          itemRoutes.push(route(routeName, routePath));
+          // 1. Rota estática (lista) - apenas se launched !== false
+          if (item.launched !== false) {
+            const routePath = buildRoutePath(key, parentPath);
+            itemRoutes.push(route(routeName, routePath));
+          }
 
-          // 2. Rota dinâmica (item específico)
+          // 2. Rota dinâmica (item específico) - sempre cria se tem dinamic_id
           const dynamicPath = `${routeName}/:${item.dinamic_id}`;
           const dynamicRoutePath = buildRoutePath(key, parentPath).replace(
             "/route.tsx",
@@ -71,6 +73,11 @@ export function createMenuRoutes(): RouteConfigEntry[] {
       const currentPath = [...parentPath, key];
 
       Object.entries(item.dropdown).forEach(([childKey, childItem]) => {
+        // Se o item tem launched: false, só processa se tiver dinamic_id (rota dinâmica)
+        // Isso permite ter rotas dinâmicas sem aparecer no menu
+        if (childItem.launched === false && !childItem.dinamic_id) {
+          return; // Pula itens ocultos sem rota dinâmica
+        }
         // Passa o path do item atual como parentItemPath para os filhos
         const childRoutesList = processMenuItem(
           childKey,

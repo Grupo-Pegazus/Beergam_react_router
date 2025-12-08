@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Box, Paper, Typography, Grid } from "@mui/material";
 import Upload from "~/src/components/utils/upload";
 import type { InternalUploadService } from "~/src/components/utils/upload/types";
-import { getNestedValue, setNestedValue } from "./utils";
+import { getNestedValue } from "./utils";
 
 interface ImageUploadAreaProps {
   values: Record<string, unknown>;
@@ -19,8 +19,6 @@ export default function ImageUploadArea({
   const [uploadType, setUploadType] = useState<"product" | "marketplace" | "shipping">("product");
 
   const productImages = (getNestedValue(values, "images.product") as string[]) || [];
-  const marketplaceImages = (getNestedValue(values, "images.marketplace") as string[]) || [];
-  const shippingImages = (getNestedValue(values, "images.shipping") as string[]) || [];
 
   const handleUploadClick = (type: "product" | "marketplace" | "shipping") => {
     setUploadType(type);
@@ -52,7 +50,7 @@ export default function ImageUploadArea({
           }}
         >
           <img
-            src={`/api/images/${imageId}`}
+            src={`${imageId}`}
             alt={`Imagem ${index + 1}`}
             style={{
               width: "100%",
@@ -138,13 +136,13 @@ export default function ImageUploadArea({
         {Array.from({ length: 8 }).map((_, index) => {
           if (index === 0) {
             return (
-              <Grid item xs={6} key={index}>
+              <Grid size={6} key={index}>
                 {renderAddButton("product", "Adicionar Novas fotos")}
               </Grid>
             );
           }
           return (
-            <Grid item xs={6} key={index}>
+            <Grid size={6} key={index}>
               {renderImageSlot(productImages[index - 1], index)}
             </Grid>
           );

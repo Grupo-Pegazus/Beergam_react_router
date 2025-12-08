@@ -147,6 +147,17 @@ class ProdutosService {
     );
     return response as ApiResponse<{ product_id: string; message: string }>;
   }
+
+  async updateProduct(
+    productId: string,
+    data: CreateProduct
+  ): Promise<ApiResponse<{ product_id: string; message: string }>> {
+    const response = await typedApiClient.put<{ product_id: string; message: string }>(
+      `/v1/products/${productId}`,
+      data
+    );
+    return response as ApiResponse<{ product_id: string; message: string }>;
+  }
 }
 
 export const produtosService = new ProdutosService();
