@@ -17,12 +17,12 @@ export enum UserStatus {
 }
 
 export enum SubscriptionStatus {
-  ACTIVE = "ACTIVE",
-  CANCELED = "CANCELED",
-  INCOMPLETE = "INCOMPLETE",
-  PAST_DUE = "PAST_DUE",
-  TRIALING = "TRIALING",
-  PENDING = "PENDING",
+  ACTIVE = "Ativo",
+  CANCELED = "Cancelado",
+  INCOMPLETE = "Incompleto",
+  PAST_DUE = "Vencido",
+  TRIALING = "Em trial",
+  PENDING = "Pendente",
 }
 
 export enum GestaoFinanceira {

@@ -1,6 +1,6 @@
 import { Box, ClickAwayListener, Fade } from "@mui/material";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 import authStore from "~/features/store-zustand";
 import { isMaster } from "~/features/user/utils";
@@ -35,6 +35,7 @@ export default function PageLayout({
   tailwindClassName?: string;
 }) {
   const user = authStore.use.user();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const { isLoggingOut, logout } = useLogoutFlow({
     redirectTo: "/login",
@@ -94,6 +95,18 @@ export default function PageLayout({
                         </p>
                       </div>
                       <hr className="my-2 border-beergam-white" />
+                      <button
+                        onClick={() => {
+                          if (!menuOpen || isLoggingOut) return;
+                          navigate("/interno/config");
+                        }}
+                        className={`flex mb-2 items-center px-2 py-1 rounded-lg gap-2 justify-between w-full hover:bg-beergam-white/10 ${isLoggingOut ? "opacity-50! cursor-not-allowed!" : ""} ${!menuOpen ? "pointer-events-none! cursor-auto!" : ""}`}
+                      >
+                        <p className="text-beergam-white text-sm!">
+                          Configurações
+                        </p>
+                        <Svg.cog_8_tooth tailWindClasses="text-beergam-white size-6" />
+                      </button>
                       <button
                         onClick={() => {
                           if (!menuOpen || isLoggingOut) return;

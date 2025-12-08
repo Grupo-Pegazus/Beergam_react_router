@@ -36,7 +36,7 @@ export default function SubscriptionPage({
   );
   return (
     <>
-      <PageLayout tailwindClassName="flex items-center justify-center py-12">
+      <PageLayout tailwindClassName="flex items-center justify-center">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scale-90 origin-top">
           {/* Header Section */}
           {subscriptionError !== null && !showContent && (
