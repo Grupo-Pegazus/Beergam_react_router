@@ -169,7 +169,14 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
       });
     }
   };
-
+  useEffect(() => {
+    if (currentColab.action !== "Excluir") {
+      colabInfoRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [currentColab.action]);
   return (
     <>
       <Section
@@ -211,6 +218,7 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
               ? "Criar Colaborador"
               : "Editar Colaborador"
         }
+        ref={colabInfoRef}
         actions={
           (currentColab.action === "Editar" ||
             currentColab.action === "Criar") && (
