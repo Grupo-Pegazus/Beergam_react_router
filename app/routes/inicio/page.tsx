@@ -6,10 +6,14 @@ import Visitas from "~/features/metricsAccount/components/Visitas/Visitas";
 import MetricasCards from "~/features/anuncios/components/MetricasCards/MetricasCards";
 import TopAnunciosVendidos from "~/features/anuncios/components/TopAnunciosVendidos/TopAnunciosVendidos";
 import VendasResumo from "~/features/vendas/components/VendasResumo/VendasResumo";
+import HomeSummary from "~/features/summary/components/HomeSummary";
 
 export default function InicioPage() {
     return (
         <>
+            <Section title="Resumo Geral">
+                <HomeSummary />
+            </Section>
             <Section title="Geral da conta">
                 <Grid cols={{ base: 1, sm: 2, md: 3, lg: 4 }}>
                     <Reputacao />
