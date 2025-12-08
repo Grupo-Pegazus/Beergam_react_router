@@ -176,7 +176,7 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
         block: "start",
       });
     }
-  }, [currentColab.action]);
+  }, [currentColab.action, currentColab.colab]);
   return (
     <>
       <Section
