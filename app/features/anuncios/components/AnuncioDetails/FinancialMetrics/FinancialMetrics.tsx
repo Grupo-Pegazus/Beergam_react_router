@@ -12,7 +12,6 @@ interface FinancialMetricsProps {
 
 /**
  * Componente responsável por exibir as métricas financeiras do anúncio
- * Seguindo Single Responsibility Principle
  */
 export default function FinancialMetrics({ anuncio }: FinancialMetricsProps) {
   const totalProfit = anuncio.total_profit ?? 0;

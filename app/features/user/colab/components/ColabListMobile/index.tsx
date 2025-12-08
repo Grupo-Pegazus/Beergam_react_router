@@ -126,7 +126,8 @@ export default function ColabListMobile({
           canAlter={true}
         />
         <UserFields
-          value={null}
+          name="status"
+          value={""}
           label="Status"
           nullable
           canAlter
@@ -136,7 +137,8 @@ export default function ColabListMobile({
           }))}
         />
         <UserFields
-          value={null}
+          name="level"
+          value={""}
           label="Nivel"
           nullable
           canAlter

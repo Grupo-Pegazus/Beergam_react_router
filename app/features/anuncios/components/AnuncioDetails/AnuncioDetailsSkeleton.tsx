@@ -2,7 +2,6 @@ import { Skeleton, Stack, Paper, Box } from "@mui/material";
 
 /**
  * Skeleton para a página de detalhes do anúncio
- * Seguindo o padrão do projeto e a estrutura do AnuncioDetails
  */
 export default function AnuncioDetailsSkeleton() {
   return (

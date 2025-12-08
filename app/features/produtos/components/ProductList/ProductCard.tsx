@@ -11,6 +11,7 @@ import toast from "~/src/utils/toast";
 import MainCards from "~/src/components/ui/MainCards";
 import Svg from "~/src/assets/svgs/_index";
 import Alert from "~/src/components/utils/Alert";
+import { useModal } from "~/src/components/utils/Modal/useModal";
 import ProductImage from "../ProductImage/ProductImage";
 import type { Product } from "../../typings";
 import VariationsList from "./Variations/VariationsList";
@@ -30,10 +31,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
-  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const hasVariations = product.variations && product.variations.length > 0;
   const changeStatusMutation = useChangeProductStatus();
   const deleteProductMutation = useDeleteProduct();
+  const { openModal, closeModal } = useModal();
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -62,24 +63,39 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   const handleDeleteClick = () => {
-    setShowDeleteAlert(true);
     handleMenuClose();
-  };
-
-  const handleConfirmDelete = () => {
-    deleteProductMutation.mutate(product.product_id, {
-      onSuccess: (data) => {
-        if (!data.success) {
-          toast.error(data.message || "Erro ao excluir produto");
-          return;
-        }
-        setShowDeleteAlert(false);
-        toast.success(data.message || "Produto excluído com sucesso");
-      },
-      onError: (error) => {
-        toast.error(error instanceof Error ? error.message : "Erro ao excluir produto");
-      },
-    });
+    openModal(
+      <Alert
+        type="warning"
+        confirmText="Excluir"
+        onClose={closeModal}
+        mutation={deleteProductMutation}
+        onConfirm={() => {
+          deleteProductMutation.mutate(product.product_id, {
+            onSuccess: (data) => {
+              if (!data.success) {
+                toast.error(data.message || "Erro ao excluir produto");
+                return;
+              }
+              closeModal();
+              toast.success(data.message || "Produto excluído com sucesso");
+            },
+            onError: (error) => {
+              toast.error(error instanceof Error ? error.message : "Erro ao excluir produto");
+            },
+          });
+        }}
+      >
+        <h3>Tem certeza que deseja excluir o produto?</h3>
+        <p>
+          O produto <strong>{product.title}</strong> será excluído permanentemente.
+          Esta ação não pode ser desfeita.
+        </p>
+      </Alert>,
+      {
+        title: "Confirmar exclusão",
+      }
+    );
   };
 
   const mainImageUrl =
@@ -578,7 +594,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
         <MenuItem
           component={Link}
-          to={`/interno/produtos/${product.product_id}`}
+          to={`/interno/produtos/gestao/${product.product_id}`}
           onClick={handleMenuClose}
         >
           <Svg.eye tailWindClasses="w-4 h-4 mr-2" />
@@ -594,7 +610,11 @@ export default function ProductCard({ product }: ProductCardProps) {
             Controle de estoque
           </MenuItem>
         )}
-        <MenuItem onClick={handleMenuClose}>
+        <MenuItem
+          component={Link}
+          to={`/interno/produtos/editar/${product.product_id}`}
+          onClick={handleMenuClose}
+        >
           <Svg.pencil tailWindClasses="w-4 h-4 mr-2" />
           Editar produto
         </MenuItem>
@@ -604,19 +624,6 @@ export default function ProductCard({ product }: ProductCardProps) {
         </MenuItem>
       </Menu>
 
-      <Alert
-        isOpen={showDeleteAlert}
-        onClose={() => setShowDeleteAlert(false)}
-        onConfirm={handleConfirmDelete}
-        type="warning"
-        title="Confirmar exclusão"
-      >
-        <h3>Tem certeza que deseja excluir o produto?</h3>
-        <p>
-          O produto <strong>{product.title}</strong> será excluído permanentemente.
-          Esta ação não pode ser desfeita.
-        </p>
-      </Alert>
     </>
   );
 }

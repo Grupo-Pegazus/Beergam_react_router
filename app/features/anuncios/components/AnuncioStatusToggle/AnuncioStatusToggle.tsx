@@ -165,7 +165,6 @@ export default function AnuncioStatusToggle({
 
 /**
  * Função utilitária para obter mensagem de status baseada no status e substatus
- * Seguindo Single Responsibility Principle
  */
 function getStatusMessage(status: string, subStatus: string[]): string | null {
   const normalizedStatus = status.toLowerCase().replace(/\s+/g, "_");

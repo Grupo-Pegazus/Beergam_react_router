@@ -3,14 +3,12 @@ import type { Attribute } from "../typings";
 
 interface DeleteAttributeModalProps {
   attribute: Attribute;
-  isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
 }
 
 export default function DeleteAttributeModal({
   attribute,
-  isOpen,
   onClose,
   onConfirm,
 }: DeleteAttributeModalProps) {
@@ -19,11 +17,8 @@ export default function DeleteAttributeModal({
   if (hasRelatedProducts) {
     return (
       <Alert
-        isOpen={isOpen}
         onClose={onClose}
         type="warning"
-        title="Não é possível excluir este atributo"
-        confirmText={undefined}
       >
         <h3 className="font-semibold text-lg mb-2">
           Este atributo está sendo usado por {attribute.related_products_count} produto(s)/variação(ões)
@@ -56,11 +51,10 @@ export default function DeleteAttributeModal({
 
   return (
     <Alert
-      isOpen={isOpen}
       onClose={onClose}
       onConfirm={onConfirm}
       type="warning"
-      title="Confirmar exclusão"
+      confirmText="Excluir"
     >
       <h3 className="font-semibold text-lg mb-2">
         Tem certeza que deseja excluir o atributo?

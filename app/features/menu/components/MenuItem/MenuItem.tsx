@@ -90,6 +90,8 @@ export default function MenuItem({ item, itemKey, parentKey, className = "" }: I
   // Verifica acesso: se tem parentKey, verifica o acesso do pai
   // Se não tem parentKey, verifica o acesso direto
   const isVisible = checkItemAccess(itemKey, parentKey, views);
+  // Verifica se o item deve aparecer no menu
+  const showMenu = item.showMenu !== false; // Por padrão é true
   const open = openMap[currentKey] ?? false;
   const isSelected = currentSelected[currentKey] ?? false;
   const icon = item.icon
@@ -97,7 +99,9 @@ export default function MenuItem({ item, itemKey, parentKey, className = "" }: I
       ? getIcon((item.icon + "_solid") as keyof typeof Svg)
       : getIcon(item.icon)
     : undefined;
-  if (!isVisible) return null;
+  
+  // Não renderiza se não tiver acesso ou se showMenu for false
+  if (!isVisible || !showMenu) return null;
 
   return (
     <li
@@ -167,15 +171,22 @@ export default function MenuItem({ item, itemKey, parentKey, className = "" }: I
           ].join(" ")}
         >
           <ul className="ml-4 mt-2 pl-2 border-l border-white/70">
-            {Object.entries(item.dropdown).map(([key, dropdownItem]) => (
-              <MenuItem
-                key={key}
-                item={dropdownItem}
-                itemKey={key}
-                parentKey={currentKey}
-                className={"after:content-[''] after:absolute after:left-[-10px] after:top-[50%] after:translate-y-[-50%] after:w-[10px] after:h-px after:bg-beergam-white"}
-              />
-            ))}
+            {Object.entries(item.dropdown)
+              .filter(([, dropdownItem]) => {
+                // Filtra por launched e showMenu
+                const isLaunched = dropdownItem.launched !== false;
+                const shouldShowMenu = dropdownItem.showMenu !== false; // Por padrão é true
+                return isLaunched && shouldShowMenu;
+              })
+              .map(([key, dropdownItem]) => (
+                <MenuItem
+                  key={key}
+                  item={dropdownItem}
+                  itemKey={key}
+                  parentKey={currentKey}
+                  className={"after:content-[''] after:absolute after:left-[-10px] after:top-[50%] after:translate-y-[-50%] after:w-[10px] after:h-px after:bg-beergam-white"}
+                />
+              ))}
           </ul>
         </div>
       )}

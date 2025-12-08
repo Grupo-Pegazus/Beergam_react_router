@@ -29,11 +29,10 @@ export default function DeleteMarketaplceAccount({
 
   return (
     <Alert
-    isOpen={true}
-    onClose={handleCancelDelete}
-    onConfirm={handleConfirmDeleteClick}
-    type="warning"
-    title="Deletar conta do marketplace"
+      onClose={handleCancelDelete}
+      onConfirm={handleConfirmDeleteClick}
+      type="warning"
+      confirmText="Excluir"
     >
       <h3>Tem certeza que deseja deletar a conta do marketplace:</h3>
       <p className="text-center text-lg font-bold">

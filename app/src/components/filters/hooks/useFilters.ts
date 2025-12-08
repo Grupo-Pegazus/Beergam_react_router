@@ -7,9 +7,6 @@ import type {
 
 /**
  * Hook genérico para gerenciar estado de filtros
- * Seguindo princípios SOLID:
- * - Single Responsibility: gerencia apenas estado de filtros
- * - Open/Closed: extensível via sanitize e onApply
  */
 export function useFilters<T extends FiltersState = FiltersState>(
   options: UseFiltersOptions<T>,

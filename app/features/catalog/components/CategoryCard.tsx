@@ -4,6 +4,7 @@ import { useDeleteCategory } from "../hooks";
 import toast from "~/src/utils/toast";
 import DeleteCategoryModal from "./DeleteCategoryModal";
 import RelatedEntityCardBase from "./RelatedEntityCardBase";
+import { useModal } from "~/src/components/utils/Modal/useModal";
 
 interface CategoryCardProps {
   category: Category;
@@ -18,8 +19,8 @@ export default function CategoryCard({
   isExpanded = false,
   onToggleExpand,
 }: CategoryCardProps) {
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const deleteCategoryMutation = useDeleteCategory();
+  const { openModal, closeModal } = useModal();
 
   const handleConfirmDelete = () => {
     toast.promise(deleteCategoryMutation.mutateAsync(category.id), {
@@ -28,7 +29,7 @@ export default function CategoryCard({
         if (!data.success) {
           throw new Error(data.message);
         }
-        setShowDeleteModal(false);
+        closeModal();
         return data.message || "Categoria excluída com sucesso";
       },
       error: (error: unknown) => {
@@ -38,6 +39,21 @@ export default function CategoryCard({
         return "Erro ao excluir categoria";
       },
     });
+  };
+
+  const handleDeleteClick = () => {
+    openModal(
+      <DeleteCategoryModal
+        category={category}
+        onClose={closeModal}
+        onConfirm={handleConfirmDelete}
+      />,
+      {
+        title: category.related_products_count > 0 
+          ? "Não é possível excluir esta categoria"
+          : "Confirmar exclusão",
+      }
+    );
   };
 
   const hasRelatedProducts = category.related_products_count > 0;
@@ -65,15 +81,8 @@ export default function CategoryCard({
         remainingCount={remainingCount > 0 ? remainingCount : undefined}
         remainingSuffix="produto(s)"
         onEdit={() => onEdit(category)}
-        onDelete={() => setShowDeleteModal(true)}
+        onDelete={handleDeleteClick}
         canDelete={canDelete}
-      />
-
-      <DeleteCategoryModal
-        category={category}
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={handleConfirmDelete}
       />
     </>
   );
