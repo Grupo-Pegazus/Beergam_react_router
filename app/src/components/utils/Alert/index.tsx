@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
 import type { SvgBaseProps } from "~/src/assets/svgs/IconBase";
+import { Fields } from "../_fields";
 import BeergamButton from "../BeergamButton";
+import { useModal } from "../Modal/useModal";
 function Icon({
   type,
   customIcon,
@@ -46,7 +48,10 @@ function Icon({
     </div>
   );
 }
-
+interface ConfirmInputProps {
+  placeholder: string;
+  valueToConfirm: string;
+}
 interface AlertProps {
   type?: "success" | "error" | "warning" | "info" | undefined;
   customIcon?: keyof typeof Svg;
@@ -57,12 +62,7 @@ interface AlertProps {
   cancelClassName?: string;
   confirmText?: string;
   confirmClassName?: string;
-  mutation?: {
-    reset: () => void;
-    isPending: boolean;
-    isSuccess: boolean;
-    isError: boolean;
-  } | null;
+  confirmInput?: ConfirmInputProps | null;
 }
 export default function Alert({
   type,
@@ -74,8 +74,10 @@ export default function Alert({
   confirmClassName,
   children,
   onClose,
-  mutation,
+  confirmInput,
 }: AlertProps) {
+  const { closeModal } = useModal();
+  const [inputText, setInputText] = useState("");
   return (
     <div className="flex flex-col items-center justify-center gap-4 w-full md:min-w-2xl">
       <div>
@@ -90,28 +92,32 @@ export default function Alert({
         />
       </div>
       <div className="flex text-center md:text-left flex-col items-center justify-center gap-2">
+        {/* {mutation && <p>Mutation:{JSON.stringify(mutation)}</p>} */}
         {children}
       </div>
-
+      {confirmInput && (
+        <Fields.wrapper className="w-full">
+          <Fields.input
+            placeholder={`Digite ${confirmInput.placeholder} para confirmar`}
+            name={confirmInput.valueToConfirm}
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+          />
+        </Fields.wrapper>
+      )}
       <div className="flex items-center justify-center gap-4">
         {onConfirm && (
           <BeergamButton
             onClick={() => {
               console.log("cliquei no confirm");
               onConfirm();
+              closeModal();
             }}
             mainColor="beergam-orange"
             title={confirmText ?? "Confirmar"}
             className={confirmClassName}
-            fetcher={
-              mutation
-                ? {
-                    fecthing: mutation.isPending,
-                    completed: mutation.isSuccess,
-                    error: mutation.isError,
-                    mutation: mutation,
-                  }
-                : undefined
+            disabled={
+              confirmInput ? inputText !== confirmInput.valueToConfirm : false
             }
           />
         )}

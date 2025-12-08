@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   type FieldErrors,
   type UseFormHandleSubmit,
@@ -11,10 +11,12 @@ import { z } from "zod";
 import { UserPasswordSchema } from "~/features/auth/typing";
 import type { MenuKeys, MenuState } from "~/features/menu/typings";
 import { MenuConfig } from "~/features/menu/typings";
+import authStore from "~/features/store-zustand";
 import AllowedTimes from "~/features/user/colab/components/ColabDetails/AllowedTimes";
 import AllowedViews from "~/features/user/colab/components/ColabDetails/AllowedViews";
 import ColabPhoto from "~/features/user/colab/components/ColabPhoto";
 import UserFields from "~/features/user/components/UserFields";
+import { createColabPhotoUploadService } from "~/features/user/service";
 import { getEmptyAllowedTimes } from "~/features/user/typings/AllowedTimes";
 import { UserStatus } from "~/features/user/typings/BaseUser";
 import {
@@ -24,7 +26,9 @@ import {
   type IColab,
 } from "~/features/user/typings/Colab";
 import Section from "~/src/components/ui/Section";
+import Upload from "~/src/components/utils/upload";
 import type { ColabAction } from "../../../../perfil/typings";
+
 const CreateColabSchema = ColabSchema.extend({
   password: UserPasswordSchema.optional().nullable(),
 });
@@ -48,12 +52,14 @@ export default function ColabForm({
   errors: FieldErrors<editColabFormData>;
   register: UseFormRegister<editColabFormData>;
 }) {
+  const updateColab = authStore.use.updateColab();
   const allowedViews = watch("details.allowed_views") ?? ({} as MenuState);
   const accessList = Object.keys(MenuConfig).map((key) => ({
     key,
     label: MenuConfig[key as MenuKeys].label,
     access: allowedViews?.[key as MenuKeys]?.access ?? false,
   }));
+  const [uploadVisible, setUploadVisible] = useState<boolean>(false);
   useEffect(() => {
     if (action === "Criar") {
       reset(getDefaultColab());
@@ -61,17 +67,41 @@ export default function ColabForm({
       reset(CreateColabSchema.safeParse(user).data);
     }
   }, [user, action]);
+  const colabPhotoUploadService = useMemo(
+    () => (user?.pin ? createColabPhotoUploadService(user.pin) : null),
+    [user?.pin]
+  );
+  const handleUploadSuccess = useCallback(
+    (ids: string[]) => {
+      if (!ids.length) {
+        return;
+      }
+      const newPhotoId = ids[0];
+      const newColab: IColab = {
+        ...user,
+        details: { ...user.details, photo_id: newPhotoId },
+      };
+      setValue("details.photo_id", newPhotoId);
+      updateColab(newColab);
+    },
+    [user]
+  );
+  const canUploadPhoto = useMemo(() => {
+    return action !== "Visualizar" && action !== "Criar";
+  }, [action]);
   return (
     <>
       <Section title="Dados do Colaborador" className="bg-beergam-white">
-        <div className="flex gap-4">
+        <div className="flex items-center flex-col md:flex-row gap-4">
           <ColabPhoto
             photo_id={watch("details.photo_id")}
             name={watch("name")}
             masterPin={watch("master_pin")}
             size="large"
+            canUploadPhoto={canUploadPhoto}
+            onClick={() => canUploadPhoto && setUploadVisible(!uploadVisible)}
           />
-          <div className="grid grid-cols-4 gap-4 overflow-visible">
+          <div className="grid w-full md:grid-cols-4 grid-cols-1 gap-4 overflow-visible">
             <UserFields
               label="Nome"
               {...register("name")}
@@ -95,7 +125,7 @@ export default function ColabForm({
               value={watch("status")}
               options={Object.keys(UserStatus).map((status) => ({
                 value: status,
-                label: status,
+                label: UserStatus[status as keyof typeof UserStatus],
               }))}
               canAlter={action !== "Visualizar"}
             />
@@ -135,6 +165,17 @@ export default function ColabForm({
               }
             );
           }}
+        />
+        <Upload
+          key={`upload-${user.pin}`}
+          isOpen={uploadVisible}
+          onClose={() => setUploadVisible(false)}
+          typeImport="internal"
+          service={colabPhotoUploadService}
+          maxFiles={1}
+          accept="image/*"
+          emptyStateLabel="Arraste ou selecione a nova foto do colaborador"
+          onUploadSuccess={handleUploadSuccess}
         />
       </Section>
     </>
