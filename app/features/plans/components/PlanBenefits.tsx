@@ -1,3 +1,4 @@
+import { Skeleton } from "@mui/material";
 import type { PlanBenefits } from "~/features/user/typings/BaseUser";
 import Svg from "~/src/assets/svgs/_index";
 function BenefitSpan({ text }: { text: string }) {
@@ -67,9 +68,37 @@ function BenefitText({
 }
 export default function PlanBenefitsCard({
   benefits,
+  loading = false,
 }: {
-  benefits: PlanBenefits;
+  benefits?: PlanBenefits | null;
+  loading?: boolean;
 }) {
+  if (loading) {
+    return (
+      <div className="grid grid-cols-2 gap-4">
+        <Skeleton variant="text" width={100} height={24} />
+        <Skeleton variant="text" width={100} height={24} />
+        <Skeleton variant="text" width={100} height={24} />
+        <Skeleton variant="text" width={100} height={24} />
+        <Skeleton variant="text" width={100} height={24} />
+        <Skeleton variant="text" width={100} height={24} />
+        <Skeleton variant="text" width={100} height={24} />
+        <Skeleton variant="text" width={100} height={24} />
+      </div>
+    );
+  }
+  if (!benefits || loading) {
+    return (
+      <div className="grid grid-cols-2 gap-4">
+        <Skeleton variant="text" width={100} height={24} />
+        <Skeleton variant="text" width={100} height={24} />
+        <Skeleton variant="text" width={100} height={24} />
+        <Skeleton variant="text" width={100} height={24} />
+        <Skeleton variant="text" width={100} height={24} />
+        <Skeleton variant="text" width={100} height={24} />
+      </div>
+    );
+  }
   return Object.entries(benefits).map(([key, value]) => (
     <div key={key} className="flex items-center gap-2">
       <div className="flex items-center gap-1">

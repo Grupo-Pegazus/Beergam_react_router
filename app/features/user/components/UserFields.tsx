@@ -1,7 +1,7 @@
+import { Skeleton } from "@mui/material";
 import { Fields } from "~/src/components/utils/_fields";
 import type { InputProps } from "~/src/components/utils/_fields/input";
 import Hint from "~/src/components/utils/Hint";
-
 interface UserFieldsProps extends InputProps {
   label: string;
   hint?: string;
@@ -9,6 +9,7 @@ interface UserFieldsProps extends InputProps {
   name: string;
   canAlter: boolean;
   nullable?: boolean;
+  loading?: boolean;
   options?: { value: string; label: string }[];
 }
 export default function UserFields({
@@ -21,6 +22,7 @@ export default function UserFields({
   value,
   nullable = false,
   hint,
+  loading = false,
   ...props
 }: UserFieldsProps) {
   const selectValue = value
@@ -28,7 +30,6 @@ export default function UserFields({
       ? value
       : String(value)
     : null;
-
   // Se não tiver options, adiciona a option "Selecione um campo"
   const listedOption = nullable
     ? [{ value: "", label: "Selecione um campo" }, ...(options || [])]
@@ -44,7 +45,9 @@ export default function UserFields({
           />
         )}
       </div>
-      {options ? (
+      {loading ? (
+        <Skeleton variant="text" width="100%" height={56} />
+      ) : options ? (
         <>
           <Fields.select
             name={name}
