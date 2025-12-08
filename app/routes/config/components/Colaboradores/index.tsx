@@ -178,6 +178,7 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
         actions={
           <BeergamButton
             title="Criar Colaborador"
+            icon="user_plus"
             onClick={() => {
               setCurrentColab({ colab: null, action: "Criar" });
               setTimeout(() => {
@@ -190,7 +191,6 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
           />
         }
       >
-        <p>Quantidade de colaboradores registrados: {colabs.length}</p>
         <ColabListMobile
           colabs={colabs}
           currentAction={currentColab.action ?? null}
@@ -214,39 +214,64 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
         actions={
           (currentColab.action === "Editar" ||
             currentColab.action === "Criar") && (
-            <BeergamButton
-              title="Salvar Informações"
-              fetcher={{
-                fecthing:
-                  currentColab.action === "Criar"
-                    ? createColabMutation.isPending
-                    : updateColabMutation.isPending,
-                completed:
-                  currentColab.action === "Criar"
-                    ? createColabMutation.isSuccess
-                    : updateColabMutation.isSuccess,
-                error:
-                  currentColab.action === "Criar"
-                    ? createColabMutation.isError
-                    : updateColabMutation.isError,
-                mutation:
-                  currentColab.action === "Criar"
-                    ? createColabMutation
-                    : updateColabMutation,
-              }}
-              onClick={() => {
-                handleSubmit(onSubmit, (errors) => {
-                  toast.error("Você possui erros pendentes no formulário.");
-                  console.warn("Erros de validação:", errors);
-                })();
-                // if (currentColab.action === "Criar") {
-                //   createColabMutation.mutate({
-                //     colab: watch(),
-                //     password: watch("password") ?? "",
-                //   });
-                // }
-              }}
-            />
+            <>
+              {currentColab.action == "Editar" && (
+                <BeergamButton
+                  title="Reverter"
+                  icon="arrow_uturn_left"
+                  mainColor="beergam-red"
+                  className="w-full md:w-auto"
+                  onClick={() => {
+                    if (currentColab.colab?.pin) {
+                      const originalColab = colabs.find(
+                        (colab) => colab.pin === currentColab.colab?.pin
+                      );
+                      if (originalColab) {
+                        // Cria uma nova referência do objeto para forçar rerender
+                        setCurrentColab({
+                          action: "Editar",
+                          colab: { ...originalColab },
+                        });
+                      }
+                    }
+                  }}
+                />
+              )}
+              <BeergamButton
+                title="Salvar Informações"
+                icon="pencil_solid"
+                fetcher={{
+                  fecthing:
+                    currentColab.action === "Criar"
+                      ? createColabMutation.isPending
+                      : updateColabMutation.isPending,
+                  completed:
+                    currentColab.action === "Criar"
+                      ? createColabMutation.isSuccess
+                      : updateColabMutation.isSuccess,
+                  error:
+                    currentColab.action === "Criar"
+                      ? createColabMutation.isError
+                      : updateColabMutation.isError,
+                  mutation:
+                    currentColab.action === "Criar"
+                      ? createColabMutation
+                      : updateColabMutation,
+                }}
+                onClick={() => {
+                  handleSubmit(onSubmit, (errors) => {
+                    toast.error("Você possui erros pendentes no formulário.");
+                    console.warn("Erros de validação:", errors);
+                  })();
+                  // if (currentColab.action === "Criar") {
+                  //   createColabMutation.mutate({
+                  //     colab: watch(),
+                  //     password: watch("password") ?? "",
+                  //   });
+                  // }
+                }}
+              />
+            </>
           )
         }
         className="bg-beergam-white"

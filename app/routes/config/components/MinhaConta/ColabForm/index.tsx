@@ -64,14 +64,14 @@ export default function ColabForm({
   return (
     <>
       <Section title="Dados do Colaborador" className="bg-beergam-white">
-        <div className="flex gap-4">
+        <div className="flex items-center flex-col md:flex-row gap-4">
           <ColabPhoto
             photo_id={watch("details.photo_id")}
             name={watch("name")}
             masterPin={watch("master_pin")}
             size="large"
           />
-          <div className="grid grid-cols-4 gap-4 overflow-visible">
+          <div className="grid w-full md:grid-cols-4 grid-cols-1 gap-4 overflow-visible">
             <UserFields
               label="Nome"
               {...register("name")}
@@ -95,7 +95,7 @@ export default function ColabForm({
               value={watch("status")}
               options={Object.keys(UserStatus).map((status) => ({
                 value: status,
-                label: status,
+                label: UserStatus[status as keyof typeof UserStatus],
               }))}
               canAlter={action !== "Visualizar"}
             />

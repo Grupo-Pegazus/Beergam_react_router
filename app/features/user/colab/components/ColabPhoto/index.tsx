@@ -21,7 +21,7 @@ export default function ColabPhoto({
   }, [masterPin, photo_id, name]);
   return (
     <div
-      className={`rounded-full relative object-cover object-center ${photo_id ? "bg-transparent" : "bg-beergam-orange"} flex items-center justify-center ${size === "small" ? "min-w-6 min-h-6" : size === "medium" ? "min-w-10 min-h-10" : "min-w-20 min-h-20"}`}
+      className={`rounded-full relative object-cover object-center ${photo_id ? "bg-transparent" : "bg-beergam-orange"} flex items-center justify-center ${size === "small" ? "min-w-6 min-h-6 max-w-6 max-h-6" : size === "medium" ? "min-w-10 min-h-10 max-w-10 max-h-10" : "min-w-20 min-h-20 max-w-20 max-h-20"}`}
     >
       {!colabPhotoUrl ? (
         <h4 className={`text-white ${size === "large" && "text-2xl"}`}>

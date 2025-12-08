@@ -6,7 +6,7 @@ import authStore from "~/features/store-zustand";
 import UserFields from "~/features/user/components/UserFields";
 import { userService } from "~/features/user/service";
 import { UserStatus } from "~/features/user/typings/BaseUser";
-import { type IColab } from "~/features/user/typings/Colab";
+import { ColabLevel, type IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
 import { isMaster } from "~/features/user/utils";
 import type { ColabAction } from "~/routes/perfil/typings";
@@ -24,6 +24,10 @@ type ColabListMobileProps = {
   onAction: (params: { action: ColabAction; colab: IColab }) => void;
 };
 
+type FilterState = {
+  status: UserStatus | null;
+  level: ColabLevel | null;
+};
 export default function ColabListMobile({
   colabs,
   currentColabPin,
@@ -38,6 +42,11 @@ export default function ColabListMobile({
   const listRef = useRef<HTMLDivElement>(null);
   const { openModal, closeModal } = useModal();
   const user = authStore.use.user();
+  const filterInitialState = {
+    status: null,
+    level: null,
+  };
+  const [filter, setFilter] = useState<FilterState>(filterInitialState);
   const deleteColabMutation = useMutation({
     mutationFn: (colab: IColab) => userService.deleteColab(colab.pin ?? ""),
     onSuccess: (data, colab) => {
@@ -69,15 +78,22 @@ export default function ColabListMobile({
       colab.pin?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const filteredColabsWithFilters = useMemo(() => {
+    return filteredColabs.filter((colab) => {
+      if (filter.status && colab.status !== filter.status) return false;
+      if (filter.level && colab.details.level !== filter.level) return false;
+      return true;
+    });
+  }, [filteredColabs, filter]);
   // Resetar página quando a busca mudar
   useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, [search, filter]);
 
   // Calcular colaboradores visíveis na página atual
   const startIndex = (page - 1) * ROWS_PER_PAGE;
   const endIndex = startIndex + ROWS_PER_PAGE;
-  const visibleColabs = filteredColabs.slice(startIndex, endIndex);
+  const visibleColabs = filteredColabsWithFilters.slice(startIndex, endIndex);
 
   // Garantir que sempre temos 4 slots (preencher com null se necessário)
   const slots: (IColab | null)[] = Array.from(
@@ -85,7 +101,9 @@ export default function ColabListMobile({
     (_, i) => visibleColabs[i] || null
   );
 
-  const totalPages = Math.ceil(filteredColabs.length / ROWS_PER_PAGE);
+  const totalPages = Math.ceil(
+    filteredColabsWithFilters.length / ROWS_PER_PAGE
+  );
 
   const handlePageChange = (
     _event: React.ChangeEvent<unknown>,
@@ -117,7 +135,7 @@ export default function ColabListMobile({
   return (
     <div ref={searchRef} className="flex flex-col gap-4 w-full">
       {/* Barra de pesquisa */}
-      <div className="grid grid-cols-[1fr_0.4fr_0.4fr] gap-2 items-center">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_400px] gap-2 items-center">
         <UserFields
           label="Pesquisar"
           value={search}
@@ -126,26 +144,36 @@ export default function ColabListMobile({
           name="search"
           canAlter={true}
         />
-        <UserFields
-          value={null}
-          label="Status"
-          nullable
-          canAlter
-          options={Object.keys(UserStatus).map((status) => ({
-            value: status,
-            label: status,
-          }))}
-        />
-        <UserFields
-          value={null}
-          label="Nivel"
-          nullable
-          canAlter
-          options={Object.keys(UserStatus).map((status) => ({
-            value: status,
-            label: status,
-          }))}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <UserFields
+            value={filter.status || ""}
+            label="Status"
+            name="filter-status"
+            nullable
+            canAlter
+            options={Object.keys(UserStatus).map((status) => ({
+              value: status,
+              label: UserStatus[status as keyof typeof UserStatus],
+            }))}
+            onChange={(e) =>
+              setFilter({ ...filter, status: e.target.value as UserStatus })
+            }
+          />
+          <UserFields
+            value={filter.level ?? ""}
+            label="Nivel"
+            name="filter-level"
+            nullable
+            canAlter
+            options={Object.keys(ColabLevel).map((level) => ({
+              value: level,
+              label: ColabLevel[level as keyof typeof ColabLevel],
+            }))}
+            onChange={(e) =>
+              setFilter({ ...filter, level: e.target.value as ColabLevel })
+            }
+          />
+        </div>
       </div>
 
       {/* Lista de colaboradores */}
@@ -266,7 +294,7 @@ export default function ColabListMobile({
       </div>
 
       {/* Paginação */}
-      {filteredColabs.length > 0 && totalPages > 1 && (
+      {filteredColabsWithFilters.length > 0 && totalPages > 1 && (
         <div className="flex justify-center">
           <Pagination
             count={totalPages}
@@ -290,7 +318,8 @@ export default function ColabListMobile({
         </div>
       )}
       <p>
-        {filteredColabs.length} de {colabs.length} colaboradores encontrados
+        {filteredColabsWithFilters.length} de {colabs.length} colaboradores
+        encontrados
       </p>
     </div>
   );
