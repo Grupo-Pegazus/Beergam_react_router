@@ -116,6 +116,36 @@ export function useUpdateSku() {
   });
 }
 
+export function useUpdateSkuWithMlb() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (adIds: string[]) => {
+      const res = await anuncioService.updateSkuWithMlb(adIds);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao atualizar SKU com MLB");
+      }
+      return res;
+    },
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ["anuncios", "without-sku"] });
+      queryClient.invalidateQueries({ queryKey: ["anuncios"] });
+      
+      // Invalida queries de detalhes para os anúncios atualizados
+      response.data?.updated.forEach((adId) => {
+        queryClient.invalidateQueries({ queryKey: ["anuncios", "details", adId] });
+      });
+
+      const message = response.data?.message || "SKU atualizado com sucesso";
+      toast.success(message);
+    },
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "Erro ao atualizar SKU com MLB";
+      toast.error(message);
+    },
+  });
+}
+
 export function useAnuncioDetails(anuncioId: string) {
   return useQuery<ApiResponse<AnuncioDetails>>({
     queryKey: ["anuncios", "details", anuncioId],

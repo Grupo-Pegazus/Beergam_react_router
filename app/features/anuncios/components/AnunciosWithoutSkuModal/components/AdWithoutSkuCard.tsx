@@ -4,6 +4,7 @@ import type { AdWithoutSku } from "../../../typings";
 import VariationsGroup from "../Variations/VariationsGroup";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 import BeergamButton from "~/src/components/utils/BeergamButton";
+import { useUpdateSkuWithMlb } from "../../../hooks";
 
 interface AdWithoutSkuCardProps {
   ad: AdWithoutSku;
@@ -22,6 +23,12 @@ export default function AdWithoutSkuCard({
   isSaving,
   hasPendingChanges,
 }: AdWithoutSkuCardProps) {
+  const updateSkuWithMlbMutation = useUpdateSkuWithMlb();
+
+  const handleUpdateSkuWithMlb = async () => {
+    await updateSkuWithMlbMutation.mutateAsync([ad.mlb]);
+  };
+
   return (
     <MainCards>
       <div className="mb-4 flex flex-col md:flex-row md:items-start md:justify-between gap-3">
@@ -43,22 +50,43 @@ export default function AdWithoutSkuCard({
             {ad?.variations_without_sku?.length ?? 0} variação(ões) sem SKU
           </Typography>
         </div>
-        {hasPendingChanges && (
+        <div className="flex flex-col sm:flex-row gap-2 shrink-0">
           <BeergamButton
-            title={isSaving ? "Salvando..." : "Salvar SKUs"}
-            mainColor="beergam-blue-primary"
-            animationStyle="slider"
-            onClick={onSave}
-            disabled={isSaving}
-            className="text-sm w-full md:w-auto shrink-0"
+            title={updateSkuWithMlbMutation.isPending ? "Atualizando..." : "Usar MLB como SKU"}
+            mainColor="beergam-orange"
+            icon="arrow_path"
+            onClick={handleUpdateSkuWithMlb}
+            disabled={updateSkuWithMlbMutation.isPending || isSaving}
+            className="text-sm w-full md:w-auto"
             fetcher={{
-              fecthing: isSaving,
+              fecthing: updateSkuWithMlbMutation.isPending,
               completed: false,
               error: false,
-              mutation: { reset: () => {}, isPending: isSaving, isSuccess: false, isError: false },
+              mutation: {
+                reset: () => {},
+                isPending: updateSkuWithMlbMutation.isPending,
+                isSuccess: false,
+                isError: false,
+              },
             }}
           />
-        )}
+          {hasPendingChanges && (
+            <BeergamButton
+              title={isSaving ? "Salvando..." : "Salvar SKUs"}
+              mainColor="beergam-blue-primary"
+              animationStyle="slider"
+              onClick={onSave}
+              disabled={isSaving || updateSkuWithMlbMutation.isPending}
+              className="text-sm w-full md:w-auto"
+              fetcher={{
+                fecthing: isSaving,
+                completed: false,
+                error: false,
+                mutation: { reset: () => {}, isPending: isSaving, isSuccess: false, isError: false },
+              }}
+            />
+          )}
+        </div>
       </div>
 
       {ad.variations_without_sku && ad.variations_without_sku.length > 0 && (

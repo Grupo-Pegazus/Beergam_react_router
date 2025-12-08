@@ -23,6 +23,20 @@ export interface TopSoldAd {
   geral_visits: number;
 }
 
+export interface UpdateSkuWithMlbResponse {
+  success: boolean;
+  message: string;
+  updated: string[];
+  not_found: string[];
+  errors: string[];
+  summary: {
+    total_processed: number;
+    total_updated: number;
+    total_not_found: number;
+    total_errors: number;
+  };
+}
+
 class AnuncioService {
   async getAnuncios(filters?: Partial<AdsFilters>): Promise<ApiResponse<AdsResponse>> {
     const params = new URLSearchParams();
@@ -87,6 +101,14 @@ class AnuncioService {
       request
     );
     return response as ApiResponse<{ success: boolean; message?: string }>;
+  }
+
+  async updateSkuWithMlb(adIds: string[]): Promise<ApiResponse<UpdateSkuWithMlbResponse>> {
+    const response = await typedApiClient.post<UpdateSkuWithMlbResponse>(
+      "/v1/ads/update-sku-with-mlb",
+      { ad_ids: adIds }
+    );
+    return response as ApiResponse<UpdateSkuWithMlbResponse>;
   }
 
   async getAdOrdersChart(
