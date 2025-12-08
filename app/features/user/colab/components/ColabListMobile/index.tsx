@@ -48,7 +48,7 @@ export default function ColabListMobile({
       toast.success(data.message);
       setTimeout(() => {
         onAction({ action: "Excluir", colab: colab });
-        closeModal();
+        // closeModal();
       }, 500);
     },
     onError: (error) => {
@@ -117,10 +117,11 @@ export default function ColabListMobile({
   return (
     <div ref={searchRef} className="flex flex-col gap-4 w-full">
       {/* Barra de pesquisa */}
-      <div className="flex gap-2 items-center">
+      <div className="grid grid-cols-[1fr_0.4fr_0.4fr] gap-2 items-center">
         <UserFields
           label="Pesquisar"
           value={search}
+          placeholder="Pesquisar colaborador por nome ou pin"
           onChange={(e) => setSearch(e.target.value)}
           name="search"
           canAlter={true}
@@ -150,10 +151,10 @@ export default function ColabListMobile({
       {/* Lista de colaboradores */}
       <div
         ref={listRef}
-        className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4"
+        className={`grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 ${filteredColabs.length === 0 ? "grid-cols-1!" : ""}`}
       >
         {filteredColabs.length === 0 ? (
-          <Paper className="p-6 text-center">
+          <Paper className="p-6 text-center w-full">
             <p className="text-beergam-gray">Nenhum colaborador encontrado</p>
           </Paper>
         ) : (
@@ -195,10 +196,13 @@ export default function ColabListMobile({
                           type="warning"
                           confirmText="Excluir"
                           onClose={closeModal}
-                          mutation={deleteColabMutation}
                           onConfirm={() => {
                             if (!colab) return;
                             deleteColabMutation.mutate(colab);
+                          }}
+                          confirmInput={{
+                            placeholder: "o PIN do colaborador desejado",
+                            valueToConfirm: colab.pin ?? "",
                           }}
                         >
                           <DeleteColab colab={colab} />
@@ -285,6 +289,9 @@ export default function ColabListMobile({
           />
         </div>
       )}
+      <p>
+        {filteredColabs.length} de {colabs.length} colaboradores encontrados
+      </p>
     </div>
   );
 }
