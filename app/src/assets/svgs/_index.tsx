@@ -10,6 +10,8 @@ import BoxIconSolid from "./BoxIconSolid";
 import BuildingLibrary from "./BuildingLibrary";
 import CalculatorIcon from "./Calculator";
 import CalculatorSolid from "./CalculatorSolid";
+import Camera from "./Camera";
+import CameraSolid from "./CameraSolid";
 import CardIcon from "./CardIcon";
 import CardSolid from "./CardSolid";
 import ChatIcon from "./ChatIcon";
@@ -127,6 +129,8 @@ const Svg = {
   check_solid: CheckSolid,
   arrow_uturn_right: ArrowUturnRight,
   hamburguer: Hamburguer,
+  camera: Camera,
+  camera_solid: CameraSolid,
 };
 
 export default Svg;
