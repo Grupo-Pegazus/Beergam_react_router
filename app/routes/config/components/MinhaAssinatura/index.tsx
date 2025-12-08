@@ -1,39 +1,57 @@
-import { useEffect, useState } from "react";
-import { subscriptionService } from "~/features/plans/subscriptionService";
-import type { Subscription } from "~/features/user/typings/BaseUser";
-import Svg from "~/src/assets/svgs/_index";
-import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import MinhaAssinaturaSkeleton from "./skeleton";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import PlanBenefitsCard from "~/features/plans/components/PlanBenefits";
+import { plansService } from "~/features/plans/service";
+import { subscriptionService } from "~/features/plans/subscriptionService";
+import UserFields from "~/features/user/components/UserFields";
+import type { Subscription } from "~/features/user/typings/BaseUser";
 import { SubscriptionStatus } from "~/features/user/typings/BaseUser";
-
-
-const openCenteredWindow = (url: string, width: number = 800, height: number = 800) => {
-
+import Section from "~/src/components/ui/Section";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import PlansCardMini from "./PlansCardMini";
+import MinhaAssinaturaSkeleton from "./skeleton";
+const openCenteredWindow = (
+  url: string,
+  width: number = 800,
+  height: number = 800
+) => {
   const left = (window.screen.width - width) / 2;
   const top = (window.screen.height - height) / 2;
-  
+
   const windowFeatures = [
     `width=${width}`,
     `height=${height}`,
     `left=${left}`,
     `top=${top}`,
-    'toolbar=no',
-    'location=no',
-    'directories=no',
-    'status=no',
-    'menubar=no',
-    'scrollbars=yes',
-    'resizable=yes'
-  ].join(',');
+    "toolbar=no",
+    "location=no",
+    "directories=no",
+    "status=no",
+    "menubar=no",
+    "scrollbars=yes",
+    "resizable=yes",
+  ].join(",");
 
-  return window.open(url, '_blank', windowFeatures);
+  return window.open(url, "_blank", windowFeatures);
 };
 
 export default function MinhaAssinatura() {
   const [isBillingLoading, setIsBillingLoading] = useState(false);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const { data: subscriptionResponse, isLoading: isLoadingSubscription, isError: isErrorSubscription } = useQuery({
+  const {
+    data: plans,
+    isLoading: isLoadingPlans,
+    isError: isErrorPlans,
+  } = useQuery({
+    queryKey: ["plans"],
+    queryFn: plansService.getPlans,
+  });
+  const {
+    data: subscriptionResponse,
+    isLoading: isLoadingSubscription,
+    isError: isErrorSubscription,
+  } = useQuery({
     queryKey: ["subscriptionResponse"],
     queryFn: subscriptionService.getSubscription,
   });
@@ -47,7 +65,9 @@ export default function MinhaAssinatura() {
     const hasValidSubscription = Boolean(
       subscriptionResponse.success && data && data.plan
     );
-    setSubscription(hasValidSubscription ? (subscriptionResponse.data as Subscription) : null);
+    setSubscription(
+      hasValidSubscription ? (subscriptionResponse.data as Subscription) : null
+    );
   }, [subscriptionResponse]);
   const isError = isErrorSubscription;
   if (isLoadingSubscription) {
@@ -57,8 +77,12 @@ export default function MinhaAssinatura() {
     return (
       <div className="flex flex-col gap-4 items-center justify-center py-8">
         <div className="text-center max-w-md">
-          <h3 className="text-beergam-red text-xl font-bold mb-2">Erro ao buscar assinatura</h3>
-          <p className="text-beergam-gray mb-6">Tente novamente em alguns instantes.</p>
+          <h3 className="text-beergam-red text-xl font-bold mb-2">
+            Erro ao buscar assinatura
+          </h3>
+          <p className="text-beergam-gray mb-6">
+            Tente novamente em alguns instantes.
+          </p>
         </div>
       </div>
     );
@@ -75,10 +99,9 @@ export default function MinhaAssinatura() {
     setIsBillingLoading(true);
     try {
       const returnUrl = `${window.location.origin}/interno/perfil`;
-      
-      const response = await subscriptionService.createBillingPortalSession(
-        returnUrl
-      );
+
+      const response =
+        await subscriptionService.createBillingPortalSession(returnUrl);
 
       if (response.success && response.data) {
         openCenteredWindow(response.data.url);
@@ -88,7 +111,9 @@ export default function MinhaAssinatura() {
       }
     } catch (error) {
       console.error("Erro ao abrir portal de billing:", error);
-      alert("Erro ao acessar o portal de billing. Tente novamente em alguns instantes.");
+      alert(
+        "Erro ao acessar o portal de billing. Tente novamente em alguns instantes."
+      );
     } finally {
       setIsBillingLoading(false);
     }
@@ -118,10 +143,11 @@ export default function MinhaAssinatura() {
    */
   const isSubscriptionActive = (subscription: Subscription): boolean => {
     const now = new Date();
-    const endDate = typeof subscription.end_date === "string" 
-      ? new Date(subscription.end_date) 
-      : subscription.end_date;
-    
+    const endDate =
+      typeof subscription.end_date === "string"
+        ? new Date(subscription.end_date)
+        : subscription.end_date;
+
     return endDate > now;
   };
 
@@ -133,9 +159,10 @@ export default function MinhaAssinatura() {
             Nenhuma Assinatura Ativa
           </h3>
           <p className="text-beergam-gray mb-6">
-            Você ainda não possui uma assinatura ativa. Assine um plano para começar a usar os recursos premium.
+            Você ainda não possui uma assinatura ativa. Assine um plano para
+            começar a usar os recursos premium.
           </p>
-          <button 
+          <button
             onClick={() => navigate("/interno/subscription")}
             className="inline-block bg-beergam-blue-primary hover:bg-beergam-orange text-beergam-white px-6 py-3 rounded-2xl font-medium transition-colors"
           >
@@ -148,228 +175,291 @@ export default function MinhaAssinatura() {
 
   const subscriptionActive = isSubscriptionActive(subscription);
   const inTrial = isInTrialPeriod(subscription);
-
   return (
-    <div className="flex flex-col gap-6 md:mb-0 mb-16">
-      {/* Header da assinatura */}
-      <div className="bg-beergam-blue-primary p-6 rounded-2xl text-white">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-2xl font-bold">Minha Assinatura</h3>
-          <div className={`px-4 py-2 rounded-full text-sm font-semibold ${
-            inTrial 
-              ? "bg-beergam-yellow text-white" 
-              : subscriptionActive 
-              ? "bg-beergam-green" 
-              : "bg-beergam-red"
-          }`}>
-            {inTrial ? "Período de Teste" : subscriptionActive ? "Ativa" : "Expirada"}
+    // <div className="flex flex-col gap-6 md:mb-0 mb-16">
+    //   {/* Header da assinatura */}
+    //   <div className="bg-beergam-blue-primary p-6 rounded-2xl text-white">
+    //     <div className="flex items-center justify-between mb-4">
+    //       <h3 className="text-2xl font-bold">Minha Assinatura</h3>
+    //       <div className={`px-4 py-2 rounded-full text-sm font-semibold ${
+    //         inTrial
+    //           ? "bg-beergam-yellow text-white"
+    //           : subscriptionActive
+    //           ? "bg-beergam-green"
+    //           : "bg-beergam-red"
+    //       }`}>
+    //         {inTrial ? "Período de Teste" : subscriptionActive ? "Ativa" : "Expirada"}
+    //       </div>
+    //     </div>
+
+    //     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    //       <div>
+    //         <p className="text-sm opacity-80 mb-1">Plano Atual</p>
+    //         <p className="text-xl font-bold">{subscription.plan.display_name}</p>
+    //       </div>
+    //       <div>
+    //         <p className="text-sm opacity-80 mb-1">Início</p>
+    //         <p className="text-lg font-semibold">{subscription.start_date ? formatDate(subscription.start_date) : "N/A"}</p>
+    //       </div>
+    //       <div>
+    //         <p className="text-sm opacity-80 mb-1">
+    //           {inTrial ? "Trial até" : "Renovação"}
+    //         </p>
+    //         <p className="text-lg font-semibold">
+    //           {subscription.end_date ? formatDate(subscription.end_date) : "N/A"}
+    //         </p>
+    //       </div>
+    //     </div>
+    //   </div>
+
+    //   {/* Benefícios do plano */}
+    //   <div className="bg-beergam-white p-6 rounded-2xl shadow-lg">
+    //     <h4 className="text-beergam-blue-primary font-bold text-lg mb-4">
+    //       Benefícios do Seu Plano
+    //     </h4>
+    //     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+    //       <div className="flex items-start gap-3">
+    //         <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
+    //           <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //         </div>
+    //         <p className="text-sm text-beergam-black-blue">
+    //           <span className="font-bold">{subscription.plan.benefits.ML_accounts}</span> contas de marketplace
+    //         </p>
+    //       </div>
+
+    //       <div className="flex items-start gap-3">
+    //         <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
+    //           <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //         </div>
+    //         <p className="text-sm text-beergam-black-blue">
+    //           <span className="font-bold">{subscription.plan.benefits.colab_accounts}</span> colaboradores
+    //         </p>
+    //       </div>
+
+    //       <div className="flex items-start gap-3">
+    //         <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
+    //           <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //         </div>
+    //         <p className="text-sm text-beergam-black-blue">
+    //           Monitoramento de <span className="font-bold">{subscription.plan.benefits.catalog_monitoring}</span> catálogos
+    //         </p>
+    //       </div>
+
+    //       <div className="flex items-start gap-3">
+    //         <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
+    //           <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //         </div>
+    //         <p className="text-sm text-beergam-black-blue">
+    //           <span className="font-bold">{subscription.plan.benefits.dias_historico_vendas}</span> dias de histórico de vendas
+    //         </p>
+    //       </div>
+
+    //       <div className="flex items-start gap-3">
+    //         <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
+    //           <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //         </div>
+    //         <p className="text-sm text-beergam-black-blue">
+    //           <span className="font-bold">{subscription.plan.benefits.marketplaces_integrados}</span> marketplaces integrados
+    //         </p>
+    //       </div>
+
+    //       <div className="flex items-start gap-3">
+    //         <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
+    //           <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //         </div>
+    //         <p className="text-sm text-beergam-black-blue">
+    //           Gestão financeira: <span className="font-bold">{subscription.plan.benefits.gestao_financeira}</span>
+    //         </p>
+    //       </div>
+
+    //       <div className="flex items-start gap-3">
+    //         <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+    //           subscription.plan.benefits.sincronizacao_estoque
+    //             ? "bg-beergam-green"
+    //             : "bg-beergam-red"
+    //         }`}>
+    //           {subscription.plan.benefits.sincronizacao_estoque ? (
+    //             <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //           ) : (
+    //             <Svg.x width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //           )}
+    //         </div>
+    //         <p className="text-sm text-beergam-black-blue">
+    //           Sincronização de estoque
+    //         </p>
+    //       </div>
+
+    //       <div className="flex items-start gap-3">
+    //         <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
+    //           <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //         </div>
+    //         <p className="text-sm text-beergam-black-blue">
+    //           <span className="font-bold">{subscription.plan.benefits.dias_registro_atividades}</span> dias de registro de atividades
+    //         </p>
+    //       </div>
+
+    //       <div className="flex items-start gap-3">
+    //         <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+    //           subscription.plan.benefits.clube_beergam
+    //             ? "bg-beergam-green"
+    //             : "bg-beergam-red"
+    //         }`}>
+    //           {subscription.plan.benefits.clube_beergam ? (
+    //             <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //           ) : (
+    //             <Svg.x width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //           )}
+    //         </div>
+    //         <p className="text-sm text-beergam-black-blue">
+    //           Clube Beergam
+    //         </p>
+    //       </div>
+
+    //       <div className="flex items-start gap-3">
+    //         <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+    //           subscription.plan.benefits.comunidade_beergam
+    //             ? "bg-beergam-green"
+    //             : "bg-beergam-red"
+    //         }`}>
+    //           {subscription.plan.benefits.comunidade_beergam ? (
+    //             <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //           ) : (
+    //             <Svg.x width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //           )}
+    //         </div>
+    //         <p className="text-sm text-beergam-black-blue">
+    //           Comunidade Beergam
+    //         </p>
+    //       </div>
+
+    //       <div className="flex items-start gap-3">
+    //         <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+    //           subscription.plan.benefits.ligacao_quinzenal
+    //             ? "bg-beergam-green"
+    //             : "bg-beergam-red"
+    //         }`}>
+    //           {subscription.plan.benefits.ligacao_quinzenal ? (
+    //             <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //           ) : (
+    //             <Svg.x width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //           )}
+    //         </div>
+    //         <p className="text-sm text-beergam-black-blue">
+    //           Ligação quinzenal
+    //         </p>
+    //       </div>
+
+    //       <div className="flex items-start gap-3">
+    //         <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+    //           subscription.plan.benefits.novidades_beta
+    //             ? "bg-beergam-green"
+    //             : "bg-beergam-red"
+    //         }`}>
+    //           {subscription.plan.benefits.novidades_beta ? (
+    //             <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //           ) : (
+    //             <Svg.x width={14} height={14} tailWindClasses="stroke-beergam-white" />
+    //           )}
+    //         </div>
+    //         <p className="text-sm text-beergam-black-blue">
+    //           Novidades Beta
+    //         </p>
+    //       </div>
+    //     </div>
+    //   </div>
+
+    //   {/* Botão de gerenciar billing */}
+    //   <div className="bg-beergam-white p-6 rounded-2xl shadow-lg">
+    //     <h4 className="text-beergam-blue-primary font-bold text-lg mb-4">
+    //       Gerenciar Assinatura
+    //     </h4>
+    //     <p className="text-beergam-gray text-sm mb-4">
+    //       Acesse o portal para atualizar métodos de pagamento, visualizar faturas,
+    //       alterar seu plano ou cancelar sua assinatura.
+    //     </p>
+    //       <button
+    //       onClick={handleManageBilling}
+    //       disabled={isBillingLoading}
+    //       className="w-full bg-beergam-blue-primary hover:bg-beergam-orange disabled:bg-beergam-gray text-beergam-white px-6 py-3 rounded-2xl font-medium transition-colors flex items-center justify-center gap-2 disabled:cursor-not-allowed"
+    //     >
+    //       {isBillingLoading ? (
+    //         <>
+    //           <Svg.arrow_path width={20} height={20} tailWindClasses="stroke-beergam-white animate-spin" />
+    //           <span>Carregando...</span>
+    //         </>
+    //       ) : (
+    //         <>
+    //           <Svg.card width={20} height={20} tailWindClasses="stroke-beergam-white" />
+    //           <span>Gerenciar Assinatura</span>
+    //         </>
+    //       )}
+    //     </button>
+    //   </div>
+    // </div>
+    <>
+      <Section
+        className="bg-beergam-white"
+        title="Informações da Assinatura"
+        actions={
+          <BeergamButton
+            title="Gerenciar Assinatura"
+            icon="card"
+            onClick={handleManageBilling}
+          />
+        }
+      >
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <UserFields
+              label="Status da Assinatura"
+              name="status"
+              canAlter={false}
+              value={
+                SubscriptionStatus[
+                  subscription.status as unknown as keyof typeof SubscriptionStatus
+                ]
+              }
+            />
+            <UserFields
+              label="Início"
+              name="start_date"
+              canAlter={false}
+              value={formatDate(subscription.start_date)}
+            />
+            <UserFields
+              label="Término"
+              name="end_date"
+              canAlter={false}
+              value={formatDate(subscription.end_date)}
+            />
+            <UserFields
+              label="Plano Atual"
+              name="plan_name"
+              canAlter={false}
+              value={subscription.plan.display_name}
+            />
           </div>
+          <Section title="Seus Benefícios">
+            <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+              <PlanBenefitsCard benefits={subscription.plan.benefits} />
+            </div>
+          </Section>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <p className="text-sm opacity-80 mb-1">Plano Atual</p>
-            <p className="text-xl font-bold">{subscription.plan.display_name}</p>
-          </div>
-          <div>
-            <p className="text-sm opacity-80 mb-1">Início</p>
-            <p className="text-lg font-semibold">{subscription.start_date ? formatDate(subscription.start_date) : "N/A"}</p>
-          </div>
-          <div>
-            <p className="text-sm opacity-80 mb-1">
-              {inTrial ? "Trial até" : "Renovação"}
-            </p>
-            <p className="text-lg font-semibold">
-              {subscription.end_date ? formatDate(subscription.end_date) : "N/A"}
-            </p>
-          </div>
+      </Section>
+      <Section title="Nossos Planos" className="bg-beergam-white">
+        <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+          {plans?.data
+            ?.filter((plan) => plan.display_name !== "Plano Estratégico")
+            ?.map((plan) => (
+              <PlansCardMini plan={plan} key={plan.display_name} />
+            ))}
         </div>
-      </div>
-
-      {/* Benefícios do plano */}
-      <div className="bg-beergam-white p-6 rounded-2xl shadow-lg">
-        <h4 className="text-beergam-blue-primary font-bold text-lg mb-4">
-          Benefícios do Seu Plano
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div className="flex items-start gap-3">
-            <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
-              <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
-            </div>
-            <p className="text-sm text-beergam-black-blue">
-              <span className="font-bold">{subscription.plan.benefits.ML_accounts}</span> contas de marketplace
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
-              <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
-            </div>
-            <p className="text-sm text-beergam-black-blue">
-              <span className="font-bold">{subscription.plan.benefits.colab_accounts}</span> colaboradores
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
-              <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
-            </div>
-            <p className="text-sm text-beergam-black-blue">
-              Monitoramento de <span className="font-bold">{subscription.plan.benefits.catalog_monitoring}</span> catálogos
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
-              <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
-            </div>
-            <p className="text-sm text-beergam-black-blue">
-              <span className="font-bold">{subscription.plan.benefits.dias_historico_vendas}</span> dias de histórico de vendas
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
-              <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
-            </div>
-            <p className="text-sm text-beergam-black-blue">
-              <span className="font-bold">{subscription.plan.benefits.marketplaces_integrados}</span> marketplaces integrados
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
-              <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
-            </div>
-            <p className="text-sm text-beergam-black-blue">
-              Gestão financeira: <span className="font-bold">{subscription.plan.benefits.gestao_financeira}</span>
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
-              subscription.plan.benefits.sincronizacao_estoque 
-                ? "bg-beergam-green" 
-                : "bg-beergam-red"
-            }`}>
-              {subscription.plan.benefits.sincronizacao_estoque ? (
-                <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
-              ) : (
-                <Svg.x width={14} height={14} tailWindClasses="stroke-beergam-white" />
-              )}
-            </div>
-            <p className="text-sm text-beergam-black-blue">
-              Sincronização de estoque
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <div className="shrink-0 w-6 h-6 bg-beergam-green rounded-full flex items-center justify-center">
-              <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
-            </div>
-            <p className="text-sm text-beergam-black-blue">
-              <span className="font-bold">{subscription.plan.benefits.dias_registro_atividades}</span> dias de registro de atividades
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
-              subscription.plan.benefits.clube_beergam 
-                ? "bg-beergam-green" 
-                : "bg-beergam-red"
-            }`}>
-              {subscription.plan.benefits.clube_beergam ? (
-                <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
-              ) : (
-                <Svg.x width={14} height={14} tailWindClasses="stroke-beergam-white" />
-              )}
-            </div>
-            <p className="text-sm text-beergam-black-blue">
-              Clube Beergam
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
-              subscription.plan.benefits.comunidade_beergam 
-                ? "bg-beergam-green" 
-                : "bg-beergam-red"
-            }`}>
-              {subscription.plan.benefits.comunidade_beergam ? (
-                <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
-              ) : (
-                <Svg.x width={14} height={14} tailWindClasses="stroke-beergam-white" />
-              )}
-            </div>
-            <p className="text-sm text-beergam-black-blue">
-              Comunidade Beergam
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
-              subscription.plan.benefits.ligacao_quinzenal 
-                ? "bg-beergam-green" 
-                : "bg-beergam-red"
-            }`}>
-              {subscription.plan.benefits.ligacao_quinzenal ? (
-                <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
-              ) : (
-                <Svg.x width={14} height={14} tailWindClasses="stroke-beergam-white" />
-              )}
-            </div>
-            <p className="text-sm text-beergam-black-blue">
-              Ligação quinzenal
-            </p>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
-              subscription.plan.benefits.novidades_beta 
-                ? "bg-beergam-green" 
-                : "bg-beergam-red"
-            }`}>
-              {subscription.plan.benefits.novidades_beta ? (
-                <Svg.check width={14} height={14} tailWindClasses="stroke-beergam-white" />
-              ) : (
-                <Svg.x width={14} height={14} tailWindClasses="stroke-beergam-white" />
-              )}
-            </div>
-            <p className="text-sm text-beergam-black-blue">
-              Novidades Beta
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Botão de gerenciar billing */}
-      <div className="bg-beergam-white p-6 rounded-2xl shadow-lg">
-        <h4 className="text-beergam-blue-primary font-bold text-lg mb-4">
-          Gerenciar Assinatura
-        </h4>
-        <p className="text-beergam-gray text-sm mb-4">
-          Acesse o portal para atualizar métodos de pagamento, visualizar faturas, 
-          alterar seu plano ou cancelar sua assinatura.
-        </p>
-          <button
-          onClick={handleManageBilling}
-          disabled={isBillingLoading}
-          className="w-full bg-beergam-blue-primary hover:bg-beergam-orange disabled:bg-beergam-gray text-beergam-white px-6 py-3 rounded-2xl font-medium transition-colors flex items-center justify-center gap-2 disabled:cursor-not-allowed"
-        >
-          {isBillingLoading ? (
-            <>
-              <Svg.arrow_path width={20} height={20} tailWindClasses="stroke-beergam-white animate-spin" />
-              <span>Carregando...</span>
-            </>
-          ) : (
-            <>
-              <Svg.card width={20} height={20} tailWindClasses="stroke-beergam-white" />
-              <span>Gerenciar Assinatura</span>
-            </>
-          )}
-        </button>
-      </div>
-    </div>
+        {plans?.data
+          ?.filter((plan) => plan.display_name === "Plano Estratégico")
+          ?.map((plan) => (
+            <PlansCardMini plan={plan} key={plan.display_name} />
+          ))}
+      </Section>
+    </>
   );
 }
-
