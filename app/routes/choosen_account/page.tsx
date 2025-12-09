@@ -127,7 +127,7 @@ export default function ChoosenAccountPage({
               </div>
               <button
                 onClick={() => {
-                  navigate("/interno/perfil");
+                  navigate("/interno/config");
                 }}
                 className="bg-beergam-blue-primary hover:bg-beergam-orange text-beergam-white px-3 py-2 rounded-md items-center gap-2 text-sm shrink-0 flex cursor-pointer"
               >

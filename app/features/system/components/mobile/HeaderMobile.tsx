@@ -60,7 +60,7 @@ export default function HeaderMobile() {
                   type="button"
                   aria-label="Abrir minha conta"
                   onClick={() => {
-                    navigate("/interno/perfil");
+                    navigate("/interno/config");
                     requestClose();
                   }}
                   className="w-full px-4 py-3 rounded-lg bg-beergam-blue-light text-beergam-blue-primary font-medium text-sm active:scale-[0.98] transition-transform"
