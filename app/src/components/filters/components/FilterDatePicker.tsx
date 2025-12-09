@@ -24,6 +24,7 @@ interface FilterDatePickerProps {
   disabled?: boolean;
   includeTime?: boolean;
   placeholder?: string;
+  widthType?: "fit" | "full";
 }
 
 
@@ -34,6 +35,7 @@ export function FilterDatePicker({
   disabled = false,
   includeTime = false,
   placeholder,
+  widthType = "fit",
 }: FilterDatePickerProps) {
   const inputType = includeTime ? "datetime-local" : "date";
 
@@ -47,6 +49,7 @@ export function FilterDatePicker({
         {label}
       </Typography>
       <Fields.input
+        widthType={widthType}
         type={inputType}
         value={inputValue}
         onChange={(e) => {

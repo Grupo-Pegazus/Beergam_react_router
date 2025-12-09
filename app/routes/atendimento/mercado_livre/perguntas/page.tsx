@@ -5,16 +5,13 @@ import Section from "~/src/components/ui/Section";
 import Grid from "~/src/components/ui/Grid";
 import { perguntasService } from "~/features/perguntas/service";
 import type {
-  Question,
   QuestionsFilters,
   QuestionsFiltersState,
   QuestionsInsights,
-  QuestionsMetricsResponse,
 } from "~/features/perguntas/typings";
 import { QuestionsFilters as QuestionsFiltersBar } from "~/features/perguntas/components/QuestionsFilters";
 import { QuestionsMetrics } from "~/features/perguntas/components/QuestionsMetrics";
 import { QuestionsList } from "~/features/perguntas/components/QuestionsList";
-import { AnswerModal } from "~/features/perguntas/components/AnswerModal";
 
 const DEFAULT_FILTERS: QuestionsFiltersState = {
   status: "",
@@ -47,16 +44,14 @@ function mapToApiFilters(filters: QuestionsFiltersState): Partial<QuestionsFilte
 
 export default function PerguntasPage() {
   const [filters, setFilters] = useState<QuestionsFiltersState>(DEFAULT_FILTERS);
-  const [questionToAnswer, setQuestionToAnswer] = useState<Question | null>(null);
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [appliedFilters, setAppliedFilters] = useState<QuestionsFiltersState>(DEFAULT_FILTERS);
   const queryClient = useQueryClient();
 
-  const apiFilters = useMemo(() => mapToApiFilters(filters), [filters]);
+  const apiFilters = useMemo(() => mapToApiFilters(appliedFilters), [appliedFilters]);
 
   const questionsQuery = useQuery({
     queryKey: ["questions", apiFilters],
     queryFn: () => perguntasService.list(apiFilters),
-    keepPreviousData: true,
   });
 
   const metricsQuery = useQuery({
@@ -69,57 +64,73 @@ export default function PerguntasPage() {
     (questionsQuery.data?.success ? questionsQuery.data.data.insights : undefined) ??
     (metricsQuery.data?.success ? metricsQuery.data.data.insights : undefined);
 
-  const metricsPayload: QuestionsMetricsResponse | null =
-    metricsQuery.data?.success && metricsQuery.data.data
-      ? metricsQuery.data.data
-      : null;
+  const questions = useMemo(() => {
+    if (!questionsQuery.data?.success) return [];
+    const qs = questionsQuery.data.data.questions;
+    return Array.isArray(qs) ? qs : [];
+  }, [questionsQuery.data]);
 
-  const questions = questionsQuery.data?.success ? questionsQuery.data.data.questions : [];
   const pagination = questionsQuery.data?.success ? questionsQuery.data.data.pagination : undefined;
 
   const answerMutation = useMutation({
     mutationFn: ({ questionId, answer }: { questionId: string; answer: string }) =>
       perguntasService.answer(questionId, answer),
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       if (!response.success) {
         toast.error(response.message || "Não foi possível enviar a resposta.");
-        return;
+        throw new Error(response.message || "Erro ao enviar resposta");
       }
       toast.success("Resposta enviada com sucesso.");
-      setQuestionToAnswer(null);
+      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      
       queryClient.invalidateQueries({ queryKey: ["questions"] });
       queryClient.invalidateQueries({ queryKey: ["questions_metrics"] });
+      await questionsQuery.refetch();
+      await metricsQuery.refetch();
     },
     onError: () => {
       toast.error("Erro ao enviar a resposta. Tente novamente.");
     },
   });
 
+  async function handleAnswer(questionId: string, answer: string) {
+    await answerMutation.mutateAsync({ questionId, answer });
+  }
+
   function handleFiltersChange(next: QuestionsFiltersState) {
     setFilters(next);
   }
 
   function applyFilters() {
-    setFilters((prev) => ({ ...prev, page: 1 }));
+    setAppliedFilters({ ...filters, page: 1 });
     queryClient.invalidateQueries({ queryKey: ["questions"] });
   }
 
   function resetFilters() {
     setFilters(DEFAULT_FILTERS);
+    setAppliedFilters(DEFAULT_FILTERS);
     queryClient.invalidateQueries({ queryKey: ["questions"] });
   }
 
   function handlePageChange(nextPage: number) {
     setFilters((prev) => ({ ...prev, page: nextPage }));
+    setAppliedFilters((prev) => ({ ...prev, page: nextPage }));
   }
 
   return (
     <>
       <Grid cols={{ base: 1 }} gap={4} className="mb-4">
-        <Section title="Visão geral">
+        <Section 
+          title="Visão geral"
+          actions={
+            <span className="text-xs text-slate-500">
+              Dados dos últimos 30 dias
+            </span>
+          }
+        >
           <QuestionsMetrics
             insights={insights}
-            metricsPayload={metricsPayload || undefined}
             loading={questionsQuery.isLoading || metricsQuery.isLoading}
           />
         </Section>
@@ -138,9 +149,14 @@ export default function PerguntasPage() {
         <Section
           title="Perguntas"
           actions={
-            <span className="text-xs text-slate-500">
-              {pagination ? `${pagination.total_count} encontradas` : "—"}
-            </span>
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-xs text-slate-500">
+                {pagination ? `${pagination.total_count} encontradas` : "—"}
+              </span>
+              <span className="text-xs text-slate-400">
+                Dados dos últimos 30 dias
+              </span>
+            </div>
           }
         >
           <QuestionsList
@@ -148,39 +164,10 @@ export default function PerguntasPage() {
             pagination={pagination}
             loading={questionsQuery.isLoading}
             onPageChange={handlePageChange}
-            onSelectToAnswer={(question) => setQuestionToAnswer(question)}
-            onSelectDetails={(question) => setSelectedQuestion(question)}
+            onAnswer={handleAnswer}
           />
         </Section>
-
-        {selectedQuestion ? (
-          <Section title="Detalhes do anúncio/pergunta">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-slate-700">
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
-                <p className="font-semibold text-slate-900 mb-1">Pergunta</p>
-                <p>{selectedQuestion.text}</p>
-                <p className="mt-2 text-xs text-slate-500">
-                  Criada em {selectedQuestion.date_created ?? "—"}
-                </p>
-              </div>
-              <div className="bg-white border border-slate-200 rounded-xl p-3">
-                <p className="font-semibold text-slate-900 mb-1">Anúncio</p>
-                <p className="text-slate-800">{selectedQuestion.item_title ?? "—"}</p>
-                <p className="text-xs text-slate-500">Item ID: {selectedQuestion.item_id ?? "—"}</p>
-                <p className="text-xs text-slate-500">Seller ID: {selectedQuestion.seller_id ?? "—"}</p>
-              </div>
-            </div>
-          </Section>
-        ) : null}
       </Grid>
-
-      <AnswerModal
-        open={Boolean(questionToAnswer)}
-        question={questionToAnswer}
-        onClose={() => setQuestionToAnswer(null)}
-        onSubmit={({ questionId, answer }) => answerMutation.mutate({ questionId, answer })}
-        loading={answerMutation.isLoading}
-      />
     </>
   );
 }

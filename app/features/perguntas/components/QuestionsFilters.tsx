@@ -16,17 +16,10 @@ interface QuestionsFiltersProps {
   isSubmitting?: boolean;
 }
 
-const ANSWERED_OPTIONS = [
-  { label: "Todas", value: "all" },
-  { label: "Respondidas", value: "answered" },
-  { label: "Pendentes", value: "unanswered" },
-];
-
 const STATUS_OPTIONS = [
   { label: "Todos", value: "" },
   { label: "Respondida", value: "ANSWERED" },
-  { label: "Sem resposta", value: "UNANSWERED" },
-  { label: "Bloqueada", value: "BANNED" },
+  { label: "Sem resposta", value: "UNANSWERED" }
 ];
 
 export function QuestionsFilters({
@@ -51,20 +44,24 @@ export function QuestionsFilters({
       spacing={2}
       alignItems="center"
     >
-      <div style={{ flex: 3 }}>
+      <div style={{ flex: 3 }} className="md:w-auto w-full">
         <FilterSearchInput
           value={value.text}
           onChange={(text) => handleChange("text", text)}
           label="Pesquisar pergunta"
           placeholder="Digite para buscar no texto da pergunta"
+          fullWidth={true}
+          widthType="full"
         />
       </div>
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1 }} className="md:w-auto w-full">
         <FilterSearchInput
           label="ID do item"
           value={value.item_id}
           onChange={(text) => handleChange("item_id", text)}
           placeholder="Digite o ID do item"
+          fullWidth={true}
+          widthType="full"
         />
       </div>
     </Stack>,
@@ -74,35 +71,35 @@ export function QuestionsFilters({
       spacing={2}
       alignItems="flex-end"
     >
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1 }} className="md:w-auto w-full">
         <FilterSelect
           value={value.status}
           onChange={(newValue) => handleChange("status", newValue ?? "")}
           label="Status"
           options={STATUS_OPTIONS}
           defaultValue=""
+          widthType="full"
         />
       </div>
-      <div style={{ flex: 1 }}>
-        <FilterSelect
-          value={value.answered}
-          onChange={(newValue) => handleChange("answered", newValue ?? "all")}
-          label="Resposta"
-          options={ANSWERED_OPTIONS}
-          defaultValue="all"
-        />
+      <div style={{ flex: 1 }} className="md:w-auto w-full">
       </div>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ flex: 2 }}>
-        <FilterDatePicker
-          label="Data inicial"
-          value={value.date_from ?? ""}
-          onChange={(date) => handleChange("date_from", date ?? undefined)}
-        />
-        <FilterDatePicker
-          label="Data final"
-          value={value.date_to ?? ""}
-          onChange={(date) => handleChange("date_to", date ?? undefined)}
-        />
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
+          <FilterDatePicker
+            label="Data inicial"
+            value={value.date_from ?? ""}
+            onChange={(date) => handleChange("date_from", date ?? undefined)}
+            widthType="full"
+          />
+        </div>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
+          <FilterDatePicker
+            label="Data final"
+            value={value.date_to ?? ""}
+            onChange={(date) => handleChange("date_to", date ?? undefined)}
+            widthType="full"
+          />
+        </div>
       </Stack>
       <div style={{ display: "flex", justifyContent: "flex-end", minWidth: 180 }}>
         <FilterActions

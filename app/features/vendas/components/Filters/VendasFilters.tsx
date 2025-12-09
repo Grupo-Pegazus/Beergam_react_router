@@ -226,31 +226,34 @@ export default function VendasFilters({
         direction={{ xs: "column", md: "row" }}
         spacing={3}
       >
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
           <FilterSelect
             value={statusValue}
             onChange={(newValue) => handleFilterChange("statusFilter", newValue)}
             label="Status do pedido"
             options={STATUS_OPTIONS}
             defaultValue="all"
+            widthType="full"
           />
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
           <FilterSelect
             value={deliveryStatusValue}
             onChange={(newValue) => handleFilterChange("deliveryStatusFilter", newValue)}
             label="Status da entrega"
             options={DELIVERY_STATUS_OPTIONS}
             defaultValue="all"
+            widthType="full"
           />
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
           <FilterSelect
             value={deliveryTypeValue}
             onChange={(newValue) => handleFilterChange("deliveryTypeFilter", newValue)}
             label="Forma de entrega"
             options={DELIVERY_TYPE_OPTIONS}
             defaultValue="all"
+            widthType="full"
           />
         </div>
       </Stack>,
@@ -259,18 +262,20 @@ export default function VendasFilters({
         direction={{ xs: "column", md: "row" }}
         spacing={3}
       >
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
           <FilterDatePicker
             label="Data de criação (de)"
             value={dateFromValue}
             onChange={handleDateFromChange}
+            widthType="full"
           />
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
           <FilterDatePicker
             label="Data de criação (até)"
             value={dateToValue}
             onChange={handleDateToChange}
+            widthType="full"
           />
         </div>
       </Stack>,

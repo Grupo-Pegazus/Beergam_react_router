@@ -53,12 +53,13 @@ export const MenuConfig = {
     dropdown: {
       mercado_livre: {
         label: "Mercado Livre",
-        status: "red",
+        status: "yellow",
+        path: "/mercado_livre",
         launched: true,
         dropdown: {
           perguntas: {
             label: "Perguntas",
-            status: "red",
+            status: "yellow",
             path: "/perguntas",
             launched: true,
           },

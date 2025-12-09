@@ -280,9 +280,14 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
           </div>
           {anuncio.visits && anuncio.visits.length > 0 && (
             <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50/50 p-2">
-              <Typography variant="caption" color="text.secondary" className="block mb-1 text-xs">
-                Evolução de visitas (últimos 5 meses)
-              </Typography>
+              <div className="flex items-center justify-between mb-1">
+                <Typography variant="caption" color="text.secondary" className="text-xs">
+                  Evolução de visitas
+                </Typography>
+                <Typography variant="caption" color="text.secondary" className="text-xs text-slate-400">
+                  Últimos 5 meses
+                </Typography>
+              </div>
               <VisitsChart visits={anuncio.visits} />
             </div>
           )}

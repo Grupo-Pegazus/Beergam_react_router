@@ -28,13 +28,27 @@ export default function VendasPage() {
 
   return (
     <>
-      <Section title="Resumo">
+      <Section 
+        title="Resumo"
+        actions={
+          <span className="text-xs text-slate-500">
+            Dados dos últimos 90 dias
+          </span>
+        }
+      >
         <Grid cols={{ base: 1 }}>
           <MetricasCards />
         </Grid>
       </Section>
 
-      <Section title="Faturamento Diário">
+      <Section 
+        title="Faturamento Diário"
+        actions={
+          <span className="text-xs text-slate-500">
+            Dados dos últimos 30 dias
+          </span>
+        }
+      >
         <Grid cols={{ base: 1 }}>
           <DailyRevenueChart days={30} />
         </Grid>

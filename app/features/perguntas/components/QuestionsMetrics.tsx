@@ -10,11 +10,10 @@ import {
 import StatCard from "~/src/components/ui/StatCard";
 import Grid from "~/src/components/ui/Grid";
 import Svg from "~/src/assets/svgs/_index";
-import type { QuestionsInsights, QuestionsMetricsResponse } from "../typings";
+import type { QuestionsInsights } from "../typings";
 
 interface QuestionsMetricsProps {
   insights?: QuestionsInsights;
-  metricsPayload?: QuestionsMetricsResponse | null;
   loading?: boolean;
 }
 
@@ -30,14 +29,12 @@ function formatPercent(value: number | null | undefined): string {
   return `${value.toFixed(1)}%`;
 }
 
-export function QuestionsMetrics({ insights, metricsPayload, loading }: QuestionsMetricsProps) {
+export function QuestionsMetrics({ insights, loading }: QuestionsMetricsProps) {
   const chartData = (insights?.daily_trend ?? []).map((point) => ({
     date: point.date.slice(5),
     total: point.total,
     answered: point.answered,
   }));
-
-  const responseMetric = metricsPayload?.metrics ?? {};
 
   return (
     <div className="bg-white border border-black/10 rounded-2xl p-4 shadow-sm flex flex-col gap-4">
