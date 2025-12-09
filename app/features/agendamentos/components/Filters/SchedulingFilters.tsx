@@ -4,8 +4,8 @@ import {
   FilterContainer,
   FilterSelect,
   FilterSearchInput,
+  FilterDatePicker,
 } from "~/src/components/filters";
-import { Fields } from "~/src/components/utils/_fields";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import type {
   SchedulingFiltersProps,
@@ -168,25 +168,19 @@ export default function SchedulingFilters({
             }))}
             disabled={isSubmitting}
           />
-        <Fields.wrapper>
-            <Fields.label text="Data inicial" />
-            <Fields.input
-            type="date"
+          <FilterDatePicker
+            label="Data inicial"
             value={dateFromValue}
-            onChange={(e) => handleDateChange("date_from", e.target.value)}
+            onChange={(value) => handleDateChange("date_from", value ?? "")}
             disabled={isSubmitting}
-            />
-        </Fields.wrapper>
+          />
 
-        <Fields.wrapper>
-            <Fields.label text="Data final" />
-            <Fields.input
-            type="date"
-            value={dateToValue}
-            onChange={(e) => handleDateChange("date_to", e.target.value)}
-            disabled={isSubmitting}
-            />
-        </Fields.wrapper>
+        <FilterDatePicker
+          label="Data final"
+          value={dateToValue}
+          onChange={(value) => handleDateChange("date_to", value ?? "")}
+          disabled={isSubmitting}
+        />
         </Stack>
 
 

@@ -13,6 +13,7 @@ export interface FilterSearchInputProps {
   onSearchTypeChange?: (type: string) => void;
   searchTypeOptions?: Array<FilterOption<string>>;
   fullWidth?: boolean;
+  widthType?: "fit" | "full";
 }
 
 export function FilterSearchInput({
@@ -25,6 +26,8 @@ export function FilterSearchInput({
   onSearchTypeChange,
   searchTypeOptions,
   fullWidth = true,
+  widthType = "full",
+
 }: FilterSearchInputProps) {
   // Estado interno para evitar disparar requisição a cada tecla
   const [internalValue, setInternalValue] = useState(value ?? "");
@@ -81,6 +84,7 @@ export function FilterSearchInput({
         alignItems={{ xs: "stretch", sm: "flex-start" }}
       >
         <Fields.input
+          widthType={widthType}
           value={internalValue}
           onChange={handleInputChange}
           disabled={disabled}
@@ -89,11 +93,12 @@ export function FilterSearchInput({
         />
         {hasSearchType && (
           <Fields.select
+            widthType={widthType}
             value={currentSearchType}
             onChange={handleSearchTypeChange}
             disabled={disabled}
             options={searchTypeOptions?.map((opt) => ({ value: opt.value, label: opt.label })) || []}
-            tailWindClasses="rounded-3xl w-full sm:w-auto sm:min-w-[180px]"
+            tailWindClasses="rounded-3xl"
           />
         )}
       </Stack>

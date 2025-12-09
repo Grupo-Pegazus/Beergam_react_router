@@ -109,7 +109,7 @@ export default function MetricasCards() {
       <div className="space-y-4 md:space-y-6">
         <div>
           <h4 className="text-xs md:text-sm font-semibold text-slate-700 mb-2 md:mb-3">
-            Suas vendas nos últimos 90 dias
+            Suas vendas
           </h4>
           <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {SUMMARY_CARDS.map((card) => {
@@ -132,7 +132,7 @@ export default function MetricasCards() {
 
         <div>
           <h4 className="text-xs md:text-sm font-semibold text-slate-700 mb-2 md:mb-3">
-            Faturamento dos últimos 90 dias
+            Faturamento
           </h4>
           <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             {REVENUE_CARDS.map((card) => {

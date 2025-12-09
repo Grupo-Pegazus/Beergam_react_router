@@ -35,6 +35,7 @@ interface ActiveTimeFilterProps {
   minKey: string;
   maxKey: string;
   onMinMaxChange: (min: number | undefined, max: number | undefined) => void;
+  widthType?: "fit" | "full";
 }
 
 export function ActiveTimeFilter({
@@ -43,6 +44,7 @@ export function ActiveTimeFilter({
   minKey,
   maxKey,
   onMinMaxChange,
+  widthType = "fit",
 }: ActiveTimeFilterProps) {
   const state = value as {
     [key: string]: number | undefined;
@@ -69,6 +71,7 @@ export function ActiveTimeFilter({
         {label}
       </Typography>
       <Fields.select
+        widthType={widthType}
         value={currentValue}
         onChange={handleChange}
         options={ACTIVE_TIME_OPTIONS.map((option) => ({ value: option.label, label: option.label }))}

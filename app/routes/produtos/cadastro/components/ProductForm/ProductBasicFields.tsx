@@ -88,10 +88,19 @@ export default function ProductBasicFields({
         <Fields.label text="STATUS" required />
         <Fields.select
           options={statusOptions}
-          {...register("product.status")}
+          {...register("product.status", {
+            required: "Status é obrigatório",
+            validate: (value) => {
+              if (!value || value.trim() === "") {
+                return "Status é obrigatório";
+              }
+              return true;
+            },
+          })}
           value={watch("product.status")}
-          error={errors.product?.status ? { message: errors.product.status.message || "Campo obrigatório", error: true } : undefined}
+          error={errors.product?.status ? { message: errors.product.status.message || "Status é obrigatório", error: true } : undefined}
           hasError={!!errors.product?.status}
+          dataTooltipId="product-status-select"
         />
       </Fields.wrapper>
 
@@ -155,10 +164,19 @@ export default function ProductBasicFields({
         <Fields.label text="CATEGORIA" required />
         <Fields.select
           options={categoryOptions}
-          {...register("product.category_name")}
+          {...register("product.category_name", {
+            required: "Categoria é obrigatória",
+            validate: (value) => {
+              if (!value || (typeof value === "string" && value.trim() === "")) {
+                return "Categoria é obrigatória";
+              }
+              return true;
+            },
+          })}
           value={watch("product.category_name") || ""}
           error={errors.product?.category_name ? { message: errors.product.category_name.message || "Categoria é obrigatória", error: true } : undefined}
           hasError={!!errors.product?.category_name}
+          dataTooltipId="product-category-name-select"
         />
       </Fields.wrapper>
     </div>

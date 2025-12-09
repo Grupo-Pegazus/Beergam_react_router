@@ -349,6 +349,7 @@ export default function ProductForm({
         const basicFields = [
           "product.title",
           "product.status",
+          "product.category_name",
         ];
         // Se não tem variações, SKU é obrigatório
         if (!hasVariations) {

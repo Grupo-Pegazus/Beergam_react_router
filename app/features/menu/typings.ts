@@ -31,7 +31,7 @@ export const MenuConfig = {
   },
   vendas: {
     label: "Vendas",
-    status: "yellow",
+    status: "green",
     icon: "graph",
     path: "/vendas",
     dinamic_id: "venda_id",
@@ -47,25 +47,29 @@ export const MenuConfig = {
   },
   atendimento: {
     label: "Atendimento",
-    status: "red",
+    status: "yellow",
     icon: "chat",
+    launched: true,
     dropdown: {
       mercado_livre: {
         label: "Mercado Livre",
-        status: "red",
+        status: "yellow",
+        path: "/mercado_livre",
+        launched: true,
         dropdown: {
-          perguntas_ml: {
+          perguntas: {
             label: "Perguntas",
-            status: "red",
+            status: "yellow",
             path: "/perguntas",
             launched: true,
           },
-          reclamacoes_ml: {
+          reclamacoes: {
             label: "Reclamações",
             status: "red",
             path: "/reclamacoes",
+            launched: true,
           },
-          mensagens_ml: {
+          mensagens: {
             label: "Mensagens",
             status: "red",
             path: "/mensagens",
@@ -74,21 +78,9 @@ export const MenuConfig = {
       },
     },
   },
-  despesas: {
-    label: "Despesas",
-    status: "red",
-    path: "/despesas",
-    icon: "bag",
-  },
-  rastreio: {
-    label: "Rastreio",
-    status: "red",
-    path: "/rastreio",
-    icon: "bag",
-  },
   produtos: {
     label: "Produtos",
-    status: "yellow",
+    status: "green",
     icon: "box",
     path: "/produtos",
     launched: true,
@@ -160,26 +152,7 @@ export const MenuConfig = {
     path: "/calculadora",
     icon: "calculator",
     launched: true,
-  },
-  lucratividade: {
-    label: "Lucratividade",
-    status: "red",
-    path: "/lucratividade",
-    icon: "bag",
-  },
-  networking: {
-    label: "Networking",
-    status: "red",
-    path: "/networking",
-    icon: "bag",
-    denyColabAccess: false,
-  },
-  gestao_interna: {
-    label: "Gestão Interna",
-    status: "red",
-    path: "/gestao_interna",
-    icon: "bag",
-  },
+  }
 } satisfies IMenuConfig;
 
 export const MenuViewExtraInfo: Record<
@@ -198,26 +171,11 @@ export const MenuViewExtraInfo: Record<
   atendimento: {
     description: "Área de atendimento do sistema",
   },
-  despesas: {
-    description: "Área de despesas do sistema",
-  },
-  rastreio: {
-    description: "Área de rastreio do sistema",
-  },
   produtos: {
     description: "Área de produtos do sistema",
   },
   calculadora: {
     description: "Área de calculadora do sistema",
-  },
-  lucratividade: {
-    description: "Área de lucratividade do sistema",
-  },
-  networking: {
-    description: "Área de networking do sistema",
-  },
-  gestao_interna: {
-    description: "Área de gestão interna do sistema",
   },
 };
 

@@ -247,7 +247,7 @@ function renderSelect(
                 error: true,
                 message: error,
               }
-            : { error: false, message: "" }
+            : undefined
         }
         name={field.name}
       />

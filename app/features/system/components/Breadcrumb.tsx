@@ -264,13 +264,13 @@ export default function SystemBreadcrumb() {
 
   return (
     <nav aria-label="breadcrumb">
-      <div className="flex items-center gap-3 text-2xl md:text-4xl font-semibold leading-snug">
+      <div className="flex items-center gap-3 text-2xl md:text-4xl font-semibold leading-snug max-w-[90vw] overflow-x-auto">
         {items.map((item, index) => {
           const isLast = item.isLast;
           return (
             <span key={`${item.path}-${index}`} className="flex items-center gap-2">
               {isLast ? (
-                <span className="text-beergam-black-blue truncate max-w-[40vw]">
+                <span className="text-beergam-black-blue">
                   {item.label}
                 </span>
               ) : (
@@ -282,12 +282,12 @@ export default function SystemBreadcrumb() {
                   {item.path ? (
                     <SpanLink
                       to={item.path}
-                      className="text-beergam-black-blue opacity-50 hover:opacity-100 transition-colors inline-flex truncate"
+                      className="text-beergam-black-blue opacity-50 hover:opacity-100 transition-colors inline-flex"
                     >
                       {item.label}
                     </SpanLink>
                   ) : (
-                    <span className="text-[#6b7280] inline-flex truncate max-w-[40vw]">
+                    <span className="text-[#6b7280] inline-flex">
                       {item.label}
                     </span>
                   )}

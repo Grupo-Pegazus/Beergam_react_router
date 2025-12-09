@@ -218,7 +218,7 @@ export default function AccountView({
                         <button
                           type="button"
                           onClick={() => {
-                            navigate("/interno/perfil");
+                            navigate("/interno/config");
                           }}
                           className="text-xs text-blue-600 hover:text-blue-700 hover:underline font-medium"
                         >

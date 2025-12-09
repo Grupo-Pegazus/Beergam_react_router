@@ -63,6 +63,7 @@ interface AlertProps {
   confirmText?: string;
   confirmClassName?: string;
   confirmInput?: ConfirmInputProps | null;
+  disabledConfirm?: boolean;
 }
 export default function Alert({
   type,
@@ -75,6 +76,7 @@ export default function Alert({
   children,
   onClose,
   confirmInput,
+  disabledConfirm,
 }: AlertProps) {
   const { closeModal } = useModal();
   const [inputText, setInputText] = useState("");
@@ -117,7 +119,9 @@ export default function Alert({
             title={confirmText ?? "Confirmar"}
             className={confirmClassName}
             disabled={
-              confirmInput ? inputText !== confirmInput.valueToConfirm : false
+              confirmInput
+                ? inputText !== confirmInput.valueToConfirm
+                : (disabledConfirm ?? false)
             }
           />
         )}

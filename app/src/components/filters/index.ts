@@ -3,6 +3,7 @@ export { FilterSelect } from "./components/FilterSelect";
 export { FilterSwitch } from "./components/FilterSwitch";
 export { FilterSearchInput } from "./components/FilterSearchInput";
 export { FilterActions } from "./components/FilterActions";
+export { FilterDatePicker } from "./components/FilterDatePicker";
 export { useFilters } from "./hooks/useFilters";
 
 export type {

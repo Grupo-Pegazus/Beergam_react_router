@@ -12,7 +12,7 @@ import {
 import { useDailyRevenue } from "../../hooks";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import { Skeleton, Typography } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
+import { FilterDatePicker } from "~/src/components/filters";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { ptBR } from "@mui/x-date-pickers/locales";
@@ -86,24 +86,10 @@ export default function DailyRevenueChart({ days = 30 }: DailyRevenueChartProps)
               ptBR.components.MuiLocalizationProvider.defaultProps.localeText
             }
           >
-            <DatePicker
+            <FilterDatePicker
               label="Período de Provisão"
-              value={selectedMonth}
-              onChange={handleMonthChange}
-              views={["year", "month"]}
-              format="MMMM YYYY"
-              slotProps={{
-                textField: {
-                  size: "small",
-                  fullWidth: true,
-                  sx: {
-                    "& .MuiInputBase-root": {
-                      fontSize: "0.875rem",
-                    },
-                  },
-                },
-              }}
-              sx={{ width: { xs: "100%", sm: "auto" } }}
+              value={selectedMonth?.toISOString() ?? ""}
+              onChange={(value) => handleMonthChange(value ? dayjs(value) : null)}
             />
           </LocalizationProvider>
         </div>
