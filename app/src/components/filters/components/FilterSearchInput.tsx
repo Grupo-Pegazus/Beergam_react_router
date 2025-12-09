@@ -98,7 +98,7 @@ export function FilterSearchInput({
             onChange={handleSearchTypeChange}
             disabled={disabled}
             options={searchTypeOptions?.map((opt) => ({ value: opt.value, label: opt.label })) || []}
-            tailWindClasses="rounded-3xl w-full sm:w-auto sm:min-w-[180px]"
+            tailWindClasses="rounded-3xl"
           />
         )}
       </Stack>

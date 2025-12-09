@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Tooltip } from "react-tooltip";
 import Svg from "~/src/assets/svgs/_index";
 import { type InputError } from "./typings";
 
@@ -24,6 +25,7 @@ interface SelectProps {
   disabled?: boolean;
   tailWindClasses?: string;
   widthType?: "fit" | "full";
+  dataTooltipId?: string;
 }
 
 function Select({
@@ -42,9 +44,11 @@ function Select({
   tailWindClasses,
   icon,
   widthType = "fit",
+  dataTooltipId,
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const [isInteracting, setIsInteracting] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -54,7 +58,7 @@ function Select({
   // Classes baseadas no Input para manter consistência visual
   const baseClasses =
     "w-full px-3 py-2.5 border border-black/20 rounded text-sm bg-white text-[#1e1f21] transition-colors duration-200 outline-none appearance-none";
-  const errorClasses = error?.error
+  const errorClasses = (error?.error || hasError)
     ? "!border-beergam-red focus:!border-beergam-red/90"
     : "";
   const successClasses = isValid
@@ -110,16 +114,31 @@ function Select({
     }
   }, [isOpen, value, options]);
 
+  // Resetar isInteracting quando o erro desaparecer (valor foi corrigido)
+  useEffect(() => {
+    if (!error?.error && !hasError) {
+      setIsInteracting(false);
+    }
+  }, [error?.error, hasError]);
+
   const handleToggle = () => {
     if (!disabled) {
       setIsOpen(!isOpen);
       setFocusedIndex(null);
+      setIsInteracting(true);
     }
+  };
+
+  const handleBlur = () => {
+    setIsInteracting(false);
+  };
+
+  const handleFocus = () => {
+    setIsInteracting(true);
   };
 
   const handleSelect = (optionValue: string | null) => {
     if (onChange) {
-      // Criar um evento sintético compatível com React.ChangeEvent<HTMLSelectElement>
       const syntheticEvent = {
         target: {
           value: optionValue || "",
@@ -135,6 +154,9 @@ function Select({
     }
     setIsOpen(false);
     setFocusedIndex(null);
+    setTimeout(() => {
+      setIsInteracting(false);
+    }, 100);
     buttonRef.current?.focus();
   };
 
@@ -188,6 +210,7 @@ function Select({
     <>
       <div
         ref={selectRef}
+        data-tooltip-id={dataTooltipId}
         className={`relative ${widthType === "fit" ? "w-fit min-w-[150px]" : "w-full"}`}
       >
         <div className="relative w-full flex items-center">
@@ -199,7 +222,7 @@ function Select({
           <button
             ref={buttonRef}
             type="button"
-            className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses} ${icon ? "pl-10" : ""} ${tailWindClasses} text-left flex gap-2 items-center justify-between`}
+            className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses} ${icon ? "pl-10" : ""} ${(error?.error || hasError) ? "pr-10" : ""} ${tailWindClasses} text-left flex gap-2 items-center justify-between`}
             style={{
               ...style,
               backgroundColor: backgroundColor ? backgroundColor : undefined,
@@ -207,6 +230,8 @@ function Select({
             }}
             onClick={handleToggle}
             onKeyDown={handleKeyDown}
+            onBlur={handleBlur}
+            onFocus={handleFocus}
             disabled={disabled}
             aria-haspopup="listbox"
             aria-expanded={isOpen}
@@ -221,8 +246,18 @@ function Select({
               }`}
             />
           </button>
+          <div className="absolute flex items-center gap-2 justify-center right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+            {(error?.error || hasError) && (
+              <div className="flex items-center gap-2">
+                <Svg.x_circle
+                  width={20}
+                  height={20}
+                  tailWindClasses="text-beergam-red"
+                />
+              </div>
+            )}
+          </div>
 
-          {/* Hidden select para compatibilidade com formulários */}
           <select
             className="sr-only"
             value={value || ""}
@@ -247,11 +282,10 @@ function Select({
           </select>
         </div>
 
-        {/* Dropdown customizado */}
         {isOpen && !disabled && (
           <div
             ref={dropdownRef}
-            className="absolute z-[9999] w-full mt-1 bg-white border border-black/20 rounded shadow-lg max-h-60 overflow-auto"
+            className="absolute z-9999 w-full mt-1 bg-white border border-black/20 rounded shadow-lg max-h-60 overflow-auto"
             role="listbox"
             style={{
               position: "absolute",
@@ -302,7 +336,15 @@ function Select({
           </div>
         )}
       </div>
-      {hasError && (
+      {dataTooltipId && (
+        <Tooltip
+          id={dataTooltipId}
+          content={error?.message || ""}
+          isOpen={!isInteracting && !!error?.error && !!error?.message}
+          className="z-50"
+        />
+      )}
+      {hasError && !dataTooltipId && (
         <p
           className={`text-xs text-red-500 min-h-5 mt-1 lg:min-h-[16px] 2xl:min-h-5 ${error?.error ? "opacity-100" : "opacity-0"}`}
         >

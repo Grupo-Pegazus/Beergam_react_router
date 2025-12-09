@@ -114,20 +114,24 @@ export default function ProdutosFilters({
         direction={{ xs: "column", md: "row" }}
         spacing={3}
       >
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
           <FilterSearchInput
             value={searchValue}
             onChange={handleSearchChange}
             label="Pesquisar (SKU ou título)"
             placeholder="Digite SKU ou título do produto..."
+            fullWidth={true}
+            widthType="full"
           />
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
           <FilterSearchInput
             value={categoryNameValue}
             onChange={(val) => handleFilterChange("category_name", val)}
             label="Categoria"
             placeholder="Digite o nome da categoria..."
+            fullWidth={true}
+            widthType="full"
           />
         </div>
       </Stack>,
@@ -137,16 +141,17 @@ export default function ProdutosFilters({
         direction={{ xs: "column", md: "row" }}
         spacing={3}
       >
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
           <FilterSelect
             value={statusValue}
             onChange={(newValue) => handleFilterChange("statusFilter", newValue)}
             label="Status"
             options={STATUS_OPTIONS}
             defaultValue="all"
+            widthType="full"
           />
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
           <FilterSelect
             value={registrationTypeValue}
             onChange={(newValue) =>
@@ -155,9 +160,10 @@ export default function ProdutosFilters({
             label="Tipo de cadastro"
             options={REGISTRATION_TYPE_OPTIONS}
             defaultValue="all"
+            widthType="full"
           />
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
           <FilterSelect<"all" | "true" | "false">
             value={
               hasVariationsValue === "all"
@@ -182,6 +188,7 @@ export default function ProdutosFilters({
               { label: "Sem variações", value: "false" },
             ]}
             defaultValue="all"
+            widthType="full"
           />
         </div>
       </Stack>,

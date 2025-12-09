@@ -212,7 +212,7 @@ export default function AnunciosFilters({
         direction={{ xs: "column", md: "row" }}
         spacing={3}
       >
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
           <FilterSearchInput
             value={searchValue}
             onChange={handleSearchChange}
@@ -221,6 +221,7 @@ export default function AnunciosFilters({
             searchType={currentSearchType}
             onSearchTypeChange={handleSearchTypeChange}
             searchTypeOptions={SEARCH_TYPE_OPTIONS}
+            widthType="full"
           />
         </div>
       </Stack>,
@@ -232,13 +233,14 @@ export default function AnunciosFilters({
         spacing={3}
         justifyContent="space-between"
       >
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
           <FilterSelect
             value={deliveryValue}
             onChange={(newValue) => handleFilterChange("deliveryTypeFilter", newValue)}
             label="Forma de entrega"
             options={DELIVERY_OPTIONS}
             defaultValue="all"
+            widthType="full"
           />
         </div>
         <FilterSwitch
@@ -261,31 +263,34 @@ export default function AnunciosFilters({
         direction={{ xs: "column", md: "row" }}
         spacing={3}
       >
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
           <FilterSelect
             value={statusValue}
             onChange={(newValue) => handleFilterChange("statusFilter", newValue)}
             label="Status do anúncio"
             options={STATUS_OPTIONS}
             defaultValue="all"
+            widthType="full"
           />
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
           <FilterSelect
             value={anuncioTypeValue}
             onChange={(newValue) => handleFilterChange("anuncioTypeFilter", newValue)}
             label="Tipo do anúncio"
             options={AD_TYPE_OPTIONS}
             defaultValue="all"
+            widthType="full"
           />
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
           <ActiveTimeFilter
             value={value}
             label="Tempo do anúncio"
             minKey="active_days_min"
             maxKey="active_days_max"
             onMinMaxChange={handleActiveTimeChange}
+            widthType="full"
           />
         </div>
       </Stack>,
