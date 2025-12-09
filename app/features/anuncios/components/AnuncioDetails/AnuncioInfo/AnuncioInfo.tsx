@@ -124,7 +124,10 @@ export default function AnuncioInfo({ anuncio }: AnuncioInfoProps) {
         <Stack direction="row" spacing={3} flexWrap="wrap" gap={2}>
           <Box>
             <Typography variant="caption" color="text.secondary">
-              Visitas totais (últimos 150 dias)
+              Visitas totais
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem", display: "block", mt: 0.5 }}>
+              Últimos 150 dias
             </Typography>
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
               {anuncio.visits_last_150_days ?? anuncio.geral_visits}

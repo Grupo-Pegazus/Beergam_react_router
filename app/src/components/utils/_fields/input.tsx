@@ -30,6 +30,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   showPassword?: boolean;
   onEyeChange?: (showPassword: boolean) => void;
   clipboard?: boolean;
+  widthType?: "fit" | "full";
 }
 export default function Input({
   error,
@@ -53,6 +54,7 @@ export default function Input({
   onEyeChange,
   showPassword,
   clipboard,
+  widthType = "fit",
   ...props
 }: InputProps) {
   const isValid = value && (!error || error != "") && success;
@@ -93,7 +95,7 @@ export default function Input({
     <>
       <div
         data-tooltip-id={dataTooltipId}
-        className={`relative w-full flex justify-center flex-col ${wrapperSize}`}
+        className={`relative ${widthType === "full" ? "w-full" : "w-auto"} flex justify-center flex-col ${wrapperSize}`}
       >
         <input
           type={

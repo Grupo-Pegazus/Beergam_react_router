@@ -95,7 +95,7 @@ export const ExtrasFieldsSchema = z.object({
 
 export function validateStep(
   stepId: "basic" | "pricing" | "measures" | "stock" | "extras" | "images" | "variations",
-  data: any,
+  data: unknown,
   registrationType: RegistrationType,
   hasVariations: boolean = false
 ): { isValid: boolean; errors: Record<string, string> } {
@@ -135,12 +135,14 @@ export function validateStep(
   }
 
   const errors: Record<string, string> = {};
-  result.error.errors.forEach((error) => {
-    const path = error.path.join(".");
-    if (path && error.message) {
-      errors[path] = error.message;
-    }
-  });
+  if (result.error && result.error.issues) {
+    result.error.issues.forEach((issue) => {
+      const path = issue.path.join(".");
+      if (path && issue.message) {
+        errors[path] = issue.message;
+      }
+    });
+  }
 
   return { isValid: false, errors };
 }

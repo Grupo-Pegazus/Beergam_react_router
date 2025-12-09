@@ -115,7 +115,7 @@ export default function VendasResumo() {
         {/* Status rápidos */}
         <div>
           <h4 className="text-xs md:text-sm font-semibold text-slate-700 mb-2 md:mb-3">
-            Status das Vendas (90 dias)
+            Status das Vendas
           </h4>
           <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-3">
             {QUICK_STATUS_CARDS.map((card) => {
@@ -139,7 +139,7 @@ export default function VendasResumo() {
         {/* Faturamento */}
         <div>
           <h4 className="text-xs md:text-sm font-semibold text-slate-700 mb-2 md:mb-3">
-            Faturamento (90 dias)
+            Faturamento
           </h4>
           <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {REVENUE_CARDS.map((card) => {

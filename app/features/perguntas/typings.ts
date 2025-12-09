@@ -1,15 +1,27 @@
 import type { ApiResponse } from "../apiClient/typings";
 
+interface From {
+  id: string;
+  answered_questions: number;
+}
+
+interface Answer {
+  date_created: string;
+  status: string;
+  text: string;
+}
+
 export interface Question {
   id: string;
   text: string;
-  answer?: string | null;
+  answer?: Answer | null;
   status?: string;
   item_id?: string;
   item_title?: string;
   seller_id?: string;
   date_created?: string;
   answer_date?: string | null;
+  from?: From;
   [key: string]: unknown;
 }
 

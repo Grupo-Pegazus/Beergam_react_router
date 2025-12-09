@@ -7,6 +7,7 @@ export interface FilterSelectProps<T extends string = string>
   extends FilterFieldProps {
   options: Array<FilterOption<T>>;
   defaultValue?: T;
+  widthType?: "fit" | "full";
 }
 
 export function FilterSelect<T extends string = string>({
@@ -16,6 +17,7 @@ export function FilterSelect<T extends string = string>({
   options,
   defaultValue,
   disabled,
+  widthType = "fit",
 }: FilterSelectProps<T>) {
   const currentValue = useMemo(
     () => (value as T) ?? defaultValue ?? options[0]?.value,
@@ -36,6 +38,7 @@ export function FilterSelect<T extends string = string>({
         {label}
       </Typography>
       <Fields.select
+        widthType={widthType}
         value={currentValue}
         onChange={handleChange}
         disabled={disabled}

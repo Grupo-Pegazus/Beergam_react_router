@@ -50,12 +50,14 @@ export default function VisitsChart({ visits }: VisitsChartProps) {
       }}
     >
       <Box sx={{ mb: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-          Evolução de Visitas
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          Últimos 5 meses
-        </Typography>
+        <div className="flex items-center justify-between">
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            Evolução de Visitas
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem" }}>
+            Últimos 5 meses
+          </Typography>
+        </div>
       </Box>
       <Box sx={{ height: 250, width: "100%" }}>
         <ResponsiveContainer width="100%" height="100%">
