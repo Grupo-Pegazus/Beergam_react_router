@@ -5,12 +5,8 @@ import {
   FilterSelect,
   FilterActions,
   FilterSearchInput,
+  FilterDatePicker,
 } from "~/src/components/filters";
-import { DatePicker } from "@mui/x-date-pickers";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { ptBR } from "@mui/x-date-pickers/locales";
-import dayjs, { type Dayjs } from "dayjs";
 import type { VendasFiltersProps, VendasFiltersState, OrderStatusFilter, DeliveryStatusFilter, DeliveryTypeFilter } from "./types";
 
 const STATUS_OPTIONS: Array<{ label: string; value: OrderStatusFilter }> = [
@@ -165,39 +161,45 @@ export default function VendasFilters({
     [value, searchValue, onChange]
   );
 
+  const isoToDateInput = useCallback((iso?: string) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "";
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }, []);
+
   const handleDateFromChange = useCallback(
-    (date: Dayjs | null) => {
+    (date: string | undefined) => {
+      const iso = date ? new Date(date).toISOString() : undefined;
       onChange({
         ...value,
-        dateCreatedFrom: date ? date.toISOString() : undefined,
-        date_created_from: date ? date.toISOString() : undefined,
+        dateCreatedFrom: iso,
+        date_created_from: iso,
       });
     },
     [value, onChange]
   );
 
   const handleDateToChange = useCallback(
-    (date: Dayjs | null) => {
+    (date: string | undefined) => {
+      const iso = date ? new Date(date).toISOString() : undefined;
       onChange({
         ...value,
-        dateCreatedTo: date ? date.toISOString() : undefined,
-        date_created_to: date ? date.toISOString() : undefined,
+        dateCreatedTo: iso,
+        date_created_to: iso,
       });
     },
     [value, onChange]
   );
 
   const dateFromValue = useMemo(() => {
-    return value.dateCreatedFrom || value.date_created_from
-      ? dayjs(value.dateCreatedFrom || value.date_created_from)
-      : null;
-  }, [value.dateCreatedFrom, value.date_created_from]);
+    return isoToDateInput(value.dateCreatedFrom || value.date_created_from);
+  }, [isoToDateInput, value.dateCreatedFrom, value.date_created_from]);
 
   const dateToValue = useMemo(() => {
-    return value.dateCreatedTo || value.date_created_to
-      ? dayjs(value.dateCreatedTo || value.date_created_to)
-      : null;
-  }, [value.dateCreatedTo, value.date_created_to]);
+    return isoToDateInput(value.dateCreatedTo || value.date_created_to);
+  }, [isoToDateInput, value.dateCreatedTo, value.date_created_to]);
 
   const sections = useMemo(
     () => [
@@ -258,46 +260,18 @@ export default function VendasFilters({
         spacing={3}
       >
         <div style={{ flex: 1 }}>
-          <LocalizationProvider
-            dateAdapter={AdapterDayjs}
-            adapterLocale="pt-br"
-            localeText={
-              ptBR.components.MuiLocalizationProvider.defaultProps.localeText
-            }
-          >
-            <DatePicker
-              label="Data de criação (de)"
-              value={dateFromValue}
-              onChange={handleDateFromChange}
-              slotProps={{
-                textField: {
-                  size: "small",
-                  fullWidth: true,
-                },
-              }}
-            />
-          </LocalizationProvider>
+          <FilterDatePicker
+            label="Data de criação (de)"
+            value={dateFromValue}
+            onChange={handleDateFromChange}
+          />
         </div>
         <div style={{ flex: 1 }}>
-          <LocalizationProvider
-            dateAdapter={AdapterDayjs}
-            adapterLocale="pt-br"
-            localeText={
-              ptBR.components.MuiLocalizationProvider.defaultProps.localeText
-            }
-          >
-            <DatePicker
-              label="Data de criação (até)"
-              value={dateToValue}
-              onChange={handleDateToChange}
-              slotProps={{
-                textField: {
-                  size: "small",
-                  fullWidth: true,
-                },
-              }}
-            />
-          </LocalizationProvider>
+          <FilterDatePicker
+            label="Data de criação (até)"
+            value={dateToValue}
+            onChange={handleDateToChange}
+          />
         </div>
       </Stack>,
     ],
