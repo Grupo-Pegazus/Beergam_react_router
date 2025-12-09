@@ -26,7 +26,7 @@ export function FilterSearchInput({
   onSearchTypeChange,
   searchTypeOptions,
   fullWidth = true,
-  widthType = "fit",
+  widthType = "full",
 
 }: FilterSearchInputProps) {
   // Estado interno para evitar disparar requisição a cada tecla

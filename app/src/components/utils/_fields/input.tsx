@@ -54,7 +54,7 @@ export default function Input({
   onEyeChange,
   showPassword,
   clipboard,
-  widthType = "fit",
+  widthType = "full",
   ...props
 }: InputProps) {
   const isValid = value && (!error || error != "") && success;
