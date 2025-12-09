@@ -132,7 +132,9 @@ export default function MinhaAssinatura() {
               label="Plano Atual"
               name="plan_name"
               canAlter={false}
-              value={subscription?.plan.display_name}
+              value={
+                subscription?.plan.display_name || "Não possui plano atual"
+              }
               loading={isLoadingSubscription}
             />
           </div>
@@ -170,12 +172,14 @@ export default function MinhaAssinatura() {
               height={126}
             />
           </>
-        ) : (
+        ) : plans?.data && plans?.data.length > 0 ? (
           plans?.data
             ?.filter((plan) => plan.display_name === "Plano Estratégico")
             ?.map((plan) => (
               <PlansCardMini plan={plan} key={plan.display_name} />
             ))
+        ) : (
+          <p className="text-beergam-gray">Não há planos disponíveis</p>
         )}
       </Section>
     </>
