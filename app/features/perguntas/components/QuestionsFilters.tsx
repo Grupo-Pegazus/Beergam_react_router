@@ -39,12 +39,11 @@ export function QuestionsFilters({
 
   const sections = [
     <Stack
-      key="search"
+      key="search-section"
       direction={{ xs: "column", md: "row" }}
-      spacing={2}
-      alignItems="center"
+      spacing={3}
     >
-      <div style={{ flex: 3 }} className="md:w-auto w-full">
+      <div style={{ flex: 1 }} className="md:w-auto w-full">
         <FilterSearchInput
           value={value.text}
           onChange={(text) => handleChange("text", text)}
@@ -66,10 +65,9 @@ export function QuestionsFilters({
       </div>
     </Stack>,
     <Stack
-      key="selects"
+      key="filters-section"
       direction={{ xs: "column", md: "row" }}
-      spacing={2}
-      alignItems="flex-end"
+      spacing={3}
     >
       <div style={{ flex: 1 }} className="md:w-auto w-full">
         <FilterSelect
@@ -81,38 +79,41 @@ export function QuestionsFilters({
           widthType="full"
         />
       </div>
+    </Stack>,
+    <Stack
+      key="date-section"
+      direction={{ xs: "column", md: "row" }}
+      spacing={3}
+    >
       <div style={{ flex: 1 }} className="md:w-auto w-full">
+        <FilterDatePicker
+          label="Data inicial"
+          value={value.date_from ?? ""}
+          onChange={(date) => handleChange("date_from", date ?? undefined)}
+          widthType="full"
+        />
       </div>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ flex: 2 }}>
-        <div style={{ flex: 1 }} className="md:w-auto w-full">
-          <FilterDatePicker
-            label="Data inicial"
-            value={value.date_from ?? ""}
-            onChange={(date) => handleChange("date_from", date ?? undefined)}
-            widthType="full"
-          />
-        </div>
-        <div style={{ flex: 1 }} className="md:w-auto w-full">
-          <FilterDatePicker
-            label="Data final"
-            value={value.date_to ?? ""}
-            onChange={(date) => handleChange("date_to", date ?? undefined)}
-            widthType="full"
-          />
-        </div>
-      </Stack>
-      <div style={{ display: "flex", justifyContent: "flex-end", minWidth: 180 }}>
-        <FilterActions
-          onReset={onReset}
-          onSubmit={onSubmit}
-          isSubmitting={isSubmitting}
-          submitLabel="Aplicar filtros"
-          resetLabel="Limpar"
+      <div style={{ flex: 1 }} className="md:w-auto w-full">
+        <FilterDatePicker
+          label="Data final"
+          value={value.date_to ?? ""}
+          onChange={(date) => handleChange("date_to", date ?? undefined)}
+          widthType="full"
         />
       </div>
     </Stack>,
   ];
 
-  return <FilterContainer sections={sections}>{null}</FilterContainer>;
+  return (
+    <FilterContainer sections={sections}>
+      <FilterActions
+        onReset={onReset}
+        onSubmit={onSubmit}
+        isSubmitting={isSubmitting}
+        submitLabel="Aplicar filtros"
+        resetLabel="Limpar"
+      />
+    </FilterContainer>
+  );
 }
 

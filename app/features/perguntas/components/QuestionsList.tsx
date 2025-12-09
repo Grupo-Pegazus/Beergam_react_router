@@ -89,22 +89,22 @@ function QuestionCard({ question, onAnswer }: { question: Question; onAnswer: (q
   return (
     <div className={cardStyle}>
       {/* Cabeçalho da pergunta */}
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex flex-col gap-1 min-w-0 flex-1">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+        <div className="flex flex-col gap-2 min-w-0 flex-1">
           {hasItemInfo && (
-            <div className="flex items-center gap-2 text-sm text-slate-500">
+            <div className="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm text-slate-500">
               {question.item_id && (
                 <>
-                  {itemTitle && <span>•</span>}
-                  <span className="font-mono">{String(question.item_id)}</span>
+                  {itemTitle && <span className="hidden sm:inline">•</span>}
+                  <span className="font-mono break-all">{String(question.item_id)}</span>
                   <CopyButton
                     textToCopy={String(question.item_id)}
                     successMessage="MLB copiado para a área de transferência"
                     iconSize="h-3.5 w-3.5"
                     ariaLabel="Copiar MLB"
                   />
-                  <span>•</span>
-                  <span>Usuário {String(question.from?.id)}</span>
+                  <span className="hidden sm:inline">•</span>
+                  <span className="break-all">Usuário {String(question.from?.id)}</span>
                   <CopyButton
                     textToCopy={String(question.from?.id)}
                     successMessage="ID do usuário copiado para a área de transferência"
@@ -115,7 +115,7 @@ function QuestionCard({ question, onAnswer }: { question: Question; onAnswer: (q
               )}
             </div>
           )}
-          <p className="text-base font-semibold text-slate-900 wrap-break-word">{String(question.text ?? "")}</p>
+          <p className="text-sm sm:text-base font-semibold text-slate-900 wrap-break-word">{String(question.text ?? "")}</p>
           <div className="flex flex-wrap gap-2 text-xs text-slate-600">
             <span className={`px-2 py-1 rounded-full border ${
               question.status === "ANSWERED" 
@@ -128,7 +128,7 @@ function QuestionCard({ question, onAnswer }: { question: Question; onAnswer: (q
             }`}>
               Status: {statusTranslated}
             </span>
-            <span className="px-2 py-1 rounded-full bg-amber-50 border border-amber-200">
+            <span className="px-2 py-1 rounded-full bg-amber-50 border border-amber-200 whitespace-nowrap">
               Criada: {formatDate(question.date_created)}
             </span>
           </div>
@@ -144,7 +144,7 @@ function QuestionCard({ question, onAnswer }: { question: Question; onAnswer: (q
                 setNewAnswerText("");
               }
             }}
-            className="px-4 shrink-0"
+            className="w-full sm:w-auto sm:shrink-0 px-4"
             disabled={submitting}
           />
         )}
@@ -198,7 +198,7 @@ function QuestionCard({ question, onAnswer }: { question: Question; onAnswer: (q
         <span className="text-sm font-medium text-slate-700">Ver detalhes</span>
         <Svg.chevron
           tailWindClasses={`h-4 w-4 transition-transform duration-200 ${
-            showDetails ? "rotate-180" : "rotate-0"
+            showDetails ? "rotate-270" : "rotate-90"
           }`}
         />
       </button>
@@ -206,7 +206,7 @@ function QuestionCard({ question, onAnswer }: { question: Question; onAnswer: (q
       {/* Detalhes expandidos (acordeon) */}
       {showDetails && (
         <div className="mt-2 pt-3 border-t border-slate-200">
-          <div className={`grid grid-cols-1 ${question.status === "ANSWERED" ? "md:grid-cols-2" : ""} gap-3 text-sm text-slate-700`}>
+          <div className={`grid grid-cols-1 ${question.status === "ANSWERED" ? "sm:grid-cols-2" : ""} gap-3 text-sm text-slate-700`}>
             {/* Informações da pergunta - só mostra se for respondida */}
             {question.status === "ANSWERED" && (
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
@@ -225,12 +225,12 @@ function QuestionCard({ question, onAnswer }: { question: Question; onAnswer: (q
                 <p className="text-xs text-slate-500">Carregando...</p>
               ) : anuncio ? (
                 <>
-                  <div className="flex gap-3 mb-2">
+                  <div className="flex flex-col sm:flex-row gap-3 mb-2">
                     <Thumbnail thumbnail={anuncio.thumbnail ?? ""} />
-                    <div className="flex-1">
-                      <p className="text-slate-800 mb-1">{anuncio.name ?? "—"}</p>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                        <span>MLB: {anuncio.mlb ?? question.item_id ?? "—"}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-slate-800 mb-1 wrap-break-word">{anuncio.name ?? "—"}</p>
+                      <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
+                        <span className="break-all">MLB: {anuncio.mlb ?? question.item_id ?? "—"}</span>
                         {(anuncio.mlb || question.item_id) && (
                           <CopyButton
                             textToCopy={String(anuncio.mlb ?? question.item_id)}
@@ -302,11 +302,11 @@ export function QuestionsList({
         })}
 
       {hasPagination ? (
-        <div className="flex items-center justify-between mt-2 text-sm text-slate-600">
-          <span>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4 text-sm text-slate-600">
+          <span className="text-center sm:text-left">
             Página {pagination?.page ?? 1} de {pagination?.total_pages ?? 1}
           </span>
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full sm:w-auto">
             <BeergamButton
               title="Anterior"
               mainColor="beergam-blue"
@@ -316,7 +316,7 @@ export function QuestionsList({
                 onPageChange(Math.max(1, pagination.page - 1));
               }}
               disabled={!pagination || pagination.page <= 1}
-              className="px-3"
+              className="flex-1 sm:flex-initial px-3"
             />
             <BeergamButton
               title="Próxima"
@@ -330,7 +330,7 @@ export function QuestionsList({
                 )
               }
               disabled={!pagination || (pagination.total_pages ?? 1) <= (pagination.page ?? 1)}
-              className="px-3"
+              className="flex-1 sm:flex-initial px-3"
             />
           </div>
         </div>
