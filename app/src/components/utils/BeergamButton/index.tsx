@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, CSSProperties } from "react";
 import React, { useEffect } from "react";
 import { Link } from "react-router";
+import { Tooltip } from "react-tooltip";
 import { getIcon } from "~/features/menu/utils";
 import Spining from "~/src/assets/loading";
 import Svg from "~/src/assets/svgs/_index";
@@ -22,11 +23,17 @@ interface BeergamButtonWrapperProps {
   link?: string | undefined;
 }
 
+interface BeergamButtonTooltipProps {
+  content: string;
+  id: string;
+}
+
 interface BeergamButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
     BeergamButtonWrapperProps {
   icon?: keyof typeof Svg | null;
   loading?: boolean;
+  tooltip?: BeergamButtonTooltipProps;
 }
 
 type CSSPropertiesWithVars = CSSProperties & {
@@ -45,6 +52,7 @@ function BeergamButtonWrapper({
   icon,
   type,
   loading,
+  tooltip,
   ...props
 }: BeergamButtonProps) {
   const { style, ...buttonProps } = props;
@@ -70,6 +78,9 @@ function BeergamButtonWrapper({
 
   return (
     <>
+      {tooltip && (
+        <Tooltip id={tooltip.id} content={tooltip.content} className="z-50" />
+      )}
       {link ? (
         <Link
           viewTransition
@@ -77,6 +88,7 @@ function BeergamButtonWrapper({
           to={link}
           style={combinedStyle}
           type={type}
+          data-tooltip-id={tooltip?.id}
         >
           {children}
         </Link>
@@ -90,6 +102,7 @@ function BeergamButtonWrapper({
           style={combinedStyle}
           type={type}
           disabled={disabled || loading}
+          data-tooltip-id={tooltip?.id}
           {...buttonProps}
         >
           {icon && (
@@ -120,6 +133,7 @@ export default function BeergamButton({
   icon,
   type = "button",
   loading,
+  tooltip,
 }: BeergamButtonProps) {
   useEffect(() => {
     if (fetcher?.completed || fetcher?.error) {
@@ -142,6 +156,7 @@ export default function BeergamButton({
       icon={icon}
       type={type}
       loading={isLoading}
+      tooltip={tooltip}
     >
       <>
         {title && (
