@@ -9,7 +9,7 @@ import type { IUser } from "~/features/user/typings/User";
 import Svg from "~/src/assets/svgs/_index";
 import Colaboradores from "./components/Colaboradores";
 import ConfigSectionComponent from "./components/ConfigSectionComponent";
-import Impostos from "./components/Impostos";
+import Impostos from "./components/Impostos/Impostos";
 import MinhaAssinatura from "./components/MinhaAssinatura/index";
 import MinhaConta from "./components/MinhaConta";
 import VisaoGeral from "./components/VisaoGeral";

@@ -15,14 +15,30 @@ export const MonthKeys = [
   "11",
   "12",
 ] as const;
-
+export const TranslatedMonthKeys: Record<MonthKey, string> = {
+  "1": "Janeiro",
+  "2": "Fevereiro",
+  "3": "Março",
+  "4": "Abril",
+  "5": "Maio",
+  "6": "Junho",
+  "7": "Julho",
+  "8": "Agosto",
+  "9": "Setembro",
+  "10": "Outubro",
+  "11": "Novembro",
+  "12": "Dezembro",
+} as const;
 export type MonthKey = (typeof MonthKeys)[number];
 
 export const TaxesMonthsSchema = z.object(
-  MonthKeys.reduce((shape, key) => {
-    shape[key] = z.number().min(0);
-    return shape;
-  }, {} as Record<MonthKey, z.ZodNumber>)
+  MonthKeys.reduce(
+    (shape, key) => {
+      shape[key] = z.number().min(0);
+      return shape;
+    },
+    {} as Record<MonthKey, z.ZodNumber>
+  )
 );
 
 export type TaxesMonths = z.infer<typeof TaxesMonthsSchema>;
@@ -31,13 +47,18 @@ export const TaxesDataSchema = z
   .object({
     ano: z.number().int().gte(1900).lte(3000),
     impostos: TaxesMonthsSchema,
-    marketplace_shop_id: z.union([z.string(), z.number()]).transform((v) => String(v)),
+    marketplace_shop_id: z
+      .union([z.string(), z.number()])
+      .transform((v) => String(v)),
     marketplace_type: z
       .string()
       .transform((v) => v as MarketplaceType)
-      .refine((v) => Object.values(MarketplaceType).includes(v as MarketplaceType), {
-        message: "marketplace_type inválido",
-      }),
+      .refine(
+        (v) => Object.values(MarketplaceType).includes(v as MarketplaceType),
+        {
+          message: "marketplace_type inválido",
+        }
+      ),
   })
   .strict();
 
@@ -62,9 +83,12 @@ export const UpsertTaxPayloadSchema = z
     tax_rate: z
       .string()
       .transform((v) => v.replace(",", "."))
-      .refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 100, {
-        message: "tax_rate deve ser um número entre 0 e 100",
-      }),
+      .refine(
+        (v) => !Number.isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 100,
+        {
+          message: "tax_rate deve ser um número entre 0 e 100",
+        }
+      ),
   })
   .strict();
 
@@ -102,5 +126,3 @@ export const RecalcStatusSchema = z.object({
 });
 
 export type RecalcStatusResponse = z.infer<typeof RecalcStatusSchema>;
-
-
