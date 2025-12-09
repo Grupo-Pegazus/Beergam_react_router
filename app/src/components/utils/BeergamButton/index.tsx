@@ -2,6 +2,7 @@ import type { ButtonHTMLAttributes, CSSProperties } from "react";
 import React, { useEffect } from "react";
 import { Link } from "react-router";
 import { getIcon } from "~/features/menu/utils";
+import Spining from "~/src/assets/loading";
 import Svg from "~/src/assets/svgs/_index";
 interface BeergamButtonFetcherProps {
   fecthing: boolean;
@@ -25,6 +26,7 @@ interface BeergamButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
     BeergamButtonWrapperProps {
   icon?: keyof typeof Svg | null;
+  loading?: boolean;
 }
 
 type CSSPropertiesWithVars = CSSProperties & {
@@ -42,6 +44,7 @@ function BeergamButtonWrapper({
   fetcher,
   icon,
   type,
+  loading,
   ...props
 }: BeergamButtonProps) {
   const { style, ...buttonProps } = props;
@@ -55,8 +58,8 @@ function BeergamButtonWrapper({
     ? "bg-[linear-gradient(90deg,var(--color-beergam-red)_0%,var(--color-beergam-red)_100%)]! bg-[length:100%_100%]! "
     : fetcher?.completed
       ? "bg-[linear-gradient(90deg,var(--color-beergam-green)_0%,var(--color-beergam-green)_100%)]! bg-[length:100%_100%]! "
-      : fetcher?.fecthing
-        ? "opacity-50!"
+      : fetcher?.fecthing || loading
+        ? "bg-[linear-gradient(90deg,var(--color-beergam-gray-light)_0%,var(--color-beergam-gray-light)_100%)]! bg-[length:100%_100%]!"
         : "";
   const wrapperClass = `${sliderClasses} ${fectherClasses} bg-beergam-white relative overflow-hidden text-${mainColor} font-semibold py-2! px-4! rounded-lg shadow-sm group ${className} flex items-center gap-2 justify-center`;
   const sliderStyle: CSSPropertiesWithVars | undefined = isSlider
@@ -80,12 +83,13 @@ function BeergamButtonWrapper({
       ) : (
         <button
           onClick={(e) => {
-            if (fetcher?.fecthing || disabled) return;
+            if (fetcher?.fecthing || disabled || loading) return;
             onClick?.(e);
           }}
           className={`${wrapperClass}`}
           style={combinedStyle}
           type={type}
+          disabled={disabled || loading}
           {...buttonProps}
         >
           {icon && (
@@ -93,7 +97,7 @@ function BeergamButtonWrapper({
               {React.createElement(getIcon(icon as keyof typeof Svg), {
                 width: "22px",
                 height: "22px",
-                tailWindClasses: `group-hover:text-beergam-white! max-w-[unset]! ${fetcher?.completed || fetcher?.error ? "opacity-0!" : ""}`,
+                tailWindClasses: `group-hover:text-beergam-white! max-w-[unset]! ${fetcher?.completed || fetcher?.error || loading ? "opacity-0!" : ""}`,
               })}
             </span>
           )}
@@ -115,6 +119,7 @@ export default function BeergamButton({
   fetcher,
   icon,
   type = "button",
+  loading,
 }: BeergamButtonProps) {
   useEffect(() => {
     if (fetcher?.completed || fetcher?.error) {
@@ -124,6 +129,7 @@ export default function BeergamButton({
       return () => clearTimeout(timeout);
     }
   }, [fetcher?.completed, fetcher?.error, fetcher?.mutation]);
+  const isLoading = loading || fetcher?.fecthing;
   return (
     <BeergamButtonWrapper
       link={link}
@@ -131,15 +137,16 @@ export default function BeergamButton({
       animationStyle={animationStyle}
       className={className}
       onClick={disabled ? undefined : onClick}
-      disabled={disabled}
+      disabled={disabled || isLoading}
       fetcher={fetcher}
       icon={icon}
       type={type}
+      loading={isLoading}
     >
       <>
         {title && (
           <span
-            className={`relative ${fetcher?.completed || fetcher?.error ? "opacity-0" : "opacity-100"} z-10 ${disabled ? "" : animationStyle == "fade" ? "" : "group-hover:text-beergam-white"}`}
+            className={`relative ${fetcher?.completed || fetcher?.error || isLoading ? "opacity-0" : "opacity-100"} z-10 ${disabled ? "" : animationStyle == "fade" ? "" : "group-hover:text-beergam-white"}`}
           >
             {title}
           </span>
@@ -152,6 +159,11 @@ export default function BeergamButton({
         {fetcher?.completed && (
           <span className="text-beergam-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <Svg.check width={20} height={20} />
+          </span>
+        )}
+        {isLoading && (
+          <span className="text-beergam-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <Spining color="#fff" size="22px" />
           </span>
         )}
       </>
