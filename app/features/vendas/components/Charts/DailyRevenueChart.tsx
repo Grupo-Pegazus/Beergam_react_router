@@ -13,9 +13,6 @@ import { useDailyRevenue } from "../../hooks";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import { Skeleton, Typography } from "@mui/material";
 import { FilterDatePicker } from "~/src/components/filters";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { ptBR } from "@mui/x-date-pickers/locales";
 import dayjs, { type Dayjs } from "dayjs";
 
 const formatCurrency = (value: number): string => {
@@ -79,19 +76,12 @@ export default function DailyRevenueChart({ days = 30 }: DailyRevenueChartProps)
     >
       <div className="space-y-3 md:space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end gap-2 md:gap-4">
-          <LocalizationProvider
-            dateAdapter={AdapterDayjs}
-            adapterLocale="pt-br"
-            localeText={
-              ptBR.components.MuiLocalizationProvider.defaultProps.localeText
-            }
-          >
-            <FilterDatePicker
-              label="Período de Provisão"
-              value={selectedMonth?.toISOString() ?? ""}
-              onChange={(value) => handleMonthChange(value ? dayjs(value) : null)}
-            />
-          </LocalizationProvider>
+          <FilterDatePicker
+            label="Período de Provisão"
+            value={selectedMonth?.toISOString() ?? ""}
+            onChange={(value) => handleMonthChange(value ? dayjs(value) : null)}
+            dateType="month"
+          />
         </div>
 
         {chartData.length === 0 ? (
