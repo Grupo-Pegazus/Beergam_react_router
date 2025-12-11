@@ -111,8 +111,8 @@ function DateTimePopoverPicker({
             fontSize: "0.75rem",
           }}
         >
-          {WEEK_DAYS.map((d) => (
-            <Box key={d}>{d}</Box>
+          {WEEK_DAYS.map((d, idx) => (
+            <Box key={`${d}-${idx}`}>{d}</Box>
           ))}
         </Box>
 
@@ -127,7 +127,7 @@ function DateTimePopoverPicker({
         >
           {daysArray.map((dayNumber, idx) =>
             dayNumber === null ? (
-              <Box key={idx} />
+              <Box key={`${dayNumber}-${idx}`} />
             ) : (
               <Button
                 key={dayNumber}
