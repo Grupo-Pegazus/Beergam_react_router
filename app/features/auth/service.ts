@@ -20,6 +20,7 @@ class AuthService {
     formInfo:
       | { email: string; password: string }
       | { pin: string; password: string },
+    turnstileToken: string,
     type: UserRoles
   ): Promise<ApiResponse<LoginResponse>> {
     const role = type === UserRoles.MASTER ? UserRoles.MASTER : UserRoles.COLAB;
@@ -28,6 +29,7 @@ class AuthService {
         `/v1/auth/${role.toLowerCase()}/login`,
         {
           ...formInfo,
+          turnstile_token: turnstileToken,
         }
       );
       if (loginResponse.success) {
@@ -73,11 +75,14 @@ class AuthService {
       };
     }
   }
-  async register(user: RegisterUser): Promise<ApiResponse<IUser>> {
+  async register(user: RegisterUser, turnstileToken: string): Promise<ApiResponse<IUser>> {
     try {
       const response = await typedApiClient.post<IUser>(
         "/v1/auth/master/register",
-        user
+        {
+          ...user,
+          turnstile_token: turnstileToken,
+        }
       );
       return response;
     } catch (error) {

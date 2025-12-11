@@ -30,7 +30,7 @@ export default defineConfig(async (config) => {
   return {
     plugins,
     ssr: {
-      noExternal: ["gsap"]
+      noExternal: ["gsap", "@marsidev/react-turnstile"]
     }
   };
 });
