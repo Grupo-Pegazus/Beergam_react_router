@@ -1,12 +1,12 @@
 import { CNPJSchema } from "app/utils/typings/CNPJ";
 import { CPFSchema } from "app/utils/typings/CPF";
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useState, useRef } from "react";
 import { Form, Link, useActionData } from "react-router";
 import { z } from "zod";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { UserPasswordSchema } from "~/features/auth/typing";
 import { UserRoles, UserStatus } from "~/features/user/typings/BaseUser";
-import { Turnstile } from '@marsidev/react-turnstile'
+import { BeergamTurnstile, type BeergamTurnstileRef } from "~/src/components/utils/BeergamTurnstile";
 import {
   ComoConheceu,
   ProfitRange,
@@ -33,12 +33,17 @@ export default function FormModal() {
   );
   useEffect(() => {
     setActionData(data);
+    if (data && !data.success) {
+      turnstileRef.current?.reset();
+      setTurnstileToken("");
+    }
   }, [data]);
   const [currentDocument, setCurrentDocument] = useState<UserDocuments>("CPF");
   const [password, setPassword] = useState("");
   const [isSubmited, setIsSubmited] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string>("");
+  const turnstileRef = useRef<BeergamTurnstileRef>(null);
   const documentToValidate = currentDocument == "CPF" ? CPFSchema : CNPJSchema;
   const [UserInfo, setUserInfo] = useReducer(
     (state: IUser, action: Partial<IUser>) => {
@@ -101,7 +106,8 @@ export default function FormModal() {
         error: true,
       };
   function HandleSubmit(): boolean {
-    if (!turnstileToken) {
+    const token = turnstileRef.current?.getToken() || turnstileToken;
+    if (!token) {
       return false;
     }
     UserInfo.updated_at = new Date();
@@ -482,14 +488,12 @@ export default function FormModal() {
           ></Fields.select>
         </Fields.wrapper>
       </div>
-      <Turnstile
-        siteKey={import.meta.env.PROD ? import.meta.env.VITE_TURNSTILE_SITE_KEY_PROD! : import.meta.env.VITE_TURNSTILE_SITE_KEY_DEV!}
-        options={{
-          theme: "light",
-          size: "flexible",
-          language: "pt-br",
+      <BeergamTurnstile
+        ref={turnstileRef}
+        onTokenChange={setTurnstileToken}
+        onError={() => {
+          setTurnstileToken("");
         }}
-        onSuccess={(token) => setTurnstileToken(token)}
       />
       <input type="hidden" name="turnstile_token" value={turnstileToken} />
       <BeergamButton
