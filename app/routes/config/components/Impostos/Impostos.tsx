@@ -2,13 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import type { ApiResponse } from "~/features/apiClient/typings";
+import { useAuthUser } from "~/features/auth/context/AuthStoreContext";
 import { marketplaceService } from "~/features/marketplace/service";
 import type {
   BaseMarketPlace,
   MarketplaceType,
 } from "~/features/marketplace/typings";
 import {
-  useRecalcStatus,
   useRecalculatePeriod,
   useUpsertTax,
   useUserTaxes,
@@ -19,6 +19,7 @@ import {
   type MonthKey,
 } from "~/features/taxes/typings";
 import UserFields from "~/features/user/components/UserFields";
+import { FormatCalcTax, isMaster } from "~/features/user/utils";
 import Spining from "~/src/assets/loading";
 import Svg from "~/src/assets/svgs/_index";
 import Section from "~/src/components/ui/Section";
@@ -27,7 +28,19 @@ import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
 import { getMarketplaceImageUrl } from "~/src/constants/cdn-images";
 const AVAILABLE_YEARS = [2025, 2024];
+
+// Função auxiliar para extrair o valor numérico do tax
+function getTaxValue(
+  tax: { source: string; parsedValue: number } | number | null
+): number | null {
+  if (tax === null || tax === undefined) return null;
+  if (typeof tax === "number") return tax;
+  if (typeof tax === "object" && "parsedValue" in tax) return tax.parsedValue;
+  return null;
+}
+
 export default function Impostos() {
+  const user = useAuthUser();
   const recalc = useRecalculatePeriod();
   const [selectedAccount, setSelectedAccount] =
     useState<BaseMarketPlace | null>(null);
@@ -64,15 +77,13 @@ export default function Impostos() {
   };
 
   const [selectedTax, setSelectedTax] = useState<number | null>(
-    taxes?.impostos?.[selectedMonth] ?? null
+    getTaxValue(taxes?.impostos?.[selectedMonth]?.tax ?? null) ?? null
   );
   useEffect(() => {
-    setSelectedTax(taxes?.impostos?.[selectedMonth] ?? null);
+    setSelectedTax(
+      getTaxValue(taxes?.impostos?.[selectedMonth]?.tax ?? null) ?? null
+    );
   }, [selectedMonth, taxes]);
-  const recalcStatus = useRecalcStatus({
-    year: year,
-    month: Number(selectedMonth),
-  });
   const handleUpsert = async () => {
     if (!selectedAccount?.marketplace_shop_id) return;
     if (selectedTax === null) return;
@@ -95,11 +106,13 @@ export default function Impostos() {
     });
     await p;
   };
-  const confirmRecalc = async (month: string, year: number) => {
-    if (!recalcStatus.data?.can_recalculate) return;
-    if (recalcStatus.data?.remaining_recalculations === 0) return;
+  const confirmRecalc = async (
+    month: string,
+    year: number,
+    recalc_remaining: number
+  ) => {
     if (recalc.isPending) return;
-    if (!year || !selectedMonth) return;
+    if (!year || !selectedMonth || recalc_remaining === 0) return;
     const p = recalc.mutateAsync({
       year: year,
       month: Number(month),
@@ -209,14 +222,18 @@ export default function Impostos() {
                 </div>
                 <BeergamButton
                   title={
-                    taxes?.impostos?.[selectedMonth] !== 0
+                    getTaxValue(
+                      taxes?.impostos?.[selectedMonth]?.tax ?? null
+                    ) !== null
                       ? "Atualizar Alíquota"
                       : "Adicionar Alíquota"
                   }
                   mainColor="beergam-blue-primary"
                   animationStyle="slider"
                   icon={
-                    taxes?.impostos?.[selectedMonth] !== 0
+                    getTaxValue(
+                      taxes?.impostos?.[selectedMonth]?.tax ?? null
+                    ) !== null
                       ? "pencil_solid"
                       : "plus"
                   }
@@ -243,88 +260,231 @@ export default function Impostos() {
                     <Spining size="20px" />
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2">
                     {Object.entries(taxes?.impostos ?? {})
-                      .filter(
-                        ([_month, tax]) =>
-                          tax !== 0 && tax !== null && tax !== undefined
-                      )
-                      .map(([month, tax]) => (
-                        <div
-                          key={tax}
-                          className={`${selectedMonth === month && year === year ? "bg-beergam-blue-primary/10" : "bg-beergam-white"} p-2 rounded-md flex items-center gap-2 justify-between`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <div className="size-7 flex justify-center items-center bg-beergam-blue-primary/10 rounded-full">
-                              <Svg.check
-                                width="16px"
-                                height="16px"
-                                tailWindClasses="text-beergam-blue-primary"
-                              />
+                      .filter(([, tax]) => tax !== null && tax !== undefined)
+                      .map(([month, tax]) => {
+                        const taxValue = getTaxValue(tax?.tax ?? null) ?? null;
+                        return (
+                          <div
+                            key={month}
+                            className={`${selectedMonth === month && year === year ? "bg-beergam-blue-primary/10 border-transparent border-b-beergam-gray-light" : "bg-beergam-white border-transparent"} cursor-pointer border hover:border-beergam-gray-light  p-2 rounded-md flex items-center gap-2 justify-between`}
+                            onClick={() => {
+                              setSelectedTax(taxValue);
+                              setSelectedMonth(month as MonthKey);
+                              setYear(year);
+                            }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <div
+                                className={`size-7 flex justify-center items-center ${taxValue !== null ? "bg-beergam-blue-primary/10" : "bg-beergam-yellow/10"} rounded-full`}
+                              >
+                                {taxValue !== null ? (
+                                  <Svg.check
+                                    width="16px"
+                                    height="16px"
+                                    tailWindClasses="text-beergam-blue-primary"
+                                  />
+                                ) : (
+                                  <Svg.alert
+                                    width="16px"
+                                    height="16px"
+                                    tailWindClasses="text-beergam-yellow"
+                                  />
+                                )}
+                              </div>
+                              <p>
+                                {TranslatedMonthKeys[month as MonthKey]} de{" "}
+                                {year}
+                              </p>
+                              {taxValue !== null ? (
+                                <p>{`${taxValue}%`}</p>
+                              ) : null}
                             </div>
-                            <p>
-                              {TranslatedMonthKeys[month]} de {year}
-                            </p>
-                            <p>{tax}%</p>
+                            <div className="flex items-center gap-2">
+                              {taxValue !== null && taxValue !== undefined && (
+                                <>
+                                  <BeergamButton
+                                    mainColor="beergam-blue-primary"
+                                    animationStyle="slider"
+                                    icon="arrow_path"
+                                    tooltip={{
+                                      id: `recalc-${month}`,
+                                      content: "Recalcular período",
+                                    }}
+                                    onClick={() => {
+                                      openModal(
+                                        tax.remaining_recalculations > 0 ? (
+                                          <Alert
+                                            onClose={closeModal}
+                                            disabledConfirm={
+                                              tax.remaining_recalculations ===
+                                                0 ||
+                                              tax.remaining_recalculations < 1
+                                            }
+                                            onConfirm={() =>
+                                              confirmRecalc(
+                                                month,
+                                                year,
+                                                tax.remaining_recalculations
+                                              )
+                                            }
+                                            type="warning"
+                                          >
+                                            <div className="flex flex-col gap-2 text-center">
+                                              <p>
+                                                Confirmar recalculo para o mês
+                                                de{" "}
+                                                <u>
+                                                  {`${TranslatedMonthKeys[month as MonthKey]} de ${year}`}
+                                                </u>{" "}
+                                                com uma taxa de{" "}
+                                                <u>{taxValue}%</u>?
+                                              </p>
+                                              <p>
+                                                Seus pedidos neste período serão
+                                                recalculados na opção{" "}
+                                                <u className="font-bold">
+                                                  {user &&
+                                                  isMaster(user) &&
+                                                  user?.details.calc_tax
+                                                    ? FormatCalcTax(
+                                                        user?.details.calc_tax
+                                                      )
+                                                    : "N/A"}
+                                                </u>
+                                                .
+                                              </p>
+                                              <p>
+                                                Você tem{" "}
+                                                <u className="font-bold">
+                                                  {`${tax.remaining_recalculations}`}
+                                                </u>{" "}
+                                                recalculos restantes.
+                                              </p>
+                                            </div>
+                                          </Alert>
+                                        ) : (
+                                          <Alert type="error">
+                                            <div className="flex flex-col gap-2 text-center">
+                                              <p>
+                                                Você não tem recalculos
+                                                restantes.
+                                              </p>
+                                            </div>
+                                          </Alert>
+                                        ),
+                                        {
+                                          title: "Recalcular Período",
+                                        }
+                                      );
+                                    }}
+                                    // onClick={() => {
+                                    //   openModal(
+                                    //     <Alert
+                                    //       type="warning"
+                                    //       onClose={closeModal}
+                                    //       onConfirm={() => confirmRecalc(month, year)}
+                                    //       disabledConfirm={
+                                    //         recalcStatus.data
+                                    //           ?.remaining_recalculations === 0
+                                    //       }
+                                    //     >
+                                    //       <div className="flex flex-col gap-2">
+                                    //         <p>
+                                    //           Confirmar recalculo para o mês de{" "}
+                                    //           <span className="font-bold underline">
+                                    //             {`${TranslatedMonthKeys[month as MonthKey]} de ${year}`}
+                                    //           </span>{" "}
+                                    //           ?
+                                    //         </p>
+                                    //         <div
+                                    //           className={`flex items-center justify-center border ${recalcStatus.data?.remaining_recalculations && recalcStatus.data?.remaining_recalculations <= 1 ? "border-beergam-red text-beergam-red" : "border-beergam-yellow text-beergam-yellow"} bg-beergam-yellow/10 rounded-full p-2`}
+                                    //         >
+                                    //           <h3>
+                                    //             Recalculos Restantes:{" "}
+                                    //             {recalcStatus.data
+                                    //               ?.remaining_recalculations ?? 0}
+                                    //           </h3>
+                                    //         </div>
+                                    //       </div>
+                                    //     </Alert>,
+                                    //     {
+                                    //       title: "Recalcular período",
+                                    //     }
+                                    //   );
+                                    // }}
+                                  />
+                                  <BeergamButton
+                                    mainColor="beergam-red"
+                                    animationStyle="slider"
+                                    icon="trash"
+                                    tooltip={{
+                                      id: `delete-${month}`,
+                                      content: "Excluir alíquota",
+                                    }}
+                                    onClick={() => {
+                                      openModal(
+                                        tax.remaining_recalculations > 0 ? (
+                                          <Alert
+                                            onClose={closeModal}
+                                            onConfirm={() => {
+                                              toast.error(
+                                                "Implementação ainda não disponível."
+                                              );
+                                            }}
+                                            type="warning"
+                                          >
+                                            <div className="flex flex-col gap-2 text-center">
+                                              <p>
+                                                Confirmar exclusão da alíquota
+                                                para o mês de{" "}
+                                                <u>
+                                                  {`${TranslatedMonthKeys[month as MonthKey]} de ${year}`}
+                                                </u>{" "}
+                                                ?
+                                              </p>
+                                              <p>
+                                                Se você excluir a alíquota,
+                                                todos os pedidos deste período
+                                                serão recalculados com a
+                                                alíquota do mês anterior mais
+                                                próximo com um valor definido.
+                                              </p>
+                                              <p>
+                                                Você tem{" "}
+                                                <u className="font-bold">
+                                                  {`${tax.remaining_recalculations}`}
+                                                </u>{" "}
+                                                recalculos restantes.
+                                              </p>
+                                            </div>
+                                          </Alert>
+                                        ) : (
+                                          <Alert
+                                            onClose={closeModal}
+                                            type="error"
+                                          >
+                                            <div className="flex flex-col gap-2 text-center">
+                                              <p>
+                                                Você não tem recalculos
+                                                restantes.
+                                              </p>
+                                            </div>
+                                          </Alert>
+                                        ),
+                                        {
+                                          title: "Excluir Alíquota",
+                                        }
+                                      );
+                                    }}
+                                  />
+                                </>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <BeergamButton
-                              mainColor="beergam-blue-primary"
-                              animationStyle="slider"
-                              icon="arrow_path"
-                              tooltip={{
-                                id: `recalc-${month}`,
-                                content: "Recalcular período",
-                              }}
-                              onClick={() => {
-                                openModal(
-                                  <Alert
-                                    type="warning"
-                                    onClose={closeModal}
-                                    onConfirm={() => confirmRecalc(month, year)}
-                                    disabledConfirm={
-                                      recalcStatus.data
-                                        ?.remaining_recalculations === 0
-                                    }
-                                  >
-                                    <div className="flex flex-col gap-2">
-                                      <p>
-                                        Confirmar recalculo para o mês de{" "}
-                                        <span className="font-bold underline">
-                                          {`${TranslatedMonthKeys[month]} de ${year}`}
-                                        </span>{" "}
-                                        ?
-                                      </p>
-                                      <div
-                                        className={`flex items-center justify-center border ${recalcStatus.data?.remaining_recalculations && recalcStatus.data?.remaining_recalculations <= 1 ? "border-beergam-red text-beergam-red" : "border-beergam-yellow text-beergam-yellow"} bg-beergam-yellow/10 rounded-full p-2`}
-                                      >
-                                        <h3>
-                                          Recalculos Restantes:{" "}
-                                          {recalcStatus.data
-                                            ?.remaining_recalculations ?? 0}
-                                        </h3>
-                                      </div>
-                                    </div>
-                                  </Alert>,
-                                  {
-                                    title: "Recalcular período",
-                                  }
-                                );
-                              }}
-                            />
-                            <BeergamButton
-                              mainColor="beergam-blue-primary"
-                              animationStyle="slider"
-                              icon="pencil_solid"
-                              onClick={() => {
-                                setSelectedTax(tax);
-                                setSelectedMonth(month as MonthKey);
-                                setYear(year);
-                              }}
-                            />
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                   </div>
                 )}
               </div>
