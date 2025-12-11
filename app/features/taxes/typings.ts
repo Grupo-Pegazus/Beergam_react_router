@@ -31,48 +31,36 @@ export const TranslatedMonthKeys: Record<MonthKey, string> = {
 } as const;
 export type MonthKey = (typeof MonthKeys)[number];
 
-export const TaxesMonthsSchema = z.object(
-  MonthKeys.reduce(
-    (shape, key) => {
-      shape[key] = z.number().min(0);
-      return shape;
-    },
-    {} as Record<MonthKey, z.ZodNumber>
-  )
-);
+// export const TaxesDataSchema = z
+//   .object({
+//     ano: z.number().int().gte(1900).lte(3000),
+//     impostos: TaxesMonthsSchema,
+//     marketplace_shop_id: z
+//       .union([z.string(), z.number()])
+//       .transform((v) => String(v)),
+//     marketplace_type: z
+//       .string()
+//       .transform((v) => v as MarketplaceType)
+//       .refine(
+//         (v) => Object.values(MarketplaceType).includes(v as MarketplaceType),
+//         {
+//           message: "marketplace_type inválido",
+//         }
+//       ),
+//   })
+//   .strict();
 
-export type TaxesMonths = z.infer<typeof TaxesMonthsSchema>;
+// export type TaxesData = z.infer<typeof TaxesDataSchema>;
 
-export const TaxesDataSchema = z
-  .object({
-    ano: z.number().int().gte(1900).lte(3000),
-    impostos: TaxesMonthsSchema,
-    marketplace_shop_id: z
-      .union([z.string(), z.number()])
-      .transform((v) => String(v)),
-    marketplace_type: z
-      .string()
-      .transform((v) => v as MarketplaceType)
-      .refine(
-        (v) => Object.values(MarketplaceType).includes(v as MarketplaceType),
-        {
-          message: "marketplace_type inválido",
-        }
-      ),
-  })
-  .strict();
+// export const TaxesResponseSchema = z
+//   .object({
+//     data: TaxesDataSchema,
+//     message: z.string().optional(),
+//     success: z.boolean(),
+//   })
+//   .passthrough();
 
-export type TaxesData = z.infer<typeof TaxesDataSchema>;
-
-export const TaxesResponseSchema = z
-  .object({
-    data: TaxesDataSchema,
-    message: z.string().optional(),
-    success: z.boolean(),
-  })
-  .passthrough();
-
-export type TaxesResponse = z.infer<typeof TaxesResponseSchema>;
+// export type TaxesResponse = z.infer<typeof TaxesResponseSchema>;
 
 export const UpsertTaxPayloadSchema = z
   .object({
@@ -108,21 +96,71 @@ export const RecalcPeriodPayloadSchema = z
 
 export type RecalcPeriodPayload = z.infer<typeof RecalcPeriodPayloadSchema>;
 
+const TaxValueSchema = z.union([
+  z.object({
+    source: z.string(),
+    parsedValue: z.number(),
+  }),
+  z.number(),
+  z.null(),
+]);
+
+const RecalcStatusData = z.object({
+  can_recalculate: z.boolean(),
+  last_recalculation: z.unknown().nullable(),
+  monthly_limit: z.number().int().nonnegative(),
+  recalculation_count: z.number().int().nonnegative(),
+  remaining_recalculations: z.number().int().nonnegative(),
+  tax: TaxValueSchema,
+});
+
 export const RecalcStatusSchema = z.object({
-  data: z
-    .object({
-      can_recalculate: z.boolean(),
-      last_recalculation: z.unknown().nullable(),
-      month: z.number().int().min(1).max(12),
-      monthly_limit: z.number().int().nonnegative(),
-      recalculation_count: z.number().int().nonnegative(),
-      remaining_recalculations: z.number().int().nonnegative(),
-      user_pin: z.string(),
-      year: z.number().int(),
-    })
-    .strict(),
+  data: RecalcStatusData.strict(),
   message: z.string().optional(),
   success: z.boolean(),
 });
 
 export type RecalcStatusResponse = z.infer<typeof RecalcStatusSchema>;
+
+export const TaxesMonthsSchema = z.object(
+  MonthKeys.reduce(
+    (shape, key) => {
+      shape[key] = RecalcStatusData.strict();
+      return shape;
+    },
+    {} as Record<MonthKey, typeof RecalcStatusData>
+  )
+);
+
+export type TaxesMonths = z.infer<typeof TaxesMonthsSchema>;
+
+export const TaxesDataSchema = z
+  .object({
+    ano: z.number().int().gte(1900).lte(3000),
+    impostos: TaxesMonthsSchema.strict(),
+    marketplace_shop_id: z
+      .union([z.string(), z.number()])
+      .transform((v) => String(v)),
+    marketplace_type: z
+      .string()
+      .transform((v) => v as MarketplaceType)
+      .refine(
+        (v) => Object.values(MarketplaceType).includes(v as MarketplaceType),
+        {
+          message: "marketplace_type inválido",
+        }
+      ),
+  })
+  .strict();
+
+export type TaxesData = z.infer<typeof TaxesDataSchema>;
+
+export const TaxesResponseSchema = z
+  .object({
+    data: TaxesDataSchema,
+    message: z.string().optional(),
+    success: z.boolean(),
+  })
+  .passthrough();
+
+export type TaxesResponse = z.infer<typeof TaxesResponseSchema>;
