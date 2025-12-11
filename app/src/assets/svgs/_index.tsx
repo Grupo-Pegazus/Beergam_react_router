@@ -64,6 +64,7 @@ import UserPlusSolid from "./UserPlusSolid";
 import WarningCircle from "./WarningCircle";
 import X from "./X";
 import XCircle from "./XCircle";
+import CalendarIcon from "./Calendar";
 const Svg = {
   home: HomeIcon,
   home_solid: HomeSolid,
@@ -131,6 +132,7 @@ const Svg = {
   hamburguer: Hamburguer,
   camera: Camera,
   camera_solid: CameraSolid,
+  calendar: CalendarIcon,
 };
 
 export default Svg;

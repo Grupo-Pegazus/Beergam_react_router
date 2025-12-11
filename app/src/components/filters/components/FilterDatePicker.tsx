@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Typography, Button, Popover, Box, IconButton } from "@mui/material";
 import { MonthYearPicker } from "~/src/components/ui/MonthYearPicker";
 import dayjs, { type Dayjs } from "dayjs";
+import Svg from "~/src/assets/svgs/_index";
 
 function convertToDayjs(value?: string): Dayjs | null {
   if (!value) return null;
@@ -245,7 +246,9 @@ export function FilterDatePicker({
           sx={{
             width: widthType === "full" ? "100%" : "auto",
             minWidth: 200,
-            justifyContent: "flex-start",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
             textTransform: "none",
             borderRadius: "24px",
             padding: "8px 16px",
@@ -264,6 +267,7 @@ export function FilterDatePicker({
           }}
         >
           {displayValue}
+          <Svg.calendar tailWindClasses="w-5 h-5" />
         </Button>
         <MonthYearPicker
           value={dayjsValue}
@@ -317,9 +321,11 @@ export function FilterDatePicker({
         onClick={handleOpen}
         disabled={disabled}
         sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
           width: widthType === "full" ? "100%" : "auto",
           minWidth: 200,
-          justifyContent: "flex-start",
           textTransform: "none",
           borderRadius: "24px",
           padding: "8px 16px",
@@ -338,6 +344,7 @@ export function FilterDatePicker({
         }}
       >
         {displayValue}
+        <Svg.calendar tailWindClasses="w-5 h-5" />
       </Button>
       <DateTimePopoverPicker
         value={dayjsValue}
