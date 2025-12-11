@@ -302,7 +302,12 @@ export function FilterDatePicker({
     const normalized = includeTime
       ? newValue.second(0).millisecond(0)
       : newValue.startOf("day");
-    onChange(normalized.toISOString());
+
+    const serialized = includeTime
+      ? normalized.format("YYYY-MM-DDTHH:mm:ss")
+      : normalized.format("YYYY-MM-DD");
+
+    onChange(serialized);
   };
 
   const displayValue = dayjsValue

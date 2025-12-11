@@ -9,6 +9,7 @@ import type { Scheduling, CreateScheduling, UpdateScheduling, CreateSchedulingIt
 import { SchedulingType } from "../../typings";
 import { calculateItemTotal, formatCurrency } from "../../utils";
 import Svg from "~/src/assets/svgs/_index";
+import { FilterDatePicker } from "~/src/components/filters/components/FilterDatePicker";
 
 interface SchedulingFormModalProps {
   isOpen: boolean;
@@ -167,31 +168,6 @@ export default function SchedulingFormModal({
     setItems(updatedItems);
   };
 
-  const formatDateTimeForInput = (dateString: string | null | undefined): string => {
-    if (!dateString) return "";
-    try {
-      const date = new Date(dateString);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      const hours = String(date.getHours()).padStart(2, "0");
-      const minutes = String(date.getMinutes()).padStart(2, "0");
-      return `${year}-${month}-${day}T${hours}:${minutes}`;
-    } catch {
-      return "";
-    }
-  };
-
-  const parseDateTimeFromInput = (value: string): string => {
-    if (!value) return "";
-    try {
-      const date = new Date(value);
-      return date.toISOString();
-    } catch {
-      return "";
-    }
-  };
-
   const isLoading = createMutation.isPending || updateMutation.isPending;
 
   return (
@@ -205,7 +181,7 @@ export default function SchedulingFormModal({
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Campos básicos */}
-          <Fields.wrapper>
+          <Fields.wrapper className="w-full">
             <Fields.label text="Título" required />
             <Fields.input
               type="text"
@@ -217,19 +193,15 @@ export default function SchedulingFormModal({
             />
           </Fields.wrapper>
 
-          <Fields.wrapper>
+          <Fields.wrapper className="w-full">
             <Fields.label text="Data do evento" required />
-            <Fields.input
-              type="datetime-local"
-              value={formatDateTimeForInput(formData.estimated_arrival_date)}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  estimated_arrival_date: parseDateTimeFromInput(e.target.value),
-                })
-              }
-              error={errors.estimated_arrival_date}
+            <FilterDatePicker
+              label=""
+              value={formData.estimated_arrival_date}
+              onChange={(value) => setFormData({ ...formData, estimated_arrival_date: value })}
               disabled={isLoading}
+              includeTime={true}
+              widthType="full"
             />
           </Fields.wrapper>
 
