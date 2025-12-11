@@ -59,7 +59,7 @@ export const MenuConfig = {
         dropdown: {
           perguntas: {
             label: "Perguntas",
-            status: "yellow",
+            status: "green",
             path: "/perguntas",
             launched: true,
           },
@@ -87,25 +87,25 @@ export const MenuConfig = {
     dropdown: {
       gestao: {
         label: "Gestão",
-        status: "yellow",
+        status: "green",
         path: "/gestao",
         launched: true,
         dinamic_id: "product_id",
       },
       cadastro: {
         label: "Cadastro",
-        status: "yellow",
+        status: "green",
         launched: true,
         dropdown: {
           cadastro_simplificado: {
             label: "Simplificado",
-            status: "yellow",
+            status: "green",
             path: "/cadastro_simplificado",
             launched: true,
           },
           cadastro_completo: {
             label: "Completo",
-            status: "yellow",
+            status: "green",
             path: "/cadastro_completo",
             launched: true,
           },
@@ -113,25 +113,25 @@ export const MenuConfig = {
       },
       categorias: {
         label: "Categorias",
-        status: "yellow",
+        status: "green",
         path: "/categorias",
         launched: true,
       },
       atributos: {
         label: "Atributos",
-        status: "yellow",
+        status: "green",
         path: "/atributos",
         launched: true,
       },
       agendamento: {
         label: "Agendamento",
-        status: "yellow",
+        status: "green",
         path: "/agendamento",
         launched: true,
       },
       editar: {
         label: "Editar",
-        status: "yellow",
+        status: "green",
         path: "/editar",
         launched: true,
         dinamic_id: "public_id_prod",
@@ -139,7 +139,7 @@ export const MenuConfig = {
       },
       estoque: {
         label: "Estoque",
-        status: "yellow",
+        status: "green",
         path: "/estoque",
         launched: true,
         dinamic_id: "product_id",

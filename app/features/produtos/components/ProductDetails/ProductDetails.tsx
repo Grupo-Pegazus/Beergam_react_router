@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Box, Stack, Alert } from "@mui/material";
 import { useProductDetails } from "../../hooks";
 import ProductInfo from "./ProductInfo/ProductInfo";
@@ -6,7 +6,9 @@ import ProductImageGallery from "./ProductImageGallery/ProductImageGallery";
 import StockPreview from "./StockPreview/StockPreview";
 import ProductVariations from "./ProductVariations/ProductVariations";
 import ProductAdditionalInfo from "./ProductAdditionalInfo/ProductAdditionalInfo";
+import ProductRelatedAds from "./ProductRelatedAds/ProductRelatedAds";
 import ProductDetailsSkeleton from "./ProductDetailsSkeleton";
+import { useBreadcrumbCustomization } from "~/features/system/context/BreadcrumbContext";
 
 interface ProductDetailsProps {
   productId: string;
@@ -16,7 +18,14 @@ interface ProductDetailsProps {
  * Componente principal que integra todos os componentes de detalhe do produto
  */
 export default function ProductDetails({ productId }: ProductDetailsProps) {
+  const { setCustomLabel } = useBreadcrumbCustomization();
   const { data, isLoading, error } = useProductDetails(productId);
+
+  useEffect(() => {
+    if (data?.data?.title) {
+      setCustomLabel(`Detalhes do Produto: ${data.data.title}`);
+    }
+  }, [data?.data?.title, setCustomLabel]);
 
   const product = useMemo(() => {
     return data?.data;
@@ -88,6 +97,11 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
 
       {/* Quarta linha: Informações adicionais */}
       <ProductAdditionalInfo product={product} />
+
+      {/* Quinta linha: Anúncios relacionados */}
+      {product.related_ads && product.related_ads.length > 0 && (
+        <ProductRelatedAds product={product} />
+      )}
     </Stack>
   );
 }

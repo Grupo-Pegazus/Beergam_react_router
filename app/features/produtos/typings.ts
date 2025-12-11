@@ -13,6 +13,17 @@ const ProductImagesSchema = z.object({
   shipping: z.array(z.string()),
 });
 
+// Schema para anúncio relacionado
+const RelatedAdSchema = z.object({
+  marketplace: z.string(),
+  marketplace_shop_id: z.string(),
+  sku: z.string(),
+  ad_external_id: z.string(),
+  ad_variation_external_id: z.string(),
+});
+
+export type RelatedAd = z.infer<typeof RelatedAdSchema>;
+
 // Schema para variação básica (da lista)
 const VariationBasicSchema = z.object({
   product_variation_id: z.string(),
@@ -46,7 +57,7 @@ export const ProductSchema = z.object({
   categories: z.array(CategorySchema),
   images: ProductImagesSchema,
   variations: z.array(VariationBasicSchema),
-  related_ads: z.array(z.unknown()),
+  related_ads: z.array(RelatedAdSchema),
   available_quantity: z.number().optional(),
   price_sale: z.string().optional(),
   sales_quantity: z.number().optional(),
@@ -105,7 +116,7 @@ export const ProductDetailsSchema = z.object({
   categories: z.array(CategorySchema),
   images: ProductImagesSchema,
   variations: z.array(VariationFullSchema),
-  related_ads: z.array(z.unknown()),
+  related_ads: z.array(RelatedAdSchema),
   brand: z.string().optional(),
   internal_code: z.string().optional(),
   unity_type: z.string().optional(),
