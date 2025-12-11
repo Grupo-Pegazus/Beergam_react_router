@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import { useSocketContext } from "~/features/socket/context/SocketContext";
@@ -11,7 +11,7 @@ import BeergamButton from "~/src/components/utils/BeergamButton";
 import { authService } from "../../../../features/auth/service";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Turnstile } from '@marsidev/react-turnstile'
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import {
   type ColaboradorUserForm,
   ColaboradorUserFormSchema,
@@ -90,14 +90,19 @@ export default function FormModal({
   const activeForm = currentUserType === UserRoles.MASTER ? masterForm : colaboradorForm;
   const { handleSubmit, reset } = activeForm;
   const [turnstileToken, setTurnstileToken] = useState<string>("");
+  const turnstileRef = useRef<TurnstileInstance>(null);
+
   // Mutation para login
   const loginMutation = useMutation({
     mutationFn: async (data: MasterUserForm | ColaboradorUserForm) => {
       const response = await authService.login(data, turnstileToken, currentUserType as UserRoles);
-      setTurnstileToken("");
+      
       if (!response.success) {
         throw new Error(response.message);
       }
+
+      // Resetar token apenas após sucesso
+      setTurnstileToken("");
 
       const userData = response.data.user;
       const subscriptionData = response.data.subscription;
@@ -123,6 +128,9 @@ export default function FormModal({
       return response;
     },
     onError: (error: Error) => {
+      // Resetar token e componente Turnstile em caso de erro
+      setTurnstileToken("");
+      turnstileRef.current?.reset();
       toast.error(error.message || "Erro ao fazer login. Tente novamente.");
     },
   });
@@ -131,6 +139,8 @@ export default function FormModal({
   useEffect(() => {
     reset();
     loginMutation.reset();
+    setTurnstileToken("");
+    turnstileRef.current?.reset();
   }, [currentUserType]);
 
   function ChangeUserType(userType: UserRoles) {
@@ -241,6 +251,7 @@ export default function FormModal({
           Esqueceu sua senha?
         </button>
         <Turnstile 
+          ref={turnstileRef}
           siteKey={import.meta.env.PROD ? import.meta.env.VITE_TURNSTILE_SITE_KEY_PROD! : import.meta.env.VITE_TURNSTILE_SITE_KEY_DEV!}
           options={{
             theme: "light",
@@ -248,6 +259,10 @@ export default function FormModal({
             language: "pt-br",
           }}
           onSuccess={(token) => setTurnstileToken(token)}
+          onError={() => {
+            setTurnstileToken("");
+            turnstileRef.current?.reset();
+          }}
         />
         <div className="flex gap-2 sm:hidden">
           <FormHelpNavigation />
