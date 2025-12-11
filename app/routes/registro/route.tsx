@@ -21,6 +21,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
   const found_beergam = formData.get("found_beergam");
   const profit_range = formData.get("profit_range");
   const referral_code = formData.get("referral_code");
+  const turnstileToken = formData.get("turnstile_token") as string;
   const responsePromise = authService
     .register({
       colabs: {} as Record<string, IColab>,
@@ -39,7 +40,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
         profit_range: profit_range as string as ProfitRange,
         referral_code: referral_code as string | null,
       },
-    })
+    }, turnstileToken)
     .then((response) => {
       if (!response.success) {
         const errorObj = new Error(response.message);

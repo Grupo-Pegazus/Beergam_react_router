@@ -11,6 +11,7 @@ import BeergamButton from "~/src/components/utils/BeergamButton";
 import { authService } from "../../../../features/auth/service";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Turnstile } from '@marsidev/react-turnstile'
 import {
   type ColaboradorUserForm,
   ColaboradorUserFormSchema,
@@ -88,12 +89,12 @@ export default function FormModal({
   // Seleciona o form ativo baseado no tipo de usuário
   const activeForm = currentUserType === UserRoles.MASTER ? masterForm : colaboradorForm;
   const { handleSubmit, reset } = activeForm;
-
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
   // Mutation para login
   const loginMutation = useMutation({
     mutationFn: async (data: MasterUserForm | ColaboradorUserForm) => {
-      const response = await authService.login(data, currentUserType as UserRoles);
-      
+      const response = await authService.login(data, turnstileToken, currentUserType as UserRoles);
+      setTurnstileToken("");
       if (!response.success) {
         throw new Error(response.message);
       }
@@ -142,7 +143,7 @@ export default function FormModal({
 
   return (
     <div
-      className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-white h-full w-full mx-auto my-auto p-8 sm:w-2/3 sm:max-w-lg sm:rounded-4xl sm:h-[490px]`}
+      className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-white h-auto w-full mx-auto my-auto p-8 sm:w-2/3 sm:max-w-lg sm:rounded-4xl`}
     >
       <div className="block w-16 h-16 sm:hidden">
         <img
@@ -239,6 +240,15 @@ export default function FormModal({
         >
           Esqueceu sua senha?
         </button>
+        <Turnstile 
+          siteKey={import.meta.env.PROD ? import.meta.env.VITE_TURNSTILE_SITE_KEY_PROD! : import.meta.env.VITE_TURNSTILE_SITE_KEY_DEV!}
+          options={{
+            theme: "light",
+            size: "flexible",
+            language: "pt-br",
+          }}
+          onSuccess={(token) => setTurnstileToken(token)}
+        />
         <div className="flex gap-2 sm:hidden">
           <FormHelpNavigation />
         </div>

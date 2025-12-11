@@ -6,6 +6,7 @@ import { z } from "zod";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { UserPasswordSchema } from "~/features/auth/typing";
 import { UserRoles, UserStatus } from "~/features/user/typings/BaseUser";
+import { Turnstile } from '@marsidev/react-turnstile'
 import {
   ComoConheceu,
   ProfitRange,
@@ -37,6 +38,7 @@ export default function FormModal() {
   const [password, setPassword] = useState("");
   const [isSubmited, setIsSubmited] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
   const documentToValidate = currentDocument == "CPF" ? CPFSchema : CNPJSchema;
   const [UserInfo, setUserInfo] = useReducer(
     (state: IUser, action: Partial<IUser>) => {
@@ -99,6 +101,9 @@ export default function FormModal() {
         error: true,
       };
   function HandleSubmit(): boolean {
+    if (!turnstileToken) {
+      return false;
+    }
     UserInfo.updated_at = new Date();
     UserInfo.created_at = new Date();
     UserInfo.status = "ACTIVE" as UserStatus;
@@ -477,6 +482,16 @@ export default function FormModal() {
           ></Fields.select>
         </Fields.wrapper>
       </div>
+      <Turnstile
+        siteKey={import.meta.env.PROD ? import.meta.env.VITE_TURNSTILE_SITE_KEY_PROD! : import.meta.env.VITE_TURNSTILE_SITE_KEY_DEV!}
+        options={{
+          theme: "light",
+          size: "flexible",
+          language: "pt-br",
+        }}
+        onSuccess={(token) => setTurnstileToken(token)}
+      />
+      <input type="hidden" name="turnstile_token" value={turnstileToken} />
       <BeergamButton
         title="Criar conta grátis"
         mainColor="beergam-orange"

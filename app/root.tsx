@@ -18,7 +18,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
-import { useEffect, useMemo, useState } from "react";
+// import { useEffect, useMemo, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { Provider } from "react-redux";
 import type { Route } from "./+types/root";
@@ -278,10 +278,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
           name="viewport"
           content="width=device-width, initial-scale=1 maximum-scale=1 user-scalable=no"
         />
+
         <link rel="preconnect" href="https://cdn.beergam.com.br/" />
         {/* cdn de arquivos estáticos da Beergam */}
+
         <link rel="preconnect" href="http://http2.mlstatic.com" />
         {/* cdn de imagens do mercado livre */}
+
+        <link rel="preconnect" href="https://challenges.cloudflare.com" />
+        {/* turnstile cloudflare */}
+
         <Meta />
         <Links />
       </head>
@@ -312,70 +318,70 @@ function SocketConnectionManager() {
   );
 }
 
-function AuthStoreMonitor() {
-  const authState = authStore();
-  const authKeys = useMemo(
-    () => Object.keys(authState) as Array<keyof typeof authState>,
-    [authState]
-  );
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+// function AuthStoreMonitor() {
+//   const authState = authStore();
+//   const authKeys = useMemo(
+//     () => Object.keys(authState) as Array<keyof typeof authState>,
+//     [authState]
+//   );
+//   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
-    setOpenSections((prev) => {
-      let updated = false;
-      const next = { ...prev };
-      for (const key of authKeys) {
-        if (!(key in next)) {
-          next[key] = false;
-          updated = true;
-        }
-      }
-      return updated ? next : prev;
-    });
-  }, [authKeys]);
+//   useEffect(() => {
+//     setOpenSections((prev) => {
+//       let updated = false;
+//       const next = { ...prev };
+//       for (const key of authKeys) {
+//         if (!(key in next)) {
+//           next[key] = false;
+//           updated = true;
+//         }
+//       }
+//       return updated ? next : prev;
+//     });
+//   }, [authKeys]);
 
-  const toggleSection = (key: string) => {
-    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+//   const toggleSection = (key: string) => {
+//     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+//   };
 
-  return (
-    <div className="fixed bottom-4 left-4 z-9999 w-full max-w-sm rounded-xl border border-beergam-blue-primary/40 bg-white/90 p-4 shadow-lg backdrop-blur-sm">
-      <div className="mb-3 flex items-center justify-between text-sm font-semibold text-beergam-blue-primary">
-        <span>Zustand Auth Debug</span>
-        <span className="text-xs uppercase tracking-wide text-beergam-gray">
-          realtime
-        </span>
-      </div>
-      <div className="space-y-2 max-h-64 overflow-auto pr-1">
-        {authKeys.map((key) => {
-          const isOpen = openSections[key];
-          const value = authState[key];
-          return (
-            <div
-              key={key as string}
-              className="rounded-lg border border-beergam-blue-primary/20 bg-white/80"
-            >
-              <button
-                className="flex w-full items-center justify-between px-3 py-2 text-left text-sm font-medium text-beergam-blue-primary hover:bg-beergam-blue-primary/5"
-                onClick={() => toggleSection(String(key))}
-              >
-                <span>{String(key)}</span>
-                <span className="text-xs text-beergam-gray">
-                  {isOpen ? "ocultar" : "mostrar"}
-                </span>
-              </button>
-              {isOpen && (
-                <pre className="max-h-48 overflow-auto border-t border-beergam-blue-primary/20 px-3 py-2 text-xs text-beergam-gray">
-                  {JSON.stringify(value, null, 2)}
-                </pre>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+//   return (
+//     <div className="fixed bottom-4 left-4 z-9999 w-full max-w-sm rounded-xl border border-beergam-blue-primary/40 bg-white/90 p-4 shadow-lg backdrop-blur-sm">
+//       <div className="mb-3 flex items-center justify-between text-sm font-semibold text-beergam-blue-primary">
+//         <span>Zustand Auth Debug</span>
+//         <span className="text-xs uppercase tracking-wide text-beergam-gray">
+//           realtime
+//         </span>
+//       </div>
+//       <div className="space-y-2 max-h-64 overflow-auto pr-1">
+//         {authKeys.map((key) => {
+//           const isOpen = openSections[key];
+//           const value = authState[key];
+//           return (
+//             <div
+//               key={key as string}
+//               className="rounded-lg border border-beergam-blue-primary/20 bg-white/80"
+//             >
+//               <button
+//                 className="flex w-full items-center justify-between px-3 py-2 text-left text-sm font-medium text-beergam-blue-primary hover:bg-beergam-blue-primary/5"
+//                 onClick={() => toggleSection(String(key))}
+//               >
+//                 <span>{String(key)}</span>
+//                 <span className="text-xs text-beergam-gray">
+//                   {isOpen ? "ocultar" : "mostrar"}
+//                 </span>
+//               </button>
+//               {isOpen && (
+//                 <pre className="max-h-48 overflow-auto border-t border-beergam-blue-primary/20 px-3 py-2 text-xs text-beergam-gray">
+//                   {JSON.stringify(value, null, 2)}
+//                 </pre>
+//               )}
+//             </div>
+//           );
+//         })}
+//       </div>
+//     </div>
+//   );
+// }
 
 export default function App() {
   const {
