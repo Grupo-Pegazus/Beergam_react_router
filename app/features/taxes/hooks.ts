@@ -1,15 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { taxesService } from "./service";
-import type { MarketplaceType } from "../marketplace/typings";
-import type { TaxesData, UpsertTaxPayload, UpsertTaxResponse } from "./typings";
 import type { ApiResponse } from "../apiClient/typings";
+import type { MarketplaceType } from "../marketplace/typings";
+import { taxesService } from "./service";
+import type { TaxesData, UpsertTaxPayload, UpsertTaxResponse } from "./typings";
 
 export function useUserTaxes(params: {
   marketplace_shop_id?: string | number;
   marketplace_type?: MarketplaceType;
   year?: number;
 }) {
-  const enabled = Boolean(params.marketplace_shop_id && params.marketplace_type && params.year);
+  const enabled = Boolean(
+    params.marketplace_shop_id && params.marketplace_type && params.year
+  );
   return useQuery({
     queryKey: [
       "taxes",
@@ -34,7 +36,11 @@ export function useUserTaxes(params: {
 
 export function useUpsertTax() {
   const qc = useQueryClient();
-  return useMutation<ApiResponse<UpsertTaxResponse["data"]>, Error, UpsertTaxPayload>({
+  return useMutation<
+    ApiResponse<UpsertTaxResponse["data"]>,
+    Error,
+    UpsertTaxPayload
+  >({
     mutationFn: async (payload) => {
       const res = await taxesService.upsertTax(payload);
       if (!res.success) {
@@ -44,7 +50,14 @@ export function useUpsertTax() {
     },
     onSuccess: (_data, variables) => {
       const { marketplace_shop_id, marketplace_type, year } = variables;
-      qc.invalidateQueries({ queryKey: ["taxes", marketplace_shop_id, marketplace_type, Number(year)] });
+      qc.invalidateQueries({
+        queryKey: [
+          "taxes",
+          marketplace_shop_id,
+          marketplace_type,
+          Number(year),
+        ],
+      });
     },
   });
 }
@@ -68,7 +81,11 @@ export function useRecalcStatus(params: { year?: number; month?: number }) {
 }
 
 export function useRecalculatePeriod() {
-  return useMutation<ApiResponse<unknown>, Error, { year: number; month: number }>({
+  return useMutation<
+    ApiResponse<unknown>,
+    Error,
+    { year: number; month: number }
+  >({
     mutationFn: async (payload) => {
       const res = await taxesService.recalculatePeriod(payload);
       if (!res.success) {
@@ -78,5 +95,3 @@ export function useRecalculatePeriod() {
     },
   });
 }
-
-
