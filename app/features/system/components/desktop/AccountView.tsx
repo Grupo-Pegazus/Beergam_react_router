@@ -277,10 +277,23 @@ export default function AccountView({
                               </div>
                             </div>
                           )}
-                          <button
-                            onClick={() => selectAccount(acc)}
-                            className={`w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 cursor-pointer transition-colors group ${isProcessing ? "opacity-60 cursor-not-allowed" : ""}`}
-                            disabled={isProcessing}
+                          <div
+                            role="button"
+                            tabIndex={isProcessing ? -1 : 0}
+                            onClick={() => {
+                              if (!isProcessing) selectAccount(acc);
+                            }}
+                            onKeyDown={(e) => {
+                              if (isProcessing) return;
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                selectAccount(acc);
+                              }
+                            }}
+                            aria-disabled={isProcessing}
+                            className={`w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 transition-colors group ${
+                              isProcessing ? "opacity-60 cursor-not-allowed pointer-events-none" : "cursor-pointer"
+                            }`}
                           >
                             {acc.marketplace_image ? (
                               <img
@@ -322,7 +335,7 @@ export default function AccountView({
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleDeleteMarketplace(acc);
+                                if (!isProcessing) handleDeleteMarketplace(acc);
                               }}
                               disabled={isProcessing}
                               className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-red-50 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
@@ -333,7 +346,7 @@ export default function AccountView({
                                 tailWindClasses="stroke-red-600 w-4 h-4"
                               />
                             </button>
-                          </button>
+                          </div>
                         </div>
                       );
                     })}
