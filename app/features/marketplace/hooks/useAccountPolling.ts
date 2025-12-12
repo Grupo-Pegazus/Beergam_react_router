@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import { marketplaceService } from "../service";
 import { MarketplaceStatusParse, type BaseMarketPlace } from "../typings";
 
@@ -31,7 +31,7 @@ export function useAccountPolling(accounts: BaseMarketPlace[]) {
     // Cria intervalos para novas contas em processamento
     processingAccounts.forEach((account) => {
       const accountId = account.marketplace_shop_id;
-      
+
       // Se já existe um intervalo para esta conta, não cria outro
       if (pollingIntervalsRef.current.has(accountId)) {
         return;
@@ -39,17 +39,23 @@ export function useAccountPolling(accounts: BaseMarketPlace[]) {
 
       const interval = setInterval(async () => {
         try {
-          const response = await marketplaceService.checkAccountProcessingStatus(accountId);
-          
+          const response =
+            await marketplaceService.checkAccountProcessingStatus(accountId);
+
           if (response.success && response.data.processed) {
             // Conta foi processada, invalida a query para atualizar a lista
-            queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
+            queryClient.invalidateQueries({
+              queryKey: ["marketplacesAccounts"],
+            });
             // Limpa o intervalo desta conta
             clearInterval(interval);
             pollingIntervalsRef.current.delete(accountId);
           }
         } catch (error) {
-          console.error(`Erro ao verificar status da conta ${accountId}:`, error);
+          console.error(
+            `Erro ao verificar status da conta ${accountId}:`,
+            error
+          );
         }
       }, POLLING_INTERVAL);
 
@@ -65,4 +71,3 @@ export function useAccountPolling(accounts: BaseMarketPlace[]) {
     };
   }, [accounts, queryClient]);
 }
-
