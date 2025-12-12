@@ -1,0 +1,1 @@
+export type TError = "NOT_FOUND" | "INTERNAL_SERVER_ERROR" | "MAINTENANCE";

@@ -13,6 +13,9 @@ export const CDN_IMAGES = {
   ANUNCIOS_PREVIEW:
     "https://cdn2.beergam.com.br/landing_page/AnunciosPreview.webp",
   COLAB_PREVIEW: "https://cdn2.beergam.com.br/landing_page/ColabPreview.webp",
+  LARA_WORKER: "https://cdn.beergam.com.br/petBeergam.png",
+  LARA_CONFUSED: "https://cdn2.beergam.com.br/landing_page/confused-lara.webp",
+  LARA_DOWNED: "https://cdn2.beergam.com.br/landing_page/downed-lara.png",
 } as const;
 
 const MARKETPLACE_IMAGES: Record<MarketplaceType, string> = {
