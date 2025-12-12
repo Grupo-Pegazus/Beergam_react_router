@@ -1,15 +1,14 @@
-import { useSelector } from "react-redux";
 import { useRouteLoaderData } from "react-router";
+import authStore from "~/features/store-zustand";
 import type { IUser } from "~/features/user/typings/User";
-import type { RootState } from "~/store";
-import type { IAuthState } from "./redux";
+import type { IAuthState } from "./types";
 
 /**
- * Hook que monitora mudanças no estado de autenticação do Redux
+ * Hook que monitora mudanças no estado de autenticação do Zustand
  * e força re-render quando há atualizações no BootstrapAuth ou
  * quando há triggers diretos (ex: refresh_token_revoked no client.ts)
  *
- * O hook prioriza os dados do Redux (atualizados em tempo real) sobre
+ * O hook prioriza os dados do Zustand (atualizados em tempo real) sobre
  * os dados do loader, garantindo que mudanças no estado sejam refletidas
  * imediatamente no componente.
  */
@@ -18,30 +17,34 @@ export function useAuth() {
     | { userInfo?: IUser; authInfo?: IAuthState }
     | undefined;
 
-  // Monitora o estado do Redux (atualiza em tempo real e força re-render automaticamente)
-  const authState = useSelector((state: RootState) => state.auth);
-  const userInfoFromRedux = useSelector((state: RootState) => state.user.user);
+  // Monitora o estado do Zustand (atualiza em tempo real e força re-render automaticamente)
+  // Usa seletores otimizados para evitar re-renders desnecessários
+  const error = authStore.use.error();
+  const loading = authStore.use.loading();
+  const success = authStore.use.success();
+  const subscription = authStore.use.subscription();
+  const usageLimitData = authStore.use.usageLimitData();
+  const userInfoFromZustand = authStore.use.user();
 
-  // Prioriza dados do Redux (atualizados em tempo real) sobre os do loader
-  // O useSelector já força re-render quando o estado muda
-  const userInfo = userInfoFromRedux ?? rootData?.userInfo;
+  // Prioriza dados do Zustand (atualizados em tempo real) sobre os do loader
+  // Os seletores do Zustand já forçam re-render quando o estado muda
+  const userInfo = userInfoFromZustand ?? rootData?.userInfo;
 
-  // Sempre prioriza o authState do Redux (atualizado em tempo real)
-  // O Redux é a fonte de verdade após o bootstrap inicial
-  // Só usa os dados do loader se o Redux ainda estiver no estado inicial
-  const isReduxInitialized =
-    authState.error !== null ||
-    authState.subscription !== null ||
-    authState.success !== false ||
-    authState.loading !== false;
+  // Prioriza o Zustand (fonte de verdade) sobre os dados do loader
+  // Só usa os dados do loader se o Zustand ainda estiver no estado inicial
+  const isZustandInitialized =
+    error !== null ||
+    subscription !== null ||
+    success !== false ||
+    loading !== false;
 
-  const authInfo: IAuthState = isReduxInitialized
+  const authInfo: IAuthState = isZustandInitialized
     ? {
-        loading: authState.loading,
-        subscription: authState.subscription,
-        error: authState.error,
-        success: authState.success,
-        usageLimitData: authState.usageLimitData,
+        loading,
+        subscription,
+        error,
+        success,
+        usageLimitData: usageLimitData ?? null,
       }
     : (rootData?.authInfo ?? {
         loading: false,
@@ -54,6 +57,5 @@ export function useAuth() {
   return {
     userInfo,
     authInfo,
-    authState,
   };
 }

@@ -12,13 +12,12 @@ import { createTheme, ThemeProvider } from "@mui/material";
 // Enable MUI X Date Pickers component keys in theme.components
 import { ptBR } from "@mui/material/locale";
 import * as Sentry from "@sentry/react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
 // import { useEffect, useMemo, useState } from "react";
 import { Toaster } from "react-hot-toast";
-import { Provider } from "react-redux";
 import type { Route } from "./+types/root";
 import "./app.css";
 import GlobalLoadingSpinner from "./features/auth/components/GlobalLoadingSpinner/GlobalLoadingSpinner";
@@ -27,9 +26,8 @@ import { SocketStatusIndicator } from "./features/socket/components/SocketStatus
 import { SocketProvider } from "./features/socket/context/SocketContext";
 import authStore from "./features/store-zustand";
 import { ModalProvider } from "./src/components/utils/Modal/ModalProvider";
-import store from "./store";
+import { queryClient } from "./lib/queryClient";
 import "./zod";
-export const queryClient = new QueryClient();
 
 dayjs.locale("pt-br");
 
@@ -314,21 +312,19 @@ export default function App() {
   } = useLoaderData<typeof clientLoader>();
 
   return (
-    <Provider store={store}>
-      <AuthStoreProvider
-        initialError={initialError}
-        initialUser={initialUser}
-        initialMarketplace={initialMarketplace}
-      >
-        <Analytics />
-        <QueryClientProvider client={queryClient}>
-          <ModalProvider>
-            <GlobalLoadingSpinner />
-            <SocketConnectionManager />
-            {/* <AuthStoreMonitor /> */}
-          </ModalProvider>
-        </QueryClientProvider>
-      </AuthStoreProvider>
-    </Provider>
+    <AuthStoreProvider
+      initialError={initialError}
+      initialUser={initialUser}
+      initialMarketplace={initialMarketplace}
+    >
+      <Analytics />
+      <QueryClientProvider client={queryClient}>
+        <ModalProvider>
+          <GlobalLoadingSpinner />
+          <SocketConnectionManager />
+          {/* <AuthStoreMonitor /> */}
+        </ModalProvider>
+      </QueryClientProvider>
+    </AuthStoreProvider>
   );
 }

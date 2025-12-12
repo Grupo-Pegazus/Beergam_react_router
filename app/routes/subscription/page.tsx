@@ -1,6 +1,6 @@
 import { useState } from "react";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
-import type { TAuthError } from "~/features/auth/redux";
+import type { TAuthError } from "~/features/auth/types";
 import type { Plan } from "~/features/user/typings/BaseUser";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import Modal from "~/src/components/utils/Modal";
