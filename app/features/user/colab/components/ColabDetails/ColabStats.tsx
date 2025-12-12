@@ -8,6 +8,7 @@ import "dayjs/locale/pt-br";
 import { useState } from "react";
 import { MenuConfig, type MenuKeys } from "~/features/menu/typings";
 import type { IColab } from "~/features/user/typings/Colab";
+import { FilterDatePicker } from "~/src/components/filters";
 
 type ScreenTimeData = {
   date: string;

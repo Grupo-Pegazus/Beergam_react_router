@@ -286,13 +286,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {/* cdn de imagens do mercado livre */}
 
         <link rel="preconnect" href="https://challenges.cloudflare.com" />
-        {/* turnstile cloudflare */}
-        
-        <script
-          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-          async
-          defer
-        />
 
         <Meta />
         <Links />
