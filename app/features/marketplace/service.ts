@@ -2,7 +2,6 @@ import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
 import type { BaseMarketPlace, IntegrationData, IntegrationStatus } from "./typings";
 import { MarketplaceType } from "./typings";
-import { cryptoMarketplace } from "../auth/utils";
 class MarketplaceService {
   async getMarketplacesAccounts(): Promise<ApiResponse<BaseMarketPlace[]>> {
     try {
@@ -32,9 +31,6 @@ class MarketplaceService {
         `/v1/accounts/select`,
         payload
       );
-      if (response.success) {
-        await cryptoMarketplace.encriptarDados(response.data as BaseMarketPlace);
-      }
       return response;
     } catch (error) {
       console.error("error do SelectMarketplaceAccount", error);

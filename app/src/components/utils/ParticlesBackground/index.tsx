@@ -1,4 +1,4 @@
-import { loadAll } from "@tsparticles/all";
+import { loadSlim } from "@tsparticles/slim";
 import type { ISourceOptions } from "@tsparticles/engine";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { memo, useEffect, useMemo, useState } from "react";
@@ -10,10 +10,10 @@ const ParticlesBackground = memo(function ParticlesBackground() {
   const [init, setInit] = useState(engineInitialized);
 
   useEffect(() => {
-    // Só inicializa o motor uma vez
+    // Só inicializa o motor uma vez (singleton pattern)
     if (!engineInitialized) {
       initParticlesEngine(async (engine) => {
-        await loadAll(engine);
+        await loadSlim(engine);
       }).then(() => {
         engineInitialized = true;
         setInit(true);

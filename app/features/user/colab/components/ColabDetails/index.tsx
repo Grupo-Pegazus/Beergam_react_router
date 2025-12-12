@@ -14,8 +14,6 @@ import {
 import { FormatUserStatus, UserStatus } from "~/features/user/typings/BaseUser";
 import { ColabLevel, type IColab } from "~/features/user/typings/Colab";
 import { FormatColabLevel } from "~/features/user/utils";
-import ActivityHistory, { type ActivityItem } from "./ActivityHistory";
-import ColabStats from "./ColabStats";
 
 type ColabDetailsProps = {
   colab: IColab | null;
@@ -40,29 +38,29 @@ export default function ColabDetails({ colab }: ColabDetailsProps) {
   const schedule = colab.details.allowed_times as IAllowedTimes;
 
   // Mock de histórico de atividades
-  const activityMock: ActivityItem[] = [
-    {
-      id: 1,
-      timestamp: new Date(),
-      title: "Colaborador entrou",
-      description: `${colab.name} entrou no sistema`,
-      status: "success",
-    },
-    {
-      id: 2,
-      timestamp: new Date(Date.now() - 1000 * 60 * 45),
-      title: "Página acessada",
-      description: "Acessou Vendas",
-      status: "info",
-    },
-    {
-      id: 3,
-      timestamp: new Date(Date.now() - 1000 * 60 * 90),
-      title: "Colaborador saiu",
-      description: `${colab.name} saiu do sistema`,
-      status: "warning",
-    },
-  ];
+  // const activityMock: any[] = [
+  //   {
+  //     id: 1,
+  //     timestamp: new Date(),
+  //     title: "Colaborador entrou",
+  //     description: `${colab.name} entrou no sistema`,
+  //     status: "success",
+  //   },
+  //   {
+  //     id: 2,
+  //     timestamp: new Date(Date.now() - 1000 * 60 * 45),
+  //     title: "Página acessada",
+  //     description: "Acessou Vendas",
+  //     status: "info",
+  //   },
+  //   {
+  //     id: 3,
+  //     timestamp: new Date(Date.now() - 1000 * 60 * 90),
+  //     title: "Colaborador saiu",
+  //     description: `${colab.name} saiu do sistema`,
+  //     status: "warning",
+  //   },
+  // ];
 
   const accessList = useMemo(() => {
     const keys = Object.keys(MenuConfig) as MenuKeys[];
@@ -162,12 +160,6 @@ export default function ColabDetails({ colab }: ColabDetailsProps) {
           ))}
         </div>
       </Paper>
-      {import.meta.env.PROD ? null : (
-        <div className="grid grid-cols-[1fr_2fr] gap-4 max-h-[450px]">
-          <ActivityHistory items={activityMock} />
-          <ColabStats colab={colab} />
-        </div>
-      )}
     </div>
   );
 }

@@ -1,11 +1,9 @@
 import { useEffect } from "react";
 import toast from "~/src/utils/toast";
-import { useDispatch } from "react-redux";
 import { useActionData, useSearchParams } from "react-router";
 import type { ApiResponse } from "~/features/apiClient/typings";
-import { updateSubscription } from "~/features/auth/redux";
+import authStore from "~/features/store-zustand";
 import { subscriptionService } from "~/features/plans/subscriptionService";
-import { updateUserInfo } from "~/features/user/redux";
 import { userService } from "~/features/user/service";
 import { SubscriptionSchema } from "~/features/user/typings/BaseUser";
 import type { IColab } from "~/features/user/typings/Colab";
@@ -46,7 +44,10 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
       success: "Informações do usuário editadas com sucesso",
       error: (err) => (
         <>
-          <p>{err.message || "Erro ao editar informações do usuário"}</p>
+          <p>
+            {(err instanceof Error ? err.message : String(err)) ||
+              "Erro ao editar informações do usuário"}
+          </p>
         </>
       ),
     });
@@ -62,21 +63,18 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 }
 
 export default function PerfilRoute() {
-  const dispatch = useDispatch();
   const actionData = useActionData<ApiResponse<PossibleDataTypes>>();
   const [searchParams] = useSearchParams();
   const userValidation = UserSchema.safeParse(actionData?.data);
 
   /**
-   * Atualiza o Redux quando há dados de ação retornados
+   * Atualiza o Zustand quando há dados de ação retornados
    */
   useEffect(() => {
     if (actionData?.success && actionData.data && userValidation.success) {
-      dispatch(
-        updateUserInfo({ user: userValidation.data, shouldEncrypt: true })
-      );
+      authStore.getState().updateUserInfo(userValidation.data);
     }
-  }, [actionData, dispatch, userValidation]);
+  }, [actionData, userValidation]);
 
   /**
    * Busca e atualiza apenas a subscription do usuário após checkout bem-sucedido
@@ -96,7 +94,7 @@ export default function PerfilRoute() {
             );
 
             if (validatedSubscription.success) {
-              dispatch(updateSubscription(validatedSubscription.data));
+              authStore.getState().updateSubscription(validatedSubscription.data);
               toast.success(
                 "Assinatura criada com sucesso! Suas informações foram atualizadas."
               );
@@ -135,7 +133,7 @@ export default function PerfilRoute() {
 
       fetchUpdatedSubscription();
     }
-  }, [searchParams, dispatch]);
+  }, [searchParams]);
 
   return <PerfilPage />;
 }

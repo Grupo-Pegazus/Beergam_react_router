@@ -4,8 +4,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { useCallback, useState } from "react";
-import { useDispatch } from "react-redux";
-import { updateAuthInfo } from "~/features/auth/redux";
+import authStore from "~/features/store-zustand";
 import { subscriptionService } from "~/features/plans/subscriptionService";
 import type { Plan, Subscription } from "~/features/user/typings/BaseUser";
 import { SubscriptionSchema } from "~/features/user/typings/BaseUser";
@@ -51,7 +50,6 @@ export default function StripeCheckout({
   onError,
   onCancel,
 }: StripeCheckoutProps) {
-  const dispatch = useDispatch();
   const [error, setError] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState<boolean>(false);
 
@@ -83,16 +81,15 @@ export default function StripeCheckout({
         throw new Error(response.message || "Erro ao criar sessão de checkout");
       }
       const subscriptionResponse = await subscriptionService.getSubscription();
-      dispatch(
-        updateAuthInfo({
-          auth: {
-            subscription: subscriptionResponse.data,
-            loading: false,
-            error: null,
-            success: true,
-          },
-          shouldEncrypt: true,
-        })
+      authStore.getState().updateAuthInfo(
+        {
+          subscription: subscriptionResponse.data,
+          loading: false,
+          error: null,
+          success: true,
+          usageLimitData: null,
+        },
+        true
       );
       return response.data.clientSecret;
     } catch (err) {
@@ -106,7 +103,7 @@ export default function StripeCheckout({
     } finally {
       setIsInitializing(false);
     }
-  }, [plan.price_id, onError]);
+  }, [plan.price_id, onError, onSuccess]);
 
   /**
    * Trata o evento de sucesso do checkout
@@ -121,7 +118,6 @@ export default function StripeCheckout({
       const response = await subscriptionService.getSubscription();
 
       if (response.success && response.data) {
-        // Valida e atualiza o Redux com a nova assinatura
         const validatedSubscription = SubscriptionSchema.safeParse(
           response.data
         );
@@ -148,7 +144,7 @@ export default function StripeCheckout({
       setError(errorMessage);
       onError?.(errorMessage);
     }
-  }, [dispatch, onSuccess, onError]);
+  }, [onSuccess, onError]);
 
   if (error) {
     return (

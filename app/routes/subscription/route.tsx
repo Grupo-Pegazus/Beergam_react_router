@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import toast from "~/src/utils/toast";
-import { useDispatch } from "react-redux";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { plansService } from "~/features/plans/service";
 import { subscriptionService } from "~/features/plans/subscriptionService";
@@ -10,7 +9,6 @@ import type { Plan } from "~/features/user/typings/BaseUser";
 import { SubscriptionSchema } from "~/features/user/typings/BaseUser";
 import SubscriptionPage from "./page";
 export default function SubscriptionRoute() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [processingSession, setProcessingSession] = useState(false);
@@ -80,7 +78,7 @@ export default function SubscriptionRoute() {
     };
 
     void handlePaymentSuccess();
-  }, [searchParams, dispatch, navigate, setSearchParams]);
+  }, [searchParams, navigate, setSearchParams, setSubscription]);
 
   if (processingSession) {
     return (

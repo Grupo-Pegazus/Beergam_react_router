@@ -1,6 +1,10 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type { TAuthError, UsageLimitData } from "../auth/redux";
+import type {
+  IAuthState,
+  TAuthError,
+  UsageLimitData,
+} from "../auth/types";
 import type { BaseMarketPlace } from "../marketplace/typings";
 import type { MenuState } from "../menu/typings";
 import type { Subscription } from "../user/typings/BaseUser";
@@ -22,14 +26,19 @@ interface IAuthStore {
     user: IUser | IColab | null
   ) => void;
   logout: () => void;
-  setAuthError: (error: TAuthError) => void;
+  setAuthError: (error: TAuthError, usageLimitData?: UsageLimitData) => void;
   setSubscription: (subscription: Subscription | null) => void;
+  updateSubscription: (subscription: Subscription | null) => void;
+  updateAuthInfo: (auth: IAuthState) => void;
   updateColab: (colab: IColab) => void;
   createColab: (colab: IColab) => void;
   updateColabs: (colabs: Record<string, IColab>) => void;
   deleteColab: (colabPin: string) => void;
   updateAllowedViews: (allowedViews: MenuState) => void;
   updateUserDetails: (user: IUser | IColab) => void;
+  updateUserInfo: (user: IUser | IColab) => void;
+  setMarketplace: (marketplace: BaseMarketPlace | null) => void;
+  limparMarketplace: () => void;
 }
 
 const authBaseStore = create<IAuthStore>()(
@@ -44,7 +53,7 @@ const authBaseStore = create<IAuthStore>()(
       usageLimitData: null,
       login: (subscription: Subscription | null, user: IUser | IColab | null) =>
         set({ subscription, user, loading: false, success: true, error: null }),
-      logout: () =>
+      logout: () => {
         set({
           error: null,
           loading: false,
@@ -52,11 +61,36 @@ const authBaseStore = create<IAuthStore>()(
           subscription: null,
           user: null,
           marketplace: null,
+          usageLimitData: null,
+        });
+      },
+      setAuthError: (error: TAuthError, usageLimitData?: UsageLimitData) =>
+        set({
+          error,
+          loading: false,
+          success: false,
+          subscription: null,
+          usageLimitData: usageLimitData ?? null,
         }),
-      setAuthError: (error: TAuthError) =>
-        set({ error, loading: false, success: false, subscription: null }),
       setSubscription: (subscription: Subscription | null) =>
         set({ subscription, loading: false, success: true, error: null }),
+      updateSubscription: (subscription: Subscription | null) => {
+        set({
+          subscription,
+          loading: false,
+          success: true,
+          error: null,
+        });
+      },
+      updateAuthInfo: (auth: IAuthState) => {
+        set({
+          loading: auth.loading,
+          subscription: auth.subscription,
+          error: auth.error,
+          success: auth.success,
+          usageLimitData: auth.usageLimitData ?? null,
+        });
+      },
       updateColab: (colab: IColab) => {
         const currentUser = get().user;
         if (currentUser && isMaster(currentUser) && colab.pin) {
@@ -152,6 +186,32 @@ const authBaseStore = create<IAuthStore>()(
             } as IUser | IColab,
           });
         }
+      },
+      updateUserInfo: (user: IUser | IColab) => {
+        const currentUser = get().user;
+        let auxColabs: Record<string, IColab> = {};
+        
+        // Preserva colaboradores existentes se o payload não tiver colaboradores
+        if (currentUser && isMaster(currentUser)) {
+          auxColabs = currentUser.colabs ?? {};
+        }
+        
+        // Atualiza colaboradores se o payload tiver colaboradores
+        if (isMaster(user) && user.colabs) {
+          auxColabs = user.colabs;
+        }
+        
+        const userToUpdate = isMaster(user)
+          ? { ...user, colabs: auxColabs }
+          : user;
+        
+        set({ user: userToUpdate });
+      },
+      setMarketplace: (marketplace: BaseMarketPlace | null) => {
+        set({ marketplace });
+      },
+      limparMarketplace: () => {
+        set({ marketplace: null });
       },
     }),
     {

@@ -60,7 +60,6 @@ export async function clientAction({ request }: { request: Request }) {
       // Se a conta deletada era a selecionada, limpa o localStorage
       if (isSelectedMarketplace && response.success) {
         authStore.setState({ marketplace: null });
-        // Adiciona uma flag na resposta para indicar que precisa limpar o Redux
         return Response.json({
           ...response,
           shouldCelarStore: true,
@@ -103,12 +102,9 @@ export async function clientAction({ request }: { request: Request }) {
   }
 }
 
-// ... existing code ...
-
 export default function ChoosenAccountRoute() {
   const marketplace = authStore.use.marketplace();
 
-  // ✅ SEMPRE chamamos o useQuery, independente do marketplace
   const { data, isLoading, error } = useQuery({
     queryKey: ["marketplacesAccounts"],
     queryFn: () => marketplaceService.getMarketplacesAccounts(),
@@ -118,10 +114,8 @@ export default function ChoosenAccountRoute() {
 
   const accounts: BaseMarketPlace[] = (data?.data as BaseMarketPlace[]) || [];
   
-  // Faz polling de contas em processamento
   useAccountPolling(accounts);
 
-  // ✅ Depois dos hooks, fazemos os retornos condicionais
   if (marketplace) {
     return <Navigate to="/interno" replace />;
   }

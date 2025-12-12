@@ -3,7 +3,7 @@ import { useEffect, useMemo } from "react";
 import { Navigate, Outlet } from "react-router";
 import authStore from "~/features/store-zustand";
 import { UserRoles } from "~/features/user/typings/BaseUser";
-import { queryClient } from "~/root";
+import { queryClient } from "~/lib/queryClient";
 import {
   useAuthError,
   useAuthMarketplace,

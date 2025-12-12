@@ -22,17 +22,14 @@ import BeergamButton from "~/src/components/utils/BeergamButton";
 interface StockMovementFormProps {
   productId: string;
   variationId?: string | null;
-  variationSku?: string | null;
   onSuccess?: () => void;
 }
 
 export default function StockMovementForm({
   productId,
   variationId,
-  variationSku,
   onSuccess,
 }: StockMovementFormProps) {
-  console.log("StockMovementForm props:", { productId, variationId, variationSku });
   
   const [formData, setFormData] = useState<Partial<StockMovementFormType>>({
     modification_type: "ENTRY",
@@ -112,7 +109,6 @@ export default function StockMovementForm({
           apiPayload.variation_id = variationId;
       }
 
-      console.log("StockMovement Payload final:", apiPayload);
 
       createMutation.mutate(apiPayload, {
         onSuccess: () => {
