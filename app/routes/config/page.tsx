@@ -8,6 +8,7 @@ import type { IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
 import { isColab } from "~/features/user/utils";
 import Svg from "~/src/assets/svgs/_index";
+import toast from "~/src/utils/toast";
 import Colaboradores from "./components/Colaboradores";
 import ConfigSectionComponent from "./components/ConfigSectionComponent";
 import Impostos from "./components/Impostos/Impostos";
@@ -108,6 +109,7 @@ export default function ConfigPage() {
           )?.colabAccess &&
           isColab(user as IColab)
         ) {
+          toast.error("Você não tem acesso a esta seção");
           navigate(`/interno/config?session=Minha Conta`);
           return;
         }
