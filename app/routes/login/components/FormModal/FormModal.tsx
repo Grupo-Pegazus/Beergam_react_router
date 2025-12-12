@@ -18,6 +18,7 @@ import {
   type MasterUserForm,
   MasterUserFormSchema,
 } from "../../../../features/auth/typing";
+import RecoveryModal from "../RecoveryModal/RecoveryModal";
 
 interface FormModalProps {
   userType?: UserRoles;
@@ -69,6 +70,7 @@ export default function FormModal({
   const navigate = useNavigate();
   const { connectSession, connectOnlineStatus } = useSocketContext();
   const [currentUserType, setCurrentUserType] = useState<UserRoles>(userType);
+  const [isRecoveryModalOpen, setIsRecoveryModalOpen] = useState(false);
   const { state } = useLocation();
   const homeSelectedPlan = state?.plan;
 
@@ -243,8 +245,9 @@ export default function FormModal({
           </>
         )}
         <button
-          className="w-fit text-beergam-blue-primary hover:text-beergam-orange font-medium"
           type="button"
+          onClick={() => setIsRecoveryModalOpen(true)}
+          className="w-fit text-beergam-blue-primary hover:text-beergam-orange font-medium text-left"
         >
           Esqueceu sua senha?
         </button>
@@ -270,6 +273,10 @@ export default function FormModal({
           }}
         />
       </form>
+      <RecoveryModal
+        isOpen={isRecoveryModalOpen}
+        onClose={() => setIsRecoveryModalOpen(false)}
+      />
     </div>
   );
 }

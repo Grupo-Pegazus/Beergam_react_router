@@ -1,11 +1,11 @@
 import type React from "react";
 import Svg from "~/src/assets/svgs/_index";
+import { getMarketplaceImageUrl } from "~/src/constants/cdn-images";
 import {
   type BaseMarketPlace,
-  MarketplaceType,
   MarketplaceStatusParse,
+  MarketplaceType,
 } from "../typings";
-import { getMarketplaceImageUrl } from "~/src/constants/cdn-images";
 import StatusTag from "./StatusTag";
 
 function MarketplaceTypeBadge(marketplace_type: MarketplaceType) {
@@ -15,16 +15,17 @@ interface MarketplaceCardProps {
   marketplace?: BaseMarketPlace;
   onCardClick?: () => void;
   onDelete?: (marketplace: BaseMarketPlace) => void;
+  selected?: boolean;
 }
 export default function MarketplaceCard({
   marketplace,
   onCardClick,
   onDelete,
+  selected = false,
 }: MarketplaceCardProps) {
   const isProcessing =
     marketplace?.status_parse === MarketplaceStatusParse.PROCESSING;
   const isDisabled = isProcessing;
-
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (marketplace && onDelete && !isDisabled) {
@@ -39,7 +40,7 @@ export default function MarketplaceCard({
   };
   return (
     <div
-      className={`group flex justify-center items-center relative mb-4 p-8 shadow-lg/55 rounded-2xl flex-col gap-2 border-2 ${
+      className={`group cursor-pointer ${selected ? "border-beergam-orange! bg-beergam-orange/10!" : ""} flex justify-center items-center relative mb-4 p-8 shadow-lg/55 rounded-2xl flex-col gap-2 border-2 ${
         marketplace
           ? `bg-beergam-white border-transparent ${
               isDisabled ? "opacity-60 cursor-not-allowed" : "hover:opacity-75"
@@ -82,24 +83,26 @@ export default function MarketplaceCard({
               </button>
             </div>
           )}
-          
+
           <img
             src={marketplace.marketplace_image}
             alt={marketplace.marketplace_name}
             className="max-w-44 max-h-44 object-cover rounded-2xl shadow-2xl"
           />
-          <h3 className="text-center font-semibold truncate max-w-80">{marketplace.marketplace_name}</h3>
-          
+          <h3 className="text-center font-semibold truncate max-w-80">
+            {marketplace.marketplace_name}
+          </h3>
+
           {/* Tags de Status */}
           <div className="flex flex-col gap-1 items-center">
-            <StatusTag 
-              status={marketplace.status_parse} 
-              type="parse" 
+            <StatusTag
+              status={marketplace.status_parse}
+              type="parse"
               className="text-xs"
             />
-            <StatusTag 
-              status={marketplace.orders_parse_status} 
-              type="orders" 
+            <StatusTag
+              status={marketplace.orders_parse_status}
+              type="orders"
               className="text-xs"
             />
           </div>

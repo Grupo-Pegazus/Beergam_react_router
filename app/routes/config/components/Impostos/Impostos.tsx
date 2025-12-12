@@ -1,3 +1,4 @@
+import Paper from "@mui/material/Paper";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -26,7 +27,7 @@ import Section from "~/src/components/ui/Section";
 import Alert from "~/src/components/utils/Alert";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
-import { getMarketplaceImageUrl } from "~/src/constants/cdn-images";
+import { CDN_IMAGES, getMarketplaceImageUrl } from "~/src/constants/cdn-images";
 const AVAILABLE_YEARS = [2025, 2024];
 
 // Função auxiliar para extrair o valor numérico do tax
@@ -127,6 +128,47 @@ export default function Impostos() {
     await p;
     closeModal();
   };
+  function ErrorContent({
+    title,
+    description,
+    image,
+  }: {
+    title: string;
+    description: string;
+    image: string;
+  }) {
+    return (
+      <Paper>
+        <h2 className="text-center mb-4 text-beergam-blue-primary">{title}</h2>
+        <p className="text-center mb-4">{description}</p>
+        <img
+          className="w-full h-full max-w-48 max-h-48 object-contain"
+          src={image}
+          alt={title}
+        />
+      </Paper>
+    );
+  }
+  if (!isMaster(user))
+    return (
+      <>
+        <ErrorContent
+          title="Fora de Serviço"
+          description={`Implementação para colaboradores ainda não criada.`}
+          image={CDN_IMAGES.LARA_WORKER}
+        />
+      </>
+    );
+  if (user?.details.calc_tax === null)
+    return (
+      <>
+        <ErrorContent
+          title="Configure o Cálculo de Imposto"
+          description="Configure o Cálculo de Imposto na sessão de 'Minha Conta' para acessar."
+          image={CDN_IMAGES.LARA_CONFUSED}
+        />
+      </>
+    );
   return (
     <>
       <div className="flex flex-col md:flex-row gap-4">
@@ -186,7 +228,7 @@ export default function Impostos() {
                 </p>
               </div>
               <div className="flex flex-col gap-4">
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid md:grid-cols-3 gap-2">
                   <UserFields
                     label="Mês"
                     name="month"
@@ -260,22 +302,27 @@ export default function Impostos() {
                     <Spining size="20px" />
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-2">
+                  <div className="grid grid-cols-2 md:flex flex-col gap-2 md:max-h-[50vh] overflow-y-scroll">
                     {Object.entries(taxes?.impostos ?? {})
-                      .filter(([, tax]) => tax !== null && tax !== undefined)
+                      .filter(
+                        ([, tax]) =>
+                          tax !== null &&
+                          tax !== undefined &&
+                          getTaxValue(tax.tax ?? null) !== null
+                      )
                       .map(([month, tax]) => {
                         const taxValue = getTaxValue(tax?.tax ?? null) ?? null;
                         return (
                           <div
                             key={month}
-                            className={`${selectedMonth === month && year === year ? "bg-beergam-blue-primary/10 border-transparent border-b-beergam-gray-light" : "bg-beergam-white border-transparent"} cursor-pointer border hover:border-beergam-gray-light  p-2 rounded-md flex items-center gap-2 justify-between`}
+                            className={`${selectedMonth === month && year === year ? "bg-beergam-blue-primary/10 border-transparent border-b-beergam-gray-light" : "bg-beergam-white border-beergam-gray-light md:border-transparent"} cursor-pointer border hover:border-beergam-gray-light  p-2 rounded-md flex flex-col md:flex-row items-center gap-2 justify-between`}
                             onClick={() => {
                               setSelectedTax(taxValue);
                               setSelectedMonth(month as MonthKey);
                               setYear(year);
                             }}
                           >
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-col md:flex-row items-center gap-2">
                               <div
                                 className={`size-7 flex justify-center items-center ${taxValue !== null ? "bg-beergam-blue-primary/10" : "bg-beergam-yellow/10"} rounded-full`}
                               >

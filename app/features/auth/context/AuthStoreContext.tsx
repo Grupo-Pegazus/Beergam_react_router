@@ -5,7 +5,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import type { TAuthError } from "~/features/auth/redux";
+import type { TAuthError } from "~/features/auth/types";
 import type { BaseMarketPlace } from "~/features/marketplace/typings";
 import authStore from "~/features/store-zustand";
 import type { IColab } from "~/features/user/typings/Colab";
@@ -15,6 +15,7 @@ interface AuthStoreContextValue {
   error: TAuthError | null;
   user: IUser | IColab | null;
   marketplace: BaseMarketPlace | null;
+  _isWithinProvider: boolean; // Flag interno para verificar se está dentro do Provider
 }
 
 interface AuthStoreProviderProps {
@@ -24,7 +25,15 @@ interface AuthStoreProviderProps {
   children: ReactNode;
 }
 
-const AuthStoreContext = createContext<AuthStoreContextValue | null>(null);
+// Valor padrão para evitar erro quando usado fora do Provider (durante SSR/hidratação)
+const defaultContextValue: AuthStoreContextValue = {
+  error: null,
+  user: null,
+  marketplace: null,
+  _isWithinProvider: false,
+};
+
+const AuthStoreContext = createContext<AuthStoreContextValue>(defaultContextValue);
 
 export function AuthStoreProvider({
   initialError = null,
@@ -64,6 +73,7 @@ export function AuthStoreProvider({
       error: liveError,
       user: liveUser,
       marketplace: liveMarketplace,
+      _isWithinProvider: true,
     }),
     [liveError, liveUser, liveMarketplace]
   );
@@ -77,10 +87,15 @@ export function AuthStoreProvider({
 
 export function useAuthStore() {
   const context = useContext(AuthStoreContext);
-  if (!context) {
+  
+  if (!context._isWithinProvider) {
     throw new Error("useAuthStore must be used within AuthStoreProvider");
   }
-  return context;
+  
+  // Remove o flag interno antes de retornar
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { _isWithinProvider: _, ...publicContext } = context;
+  return publicContext as Omit<AuthStoreContextValue, "_isWithinProvider">;
 }
 
 // Hooks específicos para facilitar o uso

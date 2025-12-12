@@ -1,10 +1,4 @@
-// import type { BaseMarketPlace } from "../marketplace/typings";
-import type { BaseMarketPlace } from "../marketplace/typings";
-import type { IColab } from "../user/typings/Colab";
-import type { IUser } from "../user/typings/User";
-import type { IAuthState, TAuthError } from "./redux";
-
-// type AvailableData = IUser | BaseMarketPlace; //Tipos de dados que podem ser criptografados
+import type { TAuthError } from "./types";
 
 export class Crypto<T> {
   private sessionName: string;
@@ -198,37 +192,6 @@ export class Crypto<T> {
   }
 }
 
-class CryptoAuth extends Crypto<IAuthState> {
-  constructor() {
-    super("authEncryptionKey", "authInfo");
-  }
-  async encriptarDados(dados: IAuthState): Promise<void> {
-    console.log("encriptando dados do auth", dados);
-    await super.encriptarDados(dados);
-  }
-}
-
-export const cryptoAuth = new CryptoAuth();
-
-class CryptoUser extends Crypto<IUser | IColab> {
-  constructor() {
-    super("userEncryptionKey", "userInfo");
-  }
-  async encriptarDados(dados: IUser | IColab): Promise<void> {
-    console.log("encriptando dados do user", dados);
-    await super.encriptarDados(dados);
-  }
-}
-
-class CryptoMarketplace extends Crypto<BaseMarketPlace> {
-  constructor() {
-    super("marketplaceEncryptionKey", "marketplaceInfo");
-  }
-}
-
-export const cryptoUser = new CryptoUser();
-
-export const cryptoMarketplace = new CryptoMarketplace();
 
 export function isSubscriptionError(error: TAuthError): boolean {
   return (
@@ -237,11 +200,3 @@ export function isSubscriptionError(error: TAuthError): boolean {
     error === "SUBSCRIPTION_NOT_ACTIVE"
   );
 }
-
-class CryptoZustand extends Crypto<Record<string, unknown>> {
-  constructor() {
-    super("zustandEncryptionKey", "zustandInfo");
-  }
-}
-
-export const cryptoZustand = new CryptoZustand();

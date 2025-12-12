@@ -1,11 +1,9 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  type FieldErrors,
+  useForm,
+  type Resolver,
   type UseFormHandleSubmit,
-  type UseFormRegister,
-  type UseFormReset,
-  type UseFormSetValue,
-  type UseFormWatch,
 } from "react-hook-form";
 import { z } from "zod";
 import { UserPasswordSchema } from "~/features/auth/typing";
@@ -29,29 +27,73 @@ import Section from "~/src/components/ui/Section";
 import Upload from "~/src/components/utils/upload";
 import type { ColabAction } from "../../../../perfil/typings";
 
-const CreateColabSchema = ColabSchema.extend({
-  password: UserPasswordSchema.optional().nullable(),
-});
-type editColabFormData = z.infer<typeof CreateColabSchema>;
+// const CreateColabSchema = ColabSchema.extend({
+//   password: UserPasswordSchema.optional().nullable(),
+// });
+
+const createColabFormSchema = (action: ColabAction | null) => {
+  if (action === "Criar") {
+    // Ao criar, senha é obrigatória
+    return ColabSchema.extend({
+      password: UserPasswordSchema,
+    });
+  } else {
+    // Ao editar, senha é opcional, mas se fornecida, deve ser válida
+    return ColabSchema.extend({
+      password: z
+        .string()
+        .optional()
+        .nullable()
+        .refine(
+          (password) => {
+            // Se não forneceu senha, está ok (opcional)
+            if (!password || password.trim() === "") {
+              return true;
+            }
+            // Se forneceu senha, valida usando o UserPasswordSchema
+            return UserPasswordSchema.safeParse(password).success;
+          },
+          {
+            message:
+              "Senha inválida. Deve conter pelo menos uma letra maiúscula, uma minúscula, um número, um caractere especial e ter no mínimo 8 caracteres.",
+          }
+        ),
+    });
+  }
+};
+export type editColabFormData = z.infer<
+  ReturnType<typeof createColabFormSchema>
+>;
 export default function ColabForm({
   user,
   action,
-  watch,
-  // handleSubmit,
-  reset,
-  setValue,
-  errors,
-  register,
+  onHandleSubmitReady,
 }: {
   user: IColab;
   action: ColabAction;
-  watch: UseFormWatch<editColabFormData>;
-  handleSubmit?: UseFormHandleSubmit<editColabFormData> | null;
-  reset: UseFormReset<editColabFormData>;
-  setValue: UseFormSetValue<editColabFormData>;
-  errors: FieldErrors<editColabFormData>;
-  register: UseFormRegister<editColabFormData>;
+  onHandleSubmitReady?: (
+    handleSubmit: UseFormHandleSubmit<editColabFormData>
+  ) => void;
 }) {
+  const formSchema = useMemo(() => createColabFormSchema(action), [action]);
+  const {
+    watch,
+    reset,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+    register,
+  } = useForm<editColabFormData>({
+    resolver: zodResolver(formSchema) as unknown as Resolver<editColabFormData>,
+    defaultValues: formSchema.safeParse(user).data,
+  });
+
+  useEffect(() => {
+    if (onHandleSubmitReady) {
+      onHandleSubmitReady(handleSubmit);
+    }
+  }, [handleSubmit, onHandleSubmitReady]);
+
   const updateColab = authStore.use.updateColab();
   const allowedViews = watch("details.allowed_views") ?? ({} as MenuState);
   const accessList = Object.keys(MenuConfig).map((key) => ({
@@ -64,7 +106,7 @@ export default function ColabForm({
     if (action === "Criar") {
       reset(getDefaultColab());
     } else {
-      reset(CreateColabSchema.safeParse(user).data);
+      reset(formSchema.safeParse(user).data);
     }
   }, [user, action]);
   const colabPhotoUploadService = useMemo(
@@ -89,6 +131,7 @@ export default function ColabForm({
   const canUploadPhoto = useMemo(() => {
     return action !== "Visualizar" && action !== "Criar";
   }, [action]);
+
   return (
     <>
       <Section title="Dados do Colaborador" className="bg-beergam-white">

@@ -11,16 +11,13 @@ import {
 import { createTheme, ThemeProvider } from "@mui/material";
 // Enable MUI X Date Pickers component keys in theme.components
 import { ptBR } from "@mui/material/locale";
-import { ptBR as ptBRDayjs } from "@mui/x-date-pickers/locales";
-import "@mui/x-date-pickers/themeAugmentation";
 import * as Sentry from "@sentry/react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
 // import { useEffect, useMemo, useState } from "react";
 import { Toaster } from "react-hot-toast";
-import { Provider } from "react-redux";
 import type { Route } from "./+types/root";
 import "./app.css";
 import GlobalLoadingSpinner from "./features/auth/components/GlobalLoadingSpinner/GlobalLoadingSpinner";
@@ -28,17 +25,33 @@ import { AuthStoreProvider } from "./features/auth/context/AuthStoreContext";
 import { SocketStatusIndicator } from "./features/socket/components/SocketStatusIndicator";
 import { SocketProvider } from "./features/socket/context/SocketContext";
 import authStore from "./features/store-zustand";
+import { queryClient } from "./lib/queryClient";
+import Error from "./src/components/Error";
+import type { TError } from "./src/components/Error/typings";
 import { ModalProvider } from "./src/components/utils/Modal/ModalProvider";
-import store from "./store";
 import "./zod";
-export const queryClient = new QueryClient();
-
 dayjs.locale("pt-br");
 
 export const links: Route.LinksFunction = () => [
   {
     rel: "stylesheet",
     href: "https://fonts.cdnfonts.com/css/satoshi",
+  },
+  {
+    rel: "dns-prefetch",
+    href: "https://fonts.cdnfonts.com",
+  },
+  {
+    rel: "dns-prefetch",
+    href: "https://cdn.beergam.com.br",
+  },
+  {
+    rel: "dns-prefetch",
+    href: "http://http2.mlstatic.com",
+  },
+  {
+    rel: "dns-prefetch",
+    href: "https://challenges.cloudflare.com",
   },
 ];
 
@@ -87,6 +100,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";
   let details = "An unexpected error occurred.";
   let stack: string | undefined;
+  let errorType: TError = "INTERNAL_SERVER_ERROR";
 
   if (isRouteErrorResponse(error)) {
     message = error.status === 404 ? "404" : "Error";
@@ -94,28 +108,46 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       error.status === 404
         ? "The requested page could not be found."
         : error.statusText || details;
-  } else if (error && error instanceof Error) {
+    errorType = error.status === 404 ? "NOT_FOUND" : "INTERNAL_SERVER_ERROR";
+  } else if (error instanceof Error) {
     // Só captura exceções com Sentry em produção
     if (process.env.NODE_ENV === "production") {
       Sentry.captureException(error);
     }
     if (import.meta.env.DEV) {
-      details = error.message;
-      stack = error.stack;
+      details = (error as Error).message;
+      stack = (error as Error).stack;
     }
   }
 
-  return (
-    <main>
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre>
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
-  );
+  // Obter dados do authStore para o AuthStoreProvider
+  const authState = authStore.getState();
+  const initialError = authState.error;
+  const initialUser = authState.user;
+  const initialMarketplace = authState.marketplace;
+  if (import.meta.env.DEV) {
+    return (
+      <main>
+        <h1>{message}</h1>
+        <p>{details}</p>
+        {stack && (
+          <pre>
+            <code>{stack}</code>
+          </pre>
+        )}
+      </main>
+    );
+  } else {
+    return (
+      <AuthStoreProvider
+        initialError={initialError}
+        initialUser={initialUser}
+        initialMarketplace={initialMarketplace}
+      >
+        <Error error={errorType} />
+      </AuthStoreProvider>
+    );
+  }
 }
 
 const theme = createTheme(
@@ -128,79 +160,6 @@ const theme = createTheme(
             borderRadius: "8px",
             padding: "16px",
             transition: "all 0.3s ease",
-          },
-        },
-      },
-      // Estilização do calendário (MUI X Date Pickers)
-      MuiDateCalendar: {
-        styleOverrides: {
-          root: {
-            borderRadius: 16,
-            border: "1px solid #e6e6f2",
-            padding: 12,
-            backgroundColor: "#ffffff",
-          },
-          viewTransitionContainer: {
-            marginTop: 8,
-          },
-        },
-      },
-      MuiPickersCalendarHeader: {
-        styleOverrides: {
-          root: {
-            paddingLeft: 8,
-            paddingRight: 8,
-          },
-          labelContainer: {
-            fontWeight: 700,
-            color: "#1f2a44",
-          },
-          switchViewButton: {
-            color: "var(--color-beergam-orange)",
-          },
-        },
-      },
-      MuiPickersArrowSwitcher: {
-        styleOverrides: {
-          root: {
-            "& .MuiIconButton-root": {
-              color: "var(--color-beergam-orange)",
-            },
-          },
-        },
-      },
-      MuiDayCalendar: {
-        styleOverrides: {
-          weekDayLabel: {
-            color: "#a0a3b1",
-            fontWeight: 600,
-          },
-        },
-      },
-      MuiPickersDay: {
-        styleOverrides: {
-          root: {
-            borderRadius: 10,
-            fontWeight: 600,
-            "&.Mui-selected": {
-              backgroundColor: "var(--color-beergam-blue-primary)",
-              color: "#ffffff",
-            },
-            "&.Mui-selected:hover": {
-              backgroundColor: "var(--color-beergam-blue-primary)",
-            },
-            "&:hover": {
-              backgroundColor: "#eef2ff",
-            },
-            "&.MuiPickersDay-today": {
-              border: "none",
-            },
-            "&.Mui-disabled": {
-              opacity: 0.4,
-            },
-          },
-          dayOutsideMonth: {
-            opacity: 0.4,
           },
         },
       },
@@ -256,8 +215,7 @@ const theme = createTheme(
       fontFamily: "var(--default-font-family)",
     },
   },
-  ptBR,
-  ptBRDayjs
+  ptBR
 );
 
 export async function clientLoader() {
@@ -265,7 +223,6 @@ export async function clientLoader() {
   const error = state.error;
   const user = state.user;
   const marketplace = state.marketplace;
-  console.log("rootError do clientLoader", error);
   return { error, user, marketplace };
 }
 
@@ -279,13 +236,33 @@ export function Layout({ children }: { children: React.ReactNode }) {
           content="width=device-width, initial-scale=1 maximum-scale=1 user-scalable=no"
         />
 
-        <link rel="preconnect" href="https://cdn.beergam.com.br/" />
+        {/* Preconnect para recursos críticos - inicia conexão TCP antecipadamente */}
+        <link
+          rel="preconnect"
+          href="https://cdn.beergam.com.br"
+          crossOrigin="anonymous"
+        />
         {/* cdn de arquivos estáticos da Beergam */}
 
-        <link rel="preconnect" href="http://http2.mlstatic.com" />
+        <link
+          rel="preconnect"
+          href="http://http2.mlstatic.com"
+          crossOrigin="anonymous"
+        />
         {/* cdn de imagens do mercado livre */}
 
-        <link rel="preconnect" href="https://challenges.cloudflare.com" />
+        <link
+          rel="preconnect"
+          href="https://challenges.cloudflare.com"
+          crossOrigin="anonymous"
+        />
+
+        {/* Preconnect para APIs críticas */}
+        <link
+          rel="preconnect"
+          href="https://fonts.cdnfonts.com"
+          crossOrigin="anonymous"
+        />
 
         <Meta />
         <Links />
@@ -390,21 +367,19 @@ export default function App() {
   } = useLoaderData<typeof clientLoader>();
 
   return (
-    <Provider store={store}>
-      <AuthStoreProvider
-        initialError={initialError}
-        initialUser={initialUser}
-        initialMarketplace={initialMarketplace}
-      >
-        <Analytics />
-        <QueryClientProvider client={queryClient}>
-          <ModalProvider>
-            <GlobalLoadingSpinner />
-            <SocketConnectionManager />
-            {/* <AuthStoreMonitor /> */}
-          </ModalProvider>
-        </QueryClientProvider>
-      </AuthStoreProvider>
-    </Provider>
+    <AuthStoreProvider
+      initialError={initialError}
+      initialUser={initialUser}
+      initialMarketplace={initialMarketplace}
+    >
+      <Analytics />
+      <QueryClientProvider client={queryClient}>
+        <ModalProvider>
+          <GlobalLoadingSpinner />
+          <SocketConnectionManager />
+          {/* <AuthStoreMonitor /> */}
+        </ModalProvider>
+      </QueryClientProvider>
+    </AuthStoreProvider>
   );
 }

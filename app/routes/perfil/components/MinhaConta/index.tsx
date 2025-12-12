@@ -1,11 +1,10 @@
 import { Paper, Switch } from "@mui/material";
 import dayjs from "dayjs";
 import React, { useContext, useEffect, useMemo, useReducer } from "react";
-import { useDispatch } from "react-redux";
 import { useFetcher } from "react-router";
 import { Tooltip } from "react-tooltip";
 import { z } from "zod";
-import { updateUserInfo } from "~/features/user/redux";
+import authStore from "~/features/store-zustand";
 import type { IColab } from "~/features/user/typings/Colab";
 import {
   CalcProfitProduct,
@@ -32,7 +31,7 @@ import {
 import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
 import type { InputProps } from "~/src/components/utils/_fields/input";
-import BasicDatePicker from "~/src/components/utils/BasicDatePicker";
+import { FilterDatePicker } from "~/src/components/filters";
 import { deepEqual, getObjectDifferences } from "../../utils";
 interface SessionsState {
   [key: string]: boolean;
@@ -184,7 +183,6 @@ export default function MinhaConta<T extends IUser | IColab>({
 }: {
   user: T;
 }) {
-  const dispatch = useDispatch();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (
       e.target.name === "notify_newsletter" ||
@@ -297,9 +295,9 @@ export default function MinhaConta<T extends IUser | IColab>({
       if (fetcher.data.success) {
         console.log("atualizando o usuario");
         const userData = UserSchema.safeParse(fetcher.data.data);
-        dispatch(
-          updateUserInfo({ user: userData.data as IUser, shouldEncrypt: true })
-        );
+        if (userData.success) {
+          authStore.getState().updateUserInfo(userData.data as IUser);
+        }
         setSession({ type: "reset" });
       } else {
         if (fetcher.data.error_fields) {
@@ -624,7 +622,16 @@ export default function MinhaConta<T extends IUser | IColab>({
                 onChange={handleChange}
                 editedUserError={editedUserError}
               >
-                <BasicDatePicker />
+                <FilterDatePicker
+                  label="DATA DE FUNDAÇÃO"
+                  value={editedUser.details.foundation_date ?? ""}
+                  onChange={(value) => handleChange({
+                    target: {
+                      name: "foundation_date",
+                      value: (value ?? undefined) as string,
+                    },
+                  } as React.ChangeEvent<HTMLInputElement>)}
+                />
               </ElementWrapper>
               <ElementWrapper
                 canBeAlter={true}

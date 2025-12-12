@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
 import { useFetcher, useNavigate } from "react-router";
@@ -19,9 +19,13 @@ import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
 import Hint from "~/src/components/utils/Hint";
 import Modal from "~/src/components/utils/Modal";
+import Loading from "~/src/assets/loading";
 import ChoosenAccountSkeleton from "./components/ChoosenAccountSkeleton";
-import CreateMarketplaceModal from "./components/CreateMarketplaceModal";
 import DeleteMarketaplceAccount from "./components/DeleteMarketaplceAccount";
+
+const CreateMarketplaceModal = lazy(
+  () => import("./components/CreateMarketplaceModal")
+);
 interface ChoosenAccountPageProps {
   marketplacesAccounts: BaseMarketPlace[] | null;
   isLoading?: boolean;
@@ -109,7 +113,7 @@ export default function ChoosenAccountPage({
   }, [marketplacesAccounts, searchTerm, typeFilter]);
   const resultsCount = filteredAccounts.length;
   return (
-    <PageLayout showLogoutButton>
+    <PageLayout>
       <div className="flex flex-col items-center w-full p-4">
         {/* Header */}
         <div className="mb-4 w-full max-w-[80vw]">
@@ -226,10 +230,12 @@ export default function ChoosenAccountPage({
         isOpen={abrirModal}
         onClose={() => handleAbrirModal({ abrir: false })}
       >
-        <CreateMarketplaceModal
-          marketplacesAccounts={marketplacesAccounts}
-          modalOpen={abrirModal}
-        />
+        <Suspense fallback={<Loading />}>
+          <CreateMarketplaceModal
+            marketplacesAccounts={marketplacesAccounts}
+            modalOpen={abrirModal}
+          />
+        </Suspense>
       </Modal>
 
       {/* Modal de confirmação de deletar */}

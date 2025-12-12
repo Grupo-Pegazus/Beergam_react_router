@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router";
-import { useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
+import authStore from "~/features/store-zustand";
 import Svg from "~/src/assets/svgs/_index";
 import MobilePortal from "~/features/system/components/mobile/Portal";
-import type { RootState } from "~/store";
 import PerfilMenuOverlay from "./PerfilMenuOverlay";
 
 const LAST_ROUTE_BEFORE_PERFIL_KEY = "beergam:lastRouteBeforePerfil";
@@ -52,7 +51,7 @@ interface PerfilBottomNavProps {
 export default function PerfilBottomNav({ activeButton, onSelect }: PerfilBottomNavProps) {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
-  const marketplace = useSelector((state: RootState) => state.marketplace.marketplace);
+  const marketplace = authStore.use.marketplace();
   const hasSavedRoute = useRef(false);
 
   // Salvar a última rota quando montar o componente (primeira vez no perfil)
