@@ -1,3 +1,4 @@
+import Paper from "@mui/material/Paper";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -26,7 +27,7 @@ import Section from "~/src/components/ui/Section";
 import Alert from "~/src/components/utils/Alert";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
-import { getMarketplaceImageUrl } from "~/src/constants/cdn-images";
+import { CDN_IMAGES, getMarketplaceImageUrl } from "~/src/constants/cdn-images";
 const AVAILABLE_YEARS = [2025, 2024];
 
 // Função auxiliar para extrair o valor numérico do tax
@@ -127,23 +128,45 @@ export default function Impostos() {
     await p;
     closeModal();
   };
+  function ErrorContent({
+    title,
+    description,
+    image,
+  }: {
+    title: string;
+    description: string;
+    image: string;
+  }) {
+    return (
+      <Paper>
+        <h2 className="text-center mb-4 text-beergam-blue-primary">{title}</h2>
+        <p className="text-center mb-4">{description}</p>
+        <img
+          className="w-full h-full max-w-48 max-h-48 object-contain"
+          src={image}
+          alt={title}
+        />
+      </Paper>
+    );
+  }
   if (!isMaster(user))
     return (
       <>
-        <div>
-          <h1>Implementação para Colaboradores ainda não criada</h1>
-        </div>
+        <ErrorContent
+          title="Fora de Serviço"
+          description={`Implementação para colaboradores ainda não criada.`}
+          image={CDN_IMAGES.LARA_WORKER}
+        />
       </>
     );
   if (user?.details.calc_tax === null)
     return (
       <>
-        <div>
-          <h1>
-            Configure o Cálculo de Imposto na sessão de "Minha Conta" para
-            acessar.
-          </h1>
-        </div>
+        <ErrorContent
+          title="Configure o Cálculo de Imposto"
+          description="Configure o Cálculo de Imposto na sessão de 'Minha Conta' para acessar."
+          image={CDN_IMAGES.LARA_CONFUSED}
+        />
       </>
     );
   return (
@@ -281,7 +304,12 @@ export default function Impostos() {
                 ) : (
                   <div className="grid grid-cols-2 md:flex flex-col gap-2">
                     {Object.entries(taxes?.impostos ?? {})
-                      .filter(([, tax]) => tax !== null && tax !== undefined)
+                      .filter(
+                        ([, tax]) =>
+                          tax !== null &&
+                          tax !== undefined &&
+                          getTaxValue(tax.tax ?? null) !== null
+                      )
                       .map(([month, tax]) => {
                         const taxValue = getTaxValue(tax?.tax ?? null) ?? null;
                         return (
