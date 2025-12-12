@@ -302,7 +302,7 @@ export default function Impostos() {
                     <Spining size="20px" />
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 md:flex flex-col gap-2">
+                  <div className="grid grid-cols-2 md:flex flex-col gap-2 md:max-h-[50vh] overflow-y-scroll">
                     {Object.entries(taxes?.impostos ?? {})
                       .filter(
                         ([, tax]) =>
