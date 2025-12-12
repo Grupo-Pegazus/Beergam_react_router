@@ -30,7 +30,6 @@ import Error from "./src/components/Error";
 import type { TError } from "./src/components/Error/typings";
 import { ModalProvider } from "./src/components/utils/Modal/ModalProvider";
 import "./zod";
-export const queryClient = new QueryClient();
 dayjs.locale("pt-br");
 
 export const links: Route.LinksFunction = () => [
