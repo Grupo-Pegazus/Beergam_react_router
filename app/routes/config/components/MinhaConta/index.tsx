@@ -8,7 +8,7 @@ export default function MinhaConta({ user }: { user: IUser | IColab }) {
   return (
     <>
       {isMaster(user) && <UserForm user={user} />}
-      {isColab(user) && <ColabForm user={user} />}
+      {isColab(user) && <ColabForm user={user} action="Visualizar"  />}
     </>
   );
 }

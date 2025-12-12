@@ -1,61 +1,55 @@
 // import ColabCard from "~/features/user/colab/components/ColabCard";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef } from "react";
+import type { UseFormHandleSubmit } from "react-hook-form";
 import authStore from "~/features/store-zustand";
 // import ColabInfo from "~/features/user/colab/components/ColabInfo";
 // import ColabListMobile from "~/features/user/colab/components/ColabListMobile";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { type Resolver, useForm } from "react-hook-form";
-import { z } from "zod";
 import { authService } from "~/features/auth/service";
-import { UserPasswordSchema } from "~/features/auth/typing";
 import ColabListMobile from "~/features/user/colab/components/ColabListMobile";
 import { userService } from "~/features/user/service";
-import {
-  ColabSchema,
-  getDefaultColab,
-  type IColab,
-} from "~/features/user/typings/Colab";
+import { getDefaultColab, type IColab } from "~/features/user/typings/Colab";
 import Section from "~/src/components/ui/Section";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import toast from "~/src/utils/toast";
 import type { ColabAction } from "../../../perfil/typings";
-import ColabForm from "../MinhaConta/ColabForm";
+import ColabForm, { type editColabFormData } from "../MinhaConta/ColabForm";
 
 // Função para criar schema baseado na ação
-const createColabFormSchema = (action: ColabAction | null) => {
-  if (action === "Criar") {
-    // Ao criar, senha é obrigatória
-    return ColabSchema.extend({
-      password: UserPasswordSchema,
-    });
-  } else {
-    // Ao editar, senha é opcional, mas se fornecida, deve ser válida
-    return ColabSchema.extend({
-      password: z
-        .string()
-        .optional()
-        .nullable()
-        .refine(
-          (password) => {
-            // Se não forneceu senha, está ok (opcional)
-            if (!password || password.trim() === "") {
-              return true;
-            }
-            // Se forneceu senha, valida usando o UserPasswordSchema
-            return UserPasswordSchema.safeParse(password).success;
-          },
-          {
-            message:
-              "Senha inválida. Deve conter pelo menos uma letra maiúscula, uma minúscula, um número, um caractere especial e ter no mínimo 8 caracteres.",
-          }
-        ),
-    });
-  }
-};
 
-type editColabFormData = z.infer<ReturnType<typeof createColabFormSchema>>;
+// const createColabFormSchema = (action: ColabAction | null) => {
+//   if (action === "Criar") {
+//     // Ao criar, senha é obrigatória
+//     return ColabSchema.extend({
+//       password: UserPasswordSchema,
+//     });
+//   } else {
+//     // Ao editar, senha é opcional, mas se fornecida, deve ser válida
+//     return ColabSchema.extend({
+//       password: z
+//         .string()
+//         .optional()
+//         .nullable()
+//         .refine(
+//           (password) => {
+//             // Se não forneceu senha, está ok (opcional)
+//             if (!password || password.trim() === "") {
+//               return true;
+//             }
+//             // Se forneceu senha, valida usando o UserPasswordSchema
+//             return UserPasswordSchema.safeParse(password).success;
+//           },
+//           {
+//             message:
+//               "Senha inválida. Deve conter pelo menos uma letra maiúscula, uma minúscula, um número, um caractere especial e ter no mínimo 8 caracteres.",
+//           }
+//         ),
+//     });
+//   }
+// };
+
+// type editColabFormData = z.infer<ReturnType<typeof createColabFormSchema>>;
 export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
   const updateColab = authStore.use.updateColab();
   const createColab = authStore.use.createColab();
@@ -118,32 +112,14 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
     initialColabState
   );
 
-  // Cria o schema baseado na ação atual usando useMemo
-  const formSchema = useMemo(
-    () => createColabFormSchema(currentColab.action),
-    [currentColab.action]
-  );
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm<editColabFormData>({
-    resolver: zodResolver(formSchema) as unknown as Resolver<editColabFormData>,
-    defaultValues: formSchema.safeParse(currentColab.colab ?? getDefaultColab())
-      .data,
-  });
-
   // Atualiza os valores do form quando a ação ou colaborador mudar
-  useEffect(() => {
-    const newDefaultValues = formSchema.safeParse(
-      currentColab.colab ?? getDefaultColab()
-    ).data;
-    reset(newDefaultValues);
-  }, [currentColab.action, currentColab.colab, formSchema, reset]);
+
+  // useEffect(() => {
+  //   const newDefaultValues = formSchema.safeParse(
+  //     currentColab.colab ?? getDefaultColab()
+  //   ).data;
+  //   reset(newDefaultValues);
+  // }, [currentColab.action, currentColab.colab, formSchema, reset]);
   const { data } = useQuery({
     queryKey: ["getColabList"],
     queryFn: () => userService.getColabs(),
@@ -154,18 +130,20 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
     }
   }, [data, updateColabs]);
   const colabInfoRef = useRef<HTMLDivElement>(null);
+  const formHandleSubmitRef =
+    useRef<UseFormHandleSubmit<editColabFormData> | null>(null);
 
-  const onSubmit = (data: editColabFormData) => {
+  const onSubmit = (colab: IColab, password?: string | null) => {
     if (createColabMutation.isPending || updateColabMutation.isPending) return;
     if (currentColab.action === "Criar") {
       createColabMutation.mutate({
-        colab: data,
-        password: data.password ?? "",
+        colab: colab,
+        password: password ?? "",
       });
     } else if (currentColab.action === "Editar") {
       updateColabMutation.mutate({
-        colab: data,
-        password: data.password ?? "",
+        colab: colab,
+        password: password ?? "",
       });
     }
   };
@@ -267,16 +245,22 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
                       : updateColabMutation,
                 }}
                 onClick={() => {
-                  handleSubmit(onSubmit, (errors) => {
-                    toast.error("Você possui erros pendentes no formulário.");
-                    console.warn("Erros de validação:", errors);
-                  })();
-                  // if (currentColab.action === "Criar") {
-                  //   createColabMutation.mutate({
-                  //     colab: watch(),
-                  //     password: watch("password") ?? "",
-                  //   });
-                  // }
+                  if (formHandleSubmitRef.current) {
+                    formHandleSubmitRef.current(
+                      (data: editColabFormData) => {
+                        const colabData = data as unknown as IColab;
+                        const password = (data as { password?: string | null })
+                          .password;
+                        onSubmit(colabData, password);
+                      },
+                      (errors) => {
+                        toast.error(
+                          "Você possui erros pendentes no formulário."
+                        );
+                        console.warn("Erros de validação:", errors);
+                      }
+                    )();
+                  }
                 }}
               />
             </>
@@ -287,13 +271,10 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
         {currentColab.colab && currentColab.action ? (
           <ColabForm
             user={currentColab.colab}
-            register={register}
-            watch={watch}
-            // handleSubmit={handleSubmit(onSubmit)}
-            reset={reset}
-            setValue={setValue}
-            errors={errors}
             action={currentColab.action}
+            onHandleSubmitReady={(handleSubmit) => {
+              formHandleSubmitRef.current = handleSubmit;
+            }}
           />
         ) : (
           <p>Nenhum colaborador selecionado</p>
