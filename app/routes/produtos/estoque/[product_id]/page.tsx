@@ -262,13 +262,6 @@ export default function StockControlPage({
                 <StockMovementForm
                   productId={productId}
                   variationId={hasVariations && selectedVariationId !== null ? selectedVariationId : undefined}
-                  variationSku={
-                    hasVariations && selectedVariationId !== null
-                      ? variationsWithStockHandling.find(
-                          (v) => String(v.product_variation_id) === selectedVariationId
-                        )?.sku ?? null
-                      : undefined
-                  }
                   onSuccess={handleMovementSuccess}
                 />
               </Grid>

@@ -12,13 +12,12 @@ import { createTheme, ThemeProvider } from "@mui/material";
 // Enable MUI X Date Pickers component keys in theme.components
 import { ptBR } from "@mui/material/locale";
 import * as Sentry from "@sentry/react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
 // import { useEffect, useMemo, useState } from "react";
 import { Toaster } from "react-hot-toast";
-import { Provider } from "react-redux";
 import type { Route } from "./+types/root";
 import "./app.css";
 import GlobalLoadingSpinner from "./features/auth/components/GlobalLoadingSpinner/GlobalLoadingSpinner";
@@ -27,9 +26,8 @@ import { SocketStatusIndicator } from "./features/socket/components/SocketStatus
 import { SocketProvider } from "./features/socket/context/SocketContext";
 import authStore from "./features/store-zustand";
 import { ModalProvider } from "./src/components/utils/Modal/ModalProvider";
-import store from "./store";
+import { queryClient } from "./lib/queryClient";
 import "./zod";
-export const queryClient = new QueryClient();
 
 dayjs.locale("pt-br");
 
@@ -37,6 +35,22 @@ export const links: Route.LinksFunction = () => [
   {
     rel: "stylesheet",
     href: "https://fonts.cdnfonts.com/css/satoshi",
+  },
+  {
+    rel: "dns-prefetch",
+    href: "https://fonts.cdnfonts.com",
+  },
+  {
+    rel: "dns-prefetch",
+    href: "https://cdn.beergam.com.br",
+  },
+  {
+    rel: "dns-prefetch",
+    href: "http://http2.mlstatic.com",
+  },
+  {
+    rel: "dns-prefetch",
+    href: "https://challenges.cloudflare.com",
   },
 ];
 
@@ -189,7 +203,6 @@ export async function clientLoader() {
   const error = state.error;
   const user = state.user;
   const marketplace = state.marketplace;
-  console.log("rootError do clientLoader", error);
   return { error, user, marketplace };
 }
 
@@ -203,13 +216,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
           content="width=device-width, initial-scale=1 maximum-scale=1 user-scalable=no"
         />
 
-        <link rel="preconnect" href="https://cdn.beergam.com.br/" />
+        {/* Preconnect para recursos críticos - inicia conexão TCP antecipadamente */}
+        <link rel="preconnect" href="https://cdn.beergam.com.br" crossOrigin="anonymous" />
         {/* cdn de arquivos estáticos da Beergam */}
 
-        <link rel="preconnect" href="http://http2.mlstatic.com" />
+        <link rel="preconnect" href="http://http2.mlstatic.com" crossOrigin="anonymous" />
         {/* cdn de imagens do mercado livre */}
 
-        <link rel="preconnect" href="https://challenges.cloudflare.com" />
+        <link rel="preconnect" href="https://challenges.cloudflare.com" crossOrigin="anonymous" />
+        
+        {/* Preconnect para APIs críticas */}
+        <link rel="preconnect" href="https://fonts.cdnfonts.com" crossOrigin="anonymous" />
 
         <Meta />
         <Links />
@@ -314,21 +331,19 @@ export default function App() {
   } = useLoaderData<typeof clientLoader>();
 
   return (
-    <Provider store={store}>
-      <AuthStoreProvider
-        initialError={initialError}
-        initialUser={initialUser}
-        initialMarketplace={initialMarketplace}
-      >
-        <Analytics />
-        <QueryClientProvider client={queryClient}>
-          <ModalProvider>
-            <GlobalLoadingSpinner />
-            <SocketConnectionManager />
-            {/* <AuthStoreMonitor /> */}
-          </ModalProvider>
-        </QueryClientProvider>
-      </AuthStoreProvider>
-    </Provider>
+    <AuthStoreProvider
+      initialError={initialError}
+      initialUser={initialUser}
+      initialMarketplace={initialMarketplace}
+    >
+      <Analytics />
+      <QueryClientProvider client={queryClient}>
+        <ModalProvider>
+          <GlobalLoadingSpinner />
+          <SocketConnectionManager />
+          {/* <AuthStoreMonitor /> */}
+        </ModalProvider>
+      </QueryClientProvider>
+    </AuthStoreProvider>
   );
 }
