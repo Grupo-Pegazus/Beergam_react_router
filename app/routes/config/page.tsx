@@ -6,6 +6,7 @@ import { useAuthUser } from "~/features/auth/context/AuthStoreContext";
 import authStore from "~/features/store-zustand";
 import type { IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
+import { isColab } from "~/features/user/utils";
 import Svg from "~/src/assets/svgs/_index";
 import Colaboradores from "./components/Colaboradores";
 import ConfigSectionComponent from "./components/ConfigSectionComponent";
@@ -26,15 +27,16 @@ interface IConfigSection {
   label: SECTIONS;
   icon: keyof typeof Svg;
   emBreve?: boolean;
+  colabAccess?: boolean;
 }
 const CONFIG_SECTIONS: IConfigSection[] = [
-  { label: "Visão Geral", icon: "cog_8_tooth" },
-  { label: "Minha Conta", icon: "user" },
-  { label: "Marketplaces", icon: "globe" },
-  { label: "Colaboradores", icon: "user_plus" },
-  { label: "Minha Assinatura", icon: "card" },
-  { label: "Impostos", icon: "building_library" },
-  { label: "Afiliados", icon: "box", emBreve: true },
+  { label: "Visão Geral", icon: "cog_8_tooth", colabAccess: true },
+  { label: "Minha Conta", icon: "user", colabAccess: true },
+  { label: "Marketplaces", icon: "globe", colabAccess: true },
+  { label: "Colaboradores", icon: "user_plus", colabAccess: false },
+  { label: "Minha Assinatura", icon: "card", colabAccess: false },
+  { label: "Impostos", icon: "building_library", colabAccess: true },
+  { label: "Afiliados", icon: "box", emBreve: true, colabAccess: false },
 ];
 
 function ConfigSection({
@@ -100,6 +102,15 @@ export default function ConfigPage() {
     console.log(selectedSectionUrl);
     if (selectedSectionUrl) {
       if (checkIfUrlIsAValidSession(selectedSectionUrl)) {
+        if (
+          !CONFIG_SECTIONS.find(
+            (section) => section.label === selectedSectionUrl
+          )?.colabAccess &&
+          isColab(user as IColab)
+        ) {
+          navigate(`/interno/config?session=Minha Conta`);
+          return;
+        }
         setSelectedSection(selectedSectionUrl as SECTIONS);
       } else {
         navigate(`/interno/config?session=Minha Conta`);
@@ -125,20 +136,25 @@ export default function ConfigPage() {
           <div className="block md:hidden">
             <Fade in={menuOpen} timeout={200}>
               <div className={`grid absolute top-14 gap-2 right-4 left-4`}>
-                {CONFIG_SECTIONS.map((section) => (
-                  <ConfigSection
-                    key={section.label}
-                    section={section}
-                    onClick={() => {
-                      navigate(`/interno/config?session=${section.label}`);
-                      window.setTimeout(() => {
-                        setMenuOpen(false);
-                      }, 300);
-                    }}
-                    isSelected={selectedSection === section.label}
-                    emBreve={section.emBreve}
-                  />
-                ))}
+                {CONFIG_SECTIONS.map((section) => {
+                  if (!section.colabAccess && isColab(user as IColab)) {
+                    return null;
+                  }
+                  return (
+                    <ConfigSection
+                      key={section.label}
+                      section={section}
+                      onClick={() => {
+                        navigate(`/interno/config?session=${section.label}`);
+                        window.setTimeout(() => {
+                          setMenuOpen(false);
+                        }, 300);
+                      }}
+                      isSelected={selectedSection === section.label}
+                      emBreve={section.emBreve}
+                    />
+                  );
+                })}
                 <button
                   className={`flex p-2 w-full rounded-lg text-left cursor-pointer gap-2 border border-transparent items-center text-beergam-white hover:bg-beergam-blue-primary/10 ${marketplace ? "" : "opacity-50 cursor-not-allowed"}`}
                   onClick={() => {
@@ -153,20 +169,25 @@ export default function ConfigPage() {
           </div>
           <div className="hidden md:block">
             <div className={`grid gap-2`}>
-              {CONFIG_SECTIONS.map((section) => (
-                <ConfigSection
-                  key={section.label}
-                  section={section}
-                  onClick={() => {
-                    navigate(`/interno/config?session=${section.label}`);
-                    window.setTimeout(() => {
-                      setMenuOpen(false);
-                    }, 300);
-                  }}
-                  isSelected={selectedSection === section.label}
-                  emBreve={section.emBreve}
-                />
-              ))}
+              {CONFIG_SECTIONS.map((section) => {
+                if (!section.colabAccess && isColab(user as IColab)) {
+                  return null;
+                }
+                return (
+                  <ConfigSection
+                    key={section.label}
+                    section={section}
+                    onClick={() => {
+                      navigate(`/interno/config?session=${section.label}`);
+                      window.setTimeout(() => {
+                        setMenuOpen(false);
+                      }, 300);
+                    }}
+                    isSelected={selectedSection === section.label}
+                    emBreve={section.emBreve}
+                  />
+                );
+              })}
               <button
                 className={`flex p-2 w-full rounded-lg text-left cursor-pointer gap-2 border border-transparent items-center text-beergam-white hover:bg-beergam-blue-primary/10 ${marketplace ? "" : "opacity-50 cursor-not-allowed"}`}
                 onClick={() => {
