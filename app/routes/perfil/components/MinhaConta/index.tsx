@@ -32,7 +32,7 @@ import {
 import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
 import type { InputProps } from "~/src/components/utils/_fields/input";
-import BasicDatePicker from "~/src/components/utils/BasicDatePicker";
+import { FilterDatePicker } from "~/src/components/filters";
 import { deepEqual, getObjectDifferences } from "../../utils";
 interface SessionsState {
   [key: string]: boolean;
@@ -624,7 +624,16 @@ export default function MinhaConta<T extends IUser | IColab>({
                 onChange={handleChange}
                 editedUserError={editedUserError}
               >
-                <BasicDatePicker />
+                <FilterDatePicker
+                  label="DATA DE FUNDAÇÃO"
+                  value={editedUser.details.foundation_date ?? ""}
+                  onChange={(value) => handleChange({
+                    target: {
+                      name: "foundation_date",
+                      value: (value ?? undefined) as string,
+                    },
+                  } as React.ChangeEvent<HTMLInputElement>)}
+                />
               </ElementWrapper>
               <ElementWrapper
                 canBeAlter={true}

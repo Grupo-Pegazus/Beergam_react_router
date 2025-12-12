@@ -19,16 +19,24 @@
       "routes/perfil/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/inicio/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/vendas/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/vendas/[venda_id]/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/anuncios/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/anuncios/[anuncio_id]/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/atendimento/mercado_livre/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/atendimento/mercado_livre/perguntas/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/atendimento/mercado_livre/reclamacoes/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/produtos/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/produtos/gestao/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/produtos/gestao/[product_id]/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/produtos/cadastro/cadastro_simplificado/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/produtos/cadastro/cadastro_completo/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/produtos/categorias/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/produtos/atributos/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/produtos/agendamento/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/produtos/editar/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/produtos/editar/[public_id_prod]/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/produtos/estoque/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/produtos/estoque/[product_id]/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/calculadora/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
     },
     "routes": {
@@ -132,6 +140,15 @@
           "runtime": "nodejs"
         }
       },
+      "routes/vendas/[venda_id]/route": {
+        "id": "routes/vendas/[venda_id]/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/vendas/[venda_id]/route.tsx",
+        "path": "interno/vendas/:venda_id",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
       "routes/anuncios/route": {
         "id": "routes/anuncios/route",
         "parentId": "features/menu/components/layout/MenuLayout",
@@ -150,6 +167,33 @@
           "runtime": "nodejs"
         }
       },
+      "routes/atendimento/mercado_livre/route": {
+        "id": "routes/atendimento/mercado_livre/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/atendimento/mercado_livre/route.tsx",
+        "path": "interno/atendimento/mercado_livre",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/atendimento/mercado_livre/perguntas/route": {
+        "id": "routes/atendimento/mercado_livre/perguntas/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/atendimento/mercado_livre/perguntas/route.tsx",
+        "path": "interno/atendimento/mercado_livre/perguntas",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/atendimento/mercado_livre/reclamacoes/route": {
+        "id": "routes/atendimento/mercado_livre/reclamacoes/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/atendimento/mercado_livre/reclamacoes/route.tsx",
+        "path": "interno/atendimento/mercado_livre/reclamacoes",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
       "routes/produtos/route": {
         "id": "routes/produtos/route",
         "parentId": "features/menu/components/layout/MenuLayout",
@@ -164,6 +208,15 @@
         "parentId": "features/menu/components/layout/MenuLayout",
         "file": "app/routes/produtos/gestao/route.tsx",
         "path": "interno/produtos/gestao",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/produtos/gestao/[product_id]/route": {
+        "id": "routes/produtos/gestao/[product_id]/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/produtos/gestao/[product_id]/route.tsx",
+        "path": "interno/produtos/gestao/:product_id",
         "config": {
           "runtime": "nodejs"
         }
@@ -213,11 +266,38 @@
           "runtime": "nodejs"
         }
       },
+      "routes/produtos/editar/route": {
+        "id": "routes/produtos/editar/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/produtos/editar/route.tsx",
+        "path": "interno/produtos/editar",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/produtos/editar/[public_id_prod]/route": {
+        "id": "routes/produtos/editar/[public_id_prod]/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/produtos/editar/[public_id_prod]/route.tsx",
+        "path": "interno/produtos/editar/:public_id_prod",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
       "routes/produtos/estoque/route": {
         "id": "routes/produtos/estoque/route",
         "parentId": "features/menu/components/layout/MenuLayout",
         "file": "app/routes/produtos/estoque/route.tsx",
         "path": "interno/produtos/estoque",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/produtos/estoque/[product_id]/route": {
+        "id": "routes/produtos/estoque/[product_id]/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/produtos/estoque/[product_id]/route.tsx",
+        "path": "interno/produtos/estoque/:product_id",
         "config": {
           "runtime": "nodejs"
         }
@@ -315,6 +395,12 @@
         "file": "routes/vendas/route.tsx",
         "path": "interno/vendas"
       },
+      "routes/vendas/[venda_id]/route": {
+        "id": "routes/vendas/[venda_id]/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/vendas/[venda_id]/route.tsx",
+        "path": "interno/vendas/:venda_id"
+      },
       "routes/anuncios/route": {
         "id": "routes/anuncios/route",
         "parentId": "features/menu/components/layout/MenuLayout",
@@ -327,6 +413,24 @@
         "file": "routes/anuncios/[anuncio_id]/route.tsx",
         "path": "interno/anuncios/:anuncio_id"
       },
+      "routes/atendimento/mercado_livre/route": {
+        "id": "routes/atendimento/mercado_livre/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/atendimento/mercado_livre/route.tsx",
+        "path": "interno/atendimento/mercado_livre"
+      },
+      "routes/atendimento/mercado_livre/perguntas/route": {
+        "id": "routes/atendimento/mercado_livre/perguntas/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/atendimento/mercado_livre/perguntas/route.tsx",
+        "path": "interno/atendimento/mercado_livre/perguntas"
+      },
+      "routes/atendimento/mercado_livre/reclamacoes/route": {
+        "id": "routes/atendimento/mercado_livre/reclamacoes/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/atendimento/mercado_livre/reclamacoes/route.tsx",
+        "path": "interno/atendimento/mercado_livre/reclamacoes"
+      },
       "routes/produtos/route": {
         "id": "routes/produtos/route",
         "parentId": "features/menu/components/layout/MenuLayout",
@@ -338,6 +442,12 @@
         "parentId": "features/menu/components/layout/MenuLayout",
         "file": "routes/produtos/gestao/route.tsx",
         "path": "interno/produtos/gestao"
+      },
+      "routes/produtos/gestao/[product_id]/route": {
+        "id": "routes/produtos/gestao/[product_id]/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/produtos/gestao/[product_id]/route.tsx",
+        "path": "interno/produtos/gestao/:product_id"
       },
       "routes/produtos/cadastro/cadastro_simplificado/route": {
         "id": "routes/produtos/cadastro/cadastro_simplificado/route",
@@ -369,11 +479,29 @@
         "file": "routes/produtos/agendamento/route.tsx",
         "path": "interno/produtos/agendamento"
       },
+      "routes/produtos/editar/route": {
+        "id": "routes/produtos/editar/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/produtos/editar/route.tsx",
+        "path": "interno/produtos/editar"
+      },
+      "routes/produtos/editar/[public_id_prod]/route": {
+        "id": "routes/produtos/editar/[public_id_prod]/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/produtos/editar/[public_id_prod]/route.tsx",
+        "path": "interno/produtos/editar/:public_id_prod"
+      },
       "routes/produtos/estoque/route": {
         "id": "routes/produtos/estoque/route",
         "parentId": "features/menu/components/layout/MenuLayout",
         "file": "routes/produtos/estoque/route.tsx",
         "path": "interno/produtos/estoque"
+      },
+      "routes/produtos/estoque/[product_id]/route": {
+        "id": "routes/produtos/estoque/[product_id]/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/produtos/estoque/[product_id]/route.tsx",
+        "path": "interno/produtos/estoque/:product_id"
       },
       "routes/calculadora/route": {
         "id": "routes/calculadora/route",
@@ -439,6 +567,10 @@
                     "path": "interno/vendas"
                   },
                   {
+                    "file": "routes/vendas/[venda_id]/route.tsx",
+                    "path": "interno/vendas/:venda_id"
+                  },
+                  {
                     "file": "routes/anuncios/route.tsx",
                     "path": "interno/anuncios"
                   },
@@ -447,12 +579,28 @@
                     "path": "interno/anuncios/:anuncio_id"
                   },
                   {
+                    "file": "routes/atendimento/mercado_livre/route.tsx",
+                    "path": "interno/atendimento/mercado_livre"
+                  },
+                  {
+                    "file": "routes/atendimento/mercado_livre/perguntas/route.tsx",
+                    "path": "interno/atendimento/mercado_livre/perguntas"
+                  },
+                  {
+                    "file": "routes/atendimento/mercado_livre/reclamacoes/route.tsx",
+                    "path": "interno/atendimento/mercado_livre/reclamacoes"
+                  },
+                  {
                     "file": "routes/produtos/route.tsx",
                     "path": "interno/produtos"
                   },
                   {
                     "file": "routes/produtos/gestao/route.tsx",
                     "path": "interno/produtos/gestao"
+                  },
+                  {
+                    "file": "routes/produtos/gestao/[product_id]/route.tsx",
+                    "path": "interno/produtos/gestao/:product_id"
                   },
                   {
                     "file": "routes/produtos/cadastro/cadastro_simplificado/route.tsx",
@@ -475,8 +623,20 @@
                     "path": "interno/produtos/agendamento"
                   },
                   {
+                    "file": "routes/produtos/editar/route.tsx",
+                    "path": "interno/produtos/editar"
+                  },
+                  {
+                    "file": "routes/produtos/editar/[public_id_prod]/route.tsx",
+                    "path": "interno/produtos/editar/:public_id_prod"
+                  },
+                  {
                     "file": "routes/produtos/estoque/route.tsx",
                     "path": "interno/produtos/estoque"
+                  },
+                  {
+                    "file": "routes/produtos/estoque/[product_id]/route.tsx",
+                    "path": "interno/produtos/estoque/:product_id"
                   },
                   {
                     "file": "routes/calculadora/route.tsx",
@@ -537,6 +697,10 @@
                     "path": "interno/vendas"
                   },
                   {
+                    "file": "routes/vendas/[venda_id]/route.tsx",
+                    "path": "interno/vendas/:venda_id"
+                  },
+                  {
                     "file": "routes/anuncios/route.tsx",
                     "path": "interno/anuncios"
                   },
@@ -545,12 +709,28 @@
                     "path": "interno/anuncios/:anuncio_id"
                   },
                   {
+                    "file": "routes/atendimento/mercado_livre/route.tsx",
+                    "path": "interno/atendimento/mercado_livre"
+                  },
+                  {
+                    "file": "routes/atendimento/mercado_livre/perguntas/route.tsx",
+                    "path": "interno/atendimento/mercado_livre/perguntas"
+                  },
+                  {
+                    "file": "routes/atendimento/mercado_livre/reclamacoes/route.tsx",
+                    "path": "interno/atendimento/mercado_livre/reclamacoes"
+                  },
+                  {
                     "file": "routes/produtos/route.tsx",
                     "path": "interno/produtos"
                   },
                   {
                     "file": "routes/produtos/gestao/route.tsx",
                     "path": "interno/produtos/gestao"
+                  },
+                  {
+                    "file": "routes/produtos/gestao/[product_id]/route.tsx",
+                    "path": "interno/produtos/gestao/:product_id"
                   },
                   {
                     "file": "routes/produtos/cadastro/cadastro_simplificado/route.tsx",
@@ -573,8 +753,20 @@
                     "path": "interno/produtos/agendamento"
                   },
                   {
+                    "file": "routes/produtos/editar/route.tsx",
+                    "path": "interno/produtos/editar"
+                  },
+                  {
+                    "file": "routes/produtos/editar/[public_id_prod]/route.tsx",
+                    "path": "interno/produtos/editar/:public_id_prod"
+                  },
+                  {
                     "file": "routes/produtos/estoque/route.tsx",
                     "path": "interno/produtos/estoque"
+                  },
+                  {
+                    "file": "routes/produtos/estoque/[product_id]/route.tsx",
+                    "path": "interno/produtos/estoque/:product_id"
                   },
                   {
                     "file": "routes/calculadora/route.tsx",

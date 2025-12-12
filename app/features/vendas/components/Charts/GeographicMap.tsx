@@ -17,11 +17,9 @@ import {
 } from "@mui/material";
 import MainCards from "~/src/components/ui/MainCards";
 import { Fields } from "~/src/components/utils/_fields";
-import { DatePicker } from "@mui/x-date-pickers";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { ptBR } from "@mui/x-date-pickers/locales";
 import { type Dayjs } from "dayjs";
+import { FilterDatePicker } from "~/src/components/filters";
+import dayjs from "dayjs";
 
 const geoUrl ="https://gist.githubusercontent.com/ruliana/1ccaaab05ea113b0dff3b22be3b4d637/raw/196c0332d38cb935cfca227d28f7cecfa70b412e/br-states.json";
 
@@ -150,48 +148,16 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
                 </Typography>
                 {selectedPeriod === "custom" && (
                   <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 2 }}>
-                    <LocalizationProvider
-                      dateAdapter={AdapterDayjs}
-                      adapterLocale="pt-br"
-                      localeText={
-                        ptBR.components.MuiLocalizationProvider.defaultProps.localeText
-                      }
-                    >
-                      <DatePicker
-                        label="Data de início"
-                        value={dateFrom}
-                        onChange={handleDateFromChange}
-                        slotProps={{
-                          textField: {
-                            size: "small",
-                            fullWidth: true,
-                            sx: {
-                              "& .MuiInputBase-root": {
-                                fontSize: "0.875rem",
-                              },
-                            },
-                          },
-                        }}
-                        sx={{ width: { xs: "100%", sm: "auto" } }}
-                      />
-                      <DatePicker
-                        label="Data de fim"
-                        value={dateTo}
-                        onChange={handleDateToChange}
-                        slotProps={{
-                          textField: {
-                            size: "small",
-                            fullWidth: true,
-                            sx: {
-                              "& .MuiInputBase-root": {
-                                fontSize: "0.875rem",
-                              },
-                            },
-                          },
-                        }}
-                        sx={{ width: { xs: "100%", sm: "auto" } }}
-                      />
-                    </LocalizationProvider>
+                    <FilterDatePicker
+                      label="Data de início"
+                      value={dateFrom?.toISOString() ?? undefined}
+                      onChange={(value) => handleDateFromChange(value ? dayjs(value) : null)}
+                    />
+                    <FilterDatePicker
+                      label="Data de fim"
+                      value={dateTo?.toISOString() ?? undefined}
+                      onChange={(value) => handleDateToChange(value ? dayjs(value) : null)}
+                    />
                   </Stack>
                 )}
               </div>
