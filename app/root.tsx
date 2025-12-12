@@ -28,11 +28,12 @@ import { AuthStoreProvider } from "./features/auth/context/AuthStoreContext";
 import { SocketStatusIndicator } from "./features/socket/components/SocketStatusIndicator";
 import { SocketProvider } from "./features/socket/context/SocketContext";
 import authStore from "./features/store-zustand";
+import Error from "./src/components/Error";
+import type { TError } from "./src/components/Error/typings";
 import { ModalProvider } from "./src/components/utils/Modal/ModalProvider";
 import store from "./store";
 import "./zod";
 export const queryClient = new QueryClient();
-
 dayjs.locale("pt-br");
 
 export const links: Route.LinksFunction = () => [
@@ -87,6 +88,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";
   let details = "An unexpected error occurred.";
   let stack: string | undefined;
+  let errorType: TError = "INTERNAL_SERVER_ERROR";
 
   if (isRouteErrorResponse(error)) {
     message = error.status === 404 ? "404" : "Error";
@@ -94,28 +96,46 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       error.status === 404
         ? "The requested page could not be found."
         : error.statusText || details;
-  } else if (error && error instanceof Error) {
+    errorType = error.status === 404 ? "NOT_FOUND" : "INTERNAL_SERVER_ERROR";
+  } else if (error instanceof Error) {
     // Só captura exceções com Sentry em produção
     if (process.env.NODE_ENV === "production") {
       Sentry.captureException(error);
     }
     if (import.meta.env.DEV) {
-      details = error.message;
-      stack = error.stack;
+      details = (error as Error).message;
+      stack = (error as Error).stack;
     }
   }
 
-  return (
-    <main>
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre>
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
-  );
+  // Obter dados do authStore para o AuthStoreProvider
+  const authState = authStore.getState();
+  const initialError = authState.error;
+  const initialUser = authState.user;
+  const initialMarketplace = authState.marketplace;
+  if (import.meta.env.DEV) {
+    return (
+      <main>
+        <h1>{message}</h1>
+        <p>{details}</p>
+        {stack && (
+          <pre>
+            <code>{stack}</code>
+          </pre>
+        )}
+      </main>
+    );
+  } else {
+    return (
+      <AuthStoreProvider
+        initialError={initialError}
+        initialUser={initialUser}
+        initialMarketplace={initialMarketplace}
+      >
+        <Error error={errorType} />
+      </AuthStoreProvider>
+    );
+  }
 }
 
 const theme = createTheme(
