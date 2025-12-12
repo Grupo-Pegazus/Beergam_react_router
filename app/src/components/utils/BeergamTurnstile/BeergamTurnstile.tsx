@@ -48,13 +48,36 @@ function BeergamTurnstileComponent(
   const [isLoaded, setIsLoaded] = useState(false);
   const [loadError, setLoadError] = useState(false);
 
-  const siteKey = import.meta.env.PROD 
-    ? import.meta.env.VITE_TURNSTILE_SITE_KEY_PROD! 
-    : import.meta.env.VITE_TURNSTILE_SITE_KEY_DEV!;
+
+  const getSiteKey = (): string => {
+    const prodKey = import.meta.env.VITE_TURNSTILE_SITE_KEY_PROD;
+    const devKey = import.meta.env.VITE_TURNSTILE_SITE_KEY_DEV;
+    
+    const key = import.meta.env.PROD ? prodKey : devKey;
+    
+    if (typeof key !== 'string' || key.trim() === '') {
+      console.error(
+        `Turnstile siteKey inválido. Verifique a variável de ambiente: ${
+          import.meta.env.PROD 
+            ? 'VITE_TURNSTILE_SITE_KEY_PROD' 
+            : 'VITE_TURNSTILE_SITE_KEY_DEV'
+        }`
+      );
+      return '';
+    }
+    
+    return key;
+  };
+
+  const siteKey = getSiteKey();
 
   // Aguardar o carregamento do Turnstile
   useEffect(() => {
+    let isMounted = true;
+    
     waitForTurnstile(50, 100).then((loaded) => {
+      if (!isMounted) return;
+      
       if (loaded) {
         setIsLoaded(true);
         setLoadError(false);
@@ -64,6 +87,10 @@ function BeergamTurnstileComponent(
         onError?.();
       }
     });
+    
+    return () => {
+      isMounted = false;
+    };
   }, [onError]);
 
   const handleSuccess = (token: string) => {
@@ -112,8 +139,7 @@ function BeergamTurnstileComponent(
     );
   }
 
-  // Mostrar erro se não carregar
-  if (loadError) {
+  if (loadError || !siteKey) {
     return (
       <div 
         className="cf-turnstile-error" 
@@ -129,7 +155,9 @@ function BeergamTurnstileComponent(
         }}
       >
         <div style={{ color: '#d32f2f', fontSize: '14px', textAlign: 'center' }}>
-          Erro ao carregar verificação de segurança. Por favor, recarregue a página.
+          {!siteKey 
+            ? 'Erro de configuração: Turnstile siteKey não encontrado.'
+            : 'Erro ao carregar verificação de segurança. Por favor, recarregue a página.'}
         </div>
       </div>
     );
