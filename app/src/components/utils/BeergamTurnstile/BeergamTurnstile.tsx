@@ -12,13 +12,45 @@ interface BeergamTurnstileProps {
   resetTrigger?: number | string;
 }
 
+// Função para carregar o script do Turnstile manualmente se necessário
+function loadTurnstileScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    // Verificar se já está carregado
+    if (typeof window !== 'undefined') {
+      const windowWithTurnstile = window as Window & { turnstile?: unknown };
+      if (typeof windowWithTurnstile.turnstile !== 'undefined') {
+        resolve();
+        return;
+      }
+    }
+
+    // Verificar se o script já existe no DOM
+    const existingScript = document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]');
+    if (existingScript) {
+      // Aguardar o script carregar
+      existingScript.addEventListener('load', () => resolve());
+      existingScript.addEventListener('error', () => reject(new Error('Erro ao carregar script do Turnstile')));
+      return;
+    }
+
+    // Carregar o script
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Erro ao carregar script do Turnstile'));
+    document.head.appendChild(script);
+  });
+}
+
 function isTurnstileLoaded(): boolean {
   if (typeof window === 'undefined') return false;
   const windowWithTurnstile = window as Window & { turnstile?: unknown };
   return typeof windowWithTurnstile.turnstile !== 'undefined';
 }
 
-function waitForTurnstile(maxAttempts = 50, interval = 100): Promise<boolean> {
+function waitForTurnstile(maxAttempts = 100, interval = 100): Promise<boolean> {
   return new Promise((resolve) => {
     if (isTurnstileLoaded()) {
       resolve(true);
@@ -53,12 +85,24 @@ function BeergamTurnstileComponent(
     const prodKey = import.meta.env.VITE_TURNSTILE_SITE_KEY_PROD;
     const devKey = import.meta.env.VITE_TURNSTILE_SITE_KEY_DEV;
     
-    const key = import.meta.env.PROD ? prodKey : devKey;
+    const isProd = import.meta.env.PROD;
+    const key = isProd ? prodKey : devKey;
+    
+    // Debug: log das variáveis de ambiente
+    if (import.meta.env.DEV) {
+      console.log('[Turnstile Debug]', {
+        isProd,
+        prodKey: prodKey ? `${prodKey.substring(0, 10)}...` : 'undefined',
+        devKey: devKey ? `${devKey.substring(0, 10)}...` : 'undefined',
+        selectedKey: key ? `${key.substring(0, 10)}...` : 'undefined',
+        keyType: typeof key,
+      });
+    }
     
     if (typeof key !== 'string' || key.trim() === '') {
       console.error(
-        `Turnstile siteKey inválido. Verifique a variável de ambiente: ${
-          import.meta.env.PROD 
+        `[Turnstile] siteKey inválido. Verifique a variável de ambiente: ${
+          isProd 
             ? 'VITE_TURNSTILE_SITE_KEY_PROD' 
             : 'VITE_TURNSTILE_SITE_KEY_DEV'
         }`
@@ -71,22 +115,45 @@ function BeergamTurnstileComponent(
 
   const siteKey = getSiteKey();
 
-  // Aguardar o carregamento do Turnstile
+  // Carregar o script e aguardar o Turnstile estar disponível
   useEffect(() => {
     let isMounted = true;
     
-    waitForTurnstile(50, 100).then((loaded) => {
-      if (!isMounted) return;
-      
-      if (loaded) {
-        setIsLoaded(true);
-        setLoadError(false);
-      } else {
+    if (import.meta.env.DEV) {
+      console.log('[Turnstile] Iniciando carregamento...');
+    }
+    
+    // Primeiro, tentar carregar o script manualmente
+    loadTurnstileScript()
+      .then(() => {
+        if (import.meta.env.DEV) {
+          console.log('[Turnstile] Script carregado, aguardando API...');
+        }
+        // Depois, aguardar o Turnstile estar disponível
+        return waitForTurnstile(100, 100);
+      })
+      .then((loaded) => {
+        if (!isMounted) return;
+        
+        if (import.meta.env.DEV) {
+          console.log('[Turnstile] Status:', loaded ? 'Carregado com sucesso' : 'Falhou ao carregar');
+        }
+        
+        if (loaded) {
+          setIsLoaded(true);
+          setLoadError(false);
+        } else {
+          setLoadError(true);
+          console.error('[Turnstile] Não foi carregado após múltiplas tentativas');
+          onError?.();
+        }
+      })
+      .catch((error) => {
+        if (!isMounted) return;
+        console.error('[Turnstile] Erro ao carregar:', error);
         setLoadError(true);
-        console.error('Turnstile não foi carregado após múltiplas tentativas');
         onError?.();
-      }
-    });
+      });
     
     return () => {
       isMounted = false;
