@@ -10,6 +10,7 @@ import Svg from "~/src/assets/svgs/_index";
 import Colaboradores from "./components/Colaboradores";
 import ConfigSectionComponent from "./components/ConfigSectionComponent";
 import Impostos from "./components/Impostos/Impostos";
+import Marketplaces from "./components/Marketplaces";
 import MinhaAssinatura from "./components/MinhaAssinatura/index";
 import MinhaConta from "./components/MinhaConta";
 import VisaoGeral from "./components/VisaoGeral";
@@ -82,6 +83,8 @@ function HandleSection(section: SECTIONS, user: IUser | IColab) {
       return <MinhaAssinatura />;
     case "Impostos":
       return <Impostos />;
+    case "Marketplaces":
+      return <Marketplaces />;
   }
 }
 export default function ConfigPage() {

@@ -127,6 +127,25 @@ export default function Impostos() {
     await p;
     closeModal();
   };
+  if (!isMaster(user))
+    return (
+      <>
+        <div>
+          <h1>Implementação para Colaboradores ainda não criada</h1>
+        </div>
+      </>
+    );
+  if (user?.details.calc_tax === null)
+    return (
+      <>
+        <div>
+          <h1>
+            Configure o Cálculo de Imposto na sessão de "Minha Conta" para
+            acessar.
+          </h1>
+        </div>
+      </>
+    );
   return (
     <>
       <div className="flex flex-col md:flex-row gap-4">
@@ -186,7 +205,7 @@ export default function Impostos() {
                 </p>
               </div>
               <div className="flex flex-col gap-4">
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid md:grid-cols-3 gap-2">
                   <UserFields
                     label="Mês"
                     name="month"
@@ -260,7 +279,7 @@ export default function Impostos() {
                     <Spining size="20px" />
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-2">
+                  <div className="grid grid-cols-2 md:flex flex-col gap-2">
                     {Object.entries(taxes?.impostos ?? {})
                       .filter(([, tax]) => tax !== null && tax !== undefined)
                       .map(([month, tax]) => {
@@ -268,14 +287,14 @@ export default function Impostos() {
                         return (
                           <div
                             key={month}
-                            className={`${selectedMonth === month && year === year ? "bg-beergam-blue-primary/10 border-transparent border-b-beergam-gray-light" : "bg-beergam-white border-transparent"} cursor-pointer border hover:border-beergam-gray-light  p-2 rounded-md flex items-center gap-2 justify-between`}
+                            className={`${selectedMonth === month && year === year ? "bg-beergam-blue-primary/10 border-transparent border-b-beergam-gray-light" : "bg-beergam-white border-beergam-gray-light md:border-transparent"} cursor-pointer border hover:border-beergam-gray-light  p-2 rounded-md flex flex-col md:flex-row items-center gap-2 justify-between`}
                             onClick={() => {
                               setSelectedTax(taxValue);
                               setSelectedMonth(month as MonthKey);
                               setYear(year);
                             }}
                           >
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-col md:flex-row items-center gap-2">
                               <div
                                 className={`size-7 flex justify-center items-center ${taxValue !== null ? "bg-beergam-blue-primary/10" : "bg-beergam-yellow/10"} rounded-full`}
                               >
