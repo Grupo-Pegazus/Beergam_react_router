@@ -14,11 +14,8 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { Skeleton } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { ptBR } from "@mui/x-date-pickers/locales";
 import dayjs, { type Dayjs } from "dayjs";
+import { FilterDatePicker } from "~/src/components/filters";
 
 const formatCurrency = (value: number): string => {
   return new Intl.NumberFormat("pt-BR", {
@@ -103,32 +100,13 @@ export default function OrdersChart({ anuncioId, days = 30 }: OrdersChartProps) 
       </Box>
 
       <Box sx={{ mb: 2, display: "flex", justifyContent: "flex-end" }}>
-        <LocalizationProvider
-          dateAdapter={AdapterDayjs}
-          adapterLocale="pt-br"
-          localeText={
-            ptBR.components.MuiLocalizationProvider.defaultProps.localeText
-          }
-        >
-          <DatePicker
-            label="Período"
-            value={selectedMonth}
-            onChange={handleMonthChange}
-            views={["year", "month"]}
-            format="MMMM YYYY"
-            slotProps={{
-              textField: {
-                size: "small",
-                sx: {
-                  width: { xs: "100%", sm: 200 },
-                  "& .MuiInputBase-root": {
-                    fontSize: "0.875rem",
-                  },
-                },
-              },
-            }}
-          />
-        </LocalizationProvider>
+        <FilterDatePicker
+          label="Período"
+          value={selectedMonth?.toISOString() ?? ""}
+          onChange={(value) => handleMonthChange(value ? dayjs(value) : null)}
+          dateType="month"
+          widthType="full"
+        />
       </Box>
 
       {isLoading ? (
