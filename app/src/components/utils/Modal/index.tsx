@@ -80,7 +80,7 @@ export function Modal({
                 >
                   <Svg.circle_x tailWindClasses="w-6 h-6" />
                 </button> */}
-                <BeergamButton onClick={onClose} icon="circle_x" />
+                <BeergamButton onClick={onClose} icon="x" />
               </div>
               {children && (
                 <div className="rounded-lg p-3 text-sm text-beergam-blue-primary">
