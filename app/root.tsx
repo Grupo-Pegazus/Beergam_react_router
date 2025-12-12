@@ -36,6 +36,22 @@ export const links: Route.LinksFunction = () => [
     rel: "stylesheet",
     href: "https://fonts.cdnfonts.com/css/satoshi",
   },
+  {
+    rel: "dns-prefetch",
+    href: "https://fonts.cdnfonts.com",
+  },
+  {
+    rel: "dns-prefetch",
+    href: "https://cdn.beergam.com.br",
+  },
+  {
+    rel: "dns-prefetch",
+    href: "http://http2.mlstatic.com",
+  },
+  {
+    rel: "dns-prefetch",
+    href: "https://challenges.cloudflare.com",
+  },
 ];
 
 export function meta({}: Route.MetaArgs) {
@@ -187,7 +203,6 @@ export async function clientLoader() {
   const error = state.error;
   const user = state.user;
   const marketplace = state.marketplace;
-  console.log("rootError do clientLoader", error);
   return { error, user, marketplace };
 }
 
@@ -201,13 +216,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
           content="width=device-width, initial-scale=1 maximum-scale=1 user-scalable=no"
         />
 
-        <link rel="preconnect" href="https://cdn.beergam.com.br/" />
+        {/* Preconnect para recursos críticos - inicia conexão TCP antecipadamente */}
+        <link rel="preconnect" href="https://cdn.beergam.com.br" crossOrigin="anonymous" />
         {/* cdn de arquivos estáticos da Beergam */}
 
-        <link rel="preconnect" href="http://http2.mlstatic.com" />
+        <link rel="preconnect" href="http://http2.mlstatic.com" crossOrigin="anonymous" />
         {/* cdn de imagens do mercado livre */}
 
-        <link rel="preconnect" href="https://challenges.cloudflare.com" />
+        <link rel="preconnect" href="https://challenges.cloudflare.com" crossOrigin="anonymous" />
+        
+        {/* Preconnect para APIs críticas */}
+        <link rel="preconnect" href="https://fonts.cdnfonts.com" crossOrigin="anonymous" />
 
         <Meta />
         <Links />
