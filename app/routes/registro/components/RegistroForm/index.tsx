@@ -8,7 +8,7 @@ import {
   type SubmitHandler,
 } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 import { authService } from "~/features/auth/service";
 import UserFields from "~/features/user/components/UserFields";
@@ -24,6 +24,7 @@ import { RegistroFormSchema } from "../../typings";
 type RegistroFormValues = z.infer<typeof RegistroFormSchema>;
 
 export default function RegistroForm() {
+  const navigate = useNavigate();
   const resolver: Resolver<RegistroFormValues> = zodResolver(
     RegistroFormSchema
   ) as unknown as Resolver<RegistroFormValues>;
@@ -60,17 +61,21 @@ export default function RegistroForm() {
       turnstileToken: string;
     }) => authService.register(user, turnstileToken),
     onSuccess: (data) => {
-      if (!Array.isArray(data.error_fields)) {
-        throw new Error(data.message);
-      }
-      data.error_fields?.forEach((error) => {
-        setError(`${error.key}` as Path<RegistroFormValues>, {
-          type: "server",
-          message: error.error,
+      if (!data.success) {
+        if (!Array.isArray(data.error_fields)) {
+          throw new Error(data.message);
+        }
+        data.error_fields?.forEach((error) => {
+          setError(`${error.key}` as Path<RegistroFormValues>, {
+            type: "server",
+            message: error.error,
+          });
         });
-      });
-      const errorMessage = `${data.error_fields?.map((error) => `${error.error}`).join("\n")}`;
-      throw new Error(errorMessage);
+        const errorMessage = `${data.error_fields?.map((error) => `${error.error}`).join("\n")}`;
+        throw new Error(errorMessage);
+      } else {
+        navigate("/login", { viewTransition: true });
+      }
     },
   });
 
