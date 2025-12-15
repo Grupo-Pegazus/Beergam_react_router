@@ -1,3 +1,4 @@
+import { Fade } from "@mui/material";
 import React from "react";
 import ColabItem from "~/features/user/colab/components/ColabDetails/ColabItem";
 import LockAnimated from "~/src/assets/LockAnimated";
@@ -63,25 +64,27 @@ function Time({
         <p>{dia}</p>
       </button>
 
-      <div className="flex items-center gap-2 relative z-10">
-        <input
-          type="time"
-          value={start_date || ""}
-          onChange={(e) =>
-            setHorario({ access, start_date: e.target.value, end_date })
-          }
-          disabled={!access}
-          className={`outline-none ${access ? "opacity-100" : "opacity-0"} ${!access ? "pointer-events-none" : ""}`}
-        />
+      <Fade onClick={(e) => e.stopPropagation()} in={access} timeout={200}>
+        <div className="flex items-center gap-2">
+          <input
+            type="time"
+            value={start_date || ""}
+            onChange={(e) =>
+              setHorario({ access, start_date: e.target.value, end_date })
+            }
+            disabled={!access}
+            className={`outline-none ${access ? "opacity-100" : "opacity-0"} ${!access ? "pointer-events-none" : ""}`}
+          />
 
-        <input
-          type="time"
-          value={end_date || ""}
-          onChange={aviso}
-          disabled={!access}
-          className={`outline-none ${access ? "opacity-100" : "opacity-0"} ${!access ? "pointer-events-none" : ""}`}
-        />
-      </div>
+          <input
+            type="time"
+            value={end_date || ""}
+            onChange={aviso}
+            disabled={!access}
+            className={`outline-none ${access ? "opacity-100" : "opacity-0"} ${!access ? "pointer-events-none" : ""}`}
+          />
+        </div>
+      </Fade>
     </ColabItem>
   );
 }

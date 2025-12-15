@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useAuthMarketplace } from "~/features/auth/context/AuthStoreContext";
 import MarketplaceCard from "~/features/marketplace/components/MarketplaceCard";
+import { useAccountPolling } from "~/features/marketplace/hooks/useAccountPolling";
 import { marketplaceService } from "~/features/marketplace/service";
 import {
   type BaseMarketPlace,
@@ -23,9 +24,12 @@ export default function Marketplaces() {
   const [type, setType] = useState<MarketplaceType | null>(null);
   const queryClient = useQueryClient();
   const { data: marketplaces } = useQuery({
-    queryKey: ["marketplaces"],
+    queryKey: ["marketplacesAccounts"],
     queryFn: () => marketplaceService.getMarketplacesAccounts(),
   });
+  const accounts: BaseMarketPlace[] =
+    (marketplaces?.data as BaseMarketPlace[]) || [];
+  useAccountPolling(accounts);
   const filteredMarketplaces = marketplaces?.data
     ?.filter((marketplace) =>
       marketplace.marketplace_name.toLowerCase().includes(search.toLowerCase())
@@ -55,7 +59,7 @@ export default function Marketplaces() {
         setMarketplaceToDelete(null);
       }
       queryClient.invalidateQueries({
-        queryKey: ["marketplacesAccounts", "marketplaces"],
+        queryKey: ["marketplacesAccounts"],
       });
     },
   });
@@ -88,7 +92,7 @@ export default function Marketplaces() {
           />
         }
       >
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-3  gap-4">
           <UserFields
             label="Pesquisar Marketplaces"
             name="Marketplace"
@@ -121,7 +125,7 @@ export default function Marketplaces() {
             canAlter={false}
           />
         </div>
-        <div className="grid grid-cols-3 md:grid-cols-2 2xl:grid-cols-3 gap-4 mt-4">
+        <div className="grid md:grid-cols-2 2xl:grid-cols-3 gap-4 mt-4">
           {filteredMarketplaces && filteredMarketplaces?.length > 0 ? (
             filteredMarketplaces?.map((marketplace) => (
               <MarketplaceCard
