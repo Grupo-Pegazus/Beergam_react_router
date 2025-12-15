@@ -62,6 +62,8 @@ export default function RegistroForm() {
     }) => authService.register(user, turnstileToken),
     onSuccess: (data) => {
       if (!data.success) {
+        turnstileRef.current?.reset();
+        setTurnstileToken("");
         if (!Array.isArray(data.error_fields)) {
           throw new Error(data.message);
         }
