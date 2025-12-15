@@ -1,12 +1,12 @@
+import { z } from "zod";
+import { RegistroFormSchema } from "~/routes/registro/typings";
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
 import { UserRoles, type Subscription } from "../user/typings/BaseUser";
 import type { IColab } from "../user/typings/Colab";
 import { type IUser } from "../user/typings/User";
 
-interface RegisterUser extends IUser {
-  password: string;
-}
+type RegisterUser = z.infer<typeof RegistroFormSchema>;
 
 interface LoginResponse {
   user: IUser | IColab;
@@ -71,11 +71,14 @@ class AuthService {
             ? error.message
             : "Erro ao fazer login. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }
-  async register(user: RegisterUser, turnstileToken: string): Promise<ApiResponse<IUser>> {
+  async register(
+    user: RegisterUser,
+    turnstileToken: string
+  ): Promise<ApiResponse<IUser>> {
     try {
       const response = await typedApiClient.post<IUser>(
         "/v1/auth/master/register",
@@ -93,7 +96,7 @@ class AuthService {
         message:
           "Erro ao registrar usuário. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }
@@ -114,7 +117,7 @@ class AuthService {
         message:
           "Erro ao buscar assinatura. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }
@@ -140,7 +143,7 @@ class AuthService {
         message:
           "Erro ao criar colaborador. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }
@@ -162,7 +165,7 @@ class AuthService {
         message:
           "Erro ao verificar tempo de colaborador. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }
