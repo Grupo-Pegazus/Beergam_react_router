@@ -92,7 +92,7 @@ export default function Marketplaces() {
           />
         }
       >
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-3  gap-4">
           <UserFields
             label="Pesquisar Marketplaces"
             name="Marketplace"
@@ -125,7 +125,7 @@ export default function Marketplaces() {
             canAlter={false}
           />
         </div>
-        <div className="grid grid-cols-3 md:grid-cols-2 2xl:grid-cols-3 gap-4 mt-4">
+        <div className="grid md:grid-cols-2 2xl:grid-cols-3 gap-4 mt-4">
           {filteredMarketplaces && filteredMarketplaces?.length > 0 ? (
             filteredMarketplaces?.map((marketplace) => (
               <MarketplaceCard
