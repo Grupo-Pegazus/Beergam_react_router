@@ -34,6 +34,8 @@ export default defineConfig(async (config) => {
       noExternal: ["gsap", "@marsidev/react-turnstile"]
     },
     build: {
+      target: 'esnext',
+
       rollupOptions: {
         output: {
           manualChunks: (id: string) => {
@@ -111,8 +113,6 @@ export default defineConfig(async (config) => {
       },
 
       chunkSizeWarningLimit: 1000,
-      
-      minify: 'esbuild',
       
       // Source maps apenas em desenvolvimento (melhor segurança em produção)
       // Em produção, source maps são gerados pelo Sentry plugin para debugging remoto
