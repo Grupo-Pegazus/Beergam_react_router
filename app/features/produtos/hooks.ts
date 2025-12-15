@@ -25,6 +25,7 @@ export function useProducts(filters?: Partial<ProductsFilters>) {
       return res;
     },
     staleTime: 1000 * 60 * 5, // 5 minutos
+    refetchOnMount: "always",
   });
 }
 
@@ -54,6 +55,7 @@ export function useProductsMetrics() {
       return res;
     },
     staleTime: 1000 * 60 * 5, // 5 minutos
+    refetchOnMount: "always",
   });
 }
 

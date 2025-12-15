@@ -1,17 +1,20 @@
-import { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { Link, useLocation, useNavigate } from "react-router";
 import { useSocketContext } from "~/features/socket/context/SocketContext";
 import authStore from "~/features/store-zustand";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import { Fields } from "~/src/components/utils/_fields";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import {
+  BeergamTurnstile,
+  type BeergamTurnstileRef,
+} from "~/src/components/utils/BeergamTurnstile";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
 import toast from "~/src/utils/toast";
-import BeergamButton from "~/src/components/utils/BeergamButton";
-import { BeergamTurnstile, type BeergamTurnstileRef } from "~/src/components/utils/BeergamTurnstile";
 import { authService } from "../../../../features/auth/service";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   type ColaboradorUserForm,
   ColaboradorUserFormSchema,
@@ -89,7 +92,8 @@ export default function FormModal({
   });
 
   // Seleciona o form ativo baseado no tipo de usuário
-  const activeForm = currentUserType === UserRoles.MASTER ? masterForm : colaboradorForm;
+  const activeForm =
+    currentUserType === UserRoles.MASTER ? masterForm : colaboradorForm;
   const { handleSubmit, reset } = activeForm;
   const turnstileRef = useRef<BeergamTurnstileRef>(null);
 
@@ -97,8 +101,12 @@ export default function FormModal({
   const loginMutation = useMutation({
     mutationFn: async (data: MasterUserForm | ColaboradorUserForm) => {
       const token = turnstileRef.current?.getToken() || "";
-      const response = await authService.login(data, token, currentUserType as UserRoles);
-      
+      const response = await authService.login(
+        data,
+        token,
+        currentUserType as UserRoles
+      );
+
       if (!response.success) {
         throw new Error(response.message);
       }
@@ -153,15 +161,18 @@ export default function FormModal({
 
   return (
     <div
-      className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-white h-auto w-full mx-auto my-auto p-8 sm:w-2/3 sm:max-w-lg sm:rounded-4xl`}
+      className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-white h-auto w-full md:mx-auto md:my-auto p-8 sm:w-2/3 sm:max-w-lg sm:rounded-4xl`}
     >
-      <div className="block w-16 h-16 sm:hidden">
+      <Link
+        to="/"
+        className="block w-10 h-10 cursor-pointer hover:opacity-80 sm:hidden"
+      >
         <img
-          src={CDN_IMAGES.BEERGAM_FLOWER_LOGO}
+          src={CDN_IMAGES.BERGAMOTA_LOGO}
           alt="beergam_flower_logo"
           className="w-full h-full object-contain"
         />
-      </div>
+      </Link>
       <div className="flex justify-between items-center">
         <h1 className="text-beergam-blue-primary">Bem vindo</h1>
         <div className="hidden flex-col gap-2 sm:flex">
@@ -251,10 +262,7 @@ export default function FormModal({
         >
           Esqueceu sua senha?
         </button>
-        <BeergamTurnstile
-          ref={turnstileRef}
-          resetTrigger={currentUserType}
-        />
+        <BeergamTurnstile ref={turnstileRef} resetTrigger={currentUserType} />
         <div className="flex gap-2 sm:hidden">
           <FormHelpNavigation />
         </div>

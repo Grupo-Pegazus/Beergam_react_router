@@ -108,7 +108,8 @@ export interface IUserDetails extends IBaseUserDetails {
   email: string;
   cpf?: string | null;
   cnpj?: string | null;
-  phone: string;
+  // Pode não existir em registros antigos, então mantemos opcional aqui
+  phone?: string | null;
   profit_range?: ProfitRange | null;
   found_beergam?: ComoConheceu | null;
   personal_reference_code?: string;
@@ -162,22 +163,24 @@ function nullableField<T extends z.ZodTypeAny>(fieldValue: T) {
     }, fieldValue.nullable())
     .optional();
 }
+
+export const UserProfitRangeSchema = z.enum(
+  Object.keys(ProfitRange) as [ProfitRange, ...ProfitRange[]]
+) satisfies z.ZodType<ProfitRange>;
+export const UserComoConheceuSchema = z.enum(
+  Object.keys(ComoConheceu) as [ComoConheceu, ...ComoConheceu[]]
+) satisfies z.ZodType<ComoConheceu>;
 export const UserDetailsSchema = BaseUserDetailsSchema.extend({
   email: z.email("Email inválido"),
   cpf: CPFSchema.optional().nullable(),
   cnpj: CNPJSchema.optional().nullable(),
-  phone: TelefoneSchema,
+  // No schema o campo é validado, mas permitimos ausência (opcional) para bater com a interface
+  phone: TelefoneSchema.optional().nullable(),
   secondary_phone: nullableField(TelefoneSchema),
   personal_reference_code: BeergamCodeSchema.optional(),
   referral_code: BeergamReferralCodeSchema.optional().nullable(),
-  profit_range: z
-    .enum(Object.keys(ProfitRange) as [ProfitRange, ...ProfitRange[]])
-    .optional()
-    .nullable(),
-  found_beergam: z
-    .enum(Object.keys(ComoConheceu) as [ComoConheceu, ...ComoConheceu[]])
-    .optional()
-    .nullable(),
+  profit_range: UserProfitRangeSchema.optional().nullable(),
+  found_beergam: UserComoConheceuSchema.optional().nullable(),
   notify_newsletter: z.coerce.boolean().optional().nullable(),
   calc_profit_product: nullableField(
     z.enum(

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router";
-import { Chip, Pagination, Typography, Stack } from "@mui/material";
+import { Chip, Pagination, Typography, Stack, useMediaQuery } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { useProducts } from "../../hooks";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import MainCards from "~/src/components/ui/MainCards";
@@ -14,8 +15,14 @@ function formatNumber(value: number | null | undefined) {
 }
 
 export default function StockProductsList() {
+  const theme = useTheme();
+
+  const isXs = useMediaQuery(theme.breakpoints.down("sm"));
+  const isSm = useMediaQuery(theme.breakpoints.between("sm", "md"));
+  const isMd = useMediaQuery(theme.breakpoints.between("md", "lg"));
+  const isLgUp = useMediaQuery(theme.breakpoints.up("lg"));
+
   const [page, setPage] = useState(1);
-  const [perPage] = useState(20);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
@@ -30,8 +37,6 @@ export default function StockProductsList() {
   }, [searchTerm]);
 
   const { data, isLoading, error } = useProducts({
-    page,
-    per_page: perPage,
     sort_by: "created_at",
     sort_order: "desc",
     q: debouncedSearchTerm.trim() || undefined,
@@ -45,8 +50,24 @@ export default function StockProductsList() {
     );
   }, [data]);
 
-  const pagination = data?.success ? data.data?.pagination : null;
-  const totalPages = pagination?.total_pages ?? 1;
+  const cardsPerPage = useMemo(() => {
+    // Mantém sempre UMA linha por página, respeitando o número de colunas da grid
+    if (isXs) return 2; // grid-cols-2
+    if (isSm) return 3; // sm:grid-cols-3
+    if (isMd) return 4; // md:grid-cols-4
+    if (isLgUp) return 6; // lg:grid-cols-5 (xl terá uma "vaga" sobrando, mas sem quebra de linha)
+    return 4;
+  }, [isXs, isSm, isMd, isLgUp]);
+
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (page - 1) * cardsPerPage;
+    return products.slice(startIndex, startIndex + cardsPerPage);
+  }, [page, products, cardsPerPage]);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(products.length / cardsPerPage)
+  );
   const totalCount = products.length;
 
   const handlePageChange = (
@@ -88,7 +109,7 @@ export default function StockProductsList() {
       ) : (
         <Stack spacing={2}>
           <MainCards className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-            {products.map((product) => {
+            {paginatedProducts.map((product) => {
               const mainImageUrl =
                 product.images?.product?.[0] ||
                 product.variations?.[0]?.images?.product?.[0];
@@ -108,7 +129,7 @@ export default function StockProductsList() {
                   to={`/interno/produtos/estoque/${product.product_id}`}
                   className="block"
                 >
-                  <MainCards className="hover:bg-slate-50/50 transition-colors h-full">
+                  <MainCards className="hover:bg-slate-50/50 transition-colors h-full hover:scale-105">
                     <div className="flex flex-col gap-2 p-2.5">
                       <div className="flex flex-col items-center gap-2">
                         <ProductImage

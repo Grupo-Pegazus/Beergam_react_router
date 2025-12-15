@@ -1,5 +1,5 @@
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
-import FormModal from "./components/FormModal";
+import RegistroForm from "./components/RegistroForm";
 
 // interface RegistroPageProps {
 //   actionData: ApiResponse | null;
@@ -7,10 +7,13 @@ import FormModal from "./components/FormModal";
 
 export default function RegistroPage() {
   return (
-    <PageLayout>
+    <PageLayout
+      tailwindClassName="max-h-full! overflow-y-auto!"
+      hideHeader={true}
+    >
       <div className="w-full flex flex-col justify-between h-auto lg:flex-row-reverse lg:h-lvh">
         <div className="w-full lg:w-2/3">
-          <FormModal />
+          <RegistroForm />
         </div>
         <div className="w-full lg:w-[60%] h-full flex items-center justify-center text-beergam-white">
           <div className="flex flex-col gap-4 p-5 rounded-xl h-2/5 text-center">

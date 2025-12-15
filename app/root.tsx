@@ -36,6 +36,8 @@ export const links: Route.LinksFunction = () => [
   {
     rel: "stylesheet",
     href: "https://fonts.cdnfonts.com/css/satoshi",
+    integrity: "sha384-7FyKUExA/XXTnseV9Spiopx32IfHT00Cwbc/+JMBYo+/XMycNm9YkEsyBayFaW8P",
+    crossOrigin: "anonymous",
   },
   {
     rel: "dns-prefetch",

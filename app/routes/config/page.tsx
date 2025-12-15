@@ -119,6 +119,13 @@ export default function ConfigPage() {
       }
     }
   }, [selectedSectionUrl]);
+  function sendUserToInternal() {
+    if (marketplace) {
+      navigate(`/interno`);
+    } else {
+      navigate(`/interno/choosen_account`);
+    }
+  }
   return (
     <PageLayout tailwindClassName="flex justify-center">
       <div className="grid w-full relative px-4 md:w-[80%] md:px-0 grid-cols-1 md:grid-cols-[300px_1fr] gap-4">
@@ -158,9 +165,9 @@ export default function ConfigPage() {
                   );
                 })}
                 <button
-                  className={`flex p-2 w-full rounded-lg text-left cursor-pointer gap-2 border border-transparent items-center text-beergam-white hover:bg-beergam-blue-primary/10 ${marketplace ? "" : "opacity-50 cursor-not-allowed"}`}
+                  className={`flex p-2 w-full rounded-lg text-left cursor-pointer gap-2 border border-transparent items-center text-beergam-white hover:bg-beergam-blue-primary/10`}
                   onClick={() => {
-                    navigate(`/interno`);
+                    sendUserToInternal();
                   }}
                 >
                   <Svg.arrow_uturn_right width={26} height={26} />
@@ -191,9 +198,9 @@ export default function ConfigPage() {
                 );
               })}
               <button
-                className={`flex p-2 w-full rounded-lg text-left cursor-pointer gap-2 border border-transparent items-center text-beergam-white hover:bg-beergam-blue-primary/10 ${marketplace ? "" : "opacity-50 cursor-not-allowed"}`}
+                className={`flex p-2 w-full rounded-lg text-left cursor-pointer gap-2 border border-transparent items-center text-beergam-white hover:bg-beergam-blue-primary/10`}
                 onClick={() => {
-                  navigate(`/interno`);
+                  sendUserToInternal();
                 }}
               >
                 <Svg.arrow_uturn_right width={26} height={26} />
