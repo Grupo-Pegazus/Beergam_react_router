@@ -233,22 +233,30 @@ export const BaseUserDetailsSchema = z.object({
     }),
 });
 
+export const BaseUserName = z
+  .string()
+  .regex(
+    /^[a-zA-Z0-9-\s]{3,20}$/,
+    "O nome deve ter entre 3 e 20 caracteres e conter apenas letras, números, espaços ou -."
+  )
+  .refine((value) => !/^\d+$/.test(value), {
+    message: "O nome não pode ser apenas números.",
+  })
+  .min(3, "Nome precisa ter 3 caracteres")
+  .max(20, "Nome não pode ter mais de 20 caracteres");
+export const BaseUserRole = z.enum(
+  Object.keys(UserRoles) as [UserRoles, ...UserRoles[]]
+) satisfies z.ZodType<UserRoles>;
+export const BaseUserStatus = z.enum(
+  Object.keys(UserStatus) as [UserStatus, ...UserStatus[]]
+) satisfies z.ZodType<UserStatus>;
+export const BaseUserPin = z.string().optional().nullable();
 export const BaseUserSchema = z.object({
-  name: z
-    .string()
-    .regex(
-      /^[a-zA-Z0-9-\s]{3,20}$/,
-      "O nome deve ter entre 3 e 20 caracteres e conter apenas letras, números, espaços ou -."
-    )
-    .refine((value) => !/^\d+$/.test(value), {
-      message: "O nome não pode ser apenas números.",
-    })
-    .min(3, "Nome precisa ter 3 caracteres")
-    .max(20, "Nome não pode ter mais de 20 caracteres"),
-  role: z.enum(Object.keys(UserRoles) as [UserRoles, ...UserRoles[]]),
-  pin: z.string().optional().nullable(),
+  name: BaseUserName,
+  role: BaseUserRole,
+  pin: BaseUserPin,
   master_pin: z.string().optional().nullable(),
-  status: z.enum(Object.keys(UserStatus) as [UserStatus, ...UserStatus[]]),
+  status: BaseUserStatus,
   marketplace_accounts: z.array(BaseMarketPlaceSchema).optional().nullable(),
   access_cutoff_at: z.number().optional().nullable(),
   access_window_reason: z.string().optional().nullable(),
