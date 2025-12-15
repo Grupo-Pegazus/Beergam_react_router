@@ -261,7 +261,8 @@ export default function RegistroForm() {
         Ao começar o teste gratuito, declaro que li e aceito os{" "}
         <Link
           className="text-beergam-blue-primary hover:text-beergam-orange underline"
-          to="/termos-de-uso"
+          to="/termos-de-servico"
+          target="_blank"
         >
           termos e condições de uso
         </Link>{" "}

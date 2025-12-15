@@ -112,6 +112,7 @@ export default [
   index("routes/home/route.tsx"),
   route("login", "routes/login/route.tsx"),
   route("registro", "routes/registro/route.tsx"),
+  route("termos-de-servico", "routes/termos-de-servico/route.tsx"),
   layout(
     "features/auth/components/AuthLayout/AuthLayout.tsx",
     withPrefix("interno", [
