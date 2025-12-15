@@ -36,81 +36,81 @@ export default defineConfig(async (config) => {
     build: {
       target: 'esnext',
 
-      rollupOptions: {
-        output: {
-          manualChunks: (id: string) => {
-            if (id.includes('react-router')) {
-              return 'react-router';
-            }
+      // rollupOptions: {
+      //   output: {
+      //     manualChunks: (id: string) => {
+      //       if (id.includes('react-router')) {
+      //         return 'react-router';
+      //       }
             
-            if (id.includes('react-dom')) {
-              return 'react-dom';
-            }
+      //       if (id.includes('react-dom')) {
+      //         return 'react-dom';
+      //       }
             
-            if (id.includes('react/') && !id.includes('react-dom')) {
-              return 'react';
-            }
+      //       if (id.includes('react/') && !id.includes('react-dom')) {
+      //         return 'react';
+      //       }
             
-            // MUI - biblioteca grande, separa em chunk próprio
-            if (id.includes('@mui/material') || id.includes('@mui/icons-material')) {
-              return 'mui';
-            }
+      //       // MUI - biblioteca grande, separa em chunk próprio
+      //       if (id.includes('@mui/material') || id.includes('@mui/icons-material')) {
+      //         return 'mui';
+      //       }
             
-            // TanStack Query - biblioteca grande usada em muitos lugares
-            if (id.includes('@tanstack/react-query')) {
-              return 'react-query';
-            }
+      //       // TanStack Query - biblioteca grande usada em muitos lugares
+      //       if (id.includes('@tanstack/react-query')) {
+      //         return 'react-query';
+      //       }
             
-            // Zustand - state management
-            if (id.includes('zustand')) {
-              return 'zustand';
-            }
+      //       // Zustand - state management
+      //       if (id.includes('zustand')) {
+      //         return 'zustand';
+      //       }
             
-            // Bibliotecas de animação
-            if (id.includes('gsap') || id.includes('@gsap')) {
-              return 'animations';
-            }
+      //       // Bibliotecas de animação
+      //       if (id.includes('gsap') || id.includes('@gsap')) {
+      //         return 'animations';
+      //       }
             
-            // Partículas
-            if (id.includes('tsparticles')) {
-              return 'particles';
-            }
+      //       // Partículas
+      //       if (id.includes('tsparticles')) {
+      //         return 'particles';
+      //       }
             
-            // Charts
-            if (id.includes('recharts') || id.includes('react-simple-maps')) {
-              return 'charts';
-            }
+      //       // Charts
+      //       if (id.includes('recharts') || id.includes('react-simple-maps')) {
+      //         return 'charts';
+      //       }
             
-            // Stripe - carregar apenas quando necessário
-            if (id.includes('@stripe')) {
-              return 'stripe';
-            }
+      //       // Stripe - carregar apenas quando necessário
+      //       if (id.includes('@stripe')) {
+      //         return 'stripe';
+      //       }
             
-            // Formulários
-            if (id.includes('react-hook-form') || id.includes('@hookform')) {
-              return 'forms';
-            }
+      //       // Formulários
+      //       if (id.includes('react-hook-form') || id.includes('@hookform')) {
+      //         return 'forms';
+      //       }
             
-            // Axios e HTTP clients
-            if (id.includes('axios')) {
-              return 'axios';
-            }
+      //       // Axios e HTTP clients
+      //       if (id.includes('axios')) {
+      //         return 'axios';
+      //       }
             
-            // Socket.io
-            if (id.includes('socket.io')) {
-              return 'socket';
-            }
+      //       // Socket.io
+      //       if (id.includes('socket.io')) {
+      //         return 'socket';
+      //       }
             
-            // Outras dependências vendor
-            if (id.includes('node_modules')) {
-              return 'vendor';
-            }
+      //       // Outras dependências vendor
+      //       if (id.includes('node_modules')) {
+      //         return 'vendor';
+      //       }
             
-            // Retorna undefined para arquivos do projeto (não node_modules)
-            return undefined;
-          },
-        },
-      },
+      //       // Retorna undefined para arquivos do projeto (não node_modules)
+      //       return undefined;
+      //     },
+      //   },
+      // },
 
       chunkSizeWarningLimit: 1000,
       
