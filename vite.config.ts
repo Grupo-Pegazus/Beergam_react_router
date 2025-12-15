@@ -34,8 +34,6 @@ export default defineConfig(async (config) => {
       noExternal: ["gsap", "@marsidev/react-turnstile"]
     },
     build: {
-      target: 'esnext',
-
       rollupOptions: {
         output: {
           manualChunks: (id: string) => {
