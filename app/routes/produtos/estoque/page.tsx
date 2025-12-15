@@ -12,9 +12,9 @@ import LowStockVariationsList from "~/features/produtos/components/StockDashboar
 import RecentMovementsList from "~/features/produtos/components/StockDashboard/RecentMovementsList";
 import ProductsWithoutStockControl from "~/features/produtos/components/StockDashboard/ProductsWithoutStockControl";
 import SyncAccountInfo from "~/features/produtos/components/StockSyncDashboard/SyncAccountInfo";
-import SyncStatsCards from "~/features/produtos/components/StockSyncDashboard/SyncStatsCards";
-import RecentActivitiesList from "~/features/produtos/components/StockSyncDashboard/RecentActivitiesList";
-import RecommendationsList from "~/features/produtos/components/StockSyncDashboard/RecommendationsList";
+// import SyncStatsCards from "~/features/produtos/components/StockSyncDashboard/SyncStatsCards";
+// import RecentActivitiesList from "~/features/produtos/components/StockSyncDashboard/RecentActivitiesList";
+// import RecommendationsList from "~/features/produtos/components/StockSyncDashboard/RecommendationsList";
 
 export default function StockDashboardPage() {
   const [searchParams] = useSearchParams();
@@ -137,11 +137,11 @@ export default function StockDashboardPage() {
                 <SyncAccountInfo accountInfo={syncDashboard.account_info} />
               </Grid>
 
-              <Grid cols={{ base: 1, lg: 1 }} className="mt-6">
+              {/* <Grid cols={{ base: 1, lg: 1 }} className="mt-6">
                 <SyncStatsCards syncStats={syncDashboard.sync_stats} />
-              </Grid>
+              </Grid> */}
 
-              {syncDashboard.recent_activities.length > 0 && (
+              {/* {syncDashboard.recent_activities.length > 0 && (
                 <Grid cols={{ base: 1, lg: 1 }} className="mt-6">
                   <div>
                     <h3 className="text-lg font-semibold text-slate-900 mb-4">
@@ -152,15 +152,15 @@ export default function StockDashboardPage() {
                     />
                   </div>
                 </Grid>
-              )}
+              )} */}
 
-              {syncDashboard.recommendations.length > 0 && (
+              {/* {syncDashboard.recommendations.length > 0 && (
                 <Grid cols={{ base: 1, lg: 1 }} className="mt-6">
                   <RecommendationsList
                     recommendations={syncDashboard.recommendations}
                   />
                 </Grid>
-              )}
+              )} */}
             </>
           )}
         </AsyncBoundary>
