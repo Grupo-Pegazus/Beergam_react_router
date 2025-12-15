@@ -3,7 +3,10 @@ import FormModal from "~/routes/login/components/FormModal/FormModal";
 
 export default function LoginPage() {
   return (
-    <PageLayout tailwindClassName="flex items-center justify-center">
+    <PageLayout
+      tailwindClassName="flex md:items-center max-h-full! overflow-y-auto! md:justify-center"
+      hideHeader={true}
+    >
       <FormModal />
     </PageLayout>
   );
