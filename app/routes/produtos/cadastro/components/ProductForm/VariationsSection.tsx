@@ -14,9 +14,13 @@ import type {
 
 interface VariationsSectionProps {
   registrationType: RegistrationType;
+  onCreateAttributeClick: () => void;
 }
 
-export default function VariationsSection({ registrationType }: VariationsSectionProps) {
+export default function VariationsSection({
+  registrationType,
+  onCreateAttributeClick,
+}: VariationsSectionProps) {
   const { control, formState: { errors }, setValue, watch } = useFormContext<CreateSimplifiedProduct | CreateCompleteProduct>();
   const { fields, append, remove } = useFieldArray({
     control,
@@ -126,7 +130,7 @@ export default function VariationsSection({ registrationType }: VariationsSectio
       )}
 
       {fields.map((field, index) => (
-        <VariationForm
+      <VariationForm
           key={field.id}
           index={index}
           registrationType={registrationType}
@@ -138,6 +142,7 @@ export default function VariationsSection({ registrationType }: VariationsSectio
           setValue={setValue as any}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           watch={watch as any}
+          onCreateAttributeClick={onCreateAttributeClick}
         />
       ))}
 
@@ -176,6 +181,7 @@ interface VariationFormProps {
   setValue: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   watch: any;
+  onCreateAttributeClick: () => void;
 }
 
 function VariationForm({
@@ -186,6 +192,7 @@ function VariationForm({
   errors,
   watch,
   setValue,
+  onCreateAttributeClick,
 }: VariationFormProps) {
   const { register } = useFormContext<CreateSimplifiedProduct | CreateCompleteProduct>();
 
@@ -473,7 +480,13 @@ function VariationForm({
       </div>
 
       {/* Atributos da variação */}
-      <VariationAttributes index={index} watch={watch} setValue={setValue} errors={errors} />
+      <VariationAttributes
+        index={index}
+        watch={watch}
+        setValue={setValue}
+        errors={errors}
+        onCreateAttributeClick={onCreateAttributeClick}
+      />
 
       {/* Upload de imagens da variação */}
       <div className="flex flex-col gap-4 border-t pt-4">
@@ -496,9 +509,16 @@ interface VariationAttributesProps {
   setValue: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors?: any;
+  onCreateAttributeClick: () => void;
 }
 
-function VariationAttributes({ index, watch, setValue, errors }: VariationAttributesProps) {
+function VariationAttributes({
+  index,
+  watch,
+  setValue,
+  errors,
+  onCreateAttributeClick,
+}: VariationAttributesProps) {
   const { control, register } = useFormContext<CreateSimplifiedProduct | CreateCompleteProduct>();
   const { fields, append, remove } = useFieldArray({
     control,
@@ -564,13 +584,22 @@ function VariationAttributes({ index, watch, setValue, errors }: VariationAttrib
     <div className="flex flex-col gap-4 border-t pt-4">
       <div className="flex items-center justify-between">
         <Fields.label text="ATRIBUTOS DA VARIAÇÃO" required />
-        <button
-          type="button"
-          onClick={addAttribute}
-          className="px-3 py-1 bg-beergam-blue-primary text-white rounded text-sm hover:bg-beergam-blue transition-colors"
-        >
-          Adicionar Atributo
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onCreateAttributeClick}
+            className="px-3 py-1 bg-white border border-beergam-blue-primary text-beergam-blue-primary rounded text-sm hover:bg-beergam-blue-primary/5 transition-colors"
+          >
+            Novo atributo
+          </button>
+          <button
+            type="button"
+            onClick={addAttribute}
+            className="px-3 py-1 bg-beergam-blue-primary text-white rounded text-sm hover:bg-beergam-blue transition-colors"
+          >
+            Adicionar Atributo
+          </button>
+        </div>
       </div>
 
       {fields.length === 0 && (
