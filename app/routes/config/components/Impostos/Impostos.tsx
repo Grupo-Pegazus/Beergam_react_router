@@ -1,9 +1,9 @@
-import { Popover } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import { Tooltip } from "react-tooltip";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { useAuthUser } from "~/features/auth/context/AuthStoreContext";
 import { marketplaceService } from "~/features/marketplace/service";
@@ -180,15 +180,9 @@ export default function Impostos() {
   }: {
     last_recalculation: string;
   }) {
-    const ref = useRef<HTMLButtonElement>(null);
-    const [open, setOpen] = useState(false);
     return (
       <>
-        <button
-          ref={ref}
-          onMouseEnter={() => setOpen(true)}
-          onMouseLeave={() => setOpen(false)}
-        >
+        <button data-tooltip-id={`recalc-history-${last_recalculation}`}>
           {(() => {
             const diffDays = dayjs().diff(dayjs(last_recalculation), "days");
             if (diffDays > 0) {
@@ -217,13 +211,11 @@ export default function Impostos() {
             );
           })()}
         </button>
-        <Popover
-          open={open}
-          onClose={() => setOpen(false)}
-          anchorEl={ref.current}
-        >
-          <p>{dayjs(last_recalculation).format("DD/MM/YYYY")}</p>
-        </Popover>
+        <Tooltip
+          id={`recalc-history-${last_recalculation}`}
+          content={`Recálculo realizado em ${dayjs(last_recalculation).format("DD/MM/YYYY")} às ${dayjs(last_recalculation).format("HH:mm")}`}
+          className="z-50"
+        />
       </>
     );
   }
