@@ -7,17 +7,20 @@ import type {
   CreateCompleteProduct,
   RegistrationType,
 } from "~/features/produtos/typings/createProduct";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface ProductBasicFieldsProps {
   registrationType: RegistrationType;
   onVariationsChange: (value: string) => void;
   hasVariations: boolean;
+  onCreateCategoryClick: () => void;
 }
 
 export default function ProductBasicFields({
   registrationType,
   onVariationsChange,
   hasVariations,
+  onCreateCategoryClick,
 }: ProductBasicFieldsProps) {
   const {
     register,
@@ -162,22 +165,41 @@ export default function ProductBasicFields({
       {/* Categoria */}
       <Fields.wrapper>
         <Fields.label text="CATEGORIA" required />
-        <Fields.select
-          options={categoryOptions}
-          {...register("product.category_name", {
-            required: "Categoria é obrigatória",
-            validate: (value) => {
-              if (!value || (typeof value === "string" && value.trim() === "")) {
-                return "Categoria é obrigatória";
+        <div className="flex items-center gap-2">
+          <div className="flex-1">
+            <Fields.select
+              options={categoryOptions}
+              {...register("product.category_name", {
+                required: "Categoria é obrigatória",
+                validate: (value) => {
+                  if (!value || (typeof value === "string" && value.trim() === "")) {
+                    return "Categoria é obrigatória";
+                  }
+                  return true;
+                },
+              })}
+              value={watch("product.category_name") || ""}
+              error={
+                errors.product?.category_name
+                  ? {
+                      message: errors.product.category_name.message || "Categoria é obrigatória",
+                      error: true,
+                    }
+                  : undefined
               }
-              return true;
-            },
-          })}
-          value={watch("product.category_name") || ""}
-          error={errors.product?.category_name ? { message: errors.product.category_name.message || "Categoria é obrigatória", error: true } : undefined}
-          hasError={!!errors.product?.category_name}
-          dataTooltipId="product-category-name-select"
-        />
+              hasError={!!errors.product?.category_name}
+              dataTooltipId="product-category-name-select"
+            />
+          </div>
+          <BeergamButton
+            title="Criar categoria"
+            mainColor="beergam-blue-primary"
+            animationStyle="slider"
+            onClick={onCreateCategoryClick}
+            className="whitespace-nowrap"
+            icon="plus"
+          />
+        </div>
       </Fields.wrapper>
     </div>
   );
