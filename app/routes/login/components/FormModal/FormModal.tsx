@@ -6,6 +6,7 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { useSocketContext } from "~/features/socket/context/SocketContext";
 import authStore from "~/features/store-zustand";
 import { UserRoles } from "~/features/user/typings/BaseUser";
+import { queryClient } from "~/lib/queryClient";
 import { Fields } from "~/src/components/utils/_fields";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import {
@@ -124,7 +125,7 @@ export default function FormModal({
         connectSession();
         connectOnlineStatus();
       }, 100);
-
+      queryClient.invalidateQueries();
       if (!subscriptionData || subscriptionData?.start_date === null) {
         setAuthError("SUBSCRIPTION_NOT_FOUND");
         navigate("/interno/subscription", {

@@ -1,10 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type {
-  IAuthState,
-  TAuthError,
-  UsageLimitData,
-} from "../auth/types";
+import type { IAuthState, TAuthError, UsageLimitData } from "../auth/types";
 import type { BaseMarketPlace } from "../marketplace/typings";
 import type { MenuState } from "../menu/typings";
 import type { Subscription } from "../user/typings/BaseUser";
@@ -17,6 +13,7 @@ interface IAuthStore {
   error: TAuthError | null;
   loading: boolean;
   success: boolean;
+  isLoggingOut: boolean;
   subscription: Subscription | null;
   user: IUser | IColab | null;
   usageLimitData: UsageLimitData | null;
@@ -47,12 +44,20 @@ const authBaseStore = create<IAuthStore>()(
       error: null,
       loading: false,
       success: false,
+      isLoggingOut: false,
       subscription: null,
       user: null,
       marketplace: null,
       usageLimitData: null,
       login: (subscription: Subscription | null, user: IUser | IColab | null) =>
-        set({ subscription, user, loading: false, success: true, error: null }),
+        set({
+          subscription,
+          user,
+          loading: false,
+          success: true,
+          error: null,
+          isLoggingOut: false,
+        }),
       logout: () => {
         set({
           error: null,
@@ -62,6 +67,7 @@ const authBaseStore = create<IAuthStore>()(
           user: null,
           marketplace: null,
           usageLimitData: null,
+          isLoggingOut: true,
         });
       },
       setAuthError: (error: TAuthError, usageLimitData?: UsageLimitData) =>
@@ -190,21 +196,21 @@ const authBaseStore = create<IAuthStore>()(
       updateUserInfo: (user: IUser | IColab) => {
         const currentUser = get().user;
         let auxColabs: Record<string, IColab> = {};
-        
+
         // Preserva colaboradores existentes se o payload não tiver colaboradores
         if (currentUser && isMaster(currentUser)) {
           auxColabs = currentUser.colabs ?? {};
         }
-        
+
         // Atualiza colaboradores se o payload tiver colaboradores
         if (isMaster(user) && user.colabs) {
           auxColabs = user.colabs;
         }
-        
+
         const userToUpdate = isMaster(user)
           ? { ...user, colabs: auxColabs }
           : user;
-        
+
         set({ user: userToUpdate });
       },
       setMarketplace: (marketplace: BaseMarketPlace | null) => {

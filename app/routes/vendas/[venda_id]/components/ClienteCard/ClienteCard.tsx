@@ -20,7 +20,8 @@ function VendaSummary({ img, name, doc, docType }: VendaSummaryProps) {
         return document;
     };
 
-    const tipoDocumento = docType || (doc.replace(/\D/g, '').length === 14 ? 'CNPJ' : 'CPF');
+    // If docType is provided, use it. Otherwise determine based on document length or use "Buyer ID" if it's a buyer_id
+    const tipoDocumento = docType || (doc.includes('@') ? 'Buyer ID' : doc.replace(/\D/g, '').length === 14 ? 'CNPJ' : 'CPF');
     const docFormatado = formatDocument(doc);
 
     const getInitials = (nome: string) => {
