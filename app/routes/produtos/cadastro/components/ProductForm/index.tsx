@@ -24,6 +24,8 @@ import ExtrasFields from "./ExtrasFields";
 import VariationsSection from "./VariationsSection";
 import ImageUploadSection from "./ImageUploadSection";
 import { validateStep } from "./stepValidation";
+import CategoryFormModal from "~/features/catalog/components/CategoryFormModal";
+import AttributeFormModal from "~/features/catalog/components/AttributeFormModal";
 
 interface ProductFormProps {
   registrationType: RegistrationType;
@@ -53,6 +55,8 @@ export default function ProductForm({
   const [registrationType, setRegistrationType] = useState<RegistrationType>(initialRegistrationType);
   const [showUpgradeAlert, setShowUpgradeAlert] = useState(false);
   const [hasLoadedProductData, setHasLoadedProductData] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isAttributeModalOpen, setIsAttributeModalOpen] = useState(false);
 
   const isEditMode = !!productId;
   const { data: productDetailsResponse, isLoading: isLoadingProduct } = useProductDetails(
@@ -469,6 +473,7 @@ export default function ProductForm({
             registrationType={registrationType}
             onVariationsChange={handleVariationsChange}
             hasVariations={hasVariations}
+            onCreateCategoryClick={() => setIsCategoryModalOpen(true)}
           />
         );
       case "pricing":
@@ -482,7 +487,12 @@ export default function ProductForm({
       case "images":
         return <ImageUploadSection />;
       case "variations":
-        return <VariationsSection registrationType={registrationType} />;
+        return (
+          <VariationsSection
+            registrationType={registrationType}
+            onCreateAttributeClick={() => setIsAttributeModalOpen(true)}
+          />
+        );
       default:
         return null;
     }
@@ -742,6 +752,18 @@ export default function ProductForm({
           </div>
         </div>
       </form>
+
+      {/* Modais de criação rápida de Categoria e Atributo */}
+      <CategoryFormModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        category={null}
+      />
+      <AttributeFormModal
+        isOpen={isAttributeModalOpen}
+        onClose={() => setIsAttributeModalOpen(false)}
+        attribute={null}
+      />
     </FormProvider>
   );
 }

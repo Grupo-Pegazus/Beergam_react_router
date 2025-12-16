@@ -188,6 +188,8 @@ export default function ColabForm({
         <AllowedTimes
           schedule={watch("details.allowed_times") ?? getEmptyAllowedTimes()}
           action={action}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          errors={(errors as any)?.details?.allowed_times}
           onScheduleChange={(day, scheduleData) => {
             setValue(`details.allowed_times.${day}`, scheduleData, {
               shouldValidate: true,

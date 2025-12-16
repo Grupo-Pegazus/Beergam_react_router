@@ -8,6 +8,8 @@ interface VariationSkuInputProps {
   value: string;
   onChange: (value: string) => void;
   varyingAttributeIds: string[];
+  mlb: string;
+  onUseMlbAsSku: () => void;
 }
 
 export default function VariationSkuInput({
@@ -15,6 +17,8 @@ export default function VariationSkuInput({
   value,
   onChange,
   varyingAttributeIds,
+  mlb,
+  onUseMlbAsSku,
 }: VariationSkuInputProps) {
   // Pega todos os atributos que variam
   const varyingAttributes = varyingAttributeIds.length > 0
@@ -58,13 +62,25 @@ export default function VariationSkuInput({
           </>
         )}
       </div>
-      <Fields.wrapper tailWindClasses="w-full sm:w-auto sm:min-w-[200px]">
+      <Fields.wrapper tailWindClasses="w-full sm:w-auto sm:min-w-[260px]">
         <Fields.label text="SKU" />
-        <Fields.input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="Digite o SKU"
-        />
+        <div className="flex items-center gap-2">
+          <Fields.input
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="Digite o SKU"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              onChange(mlb);
+              onUseMlbAsSku();
+            }}
+            className="px-2 py-1 text-xs font-medium text-beergam-blue-primary border border-beergam-blue-primary rounded hover:bg-beergam-blue-primary/5 whitespace-nowrap"
+          >
+            Usar MLB
+          </button>
+        </div>
       </Fields.wrapper>
     </div>
   );

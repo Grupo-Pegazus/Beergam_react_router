@@ -8,7 +8,8 @@ interface TimeProps {
   access: boolean;
   start_date: string;
   end_date: string;
-  style?: React.CSSProperties;
+  startError?: string;
+  endError?: string;
   setHorario: (params: {
     access: boolean;
     start_date: string;
@@ -21,8 +22,9 @@ function Time({
   access,
   start_date,
   end_date,
+  startError,
+  endError,
   setHorario,
-  style,
 }: TimeProps) {
   const clickDia = () => {
     setHorario({ access: !access, start_date, end_date });
@@ -57,12 +59,12 @@ function Time({
         tailwindClasses={`absolute top-[50%] translate-y-[-50%] right-0 ${access ? "opacity-0 pointer-events-none" : "opacity-100"}`}
         open={access}
       />
-      <button
+      <div
         className="w-28 text-left font-semibold cursor-pointer text-gray-500 bg-transparent"
         onClick={clickDia}
       >
         <p>{dia}</p>
-      </button>
+      </div>
 
       <Fade onClick={(e) => e.stopPropagation()} in={access} timeout={200}>
         <div className="flex items-center gap-2">
@@ -73,7 +75,13 @@ function Time({
               setHorario({ access, start_date: e.target.value, end_date })
             }
             disabled={!access}
-            className={`outline-none ${access ? "opacity-100" : "opacity-0"} ${!access ? "pointer-events-none" : ""}`}
+            title={startError}
+            aria-invalid={!!startError}
+            className={`outline-none rounded border px-2 py-1 text-sm ${
+              startError ? "border-red-500" : "border-beergam-gray-light"
+            } ${access ? "opacity-100" : "opacity-0"} ${
+              !access ? "pointer-events-none" : ""
+            }`}
           />
 
           <input
@@ -81,7 +89,13 @@ function Time({
             value={end_date || ""}
             onChange={aviso}
             disabled={!access}
-            className={`outline-none ${access ? "opacity-100" : "opacity-0"} ${!access ? "pointer-events-none" : ""}`}
+            title={endError}
+            aria-invalid={!!endError}
+            className={`outline-none rounded border px-2 py-1 text-sm ${
+              endError ? "border-red-500" : "border-beergam-gray-light"
+            } ${access ? "opacity-100" : "opacity-0"} ${
+              !access ? "pointer-events-none" : ""
+            }`}
           />
         </div>
       </Fade>

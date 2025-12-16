@@ -20,9 +20,20 @@ import {
 import Section from "~/src/components/ui/Section";
 import { Fields } from "~/src/components/utils/_fields";
 import BeergamButton from "~/src/components/utils/BeergamButton";
-import { UpdateUserSchema } from "../typing";
+import { UpdateUserDetailsSchema, UpdateUserSchema } from "../typing";
 export default function UserForm({ user }: { user: IUser }) {
   type editUserFormData = z.infer<typeof UserSchema>;
+  const canEditSecondaryPhone = !user.details?.secondary_phone;
+
+  const detailsSchema = canEditSecondaryPhone
+    ? UpdateUserDetailsSchema
+    : UpdateUserDetailsSchema.omit({ secondary_phone: true }).extend({
+        secondary_phone: z.string().optional().nullable(),
+      });
+
+  const formSchema = UpdateUserSchema.omit({ details: true }).extend({
+    details: detailsSchema,
+  });
   const {
     register,
     handleSubmit,
@@ -32,7 +43,7 @@ export default function UserForm({ user }: { user: IUser }) {
     formState: { errors },
   } = useForm<editUserFormData>({
     resolver: zodResolver(
-      UpdateUserSchema
+      formSchema
     ) as unknown as Resolver<editUserFormData>,
     defaultValues: UserSchema.parse(user) as editUserFormData,
     mode: "onSubmit",
@@ -60,13 +71,13 @@ export default function UserForm({ user }: { user: IUser }) {
   });
   const onSubmit = async (data: editUserFormData) => {
     if (editUserMutation.isPending) return;
-    const dataToSend = UpdateUserSchema.parse(data) as IUser;
-    if (user.details?.cpf) {
-      delete dataToSend.details.cpf;
-    }
-    if (user.details?.cnpj) {
-      delete dataToSend.details.cnpj;
-    }
+    const dataToSend = data as unknown as IUser;
+
+    if (user.details?.cpf && dataToSend.details?.cpf) delete dataToSend.details.cpf;
+    if (user.details?.cnpj && dataToSend.details?.cnpj) delete dataToSend.details.cnpj;
+    if (user.details?.phone && dataToSend.details?.phone) delete dataToSend.details.phone;
+    if (user.details?.secondary_phone && dataToSend.details?.secondary_phone)
+      delete dataToSend.details.secondary_phone;
     try {
       // Faz a requisição para o backend
       const response = await editUserMutation.mutateAsync(dataToSend);
