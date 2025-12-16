@@ -8,15 +8,20 @@ import type { ColabAction } from "~/routes/perfil/typings";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import Time from "~/src/components/utils/Time";
 import ColabItem from "./ColabItem";
+interface AllowedTimesProps {
+  schedule: IAllowedTimes;
+  action: ColabAction;
+  onScheduleChange?: (day: WeekDay, scheduleData: DayTimeAccess) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  errors?: any;
+}
+
 export default function AllowedTimes({
   schedule,
   action = "Visualizar",
   onScheduleChange,
-}: {
-  schedule: IAllowedTimes;
-  action: ColabAction;
-  onScheduleChange?: (day: WeekDay, scheduleData: DayTimeAccess) => void;
-}) {
+  errors,
+}: AllowedTimesProps) {
   function formatTime(value: unknown): string {
     if (!value) return "--:--";
     if (typeof value === "string" && /^\d{2}:\d{2}$/.test(value)) return value;
@@ -76,6 +81,9 @@ export default function AllowedTimes({
     <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
       {(Object.values(WeekDay) as WeekDay[]).map((day) => {
         const item = schedule[day];
+        const dayErrors = errors?.[day];
+        const startError = dayErrors?.start_date?.message as string | undefined;
+        const endError = dayErrors?.end_date?.message as string | undefined;
         if (action === "Visualizar") {
           return (
             <ColabItem key={day} active={item.access}>
@@ -101,6 +109,8 @@ export default function AllowedTimes({
               access={item.access}
               start_date={formatTime(item.start_date)}
               end_date={formatTime(item.end_date)}
+              startError={startError}
+              endError={endError}
               setHorario={(params) => handleTimeChange(day, params)}
             />
           );
