@@ -6,12 +6,16 @@ interface VariationsGroupProps {
   variations: Variation[];
   skuValues: Record<string, string>;
   onSkuChange: (variationId: string, value: string) => void;
+  mlb: string;
+  onUseMlbAsSku: (variationId: string) => void;
 }
 
 export default function VariationsGroup({
   variations,
   skuValues,
   onSkuChange,
+  mlb,
+  onUseMlbAsSku,
 }: VariationsGroupProps) {
   if (variations.length === 0) return null;
 
@@ -30,6 +34,8 @@ export default function VariationsGroup({
                 value={skuValues[variation.variation_id] || ""}
                 onChange={(value) => onSkuChange(variation.variation_id, value)}
                 varyingAttributeIds={group.varyingAttributeIds}
+                mlb={mlb}
+                onUseMlbAsSku={() => onUseMlbAsSku(variation.variation_id)}
               />
             ))}
           </div>

@@ -4,7 +4,6 @@ import type { AdWithoutSku } from "../../../typings";
 import VariationsGroup from "../Variations/VariationsGroup";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 import BeergamButton from "~/src/components/utils/BeergamButton";
-import { useUpdateSkuWithMlb } from "../../../hooks";
 
 interface AdWithoutSkuCardProps {
   ad: AdWithoutSku;
@@ -23,12 +22,6 @@ export default function AdWithoutSkuCard({
   isSaving,
   hasPendingChanges,
 }: AdWithoutSkuCardProps) {
-  const updateSkuWithMlbMutation = useUpdateSkuWithMlb();
-
-  const handleUpdateSkuWithMlb = async () => {
-    await updateSkuWithMlbMutation.mutateAsync([ad.mlb]);
-  };
-
   return (
     <MainCards>
       <div className="mb-4 flex flex-col md:flex-row md:items-start md:justify-between gap-3">
@@ -51,32 +44,13 @@ export default function AdWithoutSkuCard({
           </Typography>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-          <BeergamButton
-            title={updateSkuWithMlbMutation.isPending ? "Atualizando..." : "Usar MLB como SKU"}
-            mainColor="beergam-orange"
-            icon="arrow_path"
-            onClick={handleUpdateSkuWithMlb}
-            disabled={updateSkuWithMlbMutation.isPending || isSaving}
-            className="text-sm w-full md:w-auto"
-            fetcher={{
-              fecthing: updateSkuWithMlbMutation.isPending,
-              completed: false,
-              error: false,
-              mutation: {
-                reset: () => {},
-                isPending: updateSkuWithMlbMutation.isPending,
-                isSuccess: false,
-                isError: false,
-              },
-            }}
-          />
           {hasPendingChanges && (
             <BeergamButton
               title={isSaving ? "Salvando..." : "Salvar SKUs"}
               mainColor="beergam-blue-primary"
               animationStyle="slider"
               onClick={onSave}
-              disabled={isSaving || updateSkuWithMlbMutation.isPending}
+              disabled={isSaving}
               className="text-sm w-full md:w-auto"
               fetcher={{
                 fecthing: isSaving,
@@ -94,6 +68,8 @@ export default function AdWithoutSkuCard({
           variations={ad.variations_without_sku}
           skuValues={skuValues}
           onSkuChange={onSkuChange}
+          mlb={ad.mlb}
+          onUseMlbAsSku={(variationId) => onSkuChange(variationId, ad.mlb)}
         />
       )}
     </MainCards>
