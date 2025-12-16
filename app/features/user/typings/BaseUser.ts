@@ -250,11 +250,13 @@ export const BaseUserRole = z.enum(
 export const BaseUserStatus = z.enum(
   Object.keys(UserStatus) as [UserStatus, ...UserStatus[]]
 ) satisfies z.ZodType<UserStatus>;
-export const BaseUserPin = z.string().optional().nullable();
+export const BaseUserPin = z
+  .string("Digite o PIN de acesso")
+  .min(8, "PIN deve ter 8 caracteres");
 export const BaseUserSchema = z.object({
   name: BaseUserName,
   role: BaseUserRole,
-  pin: BaseUserPin,
+  pin: BaseUserPin.optional().nullable(),
   master_pin: z.string().optional().nullable(),
   status: BaseUserStatus,
   marketplace_accounts: z.array(BaseMarketPlaceSchema).optional().nullable(),
