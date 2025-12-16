@@ -220,7 +220,10 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
     // Get client info (after error check, so we know firstOrder exists)
     const clientNameFinal = firstOrder.client?.receiver_name || firstOrder.buyer_nickname;
     const clientDocFinal = firstOrder.client?.receiver_document?.value || firstOrder.buyer_id;
-    const clientDocType = firstOrder.client?.receiver_document?.id || (clientDocFinal.replace(/\D/g, '').length === 14 ? 'CNPJ' : 'CPF');
+    // If clientDocFinal is buyer_id, set type to "Buyer ID", otherwise determine if it's CPF or CNPJ
+const clientDocType = clientDocFinal === firstOrder.buyer_id 
+    ? 'Buyer ID' 
+    : firstOrder.client?.receiver_document?.id || (clientDocFinal.replace(/\D/g, '').length === 14 ? 'CNPJ' : 'CPF');
 
     // Get logistic type status and colors
     const logisticTypeInfo = getLogisticTypeMeliInfo(firstOrder.shipping_mode ?? "");
