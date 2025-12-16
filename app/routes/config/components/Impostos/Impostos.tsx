@@ -1,6 +1,8 @@
+import { Popover } from "@mui/material";
 import Paper from "@mui/material/Paper";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import dayjs from "dayjs";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { useAuthUser } from "~/features/auth/context/AuthStoreContext";
@@ -9,11 +11,8 @@ import type {
   BaseMarketPlace,
   MarketplaceType,
 } from "~/features/marketplace/typings";
-import {
-  useRecalculatePeriod,
-  useUpsertTax,
-  useUserTaxes,
-} from "~/features/taxes/hooks";
+import { useUpsertTax, useUserTaxes } from "~/features/taxes/hooks";
+import { taxesService } from "~/features/taxes/service";
 import {
   MonthKeys,
   TranslatedMonthKeys,
@@ -42,7 +41,32 @@ function getTaxValue(
 
 export default function Impostos() {
   const user = useAuthUser();
-  const recalc = useRecalculatePeriod();
+  const recalc = useMutation({
+    mutationFn: ({
+      year,
+      month,
+      marketplace_shop_id,
+      marketplace_type,
+    }: {
+      year: number;
+      month: number;
+      marketplace_shop_id: string;
+      marketplace_type: MarketplaceType;
+    }) => {
+      return taxesService.recalculatePeriod({
+        year,
+        month,
+        marketplace_shop_id,
+        marketplace_type,
+      });
+    },
+    onSuccess: (data) => {
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+    },
+  });
+
   const [selectedAccount, setSelectedAccount] =
     useState<BaseMarketPlace | null>(null);
   const [search, setSearch] = useState("");
@@ -117,6 +141,8 @@ export default function Impostos() {
     const p = recalc.mutateAsync({
       year: year,
       month: Number(month),
+      marketplace_shop_id: selectedAccount?.marketplace_shop_id ?? "",
+      marketplace_type: selectedAccount?.marketplace_type as MarketplaceType,
     });
     toast.promise(p, {
       loading: "Iniciando recálculo...",
@@ -147,6 +173,58 @@ export default function Impostos() {
           alt={title}
         />
       </Paper>
+    );
+  }
+  function RecalcHistoryPopover({
+    last_recalculation,
+  }: {
+    last_recalculation: string;
+  }) {
+    const ref = useRef<HTMLButtonElement>(null);
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <button
+          ref={ref}
+          onMouseEnter={() => setOpen(true)}
+          onMouseLeave={() => setOpen(false)}
+        >
+          {(() => {
+            const diffDays = dayjs().diff(dayjs(last_recalculation), "days");
+            if (diffDays > 0) {
+              return (
+                <>
+                  Há {diffDays} {diffDays === 1 ? "dia" : "dias"}
+                </>
+              );
+            }
+            const diffHours = dayjs().diff(dayjs(last_recalculation), "hours");
+            if (diffHours > 0) {
+              return (
+                <>
+                  Há {diffHours} {diffHours === 1 ? "hora" : "horas"}
+                </>
+              );
+            }
+            const diffMinutes = dayjs().diff(
+              dayjs(last_recalculation),
+              "minutes"
+            );
+            return (
+              <>
+                Há {diffMinutes} {diffMinutes === 1 ? "minuto" : "minutos"}
+              </>
+            );
+          })()}
+        </button>
+        <Popover
+          open={open}
+          onClose={() => setOpen(false)}
+          anchorEl={ref.current}
+        >
+          <p>{dayjs(last_recalculation).format("DD/MM/YYYY")}</p>
+        </Popover>
+      </>
     );
   }
   if (!isMaster(user))
@@ -351,6 +429,15 @@ export default function Impostos() {
                             <div className="flex items-center gap-2">
                               {taxValue !== null && taxValue !== undefined && (
                                 <>
+                                  {tax.last_recalculation && (
+                                    <>
+                                      <RecalcHistoryPopover
+                                        last_recalculation={
+                                          tax.last_recalculation
+                                        }
+                                      />
+                                    </>
+                                  )}
                                   <BeergamButton
                                     mainColor="beergam-blue-primary"
                                     animationStyle="slider"
@@ -369,13 +456,13 @@ export default function Impostos() {
                                                 0 ||
                                               tax.remaining_recalculations < 1
                                             }
-                                            onConfirm={() =>
+                                            onConfirm={() => {
                                               confirmRecalc(
                                                 month,
                                                 year,
                                                 tax.remaining_recalculations
-                                              )
-                                            }
+                                              );
+                                            }}
                                             type="warning"
                                           >
                                             <div className="flex flex-col gap-2 text-center">
@@ -426,43 +513,8 @@ export default function Impostos() {
                                         }
                                       );
                                     }}
-                                    // onClick={() => {
-                                    //   openModal(
-                                    //     <Alert
-                                    //       type="warning"
-                                    //       onClose={closeModal}
-                                    //       onConfirm={() => confirmRecalc(month, year)}
-                                    //       disabledConfirm={
-                                    //         recalcStatus.data
-                                    //           ?.remaining_recalculations === 0
-                                    //       }
-                                    //     >
-                                    //       <div className="flex flex-col gap-2">
-                                    //         <p>
-                                    //           Confirmar recalculo para o mês de{" "}
-                                    //           <span className="font-bold underline">
-                                    //             {`${TranslatedMonthKeys[month as MonthKey]} de ${year}`}
-                                    //           </span>{" "}
-                                    //           ?
-                                    //         </p>
-                                    //         <div
-                                    //           className={`flex items-center justify-center border ${recalcStatus.data?.remaining_recalculations && recalcStatus.data?.remaining_recalculations <= 1 ? "border-beergam-red text-beergam-red" : "border-beergam-yellow text-beergam-yellow"} bg-beergam-yellow/10 rounded-full p-2`}
-                                    //         >
-                                    //           <h3>
-                                    //             Recalculos Restantes:{" "}
-                                    //             {recalcStatus.data
-                                    //               ?.remaining_recalculations ?? 0}
-                                    //           </h3>
-                                    //         </div>
-                                    //       </div>
-                                    //     </Alert>,
-                                    //     {
-                                    //       title: "Recalcular período",
-                                    //     }
-                                    //   );
-                                    // }}
                                   />
-                                  <BeergamButton
+                                  {/* <BeergamButton
                                     mainColor="beergam-red"
                                     animationStyle="slider"
                                     icon="trash"
@@ -525,7 +577,7 @@ export default function Impostos() {
                                         }
                                       );
                                     }}
-                                  />
+                                  /> */}
                                 </>
                               )}
                             </div>

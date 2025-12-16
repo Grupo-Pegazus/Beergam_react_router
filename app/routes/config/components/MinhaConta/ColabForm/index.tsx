@@ -25,7 +25,8 @@ import {
 } from "~/features/user/typings/Colab";
 import Section from "~/src/components/ui/Section";
 import Upload from "~/src/components/utils/upload";
-import type { ColabAction } from "../../../../perfil/typings";
+import { type ColabAction } from "~/routes/config/typings";
+import type { InternalUploadService } from "~/src/components/utils/upload/types";
 
 // const CreateColabSchema = ColabSchema.extend({
 //   password: UserPasswordSchema.optional().nullable(),
@@ -216,7 +217,7 @@ export default function ColabForm({
           isOpen={uploadVisible}
           onClose={() => setUploadVisible(false)}
           typeImport="internal"
-          service={colabPhotoUploadService}
+          service={colabPhotoUploadService as InternalUploadService}
           maxFiles={1}
           accept="image/*"
           emptyStateLabel="Arraste ou selecione a nova foto do colaborador"

@@ -1,4 +1,4 @@
-import type { ColabAction } from "~/routes/perfil/typings";
+import type { ColabAction } from "~/routes/config/typings";
 import LockAnimated from "~/src/assets/LockAnimated";
 import ColabItem from "./ColabItem";
 export default function AllowedViews({

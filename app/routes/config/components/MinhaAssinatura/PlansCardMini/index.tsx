@@ -10,24 +10,24 @@ export default function PlansCardMini({ plan }: { plan: Plan }) {
   const navigate = useNavigate();
   return (
     <Section
-      title={plan.display_name}
-      key={plan.display_name}
+      title={plan?.display_name || ""}
+      key={plan?.display_name || ""}
       onClick={() => {
         openModal(
           <div>
-            <PlanCard plan={plan} billingPeriod="monthly" />
+            <PlanCard plan={plan || {}} billingPeriod="monthly" />
           </div>,
           { title: `Visualizar plano` }
         );
       }}
       actions={
         <>
-          {!plan.is_current_plan ? (
+          {!plan?.is_current_plan ? (
             <BeergamButton
               title="Assinar"
               icon="star_solid"
               mainColor="beergam-orange"
-              disabled={plan.is_current_plan}
+              disabled={plan?.is_current_plan}
               onClick={() => {
                 navigate("/interno/subscription", { state: { plan } });
               }}
@@ -49,15 +49,15 @@ export default function PlansCardMini({ plan }: { plan: Plan }) {
         {" "}
         <div>
           <h3 className="text-beergam-gray">
-            {plan.price.toLocaleString("pt-BR", {
+            {plan?.price.toLocaleString("pt-BR", {
               style: "currency",
               currency: "BRL",
             })}{" "}
             /mês
           </h3>
-          <p>{plan.description}</p>
+          <p>{plan?.description}</p>
         </div>
-        {plan.display_name == "Plano Estratégico" && (
+        {plan?.display_name == "Plano Estratégico" && (
           <Section
             title="Comunidade Beergam"
             className="bg-beergam-blue-primary text-beergam-white"

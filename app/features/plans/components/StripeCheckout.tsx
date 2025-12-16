@@ -70,7 +70,7 @@ export default function StripeCheckout({
         throw new Error("Plano não possui price_id configurado");
       }
 
-      const returnUrl = `${window.location.origin}/interno/perfil?subscription=success`;
+      const returnUrl = `${window.location.origin}/interno/config?session=Minha Assinatura`;
 
       const response = await subscriptionService.createSubscriptionCheckout({
         price_id: priceId,

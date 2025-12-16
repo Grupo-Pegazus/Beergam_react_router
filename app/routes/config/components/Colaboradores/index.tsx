@@ -13,7 +13,7 @@ import { getDefaultColab, type IColab } from "~/features/user/typings/Colab";
 import Section from "~/src/components/ui/Section";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import toast from "~/src/utils/toast";
-import type { ColabAction } from "../../../perfil/typings";
+import type { ColabAction } from "../../../config/typings";
 import ColabForm, { type editColabFormData } from "../MinhaConta/ColabForm";
 
 // Função para criar schema baseado na ação

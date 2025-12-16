@@ -119,7 +119,6 @@ export default [
       route("subscription", "routes/subscription/route.tsx"),
       route("choosen_account", "routes/choosen_account/route.tsx"),
       route("config", "routes/config/route.tsx"),
-      route("perfil", "routes/perfil/route.tsx"),
       layout(
         "features/menu/components/layout/MenuLayout.tsx",
         createMenuRoutes()

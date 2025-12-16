@@ -29,7 +29,7 @@ import {
 } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
 import { FormatColabLevel, isMaster } from "~/features/user/utils";
-import type { ColabAction } from "~/routes/perfil/typings";
+import type { ColabAction } from "~/routes/config/typings";
 import Svg from "~/src/assets/svgs/_index";
 import { Fields } from "~/src/components/utils/_fields";
 import Time from "~/src/components/utils/Time";

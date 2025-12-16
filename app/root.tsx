@@ -105,12 +105,22 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let errorType: TError = "INTERNAL_SERVER_ERROR";
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
-    errorType = error.status === 404 ? "NOT_FOUND" : "INTERNAL_SERVER_ERROR";
+    if (error.status === 404) {
+      message = "404";
+      details = "The requested page could not be found.";
+      errorType = "NOT_FOUND";
+    } else if (error.status === 503) {
+      message = "Manutenção";
+      const data = error.data as { message?: string } | undefined;
+      details =
+        data?.message ??
+        "Estamos realizando algumas atualizações nesta tela. Tente novamente mais tarde.";
+      errorType = "MAINTENANCE";
+    } else {
+      message = "Error";
+      details = error.statusText || details;
+      errorType = "INTERNAL_SERVER_ERROR";
+    }
   } else if (error instanceof Error) {
     // Só captura exceções com Sentry em produção
     if (process.env.NODE_ENV === "production") {

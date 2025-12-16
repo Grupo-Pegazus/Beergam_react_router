@@ -4,7 +4,7 @@ import {
   WeekDay,
   WeekDayToPortuguese,
 } from "~/features/user/typings/AllowedTimes";
-import type { ColabAction } from "~/routes/perfil/typings";
+import type { ColabAction } from "~/routes/config/typings";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import Time from "~/src/components/utils/Time";
 import ColabItem from "./ColabItem";

@@ -91,7 +91,12 @@ export const UpsertTaxResponseSchema = z.object({
 export type UpsertTaxResponse = z.infer<typeof UpsertTaxResponseSchema>;
 
 export const RecalcPeriodPayloadSchema = z
-  .object({ year: z.number().int(), month: z.number().int().min(1).max(12) })
+  .object({
+    year: z.number().int(),
+    month: z.number().int().min(1).max(12),
+    marketplace_shop_id: z.string(),
+    marketplace_type: z.string(),
+  })
   .strict();
 
 export type RecalcPeriodPayload = z.infer<typeof RecalcPeriodPayloadSchema>;
@@ -107,7 +112,7 @@ const TaxValueSchema = z.union([
 
 const RecalcStatusData = z.object({
   can_recalculate: z.boolean(),
-  last_recalculation: z.unknown().nullable(),
+  last_recalculation: z.string().nullable(),
   monthly_limit: z.number().int().nonnegative(),
   recalculation_count: z.number().int().nonnegative(),
   remaining_recalculations: z.number().int().nonnegative(),

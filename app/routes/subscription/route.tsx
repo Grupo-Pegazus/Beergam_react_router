@@ -48,7 +48,7 @@ export default function SubscriptionRoute() {
             const params = new URLSearchParams(searchParams);
             params.delete("session_id");
             setSearchParams(params);
-            navigate("/interno/perfil?subscription=success", { replace: true });
+            navigate("/interno/config?session=Minha Assinatura", { replace: true });
           } else {
             console.error(
               "Erro ao validar subscription:",
