@@ -107,6 +107,8 @@ export function useUpdateSku() {
       queryClient.invalidateQueries({ queryKey: ["anuncios"] });
       // Invalida também a query de detalhes do anúncio específico
       queryClient.invalidateQueries({ queryKey: ["anuncios", "details", variables.ad_id] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["products", "details"] });
       toast.success("SKU atualizado com sucesso");
     },
     onError: (error: unknown) => {
@@ -135,6 +137,9 @@ export function useUpdateSkuWithMlb() {
       response.data?.updated.forEach((adId) => {
         queryClient.invalidateQueries({ queryKey: ["anuncios", "details", adId] });
       });
+
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["products", "details"] });
 
       const message = response.data?.message || "SKU atualizado com sucesso";
       toast.success(message);
