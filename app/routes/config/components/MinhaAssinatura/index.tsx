@@ -53,7 +53,7 @@ export default function MinhaAssinatura() {
 
     setIsBillingLoading(true);
     try {
-      const returnUrl = `${window.location.origin}/interno/perfil`;
+      const returnUrl = `${window.location.origin}/interno/config?session=Minha Assinatura`;
 
       const response =
         await subscriptionService.createBillingPortalSession(returnUrl);

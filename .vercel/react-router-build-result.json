@@ -13,10 +13,10 @@
       "routes/home/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/login/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/registro/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/termos-de-servico/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/subscription/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/choosen_account/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/config/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/perfil/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/inicio/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/vendas/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/vendas/[venda_id]/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -73,6 +73,15 @@
           "runtime": "nodejs"
         }
       },
+      "routes/termos-de-servico/route": {
+        "id": "routes/termos-de-servico/route",
+        "parentId": "root",
+        "file": "app/routes/termos-de-servico/route.tsx",
+        "path": "termos-de-servico",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
       "features/auth/components/AuthLayout/AuthLayout": {
         "id": "features/auth/components/AuthLayout/AuthLayout",
         "parentId": "root",
@@ -102,15 +111,6 @@
         "parentId": "features/auth/components/AuthLayout/AuthLayout",
         "file": "app/routes/config/route.tsx",
         "path": "interno/config",
-        "config": {
-          "runtime": "nodejs"
-        }
-      },
-      "routes/perfil/route": {
-        "id": "routes/perfil/route",
-        "parentId": "features/auth/components/AuthLayout/AuthLayout",
-        "file": "app/routes/perfil/route.tsx",
-        "path": "interno/perfil",
         "config": {
           "runtime": "nodejs"
         }
@@ -348,6 +348,12 @@
         "file": "routes/registro/route.tsx",
         "path": "registro"
       },
+      "routes/termos-de-servico/route": {
+        "id": "routes/termos-de-servico/route",
+        "parentId": "root",
+        "file": "routes/termos-de-servico/route.tsx",
+        "path": "termos-de-servico"
+      },
       "features/auth/components/AuthLayout/AuthLayout": {
         "id": "features/auth/components/AuthLayout/AuthLayout",
         "parentId": "root",
@@ -370,12 +376,6 @@
         "parentId": "features/auth/components/AuthLayout/AuthLayout",
         "file": "routes/config/route.tsx",
         "path": "interno/config"
-      },
-      "routes/perfil/route": {
-        "id": "routes/perfil/route",
-        "parentId": "features/auth/components/AuthLayout/AuthLayout",
-        "file": "routes/perfil/route.tsx",
-        "path": "interno/perfil"
       },
       "features/menu/components/layout/MenuLayout": {
         "id": "features/menu/components/layout/MenuLayout",
@@ -536,6 +536,10 @@
             "path": "registro"
           },
           {
+            "file": "routes/termos-de-servico/route.tsx",
+            "path": "termos-de-servico"
+          },
+          {
             "file": "features/auth/components/AuthLayout/AuthLayout.tsx",
             "children": [
               {
@@ -549,10 +553,6 @@
               {
                 "file": "routes/config/route.tsx",
                 "path": "interno/config"
-              },
-              {
-                "file": "routes/perfil/route.tsx",
-                "path": "interno/perfil"
               },
               {
                 "file": "features/menu/components/layout/MenuLayout.tsx",
@@ -666,6 +666,10 @@
             "path": "registro"
           },
           {
+            "file": "routes/termos-de-servico/route.tsx",
+            "path": "termos-de-servico"
+          },
+          {
             "file": "features/auth/components/AuthLayout/AuthLayout.tsx",
             "children": [
               {
@@ -679,10 +683,6 @@
               {
                 "file": "routes/config/route.tsx",
                 "path": "interno/config"
-              },
-              {
-                "file": "routes/perfil/route.tsx",
-                "path": "interno/perfil"
               },
               {
                 "file": "features/menu/components/layout/MenuLayout.tsx",

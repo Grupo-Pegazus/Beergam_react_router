@@ -25,7 +25,7 @@ import {
 } from "~/features/user/typings/Colab";
 import Section from "~/src/components/ui/Section";
 import Upload from "~/src/components/utils/upload";
-import type { ColabAction } from "../../../../perfil/typings";
+import type { ColabAction } from "../../../config/typings";
 
 // const CreateColabSchema = ColabSchema.extend({
 //   password: UserPasswordSchema.optional().nullable(),

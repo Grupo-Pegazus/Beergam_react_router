@@ -9,7 +9,7 @@ import { UserStatus } from "~/features/user/typings/BaseUser";
 import { ColabLevel, type IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
 import { isMaster } from "~/features/user/utils";
-import type { ColabAction } from "~/routes/perfil/typings";
+import type { ColabAction } from "~/routes/config/typings";
 import Alert from "~/src/components/utils/Alert";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";

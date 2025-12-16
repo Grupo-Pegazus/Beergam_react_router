@@ -6,7 +6,6 @@ import { findKeyPathByRoute } from "../utils";
  * (não estão no menu mas são necessárias para funcionamento do sistema)
  */
 const SPECIAL_ROUTES = [
-  "/interno/perfil",
   "/interno/config",
   "/interno/subscription",
   "/interno/choosen_account",

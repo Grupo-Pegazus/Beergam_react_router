@@ -16,7 +16,6 @@ const ROUTES_WITHOUT_MARKETPLACE = [
   "/interno/subscription",
   "/interno/choosen_account",
   "/interno/config",
-  "/interno/perfil",
 ];
 export default function AuthLayout() {
   const authError = useAuthError();
