@@ -184,8 +184,38 @@ export default function Impostos() {
     const [open, setOpen] = useState(false);
     return (
       <>
-        <button ref={ref} onClick={() => setOpen(true)}>
-          {dayjs(last_recalculation).format("DD/MM/YYYY")}
+        <button
+          ref={ref}
+          onMouseEnter={() => setOpen(true)}
+          onMouseLeave={() => setOpen(false)}
+        >
+          {(() => {
+            const diffDays = dayjs().diff(dayjs(last_recalculation), "days");
+            if (diffDays > 0) {
+              return (
+                <>
+                  Há {diffDays} {diffDays === 1 ? "dia" : "dias"}
+                </>
+              );
+            }
+            const diffHours = dayjs().diff(dayjs(last_recalculation), "hours");
+            if (diffHours > 0) {
+              return (
+                <>
+                  Há {diffHours} {diffHours === 1 ? "hora" : "horas"}
+                </>
+              );
+            }
+            const diffMinutes = dayjs().diff(
+              dayjs(last_recalculation),
+              "minutes"
+            );
+            return (
+              <>
+                Há {diffMinutes} {diffMinutes === 1 ? "minuto" : "minutos"}
+              </>
+            );
+          })()}
         </button>
         <Popover
           open={open}
