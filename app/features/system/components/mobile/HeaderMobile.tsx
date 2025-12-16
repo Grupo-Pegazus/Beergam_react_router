@@ -1,10 +1,9 @@
 import { useNavigate } from "react-router";
+import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
+import authStore from "~/features/store-zustand";
 import type { IUser } from "~/features/user/typings/User";
 import { isMaster } from "~/features/user/utils";
 import Svg from "~/src/assets/svgs/_index";
-import authStore from "~/features/store-zustand";
-import LogoutOverlay from "~/features/auth/components/LogoutOverlay/LogoutOverlay";
-import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 import { useOverlay } from "../../hooks/useOverlay";
 import OverlayFrame from "../../shared/OverlayFrame";
 
@@ -24,7 +23,7 @@ export default function HeaderMobile() {
 
   return (
     <>
-      {isLoggingOut && <LogoutOverlay />}
+      {/* {isLoggingOut && <LogoutOverlay />} */}
       <OverlayFrame
         title="Usuário"
         isOpen={isOpen}

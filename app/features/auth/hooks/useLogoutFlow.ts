@@ -1,9 +1,8 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import authStore from "~/features/store-zustand";
-import { authService } from "../service";
 import toast from "~/src/utils/toast";
-
+import { authService } from "../service";
 interface UseLogoutFlowParams {
   redirectTo?: string;
 }
@@ -19,7 +18,6 @@ export function useLogoutFlow({
   const navigate = useNavigate();
   const logoutLocal = authStore.use.logout();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-
   const logout = useCallback(async () => {
     if (isLoggingOut) return;
 
@@ -29,7 +27,11 @@ export function useLogoutFlow({
       const res = await authService.logout();
 
       if (res.success) {
-        navigate(redirectTo, { replace: true });
+        // navigate(redirectTo, { replace: true });
+        window.setTimeout(() => {
+          navigate(redirectTo, { replace: true });
+          authStore.setState({ isLoggingOut: false });
+        }, 350);
       } else {
         toast.error(res.message || "Erro ao sair. Tente novamente.");
         setIsLoggingOut(false);
@@ -43,5 +45,3 @@ export function useLogoutFlow({
 
   return { isLoggingOut, logout };
 }
-
-
