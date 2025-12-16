@@ -84,10 +84,20 @@ export function useRecalculatePeriod() {
   return useMutation<
     ApiResponse<unknown>,
     Error,
-    { year: number; month: number }
+    {
+      year: number;
+      month: number;
+      marketplace_shop_id: string;
+      marketplace_type: MarketplaceType;
+    }
   >({
     mutationFn: async (payload) => {
-      const res = await taxesService.recalculatePeriod(payload);
+      const res = await taxesService.recalculatePeriod({
+        year: payload.year,
+        month: payload.month,
+        marketplace_shop_id: payload.marketplace_shop_id,
+        marketplace_type: payload.marketplace_type,
+      });
       if (!res.success) {
         throw new Error(res.message || "Erro ao iniciar recálculo");
       }
