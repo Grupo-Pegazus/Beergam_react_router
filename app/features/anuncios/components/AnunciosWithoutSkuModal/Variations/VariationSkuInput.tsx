@@ -73,7 +73,7 @@ export default function VariationSkuInput({
           <button
             type="button"
             onClick={() => {
-              onChange(mlb);
+              onChange(variation.mlb);
               onUseMlbAsSku();
             }}
             className="px-2 py-1 text-xs font-medium text-beergam-blue-primary border border-beergam-blue-primary rounded hover:bg-beergam-blue-primary/5 whitespace-nowrap"
