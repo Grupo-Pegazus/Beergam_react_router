@@ -51,43 +51,13 @@ import ColabForm, { type editColabFormData } from "../MinhaConta/ColabForm";
 
 // type editColabFormData = z.infer<ReturnType<typeof createColabFormSchema>>;
 export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
-  const updateColab = authStore.use.updateColab();
-  const createColab = authStore.use.createColab();
-  const updateColabs = authStore.use.updateColabs();
-  const createColabMutation = useMutation({
-    mutationFn: ({ colab, password }: { colab: IColab; password: string }) =>
-      authService.createColab(colab, password ?? ""),
-    onSuccess: (data) => {
-      if (data.success) {
-        createColab(data.data);
-        toast.success("Colaborador criado com sucesso");
-      } else {
-        throw new Error(data.message);
-      }
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-  const updateColabMutation = useMutation({
-    mutationFn: ({ colab, password }: { colab: IColab; password: string }) =>
-      userService.updateColab(colab, password ?? ""),
-    onSuccess: (data) => {
-      if (data.success) {
-        updateColab(data.data);
-        toast.success("Colaborador atualizado com sucesso");
-      } else {
-        throw new Error(data.message);
-      }
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
   const initialColabState = {
     colab: null as IColab | null,
     action: null as ColabAction | null,
   };
+  const updateColab = authStore.use.updateColab();
+  const createColab = authStore.use.createColab();
+  const updateColabs = authStore.use.updateColabs();
   const [currentColab, setCurrentColab] = useReducer(
     (state: typeof initialColabState, action: typeof initialColabState) => {
       console.log("action", action);
@@ -111,6 +81,37 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
     },
     initialColabState
   );
+  const createColabMutation = useMutation({
+    mutationFn: ({ colab, password }: { colab: IColab; password: string }) =>
+      authService.createColab(colab, password ?? ""),
+    onSuccess: (data) => {
+      if (data.success) {
+        createColab(data.data);
+        toast.success("Colaborador criado com sucesso");
+        setCurrentColab({ action: "Visualizar", colab: data.data });
+      } else {
+        throw new Error(data.message);
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+  const updateColabMutation = useMutation({
+    mutationFn: ({ colab, password }: { colab: IColab; password: string }) =>
+      userService.updateColab(colab, password ?? ""),
+    onSuccess: (data) => {
+      if (data.success) {
+        updateColab(data.data);
+        toast.success("Colaborador atualizado com sucesso");
+      } else {
+        throw new Error(data.message);
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   // Atualiza os valores do form quando a ação ou colaborador mudar
 

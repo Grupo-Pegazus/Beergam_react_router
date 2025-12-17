@@ -15,7 +15,10 @@ import AllowedViews from "~/features/user/colab/components/ColabDetails/AllowedV
 import ColabPhoto from "~/features/user/colab/components/ColabPhoto";
 import UserFields from "~/features/user/components/UserFields";
 import { createColabPhotoUploadService } from "~/features/user/service";
-import { getEmptyAllowedTimes } from "~/features/user/typings/AllowedTimes";
+import {
+  getEmptyAllowedTimes,
+  type IAllowedTimes,
+} from "~/features/user/typings/AllowedTimes";
 import { UserStatus } from "~/features/user/typings/BaseUser";
 import {
   ColabLevel,
@@ -23,9 +26,9 @@ import {
   getDefaultColab,
   type IColab,
 } from "~/features/user/typings/Colab";
+import { type ColabAction } from "~/routes/config/typings";
 import Section from "~/src/components/ui/Section";
 import Upload from "~/src/components/utils/upload";
-import { type ColabAction } from "~/routes/config/typings";
 import type { InternalUploadService } from "~/src/components/utils/upload/types";
 
 // const CreateColabSchema = ColabSchema.extend({
@@ -89,11 +92,78 @@ export default function ColabForm({
     defaultValues: formSchema.safeParse(user).data,
   });
 
+  // Observa mudanças em allowedTimes e ajusta os valores quando necessário
+  const allowedTimes = watch("details.allowed_times");
+  useEffect(() => {
+    if (allowedTimes) {
+      Object.keys(allowedTimes as unknown as IAllowedTimes).forEach((time) => {
+        if (
+          allowedTimes[time as keyof IAllowedTimes].access === true &&
+          (!allowedTimes[time as keyof IAllowedTimes].start_date ||
+            !allowedTimes[time as keyof IAllowedTimes].end_date)
+        ) {
+          setValue(
+            `details.allowed_times.${time as keyof IAllowedTimes}.access`,
+            false,
+            { shouldValidate: true }
+          );
+        }
+      });
+    }
+  }, [allowedTimes, setValue]);
+
+  // Cria um handleSubmit customizado que garante que os valores estão ajustados antes de submeter
+  const adjustedHandleSubmit = useCallback(
+    (
+      onValid: Parameters<UseFormHandleSubmit<editColabFormData>>[0],
+      onInvalid?: Parameters<UseFormHandleSubmit<editColabFormData>>[1]
+    ) => {
+      return handleSubmit((data) => {
+        // Ajusta os valores antes de submeter para garantir que estão corretos
+        const allowedTimesData = data.details?.allowed_times;
+        if (allowedTimesData) {
+          let needsUpdate = false;
+          const updatedData = { ...data };
+
+          if (!updatedData.details) {
+            updatedData.details = { ...data.details };
+          }
+          if (!updatedData.details.allowed_times) {
+            updatedData.details.allowed_times = {} as IAllowedTimes;
+          }
+
+          Object.keys(allowedTimesData as unknown as IAllowedTimes).forEach(
+            (time) => {
+              const timeKey = time as keyof IAllowedTimes;
+              const timeData = allowedTimesData[timeKey];
+              if (
+                timeData?.access === true &&
+                (!timeData.start_date || !timeData.end_date)
+              ) {
+                updatedData.details.allowed_times[timeKey] = {
+                  ...timeData,
+                  access: false,
+                };
+                needsUpdate = true;
+              }
+            }
+          );
+
+          // Se houve ajustes, usa os dados atualizados, senão usa os dados originais
+          onValid(needsUpdate ? updatedData : data);
+        } else {
+          onValid(data);
+        }
+      }, onInvalid);
+    },
+    [handleSubmit]
+  );
+
   useEffect(() => {
     if (onHandleSubmitReady) {
-      onHandleSubmitReady(handleSubmit);
+      onHandleSubmitReady(adjustedHandleSubmit);
     }
-  }, [handleSubmit, onHandleSubmitReady]);
+  }, [adjustedHandleSubmit, onHandleSubmitReady]);
 
   const updateColab = authStore.use.updateColab();
   const allowedViews = watch("details.allowed_views") ?? ({} as MenuState);

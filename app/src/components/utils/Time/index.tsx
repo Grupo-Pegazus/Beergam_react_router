@@ -2,7 +2,6 @@ import { Fade } from "@mui/material";
 import React from "react";
 import ColabItem from "~/features/user/colab/components/ColabDetails/ColabItem";
 import LockAnimated from "~/src/assets/LockAnimated";
-import toast from "~/src/utils/toast";
 interface TimeProps {
   dia: string;
   access: boolean;
@@ -29,29 +28,33 @@ function Time({
   const clickDia = () => {
     setHorario({ access: !access, start_date, end_date });
   };
-
-  const aviso = (params: React.ChangeEvent<HTMLInputElement>) => {
-    const novoFim = params.target.value;
-
-    if (start_date && end_date && end_date < start_date) {
-      toast.error(
-        "O horário de fim não pode ser menor que o horário de início"
-      );
-
-      // Cria uma nova data baseada no start_date e adiciona um minuto
-      if (start_date) {
-        const [h, m] = start_date.split(":").map(Number);
-        const date = new Date();
-        date.setHours(h, m + 1, 0, 0); // adiciona 1 minuto
-        const newEndDate = date.toTimeString().slice(0, 5); // formato HH:mm
-        setHorario({ access, start_date, end_date: newEndDate });
-      } else {
-        setHorario({ access, start_date, end_date: "" });
-      }
-      return;
+  const setStartDate = (params: React.ChangeEvent<HTMLInputElement>) => {
+    setHorario({ access, start_date: params.target.value, end_date });
+    if (end_date && end_date < params.target.value) {
+      const [h, m] = params.target.value.split(":").map(Number);
+      const date = new Date();
+      date.setHours(h, m + 1, 0, 0);
+      const newEndDate = date.toTimeString().slice(0, 5);
+      setHorario({
+        access,
+        start_date: params.target.value,
+        end_date: newEndDate,
+      });
     }
-
-    setHorario({ access, start_date, end_date: novoFim });
+  };
+  const setEndDate = (params: React.ChangeEvent<HTMLInputElement>) => {
+    setHorario({ access, start_date, end_date: params.target.value });
+    if (start_date && start_date > params.target.value) {
+      const [h, m] = params.target.value.split(":").map(Number);
+      const date = new Date();
+      date.setHours(h, m - 1, 0, 0);
+      const newStartDate = date.toTimeString().slice(0, 5);
+      setHorario({
+        access,
+        start_date: newStartDate,
+        end_date: params.target.value,
+      });
+    }
   };
   return (
     <ColabItem active={access} onClick={clickDia} canInteract={true}>
@@ -71,9 +74,7 @@ function Time({
           <input
             type="time"
             value={start_date || ""}
-            onChange={(e) =>
-              setHorario({ access, start_date: e.target.value, end_date })
-            }
+            onChange={setStartDate}
             disabled={!access}
             title={startError}
             aria-invalid={!!startError}
@@ -87,7 +88,7 @@ function Time({
           <input
             type="time"
             value={end_date || ""}
-            onChange={aviso}
+            onChange={setEndDate}
             disabled={!access}
             title={endError}
             aria-invalid={!!endError}

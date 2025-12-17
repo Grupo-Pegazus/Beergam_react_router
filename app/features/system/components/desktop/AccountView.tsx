@@ -2,6 +2,7 @@ import ClickAwayListener from "@mui/material/ClickAwayListener";
 import { useQueryClient } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 import StatusTag from "~/features/marketplace/components/StatusTag";
 import { useMarketplaceAccounts } from "~/features/marketplace/hooks/useMarketplaceAccounts";
 import { marketplaceService } from "~/features/marketplace/service";
@@ -12,13 +13,11 @@ import {
   type BaseMarketPlace,
 } from "~/features/marketplace/typings";
 import authStore from "~/features/store-zustand";
-import LogoutOverlay from "~/features/auth/components/LogoutOverlay/LogoutOverlay";
-import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
+import DeleteMarketaplceAccount from "~/routes/choosen_account/components/DeleteMarketaplceAccount";
 import Loading from "~/src/assets/loading";
 import Svg from "~/src/assets/svgs/_index";
 import Modal from "~/src/components/utils/Modal";
 import toast from "~/src/utils/toast";
-import DeleteMarketaplceAccount from "~/routes/choosen_account/components/DeleteMarketaplceAccount";
 
 // Lazy loading do modal de integração para otimizar performance
 const CreateMarketplaceModal = lazy(
@@ -131,7 +130,7 @@ export default function AccountView({
 
   return (
     <>
-      {isLoggingOut && <LogoutOverlay />}
+      {/* {isLoggingOut && <LogoutOverlay />} */}
       <ClickAwayListener onClickAway={() => setOpen(false)}>
         <div className="relative">
           <button
