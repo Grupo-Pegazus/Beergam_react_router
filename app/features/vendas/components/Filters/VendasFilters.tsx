@@ -21,6 +21,7 @@ const SEARCH_TYPE_OPTIONS = [
   { label: "Por número do pedido", value: "order_id" },
   { label: "Por SKU", value: "sku" },
   { label: "Por comprador", value: "buyer_nickname" },
+  { label: "Por MLB", value: "mlb" },
 ];
 
 const DELIVERY_STATUS_OPTIONS: Array<{ label: string; value: DeliveryStatusFilter }> = [
@@ -98,12 +99,13 @@ export default function VendasFilters({
     if (value.order_id) return "order_id";
     if (value.sku) return "sku";
     if (value.buyer_nickname) return "buyer_nickname";
+    if (value.mlb) return "mlb";
     return "order_id";
   }, [value.searchType, value.order_id, value.sku, value.buyer_nickname]);
 
   const searchValue = useMemo(() => {
-    return value.order_id || value.sku || value.buyer_nickname || "";
-  }, [value.order_id, value.sku, value.buyer_nickname]);
+    return value.order_id || value.sku || value.buyer_nickname || value.mlb || "";
+  }, [value.order_id, value.sku, value.buyer_nickname, value.mlb]);
 
   const handleSearchChange = useCallback(
     (searchTerm: string) => {
@@ -116,7 +118,7 @@ export default function VendasFilters({
       delete updated.order_id;
       delete updated.sku;
       delete updated.buyer_nickname;
-
+      delete updated.mlb;
       if (searchTerm.trim()) {
         const typeToUse = updated.searchType || currentSearchType;
         if (typeToUse === "order_id") {
@@ -125,6 +127,8 @@ export default function VendasFilters({
           updated.sku = searchTerm;
         } else if (typeToUse === "buyer_nickname") {
           updated.buyer_nickname = searchTerm;
+        } else if (typeToUse === "mlb") {
+          updated.mlb = searchTerm;
         }
       } else {
         delete updated.searchType;
@@ -140,12 +144,12 @@ export default function VendasFilters({
       const updated = { ...value };
       const currentValue = searchValue;
 
-      updated.searchType = searchType as "order_id" | "sku" | "buyer_nickname";
+      updated.searchType = searchType as "order_id" | "sku" | "buyer_nickname" | "mlb";
 
       delete updated.order_id;
       delete updated.sku;
       delete updated.buyer_nickname;
-
+      delete updated.mlb;
       if (currentValue.trim()) {
         if (searchType === "order_id") {
           updated.order_id = currentValue;
@@ -153,6 +157,8 @@ export default function VendasFilters({
           updated.sku = currentValue;
         } else if (searchType === "buyer_nickname") {
           updated.buyer_nickname = currentValue;
+        } else if (searchType === "mlb") {
+          updated.mlb = currentValue;
         }
       }
 

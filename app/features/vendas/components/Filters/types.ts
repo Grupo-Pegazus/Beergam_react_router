@@ -30,7 +30,7 @@ export interface VendasFiltersState extends Partial<OrdersFilters> {
   statusFilter?: OrderStatusFilter;
   deliveryStatusFilter?: DeliveryStatusFilter;
   deliveryTypeFilter?: DeliveryTypeFilter;
-  searchType?: "order_id" | "sku" | "buyer_nickname";
+  searchType?: "order_id" | "sku" | "buyer_nickname" | "mlb";
   dateCreatedFrom?: string;
   dateCreatedTo?: string;
   shipment_status?: DeliveryStatusFilter;
