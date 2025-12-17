@@ -198,7 +198,7 @@ export default function UserForm({ user }: { user: IUser }) {
               }))}
             />
             <UserFields
-              label="Cálculo Fixo de Imposto"
+              label="Cálculo Fixo de Imposto (%)"
               {...register("details.tax_percent_fixed")}
               error={errors.details?.tax_percent_fixed?.message}
               canAlter={true}

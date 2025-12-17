@@ -141,6 +141,30 @@ class UserService {
       };
     }
   }
+  async updateColabPassword(
+    colabPin: string,
+    password: string
+  ): Promise<ApiResponse<void>> {
+    try {
+      const response = await typedApiClient.patch<void>(
+        `/v1/users/me/colabs/${colabPin}/change_password`,
+        {
+          new_password: password,
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error("error do updateColabPassword", error);
+      return {
+        success: false,
+        data: undefined,
+        message:
+          "Erro ao atualizar senha do colaborador. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: [],
+      };
+    }
+  }
 }
 
 export const userService = new UserService();

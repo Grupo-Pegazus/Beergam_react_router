@@ -178,7 +178,8 @@ typedApiClient.axiosInstance.interceptors.response.use(
     const original = error.config;
     if (error.response?.status === 401) {
       if (
-        error.response?.data?.error_code === 1002 &&
+        (error.response?.data?.error_code === 1002 ||
+          error.response?.data?.error_code === 5003) &&
         !original._retry &&
         typeof window !== "undefined"
       ) {

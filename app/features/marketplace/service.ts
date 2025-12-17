@@ -1,6 +1,10 @@
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
-import type { BaseMarketPlace, IntegrationData, IntegrationStatus } from "./typings";
+import type {
+  BaseMarketPlace,
+  IntegrationData,
+  IntegrationStatus,
+} from "./typings";
 import { MarketplaceType } from "./typings";
 class MarketplaceService {
   async getMarketplacesAccounts(): Promise<ApiResponse<BaseMarketPlace[]>> {
@@ -21,12 +25,15 @@ class MarketplaceService {
     }
   }
 
-  async SelectMarketplaceAccount(Marketplace_id: string, Marketplace_type: MarketplaceType): Promise<ApiResponse<BaseMarketPlace>> {
+  async SelectMarketplaceAccount(
+    Marketplace_id: string,
+    Marketplace_type: MarketplaceType
+  ): Promise<ApiResponse<BaseMarketPlace>> {
     try {
       const payload = {
-        "marketplace_shop_id": Marketplace_id,
-        "marketplace_type": Marketplace_type,
-      }
+        marketplace_shop_id: Marketplace_id,
+        marketplace_type: Marketplace_type,
+      };
       const response = await typedApiClient.post<BaseMarketPlace>(
         `/v1/accounts/select`,
         payload
@@ -37,7 +44,8 @@ class MarketplaceService {
       return {
         success: false,
         data: {} as BaseMarketPlace,
-        message: "Erro ao selecionar conta de marketplace. Tente novamente em alguns instantes.",
+        message:
+          "Erro ao selecionar conta de marketplace. Tente novamente em alguns instantes.",
         error_code: 500,
         error_fields: {},
       };
@@ -73,12 +81,15 @@ class MarketplaceService {
     }
   }
 
-  async deleteMarketplaceAccount(Marketplace_id: string, Marketplace_type: MarketplaceType): Promise<ApiResponse<null>> {
+  async deleteMarketplaceAccount(
+    Marketplace_id: string,
+    Marketplace_type: MarketplaceType
+  ): Promise<ApiResponse<null>> {
     try {
       const payload = {
-        "marketplace_shop_id": Marketplace_id,
-        "marketplace_type": Marketplace_type,
-      }
+        marketplace_shop_id: Marketplace_id,
+        marketplace_type: Marketplace_type,
+      };
       const response = await typedApiClient.delete<null>(
         `/v1/accounts/delete`,
         {
@@ -91,14 +102,17 @@ class MarketplaceService {
       return {
         success: false,
         data: null,
-        message: "Erro ao deletar conta de marketplace. Tente novamente em alguns instantes.",
+        message:
+          "Erro ao deletar conta de marketplace. Tente novamente em alguns instantes.",
         error_code: 500,
         error_fields: {},
       };
     }
   }
 
-  async checkIntegrationStatus(state: string): Promise<ApiResponse<IntegrationStatus>> {
+  async checkIntegrationStatus(
+    state: string
+  ): Promise<ApiResponse<IntegrationStatus>> {
     try {
       const response = await typedApiClient.get<IntegrationStatus>(
         `/v1/auth/meli/integration_status?state=${state}`
@@ -117,14 +131,17 @@ class MarketplaceService {
           status: "error",
           updated_at: new Date().toISOString(),
         },
-        message: "Erro ao verificar status da integração. Tente novamente em alguns instantes.",
+        message:
+          "Erro ao verificar status da integração. Tente novamente em alguns instantes.",
         error_code: 500,
         error_fields: {},
       };
     }
   }
 
-  async checkAccountProcessingStatus(accountId: string): Promise<ApiResponse<{ processed: boolean }>> {
+  async checkAccountProcessingStatus(
+    accountId: string
+  ): Promise<ApiResponse<{ processed: boolean }>> {
     try {
       const response = await typedApiClient.get<{ processed: boolean }>(
         `/v1/accounts/${accountId}`
@@ -135,7 +152,8 @@ class MarketplaceService {
       return {
         success: false,
         data: { processed: false },
-        message: "Erro ao verificar status de processamento da conta. Tente novamente em alguns instantes.",
+        message:
+          "Erro ao verificar status de processamento da conta. Tente novamente em alguns instantes.",
         error_code: 500,
         error_fields: {},
       };

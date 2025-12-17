@@ -162,6 +162,7 @@ export default function ColabForm({
   useEffect(() => {
     if (onHandleSubmitReady) {
       onHandleSubmitReady(adjustedHandleSubmit);
+      setValue("password", null);
     }
   }, [adjustedHandleSubmit, onHandleSubmitReady]);
 

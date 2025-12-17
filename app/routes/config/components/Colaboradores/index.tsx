@@ -97,6 +97,25 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
       toast.error(error.message);
     },
   });
+  const updateColabPasswordMutation = useMutation({
+    mutationFn: ({
+      colabPin,
+      password,
+    }: {
+      colabPin: string;
+      password: string;
+    }) => userService.updateColabPassword(colabPin, password),
+    onSuccess: (data) => {
+      if (data.success) {
+        toast.success("Senha do colaborador atualizada com sucesso");
+      } else {
+        throw new Error(data.message);
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
   const updateColabMutation = useMutation({
     mutationFn: ({ colab, password }: { colab: IColab; password: string }) =>
       userService.updateColab(colab, password ?? ""),
@@ -142,6 +161,12 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
         password: password ?? "",
       });
     } else if (currentColab.action === "Editar") {
+      if (password) {
+        updateColabPasswordMutation.mutate({
+          colabPin: colab.pin ?? "",
+          password: password,
+        });
+      }
       updateColabMutation.mutate({
         colab: colab,
         password: password ?? "",
