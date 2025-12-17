@@ -42,10 +42,8 @@ export default function UserForm({ user }: { user: IUser }) {
     reset,
     formState: { errors },
   } = useForm<editUserFormData>({
-    resolver: zodResolver(
-      formSchema
-    ) as unknown as Resolver<editUserFormData>,
-    defaultValues: UserSchema.parse(user) as editUserFormData,
+    resolver: zodResolver(formSchema) as unknown as Resolver<editUserFormData>,
+    defaultValues: UserSchema.safeParse(user).data as editUserFormData,
     mode: "onSubmit",
     reValidateMode: "onChange",
   });
@@ -66,16 +64,19 @@ export default function UserForm({ user }: { user: IUser }) {
         const errorMessage = `${data.error_fields?.map((error) => `${error.error}`).join("\n")}`;
         throw new Error(errorMessage);
       }
-      reset(UserSchema.parse(data.data) as editUserFormData);
+      reset(UserSchema.safeParse(data.data).data as editUserFormData);
     },
   });
   const onSubmit = async (data: editUserFormData) => {
     if (editUserMutation.isPending) return;
     const dataToSend = data as unknown as IUser;
 
-    if (user.details?.cpf && dataToSend.details?.cpf) delete dataToSend.details.cpf;
-    if (user.details?.cnpj && dataToSend.details?.cnpj) delete dataToSend.details.cnpj;
-    if (user.details?.phone && dataToSend.details?.phone) delete dataToSend.details.phone;
+    if (user.details?.cpf && dataToSend.details?.cpf)
+      delete dataToSend.details.cpf;
+    if (user.details?.cnpj && dataToSend.details?.cnpj)
+      delete dataToSend.details.cnpj;
+    if (user.details?.phone && dataToSend.details?.phone)
+      delete dataToSend.details.phone;
     if (user.details?.secondary_phone && dataToSend.details?.secondary_phone)
       delete dataToSend.details.secondary_phone;
     try {

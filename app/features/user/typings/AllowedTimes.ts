@@ -26,46 +26,11 @@ export interface IAllowedTimes {
 }
 
 // Modificar o DayTimeAccessSchema para aceitar strings e converter para Date
-const DayTimeAccessSchema = z
-  .object({
-    start_date: z.coerce.date().nullable(),
-    end_date: z.coerce.date().nullable(),
-    access: z.boolean(),
-  })
-  .refine(
-    (data) => {
-      // start_date nunca pode ser maior ou igual que end_date
-      if (data.start_date !== null && data.end_date !== null) {
-        const startTime =
-          data.start_date.getHours() * 60 + data.start_date.getMinutes();
-        const endTime =
-          data.end_date.getHours() * 60 + data.end_date.getMinutes();
-        return startTime < endTime;
-      }
-      return true;
-    },
-    {
-      message: "'start_date' deve ser menor que 'end_date'",
-      path: ["start_date"],
-    }
-  )
-  .refine(
-    (data) => {
-      // Validação dupla para end_date
-      if (data.start_date !== null && data.end_date !== null) {
-        const startTime =
-          data.start_date.getHours() * 60 + data.start_date.getMinutes();
-        const endTime =
-          data.end_date.getHours() * 60 + data.end_date.getMinutes();
-        return endTime > startTime;
-      }
-      return true;
-    },
-    {
-      message: "'end_date' deve ser maior que 'start_date'",
-      path: ["end_date"],
-    }
-  );
+const DayTimeAccessSchema = z.object({
+  start_date: z.coerce.date().nullable(),
+  end_date: z.coerce.date().nullable(),
+  access: z.boolean(),
+});
 
 export const AllowedTimesSchema = z.object({
   monday: DayTimeAccessSchema,
