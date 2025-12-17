@@ -38,7 +38,9 @@ export function useMarketplaceAccounts() {
     },
   });
 
-  const accounts: BaseMarketPlace[] = (data?.data as BaseMarketPlace[]) || [];
+  const accounts: BaseMarketPlace[] = Array.isArray(data?.data)
+    ? (data.data as BaseMarketPlace[])
+    : [];
 
   // Faz polling de contas em processamento
   useAccountPolling(accounts);

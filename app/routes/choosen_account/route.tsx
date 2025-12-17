@@ -112,7 +112,9 @@ export default function ChoosenAccountRoute() {
     refetchOnWindowFocus: false,
   });
 
-  const accounts: BaseMarketPlace[] = (data?.data as BaseMarketPlace[]) || [];
+  const accounts: BaseMarketPlace[] = Array.isArray(data?.data)
+    ? (data.data as BaseMarketPlace[])
+    : [];
   
   useAccountPolling(accounts);
 
@@ -131,7 +133,7 @@ export default function ChoosenAccountRoute() {
   if (data?.success) {
     return (
       <ChoosenAccountPage
-        marketplacesAccounts={data?.data as BaseMarketPlace[]}
+        marketplacesAccounts={accounts}
       />
     );
   }
