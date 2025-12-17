@@ -12,6 +12,8 @@ export function useMarketplaceAccounts() {
     queryKey: ["marketplacesAccounts"],
     queryFn: () => marketplaceService.getMarketplacesAccounts(),
     refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
   });
 
   const select = useMutation({
