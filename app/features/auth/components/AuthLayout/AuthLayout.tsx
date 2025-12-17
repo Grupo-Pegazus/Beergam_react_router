@@ -13,7 +13,6 @@ import { authService } from "../../service";
 import MultipleDeviceWarning from "../MultipleDeviceWarning/MultipleDeviceWarning";
 import UsageTimeLimitWarning from "../UsageTimeLimitWarning/UsageTimeLimitWarning";
 const ROUTES_WITHOUT_MARKETPLACE = [
-  "/interno/subscription",
   "/interno/choosen_account",
   "/interno/config",
 ];
@@ -59,8 +58,8 @@ export default function AuthLayout() {
         case "SUBSCRIPTION_NOT_FOUND": //Fazer verificação de se o usuário está na página de assinatura, se não estiver, mandar para a página de assinatura.
         case "SUBSCRIPTION_CANCELLED":
         case "SUBSCRIPTION_NOT_ACTIVE":
-          if (window.location.pathname !== "/interno/subscription")
-            return <Navigate to="/interno/subscription" replace />;
+          if (window.location.pathname !== "/interno/config" || !window.location.search.includes("session=Minha Assinatura"))
+            return <Navigate to="/interno/config?session=Minha Assinatura" replace />;
           break;
         case "USAGE_TIME_LIMIT":
           return <UsageTimeLimitWarning />;

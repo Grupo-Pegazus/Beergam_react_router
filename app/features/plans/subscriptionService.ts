@@ -49,7 +49,7 @@ class SubscriptionService {
         data: {} as PortalSessionResponse,
         message: "Erro ao acessar portal de billing. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }
@@ -79,7 +79,36 @@ class SubscriptionService {
         data: {} as CheckoutSessionResponse,
         message: "Erro ao criar sessão de checkout. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
+      };
+    }
+  }
+
+  /**
+   * Altera o plano de assinatura do usuário autenticado
+   * 
+   * @param priceId - ID do preço (price_id) do novo plano
+   * @returns Resposta da operação
+   */
+  async changeSubscriptionPlan(
+    priceId: string
+  ): Promise<ApiResponse<unknown>> {
+    try {
+      const response = await typedApiClient.post<unknown>(
+        "/v1/stripe/payments/checkout/subscription/change",
+        {
+          price_id: priceId,
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error("Erro ao alterar plano de assinatura", error);
+      return {
+        success: false,
+        data: null,
+        message: "Erro ao alterar plano. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: [],
       };
     }
   }
@@ -122,7 +151,7 @@ class SubscriptionService {
         message:
           "Erro ao buscar assinatura. Tente novamente em alguns instantes.",
         error_code: 500,
-        error_fields: {},
+        error_fields: [],
       };
     }
   }

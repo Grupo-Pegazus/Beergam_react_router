@@ -88,8 +88,7 @@ export default function StripeCheckout({
           error: null,
           success: true,
           usageLimitData: null,
-        },
-        true
+        }
       );
       return response.data.clientSecret;
     } catch (err) {
