@@ -62,7 +62,8 @@ p,
 label,
 input,
 select,
-option {
+option,
+span {
   @apply text-[14px] lg:text-[12px] 2xl:text-[14px];
 }
 
