@@ -39,7 +39,7 @@ function MeliColorBar({ currentLevel }: { currentLevel: number }) {
       {colors.map((color) => (
         <div
           key={color.level}
-          className={`flex-1 ${color.bg} ${currentLevel >= color.level ? "opacity-100" : "opacity-25"} transition-all duration-200`}
+          className={`flex-1 ${color.bg} ${currentLevel == color.level ? "opacity-100" : "opacity-25"} transition-all duration-200`}
           title={color.label}
         />
       ))}

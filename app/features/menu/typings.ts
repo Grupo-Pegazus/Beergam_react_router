@@ -54,7 +54,6 @@ export const MenuConfig = {
       mercado_livre: {
         label: "Mercado Livre",
         status: "yellow",
-        path: "/mercado_livre",
         launched: true,
         dropdown: {
           perguntas: {
@@ -82,7 +81,6 @@ export const MenuConfig = {
     label: "Produtos",
     status: "green",
     icon: "box",
-    path: "/produtos",
     launched: true,
     dropdown: {
       gestao: {

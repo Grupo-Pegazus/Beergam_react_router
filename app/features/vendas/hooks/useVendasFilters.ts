@@ -31,6 +31,10 @@ function sanitizeFilters(state: VendasFiltersState): Partial<OrdersFilters> {
     apiFilters.buyer_nickname = state.buyer_nickname;
   }
 
+  if (state.mlb) {
+    apiFilters.mlb = state.mlb;
+  }
+
   if (state.statusFilter && state.statusFilter !== "all") {
     apiFilters.status = state.statusFilter;
   }

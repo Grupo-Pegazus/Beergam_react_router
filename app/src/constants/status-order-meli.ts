@@ -55,6 +55,12 @@ export const getStatusOrderMeliInfo = (status: string | null | undefined) => {
         color: "#065f46",
         icon: "check_circle",
       },
+      not_delivered: {
+        label: "Não entregue",
+        backgroundColor: "#fee2e2",
+        color: "#991b1b",
+        icon: "x_circle",
+      },
       cancelled: {
         label: "Cancelado",
         backgroundColor: "#fee2e2",
