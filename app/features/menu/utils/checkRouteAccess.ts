@@ -7,7 +7,7 @@ import { findKeyPathByRoute } from "../utils";
  */
 const SPECIAL_ROUTES = [
   "/interno/config",
-  "/interno/subscription",
+  "/interno/config?session=Minha Assinatura",
   "/interno/choosen_account",
 ];
 
