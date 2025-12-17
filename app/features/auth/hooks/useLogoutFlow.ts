@@ -17,11 +17,19 @@ export function useLogoutFlow({
 }: UseLogoutFlowParams): UseLogoutFlowResult {
   const navigate = useNavigate();
   const logoutLocal = authStore.use.logout();
+  const errorLocal = authStore.use.error();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const logout = useCallback(async () => {
     if (isLoggingOut) return;
-
     setIsLoggingOut(true);
+    if (errorLocal == "REFRESH_TOKEN_REVOKED") {
+      logoutLocal();
+      window.setTimeout(() => {
+        navigate(redirectTo, { replace: true });
+        authStore.setState({ isLoggingOut: false });
+      }, 350);
+      return;
+    }
     try {
       logoutLocal();
       const res = await authService.logout();
@@ -41,7 +49,7 @@ export function useLogoutFlow({
       toast.error("Erro ao sair. Tente novamente em alguns instantes.");
       setIsLoggingOut(false);
     }
-  }, [isLoggingOut, logoutLocal, navigate, redirectTo]);
+  }, [isLoggingOut, logoutLocal, navigate, redirectTo, errorLocal]);
 
   return { isLoggingOut, logout };
 }

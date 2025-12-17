@@ -128,7 +128,7 @@ export default function FormModal({
       queryClient.invalidateQueries();
       if (!subscriptionData || subscriptionData?.start_date === null) {
         setAuthError("SUBSCRIPTION_NOT_FOUND");
-        navigate("/interno/subscription", {
+        navigate("/interno/config?session=Minha Assinatura", {
           state: { plan: homeSelectedPlan },
           viewTransition: true,
         });

@@ -116,7 +116,6 @@ export default [
   layout(
     "features/auth/components/AuthLayout/AuthLayout.tsx",
     withPrefix("interno", [
-      route("subscription", "routes/subscription/route.tsx"),
       route("choosen_account", "routes/choosen_account/route.tsx"),
       route("config", "routes/config/route.tsx"),
       layout(

@@ -46,7 +46,7 @@ export default function Home() {
             throw new Error(data.message);
           }
           toast.success("Plano selecionado com sucesso");
-          navigate("/interno/subscription", { state: { plan } });
+          navigate("/interno/config?session=Minha Assinatura", { state: { plan } });
         },
         onError: () => {
           navigate("/login", { state: { plan } });

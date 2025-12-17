@@ -57,6 +57,10 @@ export default function MultipleDeviceWarning() {
             Sua conta foi acessada em outro dispositivo. Por segurança, sua
             sessão atual foi encerrada.
           </p>
+          <p className="text-center text-base leading-relaxed text-beergam-gray">
+            Se você for um colaborador, suas informações podem ter sido
+            alteradas pelo empregador responsável.
+          </p>
           <p className="text-center text-sm text-beergam-gray-light">
             Para continuar, faça login novamente.
           </p>

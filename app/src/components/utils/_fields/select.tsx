@@ -58,9 +58,10 @@ function Select({
   // Classes baseadas no Input para manter consistência visual
   const baseClasses =
     "w-full px-3 py-2.5 border border-black/20 rounded text-sm bg-white text-[#1e1f21] transition-colors duration-200 outline-none appearance-none";
-  const errorClasses = (error?.error || hasError)
-    ? "!border-beergam-red focus:!border-beergam-red/90"
-    : "";
+  const errorClasses =
+    error?.error || hasError
+      ? "!border-beergam-red focus:!border-beergam-red/90"
+      : "";
   const successClasses = isValid
     ? "!border-beergam-green focus:!border-beergam-green/90"
     : "";
@@ -222,7 +223,7 @@ function Select({
           <button
             ref={buttonRef}
             type="button"
-            className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses} ${icon ? "pl-10" : ""} ${(error?.error || hasError) ? "pr-10" : ""} ${tailWindClasses} text-left flex gap-2 items-center justify-between`}
+            className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses} ${icon ? "pl-10" : ""} ${error?.error || hasError ? "pr-10" : ""} ${tailWindClasses} text-left flex gap-2 items-center justify-between`}
             style={{
               ...style,
               backgroundColor: backgroundColor ? backgroundColor : undefined,
@@ -237,7 +238,17 @@ function Select({
             aria-expanded={isOpen}
             aria-label={name || "Select"}
           >
-            <span className={value ? "" : "text-gray-400"}>
+            <span
+              className={`${value ? "" : "text-gray-400"} `}
+              style={{
+                display: "block",
+                maxWidth: "100%",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+              title={displayValue || "Selecione uma opção"}
+            >
               {displayValue || "Selecione uma opção"}
             </span>
             <Svg.chevron

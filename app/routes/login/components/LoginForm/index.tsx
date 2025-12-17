@@ -54,7 +54,7 @@ export default function LoginForm({
         data.data.subscription == null ||
         data.data.subscription?.start_date == null
       ) {
-        navigate("/interno/subscription", {
+        navigate("/interno/config?session=Minha Assinatura", {
           viewTransition: true,
         });
       } else {
