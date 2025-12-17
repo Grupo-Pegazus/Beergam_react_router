@@ -215,9 +215,11 @@ function useBreadcrumbItems(): BreadcrumbItem[] {
       // usa o path base do próprio item (sem o parâmetro dinâmico) como parentPath
       // Exemplo: para "estoque" com dinamic_id, usa /interno/produtos/estoque
       const basePath = getPathByKeyChain(chainUntilNow);
+      // Regra: se o item de menu não tiver path, ele não deve ser clicável no breadcrumb
+      const basePathForBreadcrumb = menuItem.path ? basePath : undefined;
       items.push({
         label: menuItem.label,
-        path: basePath,
+        path: basePathForBreadcrumb,
         isLast: false,
       });
       const dynamicValue = params[menuItem.dinamic_id];
@@ -237,12 +239,18 @@ function useBreadcrumbItems(): BreadcrumbItem[] {
     } else {
       // Para itens intermediários, constrói o path baseado na keyChain completa
       // Isso garante que paths aninhados sejam construídos corretamente
-      const path = isLast 
-        ? currentPath 
-        : getPathByKeyChain(chainUntilNow);
+      // se o item de menu não tiver path, ele não deve ser clicável no breadcrumb
+      let path: string | undefined;
+      if (isLast) {
+        path = currentPath;
+      } else if (menuItem.path) {
+        path = getPathByKeyChain(chainUntilNow);
+      } else {
+        path = undefined;
+      }
       items.push({
         label: menuItem.label,
-        path: path !== DEFAULT_INTERNAL_PATH ? path : undefined,
+        path: path && path !== DEFAULT_INTERNAL_PATH ? path : undefined,
         isLast,
       });
     }
