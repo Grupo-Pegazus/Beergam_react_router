@@ -21,6 +21,7 @@ export default function AuthLayout() {
   const authError = useAuthError();
   const user = useAuthUser();
   const marketplace = useAuthMarketplace();
+  const isLoggingOut = authStore.use.isLoggingOut();
   const { data } = useQuery({
     queryKey: ["verifyTimeColab", user?.pin, user?.master_pin, user?.role],
     queryFn: () =>
@@ -48,7 +49,7 @@ export default function AuthLayout() {
     return true;
   }, [authError, user]);
   if (!canAccessOutlet) {
-    if (!user) return <Navigate to="/login" replace />; //Se as informações do usuário não existirem, mandar para o login. #TODO: Criar endpoint para recuperar informações do usuário
+    if (!user && !isLoggingOut) return <Navigate to="/login" replace />; //Se as informações do usuário não existirem, mandar para o login. #TODO: Criar endpoint para recuperar informações do usuário
     if (authError) {
       switch (authError) {
         case "REFRESH_TOKEN_EXPIRED":

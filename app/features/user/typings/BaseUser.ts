@@ -250,9 +250,7 @@ export const BaseUserRole = z.enum(
 export const BaseUserStatus = z.enum(
   Object.keys(UserStatus) as [UserStatus, ...UserStatus[]]
 ) satisfies z.ZodType<UserStatus>;
-export const BaseUserPin = z
-  .string("Digite o PIN de acesso")
-  .min(8, "PIN deve ter 8 caracteres");
+export const BaseUserPin = z.string().optional().nullable();
 export const BaseUserSchema = z.object({
   name: BaseUserName,
   role: BaseUserRole,
