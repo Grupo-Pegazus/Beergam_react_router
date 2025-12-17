@@ -202,21 +202,21 @@ export const UserDetailsSchema = BaseUserDetailsSchema.extend({
     .preprocess(
       (v) => {
         if (v === null || v === undefined || v === "") return "0";
-        return String(v).replace(/%/g, "");
+        return String(v).replace(/%/g, "").replace(/,/g, ".");
       },
       z
         .string()
         .refine((v) => {
-          // Verifica se é um número após remover o "%"
-          const num = Number(String(v).replace(/%/g, ""));
+          // Verifica se é um número após remover o "%" e substituir vírgula por ponto
+          const num = Number(String(v).replace(/%/g, "").replace(/,/g, "."));
           return !isNaN(num) && v.trim() !== "";
         }, "Valor inválido")
         .refine((v) => {
-          const num = Number(v);
+          const num = Number(String(v).replace(/,/g, "."));
           return num >= 0;
         }, "Número tem que ser maior que 0")
         .refine((v) => {
-          const num = Number(v);
+          const num = Number(String(v).replace(/,/g, "."));
           return num <= 100;
         }, "Número tem que ser menor que 100")
     )
