@@ -27,17 +27,18 @@ export default function Marketplaces() {
     queryKey: ["marketplacesAccounts"],
     queryFn: () => marketplaceService.getMarketplacesAccounts(),
   });
-  const accounts: BaseMarketPlace[] =
-    (marketplaces?.data as BaseMarketPlace[]) || [];
+  const accounts: BaseMarketPlace[] = Array.isArray(marketplaces?.data)
+    ? (marketplaces.data as BaseMarketPlace[])
+    : [];
   useAccountPolling(accounts);
-  const filteredMarketplaces = marketplaces?.data
-    ?.filter((marketplace) =>
+  const filteredMarketplaces = accounts
+    .filter((marketplace) =>
       marketplace.marketplace_name.toLowerCase().includes(search.toLowerCase())
     )
     .filter((marketplace) =>
       type ? marketplace.marketplace_type === type : true
     );
-  const totalMarketplaces = marketplaces?.data?.length || 0;
+  const totalMarketplaces = accounts.length;
   const [marketplaceToDelete, setMarketplaceToDelete] =
     useState<BaseMarketPlace | null>(null);
   const deleteAccount = useMutation({
@@ -83,7 +84,7 @@ export default function Marketplaces() {
             onClick={() =>
               openModal(
                 <CreateMarketplaceModal
-                  marketplacesAccounts={marketplaces?.data ?? []}
+                  marketplacesAccounts={accounts}
                   modalOpen={isOpen}
                 />,
                 { title: "Adicionar Marketplace" }

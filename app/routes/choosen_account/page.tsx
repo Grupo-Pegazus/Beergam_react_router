@@ -98,7 +98,7 @@ export default function ChoosenAccountPage({
   }, []);
 
   const filteredAccounts = useMemo(() => {
-    const list = marketplacesAccounts || [];
+    const list = Array.isArray(marketplacesAccounts) ? marketplacesAccounts : [];
     const byText = searchTerm.trim().toLowerCase();
     return list.filter((acc) => {
       const matchText = byText
