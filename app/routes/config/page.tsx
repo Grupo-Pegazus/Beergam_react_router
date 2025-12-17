@@ -36,7 +36,12 @@ const CONFIG_SECTIONS: IConfigSection[] = [
   { label: "Marketplaces", icon: "globe", colabAccess: true },
   { label: "Colaboradores", icon: "user_plus", colabAccess: false },
   { label: "Minha Assinatura", icon: "card", colabAccess: false },
-  { label: "Impostos", icon: "building_library", colabAccess: true },
+  {
+    label: "Impostos",
+    icon: "building_library",
+    colabAccess: true,
+    emBreve: true,
+  },
   { label: "Afiliados", icon: "box", emBreve: true, colabAccess: false },
 ];
 
@@ -103,12 +108,17 @@ export default function ConfigPage() {
     console.log(selectedSectionUrl);
     if (selectedSectionUrl) {
       if (checkIfUrlIsAValidSession(selectedSectionUrl)) {
-        if (
-          !CONFIG_SECTIONS.find(
-            (section) => section.label === selectedSectionUrl
-          )?.colabAccess &&
-          isColab(user as IColab)
-        ) {
+        const section = CONFIG_SECTIONS.find(
+          (section) => section.label === selectedSectionUrl
+        );
+
+        // Verifica se a seção está em breve
+        if (section?.emBreve) {
+          navigate(`/interno/config?session=Minha Conta`);
+          return;
+        }
+
+        if (!section?.colabAccess && isColab(user as IColab)) {
           toast.error("Você não tem acesso a esta seção");
           navigate(`/interno/config?session=Minha Conta`);
           return;
@@ -118,7 +128,7 @@ export default function ConfigPage() {
         navigate(`/interno/config?session=Minha Conta`);
       }
     }
-  }, [selectedSectionUrl]);
+  }, [selectedSectionUrl, navigate, user]);
   function sendUserToInternal() {
     if (marketplace) {
       navigate(`/interno`);
