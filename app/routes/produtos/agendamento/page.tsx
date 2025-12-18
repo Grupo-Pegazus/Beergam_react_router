@@ -14,7 +14,7 @@ import { SchedulingLogsModal } from "~/features/agendamentos/components/Scheduli
 export default function AgendamentoPage() {
   const [filters, setFilters] = useState<Partial<SchedulingFiltersType>>({
     page: 1,
-    per_page: 20,
+    per_page: 10,
   });
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingScheduling, setEditingScheduling] = useState<Scheduling | null>(null);

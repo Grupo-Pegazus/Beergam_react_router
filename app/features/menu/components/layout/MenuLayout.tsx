@@ -1,4 +1,5 @@
 import { Outlet, useLocation } from "react-router";
+import { useEffect } from "react";
 import AccessDenied from "~/features/auth/components/AccessDenied/AccessDenied";
 import MaintenanceDenied from "~/features/maintenance/components/MaintenanceDenied";
 import { useMaintenanceCheck } from "~/features/maintenance/hooks";
@@ -14,6 +15,18 @@ import { checkRouteAccess } from "../../utils/checkRouteAccess";
 export default function MenuLayout() {
   const location = useLocation();
   const user = authStore.use.user();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const scrollContainer = document.getElementById("system-scroll-container");
+    if (scrollContainer) {
+      scrollContainer.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "auto",
+      });
+    }
+  }, [location.pathname]);
 
   // Se for master, sempre tem acesso a tudo
   const isUserMaster = user && isMaster(user);

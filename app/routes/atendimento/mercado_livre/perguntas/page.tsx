@@ -21,7 +21,7 @@ const DEFAULT_FILTERS: QuestionsFiltersState = {
   date_from: undefined,
   date_to: undefined,
   page: 1,
-  per_page: 20,
+  per_page: 10,
   sort_by: "date_created",
   sort_order: "desc",
 };

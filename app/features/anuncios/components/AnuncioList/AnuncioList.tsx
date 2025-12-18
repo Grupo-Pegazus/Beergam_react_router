@@ -4,7 +4,6 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Pagination,
   Stack,
   Typography,
 } from "@mui/material";
@@ -23,6 +22,7 @@ import { formatCurrency, formatNumber } from "./utils";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
 import AnuncioStatusToggle from "../AnuncioStatusToggle";
+import PaginationBar from "~/src/components/ui/PaginationBar";
 
 interface AnunciosListProps {
   filters?: Partial<AdsFilters>;
@@ -72,60 +72,62 @@ export default function AnunciosList({ filters = {} }: AnunciosListProps) {
     );
   };
 
-  const handlePageChange = (_event: React.ChangeEvent<unknown>, nextPage: number) => {
+  const handlePageChange = (nextPage: number) => {
     setPage(nextPage);
   };
 
   return (
-    <AsyncBoundary
-      isLoading={isLoading}
-      error={error as unknown}
-      Skeleton={AnuncioListSkeleton}
-      ErrorFallback={() => (
-        <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4">
-          Não foi possível carregar os anúncios.
-        </div>
-      )}
-    >
-      <Stack spacing={2}>
-        {anuncios.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
-            <span className="text-slate-400">
-              <Svg.information_circle tailWindClasses="h-10 w-10" />
-            </span>
-            <Typography variant="h6" color="text.secondary">
-              Nenhum anúncio encontrado com os filtros atuais.
-            </Typography>
-          </div>
-        ) : (
+    <>
+      {/* Container da lista de anúncios (alvo de scroll) */}
+      <div id="ads-list">
+        <AsyncBoundary
+          isLoading={isLoading}
+          error={error as unknown}
+          Skeleton={AnuncioListSkeleton}
+          ErrorFallback={() => (
+            <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4">
+              Não foi possível carregar os anúncios.
+            </div>
+          )}
+        >
           <Stack spacing={2}>
-            {anuncios.map((anuncio) => (
-              <AnuncioCard
-                key={anuncio.mlb}
-                anuncio={anuncio}
-                onToggleStatus={() => handleToggleStatus(anuncio)}
-                isMutating={mutatingAdId === anuncio.mlb}
-              />
-            ))}
+            {anuncios.length === 0 ? (
+              <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
+                <span className="text-slate-400">
+                  <Svg.information_circle tailWindClasses="h-10 w-10" />
+                </span>
+                <Typography variant="h6" color="text.secondary">
+                  Nenhum anúncio encontrado com os filtros atuais.
+                </Typography>
+              </div>
+            ) : (
+              <Stack spacing={2}>
+                {anuncios.map((anuncio) => (
+                  <AnuncioCard
+                    key={anuncio.mlb}
+                    anuncio={anuncio}
+                    onToggleStatus={() => handleToggleStatus(anuncio)}
+                    isMutating={mutatingAdId === anuncio.mlb}
+                  />
+                ))}
+              </Stack>
+            )}
           </Stack>
-        )}
+        </AsyncBoundary>
+      </div>
 
-        {totalPages > 1 ? (
-          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ pt: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              Mostrando página {page} de {totalPages} — {totalCount} anúncios no total
-            </Typography>
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={handlePageChange}
-              shape="rounded"
-              color="primary"
-            />
-          </Stack>
-        ) : null}
-      </Stack>
-    </AsyncBoundary>
+      {/* Paginação fixa fora do AsyncBoundary, com scroll controlado pelo componente */}
+      <PaginationBar
+        page={page}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        entityLabel="anúncios"
+        onChange={handlePageChange}
+        scrollOnChange
+        scrollTargetId="ads-list"
+        isLoading={isLoading}
+      />
+    </>
   );
 }
 

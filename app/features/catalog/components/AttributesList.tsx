@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Pagination, Stack, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { useAttributes } from "../hooks";
 import AttributeCard from "./AttributeCard";
 import AttributeFormModal from "./AttributeFormModal";
@@ -9,6 +9,7 @@ import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import { FilterSearchInput } from "~/src/components/filters/components/FilterSearchInput";
 import BeergamButton from "~/src/components/utils/BeergamButton";
+import PaginationBar from "~/src/components/ui/PaginationBar";
 
 interface AttributesListProps {
   filters?: {
@@ -40,10 +41,7 @@ export default function AttributesList({ filters = {} }: AttributesListProps) {
   const totalPages = pagination?.total_pages ?? 1;
   const totalCount = pagination?.total_count ?? attributes.length;
 
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    nextPage: number
-  ) => {
+  const handlePageChange = (nextPage: number) => {
     setPage(nextPage);
   };
 
@@ -79,7 +77,7 @@ export default function AttributesList({ filters = {} }: AttributesListProps) {
         </MainCards>
       )}
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4" id="attributes-list">
         {/* Header com busca e botão criar */}
         <MainCards>
           <div className="flex flex-col md:flex-row gap-4 p-4 items-end justify-between">
@@ -141,27 +139,16 @@ export default function AttributesList({ filters = {} }: AttributesListProps) {
           </div>
         )}
 
-        {/* Paginação */}
-        {totalPages > 1 && (
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            sx={{ pt: 2 }}
-          >
-            <Typography variant="body2" color="text.secondary">
-              Mostrando página {page} de {totalPages} — {totalCount} atributos
-              no total
-            </Typography>
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={handlePageChange}
-              shape="rounded"
-              color="primary"
-            />
-          </Stack>
-        )}
+        <PaginationBar
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          entityLabel="atributos"
+          onChange={handlePageChange}
+          scrollOnChange
+          scrollTargetId="attributes-list"
+          isLoading={isLoading}
+        />
 
         {/* Modal de criação/edição */}
         <AttributeFormModal

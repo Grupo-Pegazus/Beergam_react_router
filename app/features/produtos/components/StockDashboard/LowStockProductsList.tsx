@@ -1,17 +1,13 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
-import {
-  Pagination,
-  Stack,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import type { StockDashboardResponse } from "../../typings";
 import MainCards from "~/src/components/ui/MainCards";
 import ProductImage from "../ProductImage/ProductImage";
 import Svg from "~/src/assets/svgs/_index";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+import PaginationBar from "~/src/components/ui/PaginationBar";
 
 function formatNumber(value: number) {
   return value.toLocaleString("pt-BR");
@@ -55,21 +51,15 @@ export default function LowStockProductsList({
     return products.slice(startIndex, startIndex + cardsPerPage);
   }, [page, products, cardsPerPage]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(products.length / cardsPerPage)
-  );
+  const totalPages = Math.max(1, Math.ceil(products.length / cardsPerPage));
   const totalCount = products.length;
 
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    nextPage: number
-  ) => {
+  const handlePageChange = (nextPage: number) => {
     setPage(nextPage);
   };
 
   return (
-    <Stack spacing={2}>
+    <Stack spacing={2} id="low-stock-products-list">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {paginatedProducts.map((product) => {
           const mainImageUrl =
@@ -139,37 +129,15 @@ export default function LowStockProductsList({
         })}
       </div>
 
-      {totalPages > 1 && (
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={{ xs: 2, sm: 0 }}
-          justifyContent="space-between"
-          alignItems={{ xs: "stretch", sm: "center" }}
-          sx={{ pt: 1 }}
-        >
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            className="text-xs sm:text-sm text-center sm:text-left"
-          >
-            Mostrando página {page} de {totalPages} — {totalCount} produtos
-            {" com estoque baixo"}
-          </Typography>
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={handlePageChange}
-            shape="rounded"
-            color="primary"
-            size="small"
-            sx={{
-              "& .MuiPagination-ul": {
-                justifyContent: "center",
-              },
-            }}
-          />
-        </Stack>
-      )}
+      <PaginationBar
+        page={page}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        entityLabel="produtos com estoque baixo"
+        onChange={handlePageChange}
+        scrollOnChange
+        scrollTargetId="low-stock-products-list"
+      />
     </Stack>
   );
 }
