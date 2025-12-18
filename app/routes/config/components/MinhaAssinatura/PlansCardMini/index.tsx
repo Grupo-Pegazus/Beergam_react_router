@@ -1,13 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useAuth } from "~/features/auth/hooks";
 import PlanCard from "~/features/plans/components/PlanCard";
-import type { Plan, Subscription } from "~/features/user/typings/BaseUser";
-import authStore from "~/features/store-zustand";
 import { subscriptionService } from "~/features/plans/subscriptionService";
+import authStore from "~/features/store-zustand";
+import type { Plan, Subscription } from "~/features/user/typings/BaseUser";
+import Svg from "~/src/assets/svgs/_index";
 import Section from "~/src/components/ui/Section";
 import BeergamButton from "~/src/components/utils/BeergamButton";
-import toast from "react-hot-toast";
 import { useModal } from "~/src/components/utils/Modal/useModal";
+
+type PlanModalType = "Visualizar" | "Comparar";
 import StripeCheckout from "~/features/plans/components/StripeCheckout";
 
 interface PlanModalContentProps {
@@ -16,13 +20,13 @@ interface PlanModalContentProps {
   isSuccess: boolean;
   isError: boolean;
   onConfirmChange: () => void;
-  onManageBilling: () => void;
   mutation: {
     reset: () => void;
     isPending: boolean;
     isSuccess: boolean;
     isError: boolean;
   };
+  type: PlanModalType;
 }
 
 function PlanModalContent({
@@ -31,25 +35,59 @@ function PlanModalContent({
   isSuccess,
   isError,
   onConfirmChange,
-  onManageBilling,
   mutation,
+  type,
 }: PlanModalContentProps) {
+  const currentPlan = useAuth().authInfo.subscription?.plan;
   return (
     <div className="flex flex-col gap-4">
-      <PlanCard plan={plan || {}} billingPeriod="monthly" />
-      {!plan?.is_current_plan && (
+      <PlanCard
+        plan={plan || {}}
+        billingPeriod="monthly"
+        planToCompare={type === "Comparar" ? currentPlan : null}
+      />
+      {!plan?.is_current_plan && type === "Comparar" && (
         <div className="flex flex-col gap-3 mt-4">
           <div className="p-4 bg-beergam-blue-primary/10 rounded-lg border border-beergam-blue-primary/20">
-            <p className="text-sm text-beergam-gray mb-2">
-              A mudança de plano será aplicada imediatamente à sua assinatura.
-            </p>
-            <p className="text-sm text-beergam-gray">
-              Se deseja alterar informações do cartão ou ver mais detalhes, use
-              o botão abaixo.
-            </p>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="flex items-center gap-2 p-2 border border-beergam-gray/20 rounded-lg">
+                <Svg.arrow_long_right
+                  width={20}
+                  height={20}
+                  tailWindClasses="text-beergam-gray"
+                />
+                <p className="text-sm text-beergam-gray">Igual</p>
+              </div>
+              <div className="flex items-center gap-2 p-2 border border-beergam-green-primary/20 rounded-lg">
+                <Svg.arrow_long_right
+                  width={20}
+                  height={20}
+                  tailWindClasses="text-beergam-green-primary"
+                />
+                <p className="text-sm text-beergam-green-primary">Melhoria</p>
+              </div>
+              <div className="flex items-center gap-2 p-2 border border-beergam-red/20 rounded-lg">
+                <Svg.arrow_long_right
+                  width={20}
+                  height={20}
+                  tailWindClasses="text-beergam-red"
+                />
+                <p className="text-sm text-beergam-red">Pioria</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 mt-4">
+              <Svg.information_circle
+                width={20}
+                height={20}
+                tailWindClasses="text-beergam-gray"
+              />
+              <p className="text-sm text-beergam-gray">
+                A mudança de plano será aplicada imediatamente à sua assinatura.
+              </p>
+            </div>
           </div>
           <BeergamButton
-            title="Confirmar mudança de plano"
+            title="Confirmar Mudança de Plano"
             icon="star_solid"
             mainColor="beergam-orange"
             onClick={onConfirmChange}
@@ -62,13 +100,6 @@ function PlanModalContent({
               mutation: mutation,
             }}
           />
-          <BeergamButton
-            title="Gerenciar Assinatura"
-            icon="card"
-            mainColor="beergam-blue-primary"
-            onClick={onManageBilling}
-            className="w-full"
-          />
         </div>
       )}
     </div>
@@ -78,23 +109,27 @@ function PlanModalContent({
 /**
  * Verifica se o plano atual da subscription é freemium
  */
-const isFreemiumPlan = (subscription: Subscription | null | undefined): boolean => {
+const isFreemiumPlan = (
+  subscription: Subscription | null | undefined
+): boolean => {
   if (!subscription?.plan?.display_name) return false;
   const planName = subscription.plan.display_name.toLowerCase();
   return planName.includes("freemium") || planName.includes("Freemium");
 };
 
-export default function PlansCardMini({ 
-  plan, 
-  subscription 
-}: { 
+export default function PlansCardMini({
+  plan,
+  subscription,
+}: {
   plan: Plan;
   subscription: Subscription | null;
 }) {
   const { openModal, closeModal, isOpen } = useModal();
   const queryClient = useQueryClient();
   const [isMyModalOpen, setIsMyModalOpen] = useState(false);
-  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [planModalType, setPlanModalType] = useState<"Visualizar" | "Comparar">(
+    "Visualizar"
+  );
 
   // Determina se deve usar checkout ou mudança de plano
   // Se não tem subscription OU não tem plan válido OU é plano freemium, usa checkout (nova assinatura)
@@ -148,45 +183,15 @@ export default function PlansCardMini({
     },
   });
 
-  const handleManageBilling = async () => {
-    const returnUrl = `${window.location.origin}/interno/config?session=Minha Assinatura`;
-
-    const response =
-      await subscriptionService.createBillingPortalSession(returnUrl);
-
-    if (response.success && response.data) {
-      const left = (window.screen.width - 800) / 2;
-      const top = (window.screen.height - 800) / 2;
-
-      const windowFeatures = [
-        `width=800`,
-        `height=800`,
-        `left=${left}`,
-        `top=${top}`,
-        "toolbar=no",
-        "location=no",
-        "directories=no",
-        "status=no",
-        "menubar=no",
-        "scrollbars=yes",
-        "resizable=yes",
-      ].join(",");
-
-      window.open(response.data.url, "_blank", windowFeatures);
-    } else {
-      toast.error(response.message || "Erro ao acessar o portal de billing");
-    }
-  };
-
-  const createModalContent = () => (
+  const createModalContent = (type: PlanModalType) => (
     <PlanModalContent
       plan={plan}
       isPending={changePlanMutation.isPending}
       isSuccess={changePlanMutation.isSuccess}
       isError={changePlanMutation.isError}
       onConfirmChange={() => changePlanMutation.mutate()}
-      onManageBilling={handleManageBilling}
       mutation={changePlanMutation}
+      type={type}
     />
   );
 
@@ -194,7 +199,9 @@ export default function PlansCardMini({
     // Só atualiza o modal se foi este componente que o abriu
     if (isOpen && isMyModalOpen) {
       // Atualiza o conteúdo do modal quando a mutation mudar para forçar re-render
-      openModal(createModalContent(), { title: `Visualizar plano - ${plan?.display_name}` });
+      openModal(createModalContent(planModalType), {
+        title: `${planModalType} Plano - ${plan?.display_name}`,
+      });
     }
   }, [
     isOpen,
@@ -207,7 +214,6 @@ export default function PlansCardMini({
   ]);
 
   const handleCheckoutSuccess = () => {
-    setIsCheckoutModalOpen(false);
     closeModal();
     toast.success("Assinatura realizada com sucesso!");
     // Invalida queries para atualizar os dados
@@ -221,7 +227,6 @@ export default function PlansCardMini({
   };
 
   const handleCheckoutCancel = () => {
-    setIsCheckoutModalOpen(false);
     closeModal();
   };
 
@@ -238,27 +243,28 @@ export default function PlansCardMini({
     // Reseta as flags quando o modal é fechado
     if (!isOpen) {
       setIsMyModalOpen(false);
-      setIsCheckoutModalOpen(false);
     }
   }, [isOpen]);
 
   const openPlanModal = () => {
     // Se não tem subscription ou é freemium, abre checkout diretamente (nova assinatura)
     if (shouldUseCheckout) {
-      setIsCheckoutModalOpen(true);
       openModal(createCheckoutContent(), { title: `Assinar ${plan?.display_name}` });
       return;
     }
     // Se já tem subscription ativa, abre modal de visualização/mudança de plano
     setIsMyModalOpen(true);
-    openModal(createModalContent(), { title: `Visualizar plano - ${plan?.display_name}` });
+    openModal(createModalContent(planModalType), { title: `Visualizar plano - ${plan?.display_name}` });
   };
 
   return (
     <Section
       title={plan?.display_name || ""}
       key={plan?.display_name || ""}
-      onClick={openPlanModal}
+      onClick={() => {
+        setPlanModalType("Visualizar");
+        openPlanModal();
+      }}
       actions={
         <>
           {!plan?.is_current_plan ? (
@@ -267,7 +273,11 @@ export default function PlansCardMini({
               icon="star_solid"
               mainColor="beergam-orange"
               disabled={plan?.is_current_plan || changePlanMutation.isPending}
-              onClick={openPlanModal}
+              onClick={(e) => {
+                e.stopPropagation();
+                setPlanModalType("Comparar");
+                openPlanModal();
+              }}
             />
           ) : (
             // <BeergamButton
