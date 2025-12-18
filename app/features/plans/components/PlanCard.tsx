@@ -25,7 +25,7 @@ function CompareArrow({
         <Svg.arrow_long_right
           width={24}
           height={24}
-          tailWindClasses="text-beergam-green-primary"
+          tailWindClasses="text-beergam-green-primary-primary"
         />
       );
     case "worse":
@@ -188,7 +188,7 @@ function BenefitPresenceIcon({
       <Svg.check
         width={16}
         height={16}
-        tailWindClasses="text-beergam-green size-6"
+        tailWindClasses="text-beergam-green-primary size-6"
       />
     );
   }
@@ -203,7 +203,7 @@ function BenefitPresenceIcon({
       <Svg.check
         width={16}
         height={16}
-        tailWindClasses="text-beergam-green size-6"
+        tailWindClasses="text-beergam-green-primary size-6"
       />
     );
   }
@@ -226,7 +226,7 @@ function BenefitPresenceIcon({
     <Svg.check
       width={16}
       height={16}
-      tailWindClasses="text-beergam-green size-6"
+      tailWindClasses="text-beergam-green-primary size-6"
     />
   ) : (
     <Svg.x width={16} height={16} tailWindClasses="text-beergam-red size-6" />
@@ -271,7 +271,7 @@ function PlanBenefits({
     const comparison = compareBenefitValue(selectedValue, compareValue);
     const valueClassName =
       comparison === "better"
-        ? "text-beergam-green"
+        ? "text-beergam-green-primary"
         : comparison === "worse"
           ? "text-beergam-red"
           : "text-beergam-blue-darker";
@@ -280,12 +280,12 @@ function PlanBenefits({
       comparison === "better"
         ? "text-beergam-red"
         : comparison === "worse"
-          ? "text-beergam-green"
+          ? "text-beergam-green-primary"
           : "text-beergam-blue-darker";
 
     const dotsColorClass =
       comparison === "better"
-        ? "text-beergam-green"
+        ? "text-beergam-green-primary"
         : comparison === "worse"
           ? "text-beergam-red"
           : "text-beergam-gray";

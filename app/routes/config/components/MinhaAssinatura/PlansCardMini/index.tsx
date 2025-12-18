@@ -50,7 +50,33 @@ function PlanModalContent({
       {!plan?.is_current_plan && type === "Comparar" && (
         <div className="flex flex-col gap-3 mt-4">
           <div className="p-4 bg-beergam-blue-primary/10 rounded-lg border border-beergam-blue-primary/20">
-            <div className="flex items-center gap-2">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="flex items-center gap-2 p-2 border border-beergam-gray/20 rounded-lg">
+                <Svg.arrow_long_right
+                  width={20}
+                  height={20}
+                  tailWindClasses="text-beergam-gray"
+                />
+                <p className="text-sm text-beergam-gray">Igual</p>
+              </div>
+              <div className="flex items-center gap-2 p-2 border border-beergam-green-primary/20 rounded-lg">
+                <Svg.arrow_long_right
+                  width={20}
+                  height={20}
+                  tailWindClasses="text-beergam-green-primary"
+                />
+                <p className="text-sm text-beergam-green-primary">Melhoria</p>
+              </div>
+              <div className="flex items-center gap-2 p-2 border border-beergam-red/20 rounded-lg">
+                <Svg.arrow_long_right
+                  width={20}
+                  height={20}
+                  tailWindClasses="text-beergam-red"
+                />
+                <p className="text-sm text-beergam-red">Pioria</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 mt-4">
               <Svg.information_circle
                 width={20}
                 height={20}
