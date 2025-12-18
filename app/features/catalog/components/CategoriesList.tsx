@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Pagination, Stack, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { useCategories } from "../hooks";
 import CategoryCard from "./CategoryCard";
 import CategoryFormModal from "./CategoryFormModal";
@@ -9,6 +9,7 @@ import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import { FilterSearchInput } from "~/src/components/filters/components/FilterSearchInput";
 import BeergamButton from "~/src/components/utils/BeergamButton";
+import PaginationBar from "~/src/components/ui/PaginationBar";
 
 interface CategoriesListProps {
   filters?: {
@@ -41,10 +42,7 @@ export default function CategoriesList({ filters = {} }: CategoriesListProps) {
   const totalPages = pagination?.total_pages ?? 1;
   const totalCount = pagination?.total_count ?? categories.length;
 
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    nextPage: number
-  ) => {
+  const handlePageChange = (nextPage: number) => {
     setPage(nextPage);
   };
 
@@ -80,7 +78,7 @@ export default function CategoriesList({ filters = {} }: CategoriesListProps) {
         </MainCards>
       )}
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4" id="categories-list">
         {/* Header com busca e botão criar */}
         <MainCards>
           <div className="flex flex-col md:flex-row gap-4 p-4 items-end justify-between">
@@ -142,27 +140,16 @@ export default function CategoriesList({ filters = {} }: CategoriesListProps) {
           </div>
         )}
 
-        {/* Paginação */}
-        {totalPages > 1 && (
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            sx={{ pt: 2 }}
-          >
-            <Typography variant="body2" color="text.secondary">
-              Mostrando página {page} de {totalPages} — {totalCount} categorias
-              no total
-            </Typography>
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={handlePageChange}
-              shape="rounded"
-              color="primary"
-            />
-          </Stack>
-        )}
+        <PaginationBar
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          entityLabel="categorias"
+          onChange={handlePageChange}
+          scrollOnChange
+          scrollTargetId="categories-list"
+          isLoading={isLoading}
+        />
 
         {/* Modal de criação/edição */}
         <CategoryFormModal

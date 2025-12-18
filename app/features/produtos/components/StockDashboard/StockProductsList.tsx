@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router";
-import { Chip, Pagination, Typography, Stack, useMediaQuery } from "@mui/material";
+import { Chip, useMediaQuery, Stack } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useProducts } from "../../hooks";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
@@ -8,6 +8,7 @@ import MainCards from "~/src/components/ui/MainCards";
 import ProductImage from "../ProductImage/ProductImage";
 import Svg from "~/src/assets/svgs/_index";
 import ProductListSkeleton from "../ProductList/ProductListSkeleton";
+import PaginationBar from "~/src/components/ui/PaginationBar";
 import { Fields } from "~/src/components/utils/_fields";
 
 function formatNumber(value: number | null | undefined) {
@@ -70,10 +71,7 @@ export default function StockProductsList() {
   );
   const totalCount = products.length;
 
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    nextPage: number
-  ) => {
+  const handlePageChange = (nextPage: number) => {
     setPage(nextPage);
   };
 
@@ -174,26 +172,13 @@ export default function StockProductsList() {
             })}
           </MainCards>
 
-          {totalPages > 1 && (
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-              sx={{ pt: 2 }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                Mostrando página {page} de {totalPages} — {totalCount} produtos
-                no total
-              </Typography>
-              <Pagination
-                count={totalPages}
-                page={page}
-                onChange={handlePageChange}
-                shape="rounded"
-                color="primary"
-              />
-            </Stack>
-          )}
+          <PaginationBar
+            page={page}
+            totalPages={totalPages}
+            totalCount={totalCount}
+            entityLabel="produtos com controle de estoque"
+            onChange={handlePageChange}
+          />
         </Stack>
       )}
     </AsyncBoundary>

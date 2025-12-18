@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Pagination,
   Stack,
   Typography,
   Table,
@@ -18,6 +17,7 @@ import type { SchedulingFilters, SchedulingList } from "../../typings";
 import SchedulingCard from "./SchedulingCard";
 import SchedulingTableRow from "./SchedulingTableRow";
 import Loading from "~/src/assets/loading";
+import PaginationBar from "~/src/components/ui/PaginationBar";
 
 interface SchedulingListProps {
   filters?: Partial<SchedulingFilters>;
@@ -60,10 +60,7 @@ export default function SchedulingList({
   const totalPages = pagination?.total_pages ?? 1;
   const totalCount = pagination?.total_count ?? schedulings.length;
 
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    nextPage: number
-  ) => {
+  const handlePageChange = (nextPage: number) => {
     setPage(nextPage);
   };
 
@@ -160,32 +157,13 @@ export default function SchedulingList({
           </>
         )}
 
-        {totalPages > 1 ? (
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={{ xs: 2, sm: 0 }}
-            justifyContent="space-between"
-            alignItems={{ xs: "stretch", sm: "center" }}
-            sx={{ pt: 2 }}
-          >
-            <Typography variant="body2" color="text.secondary" className="text-xs sm:text-sm text-center sm:text-left">
-              Mostrando página {page} de {totalPages} — {totalCount} agendamento(s) no total
-            </Typography>
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={handlePageChange}
-              shape="rounded"
-              color="primary"
-              size="small"
-              sx={{
-                "& .MuiPagination-ul": {
-                  justifyContent: "center",
-                },
-              }}
-            />
-          </Stack>
-        ) : null}
+        <PaginationBar
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          entityLabel="agendamento(s)"
+          onChange={handlePageChange}
+        />
       </Stack>
     </AsyncBoundary>
   );

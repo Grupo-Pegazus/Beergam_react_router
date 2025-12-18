@@ -9,7 +9,10 @@ export default function SystemLayout({ children }: SystemLayoutProps) {
   return (
     <main className="w-full md:pt-0 pt-8  h-full max-h-screen pb-5">
       <SystemHeader />
-      <section className="w-full max-h-full h-full pb-20 md:pb-0 md:h-[calc(100%-52px)] md:ml-[100px] p-5 overflow-auto rounded-2xl bg-white md:block md:w-[calc(100vw-120px)]!">
+      <section
+        id="system-scroll-container"
+        className="w-full max-h-full h-full pb-20 md:pb-0 md:h-[calc(100%-52px)] md:ml-[100px] p-5 overflow-auto rounded-2xl bg-white md:block md:w-[calc(100vw-120px)]!"
+      >
         <div>
           <div className="mb-4">
             <SystemBreadcrumb />

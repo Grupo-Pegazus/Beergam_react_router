@@ -113,7 +113,7 @@ function PlanModalContent({
 const isFreemiumPlan = (
   subscription: Subscription | null | undefined
 ): boolean => {
-  if (!subscription) return false;
+  if (!subscription?.plan?.display_name) return false;
   const planName = subscription.plan.display_name.toLowerCase();
   return (
     planName.includes("freemium") ||
