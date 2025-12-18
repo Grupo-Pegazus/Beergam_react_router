@@ -10,6 +10,7 @@ import { useSocketContext } from "~/features/socket/context/SocketContext";
 import authStore from "~/features/store-zustand";
 import UserFields from "~/features/user/components/UserFields";
 import { UserRoles } from "~/features/user/typings/BaseUser";
+import { queryClient } from "~/lib/queryClient";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import {
   BeergamTurnstile,
@@ -46,6 +47,13 @@ export default function LoginForm({
         throw new Error(data.message);
       }
       storeLogin(data.data.subscription, data.data.user);
+      queryClient.invalidateQueries({
+        queryKey: [
+          "marketplacesAccounts",
+          "marketplacesIntegrados",
+          "marketplaces-accounts",
+        ],
+      });
       setTimeout(() => {
         connectSession();
         connectOnlineStatus();
