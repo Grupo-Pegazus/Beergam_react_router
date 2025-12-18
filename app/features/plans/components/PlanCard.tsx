@@ -47,6 +47,12 @@ function CompareArrow({
   }
 }
 
+function invertComparison(comparison: BenefitComparison): BenefitComparison {
+  if (comparison === "better") return "worse";
+  if (comparison === "worse") return "better";
+  return comparison;
+}
+
 function BenefitSpan({
   text,
   className,
@@ -159,7 +165,54 @@ function BenefitLabel({ benefitKey }: { benefitKey: keyof PlanBenefits }) {
   }
 }
 
-function BenefitPresenceIcon({ value }: { value: unknown }) {
+function BenefitPresenceIcon({
+  value,
+  forceIcon,
+  comparison,
+}: {
+  value: unknown;
+  forceIcon?: "check" | "x";
+  comparison?: BenefitComparison;
+}) {
+  if (comparison === "same") {
+    return (
+      <Svg.minus
+        width={16}
+        height={16}
+        tailWindClasses="text-beergam-gray-light size-6"
+      />
+    );
+  }
+  if (comparison === "better") {
+    return (
+      <Svg.check
+        width={16}
+        height={16}
+        tailWindClasses="text-beergam-green size-6"
+      />
+    );
+  }
+  if (comparison === "worse") {
+    return (
+      <Svg.x width={16} height={16} tailWindClasses="text-beergam-red size-6" />
+    );
+  }
+
+  if (forceIcon === "check") {
+    return (
+      <Svg.check
+        width={16}
+        height={16}
+        tailWindClasses="text-beergam-green size-6"
+      />
+    );
+  }
+  if (forceIcon === "x") {
+    return (
+      <Svg.x width={16} height={16} tailWindClasses="text-beergam-red size-6" />
+    );
+  }
+
   const hasBenefit =
     typeof value === "boolean"
       ? value === true
@@ -242,16 +295,19 @@ function PlanBenefits({
 
     return (
       <div key={key} className="flex items-center gap-2 w-full">
-        {/* Lado esquerdo (selecionado) */}
-        <div className="flex items-center gap-2 min-w-0">
-          <BenefitPresenceIcon value={selectedValue} />
-          <span className="truncate">
+        {/* Lado esquerdo (comparado) */}
+        <div className="flex items-center gap-2 justify-end min-w-0">
+          <BenefitPresenceIcon
+            value={compareValue}
+            comparison={invertComparison(comparison)}
+          />
+          <span className="truncate text-right text-beergam-blue-darker">
             <BenefitLabel benefitKey={benefitKey} />
           </span>
-          {!selectedIsBoolean && (
+          {!compareIsBoolean && (
             <BenefitSpan
-              text={formatBenefitValue(selectedValue)}
-              className={valueClassName}
+              text={formatBenefitValue(compareValue)}
+              className={compareValueClassName}
             />
           )}
         </div>
@@ -264,18 +320,18 @@ function PlanBenefits({
           <CompareArrow benefitComparision={comparison} />
         </span>
 
-        {/* Lado direito (comparado) */}
-        <div className="flex items-center gap-2 justify-end min-w-0">
-          <span className="truncate text-right text-beergam-blue-darker">
+        {/* Lado direito (selecionado) */}
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="truncate">
             <BenefitLabel benefitKey={benefitKey} />
           </span>
-          {!compareIsBoolean && (
+          {!selectedIsBoolean && (
             <BenefitSpan
-              text={formatBenefitValue(compareValue)}
-              className={compareValueClassName}
+              text={formatBenefitValue(selectedValue)}
+              className={valueClassName}
             />
           )}
-          <BenefitPresenceIcon value={compareValue} />
+          <BenefitPresenceIcon value={selectedValue} comparison={comparison} />
         </div>
       </div>
     );
@@ -295,9 +351,7 @@ function createPlanHeader({
 }) {
   return (
     <div>
-      <div
-        className={`flex items-center gap-2 ${isPlanToCompare ? "flex-row-reverse" : ""}`}
-      >
+      <div className={`flex items-center gap-2`}>
         <div
           className={`size-10 flex items-center justify-center ${isPopular ? "bg-beergam-orange" : "bg-beergam-blue-primary"} rounded-xl`}
         >
@@ -356,26 +410,26 @@ export default function PlanCard({
       className={`rounded-2xl relative bg-beergam-white p-4  text-beergam-blue-primary flex flex-col gap-2 ${isPopular ? "border-beergam-orange -translate-y-2 h-[calc(100%_+_0.5rem)]" : "border-beergam-gray"} shadow-lg overflow-hidden`}
     >
       <div className="flex items-center gap-2 justify-between">
-        {createPlanHeader({
-          plan,
-          isPopular: isPopular ?? false,
-          billingPeriod,
-        })}
         {planToCompare && (
           <>
-            <Svg.arrow_long_right
-              width={32}
-              height={32}
-              tailWindClasses="text-beergam-blue-primary"
-            />
             {createPlanHeader({
               plan: planToCompare,
               isPopular: false,
               isPlanToCompare: true,
               billingPeriod,
             })}
+            <Svg.arrow_long_right
+              width={32}
+              height={32}
+              tailWindClasses="text-beergam-blue-primary"
+            />
           </>
         )}
+        {createPlanHeader({
+          plan,
+          isPopular: isPopular ?? false,
+          billingPeriod,
+        })}
       </div>
       <div
         className={`absolute top-0 opacity-0 left-0 bg-beergam-blue-primary rounded-tl-lg rounded-br-lg p-1 px-2 text-beergam-white ${billingPeriod === "yearly" ? "opacity-100" : ""}`}

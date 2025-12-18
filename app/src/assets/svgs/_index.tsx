@@ -47,6 +47,7 @@ import LockClosed from "./LockClosed";
 import Logout from "./Logout";
 import LowStock from "./LowStock";
 import Megaphone from "./Megaphone";
+import Minus from "./Minus";
 import Pencil from "./Pencil";
 import PencilSolid from "./PencilSolid";
 import PhoneIcon from "./PhoneIcon";
@@ -135,6 +136,7 @@ const Svg = {
   camera_solid: CameraSolid,
   calendar: CalendarIcon,
   arrow_long_right: ArrowLongRight,
+  minus: Minus,
 };
 
 export default Svg;
