@@ -293,6 +293,7 @@ export default function ColabForm({
           accept="image/*"
           emptyStateLabel="Arraste ou selecione a nova foto do colaborador"
           onUploadSuccess={handleUploadSuccess}
+          initialFiles={[]}
         />
       </Section>
     </>

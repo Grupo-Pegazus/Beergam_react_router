@@ -139,7 +139,7 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
               <div className="flex-1 w-full sm:w-auto">
                 <Typography variant="caption" color="text.secondary" className="text-xs md:text-sm">
                   {selectedPeriod === "last_day"
-                    ? "Último dia"
+                    ? "Hoje"
                     : selectedPeriod === "last_7_days"
                       ? "Últimos 7 dias"
                       : selectedPeriod === "last_30_days"
@@ -167,7 +167,7 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
                   value={selectedPeriod}
                   onChange={handlePeriodChange}
                   options={[
-                    { value: "last_day", label: "Último dia" },
+                    { value: "last_day", label: "Hoje" },
                     { value: "last_7_days", label: "Últimos 7 dias" },
                     { value: "last_30_days", label: "Últimos 30 dias" },
                     { value: "custom", label: "Período personalizado" },

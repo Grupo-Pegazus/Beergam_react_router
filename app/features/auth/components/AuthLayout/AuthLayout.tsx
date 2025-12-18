@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
-import { Navigate, Outlet } from "react-router";
+import { Navigate, Outlet, useLocation } from "react-router";
 import authStore from "~/features/store-zustand";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import { queryClient } from "~/lib/queryClient";
@@ -21,6 +21,7 @@ export default function AuthLayout() {
   const user = useAuthUser();
   const marketplace = useAuthMarketplace();
   const isLoggingOut = authStore.use.isLoggingOut();
+  const location = useLocation();
   const { data } = useQuery({
     queryKey: ["verifyTimeColab", user?.pin, user?.master_pin, user?.role],
     queryFn: () =>
@@ -41,12 +42,38 @@ export default function AuthLayout() {
       authStore.setState({ error: "USAGE_TIME_LIMIT" });
     }
   }, [data, queryClient, authError]);
+
+  const subscriptionErrors = useMemo(
+    () => [
+      "SUBSCRIPTION_NOT_FOUND",
+      "SUBSCRIPTION_CANCELLED",
+      "SUBSCRIPTION_NOT_ACTIVE",
+    ],
+    []
+  );
+
+  const isSubscriptionError = useMemo(
+    () => authError && subscriptionErrors.includes(authError),
+    [authError, subscriptionErrors]
+  );
+
+  const targetSubscriptionPath = "/interno/config";
+  const targetSubscriptionSearch = "?session=Minha%20Assinatura";
+  const isOnSubscriptionPage = useMemo(
+    () =>
+      location.pathname === targetSubscriptionPath &&
+      location.search === targetSubscriptionSearch,
+    [location.pathname, location.search]
+  );
+
   const canAccessOutlet = useMemo(() => {
     //Aqui é quando o usuário NÃO consegue acessar rotas que precisam de informações ou segurança.
     if (!user) return false;
+    // Permite acesso se for erro de assinatura e já estiver na página de assinatura
+    if (isSubscriptionError && isOnSubscriptionPage) return true;
     if (authError) return false;
     return true;
-  }, [authError, user]);
+  }, [authError, user, isSubscriptionError, isOnSubscriptionPage]);
   if (!canAccessOutlet) {
     if (!user && !isLoggingOut) return <Navigate to="/login" replace />; //Se as informações do usuário não existirem, mandar para o login. #TODO: Criar endpoint para recuperar informações do usuário
     if (authError) {
@@ -55,18 +82,26 @@ export default function AuthLayout() {
           return <Navigate to="/login" replace />;
         case "REFRESH_TOKEN_REVOKED":
           return <MultipleDeviceWarning />;
-        case "SUBSCRIPTION_NOT_FOUND": //Fazer verificação de se o usuário está na página de assinatura, se não estiver, mandar para a página de assinatura.
+        case "SUBSCRIPTION_NOT_FOUND":
         case "SUBSCRIPTION_CANCELLED":
         case "SUBSCRIPTION_NOT_ACTIVE":
-          if (window.location.pathname !== "/interno/config" || !window.location.search.includes("session=Minha Assinatura"))
-            return <Navigate to="/interno/config?session=Minha Assinatura" replace />;
-          break;
+          // Se já está na página de assinatura, permite renderizar (canAccessOutlet já trata isso)
+          if (isOnSubscriptionPage) {
+            break;
+          }
+          // Caso contrário, navega para a página de assinatura
+          return (
+            <Navigate
+              to={`${targetSubscriptionPath}${targetSubscriptionSearch}`}
+              replace
+            />
+          );
         case "USAGE_TIME_LIMIT":
           return <UsageTimeLimitWarning />;
       }
     }
   }
-  if (ROUTES_WITHOUT_MARKETPLACE.includes(window.location.pathname)) {
+  if (ROUTES_WITHOUT_MARKETPLACE.includes(location.pathname)) {
     return <Outlet />;
   } else {
     if (!marketplace) {

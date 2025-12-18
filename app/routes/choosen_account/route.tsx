@@ -110,6 +110,8 @@ export default function ChoosenAccountRoute() {
     queryFn: () => marketplaceService.getMarketplacesAccounts(),
     retry: false,
     refetchOnWindowFocus: false,
+    refetchOnMount: true, // Força refetch sempre que o componente montar
+    staleTime: 0, // Dados sempre considerados obsoletos, forçando refetch
   });
 
   const accounts: BaseMarketPlace[] = Array.isArray(data?.data)

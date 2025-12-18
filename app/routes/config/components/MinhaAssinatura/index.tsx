@@ -135,11 +135,11 @@ export default function MinhaAssinatura() {
         openCenteredWindow(response.data.url);
       } else {
         console.error("Erro ao criar sessão do portal", response.message);
-        alert(response.message || "Erro ao acessar o portal de billing");
+        toast.error(response.message || "Erro ao acessar o portal de billing");
       }
     } catch (error) {
       console.error("Erro ao abrir portal de billing:", error);
-      alert(
+      toast.error(
         "Erro ao acessar o portal de billing. Tente novamente em alguns instantes."
       );
     } finally {
