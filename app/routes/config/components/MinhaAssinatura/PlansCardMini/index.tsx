@@ -8,7 +8,6 @@ import Section from "~/src/components/ui/Section";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import toast from "react-hot-toast";
 import { useModal } from "~/src/components/utils/Modal/useModal";
-import Modal from "~/src/components/utils/Modal";
 import StripeCheckout from "~/features/plans/components/StripeCheckout";
 
 interface PlanModalContentProps {
@@ -82,7 +81,7 @@ function PlanModalContent({
 const isFreemiumPlan = (subscription: Subscription | null | undefined): boolean => {
   if (!subscription?.plan?.display_name) return false;
   const planName = subscription.plan.display_name.toLowerCase();
-  return planName.includes("freemium") || planName.includes("gratuito") || planName.includes("free");
+  return planName.includes("freemium") || planName.includes("Freemium");
 };
 
 export default function PlansCardMini({ 
@@ -95,10 +94,14 @@ export default function PlansCardMini({
   const { openModal, closeModal, isOpen } = useModal();
   const queryClient = useQueryClient();
   const [isMyModalOpen, setIsMyModalOpen] = useState(false);
-  const [showCheckout, setShowCheckout] = useState(false);
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
   // Determina se deve usar checkout ou mudança de plano
-  const shouldUseCheckout = !subscription || isFreemiumPlan(subscription);
+  // Se não tem subscription OU não tem plan válido OU é plano freemium, usa checkout (nova assinatura)
+  // Caso contrário, usa mudança de plano (já tem assinatura ativa)
+  // Nota: subscriptionService retorna {} quando não há subscription, então verificamos se tem plan válido
+  const hasValidSubscription = subscription?.plan?.display_name;
+  const shouldUseCheckout = !hasValidSubscription || isFreemiumPlan(subscription);
 
   const changePlanMutation = useMutation({
     mutationFn: async () => {
@@ -203,26 +206,9 @@ export default function PlansCardMini({
     plan,
   ]);
 
-  useEffect(() => {
-    // Reseta a flag quando o modal é fechado
-    if (!isOpen) {
-      setIsMyModalOpen(false);
-    }
-  }, [isOpen]);
-
-  const openPlanModal = () => {
-    // Se deve usar checkout, abre modal de checkout diretamente
-    if (shouldUseCheckout) {
-      setShowCheckout(true);
-      return;
-    }
-    // Caso contrário, abre modal de visualização/mudança de plano
-    setIsMyModalOpen(true);
-    openModal(createModalContent(), { title: `Visualizar plano - ${plan?.display_name}` });
-  };
-
   const handleCheckoutSuccess = () => {
-    setShowCheckout(false);
+    setIsCheckoutModalOpen(false);
+    closeModal();
     toast.success("Assinatura realizada com sucesso!");
     // Invalida queries para atualizar os dados
     queryClient.invalidateQueries({ queryKey: ["subscription"] });
@@ -235,7 +221,37 @@ export default function PlansCardMini({
   };
 
   const handleCheckoutCancel = () => {
-    setShowCheckout(false);
+    setIsCheckoutModalOpen(false);
+    closeModal();
+  };
+
+  const createCheckoutContent = () => (
+    <StripeCheckout
+      plan={plan}
+      onSuccess={handleCheckoutSuccess}
+      onError={handleCheckoutError}
+      onCancel={handleCheckoutCancel}
+    />
+  );
+
+  useEffect(() => {
+    // Reseta as flags quando o modal é fechado
+    if (!isOpen) {
+      setIsMyModalOpen(false);
+      setIsCheckoutModalOpen(false);
+    }
+  }, [isOpen]);
+
+  const openPlanModal = () => {
+    // Se não tem subscription ou é freemium, abre checkout diretamente (nova assinatura)
+    if (shouldUseCheckout) {
+      setIsCheckoutModalOpen(true);
+      openModal(createCheckoutContent(), { title: `Assinar ${plan?.display_name}` });
+      return;
+    }
+    // Se já tem subscription ativa, abre modal de visualização/mudança de plano
+    setIsMyModalOpen(true);
+    openModal(createModalContent(), { title: `Visualizar plano - ${plan?.display_name}` });
   };
 
   return (
@@ -293,18 +309,6 @@ export default function PlansCardMini({
           </Section>
         )}
       </div>
-      {/* Modal de checkout para quando não há assinatura ou é freemium */}
-      <Modal
-        isOpen={showCheckout}
-        onClose={handleCheckoutCancel}
-      >
-        <StripeCheckout
-          plan={plan}
-          onSuccess={handleCheckoutSuccess}
-          onError={handleCheckoutError}
-          onCancel={handleCheckoutCancel}
-        />
-      </Modal>
     </Section>
   );
 }
