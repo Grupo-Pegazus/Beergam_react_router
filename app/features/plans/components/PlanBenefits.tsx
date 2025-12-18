@@ -1,6 +1,23 @@
 import { Skeleton } from "@mui/material";
 import type { PlanBenefits } from "~/features/user/typings/BaseUser";
 import Svg from "~/src/assets/svgs/_index";
+
+function normalizeForComparison(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function formatGestaoFinanceira(value: string): string {
+  const v = normalizeForComparison(value);
+  if (v === "basica" || v === "basico") return "Básica";
+  if (v === "intermediario" || v === "intermediaria") return "Intermediário";
+  if (v === "avancada" || v === "avancado") return "Avançada";
+  return value;
+}
+
 function BenefitSpan({ text }: { text: string }) {
   return <span className="font-bold capitalize">{text}</span>;
 }
@@ -45,7 +62,8 @@ function BenefitText({
     case "gestao_financeira":
       return (
         <p>
-          Gestão Financeira: <BenefitSpan text={value} />
+          Gestão Financeira:{" "}
+          <BenefitSpan text={formatGestaoFinanceira(value)} />
         </p>
       );
     case "marketplaces_integrados":
@@ -87,16 +105,9 @@ export default function PlanBenefitsCard({
       </div>
     );
   }
-  if (!benefits || loading) {
+  if (!benefits) {
     return (
-      <div className="grid grid-cols-2 gap-4">
-        <Skeleton variant="text" width={100} height={24} />
-        <Skeleton variant="text" width={100} height={24} />
-        <Skeleton variant="text" width={100} height={24} />
-        <Skeleton variant="text" width={100} height={24} />
-        <Skeleton variant="text" width={100} height={24} />
-        <Skeleton variant="text" width={100} height={24} />
-      </div>
+      <p className="text-beergam-gray">Nenhum benefício disponível para este plano.</p>
     );
   }
   return Object.entries(benefits).map(([key, value]) => (

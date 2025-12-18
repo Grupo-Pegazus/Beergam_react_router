@@ -10,7 +10,7 @@ function buildDefaultState(
     registrationTypeFilter: "all",
     searchType: "title",
     has_variations: undefined,
-    per_page: 20,
+    per_page: 10,
     page: 1,
     sort_by: "created_at",
     sort_order: "desc",

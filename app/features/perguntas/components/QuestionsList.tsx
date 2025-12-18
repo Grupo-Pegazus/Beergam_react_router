@@ -5,6 +5,7 @@ import { Fields } from "~/src/components/utils/_fields";
 import Svg from "~/src/assets/svgs/_index";
 import CopyButton from "~/src/components/ui/CopyButton";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
+import PaginationBar from "~/src/components/ui/PaginationBar";
 import { anuncioService } from "~/features/anuncios/service";
 import QuestionsListSkeleton from "./QuestionsListSkeleton";
 import type { Question, QuestionsPagination } from "../typings";
@@ -283,7 +284,7 @@ export function QuestionsList({
   const empty = useMemo(() => !loading && questions.length === 0, [loading, questions.length]);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" id="questions-list-top">
       {loading ? <QuestionsListSkeleton /> : null}
 
       {empty ? (
@@ -301,39 +302,20 @@ export function QuestionsList({
           return <QuestionCard key={question.id} question={question} onAnswer={onAnswer} />;
         })}
 
-      {hasPagination ? (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4 text-sm text-slate-600">
-          <span className="text-center sm:text-left">
-            Página {pagination?.page ?? 1} de {pagination?.total_pages ?? 1}
-          </span>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <BeergamButton
-              title="Anterior"
-              mainColor="beergam-blue"
-              animationStyle="fade"
-              onClick={() => {
-                if (!onPageChange || !pagination) return;
-                onPageChange(Math.max(1, pagination.page - 1));
-              }}
-              disabled={!pagination || pagination.page <= 1}
-              className="flex-1 sm:flex-initial px-3"
-            />
-            <BeergamButton
-              title="Próxima"
-              mainColor="beergam-orange"
-              animationStyle="slider"
-              onClick={() =>
-                onPageChange &&
-                pagination &&
-                onPageChange(
-                  Math.min(pagination.total_pages ?? pagination.page + 1, (pagination.total_pages ?? 1)),
-                )
-              }
-              disabled={!pagination || (pagination.total_pages ?? 1) <= (pagination.page ?? 1)}
-              className="flex-1 sm:flex-initial px-3"
-            />
-          </div>
-        </div>
+      {hasPagination && pagination ? (
+        <PaginationBar
+          page={pagination.page}
+          totalPages={pagination.total_pages ?? 1}
+          totalCount={pagination.total_count}
+          entityLabel="perguntas"
+          onChange={(nextPage) => {
+            if (!onPageChange) return;
+            onPageChange(nextPage);
+          }}
+          scrollOnChange
+          scrollTargetId="questions-list-top"
+          isLoading={loading}
+        />
       ) : null}
     </div>
   );

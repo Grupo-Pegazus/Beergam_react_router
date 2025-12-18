@@ -5,7 +5,6 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   Chip,
   Typography,
@@ -17,7 +16,7 @@ import { useState, Fragment } from "react";
 import { Link } from "react-router";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import Svg from "~/src/assets/svgs/_index";
-import BeergamButton from "~/src/components/utils/BeergamButton";
+import PaginationBar from "~/src/components/ui/PaginationBar";
 
 // Tipo genérico para uma entrada de movimentação
 export interface StockMovementEntry {
@@ -137,14 +136,6 @@ export default function StockMovementsTable({
     return null;
   };
 
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    pagination?.onPageChange?.(newPage + 1);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    pagination?.onPageSizeChange?.(parseInt(event.target.value, 10));
-  };
-
   if (movements.length === 0) {
     return (
       <Paper variant="outlined" sx={{ p: 4, textAlign: "center" }}>
@@ -157,6 +148,11 @@ export default function StockMovementsTable({
 
   // Calcular colSpan para linha expandida
   const colSpan = 5 + (showVariationColumn ? 1 : 0) + (showProductColumn ? 1 : 0) + 1; // +1 para coluna de ações
+
+  const totalPages =
+    pagination && pagination.page_size > 0
+      ? Math.max(1, Math.ceil(pagination.total / pagination.page_size))
+      : 1;
 
   return (
     <>
@@ -354,21 +350,6 @@ export default function StockMovementsTable({
             })}
           </TableBody>
         </Table>
-        {pagination && (
-          <TablePagination
-            component="div"
-            count={pagination.total}
-            page={pagination.page - 1}
-            onPageChange={handleChangePage}
-            rowsPerPage={pagination.page_size}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            rowsPerPageOptions={[10, 25, 50, 100]}
-            labelRowsPerPage="Itens por página:"
-            labelDisplayedRows={({ from, to, count }) =>
-              `${from}-${to} de ${count !== -1 ? count : `mais de ${to}`}`
-            }
-          />
-        )}
       </TableContainer>
 
       {/* Layout Mobile - Cards */}
@@ -535,34 +516,20 @@ export default function StockMovementsTable({
             </Paper>
           );
         })}
-
-        {/* Paginação Mobile */}
-        {pagination && (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "center", pt: 2 }}>
-            <Typography variant="body2" color="text.secondary" className="text-xs text-center">
-              Página {pagination.page} de {Math.ceil(pagination.total / pagination.page_size)} — {pagination.total} movimentações
-            </Typography>
-            <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-              <BeergamButton
-                title="Anterior"
-                mainColor="beergam-gray"
-                animationStyle="fade"
-                onClick={() => pagination.onPageChange?.(pagination.page - 1)}
-                disabled={pagination.page === 1}
-                className="text-xs px-3"
-              />
-              <BeergamButton
-                title="Próxima"
-                mainColor="beergam-blue-primary"
-                animationStyle="fade"
-                onClick={() => pagination.onPageChange?.(pagination.page + 1)}
-                disabled={pagination.page >= Math.ceil(pagination.total / pagination.page_size)}
-                className="text-xs px-3"
-              />
-            </Box>
-          </Box>
-        )}
       </div>
+
+      {/* Paginação Desktop/Mobile unificada */}
+      {pagination && totalPages > 1 && (
+        <Box sx={{ mt: 2 }}>
+          <PaginationBar
+            page={pagination.page}
+            totalPages={totalPages}
+            totalCount={pagination.total}
+            entityLabel="movimentações"
+            onChange={(nextPage) => pagination.onPageChange?.(nextPage)}
+          />
+        </Box>
+      )}
     </>
   );
 }

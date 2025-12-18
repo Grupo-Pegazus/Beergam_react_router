@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Pagination, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import { useOrders } from "../../hooks";
 import type { OrdersFilters, Order } from "../../typings";
 import OrderCard from "./OrderCard";
 import OrderPackage from "./OrderPackage";
 import OrderListSkeleton from "./OrderListSkeleton";
+import PaginationBar from "~/src/components/ui/PaginationBar";
 
 interface OrderListProps {
   filters?: Partial<OrdersFilters>;
@@ -106,73 +107,63 @@ export default function OrderList({ filters = {} }: OrderListProps) {
   const totalPages = pagination?.total_pages ?? 1;
   const totalCount = pagination?.total_count ?? orders.length;
 
-  const handlePageChange = (_event: React.ChangeEvent<unknown>, nextPage: number) => {
+  const handlePageChange = (nextPage: number) => {
     setPage(nextPage);
   };
 
   return (
-    <AsyncBoundary
-      isLoading={isLoading}
-      error={error as unknown}
-      Skeleton={OrderListSkeleton}
-      ErrorFallback={() => (
-        <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4">
-          Não foi possível carregar os pedidos.
-        </div>
-      )}
-    >
-      <div className="flex flex-col gap-2 w-full min-w-0">
-        {orders.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
-            <Typography variant="h6" color="text.secondary">
-              Nenhum pedido encontrado com os filtros atuais.
-            </Typography>
-          </div>
-        ) : (
+    <>
+      <div id="order-list">
+        <AsyncBoundary
+          isLoading={isLoading}
+          error={error as unknown}
+          Skeleton={OrderListSkeleton}
+          ErrorFallback={() => (
+            <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4">
+              Não foi possível carregar os pedidos.
+            </div>
+          )}
+        >
           <div className="flex flex-col gap-2 w-full min-w-0">
-            {listItems.map((item) =>
-              item.type === "pack" ? (
-                <OrderPackage
-                  key={`pack-${item.packId}`}
-                  packId={item.packId}
-                  orders={item.orders}
-                />
-              ) : (
-                <OrderCard
-                  key={`order-${item.order.order_id}`}
-                  order={item.order}
-                />
-              )
+            {orders.length === 0 ? (
+              <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
+                <Typography variant="h6" color="text.secondary">
+                  Nenhum pedido encontrado com os filtros atuais.
+                </Typography>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2 w-full min-w-0">
+                {listItems.map((item) =>
+                  item.type === "pack" ? (
+                    <OrderPackage
+                      key={`pack-${item.packId}`}
+                      packId={item.packId}
+                      orders={item.orders}
+                    />
+                  ) : (
+                    <OrderCard
+                      key={`order-${item.order.order_id}`}
+                      order={item.order}
+                    />
+                  )
+                )}
+              </div>
             )}
           </div>
-        )}
-
-        {totalPages > 1 ? (
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 pt-2 w-full min-w-0">
-            <Typography variant="body2" color="text.secondary" className="text-center md:text-left text-xs md:text-sm">
-              Mostrando página {page} de {totalPages} — {totalCount} pedidos no total
-            </Typography>
-            <div className="flex justify-center">
-              <Pagination
-                count={totalPages}
-                page={page}
-                onChange={handlePageChange}
-                shape="rounded"
-                color="primary"
-                size="small"
-                sx={{
-                  "& .MuiPaginationItem-root": {
-                    fontSize: "0.875rem",
-                    minWidth: "32px",
-                    height: "32px",
-                  },
-                }}
-              />
-            </div>
-          </div>
-        ) : null}
+        </AsyncBoundary>
       </div>
-    </AsyncBoundary>
+
+      <PaginationBar
+        page={page}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        entityLabel="pedidos"
+        onChange={handlePageChange}
+        scrollOnChange
+        scrollTargetId="order-list"
+        isLoading={isLoading}
+      />
+    </>
   );
 }
 

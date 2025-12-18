@@ -11,10 +11,10 @@ import {
   Skeleton, 
   Typography, 
   Stack,
-  Pagination,
   Box,
   Paper,
 } from "@mui/material";
+import PaginationBar from "~/src/components/ui/PaginationBar";
 import MainCards from "~/src/components/ui/MainCards";
 import { Fields } from "~/src/components/utils/_fields";
 import { type Dayjs } from "dayjs";
@@ -113,7 +113,7 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
     setDateTo(newValue);
   }, []);
 
-  const handleRankingPageChange = useCallback((_event: unknown, page: number) => {
+  const handleRankingPageChange = useCallback((page: number) => {
     setRankingPage(page);
   }, []);
 
@@ -190,82 +190,83 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
               </Typography>
             </div>
           ) : (
-            <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 md:gap-6 lg:items-start">
               {/* Ranking - Mobile primeiro, Desktop à esquerda */}
-              <div className="lg:col-span-1 space-y-3 md:space-y-4 order-2 lg:order-1">
-                <div>
-                  <Typography variant="h6" fontWeight={600} className="text-slate-900 mb-2 md:mb-4 text-base md:text-xl">
-                    Ranking de Estados
-                  </Typography>
-                  <Paper 
-                    variant="outlined" 
-                    className="p-2 max-h-[400px] md:max-h-[600px] overflow-y-auto"
-                    sx={{ 
-                      backgroundColor: 'background.paper',
-                      '&::-webkit-scrollbar': {
-                        width: '8px',
+              <div className="lg:col-span-1 flex flex-col order-2 lg:order-1 w-full">
+                <Typography variant="h6" fontWeight={600} className="text-slate-900 mb-2 md:mb-4 text-base md:text-xl">
+                  Ranking de Estados
+                </Typography>
+                <Paper 
+                  variant="outlined" 
+                  className="p-2 flex flex-col"
+                  sx={{ 
+                    backgroundColor: 'background.paper',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: { xs: 'auto', lg: 'calc(500px + 120px)' },
+                    maxHeight: { xs: 'none', lg: 'calc(500px + 120px)' },
+                    '&::-webkit-scrollbar': {
+                      width: '8px',
+                    },
+                    '&::-webkit-scrollbar-track': {
+                      background: '#f1f1f1',
+                      borderRadius: '4px',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                      background: '#cbd5e1',
+                      borderRadius: '4px',
+                      '&:hover': {
+                        background: '#94a3b8',
                       },
-                      '&::-webkit-scrollbar-track': {
-                        background: '#f1f1f1',
-                        borderRadius: '4px',
-                      },
-                      '&::-webkit-scrollbar-thumb': {
-                        background: '#cbd5e1',
-                        borderRadius: '4px',
-                        '&:hover': {
-                          background: '#94a3b8',
-                        },
-                      },
-                    }}
-                  >
-                    <div className="space-y-2">
-                      {paginatedDistribution.map((item, index) => {
-                        const globalIndex = (rankingPage - 1) * ITEMS_PER_PAGE + index;
-                        return (
-                          <div
-                            key={item.state}
-                            className="flex items-center justify-between p-2 md:p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-200"
-                          >
-                            <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-                              <span className="text-xs md:text-sm font-bold text-slate-600 w-6 md:w-8 shrink-0">
-                                {globalIndex + 1}°
-                              </span>
-                              <span className="text-xs md:text-sm font-medium text-slate-900 truncate">
-                                {item.state_name}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2 md:gap-3 shrink-0 ml-2">
-                              <span className="text-xs md:text-sm text-slate-600 whitespace-nowrap">
-                                {item.units} unid.
-                              </span>
-                              <span className="text-xs md:text-sm font-semibold text-slate-900 whitespace-nowrap min-w-[50px] md:min-w-[60px] text-right">
-                                {parseFloat(item.percentage).toFixed(2)}%
-                              </span>
-                            </div>
+                    },
+                  }}
+                >
+                  <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
+                    {paginatedDistribution.map((item, index) => {
+                      const globalIndex = (rankingPage - 1) * ITEMS_PER_PAGE + index;
+                      return (
+                        <div
+                          key={item.state}
+                          className="flex items-center justify-between p-2 md:p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-200"
+                        >
+                          <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                            <span className="text-xs md:text-sm font-bold text-slate-600 w-6 md:w-8 shrink-0">
+                              {globalIndex + 1}°
+                            </span>
+                            <span className="text-xs md:text-sm font-medium text-slate-900 truncate">
+                              {item.state_name}
+                            </span>
                           </div>
-                        );
-                      })}
-                    </div>
-                    {totalPages > 1 && (
-                      <Box className="flex justify-center mt-4">
-                        <Pagination
-                          count={totalPages}
-                          page={rankingPage}
-                          onChange={handleRankingPageChange}
-                          color="primary"
-                          size="small"
-                        />
-                      </Box>
-                    )}
-                  </Paper>
-                </div>
+                          <div className="flex items-center gap-2 md:gap-3 shrink-0 ml-2">
+                            <span className="text-xs md:text-sm text-slate-600 whitespace-nowrap">
+                              {item.units} unid.
+                            </span>
+                            <span className="text-xs md:text-sm font-semibold text-slate-900 whitespace-nowrap min-w-[50px] md:min-w-[60px] text-right">
+                              {parseFloat(item.percentage).toFixed(2)}%
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {totalPages > 1 && (
+                    <Box className="flex justify-center mt-4 shrink-0">
+                      <PaginationBar
+                        page={rankingPage}
+                        totalPages={totalPages}
+                        showEntity={false}
+                        onChange={handleRankingPageChange}
+                      />
+                    </Box>
+                  )}
+                </Paper>
               </div>
 
               {/* Mapa - Mobile primeiro, Desktop à direita */}
-              <div className="lg:col-span-2 space-y-3 md:space-y-4 order-1 lg:order-2">
+              <div className="lg:col-span-2 flex flex-col space-y-3 md:space-y-4 order-1 lg:order-2 w-full">
                 <div className="relative">
                   <div 
-                    className="h-[300px] md:h-[400px] lg:h-[600px] w-full relative"
+                    className="h-[350px] md:h-[400px] lg:h-[500px] w-full relative"
                   >
                     <ComposableMap
                       projection="geoMercator"
@@ -324,7 +325,7 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
                 </div>
 
                 {/* Legenda de cores */}
-                <Paper variant="outlined" className="p-3 md:p-4">
+                <Paper variant="outlined" className="p-3 md:p-4 shrink-0">
                   <Typography variant="subtitle2" fontWeight={600} className="text-slate-900 mb-2 md:mb-3 text-sm md:text-base">
                     Escala de Cores
                   </Typography>

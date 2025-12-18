@@ -70,13 +70,13 @@ function getPathByKeyChain(keyChain: string[]): string {
     return DEFAULT_INTERNAL_PATH;
   }
 
-  // Se a keyChain tem apenas um item, usa getRelativePath normalmente
-  if (keyChain.length === 1) {
-    return getRelativePath(keyChain[0]) || DEFAULT_INTERNAL_PATH;
+  const lastKey = keyChain[keyChain.length - 1];
+  const relativePath = getRelativePath(lastKey);
+  
+  if (relativePath) {
+    return relativePath;
   }
 
-  // Para keyChains aninhadas, constrói o path manualmente baseado na hierarquia
-  // Exemplo: ["produtos", "estoque"] -> /interno/produtos/estoque
   const segments: string[] = [];
   
   for (let i = 0; i < keyChain.length; i++) {
@@ -84,13 +84,11 @@ function getPathByKeyChain(keyChain: string[]): string {
     const menuItem = getMenuItemByChain(MenuConfig, chainUntilNow);
     
     if (menuItem?.path) {
-      // Remove a barra inicial do path e adiciona aos segments
       const pathSegment = menuItem.path.replace(/^\/+/, "");
       if (pathSegment) {
         segments.push(pathSegment);
       }
-    } else if (i === keyChain.length - 1) {
-      // Se o último item não tem path, usa a chave
+    } else {
       segments.push(keyChain[i]);
     }
   }
