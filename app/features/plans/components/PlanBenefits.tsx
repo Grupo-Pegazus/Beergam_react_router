@@ -87,16 +87,9 @@ export default function PlanBenefitsCard({
       </div>
     );
   }
-  if (!benefits || loading) {
+  if (!benefits) {
     return (
-      <div className="grid grid-cols-2 gap-4">
-        <Skeleton variant="text" width={100} height={24} />
-        <Skeleton variant="text" width={100} height={24} />
-        <Skeleton variant="text" width={100} height={24} />
-        <Skeleton variant="text" width={100} height={24} />
-        <Skeleton variant="text" width={100} height={24} />
-        <Skeleton variant="text" width={100} height={24} />
-      </div>
+      <p className="text-beergam-gray">Nenhum benefício disponível para este plano.</p>
     );
   }
   return Object.entries(benefits).map(([key, value]) => (

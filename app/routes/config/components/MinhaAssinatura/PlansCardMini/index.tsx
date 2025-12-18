@@ -80,7 +80,7 @@ function PlanModalContent({
  * Verifica se o plano atual da subscription é freemium
  */
 const isFreemiumPlan = (subscription: Subscription | null | undefined): boolean => {
-  if (!subscription) return false;
+  if (!subscription?.plan?.display_name) return false;
   const planName = subscription.plan.display_name.toLowerCase();
   return planName.includes("freemium") || planName.includes("gratuito") || planName.includes("free");
 };

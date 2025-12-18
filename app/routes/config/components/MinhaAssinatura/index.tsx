@@ -207,7 +207,7 @@ export default function MinhaAssinatura() {
               name="plan_name"
               canAlter={false}
               value={
-                subscription?.plan.display_name || "Não possui plano atual"
+                subscription?.plan?.display_name || "Não possui plano atual"
               }
               loading={isLoadingSubscription}
             />
@@ -216,7 +216,7 @@ export default function MinhaAssinatura() {
             <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
               <PlanBenefitsCard
                 loading={isLoadingPlans}
-                benefits={subscription?.plan.benefits || {}}
+                benefits={subscription?.plan?.benefits ?? null}
               />
             </div>
           </Section>
