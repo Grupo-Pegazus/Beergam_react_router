@@ -29,6 +29,13 @@ export default function MinhaAssinatura() {
   const processedRef = useRef(false);
   const subscription = subscriptionResponse?.data;
   const setSubscription = authStore.use.setSubscription();
+  
+  // Verifica se há uma subscription válida (com plan válido)
+  // Considera válido se: success é true E há um plan E o plan tem display_name (não vazio) ou outros campos
+  const getPlanDisplayName = () => {
+    if (!subscription?.plan) return "Não possui plano atual";
+    return subscription.plan.display_name?.trim() || "Não possui plano atual";
+  };
 
   /**
    * Trata o retorno do Stripe após pagamento
@@ -206,9 +213,7 @@ export default function MinhaAssinatura() {
               label="Plano Atual"
               name="plan_name"
               canAlter={false}
-              value={
-                subscription?.plan?.display_name || "Não possui plano atual"
-              }
+              value={getPlanDisplayName()}
               loading={isLoadingSubscription}
             />
           </div>
