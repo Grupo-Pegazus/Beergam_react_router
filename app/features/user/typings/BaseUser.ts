@@ -71,7 +71,7 @@ export interface Subscription {
   start_date: Date;
   end_date: Date;
   free_trial_until?: Date | null;
-  plan: SubscriptionPlan;
+  plan: Plan;
   status?: SubscriptionStatus;
 }
 
@@ -124,68 +124,13 @@ export const SubscriptionSchema = z.object({
   start_date: DateCoerced,
   end_date: DateCoerced,
   free_trial_until: DateCoerced.optional().nullable(),
-  plan: z
-    .object({
-      display_name: z.string(),
-      is_affiliate_plan: z.boolean().optional(),
-      benefits: z
-        .object({
-          ML_accounts: z.number(),
-          colab_accounts: z.number(),
-          catalog_monitoring: z.number(),
-          dias_historico_vendas: z.number(),
-          dias_registro_atividades: z.number(),
-          gestao_financeira: z
-            .enum(
-              Object.keys(GestaoFinanceira) as [
-                GestaoFinanceira,
-                ...GestaoFinanceira[],
-              ]
-            )
-            .optional()
-            .nullable(),
-          marketplaces_integrados: z.number(),
-          sincronizacao_estoque: z.boolean(),
-          clube_beergam: z.boolean().optional(),
-          comunidade_beergam: z.boolean().optional(),
-          ligacao_quinzenal: z.boolean().optional(),
-          novidades_beta: z.boolean().optional(),
-        })
-        .transform((b) => {
-          const bi = b as PlanBenefits;
-          const normalized: PlanBenefits = {
-            ML_accounts: bi.ML_accounts,
-            colab_accounts: bi.colab_accounts,
-            catalog_monitoring: bi.catalog_monitoring,
-            dias_historico_vendas: bi.dias_historico_vendas,
-            dias_registro_atividades: bi.dias_registro_atividades,
-            gestao_financeira: bi.gestao_financeira,
-            marketplaces_integrados: bi.marketplaces_integrados,
-            sincronizacao_estoque: bi.sincronizacao_estoque,
-            clube_beergam: bi.clube_beergam,
-            comunidade_beergam: bi.comunidade_beergam,
-            ligacao_quinzenal: bi.ligacao_quinzenal,
-            novidades_beta: bi.novidades_beta,
-          };
-          return normalized;
-        }),
-    })
-    .transform(
-      (p) =>
-        ({
-          display_name: p.display_name,
-          benefits: p.benefits as PlanBenefits,
-          is_affiliate_plan: p.is_affiliate_plan,
-        }) as SubscriptionPlan
-    ),
-  status: z
-    .enum(
-      Object.keys(SubscriptionStatus) as [
-        SubscriptionStatus,
-        ...SubscriptionStatus[],
-      ]
-    )
-    .optional(),
+  plan: PlanSchema,
+  status: z.enum(
+    Object.keys(SubscriptionStatus) as [
+      SubscriptionStatus,
+      ...SubscriptionStatus[],
+    ]
+  ),
 }) satisfies z.ZodType<Subscription>;
 
 export interface IBaseUserDetails {
