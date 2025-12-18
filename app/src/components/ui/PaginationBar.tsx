@@ -6,17 +6,15 @@ type PaginationBarBaseProps = {
   totalPages: number;
   totalCount?: number;
   /**
-   * Texto base para o tipo de item, ex: "produtos", "pedidos", "categorias".
-   * Usado na mensagem padrão de resumo.
+   * Texto base para o tipo de item, ex: "produtos", "pedidos", "categorias". Usado na mensagem padrão de resumo.
    */
   entityLabel?: string;
   /**
-   * Callback disparado ao trocar de página.
+   * Callback disparado ao trocar de página. Se o scrollOnChange for true, o scroll será feito automaticamente.
    */
   onChange: (nextPage: number) => void;
   /**
-   * Permite customizar totalmente o texto de resumo.
-   * Se informado, a mensagem padrão é ignorada.
+   * Permite customizar totalmente o texto de resumo. Se informado, a mensagem padrão é ignorada.
    */
   renderSummaryText?: (info: {
     page: number;
@@ -26,21 +24,28 @@ type PaginationBarBaseProps = {
   }) => React.ReactNode;
   /**
    * Classe Tailwind adicional aplicada ao wrapper da barra.
+   * @default "pt-2"
    */
   className?: string;
   /**
-   * Indica se a lista associada está carregando.
-   * Usado para disparar o scroll apenas após o carregamento.
+   * Indica se a lista associada está carregando. Usado para disparar o scroll apenas após o carregamento.
+   * @default false
    */
   isLoading?: boolean;
 };
 
 type PaginationBarPropsWithoutScroll = PaginationBarBaseProps & {
+  /**
+   * @default false
+   */
   scrollOnChange?: false;
   scrollTargetId?: never;
 };
 
 type PaginationBarPropsWithScroll = PaginationBarBaseProps & {
+  /**
+   * @default true
+   */
   scrollOnChange: true;
   scrollTargetId: string;
 };
@@ -67,30 +72,23 @@ export default function PaginationBar({
     nextPage: number
   ) => {
     if (nextPage === page) return;
-    // Marca a página para a qual devemos rolar assim que os dados forem carregados/renderizados
     pendingScrollPageRef.current = nextPage;
     onChange(nextPage);
   };
 
-  // Efeito responsável por fazer o scroll após o carregamento dos dados / mudança de página
   useEffect(() => {
     if (!scrollOnChange) {
       pendingScrollPageRef.current = null;
       return;
     }
 
-    // Enquanto estiver carregando, aguardamos o próximo ciclo
     if (isLoading) {
       return;
     }
 
-    // Só rola quando:
-    // - existe uma página pendente para scroll
-    // - e essa página corresponde à página atualmente renderizada
     if (pendingScrollPageRef.current === null) return;
     if (pendingScrollPageRef.current !== page) return;
 
-    // Consumimos a página pendente
     pendingScrollPageRef.current = null;
 
     if (typeof window === "undefined") return;
@@ -115,7 +113,6 @@ export default function PaginationBar({
     });
   }, [page, scrollOnChange, scrollTargetId, isLoading]);
 
-  // Se só existe uma página, não renderiza a barra de paginação
   if (totalPages <= 1) {
     return null;
   }
