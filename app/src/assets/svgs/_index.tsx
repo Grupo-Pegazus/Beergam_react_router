@@ -1,4 +1,5 @@
 import AlertIcon from "./AlertIcon";
+import ArrowLongRight from "./ArrowLongRight";
 import ArrowPathIcon from "./ArrowPathIcon";
 import ArrowUturnLeft from "./ArrowUturnLeft";
 import ArrowUturnRight from "./ArrowUturnRight";
@@ -10,6 +11,7 @@ import BoxIconSolid from "./BoxIconSolid";
 import BuildingLibrary from "./BuildingLibrary";
 import CalculatorIcon from "./Calculator";
 import CalculatorSolid from "./CalculatorSolid";
+import CalendarIcon from "./Calendar";
 import Camera from "./Camera";
 import CameraSolid from "./CameraSolid";
 import CardIcon from "./CardIcon";
@@ -64,7 +66,6 @@ import UserPlusSolid from "./UserPlusSolid";
 import WarningCircle from "./WarningCircle";
 import X from "./X";
 import XCircle from "./XCircle";
-import CalendarIcon from "./Calendar";
 const Svg = {
   home: HomeIcon,
   home_solid: HomeSolid,
@@ -133,6 +134,7 @@ const Svg = {
   camera: Camera,
   camera_solid: CameraSolid,
   calendar: CalendarIcon,
+  arrow_long_right: ArrowLongRight,
 };
 
 export default Svg;
