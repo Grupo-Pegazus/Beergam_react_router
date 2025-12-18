@@ -77,6 +77,26 @@ function formatBenefitValue(value: unknown): string {
   return String(value);
 }
 
+function normalizeForComparison(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function rankGestaoFinanceira(value: unknown): number | null {
+  if (typeof value !== "string") return null;
+  const v = normalizeForComparison(value);
+
+  // Aceita tanto os valores ("Básica") quanto chaves vindas de API ("básica")
+  if (v === "basica" || v === "basico") return 1;
+  if (v === "intermediario" || v === "intermediaria") return 2;
+  if (v === "avancada" || v === "avancado") return 3;
+
+  return null;
+}
+
 function compareBenefitValue(
   selectedValue: unknown,
   compareValue: unknown
@@ -88,6 +108,14 @@ function compareBenefitValue(
     // Mais intuitivo pro usuário: ter a funcionalidade (true) é melhor do que não ter (false)
     if (selectedValue === true && compareValue === false) return "better";
     if (selectedValue === false && compareValue === true) return "worse";
+    return "same";
+  }
+
+  const selectedGF = rankGestaoFinanceira(selectedValue);
+  const compareGF = rankGestaoFinanceira(compareValue);
+  if (selectedGF !== null && compareGF !== null) {
+    if (selectedGF > compareGF) return "better";
+    if (selectedGF < compareGF) return "worse";
     return "same";
   }
 
