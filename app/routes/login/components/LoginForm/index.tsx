@@ -10,7 +10,7 @@ import { useSocketContext } from "~/features/socket/context/SocketContext";
 import authStore from "~/features/store-zustand";
 import UserFields from "~/features/user/components/UserFields";
 import { UserRoles } from "~/features/user/typings/BaseUser";
-import { queryClient } from "~/lib/queryClient";
+import {useQueryClient} from "@tanstack/react-query";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import {
   BeergamTurnstile,
@@ -32,6 +32,7 @@ export default function LoginForm({
   const turnstileRef = useRef<BeergamTurnstileRef>(null);
   const { connectSession, connectOnlineStatus } = useSocketContext();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const loginMutation = useMutation({
     mutationFn: ({
       data,
@@ -47,13 +48,9 @@ export default function LoginForm({
         throw new Error(data.message);
       }
       storeLogin(data.data.subscription, data.data.user);
-      queryClient.invalidateQueries({
-        queryKey: [
-          "marketplacesAccounts",
-          "marketplacesIntegrados",
-          "marketplaces-accounts",
-        ],
-      });
+      // Remove todas as queries do cache e invalida para forçar refetch
+      queryClient.removeQueries();
+      queryClient.invalidateQueries();
       setTimeout(() => {
         connectSession();
         connectOnlineStatus();
