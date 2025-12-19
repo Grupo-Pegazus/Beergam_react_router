@@ -10,9 +10,10 @@ import authStore from "~/features/store-zustand";
  * - Login bem-sucedido (success: true) e precisa navegar para choosen_account
  * - Marketplace selecionado e precisa navegar para /interno
  */
+type GlobalLoadingMessage = "Carregando..." | "Saindo da conta...";
 export function useGlobalLoading() {
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState("Carregando...");
+  const [message, setMessage] = useState<GlobalLoadingMessage>("Carregando...");
   const location = useLocation();
   const success = authStore.use.success();
   const marketplace = authStore.use.marketplace();
