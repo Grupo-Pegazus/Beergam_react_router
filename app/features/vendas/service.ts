@@ -56,7 +56,7 @@ class VendasService {
   }
 
   async getGeographicDistribution(params?: {
-    period?: "last_day" | "last_7_days" | "last_30_days" | "custom";
+    period?: "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "custom";
     date_from?: string;
     date_to?: string;
   }): Promise<ApiResponse<GeographicDistribution>> {

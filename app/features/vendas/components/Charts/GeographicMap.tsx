@@ -38,15 +38,15 @@ interface GeographiesRenderProps {
 }
 
 interface GeographicMapProps {
-  period?: "last_day" | "last_7_days" | "last_30_days" | "custom";
+  period?: "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "custom";
 }
 
 const ITEMS_PER_PAGE = 10;
 
 export default function GeographicMap({ period = "last_day" }: GeographicMapProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<
-    "last_day" | "last_7_days" | "last_30_days" | "custom"
-  >(period as "last_day" | "last_7_days" | "last_30_days" | "custom");
+    "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "custom"
+  >(period as "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "custom");
 
   const [dateFrom, setDateFrom] = useState<Dayjs | null>(null);
   const [dateTo, setDateTo] = useState<Dayjs | null>(null);
@@ -142,9 +142,11 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
                     ? "Hoje"
                     : selectedPeriod === "last_7_days"
                       ? "Últimos 7 dias"
-                      : selectedPeriod === "last_30_days"
-                        ? "Últimos 30 dias"
-                        : "Período personalizado"}
+                      : selectedPeriod === "last_15_days"
+                        ? "Últimos 15 dias"
+                        : selectedPeriod === "last_30_days"
+                          ? "Últimos 30 dias"
+                          : "Período personalizado"}
                 </Typography>
                 {selectedPeriod === "custom" && (
                   <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 2 }}>
@@ -169,6 +171,7 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
                   options={[
                     { value: "last_day", label: "Hoje" },
                     { value: "last_7_days", label: "Últimos 7 dias" },
+                    { value: "last_15_days", label: "Últimos 15 dias" },
                     { value: "last_30_days", label: "Últimos 30 dias" },
                     { value: "custom", label: "Período personalizado" },
                   ]}
