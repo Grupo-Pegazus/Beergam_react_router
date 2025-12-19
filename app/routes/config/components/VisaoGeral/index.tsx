@@ -24,7 +24,7 @@ export default function VisaoGeral({ user }: { user: IUser | IColab }) {
   const marketplace = authStore.use.marketplace();
   const subscription = authStore.use.subscription();
   const { data: marketplacesAccounts } = useQuery({
-    queryKey: ["marketplacesIntegrados"],
+    queryKey: ["marketplacesAccounts"],
     queryFn: () => marketplaceService.getMarketplacesAccounts(),
   });
   const { data: reputation } = useQuery({

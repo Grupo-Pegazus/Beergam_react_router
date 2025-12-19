@@ -14,9 +14,11 @@ export function isMaster(user: IUser | IColab): user is IUser {
   if (!user) return false;
   return user.role === UserRoles.MASTER;
 }
-export function isColab(user: IUser | IColab): user is IColab {
-  if (!user) return false;
-  return user.role === UserRoles.COLAB;
+export function isColab(user: unknown): user is IColab {
+  if (!user || typeof user !== "object") return false;
+  return (
+    "role" in user && (user as { role?: unknown }).role === UserRoles.COLAB
+  );
 }
 
 export function FormatProfitRange(profitRange: ProfitRange): string {

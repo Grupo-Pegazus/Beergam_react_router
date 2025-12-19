@@ -33,7 +33,7 @@ interface IAuthStore {
   deleteColab: (colabPin: string) => void;
   updateAllowedViews: (allowedViews: MenuState) => void;
   updateUserDetails: (user: IUser | IColab) => void;
-  updateUserInfo: (user: IUser | IColab) => void;
+  // updateUserInfo: (user: IUser | IColab) => void;
   setMarketplace: (marketplace: BaseMarketPlace | null) => void;
   limparMarketplace: () => void;
 }
@@ -193,26 +193,26 @@ const authBaseStore = create<IAuthStore>()(
           });
         }
       },
-      updateUserInfo: (user: IUser | IColab) => {
-        const currentUser = get().user;
-        let auxColabs: Record<string, IColab> = {};
+      // updateUserInfo: (user: IUser | IColab) => {
+      //   const currentUser = get().user;
+      //   let auxColabs: Record<string, IColab> = {};
 
-        // Preserva colaboradores existentes se o payload não tiver colaboradores
-        if (currentUser && isMaster(currentUser)) {
-          auxColabs = currentUser.colabs ?? {};
-        }
+      //   // Preserva colaboradores existentes se o payload não tiver colaboradores
+      //   if (currentUser && isMaster(currentUser)) {
+      //     auxColabs = currentUser.colabs ?? {};
+      //   }
 
-        // Atualiza colaboradores se o payload tiver colaboradores
-        if (isMaster(user) && user.colabs) {
-          auxColabs = user.colabs;
-        }
+      //   // Atualiza colaboradores se o payload tiver colaboradores
+      //   if (isMaster(user) && user.colabs) {
+      //     auxColabs = user.colabs;
+      //   }
 
-        const userToUpdate = isMaster(user)
-          ? { ...user, colabs: auxColabs }
-          : user;
+      //   const userToUpdate = isMaster(user)
+      //     ? { ...user, colabs: auxColabs }
+      //     : user;
 
-        set({ user: userToUpdate });
-      },
+      //   set({ user: userToUpdate });
+      // },
       setMarketplace: (marketplace: BaseMarketPlace | null) => {
         set({ marketplace });
       },
