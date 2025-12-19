@@ -236,7 +236,7 @@ export function FilterDatePicker({
 
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <Typography variant="subtitle2" color="text.secondary" fontWeight={600}>
+        <Typography variant="subtitle2" color="text.primary" fontWeight={600}>
           {label}
         </Typography>
         <Button
@@ -336,8 +336,8 @@ export function FilterDatePicker({
           padding: "8px 16px",
           fontSize: "0.875rem",
           backgroundColor: "#fff",
-          border: "1px solid #e2e8f0",
-          color: dayjsValue ? "#1f2a44" : "#94a3b8",
+          border: "1px solid #ccc",
+          color: "#1f2a44",
           "&:hover": {
             backgroundColor: "#f8fafc",
             borderColor: "#cbd5e1",
