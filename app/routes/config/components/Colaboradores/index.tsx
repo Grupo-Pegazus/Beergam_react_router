@@ -146,7 +146,7 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
   });
   useEffect(() => {
     if (data?.success) {
-      updateColabs(data.data as Record<string, IColab>);
+      // updateColabs(data.data as Record<string, IColab>);
     }
   }, [data, updateColabs]);
   const colabInfoRef = useRef<HTMLDivElement>(null);

@@ -1,10 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "~/features/auth/hooks";
 import PlanCard from "~/features/plans/components/PlanCard";
-import { subscriptionService } from "~/features/plans/subscriptionService";
-import authStore from "~/features/store-zustand";
+import StripeCheckout from "~/features/plans/components/StripeCheckout";
 import type { Plan, Subscription } from "~/features/user/typings/BaseUser";
 import Svg from "~/src/assets/svgs/_index";
 import Section from "~/src/components/ui/Section";
@@ -12,7 +11,6 @@ import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
 
 type PlanModalType = "Visualizar" | "Comparar";
-import StripeCheckout from "~/features/plans/components/StripeCheckout";
 
 interface PlanModalContentProps {
   plan: Plan;
@@ -120,9 +118,20 @@ const isFreemiumPlan = (
 export default function PlansCardMini({
   plan,
   subscription,
+  onPlanSelected,
+  onAssinarClick,
+  changePlanMutation,
 }: {
   plan: Plan;
   subscription: Subscription | null;
+  onPlanSelected: (plan: Plan) => void;
+  onAssinarClick: (plan: Plan) => void;
+  changePlanMutation: {
+    reset: () => void;
+    isPending: boolean;
+    isSuccess: boolean;
+    isError: boolean;
+  };
 }) {
   const { openModal, closeModal, isOpen } = useModal();
   const queryClient = useQueryClient();
@@ -136,52 +145,8 @@ export default function PlansCardMini({
   // Caso contrário, usa mudança de plano (já tem assinatura ativa)
   // Nota: subscriptionService retorna {} quando não há subscription, então verificamos se tem plan válido
   const hasValidSubscription = subscription?.plan?.display_name;
-  const shouldUseCheckout = !hasValidSubscription || isFreemiumPlan(subscription);
-
-  const changePlanMutation = useMutation({
-    mutationFn: async () => {
-      const response = await subscriptionService.changeSubscriptionPlan(
-        plan.price_id
-      );
-
-      if (!response.success) {
-        throw new Error(response.message || "Erro ao alterar plano");
-      }
-
-      // Busca a subscription atualizada
-      const subscriptionResponse = await subscriptionService.getSubscription();
-
-      if (!subscriptionResponse.success || !subscriptionResponse.data) {
-        throw new Error(
-          subscriptionResponse.message ||
-            "Erro ao atualizar assinatura. Recarregue a página."
-        );
-      }
-
-      return subscriptionResponse.data;
-    },
-    onSuccess: (subscription) => {
-      // Atualiza o authStore
-      authStore.getState().updateAuthInfo({
-        subscription,
-        loading: false,
-        error: null,
-        success: true,
-        usageLimitData: null,
-      });
-
-      // Invalida queries relacionadas
-      queryClient.invalidateQueries({ queryKey: ["subscription"] });
-      queryClient.invalidateQueries({ queryKey: ["plans"] });
-
-      toast.success("Plano alterado com sucesso!");
-      closeModal();
-    },
-    onError: (error: Error) => {
-      console.error("Erro ao alterar plano:", error);
-      toast.error(error.message || "Erro ao alterar plano. Tente novamente.");
-    },
-  });
+  const shouldUseCheckout =
+    !hasValidSubscription || isFreemiumPlan(subscription);
 
   const createModalContent = (type: PlanModalType) => (
     <PlanModalContent
@@ -189,7 +154,8 @@ export default function PlansCardMini({
       isPending={changePlanMutation.isPending}
       isSuccess={changePlanMutation.isSuccess}
       isError={changePlanMutation.isError}
-      onConfirmChange={() => changePlanMutation.mutate()}
+      // onConfirmChange={() => changePlanMutation.mutate()}
+      onConfirmChange={() => onAssinarClick(plan)}
       mutation={changePlanMutation}
       type={type}
     />
@@ -249,12 +215,16 @@ export default function PlansCardMini({
   const openPlanModal = () => {
     // Se não tem subscription ou é freemium, abre checkout diretamente (nova assinatura)
     if (shouldUseCheckout) {
-      openModal(createCheckoutContent(), { title: `Assinar ${plan?.display_name}` });
+      openModal(createCheckoutContent(), {
+        title: `Assinar ${plan?.display_name}`,
+      });
       return;
     }
     // Se já tem subscription ativa, abre modal de visualização/mudança de plano
     setIsMyModalOpen(true);
-    openModal(createModalContent(planModalType), { title: `Visualizar plano - ${plan?.display_name}` });
+    openModal(createModalContent(planModalType), {
+      title: `Visualizar plano - ${plan?.display_name}`,
+    });
   };
 
   return (
@@ -264,6 +234,7 @@ export default function PlansCardMini({
       onClick={() => {
         setPlanModalType("Visualizar");
         openPlanModal();
+        onPlanSelected(plan);
       }}
       actions={
         <>
