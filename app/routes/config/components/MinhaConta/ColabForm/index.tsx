@@ -185,21 +185,40 @@ export default function ColabForm({
     () => (user?.pin ? createColabPhotoUploadService(user.pin) : null),
     [user?.pin]
   );
+  
+  const photoId = watch("details.photo_id");
+  const masterPin = watch("master_pin");
+  
+  const currentPhotoUrl = useMemo(() => {
+    if (!masterPin || !photoId) {
+      return null;
+    }
+    return `https://cdn.beergam.com.br/colab_photos/colab/${masterPin}/${photoId}.webp`;
+  }, [photoId, masterPin]);
+
+  const handleUploadChange = useCallback(
+    (ids: string[]) => {
+      const newPhotoId = ids.length > 0 ? ids[0] : null;
+      const newColab: IColab = {
+        ...user,
+        details: { ...user.details, photo_id: newPhotoId ?? null },
+      };
+      setValue("details.photo_id", newPhotoId ?? null);
+      updateColab(newColab);
+    },
+    [user, setValue, updateColab]
+  );
+
   const handleUploadSuccess = useCallback(
     (ids: string[]) => {
       if (!ids.length) {
         return;
       }
-      const newPhotoId = ids[0];
-      const newColab: IColab = {
-        ...user,
-        details: { ...user.details, photo_id: newPhotoId },
-      };
-      setValue("details.photo_id", newPhotoId);
-      updateColab(newColab);
+      handleUploadChange(ids);
     },
-    [user]
+    [handleUploadChange]
   );
+
   const canUploadPhoto = useMemo(() => {
     return action !== "Visualizar" && action !== "Criar";
   }, [action]);
@@ -293,7 +312,9 @@ export default function ColabForm({
           accept="image/*"
           emptyStateLabel="Arraste ou selecione a nova foto do colaborador"
           onUploadSuccess={handleUploadSuccess}
-          initialFiles={[]}
+          onChange={handleUploadChange}
+          initialFiles={currentPhotoUrl ? [currentPhotoUrl] : []}
+          allowRemoveInitialFiles={true}
         />
       </Section>
     </>

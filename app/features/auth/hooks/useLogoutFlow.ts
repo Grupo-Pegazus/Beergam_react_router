@@ -33,21 +33,18 @@ export function useLogoutFlow({
     try {
       logoutLocal();
       const res = await authService.logout();
-
-      if (res.success) {
-        // navigate(redirectTo, { replace: true });
-        window.setTimeout(() => {
-          navigate(redirectTo, { replace: true });
-          authStore.setState({ isLoggingOut: false });
-        }, 350);
-      } else {
+      if (!res.success) {
         toast.error(res.message || "Erro ao sair. Tente novamente.");
-        setIsLoggingOut(false);
       }
     } catch (error) {
       console.error("Erro inesperado no fluxo de logout", error);
       toast.error("Erro ao sair. Tente novamente em alguns instantes.");
+    } finally {
       setIsLoggingOut(false);
+      window.setTimeout(() => {
+        navigate(redirectTo, { replace: true });
+        authStore.setState({ isLoggingOut: false });
+      }, 350);
     }
   }, [isLoggingOut, logoutLocal, navigate, redirectTo, errorLocal]);
 

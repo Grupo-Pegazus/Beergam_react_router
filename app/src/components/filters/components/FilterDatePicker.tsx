@@ -254,8 +254,8 @@ export function FilterDatePicker({
             padding: "8px 16px",
             fontSize: "0.875rem",
             backgroundColor: "#fff",
-            border: "1px solid #e2e8f0",
-            color: dayjsValue ? "#1f2a44" : "#94a3b8",
+            border: "1px solid #ccc",
+            color: "#1f2a44",
             "&:hover": {
               backgroundColor: "#f8fafc",
               borderColor: "#cbd5e1",
@@ -336,8 +336,8 @@ export function FilterDatePicker({
           padding: "8px 16px",
           fontSize: "0.875rem",
           backgroundColor: "#fff",
-          border: "1px solid #e2e8f0",
-          color: dayjsValue ? "#1f2a44" : "#94a3b8",
+          border: "1px solid #ccc",
+          color: "#1f2a44",
           "&:hover": {
             backgroundColor: "#f8fafc",
             borderColor: "#cbd5e1",

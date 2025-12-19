@@ -29,9 +29,9 @@ function ProfitCardInfo({ label, value, options }: { label: string; value: strin
 
 export default function OrderItemCard({ order }: OrderItemCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const profit = Number(order.valor_base) - Number(order.extra_cost) - Number(order.tax_amount);
-  const margin = Number(order.valor_base) > 0 
-    ? ((profit / Number(order.valor_base)) * 100) 
+  const profit = Number(order.valor_liquido) - Number(order.price_cost) - Number(order.packaging_cost) - Number(order.extra_cost) - Number(order.tax_amount);
+  const margin = Number(order.valor_liquido) > 0 
+    ? ((profit / Number(order.valor_liquido)) * 100) 
     : 0;
 
   return (
@@ -77,10 +77,10 @@ export default function OrderItemCard({ order }: OrderItemCardProps) {
           </Typography>
           <span className="text-slate-300">|</span>
           <Typography variant="caption" color="text.secondary" className="text-xs">
-            Total:
+            Total Bruto:
           </Typography>
           <Typography variant="body2" fontWeight={700} className="text-slate-900 text-sm">
-            {formatCurrency(order.valor_base)}
+            {formatCurrency(order.total_amount)}
           </Typography>
         </div>
         
@@ -102,7 +102,7 @@ export default function OrderItemCard({ order }: OrderItemCardProps) {
       {isExpanded && (
         <div className="flex flex-col md:hidden gap-1.5 bg-slate-100 p-2 rounded-lg w-full">
           <div className="grid grid-cols-2 gap-1.5">
-            <CardInfo label="Bruto:" value={formatCurrency(order.valor_base)} />
+            <CardInfo label="Bruto:" value={formatCurrency(order.total_amount)} />
             <CardInfo label="Imposto:" value={formatCurrency(order.tax_amount)} />
           </div>
           <div className="grid grid-cols-2 gap-1.5">
@@ -119,7 +119,7 @@ export default function OrderItemCard({ order }: OrderItemCardProps) {
       <div className="hidden md:flex flex-col items-center gap-2 w-[max-content] bg-slate-100 p-2 rounded-lg shrink-0">
         <div className="flex items-center gap-2 w-full">
           <CardInfo label="Qtd:" value={order.quantity || 0} />
-          <CardInfo label="Bruto:" value={formatCurrency(order.valor_base)} />
+          <CardInfo label="Bruto:" value={formatCurrency(order.total_amount)} />
           <CardInfo label="Imposto:" value={formatCurrency(order.tax_amount)} />
           <CardInfo label="Custo:" value={formatCurrency(order.extra_cost)} />
         </div>

@@ -10,8 +10,10 @@ import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
 import { useQueryClient } from "@tanstack/react-query";
 import { ProductStatusToggle } from "../../ProductStatusToggle";
+import VariationsStatusModal from "../../ProductList/VariationsStatusModal/VariationsStatusModal";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import BeergamButton from "~/src/components/utils/BeergamButton";
+import { useModal } from "~/src/components/utils/Modal/useModal";
 
 interface ProductInfoProps {
   product: ProductDetails;
@@ -21,6 +23,10 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   const queryClient = useQueryClient();
   const [isMutating, setIsMutating] = useState(false);
   const changeStatusMutation = useChangeProductStatus();
+  const { openModal, closeModal } = useModal();
+  
+  const hasVariations = product.variations && product.variations.length > 0;
+  const variationsCount = product.variations?.length || 0;
 
   const formattedCreatedAt = useMemo(() => {
     return dayjs(product.created_at).locale("pt-br").format("DD [de] MMM [de] YYYY [às] HH:mm");
@@ -42,6 +48,16 @@ export default function ProductInfo({ product }: ProductInfoProps) {
           setIsMutating(false);
           queryClient.invalidateQueries({ queryKey: ["products", "details", product.product_id] });
         },
+      }
+    );
+  };
+
+  const handleOpenVariationsStatusModal = () => {
+    openModal(
+      <VariationsStatusModal product={product} onClose={closeModal} />,
+      {
+        title: "Gerenciar Status das Variações",
+        className: "z-[1000]",
       }
     );
   };
@@ -152,56 +168,100 @@ export default function ProductInfo({ product }: ProductInfoProps) {
           </Box>
         )}
 
+        {hasVariations && (
+          <Chip
+            label={`Verifique informações de preço e estoque nas variações abaixo`}
+            size="small"
+            onClick={handleOpenVariationsStatusModal}
+            sx={{
+              height: 32,
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              width: "100%",
+              backgroundColor: "#dbeafe",
+              color: "#1e40af",
+            }}
+          />
+        )}
+
         {/* Preços */}
-        <Stack direction="row" spacing={3} flexWrap="wrap" gap={2}>
-          <Box>
-            <Typography variant="caption" color="text.secondary">
-              Preço de Custo
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              {formatCurrency(product.price_cost)}
-            </Typography>
-          </Box>
-          <Box>
-            <Typography variant="caption" color="text.secondary">
-              Preço de Venda
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: "var(--color-beergam-orange)" }}>
-              {formatCurrency(product.price_sale)}
-            </Typography>
-          </Box>
-        </Stack>
+        {!hasVariations && (
+          <Stack direction="row" spacing={3} flexWrap="wrap" gap={2}>
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                Preço de Custo
+              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                {formatCurrency(product.price_cost)}
+              </Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                Preço de Venda
+              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: "var(--color-beergam-orange)" }}>
+                {formatCurrency(product.price_sale)}
+              </Typography>
+            </Box>
+          </Stack>
+        )}
 
         {/* Estoque */}
-        <Stack direction="row" spacing={3} alignItems="center" flexWrap="wrap" gap={2}>
-          <Box>
-            <Typography variant="caption" color="text.secondary">
-              Estoque Disponível
-            </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              {product.available_quantity.toLocaleString("pt-BR")}
-            </Typography>
-          </Box>
-          <Box>
-            <Typography variant="caption" color="text.secondary">
-              Estoque Inicial
-            </Typography>
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              {product.initial_quantity.toLocaleString("pt-BR")}
-            </Typography>
-          </Box>
-        </Stack>
+        {!hasVariations && (
+          <Stack direction="row" spacing={3} alignItems="center" flexWrap="wrap" gap={2}>
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                Estoque Disponível
+              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                {product.available_quantity.toLocaleString("pt-BR")}
+              </Typography>
+            </Box>
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                Estoque Inicial
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                {product.initial_quantity.toLocaleString("pt-BR")}
+              </Typography>
+            </Box>
+          </Stack>
+        )}
 
         {/* Status Toggle e Botão de Editar */}
         <Stack direction="row" spacing={3} alignItems="flex-end" flexWrap="wrap" gap={2}>
-          <Box>
+          <Box className="flex flex-col items-baseline gap-2">
             <Typography variant="caption" color="text.secondary">Status:</Typography>
-            <ProductStatusToggle
-              status={product.status}
-              isActive={isActive}
-              isMutating={isMutating}
-              onToggle={handleToggleStatus}
-            />
+            {!hasVariations ? (
+              <ProductStatusToggle
+                status={product.status}
+                isActive={isActive}
+                isMutating={isMutating}
+                onToggle={handleToggleStatus}
+              />
+            ) : (
+              <Chip
+                label={`Veja as variações`}
+                size="small"
+                onClick={handleOpenVariationsStatusModal}
+                sx={{
+                  height: 32,
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  backgroundColor: "#dbeafe",
+                  color: "#1e40af",
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "#bfdbfe",
+                  },
+                  "& .MuiChip-label": {
+                    px: 1.5,
+                  },
+                }}
+                title={`Clique para gerenciar status de ${variationsCount} variação${variationsCount > 1 ? "ões" : ""}`}
+                aria-label={`Abrir modal para gerenciar status das variações`}
+              />
+            )}
           </Box>
           <BeergamButton
             title="Editar Produto"

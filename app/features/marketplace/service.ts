@@ -1,3 +1,4 @@
+import { queryClient } from "~/lib/queryClient";
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
 import type {
@@ -107,6 +108,8 @@ class MarketplaceService {
         error_code: 500,
         error_fields: {},
       };
+    } finally {
+      queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
     }
   }
 
