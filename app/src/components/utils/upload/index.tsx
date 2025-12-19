@@ -23,6 +23,7 @@ type BaseUploadProps = {
   initialFiles?: string[];
   isOpen: boolean;
   onClose: () => void;
+  allowRemoveInitialFiles?: boolean;
 };
 
 type InternalUploadProps = BaseUploadProps & {
@@ -129,6 +130,7 @@ export default function Upload<ResponseSchema = unknown>(
     initialFiles = [],
     isOpen,
     onClose,
+    allowRemoveInitialFiles = false,
   } = props;
   const { openModal, closeModal } = useModal();
   const [items, setItems] = useState<UploadItem[]>([]);
@@ -570,11 +572,21 @@ export default function Upload<ResponseSchema = unknown>(
         if (!itemToRemove) {
           return current;
         }
+        // Permite remover se:
+        // 1. Não há limite de arquivos OU
+        // 2. Limite é maior que 1 OU
+        // 3. Item está com erro OU
+        // 4. Item está pendente OU
+        // 5. Item foi enviado, veio de initialFiles E allowRemoveInitialFiles está ativado
+        const isFromInitialFiles = itemToRemove.key.startsWith("initial-");
         const canRemove =
           maxFiles === undefined ||
           maxFiles > 1 ||
           itemToRemove.status === "error" ||
-          itemToRemove.status === "pending";
+          itemToRemove.status === "pending" ||
+          (itemToRemove.status === "uploaded" &&
+            isFromInitialFiles &&
+            allowRemoveInitialFiles);
         if (!canRemove && itemToRemove.status === "uploaded") {
           return current;
         }
@@ -589,7 +601,7 @@ export default function Upload<ResponseSchema = unknown>(
         return next;
       });
     },
-    [maxFiles, notifyIds, releasePreviewUrl]
+    [maxFiles, notifyIds, releasePreviewUrl, allowRemoveInitialFiles]
   );
 
   const handleRetry = useCallback((itemKey: string) => {
@@ -720,11 +732,17 @@ export default function Upload<ResponseSchema = unknown>(
                           <Svg.arrow_path width={18} height={18} />
                         </button>
                       )}
-                      {(maxFiles === undefined ||
-                        maxFiles > 1 ||
-                        item.status === "error" ||
-                        item.status === "pending") &&
-                        item.status !== "uploaded" && (
+                      {(() => {
+                        const isFromInitialFiles = item.key.startsWith("initial-");
+                        const canShowRemoveButton =
+                          maxFiles === undefined ||
+                          maxFiles > 1 ||
+                          item.status === "error" ||
+                          item.status === "pending" ||
+                          (item.status === "uploaded" &&
+                            isFromInitialFiles &&
+                            allowRemoveInitialFiles);
+                        return canShowRemoveButton ? (
                           <button
                             type="button"
                             className="rounded-md p-1.5 text-beergam-gray-400 transition-colors hover:bg-beergam-red/10 hover:text-beergam-red shrink-0"
@@ -734,7 +752,8 @@ export default function Upload<ResponseSchema = unknown>(
                           >
                             <Svg.trash width={18} height={18} />
                           </button>
-                        )}
+                        ) : null;
+                      })()}
                     </div>
                   </div>
                   {item.errorMessage && (

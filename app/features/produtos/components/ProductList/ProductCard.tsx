@@ -16,6 +16,7 @@ import ProductImage from "../ProductImage/ProductImage";
 import type { Product } from "../../typings";
 import VariationsList from "./Variations/VariationsList";
 import { ProductStatusToggle } from "../ProductStatusToggle";
+import VariationsStatusModal from "./VariationsStatusModal/VariationsStatusModal";
 import { useChangeProductStatus, useDeleteProduct } from "../../hooks";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 
@@ -46,6 +47,16 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const handleToggleExpansion = () => {
     setIsExpanded((prev) => !prev);
+  };
+
+  const handleOpenVariationsStatusModal = () => {
+    openModal(
+      <VariationsStatusModal product={product} onClose={closeModal} />,
+      {
+        title: "Gerenciar Status das Variações",
+        className: "z-[1000]",
+      }
+    );
   };
 
   const handleToggleStatus = () => {
@@ -118,7 +129,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       <MainCards className="hover:bg-slate-50/50 transition-colors">
         {/* Layout Desktop */}
         <div className="hidden md:flex items-center gap-2 lg:gap-4 py-2 lg:py-3 px-2 lg:px-4">
-          {/* Toggle Switch ou Status */}
+          {/* Toggle Switch ou Botão de Variações */}
           <div className="shrink-0 w-12 lg:w-16 flex justify-center">
             {!hasVariations ? (
               <ProductStatusToggle
@@ -129,18 +140,25 @@ export default function ProductCard({ product }: ProductCardProps) {
               />
             ) : (
               <Chip
-                label={product.status}
+                label={variationsCount}
                 size="small"
+                onClick={handleOpenVariationsStatusModal}
                 sx={{
-                  height: 20,
-                  fontSize: "0.65rem",
+                  height: 24,
+                  fontSize: "0.7rem",
                   fontWeight: 600,
-                  backgroundColor: isActive ? "#d1fae5" : "#fee2e2",
-                  color: isActive ? "#065f46" : "#991b1b",
+                  backgroundColor: "#dbeafe",
+                  color: "#1e40af",
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "#bfdbfe",
+                  },
                   "& .MuiChip-label": {
-                    px: 1,
+                    px: 1.5,
                   },
                 }}
+                title={`Clique para gerenciar status de ${variationsCount} variação${variationsCount > 1 ? "ões" : ""}`}
+                aria-label={`Abrir modal para gerenciar status das variações`}
               />
             )}
           </div>
@@ -371,18 +389,25 @@ export default function ProductCard({ product }: ProductCardProps) {
                 />
               ) : (
                 <Chip
-                  label={product.status}
+                  label={variationsCount}
                   size="small"
+                  onClick={handleOpenVariationsStatusModal}
                   sx={{
-                    height: 20,
+                    height: 22,
                     fontSize: "0.65rem",
                     fontWeight: 600,
-                    backgroundColor: isActive ? "#d1fae5" : "#fee2e2",
-                    color: isActive ? "#065f46" : "#991b1b",
+                    backgroundColor: "#dbeafe",
+                    color: "#1e40af",
+                    cursor: "pointer",
+                    "&:hover": {
+                      backgroundColor: "#bfdbfe",
+                    },
                     "& .MuiChip-label": {
                       px: 1,
                     },
                   }}
+                  title={`Clique para gerenciar status de ${variationsCount} variação${variationsCount > 1 ? "ões" : ""}`}
+                  aria-label={`Abrir modal para gerenciar status das variações`}
                 />
               )}
               <div className="relative">
