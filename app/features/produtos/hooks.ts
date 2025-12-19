@@ -106,8 +106,12 @@ export function useChangeVariationStatus() {
       }
       return res;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
+      // Invalida também a query de detalhes do produto específico
+      queryClient.invalidateQueries({
+        queryKey: ["products", "details", variables.productId],
+      });
       toast.success("Status da variação alterado com sucesso");
     },
     onError: (error: unknown) => {

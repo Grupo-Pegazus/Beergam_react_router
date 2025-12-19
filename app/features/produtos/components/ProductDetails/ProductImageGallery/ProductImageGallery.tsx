@@ -6,6 +6,11 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Chip from "@mui/material/Chip";
 import type { ProductDetails } from "../../../typings";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import Svg from "~/src/assets/svgs/_index";
@@ -25,10 +30,39 @@ const imageTypeLabels: Record<ImageType, string> = {
 export default function ProductImageGallery({ product }: ProductImageGalleryProps) {
   const [selectedTab, setSelectedTab] = useState<ImageType>("product");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedVariationId, setSelectedVariationId] = useState<string | null>(null);
+
+  const hasVariations = product.variations && product.variations.length > 0;
+  
+  // Seleciona a primeira variação por padrão se houver variações
+  const defaultVariationId = useMemo(() => {
+    if (hasVariations && product.variations && product.variations.length > 0) {
+      return product.variations[0].product_variation_id;
+    }
+    return null;
+  }, [hasVariations, product.variations]);
+
+  const activeVariationId = selectedVariationId || defaultVariationId;
+  
+  // Encontra a variação selecionada
+  const selectedVariation = useMemo(() => {
+    if (!hasVariations || !activeVariationId) return null;
+    return product.variations?.find(
+      (v) => v.product_variation_id === activeVariationId
+    ) || null;
+  }, [hasVariations, activeVariationId, product.variations]);
+
+  // Determina quais imagens usar: da variação selecionada ou do produto
+  const imagesSource = useMemo(() => {
+    if (hasVariations && selectedVariation) {
+      return selectedVariation.images || { product: [], marketplace: [], shipping: [] };
+    }
+    return product.images;
+  }, [hasVariations, selectedVariation, product.images]);
 
   const currentImages = useMemo(() => {
-    return product.images[selectedTab] || [];
-  }, [product.images, selectedTab]);
+    return imagesSource[selectedTab] || [];
+  }, [imagesSource, selectedTab]);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: ImageType) => {
     setSelectedTab(newValue);
@@ -64,6 +98,60 @@ export default function ProductImageGallery({ product }: ProductImageGalleryProp
       }}
     >
       <Stack spacing={2} sx={{ width: "100%" }}>
+        {/* Seletor de variações - apenas quando há variações */}
+        {hasVariations && product.variations && product.variations.length > 0 && (
+          <FormControl fullWidth size="small">
+            <InputLabel id="variation-select-label">Variação</InputLabel>
+            <Select
+              labelId="variation-select-label"
+              value={activeVariationId || ""}
+              label="Variação"
+              onChange={(e) => {
+                setSelectedVariationId(e.target.value as string);
+                setSelectedIndex(0); // Reset para primeira imagem ao trocar variação
+              }}
+              sx={{
+                "& .MuiSelect-select": {
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                },
+              }}
+            >
+              {product.variations.map((variation) => {
+                const variationImages = variation.images?.product || [];
+                const hasImages = variationImages.length > 0;
+                return (
+                  <MenuItem key={variation.product_variation_id} value={variation.product_variation_id}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: "100%" }}>
+                      <Typography variant="body2" sx={{ flex: 1 }}>
+                        {variation.title}
+                      </Typography>
+                      {variation.sku && (
+                        <Typography variant="caption" sx={{ color: "text.secondary", fontFamily: "monospace" }}>
+                          {variation.sku}
+                        </Typography>
+                      )}
+                      {hasImages && (
+                        <Chip
+                          label={variationImages.length}
+                          size="small"
+                          sx={{
+                            height: 20,
+                            fontSize: "0.65rem",
+                            bgcolor: "primary.main",
+                            color: "white",
+                          }}
+                        />
+                      )}
+                    </Box>
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        )}
+
         {/* Tabs para selecionar tipo de imagem */}
         <Tabs
           value={selectedTab}
