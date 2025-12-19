@@ -23,6 +23,7 @@ import {
 import type { IUser } from "~/features/user/typings/User";
 import { isMaster } from "~/features/user/utils";
 import Section from "~/src/components/ui/Section";
+import Alert from "~/src/components/utils/Alert";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
 import ExcedentBenefits from "./ExcedentBenefits";
@@ -49,6 +50,9 @@ export default function MinhaAssinatura() {
       );
 
       if (!response.success) {
+        if (response.error_code === 6105) {
+          throw new Error("Cartão não cadastrado");
+        }
         throw new Error(response.message || "Erro ao alterar plano");
       }
 
@@ -83,6 +87,19 @@ export default function MinhaAssinatura() {
     },
     onError: (error: Error) => {
       console.error("Erro ao alterar plano:", error);
+      if (error.message === "Cartão não cadastrado") {
+        openModal(
+          <Alert type="error" closeTimer={{ time: 30000, active: true }}>
+            <h3>
+              Você precisa cadastrar um cartão para continuar com a assinatura.
+            </h3>
+            <p>Gerencie sua assinatura em "Minha Assinatura"</p>
+          </Alert>,
+          {
+            title: "Erro ao alterar plano",
+          }
+        );
+      }
       toast.error(error.message || "Erro ao alterar plano. Tente novamente.");
     },
   });
