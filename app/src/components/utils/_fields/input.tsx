@@ -144,10 +144,12 @@ export default function Input({
             </div>
           )}
           {clipboard && (
-            <CopyButton
-              iconSize="h-5 w-5"
-              textToCopy={value?.toString() ?? ""}
-            />
+            <>
+              <CopyButton
+                iconSize="h-5 w-5"
+                textToCopy={(value as string) ?? "N/A"}
+              />
+            </>
           )}
         </div>
       </div>

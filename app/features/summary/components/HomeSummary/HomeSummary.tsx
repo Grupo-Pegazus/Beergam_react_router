@@ -1,10 +1,14 @@
-import { useCallback, useMemo, useState, memo } from "react";
-import { useHomeSummary } from "../../hooks";
+import { Skeleton } from "@mui/material";
+import { memo, useCallback, useMemo, useState } from "react";
+import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import StatCard from "~/src/components/ui/StatCard";
-import Svg from "~/src/assets/svgs/_index";
+import {
+  CensorshipWrapper,
+  TextCensored,
+} from "~/src/components/utils/Censorship";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
-import { Skeleton } from "@mui/material";
+import { useHomeSummary } from "../../hooks";
 
 type PeriodFilter = 1 | 7 | 15 | 30 | 90;
 
@@ -22,30 +26,32 @@ type PeriodButtonProps = {
   onSelect: (value: PeriodFilter) => void;
 };
 
-const PeriodButton = memo(({ option, isSelected, onSelect }: PeriodButtonProps) => {
-  const handleClick = useCallback(() => {
-    onSelect(option.value);
-  }, [option.value, onSelect]);
+const PeriodButton = memo(
+  ({ option, isSelected, onSelect }: PeriodButtonProps) => {
+    const handleClick = useCallback(() => {
+      onSelect(option.value);
+    }, [option.value, onSelect]);
 
-  const className = useMemo(
-    () =>
-      [
-        "px-3 py-2 rounded-lg text-xs sm:text-sm font-medium",
-        "transition-all duration-200 min-h-[36px]",
-        "touch-manipulation",
-        isSelected
-          ? "bg-beergam-blue-primary text-white shadow-md"
-          : "bg-slate-100 text-slate-700 hover:bg-slate-200 active:bg-slate-300",
-      ].join(" "),
-    [isSelected],
-  );
+    const className = useMemo(
+      () =>
+        [
+          "px-3 py-2 rounded-lg text-xs sm:text-sm font-medium",
+          "transition-all duration-200 min-h-[36px]",
+          "touch-manipulation",
+          isSelected
+            ? "bg-beergam-blue-primary text-white shadow-md"
+            : "bg-slate-100 text-slate-700 hover:bg-slate-200 active:bg-slate-300",
+        ].join(" "),
+      [isSelected]
+    );
 
-  return (
-    <button onClick={handleClick} className={className} type="button">
-      {option.label}
-    </button>
-  );
-});
+    return (
+      <button onClick={handleClick} className={className} type="button">
+        {option.label}
+      </button>
+    );
+  }
+);
 
 PeriodButton.displayName = "PeriodButton";
 
@@ -53,17 +59,33 @@ const HomeSummarySkeleton = memo(() => (
   <div className="space-y-4 md:space-y-6">
     <div className="flex flex-wrap gap-2">
       {PERIOD_OPTIONS.map((_, i) => (
-        <Skeleton key={i} variant="rectangular" width={80} height={36} className="rounded-lg" />
+        <Skeleton
+          key={i}
+          variant="rectangular"
+          width={80}
+          height={36}
+          className="rounded-lg"
+        />
       ))}
     </div>
     <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
       {[...Array(2)].map((_, i) => (
-        <Skeleton key={i} variant="rectangular" height={120} className="rounded-lg" />
+        <Skeleton
+          key={i}
+          variant="rectangular"
+          height={120}
+          className="rounded-lg"
+        />
       ))}
     </div>
     <div className="grid gap-3 md:gap-4 grid-cols-2 md:grid-cols-4">
       {[...Array(4)].map((_, i) => (
-        <Skeleton key={i} variant="rectangular" height={100} className="rounded-lg" />
+        <Skeleton
+          key={i}
+          variant="rectangular"
+          height={100}
+          className="rounded-lg"
+        />
       ))}
     </div>
   </div>
@@ -125,73 +147,117 @@ export default function HomeSummary() {
             {/* Métricas principais - Mobile: empilhadas, Desktop: lado a lado */}
             <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
               {/* Faturamento */}
-              <StatCard
-                title="Faturamento"
-                icon={<Svg.currency_dollar tailWindClasses="h-5 w-5 text-green-500" />}
-              >
-                <div className="text-lg md:text-xl lg:text-2xl font-bold">
-                  {formatCurrency(summaryData.faturamento_bruto)}
-                </div>
-              </StatCard>
+              <CensorshipWrapper censorshipKey="home_summary_faturamento_bruto">
+                <StatCard
+                  title="Faturamento"
+                  icon={
+                    <Svg.currency_dollar tailWindClasses="h-5 w-5 text-green-500" />
+                  }
+                >
+                  <div className="text-lg md:text-xl lg:text-2xl font-bold">
+                    <TextCensored
+                      className="text-lg! md:text-xl! lg:text-2xl! font-bold!"
+                      censorshipKey="home_summary_faturamento_bruto"
+                    >
+                      {formatCurrency(summaryData.faturamento_bruto)}
+                    </TextCensored>
+                  </div>
+                </StatCard>
+              </CensorshipWrapper>
 
               {/* Lucro */}
-              <StatCard
-                title="Lucro"
-                icon={<Svg.graph tailWindClasses="h-5 w-5 text-green-500" />}
-              >
-                <div className="text-lg md:text-xl lg:text-2xl font-bold">
-                  {formatCurrency(summaryData.lucro_liquido)}
-                </div>
-                <div className="text-xs md:text-sm mt-1">
-                  ({marginPercentual})
-                </div>
-              </StatCard>
+              <CensorshipWrapper censorshipKey="home_summary_lucro_liquido">
+                <StatCard
+                  title="Lucro"
+                  icon={<Svg.graph tailWindClasses="h-5 w-5 text-green-500" />}
+                >
+                  <div className="flex flex-col gap-1">
+                    <TextCensored
+                      censorshipKey="home_summary_lucro_liquido"
+                      className="text-lg! md:text-xl! lg:text-2xl! font-bold!"
+                    >
+                      {formatCurrency(summaryData.lucro_liquido)}
+                    </TextCensored>
+                    <TextCensored
+                      censorshipKey="home_summary_lucro_liquido"
+                      className="text-xs! md:text-sm! mt-1!"
+                    >
+                      ({marginPercentual})
+                    </TextCensored>
+                  </div>
+                </StatCard>
+              </CensorshipWrapper>
             </div>
 
             {/* Grid de métricas secundárias - Mobile: 2 colunas, Desktop: 4 colunas */}
             <div className="grid gap-3 md:gap-4 grid-cols-2 md:grid-cols-4">
               {/* Vendas */}
-              <StatCard
-                title="Vendas"
-                icon={<Svg.bag tailWindClasses="h-5 w-5 text-green-500" />}
-              >
-                <div className="text-lg md:text-xl lg:text-2xl font-bold">
-                  {summaryData.unidades} unidades
-                </div>
-              </StatCard>
+              <CensorshipWrapper censorshipKey="home_summary_vendas">
+                <StatCard
+                  title="Vendas"
+                  icon={<Svg.bag tailWindClasses="h-5 w-5 text-green-500" />}
+                >
+                  <TextCensored
+                    censorshipKey="home_summary_vendas"
+                    className="text-lg! md:text-xl! lg:text-2xl! font-bold!"
+                  >
+                    {summaryData.unidades} unidades
+                  </TextCensored>
+                </StatCard>
+              </CensorshipWrapper>
 
               {/* Ticket médio */}
-              <StatCard
-                title="Ticket médio"
-                icon={<Svg.currency_dollar tailWindClasses="h-5 w-5 text-green-500" />}
-              >
-                <div className="text-lg md:text-xl lg:text-2xl font-bold">
-                  {formatCurrency(summaryData.ticket_medio)}
-                </div>
-              </StatCard>
-
+              <CensorshipWrapper censorshipKey="home_summary_ticket_medio">
+                <StatCard
+                  title="Ticket médio"
+                  icon={
+                    <Svg.currency_dollar tailWindClasses="h-5 w-5 text-green-500" />
+                  }
+                >
+                  <TextCensored
+                    censorshipKey="home_summary_ticket_medio"
+                    className="text-lg! md:text-xl! lg:text-2xl! font-bold!"
+                  >
+                    {formatCurrency(summaryData.ticket_medio)}
+                  </TextCensored>
+                </StatCard>
+              </CensorshipWrapper>
               {/* Lucro médio */}
-              <StatCard
-                title="Lucro médio"
-                icon={<Svg.graph tailWindClasses="h-5 w-5 text-green-500" />}
-              >
-                <div className="text-lg md:text-xl lg:text-2xl font-bold">
-                  {formatCurrency(summaryData.lucro_medio)}
-                </div>
-              </StatCard>
-
+              <CensorshipWrapper censorshipKey="home_summary_lucro_medio">
+                <StatCard
+                  title="Lucro médio"
+                  icon={<Svg.graph tailWindClasses="h-5 w-5 text-green-500" />}
+                >
+                  <TextCensored
+                    censorshipKey="home_summary_lucro_medio"
+                    className="text-lg! md:text-xl! lg:text-2xl! font-bold!"
+                  >
+                    {formatCurrency(summaryData.lucro_medio)}
+                  </TextCensored>
+                </StatCard>
+              </CensorshipWrapper>
               {/* Canceladas */}
-              <StatCard
-                title="Canceladas"
-                icon={<Svg.circle_x tailWindClasses="h-5 w-5 text-red-500" />}
-              >
-                <div className="text-lg md:text-xl lg:text-2xl font-bold">
-                  {summaryData.canceladas.quantidade}
-                </div>
-                <div className="text-xs md:text-sm mt-1">
-                  ({formatCurrency(summaryData.canceladas.valor_total)})
-                </div>
-              </StatCard>
+              <CensorshipWrapper censorshipKey="home_summary_canceladas">
+                <StatCard
+                  title="Canceladas"
+                  icon={<Svg.circle_x tailWindClasses="h-5 w-5 text-red-500" />}
+                >
+                  <div className="flex flex-col gap-1">
+                    <TextCensored
+                      censorshipKey="home_summary_canceladas"
+                      className="text-lg! md:text-xl! lg:text-2xl! font-bold!"
+                    >
+                      {summaryData.canceladas.quantidade}
+                    </TextCensored>
+                    <TextCensored
+                      censorshipKey="home_summary_canceladas"
+                      className="text-xs! md:text-sm! mt-1!"
+                    >
+                      ({formatCurrency(summaryData.canceladas.valor_total)})
+                    </TextCensored>
+                  </div>
+                </StatCard>
+              </CensorshipWrapper>
             </div>
           </>
         )}
@@ -199,4 +265,3 @@ export default function HomeSummary() {
     </AsyncBoundary>
   );
 }
-

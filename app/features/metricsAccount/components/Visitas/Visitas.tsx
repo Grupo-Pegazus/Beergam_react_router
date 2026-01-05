@@ -1,28 +1,29 @@
-import { useMemo, useState, useCallback, memo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
-  LineChart,
+  CartesianGrid,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from "recharts";
-import { metricsAccountService } from "../../service";
-import VisitasSkeleton from "./Skeleton";
+import type { ApiResponse } from "~/features/apiClient/typings";
+import { MarketplaceType } from "~/features/marketplace/typings";
+import authStore from "~/features/store-zustand";
+import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import StatCard from "~/src/components/ui/StatCard";
-import Svg from "~/src/assets/svgs/_index";
-import { MarketplaceType } from "~/features/marketplace/typings";
+import { ImageCensored } from "~/src/components/utils/Censorship";
+import { metricsAccountService } from "../../service";
 import type { MarketplaceVisitsData } from "../../typings";
-import authStore from "~/features/store-zustand";
-import type { ApiResponse } from "~/features/apiClient/typings";
+import VisitasSkeleton from "./Skeleton";
 
 type VisitsResponse = ApiResponse<MarketplaceVisitsData<MarketplaceType>>;
 
 function isMeliVisits(
-  payload: MarketplaceVisitsData<MarketplaceType> | null,
+  payload: MarketplaceVisitsData<MarketplaceType> | null
 ): payload is MarketplaceVisitsData<MarketplaceType.MELI> {
   return payload?.marketplace_type === MarketplaceType.MELI;
 }
@@ -148,7 +149,6 @@ function useIsMobile() {
       setIsMobile(e.matches);
     };
 
-
     handleChange(mediaQuery);
 
     if (mediaQuery.addEventListener) {
@@ -188,7 +188,7 @@ const VisitsChart = memo(({ data, isMobile }: VisitsChartProps) => {
 
   const cursorStyle = useMemo(
     () => ({ stroke: styles.line.stroke, strokeWidth: 1 }),
-    [styles.line.stroke],
+    [styles.line.stroke]
   );
 
   if (data.length === 0) {
@@ -254,30 +254,32 @@ type PeriodButtonProps = {
   onSelect: (value: PeriodFilter) => void;
 };
 
-const PeriodButton = memo(({ option, isSelected, onSelect }: PeriodButtonProps) => {
-  const handleClick = useCallback(() => {
-    onSelect(option.value);
-  }, [option.value, onSelect]);
+const PeriodButton = memo(
+  ({ option, isSelected, onSelect }: PeriodButtonProps) => {
+    const handleClick = useCallback(() => {
+      onSelect(option.value);
+    }, [option.value, onSelect]);
 
-  const className = useMemo(
-    () =>
-      [
-        "px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium",
-        "transition-all duration-200 min-h-[36px] sm:min-h-0",
-        "touch-manipulation",
-        isSelected
-          ? "bg-blue-600 text-white shadow-md"
-          : "bg-slate-100 text-slate-700 hover:bg-slate-200 active:bg-slate-300",
-      ].join(" "),
-    [isSelected],
-  );
+    const className = useMemo(
+      () =>
+        [
+          "px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium",
+          "transition-all duration-200 min-h-[36px] sm:min-h-0",
+          "touch-manipulation",
+          isSelected
+            ? "bg-blue-600 text-white shadow-md"
+            : "bg-slate-100 text-slate-700 hover:bg-slate-200 active:bg-slate-300",
+        ].join(" "),
+      [isSelected]
+    );
 
-  return (
-    <button onClick={handleClick} className={className}>
-      {option.label}
-    </button>
-  );
-});
+    return (
+      <button onClick={handleClick} className={className}>
+        {option.label}
+      </button>
+    );
+  }
+);
 
 PeriodButton.displayName = "PeriodButton";
 
@@ -292,7 +294,7 @@ ErrorFallback.displayName = "ErrorFallback";
 export default function Visitas() {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>(90);
   const isMobile = useIsMobile();
-  
+
   const selectedMarketplace = authStore.use.marketplace();
   const marketplaceType = selectedMarketplace?.marketplace_type;
   const marketplaceShopId = selectedMarketplace?.marketplace_shop_id;
@@ -312,7 +314,7 @@ export default function Visitas() {
 
   const payload = useMemo(
     () => (data?.success ? data.data : null),
-    [data?.success, data?.data],
+    [data?.success, data?.data]
   );
 
   const chartData = useMemo(() => {
@@ -364,7 +366,16 @@ export default function Visitas() {
             </div>
 
             {/* Gráfico */}
-            <VisitsChart key={selectedPeriod} data={chartData} isMobile={isMobile} />
+            <ImageCensored
+              className="w-full h-full min-h-56"
+              censorshipKey="visitas_conta"
+            >
+              <VisitsChart
+                key={selectedPeriod}
+                data={chartData}
+                isMobile={isMobile}
+              />
+            </ImageCensored>
           </div>
         ) : (
           <p className="text-xs sm:text-sm text-[#475569] mt-3">

@@ -1,10 +1,11 @@
+import { Skeleton } from "@mui/material";
 import { createElement, useMemo } from "react";
-import { useOrdersMetrics } from "../../hooks";
+import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import StatCard from "~/src/components/ui/StatCard";
-import Svg from "~/src/assets/svgs/_index";
+import { CensorshipWrapper } from "~/src/components/utils/Censorship";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
-import { Skeleton } from "@mui/material";
+import { useOrdersMetrics } from "../../hooks";
 
 interface SummaryCardDefinition {
   key: string;
@@ -56,11 +57,15 @@ const REVENUE_CARDS: SummaryCardDefinition[] = [
     icon: "graph",
     color: "slate",
     formatter: formatCurrency,
-  }
+  },
 ];
 
 export default function VendasResumo() {
-  const { data: metricsData, isLoading: isLoadingMetrics, error: metricsError } = useOrdersMetrics();
+  const {
+    data: metricsData,
+    isLoading: isLoadingMetrics,
+    error: metricsError,
+  } = useOrdersMetrics();
 
   const ordersByStatus = useMemo(() => {
     if (!metricsData?.success || !metricsData.data) {
@@ -71,7 +76,8 @@ export default function VendasResumo() {
       };
     }
     return {
-      prontas_para_enviar: metricsData.data.orders_by_status.prontas_para_enviar,
+      prontas_para_enviar:
+        metricsData.data.orders_by_status.prontas_para_enviar,
       em_transito: metricsData.data.orders_by_status.em_transito,
       concluidas: metricsData.data.orders_by_status.concluidas,
     };
@@ -88,7 +94,8 @@ export default function VendasResumo() {
     return {
       faturamento_bruto_90d: metricsData.data.faturamento_bruto_90d,
       faturamento_liquido_90d: metricsData.data.faturamento_liquido_90d,
-      media_faturamento_diario_90d: metricsData.data.media_faturamento_diario_90d,
+      media_faturamento_diario_90d:
+        metricsData.data.media_faturamento_diario_90d,
     };
   }, [metricsData]);
 
@@ -101,7 +108,12 @@ export default function VendasResumo() {
       Skeleton={() => (
         <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
           {[...Array(5)].map((_, i) => (
-            <Skeleton key={i} variant="rectangular" height={100} className="rounded-lg" />
+            <Skeleton
+              key={i}
+              variant="rectangular"
+              height={100}
+              className="rounded-lg"
+            />
           ))}
         </div>
       )}
@@ -119,18 +131,24 @@ export default function VendasResumo() {
           </h4>
           <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-3">
             {QUICK_STATUS_CARDS.map((card) => {
-              const value = ordersByStatus[card.key as keyof typeof ordersByStatus];
+              const value =
+                ordersByStatus[card.key as keyof typeof ordersByStatus];
               return (
-                <StatCard
+                <CensorshipWrapper
                   key={card.key}
-                  icon={createElement(Svg[card.icon], {
-                    tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
-                  })}
-                  title={card.label}
-                  value={value}
-                  variant="soft"
-                  color={card.color}
-                />
+                  censorshipKey={`vendas_resumo_status_${card.key}`}
+                >
+                  <StatCard
+                    icon={createElement(Svg[card.icon], {
+                      tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
+                    })}
+                    title={card.label}
+                    value={value}
+                    variant="soft"
+                    color={card.color}
+                    censorshipKey={`vendas_resumo_status_${card.key}`}
+                  />
+                </CensorshipWrapper>
               );
             })}
           </div>
@@ -143,21 +161,28 @@ export default function VendasResumo() {
           </h4>
           <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {REVENUE_CARDS.map((card) => {
-              const value = revenueMetrics[card.key as keyof typeof revenueMetrics];
+              const value =
+                revenueMetrics[card.key as keyof typeof revenueMetrics];
               const formattedValue = card.formatter
                 ? card.formatter(value)
                 : value;
               return (
-                <StatCard
+                <CensorshipWrapper
                   key={card.key}
-                  icon={createElement(Svg[card.icon], {
-                    tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
-                  })}
-                  title={card.label}
-                  value={formattedValue}
-                  variant="soft"
-                  color={card.color}
-                />
+                  censorshipKey={`vendas_resumo_${card.key}`}
+                >
+                  <StatCard
+                    key={card.key}
+                    icon={createElement(Svg[card.icon], {
+                      tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
+                    })}
+                    title={card.label}
+                    censorshipKey={`vendas_resumo_${card.key}`}
+                    value={formattedValue}
+                    variant="soft"
+                    color={card.color}
+                  />
+                </CensorshipWrapper>
               );
             })}
           </div>
@@ -166,4 +191,3 @@ export default function VendasResumo() {
     </AsyncBoundary>
   );
 }
-
