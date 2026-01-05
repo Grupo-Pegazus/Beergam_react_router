@@ -1,6 +1,7 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useSyncExternalStore,
   type ReactNode,
 } from "react";
@@ -32,6 +33,11 @@ interface CensorshipProviderProps {
 }
 
 export function CensorshipProvider({ children }: CensorshipProviderProps) {
+  // Inicializa as configurações uma vez por recarregamento de página
+  useEffect(() => {
+    censorshipStore.getState().initializeSettings();
+  }, []);
+
   // Usa useSyncExternalStore para sincronizar com o Zustand store
   const getSettingsSnapshot = () => censorshipStore.getState().settings;
   const getSettingsServerSnapshot = () => ({}) as CensorshipSettings;

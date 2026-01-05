@@ -10,24 +10,32 @@ import Svg from "~/src/assets/svgs/_index";
 import { useCensorship } from "./CensorshipContext";
 import { ImageCensored } from "./ImageCensored";
 import { TextCensored } from "./TextCensored";
-
+import { type TPREDEFINED_CENSORSHIP_KEYS } from "./censorshipStore";
 interface CensorshipWrapperProps {
   children: ReactNode;
   className?: string;
-  censorshipKey: string; // Chave única para controlar a censura do wrapper
+  censorshipKey: TPREDEFINED_CENSORSHIP_KEYS; // Chave única para controlar a censura do wrapper
+  controlChildren?: boolean; // Se true, controla todas as chaves que começam com censorshipKey
 }
 
 /**
  * Wrapper que detecta componentes text_censored e image_censored
  * e aplica censura baseado nas configurações do localStorage.
  * Possui um botão de olho no canto superior direito para controlar a censura.
+ *
+ * @param controlChildren - Se true, ao fazer toggle, controla todas as chaves
+ * que começam com o prefixo da censorshipKey (ex: se a key for "home_summary",
+ * controla "home_summary_liquido", "home_summary_bruto", etc.).
+ * O wrapper funciona como um estado global independente dos filhos.
  */
 export function CensorshipWrapper({
   children,
   className,
   censorshipKey,
+  controlChildren = false,
 }: CensorshipWrapperProps) {
-  const { isCensored, toggleCensorship } = useCensorship();
+  const { isCensored, toggleCensorship, setCensorship, settings } =
+    useCensorship();
   const wrapperCensored = isCensored(censorshipKey);
 
   const processChildren = (node: ReactNode): ReactNode => {
@@ -82,7 +90,7 @@ export function CensorshipWrapper({
         return (
           <TextCensored
             key={element.key}
-            censorshipKey={censorshipKey}
+            censorshipKey={censorshipKey as TPREDEFINED_CENSORSHIP_KEYS}
             className={
               typeof props.className === "string" ? props.className : undefined
             }
@@ -146,7 +154,25 @@ export function CensorshipWrapper({
   }, [children, wrapperCensored]);
 
   const handleToggle = () => {
-    toggleCensorship(censorshipKey);
+    if (controlChildren) {
+      // Determina o novo valor (inverso do atual)
+      const newValue = !wrapperCensored;
+
+      // Atualiza a chave do wrapper
+      setCensorship(censorshipKey, newValue);
+
+      // Encontra todas as chaves que começam com o prefixo do wrapper
+      // e atualiza todas para o mesmo valor
+      const prefix = `${censorshipKey}_`;
+      Object.keys(settings).forEach((key) => {
+        if (key.startsWith(prefix)) {
+          setCensorship(key, newValue);
+        }
+      });
+    } else {
+      // Comportamento padrão: apenas toggle da chave do wrapper
+      toggleCensorship(censorshipKey);
+    }
   };
 
   return (

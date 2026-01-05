@@ -1,9 +1,10 @@
 import { type ReactNode } from "react";
 import { useCensorship } from "./CensorshipContext";
+import { type TPREDEFINED_CENSORSHIP_KEYS } from "./censorshipStore";
 
 interface TextCensoredProps {
   children: ReactNode;
-  censorshipKey: string;
+  censorshipKey: TPREDEFINED_CENSORSHIP_KEYS;
   replacement?: string; // Padrão: "*"
   className?: string;
   forceCensor?: boolean; // Força a censura independentemente do estado no localStorage
@@ -28,4 +29,3 @@ export function TextCensored({
 
   return <span className={className}>{children}</span>;
 }
-
