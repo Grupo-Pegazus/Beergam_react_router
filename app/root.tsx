@@ -30,6 +30,7 @@ import { queryClient } from "./lib/queryClient";
 import Error from "./src/components/Error";
 import type { TError } from "./src/components/Error/typings";
 import { ModalProvider } from "./src/components/utils/Modal/ModalProvider";
+import { CensorshipProvider } from "./src/components/utils/Censorship";
 import "./zod";
 dayjs.locale("pt-br");
 
@@ -397,14 +398,16 @@ export default function App() {
       initialUser={initialUser}
       initialMarketplace={initialMarketplace}
     >
-      <Analytics />
-      <QueryClientProvider client={queryClient}>
-        <ModalProvider>
-          <GlobalLoadingSpinner />
-          <SocketConnectionManager />
-          <AuthStoreMonitor />
-        </ModalProvider>
-      </QueryClientProvider>
+      <CensorshipProvider>
+        <Analytics />
+        <QueryClientProvider client={queryClient}>
+          <ModalProvider>
+            <GlobalLoadingSpinner />
+            <SocketConnectionManager />
+            <AuthStoreMonitor />
+          </ModalProvider>
+        </QueryClientProvider>
+      </CensorshipProvider>
     </AuthStoreProvider>
   );
 }
