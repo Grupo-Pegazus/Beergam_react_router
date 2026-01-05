@@ -1,5 +1,7 @@
-import type { PropsWithChildren, ReactNode } from "react";
 import { Paper } from "@mui/material";
+import type { PropsWithChildren, ReactNode } from "react";
+import { TextCensored } from "../utils/Censorship";
+import { type TPREDEFINED_CENSORSHIP_KEYS } from "../utils/Censorship/typings";
 
 type StatVariant = "soft" | "solid";
 
@@ -11,10 +13,25 @@ interface StatCardProps extends PropsWithChildren {
   className?: string;
   onClick?: () => void;
   variant?: StatVariant;
-  color?: "blue" | "purple" | "emerald" | "amber" | "rose" | "slate" | "red" | "orange" | "yellow" | "light_green" | "green";
+  censorshipKey?: TPREDEFINED_CENSORSHIP_KEYS;
+  color?:
+    | "blue"
+    | "purple"
+    | "emerald"
+    | "amber"
+    | "rose"
+    | "slate"
+    | "red"
+    | "orange"
+    | "yellow"
+    | "light_green"
+    | "green";
 }
 
-function colorTokens(color: NonNullable<StatCardProps["color"]>, variant: StatVariant) {
+function colorTokens(
+  color: NonNullable<StatCardProps["color"]>,
+  variant: StatVariant
+) {
   // Ajusta cores para header/realce conforme o tema escolhido
   const map = {
     blue: {
@@ -116,10 +133,7 @@ function colorTokens(color: NonNullable<StatCardProps["color"]>, variant: StatVa
         : `bg-linear-to-r ${t.iconBg}`,
     titleColor: variant === "solid" ? t.solidText : "text-[#475569]",
     valueColor: variant === "solid" ? t.solidText : "text-[#0f172a]",
-    cardBg:
-      variant === "solid"
-        ? `bg-linear-to-r ${t.solidBg}`
-        : `bg-white`,
+    cardBg: variant === "solid" ? `bg-linear-to-r ${t.solidBg}` : `bg-white`,
     accentText: t.accentText,
   };
 }
@@ -134,6 +148,7 @@ export default function StatCard({
   variant = "soft",
   color = "slate",
   children,
+  censorshipKey,
 }: StatCardProps) {
   const tokens = colorTokens(color, variant);
   return (
@@ -141,7 +156,7 @@ export default function StatCard({
       role={onClick ? "button" : undefined}
       onClick={onClick}
       className={[
-        "group relative flex flex-col justify-between",
+        "group relative flex flex-col justify-between h-full",
         "p-3 md:p-4 lg:p-5",
         "hover:-translate-y-px",
         "ring-1 ring-transparent hover:" + tokens.ring,
@@ -164,16 +179,44 @@ export default function StatCard({
               {icon}
             </div>
           ) : null}
-          <span className={["text-xs md:text-sm font-medium truncate", tokens.titleColor].join(" ")}>
+          <span
+            className={[
+              "text-xs md:text-sm font-medium truncate",
+              tokens.titleColor,
+            ].join(" ")}
+          >
             {title}
           </span>
         </div>
-        <div className={["text-lg md:text-xl lg:text-2xl font-extrabold shrink-0", tokens.valueColor].join(" ")}>
-          {loading ? "—" : value}
+        <div className="flex items-center gap-2">
+          {censorshipKey ? (
+            <TextCensored
+              className={[
+                "text-lg! md:text-xl! lg:text-2xl! font-extrabold! shrink-0",
+                tokens.valueColor,
+              ].join(" ")}
+              censorshipKey={censorshipKey}
+            >
+              {loading ? "—" : value}
+            </TextCensored>
+          ) : (
+            <div
+              className={[
+                "text-lg md:text-xl lg:text-2xl font-extrabold shrink-0",
+                tokens.valueColor,
+              ].join(" ")}
+            >
+              {loading ? "—" : value}
+            </div>
+          )}
         </div>
       </div>
       {children ? (
-        <div className={["mt-3", variant === "solid" ? "opacity-90" : ""].join(" ")}>
+        <div
+          className={["mt-3", variant === "solid" ? "opacity-90" : ""].join(
+            " "
+          )}
+        >
           {children}
         </div>
       ) : null}
@@ -183,5 +226,3 @@ export default function StatCard({
     </Paper>
   );
 }
-
-

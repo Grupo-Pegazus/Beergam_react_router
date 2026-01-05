@@ -1,12 +1,16 @@
 import type { ReactNode } from "react";
-import { useTopSoldAds } from "../../hooks";
+import { Link } from "react-router";
+import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import MainCards from "~/src/components/ui/MainCards";
-import Svg from "~/src/assets/svgs/_index";
-import TopAnunciosVendidosSkeleton from "./TopAnunciosVendidosSkeleton";
-import { Link } from "react-router";
-import type { Anuncio } from "../../typings";
+import {
+  CensorshipWrapper,
+  TextCensored,
+} from "~/src/components/utils/Censorship";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+import { useTopSoldAds } from "../../hooks";
+import type { Anuncio } from "../../typings";
+import TopAnunciosVendidosSkeleton from "./TopAnunciosVendidosSkeleton";
 export default function TopAnunciosVendidos() {
   const { data, isLoading, error } = useTopSoldAds({
     limit: 5,
@@ -30,12 +34,24 @@ export default function TopAnunciosVendidos() {
       {topAnuncios.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-amber-200 bg-white p-10 text-center">
           <Svg.warning_circle tailWindClasses="mx-auto h-8 w-8 text-amber-500" />
-          <p className="mt-2 text-sm text-slate-500">Nenhum destaque encontrado no momento.</p>
+          <p className="mt-2 text-sm text-slate-500">
+            Nenhum destaque encontrado no momento.
+          </p>
         </div>
       ) : (
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-5">
           {topAnuncios.map((anuncio, index) => (
-            <HighlightCard key={anuncio.mlb} anuncio={anuncio as Anuncio} position={index + 1} />
+            <CensorshipWrapper
+              key={anuncio.mlb}
+              censorshipKey={`resumo_top_anuncios_vendidos_${index + 1}`}
+            >
+              <HighlightCard
+                key={anuncio.mlb}
+                anuncio={anuncio as Anuncio}
+                position={index + 1}
+                censorshipKey={`resumo_top_anuncios_vendidos_${index + 1}`}
+              />
+            </CensorshipWrapper>
           ))}
         </div>
       )}
@@ -43,7 +59,15 @@ export default function TopAnunciosVendidos() {
   );
 }
 
-function HighlightCard({ anuncio, position }: { anuncio: Anuncio; position: number }) {
+function HighlightCard({
+  anuncio,
+  position,
+  censorshipKey,
+}: {
+  anuncio: Anuncio;
+  position: number;
+  censorshipKey: string;
+}) {
   return (
     <MainCards className="relative flex h-full flex-col gap-4 p-4 sm:p-5">
       <div className="absolute left-0 top-0">
@@ -54,11 +78,21 @@ function HighlightCard({ anuncio, position }: { anuncio: Anuncio; position: numb
       <div className="flex items-start gap-3 sm:gap-4 pt-1">
         <Thumbnail thumbnail={anuncio.thumbnail} name={anuncio.name} />
         <div className="min-w-0 flex-1 space-y-1">
-          <p className="truncate text-xs sm:text-sm font-semibold text-slate-900">{anuncio.name}</p>
+          <TextCensored
+            censorshipKey={censorshipKey}
+            maxCharacters={5}
+            className="block max-w-full! truncate! text-xs! sm:text-sm! font-semibold! text-slate-900!"
+          >
+            {anuncio.name}
+          </TextCensored>
           <div className="flex items-center gap-1.5 sm:gap-2 text-[12px] sm:text-xs text-slate-500">
-            <span>{formatCurrency(anuncio.price)}</span>
+            <TextCensored censorshipKey={censorshipKey} maxCharacters={1}>
+              {formatCurrency(anuncio.price)}
+            </TextCensored>
             <span>•</span>
-            <span>{anuncio.sold_quantity} vendas</span>
+            <TextCensored censorshipKey={censorshipKey} maxCharacters={1}>
+              {anuncio.sold_quantity} vendas
+            </TextCensored>
           </div>
         </div>
       </div>
@@ -114,7 +148,7 @@ function Thumbnail({ thumbnail, name }: ThumbnailProps) {
     );
   }
   return (
-      <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 shrink-0">
+    <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 shrink-0">
       <Svg.bag tailWindClasses="h-5 w-5 sm:h-6 sm:w-6" />
     </div>
   );
@@ -133,8 +167,12 @@ function HighlightStat({ icon, label, value }: HighlightStatProps) {
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] sm:text-[11px] font-medium uppercase tracking-wide text-slate-400 truncate">{label}</p>
-        <p className="text-xs sm:text-sm font-semibold text-slate-700 truncate">{value}</p>
+        <p className="text-[10px] sm:text-[11px] font-medium uppercase tracking-wide text-slate-400 truncate">
+          {label}
+        </p>
+        <p className="text-xs sm:text-sm font-semibold text-slate-700 truncate">
+          {value}
+        </p>
       </div>
     </div>
   );
@@ -145,7 +183,11 @@ interface ButtonBaseProps {
   children: ReactNode;
 }
 
-function InternalButtonLink({ to, icon, children }: ButtonBaseProps & { to: string }) {
+function InternalButtonLink({
+  to,
+  icon,
+  children,
+}: ButtonBaseProps & { to: string }) {
   return (
     <Link
       to={to}
@@ -160,4 +202,3 @@ function InternalButtonLink({ to, icon, children }: ButtonBaseProps & { to: stri
 function formatNumber(value: number | null | undefined) {
   return (value ?? 0).toLocaleString("pt-BR");
 }
-
