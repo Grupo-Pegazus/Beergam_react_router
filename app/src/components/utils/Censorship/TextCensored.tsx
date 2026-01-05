@@ -8,6 +8,7 @@ interface TextCensoredProps {
   replacement?: string; // Padrão: "*"
   className?: string;
   forceCensor?: boolean; // Força a censura independentemente do estado no localStorage
+  maxCharacters?: number;
 }
 
 export function TextCensored({
@@ -16,6 +17,7 @@ export function TextCensored({
   replacement = "*",
   className,
   forceCensor = false,
+  maxCharacters = 100,
 }: TextCensoredProps) {
   const { isCensored } = useCensorship();
   const censored = forceCensor || isCensored(censorshipKey);
@@ -24,7 +26,8 @@ export function TextCensored({
     // Se estiver censurado, substitui o texto por estrelas
     const text = typeof children === "string" ? children : String(children);
     const censoredText = text.replace(/./g, replacement);
-    return <span className={className}>{censoredText}</span>;
+    const censoredTextTruncated = censoredText.slice(0, maxCharacters);
+    return <span className={className}>{censoredTextTruncated}</span>;
   }
 
   return <span className={className}>{children}</span>;
