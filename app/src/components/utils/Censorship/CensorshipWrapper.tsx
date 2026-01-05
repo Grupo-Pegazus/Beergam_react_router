@@ -160,9 +160,13 @@ export function CensorshipWrapper({
         title={wrapperCensored ? "Mostrar conteúdo" : "Censurar conteúdo"}
       >
         {wrapperCensored ? (
-          <Svg.eye_slash width={20} height={20} className="text-gray-700" />
+          <Svg.eye_slash
+            width={20}
+            height={20}
+            tailWindClasses="text-gray-700"
+          />
         ) : (
-          <Svg.eye width={20} height={20} className="text-gray-700" />
+          <Svg.eye width={20} height={20} tailWindClasses="text-gray-700" />
         )}
       </button>
       {processedChildren}
