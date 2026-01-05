@@ -35,6 +35,7 @@ export const PREDEFINED_CENSORSHIP_KEYS = [
   "resumo_top_anuncios_vendidos_3",
   "resumo_top_anuncios_vendidos_4",
   "resumo_top_anuncios_vendidos_5",
+  "visitas_conta",
 ] as const;
 
 /**

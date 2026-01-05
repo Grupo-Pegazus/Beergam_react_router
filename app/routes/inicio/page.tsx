@@ -58,11 +58,13 @@ export default function InicioPage() {
           <TopAnunciosVendidos />
         </Section>
       </CensorshipWrapper>
-      <Section title="Visitas na conta">
-        <Grid cols={{ base: 1 }}>
-          <Visitas />
-        </Grid>
-      </Section>
+      <CensorshipWrapper censorshipKey="visitas_conta">
+        <Section title="Visitas na conta">
+          <Grid cols={{ base: 1 }}>
+            <Visitas />
+          </Grid>
+        </Section>
+      </CensorshipWrapper>
     </>
   );
 }
