@@ -45,9 +45,11 @@ export default function InicioPage() {
           <QuestionsOverviewHome />
         </Section>
       </CensorshipWrapper>
-      <Section title="Resumo de Anúncios">
-        <AnunciosMetricasCards />
-      </Section>
+      <CensorshipWrapper controlChildren censorshipKey="resumo_anuncios">
+        <Section title="Resumo de Anúncios">
+          <AnunciosMetricasCards />
+        </Section>
+      </CensorshipWrapper>
       <Section title="Top Anúncios Vendidos">
         <TopAnunciosVendidos />
       </Section>

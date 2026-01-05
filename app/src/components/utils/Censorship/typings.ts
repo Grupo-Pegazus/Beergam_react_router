@@ -24,6 +24,11 @@ export const PREDEFINED_CENSORSHIP_KEYS = [
   "perguntas_sla_dentro_de_1h",
   "perguntas_sla_pendentes",
   "perguntas_sla_total_periodo",
+  "resumo_anuncios",
+  "resumo_anuncios_categorias",
+  "resumo_anuncios_total_anuncios",
+  "resumo_anuncios_estoque_baixo",
+  "resumo_anuncios_a_melhorar",
 ] as const;
 
 /**
