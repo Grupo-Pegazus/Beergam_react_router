@@ -36,6 +36,8 @@ const PREDEFINED_VENDAS_KEYS = [
   "vendas_resumo_faturamento_bruto_90d",
   "vendas_resumo_faturamento_liquido_90d",
   "vendas_resumo_media_faturamento_diario_90d",
+  "vendas_faturamento_diario",
+  "vendas_distribuicao_geografica",
 ] as const;
 
 /**

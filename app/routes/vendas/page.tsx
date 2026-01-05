@@ -9,7 +9,10 @@ import type { VendasFiltersState } from "~/features/vendas/components/Filters";
 import { VendasFilters } from "~/features/vendas/components/Filters";
 import OrderList from "~/features/vendas/components/OrderList/OrderList";
 import { useVendasFilters } from "~/features/vendas/hooks";
-import { CensorshipWrapper } from "~/src/components/utils/Censorship";
+import {
+  CensorshipWrapper,
+  ImageCensored,
+} from "~/src/components/utils/Censorship";
 
 export default function VendasPage() {
   const { filters, setFilters, resetFilters, apiFilters, applyFilters } =
@@ -38,24 +41,38 @@ export default function VendasPage() {
           </Grid>
         </Section>
       </CensorshipWrapper>
-      <Section
-        title="Faturamento Diário"
-        actions={
-          <span className="text-xs text-slate-500">
-            Dados dos últimos 30 dias
-          </span>
-        }
-      >
-        <Grid cols={{ base: 1 }}>
-          <DailyRevenueChart days={30} />
-        </Grid>
-      </Section>
+      <CensorshipWrapper censorshipKey="vendas_faturamento_diario">
+        <Section
+          title="Faturamento Diário"
+          actions={
+            <span className="text-xs text-slate-500">
+              Dados dos últimos 30 dias
+            </span>
+          }
+        >
+          <Grid cols={{ base: 1 }}>
+            <ImageCensored
+              className="w-full h-full min-h-56"
+              censorshipKey="vendas_faturamento_diario"
+            >
+              <DailyRevenueChart days={30} />
+            </ImageCensored>
+          </Grid>
+        </Section>
+      </CensorshipWrapper>
 
-      <Section title="Distribuição Geográfica">
-        <Grid cols={{ base: 1 }}>
-          <GeographicMap period="last_day" />
-        </Grid>
-      </Section>
+      <CensorshipWrapper censorshipKey="vendas_distribuicao_geografica">
+        <Section title="Distribuição Geográfica">
+          <Grid cols={{ base: 1 }}>
+            <ImageCensored
+              className="w-full h-full min-h-56"
+              censorshipKey="vendas_distribuicao_geografica"
+            >
+              <GeographicMap period="last_day" />
+            </ImageCensored>
+          </Grid>
+        </Section>
+      </CensorshipWrapper>
       <Section title="Pedidos">
         <VendasFilters
           value={filters}
