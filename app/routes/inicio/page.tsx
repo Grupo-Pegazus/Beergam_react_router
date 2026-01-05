@@ -50,9 +50,14 @@ export default function InicioPage() {
           <AnunciosMetricasCards />
         </Section>
       </CensorshipWrapper>
-      <Section title="Top Anúncios Vendidos">
-        <TopAnunciosVendidos />
-      </Section>
+      <CensorshipWrapper
+        controlChildren
+        censorshipKey="resumo_top_anuncios_vendidos"
+      >
+        <Section title="Top Anúncios Vendidos">
+          <TopAnunciosVendidos />
+        </Section>
+      </CensorshipWrapper>
       <Section title="Visitas na conta">
         <Grid cols={{ base: 1 }}>
           <Visitas />

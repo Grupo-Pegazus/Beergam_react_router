@@ -29,6 +29,12 @@ export const PREDEFINED_CENSORSHIP_KEYS = [
   "resumo_anuncios_total_anuncios",
   "resumo_anuncios_estoque_baixo",
   "resumo_anuncios_a_melhorar",
+  "resumo_top_anuncios_vendidos",
+  "resumo_top_anuncios_vendidos_1",
+  "resumo_top_anuncios_vendidos_2",
+  "resumo_top_anuncios_vendidos_3",
+  "resumo_top_anuncios_vendidos_4",
+  "resumo_top_anuncios_vendidos_5",
 ] as const;
 
 /**
