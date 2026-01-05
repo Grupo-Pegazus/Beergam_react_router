@@ -10,7 +10,7 @@ import Svg from "~/src/assets/svgs/_index";
 import { useCensorship } from "./CensorshipContext";
 import { ImageCensored } from "./ImageCensored";
 import { TextCensored } from "./TextCensored";
-import { type TPREDEFINED_CENSORSHIP_KEYS } from "./censorshipStore";
+import { type TPREDEFINED_CENSORSHIP_KEYS } from "./typings";
 interface CensorshipWrapperProps {
   children: ReactNode;
   className?: string;
@@ -181,7 +181,7 @@ export function CensorshipWrapper({
       <button
         type="button"
         onClick={handleToggle}
-        className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-white/90 hover:bg-white shadow-md transition-colors duration-200 flex items-center justify-center"
+        className="absolute group -top-4 -right-2 z-10 p-1.5 rounded-full bg-white shadow-md transition-colors duration-200 flex items-center justify-center hover:translate-y-px hover:bg-beergam-blue-primary hover:text-beergam-white!"
         aria-label={wrapperCensored ? "Mostrar conteúdo" : "Censurar conteúdo"}
         title={wrapperCensored ? "Mostrar conteúdo" : "Censurar conteúdo"}
       >
@@ -189,10 +189,14 @@ export function CensorshipWrapper({
           <Svg.eye_slash
             width={20}
             height={20}
-            tailWindClasses="text-gray-700"
+            tailWindClasses="text-gray-700 group-hover:text-beergam-white!"
           />
         ) : (
-          <Svg.eye width={20} height={20} tailWindClasses="text-gray-700" />
+          <Svg.eye
+            width={20}
+            height={20}
+            tailWindClasses="text-gray-700 group-hover:text-beergam-white!"
+          />
         )}
       </button>
       {processedChildren}

@@ -25,16 +25,18 @@ export default function InicioPage() {
           <ScheduleTimes />
         </Grid>
       </Section>
-      <Section
-        title="Resumo de Vendas"
-        actions={
-          <span className="text-xs text-slate-500">
-            Dados dos últimos 90 dias
-          </span>
-        }
-      >
-        <VendasResumo />
-      </Section>
+      <CensorshipWrapper controlChildren censorshipKey="vendas_resumo">
+        <Section
+          title="Resumo de Vendas"
+          actions={
+            <span className="text-xs text-slate-500">
+              Dados dos últimos 90 dias
+            </span>
+          }
+        >
+          <VendasResumo />
+        </Section>
+      </CensorshipWrapper>
       <Section title="Resumo de Produtos">
         <ProdutosMetricasCards />
       </Section>

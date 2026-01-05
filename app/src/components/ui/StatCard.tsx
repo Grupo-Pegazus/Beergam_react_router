@@ -1,5 +1,7 @@
 import { Paper } from "@mui/material";
 import type { PropsWithChildren, ReactNode } from "react";
+import { TextCensored } from "../utils/Censorship";
+import { type TPREDEFINED_CENSORSHIP_KEYS } from "../utils/Censorship/typings";
 
 type StatVariant = "soft" | "solid";
 
@@ -11,6 +13,7 @@ interface StatCardProps extends PropsWithChildren {
   className?: string;
   onClick?: () => void;
   variant?: StatVariant;
+  censorshipKey?: TPREDEFINED_CENSORSHIP_KEYS;
   color?:
     | "blue"
     | "purple"
@@ -145,6 +148,7 @@ export default function StatCard({
   variant = "soft",
   color = "slate",
   children,
+  censorshipKey,
 }: StatCardProps) {
   const tokens = colorTokens(color, variant);
   return (
@@ -184,13 +188,27 @@ export default function StatCard({
             {title}
           </span>
         </div>
-        <div
-          className={[
-            "text-lg md:text-xl lg:text-2xl font-extrabold shrink-0",
-            tokens.valueColor,
-          ].join(" ")}
-        >
-          {loading ? "—" : value}
+        <div className="flex items-center gap-2">
+          {censorshipKey ? (
+            <TextCensored
+              className={[
+                "text-lg! md:text-xl! lg:text-2xl! font-extrabold! shrink-0",
+                tokens.valueColor,
+              ].join(" ")}
+              censorshipKey={censorshipKey}
+            >
+              {loading ? "—" : value}
+            </TextCensored>
+          ) : (
+            <div
+              className={[
+                "text-lg md:text-xl lg:text-2xl font-extrabold shrink-0",
+                tokens.valueColor,
+              ].join(" ")}
+            >
+              {loading ? "—" : value}
+            </div>
+          )}
         </div>
       </div>
       {children ? (
