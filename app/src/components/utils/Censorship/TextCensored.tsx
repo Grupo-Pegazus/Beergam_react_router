@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 import { useCensorship } from "./CensorshipContext";
-import { type TPREDEFINED_CENSORSHIP_KEYS } from "./censorshipStore";
+import { type TPREDEFINED_CENSORSHIP_KEYS } from "./typings";
 
 interface TextCensoredProps {
   children: ReactNode;

@@ -40,9 +40,11 @@ export default function InicioPage() {
       <Section title="Resumo de Produtos">
         <ProdutosMetricasCards />
       </Section>
-      <Section title="Perguntas e SLA">
-        <QuestionsOverviewHome />
-      </Section>
+      <CensorshipWrapper controlChildren censorshipKey="perguntas_sla">
+        <Section title="Perguntas e SLA">
+          <QuestionsOverviewHome />
+        </Section>
+      </CensorshipWrapper>
       <Section title="Resumo de Anúncios">
         <AnunciosMetricasCards />
       </Section>

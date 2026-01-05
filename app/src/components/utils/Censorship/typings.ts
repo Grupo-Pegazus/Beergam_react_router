@@ -19,6 +19,11 @@ export const PREDEFINED_CENSORSHIP_KEYS = [
   "vendas_resumo_faturamento_bruto_90d",
   "vendas_resumo_faturamento_liquido_90d",
   "vendas_resumo_media_faturamento_diario_90d",
+  "perguntas_sla",
+  "perguntas_sla_tempo_medio",
+  "perguntas_sla_dentro_de_1h",
+  "perguntas_sla_pendentes",
+  "perguntas_sla_total_periodo",
 ] as const;
 
 /**
