@@ -1,4 +1,4 @@
-import { type ImgHTMLAttributes } from "react";
+import { type ImgHTMLAttributes, type ReactNode } from "react";
 import { useCensorship } from "./CensorshipContext";
 
 interface ImageCensoredProps extends ImgHTMLAttributes<HTMLImageElement> {
@@ -6,6 +6,7 @@ interface ImageCensoredProps extends ImgHTMLAttributes<HTMLImageElement> {
   blurIntensity?: number; // Padrão: 10px
   className?: string;
   forceCensor?: boolean; // Força a censura independentemente do estado no localStorage
+  children?: ReactNode;
 }
 
 export function ImageCensored({
@@ -14,6 +15,7 @@ export function ImageCensored({
   className,
   style,
   forceCensor = false,
+  children,
   ...imgProps
 }: ImageCensoredProps) {
   const { isCensored } = useCensorship();
@@ -22,18 +24,15 @@ export function ImageCensored({
   const blurStyle: React.CSSProperties = censored
     ? {
         filter: `blur(${blurIntensity}px)`,
+        backgroundColor: "rgba(0, 0, 0, 0.1)",
         userSelect: "none",
         pointerEvents: "none",
         ...style,
       }
     : style;
 
-  return (
-    <img
-      {...imgProps}
-      className={className}
-      style={blurStyle}
-    />
-  );
+  if (censored) {
+    return <div {...imgProps} className={className} style={blurStyle} />;
+  }
+  return <>{children}</>;
 }
-
