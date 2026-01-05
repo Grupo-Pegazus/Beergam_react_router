@@ -73,15 +73,17 @@ export default function VendasPage() {
           </Grid>
         </Section>
       </CensorshipWrapper>
-      <Section title="Pedidos">
-        <VendasFilters
-          value={filters}
-          onChange={handleFiltersChange}
-          onReset={resetFilters}
-          onSubmit={applyFilters}
-        />
-        <OrderList filters={apiFilters} />
-      </Section>
+      <CensorshipWrapper censorshipKey="vendas_orders_list">
+        <Section title="Pedidos">
+          <VendasFilters
+            value={filters}
+            onChange={handleFiltersChange}
+            onReset={resetFilters}
+            onSubmit={applyFilters}
+          />
+          <OrderList filters={apiFilters} />
+        </Section>
+      </CensorshipWrapper>
     </>
   );
 }

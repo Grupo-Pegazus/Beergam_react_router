@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
 import { Typography } from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
-import { useOrders } from "../../hooks";
-import type { OrdersFilters, Order } from "../../typings";
-import OrderCard from "./OrderCard";
-import OrderPackage from "./OrderPackage";
-import OrderListSkeleton from "./OrderListSkeleton";
 import PaginationBar from "~/src/components/ui/PaginationBar";
+import { useOrders } from "../../hooks";
+import type { Order, OrdersFilters } from "../../typings";
+import OrderCard from "./OrderCard";
+import OrderListSkeleton from "./OrderListSkeleton";
+import OrderPackage from "./OrderPackage";
 
 interface OrderListProps {
   filters?: Partial<OrdersFilters>;
@@ -166,4 +166,3 @@ export default function OrderList({ filters = {} }: OrderListProps) {
     </>
   );
 }
-

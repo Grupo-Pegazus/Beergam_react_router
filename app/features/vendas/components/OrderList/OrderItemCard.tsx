@@ -1,12 +1,14 @@
-import { useState } from "react";
 import { Typography } from "@mui/material";
-import type { Order } from "../../typings";
-import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
-import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+import { useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
+import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
+import { TextCensored, useCensorship } from "~/src/components/utils/Censorship";
+import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+import type { Order } from "../../typings";
 
 interface OrderItemCardProps {
   order: Order;
+  censored?: boolean | undefined;
 }
 
 function CardInfo({ label, value }: { label: string; value: string | number }) {
@@ -18,77 +20,135 @@ function CardInfo({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-function ProfitCardInfo({ label, value, options }: { label: string; value: string | number; options?: { money?: boolean; percentage?: boolean } }) {
+function ProfitCardInfo({
+  censored,
+  label,
+  value,
+  options,
+}: {
+  censored?: boolean | undefined;
+  label: string;
+  value: string | number;
+  options?: { money?: boolean; percentage?: boolean };
+}) {
   return (
     <div className="flex flex-col gap-0.5 md:gap-1 w-full md:w-[50%] text-center flex-1 bg-white rounded-lg py-1 px-1.5 md:px-2 border border-slate-200">
       <p className="text-slate-500 text-xs! md:text-sm! font-medium">{label}</p>
-      <h3 className="text-xs! md:text-sm! font-bold text-green-500">{formatCurrency(value, options)}</h3>
+      <h3 className="text-xs! md:text-sm! font-bold text-green-500">
+        {censored ? "****" : formatCurrency(value, options)}
+      </h3>
     </div>
   );
 }
 
 export default function OrderItemCard({ order }: OrderItemCardProps) {
+  const { isCensored } = useCensorship();
+  const censored = isCensored("vendas_orders_list");
   const [isExpanded, setIsExpanded] = useState(false);
-  const profit = Number(order.valor_liquido) - Number(order.price_cost) - Number(order.packaging_cost) - Number(order.extra_cost) - Number(order.tax_amount);
-  const margin = Number(order.valor_liquido) > 0 
-    ? ((profit / Number(order.valor_liquido)) * 100) 
-    : 0;
+  const profit =
+    Number(order.valor_liquido) -
+    Number(order.price_cost) -
+    Number(order.packaging_cost) -
+    Number(order.extra_cost) -
+    Number(order.tax_amount);
+  const margin =
+    Number(order.valor_liquido) > 0
+      ? (profit / Number(order.valor_liquido)) * 100
+      : 0;
 
   return (
     <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-2 bg-slate-200 rounded-lg p-2 md:p-2 w-full min-w-0">
       <div className="flex items-center gap-2 flex-1 min-w-0 w-full md:w-auto">
-        <Thumbnail thumbnail={order.thumbnail ?? ""} tailWindClasses="w-12! h-12! md:w-16! md:h-16! shrink-0" />
+        <Thumbnail
+          thumbnail={order.thumbnail ?? ""}
+          tailWindClasses="w-12! h-12! md:w-16! md:h-16! shrink-0"
+        />
         <div className="flex flex-col gap-0.5 md:gap-1 min-w-0 flex-1 overflow-hidden w-0">
-          <Typography 
-            variant="body2" 
-            fontWeight={600} 
-            className="text-slate-900 text-sm md:text-base"
-            noWrap
-            sx={{
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              width: "100%",
-              maxWidth: "100%",
-              display: "block",
-            }}
+          <TextCensored
+            forceCensor={censored}
+            censorshipKey="vendas_orders_list"
           >
-            {order.title}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" className="text-xs md:text-sm">
-            {order.mlb || "—"} | {order.sku || "—"}
+            <Typography
+              variant="body2"
+              fontWeight={600}
+              className="text-slate-900 text-sm md:text-base"
+              noWrap
+              sx={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                width: "100%",
+                maxWidth: "100%",
+                display: "block",
+              }}
+            >
+              {order.title}
+            </Typography>
+          </TextCensored>
+
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            className="text-xs md:text-sm"
+          >
+            {censored ? "****" : order.mlb || "—"} |{" "}
+            {censored ? "****" : order.sku || "—"}
           </Typography>
           {order.ad_type && (
-            <Typography variant="caption" color="text.secondary" className="text-xs md:text-sm">
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              className="text-xs md:text-sm"
+            >
               {order.ad_type}
             </Typography>
           )}
         </div>
       </div>
-      
+
       {/* Mobile: Resumo básico com botão de expandir */}
       <div className="flex md:hidden items-center justify-between gap-2">
         <div className="flex items-center gap-2 bg-slate-100 px-2 py-1 rounded-lg">
-          <Typography variant="caption" color="text.secondary" className="text-xs">
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            className="text-xs"
+          >
             Qtd:
           </Typography>
-          <Typography variant="body2" fontWeight={600} className="text-slate-900 text-sm">
-            {order.quantity || 0}
+          <Typography
+            variant="body2"
+            fontWeight={600}
+            className="text-slate-900 text-sm"
+          >
+            {censored ? "****" : order.quantity || 0}
           </Typography>
           <span className="text-slate-300">|</span>
-          <Typography variant="caption" color="text.secondary" className="text-xs">
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            className="text-xs"
+          >
             Total Bruto:
           </Typography>
-          <Typography variant="body2" fontWeight={700} className="text-slate-900 text-sm">
-            {formatCurrency(order.total_amount)}
+          <Typography
+            variant="body2"
+            fontWeight={700}
+            className="text-slate-900 text-sm"
+          >
+            {censored ? "****" : formatCurrency(order.total_amount)}
           </Typography>
         </div>
-        
+
         {/* Botão de expandir - Apenas mobile */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className="flex items-center justify-center w-8 h-8 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 transition-colors touch-manipulation shrink-0"
-          aria-label={isExpanded ? "Recolher detalhes financeiros" : "Ver detalhes financeiros"}
+          aria-label={
+            isExpanded
+              ? "Recolher detalhes financeiros"
+              : "Ver detalhes financeiros"
+          }
         >
           <Svg.chevron
             tailWindClasses={`h-4 w-4 transition-transform duration-200 ${
@@ -102,15 +162,33 @@ export default function OrderItemCard({ order }: OrderItemCardProps) {
       {isExpanded && (
         <div className="flex flex-col md:hidden gap-1.5 bg-slate-100 p-2 rounded-lg w-full">
           <div className="grid grid-cols-2 gap-1.5">
-            <CardInfo label="Bruto:" value={formatCurrency(order.total_amount)} />
-            <CardInfo label="Imposto:" value={formatCurrency(order.tax_amount)} />
+            <CardInfo
+              label="Bruto:"
+              value={censored ? "****" : formatCurrency(order.total_amount)}
+            />
+            <CardInfo
+              label="Imposto:"
+              value={censored ? "****" : formatCurrency(order.tax_amount)}
+            />
           </div>
           <div className="grid grid-cols-2 gap-1.5">
-            <CardInfo label="Custo:" value={formatCurrency(order.extra_cost)} />
-            <ProfitCardInfo label="Lucro:" value={profit} />
+            <CardInfo
+              label="Custo:"
+              value={censored ? "****" : formatCurrency(order.extra_cost)}
+            />
+            <ProfitCardInfo
+              censored={censored}
+              label="Lucro:"
+              value={censored ? "****" : profit}
+            />
           </div>
           <div className="grid grid-cols-1 gap-1.5">
-            <ProfitCardInfo label="Margem:" value={margin} options={{ percentage: true }} />
+            <ProfitCardInfo
+              label="Margem:"
+              censored={censored}
+              value={censored ? "*" : margin}
+              options={{ percentage: true }}
+            />
           </div>
         </div>
       )}
@@ -118,17 +196,30 @@ export default function OrderItemCard({ order }: OrderItemCardProps) {
       {/* Desktop: Detalhes financeiros - Sempre visíveis */}
       <div className="hidden md:flex flex-col items-center gap-2 w-[max-content] bg-slate-100 p-2 rounded-lg shrink-0">
         <div className="flex items-center gap-2 w-full">
-          <CardInfo label="Qtd:" value={order.quantity || 0} />
-          <CardInfo label="Bruto:" value={formatCurrency(order.total_amount)} />
-          <CardInfo label="Imposto:" value={formatCurrency(order.tax_amount)} />
-          <CardInfo label="Custo:" value={formatCurrency(order.extra_cost)} />
+          <CardInfo label="Qtd:" value={censored ? "*" : order.quantity || 0} />
+          <CardInfo
+            label="Bruto:"
+            value={censored ? "*" : formatCurrency(order.total_amount)}
+          />
+          <CardInfo
+            label="Imposto:"
+            value={censored ? "*" : formatCurrency(order.tax_amount)}
+          />
+          <CardInfo
+            label="Custo:"
+            value={censored ? "*" : formatCurrency(order.extra_cost)}
+          />
         </div>
         <div className="flex items-center gap-2 w-full">
-          <ProfitCardInfo label="Lucro:" value={profit} />
-          <ProfitCardInfo label="Margem:" value={margin} options={{ percentage: true }} />
+          <ProfitCardInfo censored={censored} label="Lucro:" value={profit} />
+          <ProfitCardInfo
+            label="Margem:"
+            censored={censored}
+            value={margin}
+            options={{ percentage: true }}
+          />
         </div>
       </div>
     </div>
   );
 }
-
