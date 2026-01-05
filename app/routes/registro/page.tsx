@@ -15,7 +15,7 @@ export default function RegistroPage() {
         <div className="w-full lg:w-2/3">
           <RegistroForm />
         </div>
-        <div className="w-full lg:w-[60%] h-full flex items-center justify-center text-beergam-white">
+        <div className="w-full hidden lg:flex lg:w-[60%] h-full items-center justify-center text-beergam-white">
           <div className="flex flex-col gap-4 p-5 rounded-xl h-2/5 text-center">
             <h2 className="!font-black">
               Gestão do seu E-Commerce grátis por 14 dias

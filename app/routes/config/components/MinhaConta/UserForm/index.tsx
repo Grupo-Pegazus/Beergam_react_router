@@ -102,42 +102,49 @@ export default function UserForm({ user }: { user: IUser }) {
             <UserFields
               label="Nome"
               {...register("name")}
+              value={watch("name") ?? ""}
               error={errors.name?.message}
               canAlter={false}
             />
             <UserFields
               label="E-mail"
               {...register("details.email")}
+              value={watch("details.email") ?? ""}
               error={errors.details?.email?.message}
               canAlter={false}
             />
             <UserFields
               label="CPF"
               {...register("details.cpf")}
+              value={watch("details.cpf") ?? ""}
               error={errors.details?.cpf?.message}
               canAlter={user.details?.cpf ? false : true}
             />
             <UserFields
               label="CNPJ"
               {...register("details.cnpj")}
+              value={watch("details.cnpj") ?? ""}
               error={errors.details?.cnpj?.message}
               canAlter={user.details?.cnpj ? false : true}
             />
             <UserFields
               label="Telefone"
               {...register("details.phone")}
+              value={watch("details.phone") ?? ""}
               error={errors.details?.phone?.message}
               canAlter={user.details?.phone ? false : true}
             />
             <UserFields
               label="Telefone Secundário"
               {...register("details.secondary_phone")}
+              value={watch("details.secondary_phone") ?? ""}
               error={errors.details?.secondary_phone?.message}
               canAlter={user.details?.secondary_phone ? false : true}
             />
             <UserFields
               label="PIN"
               {...register("pin")}
+              value={watch("pin") ?? ""}
               error={errors.pin?.message}
               canAlter={false}
               clipboard={true}
@@ -146,6 +153,7 @@ export default function UserForm({ user }: { user: IUser }) {
             <UserFields
               label="Código de Referência"
               {...register("details.personal_reference_code")}
+              value={watch("details.personal_reference_code") ?? ""}
               error={errors.details?.personal_reference_code?.message}
               canAlter={false}
               clipboard={true}
@@ -154,6 +162,7 @@ export default function UserForm({ user }: { user: IUser }) {
             <UserFields
               label="Usuários Indicados"
               {...register("sub_count")}
+              value={watch("sub_count") ?? ""}
               error={errors.sub_count?.message}
               canAlter={false}
               hint="Quantidade de usuários que usaram seu código de referência para se cadastrar."
@@ -200,6 +209,7 @@ export default function UserForm({ user }: { user: IUser }) {
             <UserFields
               label="Cálculo Fixo de Imposto (%)"
               {...register("details.tax_percent_fixed")}
+              value={watch("details.tax_percent_fixed") ?? ""}
               error={errors.details?.tax_percent_fixed?.message}
               canAlter={true}
             />
