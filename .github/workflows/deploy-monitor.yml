@@ -1,15 +1,11 @@
 name: Frontend Deploy Monitor
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'app/**'
-      - 'vite.config.ts'
-      - 'package.json'
-      - 'vercel.json'
-      - 'react-router.config.ts'
+    push:
+        branches: [ main ]
+    pull_request:
+        types: [ opened, synchronize, reopened, closed ]
+        branches: [ main ]
 
 permissions:
   contents: read
