@@ -150,6 +150,7 @@ jobs:
           STATUS="${{ steps.wait_deployment.outputs.status }}"
           DEPLOYMENT_ID="${{ steps.wait_deployment.outputs.deployment_id }}"
           DEPLOYMENT_URL="https://${{ steps.wait_deployment.outputs.deployment_url }}"
+          DEPLOYMENT_URL_SHORT="${{ steps.wait_deployment.outputs.deployment_url}}"
           COMMIT_SHA="${{ github.sha }}"
           COMMIT_SHORT="${COMMIT_SHA:0:7}"
           COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
@@ -192,7 +193,7 @@ jobs:
               "fields": [
                 {
                   "name": "🌐 URL",
-                  "value": "[${DEPLOYMENT_URL}](${DEPLOYMENT_URL})",
+                  "value": "[${DEPLOYMENT_URL_SHORT}](${DEPLOYMENT_URL})",
                   "inline": true
                 },
                 {
