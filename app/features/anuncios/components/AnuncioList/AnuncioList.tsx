@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useState } from "react";
 import {
   Chip,
   IconButton,
@@ -7,22 +6,25 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
-import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
-import MainCards from "~/src/components/ui/MainCards";
-import CopyButton from "~/src/components/ui/CopyButton";
 import Svg from "~/src/assets/svgs/_index";
+import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
+import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import CopyButton from "~/src/components/ui/CopyButton";
+import MainCards from "~/src/components/ui/MainCards";
+import PaginationBar from "~/src/components/ui/PaginationBar";
+import { TextCensored } from "~/src/components/utils/Censorship";
+import { useCensorship } from "~/src/components/utils/Censorship/CensorshipContext";
+import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
 import { useAnuncios, useChangeAdStatus } from "../../hooks";
 import type { AdsFilters, Anuncio } from "../../typings";
-import AnuncioListSkeleton from "./AnuncioListSkeleton";
-import Speedometer from "../Speedometer/Speedometer";
-import VisitsChart from "./VisitsChart";
-import VariationsList from "./Variations/VariationsList";
-import { formatCurrency, formatNumber } from "./utils";
-import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
-import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
 import AnuncioStatusToggle from "../AnuncioStatusToggle";
-import PaginationBar from "~/src/components/ui/PaginationBar";
+import Speedometer from "../Speedometer/Speedometer";
+import AnuncioListSkeleton from "./AnuncioListSkeleton";
+import VariationsList from "./Variations/VariationsList";
+import VisitsChart from "./VisitsChart";
+import { formatCurrency, formatNumber } from "./utils";
 
 interface AnunciosListProps {
   filters?: Partial<AdsFilters>;
@@ -75,7 +77,8 @@ export default function AnunciosList({ filters = {} }: AnunciosListProps) {
   const handlePageChange = (nextPage: number) => {
     setPage(nextPage);
   };
-
+  const { isCensored } = useCensorship();
+  const censored = isCensored("anuncios_list");
   return (
     <>
       {/* Container da lista de anúncios (alvo de scroll) */}
@@ -108,6 +111,7 @@ export default function AnunciosList({ filters = {} }: AnunciosListProps) {
                     anuncio={anuncio}
                     onToggleStatus={() => handleToggleStatus(anuncio)}
                     isMutating={mutatingAdId === anuncio.mlb}
+                    censored={censored}
                   />
                 ))}
               </Stack>
@@ -137,13 +141,19 @@ interface AnuncioCardProps {
   isMutating: boolean;
 }
 
-function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) {
+function AnuncioCard({
+  anuncio,
+  onToggleStatus,
+  isMutating,
+}: AnuncioCardProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const isActive = anuncio.status === "active";
   const healthScore = anuncio.health?.score ?? null;
   const reputation = anuncio.experience?.reputation;
-  const conversionRate = anuncio.conversion_rate ? parseFloat(anuncio.conversion_rate) : null;
+  const conversionRate = anuncio.conversion_rate
+    ? parseFloat(anuncio.conversion_rate)
+    : null;
   const hasVariations = anuncio.variations && anuncio.variations.length > 0;
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -170,7 +180,9 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
                 <button
                   onClick={handleToggleExpansion}
                   className="absolute -right-1 -top-1 md:flex hidden items-center justify-center w-6 h-6 md:w-5 md:h-5 rounded-full bg-blue-500 text-white shadow-md hover:bg-blue-600 active:bg-blue-700 transition-colors z-10 touch-manipulation"
-                  aria-label={isExpanded ? "Recolher variações" : "Expandir variações"}
+                  aria-label={
+                    isExpanded ? "Recolher variações" : "Expandir variações"
+                  }
                 >
                   <Svg.chevron
                     tailWindClasses={`h-3.5 w-3.5 md:h-3 md:w-3 transition-transform duration-200 ${
@@ -183,9 +195,16 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
             <div className="flex-1 min-w-0">
               <div className="flex md:items-center items-start md:flex-row flex-col gap-2 mb-1">
                 <div className="flex items-center gap-2">
-                  <Typography variant="caption" color="text.secondary" className="font-mono">
-                    # {anuncio.mlb}
-                  </Typography>
+                  <TextCensored censorshipKey="anuncios_list">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className="font-mono"
+                    >
+                      # {anuncio.mlb}
+                    </Typography>
+                  </TextCensored>
+
                   <CopyButton
                     textToCopy={anuncio.mlb}
                     successMessage="MLB copiado para a área de transferência"
@@ -197,9 +216,11 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
                   <>
                     <span className="text-slate-300 hidden md:inline">|</span>
                     <div className="flex items-center gap-2">
-                      <Typography variant="caption" color="text.secondary">
-                        SKU {anuncio.sku}
-                      </Typography>
+                      <TextCensored censorshipKey="anuncios_list">
+                        <Typography variant="caption" color="text.secondary">
+                          SKU {anuncio.sku}
+                        </Typography>
+                      </TextCensored>
                       {anuncio.sku && (
                         <CopyButton
                           textToCopy={anuncio.sku}
@@ -212,13 +233,15 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
                   </>
                 )}
               </div>
-              <Typography
-                variant="body2"
-                fontWeight={600}
-                className="text-slate-900 mb-2 truncate max-w-[90%]"
-              >
-                {anuncio.name}
-              </Typography>
+              <TextCensored censorshipKey="anuncios_list">
+                <Typography
+                  variant="body2"
+                  fontWeight={600}
+                  className="text-slate-900 mb-2 truncate max-w-[90%]"
+                >
+                  {anuncio.name}
+                </Typography>
+              </TextCensored>
               <div className="flex flex-wrap items-center gap-1.5 mb-2">
                 {anuncio.ad_type && (
                   <Chip
@@ -228,27 +251,32 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
                       height: 20,
                       fontSize: "0.65rem",
                       fontWeight: 600,
-                      backgroundColor: anuncio.ad_type === "Premium" ? "#fef3c7" : "#f0fdf4",
-                      color: anuncio.ad_type === "Premium" ? "#92400e" : "#166534",
+                      backgroundColor:
+                        anuncio.ad_type === "Premium" ? "#fef3c7" : "#f0fdf4",
+                      color:
+                        anuncio.ad_type === "Premium" ? "#92400e" : "#166534",
                     }}
                   />
                 )}
-                {anuncio.logistic_type && (() => {
-                  const logisticTypeInfo = getLogisticTypeMeliInfo(anuncio.logistic_type);
-                  return (
-                    <Chip
-                      label={logisticTypeInfo.label}
-                      size="small"
-                      sx={{
-                        height: 20,
-                        fontSize: "0.65rem",
-                        fontWeight: 600,
-                        backgroundColor: logisticTypeInfo.backgroundColor,
-                        color: logisticTypeInfo.color,
-                      }}
-                    />
-                  );
-                })()}
+                {anuncio.logistic_type &&
+                  (() => {
+                    const logisticTypeInfo = getLogisticTypeMeliInfo(
+                      anuncio.logistic_type
+                    );
+                    return (
+                      <Chip
+                        label={logisticTypeInfo.label}
+                        size="small"
+                        sx={{
+                          height: 20,
+                          fontSize: "0.65rem",
+                          fontWeight: 600,
+                          backgroundColor: logisticTypeInfo.backgroundColor,
+                          color: logisticTypeInfo.color,
+                        }}
+                      />
+                    );
+                  })()}
                 {anuncio.free_shipping && (
                   <Chip
                     label="Frete grátis"
@@ -283,10 +311,18 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
           {anuncio.visits && anuncio.visits.length > 0 && (
             <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50/50 p-2">
               <div className="flex items-center justify-between mb-1">
-                <Typography variant="caption" color="text.secondary" className="text-xs">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  className="text-xs"
+                >
                   Evolução de visitas
                 </Typography>
-                <Typography variant="caption" color="text.secondary" className="text-xs text-slate-400">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  className="text-xs text-slate-400"
+                >
                   Últimos 5 meses
                 </Typography>
               </div>
@@ -298,30 +334,59 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
         {/* Coluna do Meio: Vendas e Preço */}
         <div className="col-span-12 md:col-span-4 space-y-2">
           <div>
-            <Typography variant="caption" color="text.secondary" className="block mb-0.5">
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              className="block mb-0.5"
+            >
               Vendas e visitas
             </Typography>
-            <Typography variant="body2" fontWeight={600} className="text-slate-900">
-              {formatNumber(anuncio.geral_visits)} visitas | {formatNumber(anuncio.sold_quantity)}{" "}
-              unidades vendidas
-            </Typography>
+            <TextCensored censorshipKey="anuncios_list">
+              <Typography
+                variant="body2"
+                fontWeight={600}
+                className="text-slate-900"
+              >
+                {formatNumber(anuncio.geral_visits)} visitas |{" "}
+                {formatNumber(anuncio.sold_quantity)} unidades vendidas
+              </Typography>
+            </TextCensored>
             {conversionRate !== null && (
-              <Typography variant="caption" color="text.secondary" className="mt-0.5 block">
-                Taxa de conversão: <span className="font-semibold">{conversionRate.toFixed(2)}%</span>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                className="mt-0.5 block"
+              >
+                Taxa de conversão:{" "}
+                <span className="font-semibold">
+                  {conversionRate.toFixed(2)}%
+                </span>
               </Typography>
             )}
           </div>
 
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Typography variant="h6" fontWeight={700} className="text-slate-900">
-                {formatCurrency(anuncio.price)}
-              </Typography>
+              <TextCensored censorshipKey="anuncios_list">
+                <Typography
+                  variant="h6"
+                  fontWeight={700}
+                  className="text-slate-900"
+                >
+                  {formatCurrency(anuncio.price)}
+                </Typography>
+              </TextCensored>
             </div>
 
             {anuncio.commission && (
-              <div className={` border ${anuncio.ad_type === "Premium" ? "border-amber-200 bg-amber-50" : "border-green-200 bg-green-50"} rounded-lg p-2 mt-2`}>
-                <Typography variant="caption" color="text.secondary" className="block mb-1">
+              <div
+                className={` border ${anuncio.ad_type === "Premium" ? "border-amber-200 bg-amber-50" : "border-green-200 bg-green-50"} rounded-lg p-2 mt-2`}
+              >
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  className="block mb-1"
+                >
                   {anuncio.ad_type || "Premium"}
                 </Typography>
                 <div className="space-y-0.5">
@@ -330,11 +395,18 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
                   </Typography>
                   {anuncio.commission.details?.fixed_fee != null &&
                     anuncio.commission.details.fixed_fee > 0 && (
-                      <Typography variant="caption" className="text-slate-700 block">
+                      <Typography
+                        variant="caption"
+                        className="text-slate-700 block"
+                      >
                         + {formatCurrency(anuncio.commission.details.fixed_fee)}
                       </Typography>
                     )}
-                  <Typography variant="caption" fontWeight={600} className="text-slate-900 block">
+                  <Typography
+                    variant="caption"
+                    fontWeight={600}
+                    className="text-slate-900 block"
+                  >
                     A pagar {formatCurrency(anuncio.commission.value)}
                   </Typography>
                 </div>
@@ -350,10 +422,18 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
             <div className="flex items-center gap-2 mb-2">
               <Speedometer value={healthScore} size={40} />
               <div>
-                <Typography variant="caption" fontWeight={600} className="text-slate-900">
+                <Typography
+                  variant="caption"
+                  fontWeight={600}
+                  className="text-slate-900"
+                >
                   Qualidade do anúncio
                 </Typography>
-                <Typography variant="caption" color="text.secondary" className="block">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  className="block"
+                >
                   {healthScore !== null
                     ? healthScore >= 80
                       ? "Profissional"
@@ -364,18 +444,33 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
                 </Typography>
               </div>
             </div>
-            {anuncio.health?.buckets?.[0]?.variables?.[0]?.rules?.[0]?.wordings && (
+            {anuncio.health?.buckets?.[0]?.variables?.[0]?.rules?.[0]
+              ?.wordings && (
               <div className="mt-2">
-                <Typography variant="caption" color="text.secondary" className="block mb-1">
-                  {anuncio.health.buckets[0].variables[0].rules[0].wordings.title}
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  className="block mb-1"
+                >
+                  {
+                    anuncio.health.buckets[0].variables[0].rules[0].wordings
+                      .title
+                  }
                 </Typography>
-                {anuncio.health.buckets[0].variables[0].rules[0].wordings.link && (
+                {anuncio.health.buckets[0].variables[0].rules[0].wordings
+                  .link && (
                   <Link
-                    to={anuncio.health.buckets[0].variables[0].rules[0].wordings.link}
+                    to={
+                      anuncio.health.buckets[0].variables[0].rules[0].wordings
+                        .link
+                    }
                     target="_blank"
                     className="text-xs text-blue-600 hover:underline"
                   >
-                    {anuncio.health.buckets[0].variables[0].rules[0].wordings.label}
+                    {
+                      anuncio.health.buckets[0].variables[0].rules[0].wordings
+                        .label
+                    }
                   </Link>
                 )}
               </div>
@@ -387,16 +482,28 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
             <div className="flex items-center gap-2 mb-2">
               <Speedometer value={reputation?.value ?? null} size={40} />
               <div>
-                <Typography variant="caption" fontWeight={600} className="text-slate-900">
+                <Typography
+                  variant="caption"
+                  fontWeight={600}
+                  className="text-slate-900"
+                >
                   Experiência de compra
                 </Typography>
-                <Typography variant="caption" color="text.secondary" className="block">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  className="block"
+                >
                   {reputation?.text || "—"}
                 </Typography>
               </div>
             </div>
             {anuncio.experience?.subtitles?.[0] && (
-              <Typography variant="caption" color="text.secondary" className="block">
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                className="block"
+              >
                 {anuncio.experience.subtitles[0].text}
               </Typography>
             )}
@@ -428,21 +535,28 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
             />
           </div>
           {hasVariations && (
-                <button
-                  onClick={handleToggleExpansion}
-                  className="mt-2 flex items-center gap-2 w-full md:w-auto px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 transition-colors touch-manipulation md:hidden"
-                  aria-label={isExpanded ? "Recolher variações" : "Expandir variações"}
-                >
-                  <Svg.chevron
-                    tailWindClasses={`h-4 w-4 transition-transform duration-200 ${
-                      isExpanded ? "rotate-270" : "rotate-90"
-                    }`}
-                  />
-                  <Typography variant="caption" className="text-blue-700 font-semibold">
-                    {isExpanded ? "Ocultar" : "Ver"} {anuncio.variations?.length || 0} variaç{anuncio.variations?.length === 1 ? "ão" : "ões"}
-                  </Typography>
-                </button>
-              )}
+            <button
+              onClick={handleToggleExpansion}
+              className="mt-2 flex items-center gap-2 w-full md:w-auto px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 transition-colors touch-manipulation md:hidden"
+              aria-label={
+                isExpanded ? "Recolher variações" : "Expandir variações"
+              }
+            >
+              <Svg.chevron
+                tailWindClasses={`h-4 w-4 transition-transform duration-200 ${
+                  isExpanded ? "rotate-270" : "rotate-90"
+                }`}
+              />
+              <Typography
+                variant="caption"
+                className="text-blue-700 font-semibold"
+              >
+                {isExpanded ? "Ocultar" : "Ver"}{" "}
+                {anuncio.variations?.length || 0} variaç
+                {anuncio.variations?.length === 1 ? "ão" : "ões"}
+              </Typography>
+            </button>
+          )}
         </div>
       </div>
 
@@ -456,7 +570,11 @@ function AnuncioCard({ anuncio, onToggleStatus, isMutating }: AnuncioCardProps) 
         </div>
       )}
 
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
         <MenuItem
           component={Link}
           to={`/interno/anuncios/${anuncio.mlb}`}

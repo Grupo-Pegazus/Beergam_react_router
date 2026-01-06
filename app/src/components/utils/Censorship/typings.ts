@@ -43,6 +43,11 @@ const PREDEFINED_VENDAS_KEYS = [
   "vendas_orders_list_details_endereco",
 ] as const;
 
+const PREDEFINED_ANUNCIOS_KEYS = [
+  "anuncios_list",
+  "anuncios_list_details_financial",
+] as const;
+
 /**
  * Lista de chaves pré-definidas para inicialização do sistema de censura.
  * Todas as chaves serão criadas com valor padrão `false` se não existirem.
@@ -50,6 +55,7 @@ const PREDEFINED_VENDAS_KEYS = [
 export const PREDEFINED_CENSORSHIP_KEYS = [
   ...PREDEFINED_HOME_KEYS,
   ...PREDEFINED_VENDAS_KEYS,
+  ...PREDEFINED_ANUNCIOS_KEYS,
 ] as const;
 
 /**
