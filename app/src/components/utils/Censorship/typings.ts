@@ -51,6 +51,7 @@ const PREDEFINED_ANUNCIOS_KEYS = [
 const PREDEFINED_PRODUTOS_KEYS = [
   "produtos_list",
   "produtos_list_details",
+  "produtos_list_details_financial",
 ] as const;
 
 /**
