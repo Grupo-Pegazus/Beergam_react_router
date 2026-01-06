@@ -16,6 +16,7 @@ interface CensorshipWrapperProps {
   className?: string;
   censorshipKey: TPREDEFINED_CENSORSHIP_KEYS; // Chave única para controlar a censura do wrapper
   controlChildren?: boolean; // Se true, controla todas as chaves que começam com censorshipKey
+  canChange?: boolean;
 }
 
 /**
@@ -33,6 +34,7 @@ export function CensorshipWrapper({
   className,
   censorshipKey,
   controlChildren = false,
+  canChange = true,
 }: CensorshipWrapperProps) {
   const { isCensored, toggleCensorship, setCensorship, settings } =
     useCensorship();
@@ -178,27 +180,31 @@ export function CensorshipWrapper({
   return (
     <div className={`relative ${className || ""}`}>
       {/* Botão de toggle no canto superior direito */}
-      <button
-        type="button"
-        onClick={handleToggle}
-        className="absolute group -top-4 -right-2 z-10 p-1.5 rounded-full bg-white shadow-md transition-colors duration-200 flex items-center justify-center hover:translate-y-px hover:bg-beergam-blue-primary hover:text-beergam-white!"
-        aria-label={wrapperCensored ? "Mostrar conteúdo" : "Censurar conteúdo"}
-        title={wrapperCensored ? "Mostrar conteúdo" : "Censurar conteúdo"}
-      >
-        {wrapperCensored ? (
-          <Svg.eye_slash
-            width={20}
-            height={20}
-            tailWindClasses="text-gray-700 group-hover:text-beergam-white!"
-          />
-        ) : (
-          <Svg.eye
-            width={20}
-            height={20}
-            tailWindClasses="text-gray-700 group-hover:text-beergam-white!"
-          />
-        )}
-      </button>
+      {canChange && (
+        <button
+          type="button"
+          onClick={handleToggle}
+          className="absolute group -top-4 -right-2 z-10 p-1.5 rounded-full bg-white shadow-md transition-colors duration-200 flex items-center justify-center hover:translate-y-px hover:bg-beergam-blue-primary hover:text-beergam-white!"
+          aria-label={
+            wrapperCensored ? "Mostrar conteúdo" : "Censurar conteúdo"
+          }
+          title={wrapperCensored ? "Mostrar conteúdo" : "Censurar conteúdo"}
+        >
+          {wrapperCensored ? (
+            <Svg.eye_slash
+              width={20}
+              height={20}
+              tailWindClasses="text-gray-700 group-hover:text-beergam-white!"
+            />
+          ) : (
+            <Svg.eye
+              width={20}
+              height={20}
+              tailWindClasses="text-gray-700 group-hover:text-beergam-white!"
+            />
+          )}
+        </button>
+      )}
       {processedChildren}
     </div>
   );

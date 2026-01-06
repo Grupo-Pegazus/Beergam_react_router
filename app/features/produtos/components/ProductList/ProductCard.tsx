@@ -1,24 +1,19 @@
+import { Chip, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import { useState } from "react";
-import {
-  Chip,
-  IconButton,
-  Menu,
-  MenuItem,
-  Typography,
-} from "@mui/material";
 import { Link } from "react-router";
-import toast from "~/src/utils/toast";
-import MainCards from "~/src/components/ui/MainCards";
 import Svg from "~/src/assets/svgs/_index";
+import MainCards from "~/src/components/ui/MainCards";
 import Alert from "~/src/components/utils/Alert";
+import { TextCensored } from "~/src/components/utils/Censorship";
 import { useModal } from "~/src/components/utils/Modal/useModal";
-import ProductImage from "../ProductImage/ProductImage";
-import type { Product } from "../../typings";
-import VariationsList from "./Variations/VariationsList";
-import { ProductStatusToggle } from "../ProductStatusToggle";
-import VariationsStatusModal from "./VariationsStatusModal/VariationsStatusModal";
-import { useChangeProductStatus, useDeleteProduct } from "../../hooks";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+import toast from "~/src/utils/toast";
+import { useChangeProductStatus, useDeleteProduct } from "../../hooks";
+import type { Product } from "../../typings";
+import ProductImage from "../ProductImage/ProductImage";
+import { ProductStatusToggle } from "../ProductStatusToggle";
+import VariationsList from "./Variations/VariationsList";
+import VariationsStatusModal from "./VariationsStatusModal/VariationsStatusModal";
 
 function formatNumber(value: number | null | undefined) {
   return (value ?? 0).toLocaleString("pt-BR");
@@ -64,7 +59,10 @@ export default function ProductCard({ product }: ProductCardProps) {
     const nextStatus = normalizedStatus === "ativo" ? "Inativo" : "Ativo";
     setIsMutating(true);
     changeStatusMutation.mutate(
-      { productId: product.product_id, status: nextStatus as "Ativo" | "Inativo" },
+      {
+        productId: product.product_id,
+        status: nextStatus as "Ativo" | "Inativo",
+      },
       {
         onSettled: () => {
           setIsMutating(false);
@@ -92,15 +90,19 @@ export default function ProductCard({ product }: ProductCardProps) {
               toast.success(data.message || "Produto excluído com sucesso");
             },
             onError: (error) => {
-              toast.error(error instanceof Error ? error.message : "Erro ao excluir produto");
+              toast.error(
+                error instanceof Error
+                  ? error.message
+                  : "Erro ao excluir produto"
+              );
             },
           });
         }}
       >
         <h3>Tem certeza que deseja excluir o produto?</h3>
         <p>
-          O produto <strong>{product.title}</strong> será excluído permanentemente.
-          Esta ação não pode ser desfeita.
+          O produto <strong>{product.title}</strong> será excluído
+          permanentemente. Esta ação não pode ser desfeita.
         </p>
       </Alert>,
       {
@@ -165,12 +167,18 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           {/* Imagem */}
           <div className="shrink-0 relative">
-            <ProductImage imageUrl={mainImageUrl} alt={product.title} size="small" />
+            <ProductImage
+              imageUrl={mainImageUrl}
+              alt={product.title}
+              size="small"
+            />
             {hasVariations && (
               <button
                 onClick={handleToggleExpansion}
                 className="absolute -right-1 -top-1 flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white shadow-md hover:bg-blue-600 active:bg-blue-700 transition-colors z-10"
-                aria-label={isExpanded ? "Recolher variações" : "Expandir variações"}
+                aria-label={
+                  isExpanded ? "Recolher variações" : "Expandir variações"
+                }
               >
                 <Svg.chevron
                   tailWindClasses={`h-3 w-3 transition-transform duration-200 ${
@@ -183,13 +191,15 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           {/* Produto */}
           <div className="flex-1 min-w-0">
-            <Typography
-              variant="body2"
-              fontWeight={600}
-              className="text-slate-900 truncate text-sm lg:text-base"
-            >
-              {product.title}
-            </Typography>
+            <TextCensored className="flex!" censorshipKey="produtos_list">
+              <Typography
+                variant="body2"
+                fontWeight={600}
+                className="text-slate-900 truncate text-sm lg:text-base"
+              >
+                {product.title}
+              </Typography>
+            </TextCensored>
             <div className="flex items-center gap-1.5 mt-1 flex-wrap">
               <Chip
                 label={product.registration_type}
@@ -260,9 +270,19 @@ export default function ProductCard({ product }: ProductCardProps) {
                 —
               </Typography>
             ) : product.price_sale ? (
-              <Typography variant="body2" fontWeight={600} className="text-slate-900 text-sm lg:text-base">
-                {formatCurrency(product.price_sale)}
-              </Typography>
+              <TextCensored
+                maxCharacters={3}
+                className="flex!"
+                censorshipKey="produtos_list"
+              >
+                <Typography
+                  variant="body2"
+                  fontWeight={600}
+                  className="text-slate-900 text-sm lg:text-base"
+                >
+                  {formatCurrency(product.price_sale)}
+                </Typography>
+              </TextCensored>
             ) : (
               <Typography variant="caption" color="text.secondary">
                 —
@@ -273,23 +293,29 @@ export default function ProductCard({ product }: ProductCardProps) {
           {/* SKU - Oculto em tablet, visível em desktop */}
           <div className="shrink-0 w-24 lg:w-32 hidden lg:block">
             {product.sku ? (
-              <Chip
-                label={product.sku}
-                size="small"
-                sx={{
-                  height: 22,
-                  fontSize: "0.7rem",
-                  backgroundColor: "#f1f5f9",
-                  color: "#475569",
-                  fontWeight: 500,
-                  "& .MuiChip-label": {
-                    px: 1,
-                    maxWidth: "120px",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  },
-                }}
-              />
+              <TextCensored
+                maxCharacters={3}
+                className="flex!"
+                censorshipKey="produtos_list"
+              >
+                <Chip
+                  label={product.sku}
+                  size="small"
+                  sx={{
+                    height: 22,
+                    fontSize: "0.7rem",
+                    backgroundColor: "#f1f5f9",
+                    color: "#475569",
+                    fontWeight: 500,
+                    "& .MuiChip-label": {
+                      px: 1,
+                      maxWidth: "120px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    },
+                  }}
+                />
+              </TextCensored>
             ) : (
               <Typography variant="caption" color="text.secondary">
                 —
@@ -326,9 +352,19 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.sales_quantity !== undefined ? (
               <>
                 <Svg.bag tailWindClasses="h-4 w-4 text-slate-500" />
-                <Typography variant="body2" fontWeight={600} className="text-slate-900 text-sm">
-                  {formatNumber(product.sales_quantity)}
-                </Typography>
+                <TextCensored
+                  maxCharacters={1}
+                  className="flex!"
+                  censorshipKey="produtos_list"
+                >
+                  <Typography
+                    variant="body2"
+                    fontWeight={600}
+                    className="text-slate-900 text-sm"
+                  >
+                    {formatNumber(product.sales_quantity)}
+                  </Typography>
+                </TextCensored>
               </>
             ) : (
               <Typography variant="caption" color="text.secondary">
@@ -341,7 +377,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           <div className="shrink-0 w-20 lg:w-28 flex items-center gap-1 lg:gap-1.5 justify-center">
             {totalStock !== undefined ? (
               <>
-                <Typography variant="caption" color="text.secondary" className="text-xs hidden xl:block">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  className="text-xs hidden xl:block"
+                >
                   Qt:
                 </Typography>
                 <Chip
@@ -411,12 +451,18 @@ export default function ProductCard({ product }: ProductCardProps) {
                 />
               )}
               <div className="relative">
-                <ProductImage imageUrl={mainImageUrl} alt={product.title} size="small" />
+                <ProductImage
+                  imageUrl={mainImageUrl}
+                  alt={product.title}
+                  size="small"
+                />
                 {hasVariations && (
                   <button
                     onClick={handleToggleExpansion}
                     className="absolute -right-1 -top-1 flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white shadow-md active:bg-blue-700 transition-colors z-10"
-                    aria-label={isExpanded ? "Recolher variações" : "Expandir variações"}
+                    aria-label={
+                      isExpanded ? "Recolher variações" : "Expandir variações"
+                    }
                   >
                     <Svg.chevron
                       tailWindClasses={`h-3 w-3 transition-transform duration-200 ${
@@ -438,11 +484,15 @@ export default function ProductCard({ product }: ProductCardProps) {
                 >
                   {product.title}
                 </Typography>
-                <IconButton size="small" onClick={handleMenuOpen} className="shrink-0">
+                <IconButton
+                  size="small"
+                  onClick={handleMenuOpen}
+                  className="shrink-0"
+                >
                   <Svg.cog_8_tooth tailWindClasses="h-4 w-4 text-slate-500" />
                 </IconButton>
               </div>
-              
+
               <div className="flex items-center gap-1.5 mb-2 flex-wrap">
                 <Chip
                   label={product.registration_type}
@@ -484,25 +534,45 @@ export default function ProductCard({ product }: ProductCardProps) {
               {/* Grid de informações em mobile */}
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="flex items-center gap-1">
-                  <Typography variant="caption" color="text.secondary" className="text-xs">
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    className="text-xs"
+                  >
                     Preço:
                   </Typography>
                   {hasVariations ? (
-                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className="text-xs"
+                    >
                       —
                     </Typography>
                   ) : product.price_sale ? (
-                    <Typography variant="body2" fontWeight={600} className="text-slate-900 text-xs">
+                    <Typography
+                      variant="body2"
+                      fontWeight={600}
+                      className="text-slate-900 text-xs"
+                    >
                       {formatCurrency(product.price_sale)}
                     </Typography>
                   ) : (
-                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className="text-xs"
+                    >
                       —
                     </Typography>
                   )}
                 </div>
                 <div className="flex items-center gap-1">
-                  <Typography variant="caption" color="text.secondary" className="text-xs">
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    className="text-xs"
+                  >
                     Estoque:
                   </Typography>
                   {totalStock !== undefined ? (
@@ -524,14 +594,22 @@ export default function ProductCard({ product }: ProductCardProps) {
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                     </div>
                   ) : (
-                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className="text-xs"
+                    >
                       —
                     </Typography>
                   )}
                 </div>
                 {variationsCount > 0 && (
                   <div className="flex items-center gap-1">
-                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className="text-xs"
+                    >
                       Variações:
                     </Typography>
                     <Chip
@@ -552,7 +630,11 @@ export default function ProductCard({ product }: ProductCardProps) {
                 )}
                 {relatedAdsCount > 0 && (
                   <div className="flex items-center gap-1">
-                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className="text-xs"
+                    >
                       Anúncios:
                     </Typography>
                     <Chip
@@ -573,7 +655,11 @@ export default function ProductCard({ product }: ProductCardProps) {
                 )}
                 {product.sku && (
                   <div className="flex items-center gap-1 col-span-2">
-                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className="text-xs"
+                    >
                       SKU:
                     </Typography>
                     <Chip
@@ -605,7 +691,11 @@ export default function ProductCard({ product }: ProductCardProps) {
       {hasVariations && isExpanded && (
         <div className="mt-2 pt-2 border-t border-slate-200">
           <div className="mb-2 px-2 md:px-4">
-            <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase tracking-wide text-xs sm:text-sm">
+            <Typography
+              variant="caption"
+              fontWeight={600}
+              className="text-slate-600 uppercase tracking-wide text-xs sm:text-sm"
+            >
               Variações ({variationsCount})
             </Typography>
           </div>
@@ -616,7 +706,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       )}
 
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
         <MenuItem
           component={Link}
           to={`/interno/produtos/gestao/${product.product_id}`}
@@ -648,7 +742,6 @@ export default function ProductCard({ product }: ProductCardProps) {
           Excluir produto
         </MenuItem>
       </Menu>
-
     </>
   );
 }

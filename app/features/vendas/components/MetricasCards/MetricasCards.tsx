@@ -1,13 +1,15 @@
 import { createElement, useMemo } from "react";
-import { useOrdersMetrics } from "../../hooks";
+import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import StatCard from "~/src/components/ui/StatCard";
-import Svg from "~/src/assets/svgs/_index";
-import MetricasCardsSkeleton from "./MetricasCardsSkeleton";
+import { CensorshipWrapper } from "~/src/components/utils/Censorship";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+import { useOrdersMetrics } from "../../hooks";
+import MetricasCardsSkeleton from "./MetricasCardsSkeleton";
 
 interface SummaryCardDefinition {
   key: string;
+  censorshipKey: string;
   label: string;
   icon: keyof typeof Svg;
   color: "slate" | "yellow" | "blue" | "green";
@@ -17,24 +19,28 @@ interface SummaryCardDefinition {
 const SUMMARY_CARDS: SummaryCardDefinition[] = [
   {
     key: "a_preparar",
+    censorshipKey: "vendas_resumo_a_preparar",
     label: "A preparar",
     icon: "clock",
     color: "slate",
   },
   {
     key: "prontas_para_enviar",
+    censorshipKey: "vendas_resumo_status_prontas_para_enviar",
     label: "Prontas para enviar",
     icon: "in_box_stack",
     color: "yellow",
   },
   {
     key: "em_transito",
+    censorshipKey: "vendas_resumo_status_em_transito",
     label: "Em trânsito",
     icon: "truck",
     color: "blue",
   },
   {
     key: "concluidas",
+    censorshipKey: "vendas_resumo_status_concluidas",
     label: "Concluídas",
     icon: "check_circle",
     color: "green",
@@ -48,6 +54,7 @@ const REVENUE_CARDS: SummaryCardDefinition[] = [
     icon: "currency_dollar",
     color: "blue",
     formatter: formatCurrency,
+    censorshipKey: "vendas_resumo_faturamento_bruto_90d",
   },
   {
     key: "faturamento_liquido_90d",
@@ -55,6 +62,7 @@ const REVENUE_CARDS: SummaryCardDefinition[] = [
     icon: "currency_dollar",
     color: "green",
     formatter: formatCurrency,
+    censorshipKey: "vendas_resumo_faturamento_liquido_90d",
   },
   {
     key: "media_faturamento_diario_90d",
@@ -62,6 +70,7 @@ const REVENUE_CARDS: SummaryCardDefinition[] = [
     icon: "graph",
     color: "slate",
     formatter: formatCurrency,
+    censorshipKey: "vendas_resumo_media_faturamento_diario_90d",
   },
 ];
 
@@ -113,18 +122,24 @@ export default function MetricasCards() {
           </h4>
           <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {SUMMARY_CARDS.map((card) => {
-              const value = ordersByStatus[card.key as keyof typeof ordersByStatus];
+              const value =
+                ordersByStatus[card.key as keyof typeof ordersByStatus];
               return (
-                <StatCard
+                <CensorshipWrapper
                   key={card.key}
-                  icon={createElement(Svg[card.icon], {
-                    tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
-                  })}
-                  title={card.label}
-                  value={value}
-                  variant="soft"
-                  color={card.color}
-                />
+                  censorshipKey={card.censorshipKey}
+                >
+                  <StatCard
+                    censorshipKey={card.censorshipKey}
+                    icon={createElement(Svg[card.icon], {
+                      tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
+                    })}
+                    title={card.label}
+                    value={value}
+                    variant="soft"
+                    color={card.color}
+                  />
+                </CensorshipWrapper>
               );
             })}
           </div>
@@ -141,16 +156,21 @@ export default function MetricasCards() {
                 ? card.formatter(value)
                 : value;
               return (
-                <StatCard
+                <CensorshipWrapper
                   key={card.key}
-                  icon={createElement(Svg[card.icon], {
-                    tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
-                  })}
-                  title={card.label}
-                  value={formattedValue}
-                  variant="soft"
-                  color={card.color}
-                />
+                  censorshipKey={card.censorshipKey}
+                >
+                  <StatCard
+                    censorshipKey={card.censorshipKey}
+                    icon={createElement(Svg[card.icon], {
+                      tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
+                    })}
+                    title={card.label}
+                    value={formattedValue}
+                    variant="soft"
+                    color={card.color}
+                  />
+                </CensorshipWrapper>
               );
             })}
           </div>
@@ -159,4 +179,3 @@ export default function MetricasCards() {
     </AsyncBoundary>
   );
 }
-
