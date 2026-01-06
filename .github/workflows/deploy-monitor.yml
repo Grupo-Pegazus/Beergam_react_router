@@ -1,0 +1,253 @@
+name: Frontend Deploy Monitor
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/**'
+      - 'vite.config.ts'
+      - 'package.json'
+      - 'vercel.json'
+      - 'react-router.config.ts'
+
+permissions:
+  contents: read
+
+env:
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+
+jobs:
+  monitor-deployment:
+    name: Monitor Vercel Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Wait for Vercel deployment
+        id: wait_deployment
+        run: |
+          python << 'EOF'
+          import os
+          import time
+          import requests
+          
+          VERCEL_TOKEN = os.getenv('VERCEL_TOKEN')
+          VERCEL_PROJECT_ID = os.getenv('VERCEL_PROJECT_ID')
+          VERCEL_ORG_ID = os.getenv('VERCEL_ORG_ID')
+          MAX_WAIT_TIME = 600  # 10 minutos
+          CHECK_INTERVAL = 10  # 10 segundos
+          
+          headers = {
+              "Authorization": f"Bearer {VERCEL_TOKEN}",
+              "Content-Type": "application/json"
+          }
+          
+          base_url = "https://api.vercel.com"
+          
+          # Aguarda um pouco para a Vercel iniciar o deployment
+          print("⏳ Aguardando Vercel iniciar deployment...")
+          time.sleep(15)
+          
+          # Lista deployments recentes
+          print("🔍 Buscando deployment mais recente...")
+          url = f"{base_url}/v6/deployments"
+          params = {
+              "projectId": VERCEL_PROJECT_ID,
+              "teamId": VERCEL_ORG_ID,
+              "limit": 5
+          }
+          
+          response = requests.get(url, headers=headers, params=params, timeout=10)
+          
+          if response.status_code != 200:
+              print(f"❌ Erro ao listar deployments: {response.status_code}")
+              with open(os.getenv('GITHUB_OUTPUT'), 'a') as f:
+                  f.write(f"status=error\n")
+                  f.write(f"deployment_id=\n")
+                  f.write(f"deployment_url=\n")
+              exit(1)
+          
+          deployments = response.json().get("deployments", [])
+          
+          if not deployments:
+              print("⚠️ Nenhum deployment encontrado")
+              with open(os.getenv('GITHUB_OUTPUT'), 'a') as f:
+                  f.write(f"status=not_found\n")
+                  f.write(f"deployment_id=\n")
+                  f.write(f"deployment_url=\n")
+              exit(0)
+          
+          # Pega o deployment mais recente
+          latest_deployment = deployments[0]
+          deployment_id = latest_deployment.get("uid")
+          deployment_url = latest_deployment.get("url", "N/A")
+          
+          print(f"📦 Deployment encontrado: {deployment_id[:7]}")
+          print(f"🌐 URL: {deployment_url}")
+          
+          # Monitora o deployment
+          start_time = time.time()
+          
+          while time.time() - start_time < MAX_WAIT_TIME:
+              url = f"{base_url}/v13/deployments/{deployment_id}"
+              params = {"teamId": VERCEL_ORG_ID}
+              
+              response = requests.get(url, headers=headers, params=params, timeout=10)
+              
+              if response.status_code == 200:
+                  deployment_data = response.json()
+                  ready_state = deployment_data.get("readyState", "UNKNOWN")
+                  
+                  print(f"📊 Estado atual: {ready_state}")
+                  
+                  if ready_state == "READY":
+                      print("✅ Deployment concluído com sucesso!")
+                      with open(os.getenv('GITHUB_OUTPUT'), 'a') as f:
+                          f.write(f"status=success\n")
+                          f.write(f"deployment_id={deployment_id}\n")
+                          f.write(f"deployment_url={deployment_url}\n")
+                      exit(0)
+                  elif ready_state == "ERROR":
+                      print("❌ Deployment falhou!")
+                      with open(os.getenv('GITHUB_OUTPUT'), 'a') as f:
+                          f.write(f"status=error\n")
+                          f.write(f"deployment_id={deployment_id}\n")
+                          f.write(f"deployment_url={deployment_url}\n")
+                      exit(1)
+                  elif ready_state == "CANCELED":
+                      print("⚠️ Deployment cancelado!")
+                      with open(os.getenv('GITHUB_OUTPUT'), 'a') as f:
+                          f.write(f"status=canceled\n")
+                          f.write(f"deployment_id={deployment_id}\n")
+                          f.write(f"deployment_url={deployment_url}\n")
+                      exit(1)
+              
+              time.sleep(CHECK_INTERVAL)
+          
+          print("⏱️ Timeout ao aguardar deployment")
+          with open(os.getenv('GITHUB_OUTPUT'), 'a') as f:
+              f.write(f"status=timeout\n")
+              f.write(f"deployment_id={deployment_id}\n")
+              f.write(f"deployment_url={deployment_url}\n")
+          exit(1)
+          EOF
+
+      - name: Send Discord notification via Bot
+        if: always()
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_DEPLOY_CHANNEL_ID }}
+        run: |
+          STATUS="${{ steps.wait_deployment.outputs.status }}"
+          DEPLOYMENT_ID="${{ steps.wait_deployment.outputs.deployment_id }}"
+          DEPLOYMENT_URL="${{ steps.wait_deployment.outputs.deployment_url }}"
+          COMMIT_SHA="${{ github.sha }}"
+          COMMIT_SHORT="${COMMIT_SHA:0:7}"
+          COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
+          COMMIT_AUTHOR="${{ github.event.head_commit.author.name }}"
+          REPO_URL="${{ github.server_url }}/${{ github.repository }}"
+          WORKFLOW_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          
+          # Extrai a tag da versão do commit (se houver)
+          TAG_NAME=$(git describe --tags --exact-match $COMMIT_SHA 2>/dev/null || echo "")
+          
+          if [ "$STATUS" == "success" ]; then
+            COLOR=3066993  # Verde
+            EMOJI="✅"
+            TITLE="Deploy do Frontend Concluído com Sucesso!"
+            DESCRIPTION="O deploy na Vercel foi concluído com sucesso."
+          elif [ "$STATUS" == "error" ]; then
+            COLOR=15158332  # Vermelho
+            EMOJI="❌"
+            TITLE="Falha no Deploy do Frontend"
+            DESCRIPTION="O deploy na Vercel falhou. Verifique os logs para mais detalhes."
+          elif [ "$STATUS" == "canceled" ]; then
+            COLOR=16776960  # Amarelo
+            EMOJI="⚠️"
+            TITLE="Deploy do Frontend Cancelado"
+            DESCRIPTION="O deploy na Vercel foi cancelado."
+          else
+            COLOR=9807270  # Cinza
+            EMOJI="⏱️"
+            TITLE="Timeout no Deploy do Frontend"
+            DESCRIPTION="O deploy está demorando mais que o esperado."
+          fi
+          
+          # Monta o payload do Discord (formato para API do Discord)
+          PAYLOAD=$(cat << EOF
+          {
+            "embeds": [{
+              "title": "${EMOJI} ${TITLE}",
+              "description": "${DESCRIPTION}",
+              "color": ${COLOR},
+              "fields": [
+                {
+                  "name": "🌐 URL",
+                  "value": "[${DEPLOYMENT_URL}](${DEPLOYMENT_URL})",
+                  "inline": true
+                },
+                {
+                  "name": "🔗 Commit",
+                  "value": "[${COMMIT_SHORT}](${REPO_URL}/commit/${COMMIT_SHA})",
+                  "inline": true
+                },
+                {
+                  "name": "🔧 Workflow",
+                  "value": "[Ver Workflow](${WORKFLOW_URL})",
+                  "inline": true
+                }
+                $([ -n "$DEPLOYMENT_ID" ] && echo ",{
+                  \"name\": \"📦 Deployment ID\",
+                  \"value\": \"\`${DEPLOYMENT_ID:0:7}\`\",
+                  \"inline\": true
+                }" || echo "")
+                $([ -n "$TAG_NAME" ] && echo ",{
+                  \"name\": \"🏷️ Versão\",
+                  \"value\": \"${TAG_NAME}\",
+                  \"inline\": true
+                }" || echo "")
+              ],
+              "footer": {
+                "text": "Beergam Frontend - CI/CD Pipeline"
+              },
+              "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            }]
+          }
+          EOF
+          )
+          
+          # Envia mensagem via API do Discord usando o bot token
+          if [ -n "$DISCORD_BOT_TOKEN" ] && [ -n "$DISCORD_CHANNEL_ID" ]; then
+            API_URL="https://discord.com/api/v10/channels/${DISCORD_CHANNEL_ID}/messages"
+            
+            HTTP_CODE=$(curl -s -o /tmp/discord_response.txt -w "%{http_code}" \
+              -X POST \
+              -H "Authorization: Bot ${DISCORD_BOT_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "$PAYLOAD" \
+              "$API_URL")
+            
+            if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ]; then
+              echo "✅ Notificação de deploy enviada para Discord via Bot (HTTP $HTTP_CODE)"
+            else
+              echo "⚠️ Falha ao enviar notificação Discord (HTTP $HTTP_CODE)"
+              cat /tmp/discord_response.txt || true
+            fi
+          else
+            echo "⚠️ DISCORD_BOT_TOKEN ou DISCORD_CHANNEL_ID não configurados, pulando notificação"
+            echo "   Configure os secrets DISCORD_BOT_TOKEN e DISCORD_DEPLOY_CHANNEL_ID"
+          fi
+
