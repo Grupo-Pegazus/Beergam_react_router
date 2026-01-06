@@ -1,14 +1,15 @@
+import { Chip, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import { useState } from "react";
-import { Chip, Typography, IconButton, Menu, MenuItem } from "@mui/material";
 import { Link } from "react-router";
 import Svg from "~/src/assets/svgs/_index";
 import CopyButton from "~/src/components/ui/CopyButton";
-import type { Product } from "../../../typings";
-import { ProductStatusToggle } from "../../ProductStatusToggle";
-import { useChangeVariationStatus } from "../../../hooks";
 import MainCards from "~/src/components/ui/MainCards";
-import ProductImage from "../../ProductImage/ProductImage";
+import { TextCensored } from "~/src/components/utils/Censorship";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+import { useChangeVariationStatus } from "../../../hooks";
+import type { Product } from "../../../typings";
+import ProductImage from "../../ProductImage/ProductImage";
+import { ProductStatusToggle } from "../../ProductStatusToggle";
 
 function formatNumber(value: number | null | undefined) {
   return (value ?? 0).toLocaleString("pt-BR");
@@ -19,7 +20,10 @@ interface VariationCardProps {
   productId: string;
 }
 
-export default function VariationCard({ variation, productId }: VariationCardProps) {
+export default function VariationCard({
+  variation,
+  productId,
+}: VariationCardProps) {
   const [isMutating, setIsMutating] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const changeStatusMutation = useChangeVariationStatus();
@@ -55,7 +59,7 @@ export default function VariationCard({ variation, productId }: VariationCardPro
     <div className="ml-4 md:ml-8 relative">
       {/* Linha conectora visual */}
       <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-200" />
-      
+
       <MainCards className="hover:bg-blue-50/30 transition-colors border-l-2 border-blue-300 bg-slate-50/30">
         {/* Layout Desktop */}
         <div className="hidden md:flex items-center gap-2 lg:gap-4 py-2 lg:py-2 px-2 lg:px-4">
@@ -72,7 +76,11 @@ export default function VariationCard({ variation, productId }: VariationCardPro
           {/* Imagem */}
           {variationImageUrl && (
             <div className="shrink-0">
-              <ProductImage imageUrl={variationImageUrl} alt={variation.title} size="small" />
+              <ProductImage
+                imageUrl={variationImageUrl}
+                alt={variation.title}
+                size="small"
+              />
             </div>
           )}
 
@@ -93,13 +101,19 @@ export default function VariationCard({ variation, productId }: VariationCardPro
                   },
                 }}
               />
-              <Typography
-                variant="body2"
-                fontWeight={600}
-                className="text-slate-900 text-sm lg:text-base"
+              <TextCensored
+                maxCharacters={3}
+                className="flex!"
+                censorshipKey="produtos_list"
               >
-                {variation.title}
-              </Typography>
+                <Typography
+                  variant="body2"
+                  fontWeight={600}
+                  className="text-slate-900 text-sm lg:text-base"
+                >
+                  {variation.title}
+                </Typography>
+              </TextCensored>
             </div>
             {variation.attributes && variation.attributes.length > 0 && (
               <div className="flex flex-wrap items-center gap-1 mb-1">
@@ -125,9 +139,19 @@ export default function VariationCard({ variation, productId }: VariationCardPro
             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
               {variation.sku && (
                 <div className="flex items-center gap-1">
-                  <Typography variant="caption" color="text.secondary" className="font-mono text-xs">
-                    SKU {variation.sku}
-                  </Typography>
+                  <TextCensored
+                    maxCharacters={3}
+                    className="flex!"
+                    censorshipKey="produtos_list"
+                  >
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className="font-mono text-xs"
+                    >
+                      SKU {variation.sku}
+                    </Typography>
+                  </TextCensored>
                   <CopyButton
                     textToCopy={variation.sku}
                     successMessage="SKU copiado"
@@ -142,9 +166,19 @@ export default function VariationCard({ variation, productId }: VariationCardPro
           {/* Preço */}
           <div className="shrink-0 w-20 lg:w-28">
             {variation.price_sale ? (
-              <Typography variant="body2" fontWeight={600} className="text-slate-900 text-sm lg:text-base">
-                {formatCurrency(variation.price_sale)}
-              </Typography>
+              <TextCensored
+                maxCharacters={3}
+                className="flex!"
+                censorshipKey="produtos_list"
+              >
+                <Typography
+                  variant="body2"
+                  fontWeight={600}
+                  className="text-slate-900 text-sm lg:text-base"
+                >
+                  {formatCurrency(variation.price_sale)}
+                </Typography>
+              </TextCensored>
             ) : (
               <Typography variant="caption" color="text.secondary">
                 —
@@ -157,9 +191,19 @@ export default function VariationCard({ variation, productId }: VariationCardPro
             {variation.sales_quantity !== undefined ? (
               <>
                 <Svg.bag tailWindClasses="h-4 w-4 text-slate-500" />
-                <Typography variant="body2" fontWeight={600} className="text-slate-900 text-sm">
-                  {formatNumber(variation.sales_quantity)}
-                </Typography>
+                <TextCensored
+                  maxCharacters={1}
+                  className="flex!"
+                  censorshipKey="produtos_list"
+                >
+                  <Typography
+                    variant="body2"
+                    fontWeight={600}
+                    className="text-slate-900 text-sm"
+                  >
+                    {formatNumber(variation.sales_quantity)}
+                  </Typography>
+                </TextCensored>
               </>
             ) : (
               <Typography variant="caption" color="text.secondary">
@@ -172,7 +216,11 @@ export default function VariationCard({ variation, productId }: VariationCardPro
           <div className="shrink-0 w-20 lg:w-28 flex items-center gap-1 lg:gap-1.5 justify-center">
             {variation.available_quantity !== undefined ? (
               <>
-                <Typography variant="caption" color="text.secondary" className="text-xs hidden xl:block">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  className="text-xs hidden xl:block"
+                >
                   Qt:
                 </Typography>
                 <Chip
@@ -222,7 +270,11 @@ export default function VariationCard({ variation, productId }: VariationCardPro
                 onToggle={handleToggleStatus}
               />
               {variationImageUrl && (
-                <ProductImage imageUrl={variationImageUrl} alt={variation.title} size="small" />
+                <ProductImage
+                  imageUrl={variationImageUrl}
+                  alt={variation.title}
+                  size="small"
+                />
               )}
             </div>
 
@@ -230,7 +282,11 @@ export default function VariationCard({ variation, productId }: VariationCardPro
             <div className="flex-1 min-w-0">
               {/* Menu de ações - Mobile */}
               <div className="flex justify-end mb-2">
-                <IconButton size="small" onClick={handleMenuOpen} className="shrink-0">
+                <IconButton
+                  size="small"
+                  onClick={handleMenuOpen}
+                  className="shrink-0"
+                >
                   <Svg.cog_8_tooth tailWindClasses="h-4 w-4 text-slate-500" />
                 </IconButton>
               </div>
@@ -284,10 +340,18 @@ export default function VariationCard({ variation, productId }: VariationCardPro
               <div className="grid grid-cols-2 gap-2 text-xs">
                 {variation.sku && (
                   <div className="flex items-center gap-1 col-span-2">
-                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className="text-xs"
+                    >
                       SKU:
                     </Typography>
-                    <Typography variant="caption" color="text.secondary" className="font-mono text-xs">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className="font-mono text-xs"
+                    >
                       {variation.sku}
                     </Typography>
                     <CopyButton
@@ -299,21 +363,37 @@ export default function VariationCard({ variation, productId }: VariationCardPro
                   </div>
                 )}
                 <div className="flex items-center gap-1">
-                  <Typography variant="caption" color="text.secondary" className="text-xs">
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    className="text-xs"
+                  >
                     Preço:
                   </Typography>
                   {variation.price_sale ? (
-                    <Typography variant="body2" fontWeight={600} className="text-slate-900 text-xs">
+                    <Typography
+                      variant="body2"
+                      fontWeight={600}
+                      className="text-slate-900 text-xs"
+                    >
                       {formatCurrency(variation.price_sale)}
                     </Typography>
                   ) : (
-                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className="text-xs"
+                    >
                       —
                     </Typography>
                   )}
                 </div>
                 <div className="flex items-center gap-1">
-                  <Typography variant="caption" color="text.secondary" className="text-xs">
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    className="text-xs"
+                  >
                     Estoque:
                   </Typography>
                   {variation.available_quantity !== undefined ? (
@@ -335,18 +415,30 @@ export default function VariationCard({ variation, productId }: VariationCardPro
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                     </div>
                   ) : (
-                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className="text-xs"
+                    >
                       —
                     </Typography>
                   )}
                 </div>
                 {variation.sales_quantity !== undefined && (
                   <div className="flex items-center gap-1 col-span-2">
-                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      className="text-xs"
+                    >
                       Vendas:
                     </Typography>
                     <Svg.bag tailWindClasses="h-3 w-3 text-slate-500" />
-                    <Typography variant="body2" fontWeight={600} className="text-slate-900 text-xs">
+                    <Typography
+                      variant="body2"
+                      fontWeight={600}
+                      className="text-slate-900 text-xs"
+                    >
                       {formatNumber(variation.sales_quantity)}
                     </Typography>
                   </div>
@@ -357,7 +449,11 @@ export default function VariationCard({ variation, productId }: VariationCardPro
         </div>
       </MainCards>
 
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
         {variation.available_quantity !== undefined && (
           <MenuItem
             component={Link}
