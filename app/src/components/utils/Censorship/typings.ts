@@ -39,6 +39,8 @@ const PREDEFINED_VENDAS_KEYS = [
   "vendas_faturamento_diario",
   "vendas_distribuicao_geografica",
   "vendas_orders_list",
+  "vendas_orders_list_details",
+  "vendas_orders_list_details_endereco",
 ] as const;
 
 /**

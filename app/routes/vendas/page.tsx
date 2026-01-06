@@ -73,7 +73,7 @@ export default function VendasPage() {
           </Grid>
         </Section>
       </CensorshipWrapper>
-      <CensorshipWrapper censorshipKey="vendas_orders_list">
+      <CensorshipWrapper censorshipKey="vendas_orders_list" controlChildren>
         <Section title="Pedidos">
           <VendasFilters
             value={filters}
