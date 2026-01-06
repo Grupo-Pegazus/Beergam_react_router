@@ -1,23 +1,22 @@
+import { Alert } from "@mui/material";
 import { useCallback, useState } from "react";
-import Section from "~/src/components/ui/Section";
-import Grid from "~/src/components/ui/Grid";
-import MetricasCards from "~/features/anuncios/components/MetricasCards/MetricasCards";
-import TopAnunciosVendidos from "~/features/anuncios/components/TopAnunciosVendidos/TopAnunciosVendidos";
-import { AnunciosFilters } from "~/features/anuncios/components/Filters";
-import type { AnunciosFiltersState } from "~/features/anuncios/components/Filters";
-import { useAnunciosFilters, useAdsWithoutSku } from "~/features/anuncios/hooks";
 import AnuncioList from "~/features/anuncios/components/AnuncioList/AnuncioList";
 import AnunciosWithoutSkuModal from "~/features/anuncios/components/AnunciosWithoutSkuModal";
-import { Alert } from "@mui/material";
+import type { AnunciosFiltersState } from "~/features/anuncios/components/Filters";
+import { AnunciosFilters } from "~/features/anuncios/components/Filters";
+import MetricasCards from "~/features/anuncios/components/MetricasCards/MetricasCards";
+import TopAnunciosVendidos from "~/features/anuncios/components/TopAnunciosVendidos/TopAnunciosVendidos";
+import {
+  useAdsWithoutSku,
+  useAnunciosFilters,
+} from "~/features/anuncios/hooks";
+import Grid from "~/src/components/ui/Grid";
+import Section from "~/src/components/ui/Section";
 import BeergamButton from "~/src/components/utils/BeergamButton";
+import { CensorshipWrapper } from "~/src/components/utils/Censorship/CensorshipWrapper";
 export default function AnunciosPage() {
-  const {
-    filters,
-    setFilters,
-    resetFilters,
-    apiFilters,
-    applyFilters,
-  } = useAnunciosFilters();
+  const { filters, setFilters, resetFilters, apiFilters, applyFilters } =
+    useAnunciosFilters();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data: withoutSkuData } = useAdsWithoutSku();
@@ -30,16 +29,18 @@ export default function AnunciosPage() {
     (next: AnunciosFiltersState) => {
       setFilters(next);
     },
-    [setFilters],
+    [setFilters]
   );
 
   return (
     <>
-      <Section title="Resumo">
-        <Grid cols={{ base: 1, lg: 1 }}>
-          <MetricasCards />
-        </Grid>
-      </Section>
+      <CensorshipWrapper controlChildren censorshipKey="resumo_anuncios">
+        <Section title="Resumo">
+          <Grid cols={{ base: 1, lg: 1 }}>
+            <MetricasCards />
+          </Grid>
+        </Section>
+      </CensorshipWrapper>
 
       {totalWithoutSku > 0 && (
         <Section title="Pendências">
@@ -56,28 +57,35 @@ export default function AnunciosPage() {
                 />
               }
             >
-              Você possui {totalWithoutSku} anúncio(s) sem SKU cadastrado. Clique para
-              gerenciar.
+              Você possui {totalWithoutSku} anúncio(s) sem SKU cadastrado.
+              Clique para gerenciar.
             </Alert>
           </Grid>
         </Section>
       )}
 
-      <Section title="Top 5 anúncios mais vendidos">
-        <Grid cols={{ base: 1, lg: 1 }}>
-          <TopAnunciosVendidos />
-        </Grid>
-      </Section>
+      <CensorshipWrapper
+        controlChildren
+        censorshipKey="resumo_top_anuncios_vendidos"
+      >
+        <Section title="Top 5 anúncios mais vendidos">
+          <Grid cols={{ base: 1, lg: 1 }}>
+            <TopAnunciosVendidos />
+          </Grid>
+        </Section>
+      </CensorshipWrapper>
 
-      <Section title="Todos os anúncios">
-        <AnunciosFilters
-          value={filters}
-          onChange={handleFiltersChange}
-          onReset={resetFilters}
-          onSubmit={applyFilters}
-        />
-        <AnuncioList filters={apiFilters} />
-      </Section>
+      <CensorshipWrapper controlChildren censorshipKey="anuncios_list">
+        <Section title="Todos os anúncios">
+          <AnunciosFilters
+            value={filters}
+            onChange={handleFiltersChange}
+            onReset={resetFilters}
+            onSubmit={applyFilters}
+          />
+          <AnuncioList filters={apiFilters} />
+        </Section>
+      </CensorshipWrapper>
 
       <AnunciosWithoutSkuModal
         isOpen={isModalOpen}
