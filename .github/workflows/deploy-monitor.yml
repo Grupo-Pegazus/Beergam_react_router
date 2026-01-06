@@ -149,7 +149,7 @@ jobs:
         run: |
           STATUS="${{ steps.wait_deployment.outputs.status }}"
           DEPLOYMENT_ID="${{ steps.wait_deployment.outputs.deployment_id }}"
-          DEPLOYMENT_URL="${{ steps.wait_deployment.outputs.deployment_url }}"
+          DEPLOYMENT_URL="https://${{ steps.wait_deployment.outputs.deployment_url }}"
           COMMIT_SHA="${{ github.sha }}"
           COMMIT_SHORT="${COMMIT_SHA:0:7}"
           COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
