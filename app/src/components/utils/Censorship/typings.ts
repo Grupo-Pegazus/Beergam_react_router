@@ -48,6 +48,12 @@ const PREDEFINED_ANUNCIOS_KEYS = [
   "anuncios_list_details_financial",
 ] as const;
 
+const PREDEFINED_PRODUTOS_KEYS = [
+  "produtos_list",
+  "produtos_list_details",
+  "produtos_list_details_financial",
+] as const;
+
 /**
  * Lista de chaves pré-definidas para inicialização do sistema de censura.
  * Todas as chaves serão criadas com valor padrão `false` se não existirem.
@@ -56,6 +62,7 @@ export const PREDEFINED_CENSORSHIP_KEYS = [
   ...PREDEFINED_HOME_KEYS,
   ...PREDEFINED_VENDAS_KEYS,
   ...PREDEFINED_ANUNCIOS_KEYS,
+  ...PREDEFINED_PRODUTOS_KEYS,
 ] as const;
 
 /**
