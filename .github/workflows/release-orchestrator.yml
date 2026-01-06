@@ -1,0 +1,311 @@
+name: Frontend Release Orchestrator
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Tipo de versão'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+  repository_dispatch:
+    types: [deploy-frontend-production]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+
+jobs:
+  orchestrate-release:
+    name: Orchestrate Frontend Release
+    runs-on: ubuntu-latest
+    environment: production
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      release_url: ${{ steps.release.outputs.url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GIT_TOKEN_DISCORD }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch tags and branches
+        run: |
+          # Configura o remote com token para poder fazer fetch
+          git remote set-url origin https://x-access-token:${{ secrets.GIT_TOKEN_DISCORD }}@github.com/${{ github.repository }}.git
+          # Busca todas as tags e branches
+          git fetch origin --tags --prune
+
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          # Busca a tag mais recente (ordena por versão e pega a última)
+          LATEST_TAG=$(git tag -l "v*" | sort -V | tail -1)
+          
+          # Se não encontrar nenhuma tag, usa v0.0.0 como padrão
+          if [ -z "$LATEST_TAG" ]; then
+            LATEST_TAG="v0.0.0"
+          fi
+          
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          echo "📦 Latest tag: $LATEST_TAG"
+
+      - name: Calculate new version
+        id: version
+        run: |
+          LATEST_TAG="${{ steps.get_tag.outputs.latest_tag }}"
+          # Remove 'v' prefix se existir
+          LATEST_TAG=${LATEST_TAG#v}
+          
+          # Pega version_type de inputs (workflow_dispatch) ou client_payload (repository_dispatch)
+          if [ -n "${{ github.event.inputs.version_type }}" ]; then
+            VERSION_TYPE="${{ github.event.inputs.version_type }}"
+          elif [ -n "${{ github.event.client_payload.version_type }}" ]; then
+            VERSION_TYPE="${{ github.event.client_payload.version_type }}"
+          else
+            VERSION_TYPE="patch"
+          fi
+          
+          IFS='.' read -ra VERSION_PARTS <<< "$LATEST_TAG"
+          MAJOR=${VERSION_PARTS[0]:-0}
+          MINOR=${VERSION_PARTS[1]:-0}
+          PATCH=${VERSION_PARTS[2]:-0}
+          
+          case "$VERSION_TYPE" in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+          
+          NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
+
+      - name: Merge dev into main
+        id: merge
+        run: |
+          echo "🔄 Iniciando merge de dev para main..."
+          
+          # Configura o remote com token
+          git remote set-url origin https://x-access-token:${{ secrets.GIT_TOKEN_DISCORD }}@github.com/${{ github.repository }}.git
+          
+          # Busca todas as branches e tags (sem fazer checkout)
+          git fetch origin --prune
+          
+          # Obtém os SHAs das branches remotas
+          DEV_SHA=$(git rev-parse origin/dev)
+          MAIN_SHA=$(git rev-parse origin/main)
+          
+          echo "📊 SHA da origin/dev: $DEV_SHA"
+          echo "📊 SHA da origin/main: $MAIN_SHA"
+          
+          # Verifica se já está atualizado
+          if [ "$DEV_SHA" = "$MAIN_SHA" ]; then
+            echo "ℹ️  A branch main já está atualizada com dev"
+            echo "skip_merge=true" >> $GITHUB_OUTPUT
+          else
+            # Faz checkout da main a partir da origin
+            git checkout -b main origin/main || git checkout main
+            git reset --hard origin/main
+            
+            # Tenta fazer merge da origin/dev
+            set +e
+            git merge --no-ff origin/dev -m "chore: merge dev into main for release ${{ steps.version.outputs.version }}"
+            MERGE_EXIT=$?
+            set -e
+            
+            if [ $MERGE_EXIT -eq 0 ]; then
+              echo "✅ Merge realizado com sucesso"
+              git push origin main
+              echo "skip_merge=false" >> $GITHUB_OUTPUT
+            else
+              echo "❌ Erro ao fazer merge. Possíveis conflitos."
+              git status
+              git log --oneline --graph --all -10
+              exit 1
+            fi
+          fi
+          
+          # Atualiza referências
+          git fetch origin --prune
+
+      - name: Checkout main for tag creation
+        if: steps.merge.outputs.skip_merge != 'true'
+        run: |
+          git fetch origin --prune
+          git checkout main || git checkout -b main origin/main
+          git pull origin main || git reset --hard origin/main
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREVIOUS_TAG="${{ steps.get_tag.outputs.latest_tag }}"
+          CURRENT_TAG="${{ steps.version.outputs.version }}"
+          
+          # Garante que está na branch main atualizada
+          git fetch origin --prune
+          git checkout main || git checkout -b main origin/main
+          git pull origin main || git reset --hard origin/main
+          
+          # Gera changelog baseado nos commits desde a última tag
+          if [ "$PREVIOUS_TAG" = "v0.0.0" ]; then
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges -20)
+          else
+            COMMITS=$(git log ${PREVIOUS_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          
+          if [ -z "$COMMITS" ]; then
+            COMMITS="- Sem mudanças significativas desde a última release"
+          fi
+          
+          CHANGELOG=$(cat << EOF
+          ## $CURRENT_TAG
+          
+          ### Mudanças
+          $COMMITS
+          
+          ### Data
+          $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          
+          ---
+          
+          Esta release foi criada automaticamente pelo Frontend Release Orchestrator.
+          EOF
+          )
+          
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          echo "📝 Changelog gerado:"
+          echo "$CHANGELOG"
+
+      - name: Create and push tag
+        run: |
+          TAG="${{ steps.version.outputs.version }}"
+          
+          # Garante que está na branch main atualizada
+          git fetch origin --prune
+          git checkout main || git checkout -b main origin/main
+          git pull origin main || git reset --hard origin/main
+          
+          # Obtém o SHA do HEAD (que deve ser a main após o merge)
+          MAIN_SHA=$(git rev-parse HEAD)
+          
+          # Cria tag usando git (mais simples e confiável)
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+          
+          echo "✅ Tag $TAG criada no commit $MAIN_SHA"
+
+      - name: Create GitHub Release
+        id: release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GIT_TOKEN_DISCORD: ${{ secrets.GIT_TOKEN_DISCORD }}
+
+      - name: Send Discord notification via Bot
+        if: always()
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_DEPLOY_CHANNEL_ID }}
+        run: |
+          STATUS="${{ job.status }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          RELEASE_URL="${{ steps.release.outputs.url }}"
+          WORKFLOW_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          
+          if [ "$STATUS" = "success" ]; then
+            COLOR=3066993  # Verde
+            EMOJI="✅"
+            TITLE="Release do Frontend Concluído com Sucesso!"
+            DESCRIPTION="A release **$VERSION** foi criada e o deploy foi iniciado."
+          else
+            COLOR=15158332  # Vermelho
+            EMOJI="❌"
+            TITLE="Falha no Release do Frontend"
+            DESCRIPTION="O processo de release falhou. Verifique os logs para mais detalhes."
+          fi
+          
+          # Monta o payload do Discord (formato para API do Discord)
+          PAYLOAD=$(cat << EOF
+          {
+            "embeds": [{
+              "title": "${EMOJI} ${TITLE}",
+              "description": "${DESCRIPTION}",
+              "color": ${COLOR},
+              "fields": [
+                {
+                  "name": "📦 Versão",
+                  "value": "${VERSION}",
+                  "inline": true
+                },
+                {
+                  "name": "🔗 Release",
+                  "value": "[Ver Release](${RELEASE_URL})",
+                  "inline": true
+                },
+                {
+                  "name": "🔧 Workflow",
+                  "value": "[Ver Workflow](${WORKFLOW_URL})",
+                  "inline": true
+                }
+              ],
+              "footer": {
+                "text": "Beergam Frontend - Release Orchestrator"
+              },
+              "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            }]
+          }
+          EOF
+          )
+          
+          # Envia mensagem via API do Discord usando o bot token
+          if [ -n "$DISCORD_BOT_TOKEN" ] && [ -n "$DISCORD_CHANNEL_ID" ]; then
+            API_URL="https://discord.com/api/v10/channels/${DISCORD_CHANNEL_ID}/messages"
+            
+            HTTP_CODE=$(curl -s -o /tmp/discord_response.txt -w "%{http_code}" \
+              -X POST \
+              -H "Authorization: Bot ${DISCORD_BOT_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "$PAYLOAD" \
+              "$API_URL")
+            
+            if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 201 ]; then
+              echo "✅ Notificação enviada para Discord via Bot (HTTP $HTTP_CODE)"
+            else
+              echo "⚠️ Falha ao enviar notificação Discord (HTTP $HTTP_CODE)"
+              cat /tmp/discord_response.txt || true
+            fi
+          else
+            echo "⚠️ DISCORD_BOT_TOKEN ou DISCORD_CHANNEL_ID não configurados, pulando notificação"
+            echo "   Configure os secrets DISCORD_BOT_TOKEN e DISCORD_DEPLOY_CHANNEL_ID"
+          fi
+
