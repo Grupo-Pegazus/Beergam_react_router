@@ -4,12 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'app/**'
-      - 'vite.config.ts'
-      - 'package.json'
-      - 'vercel.json'
-      - 'react-router.config.ts'
 
 permissions:
   contents: read
