@@ -1,8 +1,13 @@
 @import "tailwindcss";
+
+/* Configuração do dark mode para usar classe 'dark' no HTML */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-display: "Satoshi", "comic-sans";
   --default-font-family: "Satoshi";
-  /* Cores customizadas seguindo o padrão do Tailwind */
+
+  /* Cores customizadas - Modo Claro (padrão) */
   --color-beergam-orange: #ff8a00;
   --color-beergam-orange-dark: #bf6800;
   --color-beergam-orange-light: #fff3e6;
@@ -30,16 +35,59 @@
   --color-beergam-gray: #8c8c8d;
   --color-beergam-gray-light: #b2b2bf;
 
+  --color-beergam-primary: var(--color-beergam-blue-primary);
+  --color-beergam-secundary: var(--color-beergam-orange);
+  --color-menu-background: var(--color-beergam-yellow);
   --shadow-layout-primary: 0px 0px 10px 0px rgba(0, 0, 0, 0.8);
 }
-/* 
-html,
-body {
-  @apply bg-white dark:bg-gray-950;
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+/* Classes utilitárias para usar as variáveis de tema */
+.bg-theme-primary {
+  background-color: var(--color-bg-primary);
+}
+
+.bg-theme-secondary {
+  background-color: var(--color-bg-secondary);
+}
+
+.text-theme-primary {
+  color: var(--color-text-primary);
+}
+
+.text-theme-secondary {
+  color: var(--color-text-secondary);
+}
+
+.border-theme {
+  border-color: var(--color-border);
+}
+
+/* Modo Escuro - cores que mudam automaticamente */
+.dark {
+  --color-beergam-secundary: var(--color-beergam-blue-primary-dark);
+  --color-menu-background: #252525;
+  /* --color-bg-primary: #0f172a;
+  --color-bg-secondary: #1e293b;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #cbd5e1; */
+
+  /* Ajustes de cores específicas para dark mode (se necessário)
+  --color-beergam-blue-primary: #252525;
+  --color-beergam-blue-light: #1e293b;
+  --color-beergam-orange-light: #1e293b;
+  --color-beergam-red-light: #1e293b;
+  --color-beergam-blue-primary: #252525;
+  --color-beergam-white: #000;
+  --color-beergam-black-blue: #fff; */
+}
+/* Aplicação automática das cores de tema */
+/* html,
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 } */
 
 * {

@@ -129,7 +129,7 @@ export default function PageLayout({
             )}
           </header>
         )}
-        <div className="bg-beergam-orange absolute top-0 left-0 w-full h-full -z-1000"></div>
+        <div className="bg-beergam-secundary absolute top-0 left-0 w-full h-full -z-1000"></div>
         <div className="absolute -z-10 hidden lg:block top-0 left-0 max-w-screen max-h-screen overflow-hidden w-full h-full opacity-50">
           <div className="absolute top-0 left-0 w-3/4 max-w-6xl object-contain">
             <img
