@@ -28,17 +28,25 @@
   --color-beergam-red-dark: #ff0000;
   --color-beergam-green: #87de72;
   --color-beergam-green-primary: #8dc572;
-  --color-beergam-white: #fff;
+  --color-beergam-white: #f2f2f2;
   --color-beergam-black: #000;
   --color-beergam-black-blue: #11263c;
 
   --color-beergam-gray: #8c8c8d;
   --color-beergam-gray-light: #b2b2bf;
 
+  --shadow-layout-primary: 0px 0px 10px 0px rgba(0, 0, 0, 0.8);
+
+  /* Cores que são alteradas dependendo do tema */
   --color-beergam-primary: var(--color-beergam-blue-primary);
   --color-beergam-secundary: var(--color-beergam-orange);
+  --color-beergam-typography-primary: var(--color-beergam-blue-primary);
+  --color-beergam-typography-secondary: var(--color-beergam-gray);
   --color-beergam-menu-background: var(--color-beergam-blue-primary);
-  --shadow-layout-primary: 0px 0px 10px 0px rgba(0, 0, 0, 0.8);
+  --color-beergam-section-background: var(--color-beergam-white);
+  --color-beergam-input-background: var(--color-beergam-white);
+  --color-beergam-input-border: var(--color-beergam-gray);
+  --color-beergam-button-background-primary: var(--color-beergam-white);
 }
 
 /* Classes utilitárias para usar as variáveis de tema */
@@ -64,31 +72,16 @@
 
 /* Modo Escuro - cores que mudam automaticamente */
 .dark {
-  --color-beergam-secundary: var(--color-beergam-blue-primary-dark);
+  --color-beergam-primary: var(--color-beergam-orange);
+  --color-beergam-secundary: #252525;
   --color-beergam-menu-background: #252525;
-  /* --color-bg-primary: #0f172a;
-  --color-bg-secondary: #1e293b;
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #cbd5e1; */
-
-  /* Ajustes de cores específicas para dark mode (se necessário)
-  --color-beergam-blue-primary: #252525;
-  --color-beergam-blue-light: #1e293b;
-  --color-beergam-orange-light: #1e293b;
-  --color-beergam-red-light: #1e293b;
-  --color-beergam-blue-primary: #252525;
-  --color-beergam-white: #000;
-  --color-beergam-black-blue: #fff; */
+  --color-beergam-section-background: #131313;
+  --color-beergam-typography-primary: var(--color-beergam-white);
+  --color-beergam-typography-secondary: var(--color-beergam-gray-light);
+  --color-beergam-input-background: #131313;
+  --color-beergam-input-border: var(--color-beergam-gray);
+  --color-beergam-button-background-primary: var(--color-beergam-input-border);
 }
-/* Aplicação automática das cores de tema */
-/* html,
-body {
-  background-color: var(--color-bg-primary);
-  color: var(--color-text-primary);
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-} */
 
 * {
   @apply transition-all duration-300;
