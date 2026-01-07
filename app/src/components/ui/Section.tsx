@@ -23,7 +23,7 @@ export default function Section({
     <section
       ref={ref}
       onClick={onClick}
-      className={`w-full min-w-0 bg-beergam-section-background! flex flex-col gap-4 border border-beergam-section-border rounded-2xl p-4 mb-4 shadow-sm  ${className} ${onClick ? "cursor-pointer hover:shadow-transparent hover:translate-y-[2px]" : ""}`}
+      className={`w-full min-w-0 bg-beergam-section-background flex flex-col gap-4 border border-beergam-section-border rounded-2xl p-4 mb-4 shadow-sm  ${className} ${onClick ? "cursor-pointer hover:shadow-transparent hover:translate-y-[2px]" : ""}`}
     >
       <div
         className={`flex flex-col md:flex-row items-center justify-between min-w-0`}

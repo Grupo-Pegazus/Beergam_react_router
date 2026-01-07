@@ -39,8 +39,8 @@ const PeriodButton = memo(
           "transition-all duration-200 min-h-[36px]",
           "touch-manipulation",
           isSelected
-            ? "bg-beergam-blue-primary text-white shadow-md"
-            : "bg-beergam-white dark:bg-beergam-blue-primary! text-slate-700 hover:bg-slate-200 active:bg-slate-300",
+            ? "bg-beergam-primary text-white shadow-md"
+            : "bg-beergam-button-background-primary text-beergam-typography-secondary hover:bg-beergam-primary/95 hover:text-beergam-white",
         ].join(" "),
       [isSelected]
     );

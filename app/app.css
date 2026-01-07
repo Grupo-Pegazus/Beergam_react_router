@@ -82,8 +82,8 @@
   --color-beergam-primary: var(--color-beergam-orange);
   --color-beergam-secundary: #252525;
   --color-beergam-menu-background: #252525;
-  --color-beergam-section-background: #131313;
-  --color-beergam-section-border: #a0a0a0;
+  --color-beergam-section-background: #252525;
+  --color-beergam-section-border: transparent;
   --color-beergam-layout-background: #131313;
   --color-beergam-typography-primary: var(--color-beergam-white);
   --color-beergam-typography-secondary: var(--color-beergam-gray-light);
@@ -91,8 +91,7 @@
   --color-beergam-input-border: transparent;
   --color-beergam-button-background-primary: var(--color-beergam-input-border);
   --color-beergam-button-background-blue: var(--color-beergam-white);
-
-  --color-beergam-mui-paper: #252525;
+  --color-beergam-mui-paper: #131313;
 }
 
 /* Classe para hover do texto no BeergamButton usando variável CSS dinâmica */
