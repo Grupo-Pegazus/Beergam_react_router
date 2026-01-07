@@ -86,6 +86,15 @@
   --color-beergam-button-background-blue: var(--color-beergam-white);
 }
 
+/* Classe para hover do texto no BeergamButton usando variável CSS dinâmica */
+.beergam-button-hover-text {
+  transition: color 0.3s ease-out;
+}
+
+.group:hover .beergam-button-hover-text {
+  color: var(--hover-text-color, var(--color-beergam-white)) !important;
+}
+
 * {
   @apply transition-all duration-300;
   box-sizing: border-box !important;
