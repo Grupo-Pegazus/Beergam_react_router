@@ -5,6 +5,7 @@ import { Tooltip } from "react-tooltip";
 import { getIcon } from "~/features/menu/utils";
 import Spining from "~/src/assets/loading";
 import Svg from "~/src/assets/svgs/_index";
+import { useThemeContext } from "../ThemeProvider/ThemeProvider";
 interface BeergamButtonFetcherProps {
   fecthing: boolean;
   completed: boolean;
@@ -34,6 +35,7 @@ interface BeergamButtonProps
   icon?: keyof typeof Svg | null;
   loading?: boolean;
   tooltip?: BeergamButtonTooltipProps;
+  isDark?: boolean;
 }
 
 type CSSPropertiesWithVars = CSSProperties & {
@@ -55,21 +57,24 @@ function BeergamButtonWrapper({
   tooltip,
   ...props
 }: BeergamButtonProps) {
+  const { isDark } = useThemeContext();
   const { style, ...buttonProps } = props;
   const isSlider = animationStyle === "slider" || animationStyle === "fetcher";
+  const textColor = `${isDark ? `text-beergam-white` : `text-${mainColor}`}`;
+  const bgColor = `${isDark ? `bg-${mainColor}!` : `bg-beergam-white!`}`;
   const sliderClasses = disabled
     ? "cursor-not-allowed! opacity-50!"
     : isSlider
-      ? `bg-beergam-button-background-primary! bg-[linear-gradient(90deg,var(--bg-slider-color)_0%,var(--bg-slider-color)_100%)] bg-[length:0%_100%] bg-no-repeat bg-left transition-[background-size,color] duration-300 ease-out ${fetcher?.fecthing ? "opacity-50!" : "hover:bg-[length:100%_100%]"}`
+      ? ` bg-[length:0%_100%] bg-no-repeat bg-left transition-[background-size,color] duration-300 ease-out ${fetcher?.fecthing ? "opacity-50!" : "hover:bg-[length:100%_100%]"}`
       : "hover:opacity-80";
   const fectherClasses = fetcher?.error
-    ? "bg-beergam-button-background-primary! bg-[linear-gradient(90deg,var(--color-beergam-red)_0%,var(--color-beergam-red)_100%)]! bg-[length:100%_100%]! "
+    ? "bg-[linear-gradient(90deg,var(--color-beergam-red)_0%,var(--color-beergam-red)_100%)]! bg-[length:100%_100%]! "
     : fetcher?.completed
       ? "bg-[linear-gradient(90deg,var(--color-beergam-green)_0%,var(--color-beergam-green)_100%)]! bg-[length:100%_100%]! "
       : fetcher?.fecthing || loading
         ? "bg-[linear-gradient(90deg,var(--color-beergam-gray-light)_0%,var(--color-beergam-gray-light)_100%)]! bg-[length:100%_100%]!"
         : "";
-  const wrapperClass = `${sliderClasses} ${fectherClasses} bg-beergam-button-background-primary relative overflow-hidden text-${mainColor} font-semibold py-2! px-4! rounded-lg shadow-sm group ${className} flex items-center gap-2 justify-center`;
+  const wrapperClass = `${sliderClasses} ${fectherClasses} ${bgColor} relative overflow-hidden ${textColor} font-semibold py-2! px-4! rounded-lg shadow-sm group ${className} flex items-center gap-2 justify-center`;
   const sliderStyle: CSSPropertiesWithVars | undefined = isSlider
     ? { "--bg-slider-color": `var(--color-${mainColor})` }
     : undefined;
@@ -153,6 +158,7 @@ export default function BeergamButton({
     }
   }, [fetcher?.completed, fetcher?.error, fetcher?.mutation]);
   const isLoading = loading || fetcher?.fecthing;
+  const { isDark } = useThemeContext();
   return (
     <BeergamButtonWrapper
       link={link}
@@ -170,7 +176,7 @@ export default function BeergamButton({
       <>
         {title && (
           <span
-            className={`relative ${fetcher?.completed || fetcher?.error || isLoading ? "opacity-0" : "opacity-100"} z-10 ${disabled ? "" : animationStyle == "fade" ? "" : "group-hover:text-beergam-white"}`}
+            className={`relative ${fetcher?.completed || fetcher?.error || isLoading ? "opacity-0" : "opacity-100"} z-10 ${disabled ? "" : animationStyle == "fade" ? "" : `${isDark ? `group-hover:text-${mainColor}!` : `group-hover:text-beergam-white!`}`}`}
           >
             {title}
           </span>
