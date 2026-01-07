@@ -53,7 +53,7 @@ function MenuDesktopContent() {
         onMouseEnter={() => {
           setIsExpanded(true);
         }}
-        className="group fixed top-2 z-99999 h-screen w-[100px] hover:w-[267px] transition-all duration-200 text-white bg-beergam-blue-primary flex flex-col gap-5 py-2"
+        className="group fixed top-2 z-99999 h-screen w-[100px] hover:w-[267px] transition-all duration-200 text-white bg-beergam-menu-background flex flex-col gap-5 py-2"
       >
         <div className="px-[18px] flex items-end justify-start">
           <div className="w-full max-w-[64px] px-4">

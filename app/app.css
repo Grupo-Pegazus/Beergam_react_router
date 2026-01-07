@@ -37,7 +37,7 @@
 
   --color-beergam-primary: var(--color-beergam-blue-primary);
   --color-beergam-secundary: var(--color-beergam-orange);
-  --color-menu-background: var(--color-beergam-yellow);
+  --color-beergam-menu-background: var(--color-beergam-blue-primary);
   --shadow-layout-primary: 0px 0px 10px 0px rgba(0, 0, 0, 0.8);
 }
 
@@ -65,7 +65,7 @@
 /* Modo Escuro - cores que mudam automaticamente */
 .dark {
   --color-beergam-secundary: var(--color-beergam-blue-primary-dark);
-  --color-menu-background: #252525;
+  --color-beergam-menu-background: #252525;
   /* --color-bg-primary: #0f172a;
   --color-bg-secondary: #1e293b;
   --color-text-primary: #f1f5f9;

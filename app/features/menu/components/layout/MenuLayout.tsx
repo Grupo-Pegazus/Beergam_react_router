@@ -51,7 +51,7 @@ export default function MenuLayout() {
     return (
       <MenuProvider>
         <BreadcrumbProvider>
-          <div className="flex bg-beergam-blue-primary">
+          <div className="flex bg-beergam-menu-background">
             <div className="hidden md:block">
               <MenuDesktop />
             </div>
@@ -71,7 +71,7 @@ export default function MenuLayout() {
     return (
       <MenuProvider>
         <BreadcrumbProvider>
-          <div className="flex bg-menu-background">
+          <div className="flex bg-beergam-menu-background">
             <div className="hidden md:block">
               <MenuDesktop />
             </div>
@@ -90,7 +90,7 @@ export default function MenuLayout() {
   return (
     <MenuProvider>
       <BreadcrumbProvider>
-        <div className="flex bg-beergam-blue-primary">
+        <div className="flex bg-beergam-menu-background">
           <div className="hidden md:block">
             <MenuDesktop />
           </div>
