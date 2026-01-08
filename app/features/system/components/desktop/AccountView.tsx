@@ -90,7 +90,6 @@ export default function AccountView({
 
         // Se a conta deletada era a selecionada
         if (isSelectedMarketplace) {
-
           authStore.setState({ marketplace: null });
 
           navigate("/interno/choosen_account", { replace: true });
@@ -166,13 +165,13 @@ export default function AccountView({
 
           {showDropdown && (
             <div
-              className={`absolute right-0 mt-2 w-[340px] rounded-lg bg-white text-[#323130] shadow-xl border border-gray-200 overflow-hidden z-10 ${
+              className={`absolute right-0 mt-2 w-[340px] rounded-lg text-beergam-typography-primary bg-beergam-mui-paper shadow-xl border border-beergam-input-border overflow-hidden z-10 ${
                 open ? "animate-slide-down" : "animate-fade-out"
               }`}
             >
               {/* Current Account Info */}
               {current && (
-                <div className="px-4 py-3 border-b border-gray-200 relative">
+                <div className="px-4 py-3 border-b border-beergam-primary relative">
                   <div className="flex items-start gap-3 mb-2">
                     <div
                       className={`w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center shrink-0 ${current.status_parse === MarketplaceStatusParse.PROCESSING ? "opacity-60" : ""}`}
@@ -191,7 +190,7 @@ export default function AccountView({
                     </div>
                     <div className="min-w-0 flex-1">
                       <p
-                        className={`font-semibold text-[#323130] truncate mb-1 ${current.status_parse === MarketplaceStatusParse.PROCESSING ? "opacity-60" : ""}`}
+                        className={`font-semibold text-beergam-typography-primary truncate mb-1 ${current.status_parse === MarketplaceStatusParse.PROCESSING ? "opacity-60" : ""}`}
                         title={current.marketplace_name}
                       >
                         {current.marketplace_name}
@@ -219,7 +218,7 @@ export default function AccountView({
                           onClick={() => {
                             navigate("/interno/config");
                           }}
-                          className="text-xs text-blue-600 hover:text-blue-700 hover:underline font-medium"
+                          className="text-xs text-beergam-primary hover:text-beergam-primary/80 hover:underline font-medium"
                         >
                           Minha conta
                         </button>
@@ -235,7 +234,7 @@ export default function AccountView({
                             current?.status_parse ===
                             MarketplaceStatusParse.PROCESSING
                           }
-                          className="text-xs text-red-600 hover:text-red-700 hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="text-xs text-beergam-red hover:text-beergam-red/80 hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           Excluir conta
                         </button>
@@ -246,7 +245,7 @@ export default function AccountView({
                             e.preventDefault();
                             void logout();
                           }}
-                          className="text-xs text-red-600 hover:text-red-700 hover:underline font-medium"
+                          className="text-xs text-beergam-red hover:text-beergam-red/80 hover:underline font-medium"
                         >
                           Sair
                         </button>
@@ -258,7 +257,7 @@ export default function AccountView({
 
               {/* Other Accounts Section */}
               {otherAccounts.length > 0 && (
-                <div className="border-b border-gray-200">
+                <div className="border-b border-beergam-primary">
                   <div className="max-h-[240px] overflow-y-auto">
                     {otherAccounts.map((acc) => {
                       const isProcessing =
@@ -290,8 +289,10 @@ export default function AccountView({
                               }
                             }}
                             aria-disabled={isProcessing}
-                            className={`w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 transition-colors group ${
-                              isProcessing ? "opacity-60 cursor-not-allowed pointer-events-none" : "cursor-pointer"
+                            className={`w-full text-left px-4 py-3 hover:bg-beergam-primary/10 flex items-center gap-3 transition-colors group ${
+                              isProcessing
+                                ? "opacity-60 cursor-not-allowed pointer-events-none"
+                                : "cursor-pointer"
                             }`}
                           >
                             {acc.marketplace_image ? (
@@ -309,7 +310,7 @@ export default function AccountView({
                             )}
                             <div className="min-w-0 flex-1">
                               <p
-                                className="truncate text-sm font-medium text-[#323130] group-hover:text-blue-600"
+                                className="truncate text-sm font-medium text-beergam-typography-primary group-hover:text-beergam-primary/80"
                                 title={acc.marketplace_name}
                               >
                                 {acc.marketplace_name}
@@ -341,9 +342,7 @@ export default function AccountView({
                               aria-label="Excluir conta"
                               title="Excluir conta"
                             >
-                              <Svg.trash
-                                tailWindClasses="stroke-red-600 w-4 h-4"
-                              />
+                              <Svg.trash tailWindClasses="stroke-red-600 w-4 h-4" />
                             </button>
                           </div>
                         </div>
@@ -361,17 +360,17 @@ export default function AccountView({
                     setModalOpen(true);
                     setOpen(false);
                   }}
-                  className="w-full text-left px-3 py-2.5 hover:bg-gray-50 flex items-center gap-3 cursor-pointer rounded transition-colors group"
+                  className="w-full text-left px-3 py-2.5 hover:bg-beergam-primary/10 flex items-center gap-3 cursor-pointer rounded transition-colors group"
                 >
-                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+                  <div className="w-10 h-10 bg-beergam-primary/10 rounded-full flex items-center justify-center group-hover:bg-beergam-primary/20 transition-colors">
                     <Svg.user_plus
                       width={20}
                       height={20}
-                      tailWindClasses="text-[#323130]"
+                      tailWindClasses="text-beergam-primary"
                     />
                   </div>
-                  <span className="text-sm font-medium text-[#323130] group-hover:text-blue-600">
-                    Adicionar conta
+                  <span className="text-sm font-medium text-beergam-typography-secondary group-hover:text-beergam-primary/80">
+                    Adicionar Conta
                   </span>
                 </button>
               </div>

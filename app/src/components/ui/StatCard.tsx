@@ -190,6 +190,9 @@ export default function StatCard({
     ? bgColorLightMap[color]
     : "bg-beergam-primary!";
 
+  // Usar variável CSS diretamente para bgColor dinâmico - solução universal
+  const bgColorVar = `var(--color-${bgColor})`;
+
   return (
     <Paper
       role={onClick ? "button" : undefined}
@@ -199,12 +202,12 @@ export default function StatCard({
         "p-3 md:p-4 lg:p-5",
         "hover:-translate-y-px",
         "ring-1 ring-transparent hover:" + tokens.ring,
-        `bg-${bgColor}`,
         onClick ? "cursor-pointer" : "",
         className ?? "",
       ]
         .filter(Boolean)
         .join(" ")}
+      style={{ backgroundColor: bgColorVar }}
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 md:gap-3 min-w-0">
