@@ -37,7 +37,7 @@ export default function AccountView({
     useState<BaseMarketPlace | null>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { isLoggingOut, logout } = useLogoutFlow({
+  const { logout } = useLogoutFlow({
     redirectTo: "/login",
   });
   const {
@@ -123,9 +123,15 @@ export default function AccountView({
     );
   }
 
-  const otherAccounts = accounts.filter(
-    (acc) => acc.marketplace_shop_id !== current?.marketplace_shop_id
-  );
+  // Criar lista unificada com a conta atual no topo
+  const allAccounts = current
+    ? [
+        current,
+        ...accounts.filter(
+          (acc) => acc.marketplace_shop_id !== current?.marketplace_shop_id
+        ),
+      ]
+    : accounts;
 
   return (
     <>
@@ -169,99 +175,16 @@ export default function AccountView({
                 open ? "animate-slide-down" : "animate-fade-out"
               }`}
             >
-              {/* Current Account Info */}
-              {current && (
-                <div className="px-4 py-3 border-b border-beergam-primary relative">
-                  <div className="flex items-start gap-3 mb-2">
-                    <div
-                      className={`w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center shrink-0 ${current.status_parse === MarketplaceStatusParse.PROCESSING ? "opacity-60" : ""}`}
-                    >
-                      {current.marketplace_image ? (
-                        <img
-                          src={current.marketplace_image}
-                          alt={current.marketplace_name}
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-white font-bold text-xl">
-                          {current.marketplace_name.charAt(0).toUpperCase()}
-                        </span>
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p
-                        className={`font-semibold text-beergam-typography-primary truncate mb-1 ${current.status_parse === MarketplaceStatusParse.PROCESSING ? "opacity-60" : ""}`}
-                        title={current.marketplace_name}
-                      >
-                        {current.marketplace_name}
-                      </p>
-                      {/* Marketplace Type e Status de Pedidos na mesma linha */}
-                      <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        <p
-                          className={`text-xs text-gray-600 ${current.status_parse === MarketplaceStatusParse.PROCESSING ? "opacity-60" : ""}`}
-                        >
-                          {
-                            MarketplaceTypeLabel[
-                              current.marketplace_type as MarketplaceType
-                            ]
-                          }
-                        </p>
-                        <StatusTag
-                          status={current.orders_parse_status}
-                          type="orders"
-                          className="text-[10px] py-0.5 px-2"
-                        />
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            navigate("/interno/config");
-                          }}
-                          className="text-xs text-beergam-primary hover:text-beergam-primary/80 hover:underline font-medium"
-                        >
-                          Minha conta
-                        </button>
-                        <span className="text-gray-300">•</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (current) {
-                              handleDeleteMarketplace(current);
-                            }
-                          }}
-                          disabled={
-                            current?.status_parse ===
-                            MarketplaceStatusParse.PROCESSING
-                          }
-                          className="text-xs text-beergam-red hover:text-beergam-red/80 hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Excluir conta
-                        </button>
-                        <span className="text-gray-300">•</span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            void logout();
-                          }}
-                          className="text-xs text-beergam-red hover:text-beergam-red/80 hover:underline font-medium"
-                        >
-                          Sair
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Other Accounts Section */}
-              {otherAccounts.length > 0 && (
+              {/* Accounts List - conta atual no topo com estilo de selecionado */}
+              {allAccounts.length > 0 && (
                 <div className="border-b border-beergam-primary">
                   <div className="max-h-[240px] overflow-y-auto">
-                    {otherAccounts.map((acc) => {
+                    {allAccounts.map((acc) => {
                       const isProcessing =
                         acc.status_parse === MarketplaceStatusParse.PROCESSING;
+                      const isSelected =
+                        current?.marketplace_shop_id ===
+                        acc.marketplace_shop_id;
                       return (
                         <div key={acc.marketplace_shop_id} className="relative">
                           {/* Overlay de processamento */}
@@ -279,20 +202,25 @@ export default function AccountView({
                             role="button"
                             tabIndex={isProcessing ? -1 : 0}
                             onClick={() => {
-                              if (!isProcessing) selectAccount(acc);
+                              if (!isProcessing && !isSelected)
+                                selectAccount(acc);
                             }}
                             onKeyDown={(e) => {
-                              if (isProcessing) return;
+                              if (isProcessing || isSelected) return;
                               if (e.key === "Enter" || e.key === " ") {
                                 e.preventDefault();
                                 selectAccount(acc);
                               }
                             }}
-                            aria-disabled={isProcessing}
-                            className={`w-full text-left px-4 py-3 hover:bg-beergam-primary/10 flex items-center gap-3 transition-colors group ${
+                            aria-disabled={isProcessing || isSelected}
+                            className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-colors group ${
+                              isSelected
+                                ? "bg-beergam-primary/10 cursor-default"
+                                : "hover:bg-beergam-primary/10 cursor-pointer"
+                            } ${
                               isProcessing
                                 ? "opacity-60 cursor-not-allowed pointer-events-none"
-                                : "cursor-pointer"
+                                : ""
                             }`}
                           >
                             {acc.marketplace_image ? (
@@ -310,7 +238,11 @@ export default function AccountView({
                             )}
                             <div className="min-w-0 flex-1">
                               <p
-                                className="truncate text-sm font-medium text-beergam-typography-primary group-hover:text-beergam-primary/80"
+                                className={`truncate text-sm font-medium ${
+                                  isSelected
+                                    ? "text-beergam-primary"
+                                    : "text-beergam-typography-primary group-hover:text-beergam-primary/80"
+                                }`}
                                 title={acc.marketplace_name}
                               >
                                 {acc.marketplace_name}
@@ -338,11 +270,11 @@ export default function AccountView({
                                 if (!isProcessing) handleDeleteMarketplace(acc);
                               }}
                               disabled={isProcessing}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-red-50 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-beergam-red/10 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
                               aria-label="Excluir conta"
                               title="Excluir conta"
                             >
-                              <Svg.trash tailWindClasses="stroke-red-600 w-4 h-4" />
+                              <Svg.trash tailWindClasses="stroke-beergam-red w-4 h-4" />
                             </button>
                           </div>
                         </div>
@@ -352,27 +284,68 @@ export default function AccountView({
                 </div>
               )}
 
-              {/* Add Account Button */}
-              <div className="p-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setModalOpen(true);
-                    setOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2.5 hover:bg-beergam-primary/10 flex items-center gap-3 cursor-pointer rounded transition-colors group"
-                >
-                  <div className="w-10 h-10 bg-beergam-primary/10 rounded-full flex items-center justify-center group-hover:bg-beergam-primary/20 transition-colors">
-                    <Svg.user_plus
-                      width={20}
-                      height={20}
-                      tailWindClasses="text-beergam-primary"
-                    />
-                  </div>
-                  <span className="text-sm font-medium text-beergam-typography-secondary group-hover:text-beergam-primary/80">
-                    Adicionar Conta
-                  </span>
-                </button>
+              {/* Action Buttons */}
+              <div className="border-t border-beergam-primary">
+                <div className="p-2 space-y-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setModalOpen(true);
+                      setOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2.5 hover:bg-beergam-primary/10 flex items-center gap-3 cursor-pointer rounded transition-colors group"
+                  >
+                    <div className="w-10 h-10 bg-beergam-primary/10 rounded-full flex items-center justify-center group-hover:bg-beergam-primary/20 transition-colors">
+                      <Svg.globe
+                        width={20}
+                        height={20}
+                        tailWindClasses="text-beergam-primary"
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-beergam-typography-secondary group-hover:text-beergam-primary/80">
+                      Adicionar Marketplace
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigate("/interno/config");
+                      setOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2.5 hover:bg-beergam-primary/10 flex items-center gap-3 cursor-pointer rounded transition-colors group"
+                  >
+                    <div className="w-10 h-10 bg-beergam-primary/10 rounded-full flex items-center justify-center group-hover:bg-beergam-primary/20 transition-colors">
+                      <Svg.cog_8_tooth
+                        width={20}
+                        height={20}
+                        tailWindClasses="text-beergam-primary"
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-beergam-typography-secondary group-hover:text-beergam-primary/80">
+                      Configurações da Conta
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setOpen(false);
+                      void logout();
+                    }}
+                    className="w-full text-left px-3 py-2.5 hover:bg-beergam-red/10 flex items-center gap-3 cursor-pointer rounded transition-colors group"
+                  >
+                    <div className="w-10 h-10 bg-beergam-red/10 rounded-full flex items-center justify-center group-hover:bg-beergam-red/20 transition-colors">
+                      <Svg.logout
+                        width={20}
+                        height={20}
+                        tailWindClasses="text-beergam-red"
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-beergam-typography-secondary group-hover:text-beergam-red/80">
+                      Sair do Sistema
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
           )}
