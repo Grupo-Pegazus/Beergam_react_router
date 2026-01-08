@@ -109,6 +109,16 @@
   color: var(--hover-text-color, var(--color-beergam-white)) !important;
 }
 
+/* Classes utilitárias dinâmicas usando variáveis CSS - solução universal para cores beergam */
+/* Essas classes usam variáveis CSS que são definidas dinamicamente via style inline */
+[style*="--dynamic-bg-color"] {
+  background-color: var(--dynamic-bg-color) !important;
+}
+
+[style*="--dynamic-text-color"] {
+  color: var(--dynamic-text-color) !important;
+}
+
 * {
   @apply transition-all duration-300;
   box-sizing: border-box !important;
