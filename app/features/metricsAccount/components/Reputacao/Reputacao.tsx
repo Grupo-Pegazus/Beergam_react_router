@@ -70,10 +70,10 @@ export default function Reputacao() {
   if (!selectedMarketplace) {
     return (
       <StatCard
-        icon={<Svg.star tailWindClasses="w-5 h-5 text-yellow-500" />}
+        icon={<Svg.star tailWindClasses="w-5 h-5" />}
         title="Reputação da Conta"
       >
-        <p className="text-sm text-[#475569] mt-3">
+        <p className="text-sm text-beergam-typography-secondary mt-3">
           Selecione um marketplace para visualizar a reputação.
         </p>
       </StatCard>
@@ -131,6 +131,36 @@ export default function Reputacao() {
     cardColor = "slate";
   }
 
+  // Mapa de classes de background com opacidade para o Tailwind detectar
+  // IMPORTANTE: Classes completas são necessárias para o Tailwind detectar durante a compilação
+  const bgColorMap: Record<
+    "red" | "orange" | "yellow" | "light_green" | "green" | "slate",
+    string
+  > = {
+    red: "bg-beergam-red/80",
+    orange: "bg-beergam-orange/80",
+    yellow: "bg-beergam-yellow/80",
+    light_green: "bg-beergam-green-primary/80",
+    green: "bg-beergam-green/80",
+    slate: "bg-beergam-gray/80",
+  };
+
+  // Mapa de classes de texto
+  const textColorMap: Record<
+    "red" | "orange" | "yellow" | "light_green" | "green" | "slate",
+    string
+  > = {
+    red: "text-beergam-red-dark",
+    orange: "text-beergam-orange-dark",
+    yellow: "text-yellow-700",
+    light_green: "text-green-700",
+    green: "text-green-700",
+    slate: "text-slate-700",
+  };
+
+  const bgColor = bgColorMap[cardColor];
+  const textColor = textColorMap[cardColor];
+
   return (
     <AsyncBoundary
       isLoading={isLoading}
@@ -143,7 +173,7 @@ export default function Reputacao() {
       )}
     >
       <StatCard
-        icon={<Svg.star tailWindClasses={`w-5 h-5 ${iconColor}`} />}
+        icon={<Svg.star tailWindClasses={`w-5 h-5`} />}
         title="Reputação da Conta"
         color={cardColor}
         variant="soft"
@@ -152,14 +182,17 @@ export default function Reputacao() {
         meliLevel &&
         meliColorName ? (
           <div className="mt-4 space-y-3">
-            <h4 className="text-base font-bold text-[#0f172a]">
-              Você tem cor {meliColorName}
+            <h4 className="text-base font-bold text-beergam-typography-tertiary">
+              Você tem cor{" "}
+              <span className={`${bgColor} ${textColor} p-2 rounded-md`}>
+                {meliColorName}
+              </span>
             </h4>
 
             <MeliColorBar currentLevel={meliLevel} />
 
             <div className="flex items-center gap-2">
-              <p className="text-sm text-[#475569]">
+              <p className="text-sm text-beergam-typography-secondary">
                 Você aparece assim para os compradores.
               </p>
             </div>

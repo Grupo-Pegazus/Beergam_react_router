@@ -29,8 +29,10 @@ import authStore from "./features/store-zustand";
 import { queryClient } from "./lib/queryClient";
 import Error from "./src/components/Error";
 import type { TError } from "./src/components/Error/typings";
-import { ModalProvider } from "./src/components/utils/Modal/ModalProvider";
 import { CensorshipProvider } from "./src/components/utils/Censorship";
+import { ModalProvider } from "./src/components/utils/Modal/ModalProvider";
+import { ThemeProvider as DarkModeThemeProvider } from "./src/components/utils/ThemeProvider";
+import { ThemeToggle } from "./src/components/utils/ThemeToggle";
 import "./zod";
 dayjs.locale("pt-br");
 
@@ -171,7 +173,9 @@ const theme = createTheme(
       MuiPaper: {
         styleOverrides: {
           root: {
-            border: "1px solid #e6e6e6",
+            border: "1px solid transparent",
+            backgroundColor: "var(--color-beergam-mui-paper)",
+            color: "var(--color-beergam-typography-tertiary)",
             borderRadius: "8px",
             padding: "16px",
             transition: "all 0.3s ease",
@@ -281,9 +285,36 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
         <Meta />
         <Links />
+        {/* Script inline para evitar FOUC (Flash of Unstyled Content) no dark mode */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const theme = localStorage.getItem('theme') || 'system';
+                const root = document.documentElement;
+                let shouldBeDark = false;
+                
+                if (theme === 'system') {
+                  shouldBeDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                } else {
+                  shouldBeDark = theme === 'dark';
+                }
+                
+                root.classList.remove('light', 'dark');
+                if (shouldBeDark) {
+                  root.classList.add('dark');
+                } else {
+                  root.classList.add('light');
+                }
+              })();
+            `,
+          }}
+        />
       </head>
       <body>
-        <ThemeProvider theme={theme}>{children}</ThemeProvider>
+        <DarkModeThemeProvider>
+          <ThemeProvider theme={theme}>{children}</ThemeProvider>
+        </DarkModeThemeProvider>
         <ScrollRestoration />
         <Scripts />
         <Toaster
@@ -405,6 +436,7 @@ export default function App() {
             <GlobalLoadingSpinner />
             <SocketConnectionManager />
             <AuthStoreMonitor />
+            <ThemeToggle />
           </ModalProvider>
         </QueryClientProvider>
       </CensorshipProvider>

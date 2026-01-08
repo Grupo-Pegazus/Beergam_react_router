@@ -34,7 +34,7 @@ export default function TopAnunciosVendidos() {
       {topAnuncios.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-amber-200 bg-white p-10 text-center">
           <Svg.warning_circle tailWindClasses="mx-auto h-8 w-8 text-amber-500" />
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-beergam-typography-secondary">
             Nenhum destaque encontrado no momento.
           </p>
         </div>
@@ -81,25 +81,25 @@ function HighlightCard({
           <TextCensored
             censorshipKey={censorshipKey}
             maxCharacters={5}
-            className="block max-w-full! truncate! text-xs! sm:text-sm! font-semibold! text-slate-900!"
+            className="block max-w-full! truncate! text-xs! sm:text-sm! font-semibold! text-beergam-typography-primary!"
           >
             {anuncio.name}
           </TextCensored>
-          <div className="flex items-center gap-1.5 sm:gap-2 text-[12px] sm:text-xs text-slate-500">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[12px] sm:text-xs text-beergam-typography-secondary">
             <TextCensored censorshipKey={censorshipKey} maxCharacters={1}>
               {formatCurrency(anuncio.price)}
             </TextCensored>
-            <span>•</span>
+            <span className="text-beergam-typography-tertiary">•</span>
             <TextCensored censorshipKey={censorshipKey} maxCharacters={1}>
               {anuncio.sold_quantity} vendas
             </TextCensored>
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-2 text-xs text-slate-500">
+      <div className="flex flex-col gap-2 text-xs text-beergam-typography-secondary">
         <HighlightStat
           icon={
-            <span className="text-sky-500">
+            <span className="text-beergam-white">
               <Svg.graph tailWindClasses="h-5 w-5" />
             </span>
           }
@@ -108,7 +108,7 @@ function HighlightCard({
         />
         <HighlightStat
           icon={
-            <span className="text-emerald-500">
+            <span className="text-beergam-white">
               <Svg.in_box_stack tailWindClasses="h-5 w-5" />
             </span>
           }
@@ -120,7 +120,7 @@ function HighlightCard({
         <InternalButtonLink
           to={`/interno/anuncios/${anuncio.mlb}`}
           icon={
-            <span className="text-amber-600">
+            <span className="text-beergam-primary">
               <Svg.eye tailWindClasses="h-5 w-5" />
             </span>
           }
@@ -162,15 +162,15 @@ interface HighlightStatProps {
 
 function HighlightStat({ icon, label, value }: HighlightStatProps) {
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-2 sm:px-3 py-1.5 sm:py-2">
-      <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-white shadow-inner shrink-0">
+    <div className="flex items-center gap-2 rounded-xl border border-beergam-input-border bg-beergam-section-background px-2 sm:px-3 py-1.5 sm:py-2">
+      <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-beergam-primary shadow-inner shrink-0">
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] sm:text-[11px] font-medium uppercase tracking-wide text-slate-400 truncate">
+        <p className="text-[10px] sm:text-[11px] font-medium uppercase tracking-wide text-beergam-typography-secondary truncate">
           {label}
         </p>
-        <p className="text-xs sm:text-sm font-semibold text-slate-700 truncate">
+        <p className="text-xs sm:text-sm font-semibold text-beergam-typography-primary truncate">
           {value}
         </p>
       </div>
@@ -191,7 +191,7 @@ function InternalButtonLink({
   return (
     <Link
       to={to}
-      className="flex flex-1 items-center justify-center gap-1.5 sm:gap-2 rounded-full border border-amber-300 bg-amber-50 px-2.5 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold text-amber-600 transition hover:bg-amber-100"
+      className="flex flex-1 items-center justify-center gap-1.5 sm:gap-2 rounded-full border border-beergam-input-border bg-beergam-section-background px-2.5 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold text-beergam-primary transition hover:bg-beergam-primary/20"
     >
       {icon}
       <span className="truncate">{children}</span>

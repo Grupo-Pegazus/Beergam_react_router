@@ -59,7 +59,7 @@ function ConfigSection({
   const Icon = Svg[section.icon];
   return (
     <button
-      className={`flex relative p-2 w-full rounded-lg text-left gap-2 border border-transparent items-center text-beergam-white ${emBreve ? "text-white/50 cursor-not-allowed!" : "hover:bg-beergam-blue-primary/10"} ${isSelected ? "bg-beergam-blue-primary! border-beergam-white!" : ""}`}
+      className={`flex relative p-2 w-full rounded-lg text-left gap-2 border border-transparent items-center text-beergam-white ${emBreve ? "text-white/50 cursor-not-allowed!" : "hover:bg-beergam-primary/10"} ${isSelected ? "bg-beergam-primary! border-beergam-white!" : ""}`}
       onClick={!emBreve ? onClick : undefined}
     >
       {emBreve && (

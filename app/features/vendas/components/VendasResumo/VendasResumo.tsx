@@ -126,7 +126,7 @@ export default function VendasResumo() {
       <div className="space-y-4 md:space-y-6">
         {/* Status rápidos */}
         <div>
-          <h4 className="text-xs md:text-sm font-semibold text-slate-700 mb-2 md:mb-3">
+          <h4 className="text-xs md:text-sm font-semibold text-beergam-typography-secondary mb-2 md:mb-3">
             Status das Vendas
           </h4>
           <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-3">
@@ -140,12 +140,11 @@ export default function VendasResumo() {
                 >
                   <StatCard
                     icon={createElement(Svg[card.icon], {
-                      tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
+                      tailWindClasses: "h-5 w-5",
                     })}
                     title={card.label}
                     value={value}
                     variant="soft"
-                    color={card.color}
                     censorshipKey={`vendas_resumo_status_${card.key}`}
                   />
                 </CensorshipWrapper>
@@ -156,7 +155,7 @@ export default function VendasResumo() {
 
         {/* Faturamento */}
         <div>
-          <h4 className="text-xs md:text-sm font-semibold text-slate-700 mb-2 md:mb-3">
+          <h4 className="text-xs md:text-sm font-semibold text-beergam-typography-secondary mb-2 md:mb-3">
             Faturamento
           </h4>
           <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -174,13 +173,12 @@ export default function VendasResumo() {
                   <StatCard
                     key={card.key}
                     icon={createElement(Svg[card.icon], {
-                      tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
+                      tailWindClasses: "h-5 w-5",
                     })}
                     title={card.label}
                     censorshipKey={`vendas_resumo_${card.key}`}
                     value={formattedValue}
                     variant="soft"
-                    color={card.color}
                   />
                 </CensorshipWrapper>
               );

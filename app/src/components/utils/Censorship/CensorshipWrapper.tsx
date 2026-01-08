@@ -184,7 +184,7 @@ export function CensorshipWrapper({
         <button
           type="button"
           onClick={handleToggle}
-          className="absolute group -top-4 -right-2 z-10 p-1.5 rounded-full bg-white shadow-md transition-colors duration-200 flex items-center justify-center hover:translate-y-px hover:bg-beergam-blue-primary hover:text-beergam-white!"
+          className="absolute group -top-4 -right-2 z-10 p-1.5 rounded-full bg-beergam-section-background shadow-md transition-colors duration-200 flex items-center justify-center hover:translate-y-px hover:bg-beergam-primary hover:text-beergam-white!"
           aria-label={
             wrapperCensored ? "Mostrar conteúdo" : "Censurar conteúdo"
           }
@@ -194,13 +194,13 @@ export function CensorshipWrapper({
             <Svg.eye_slash
               width={20}
               height={20}
-              tailWindClasses="text-gray-700 group-hover:text-beergam-white!"
+              tailWindClasses="text-beergam-typography-primary group-hover:text-beergam-white!"
             />
           ) : (
             <Svg.eye
               width={20}
               height={20}
-              tailWindClasses="text-gray-700 group-hover:text-beergam-white!"
+              tailWindClasses="text-beergam-typography-primary group-hover:text-beergam-white!"
             />
           )}
         </button>

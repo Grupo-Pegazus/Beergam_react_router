@@ -5,6 +5,7 @@ import { Tooltip } from "react-tooltip";
 import { getIcon } from "~/features/menu/utils";
 import Spining from "~/src/assets/loading";
 import Svg from "~/src/assets/svgs/_index";
+import { useThemeContext } from "../ThemeProvider/ThemeProvider";
 interface BeergamButtonFetcherProps {
   fecthing: boolean;
   completed: boolean;
@@ -34,6 +35,7 @@ interface BeergamButtonProps
   icon?: keyof typeof Svg | null;
   loading?: boolean;
   tooltip?: BeergamButtonTooltipProps;
+  isDark?: boolean;
 }
 
 type CSSPropertiesWithVars = CSSProperties & {
@@ -55,8 +57,11 @@ function BeergamButtonWrapper({
   tooltip,
   ...props
 }: BeergamButtonProps) {
+  const { isDark } = useThemeContext();
   const { style, ...buttonProps } = props;
   const isSlider = animationStyle === "slider" || animationStyle === "fetcher";
+  const textColor = `${isDark ? `text-beergam-white` : `text-${mainColor}`}`;
+  const bgColor = `${isDark ? `bg-${mainColor}!` : `bg-beergam-white!`}`;
   const sliderClasses = disabled
     ? "cursor-not-allowed! opacity-50!"
     : isSlider
@@ -69,10 +74,21 @@ function BeergamButtonWrapper({
       : fetcher?.fecthing || loading
         ? "bg-[linear-gradient(90deg,var(--color-beergam-gray-light)_0%,var(--color-beergam-gray-light)_100%)]! bg-[length:100%_100%]!"
         : "";
-  const wrapperClass = `${sliderClasses} ${fectherClasses} bg-beergam-white relative overflow-hidden text-${mainColor} font-semibold py-2! px-4! rounded-lg shadow-sm group ${className} flex items-center gap-2 justify-center`;
+  const wrapperClass = `${sliderClasses} ${fectherClasses} ${bgColor} relative overflow-hidden ${textColor} font-semibold py-2! px-4! rounded-lg shadow-sm group ${className} flex items-center gap-2 justify-center`;
+
+  // Variáveis CSS para cores dinâmicas
+  const mainColorVar = `var(--color-${mainColor})`;
+  const hoverTextColor = isDark ? mainColorVar : "var(--color-beergam-white)";
+
   const sliderStyle: CSSPropertiesWithVars | undefined = isSlider
-    ? { "--bg-slider-color": `var(--color-${mainColor})` }
-    : undefined;
+    ? {
+        "--bg-slider-color": `${isDark ? "var(--color-beergam-white)" : mainColorVar}`,
+        "--hover-text-color": hoverTextColor,
+      }
+    : {
+        "--hover-text-color": hoverTextColor,
+      };
+
   const combinedStyle =
     sliderStyle || style ? { ...sliderStyle, ...style } : undefined;
 
@@ -91,11 +107,11 @@ function BeergamButtonWrapper({
           data-tooltip-id={tooltip?.id}
         >
           {icon && (
-            <span>
+            <span className="beergam-button-hover-text">
               {React.createElement(getIcon(icon as keyof typeof Svg), {
                 width: "22px",
                 height: "22px",
-                tailWindClasses: `group-hover:text-beergam-white! max-w-[unset]! ${fetcher?.completed || fetcher?.error || loading ? "opacity-0!" : ""}`,
+                tailWindClasses: `max-w-[unset]! ${fetcher?.completed || fetcher?.error || loading ? "opacity-0!" : ""}`,
               })}
             </span>
           )}
@@ -115,11 +131,11 @@ function BeergamButtonWrapper({
           {...buttonProps}
         >
           {icon && (
-            <span>
+            <span className="beergam-button-hover-text">
               {React.createElement(getIcon(icon as keyof typeof Svg), {
                 width: "22px",
                 height: "22px",
-                tailWindClasses: `group-hover:text-beergam-white! max-w-[unset]! ${fetcher?.completed || fetcher?.error || loading ? "opacity-0!" : ""}`,
+                tailWindClasses: `max-w-[unset]! ${fetcher?.completed || fetcher?.error || loading ? "opacity-0!" : ""}`,
               })}
             </span>
           )}
@@ -170,7 +186,7 @@ export default function BeergamButton({
       <>
         {title && (
           <span
-            className={`relative ${fetcher?.completed || fetcher?.error || isLoading ? "opacity-0" : "opacity-100"} z-10 ${disabled ? "" : animationStyle == "fade" ? "" : "group-hover:text-beergam-white"}`}
+            className={`relative beergam-button-hover-text ${fetcher?.completed || fetcher?.error || isLoading ? "opacity-0" : "opacity-100"} z-10 ${disabled ? "" : animationStyle == "fade" ? "" : ""}`}
           >
             {title}
           </span>

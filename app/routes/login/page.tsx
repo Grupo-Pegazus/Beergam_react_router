@@ -32,7 +32,7 @@ export default function LoginPage({
   }) {
     return (
       <button
-        className={`relative text-beergam-blue-primary cursor-pointer hover:text-beergam-orange after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-beergam-orange font-medium after:transition-all after:duration-300 ${currentUserType === userType ? "after:opacity-100 text-beergam-orange" : "after:opacity-0"}`}
+        className={`relative text-beergam-typography-primary cursor-pointer hover:text-beergam-orange after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-beergam-orange font-medium after:transition-all after:duration-300 ${currentUserType === userType ? "after:opacity-100 text-beergam-orange!" : "after:opacity-0!"}`}
         onClick={() => callback(userType)}
       >
         {userType === UserRoles.MASTER ? "Empregador" : "Colaborador"}
@@ -50,7 +50,7 @@ export default function LoginPage({
   const Form = useMemo(() => {
     return (
       <div
-        className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-white h-auto w-full md:mx-auto md:my-auto p-8 md:w-2/3 md:max-w-lg md:rounded-4xl`}
+        className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-section-background! h-auto w-full md:mx-auto md:my-auto p-8 md:w-2/3 md:max-w-lg md:rounded-4xl`}
       >
         <div className="flex flex-col md:flex-row md:items-center justify-between items-start">
           <div className="flex gap-2 items-center">
@@ -64,13 +64,15 @@ export default function LoginPage({
                 className="w-full h-full object-contain"
               />
             </Link>
-            <h1 className="text-beergam-blue-primary">Bem vindo</h1>
+            <h1 className="text-beergam-typography-primary">Bem vindo</h1>
           </div>
           <div className="hidden md:block">
-            <p className="text-beergam-gray font-medium">Sem conta?</p>
+            <p className="text-beergam-typography-secondary font-medium">
+              Sem conta?
+            </p>
             <Link
               to="/registro"
-              className="text-beergam-blue-primary hover:text-beergam-orange font-medium"
+              className="text-beergam-typography-primary hover:text-beergam-orange font-medium"
             >
               Cadastre-se
             </Link>

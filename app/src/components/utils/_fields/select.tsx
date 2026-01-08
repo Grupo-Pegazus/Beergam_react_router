@@ -19,7 +19,6 @@ interface SelectProps {
   icon?: React.ReactNode;
   onChange?: (params: React.ChangeEvent<HTMLSelectElement>) => void;
   backgroundColor?: string;
-  textColor?: string;
   name?: string;
   children?: React.ReactNode;
   disabled?: boolean;
@@ -38,7 +37,6 @@ function Select({
   onChange,
   backgroundColor,
   name,
-  textColor,
   children,
   disabled,
   tailWindClasses,
@@ -57,7 +55,7 @@ function Select({
 
   // Classes baseadas no Input para manter consistência visual
   const baseClasses =
-    "w-full px-3 py-2.5 border border-black/20 rounded text-sm bg-white text-[#1e1f21] transition-colors duration-200 outline-none appearance-none";
+    "w-full px-3 py-2.5 border border-beergam-input-border bg-beergam-input-background text-beergam-typography-primary rounded text-sm transition-colors duration-200 outline-none appearance-none";
   const errorClasses =
     error?.error || hasError
       ? "!border-beergam-red focus:!border-beergam-red/90"
@@ -227,7 +225,6 @@ function Select({
             style={{
               ...style,
               backgroundColor: backgroundColor ? backgroundColor : undefined,
-              color: textColor ? textColor : "#1e1f21",
             }}
             onClick={handleToggle}
             onKeyDown={handleKeyDown}
@@ -239,7 +236,7 @@ function Select({
             aria-label={name || "Select"}
           >
             <span
-              className={`${value ? "" : "text-gray-400"} `}
+              className={`${value ?? ""} `}
               style={{
                 display: "block",
                 maxWidth: "100%",
@@ -296,7 +293,7 @@ function Select({
         {isOpen && !disabled && (
           <div
             ref={dropdownRef}
-            className="absolute z-9999 w-full mt-1 bg-white border border-black/20 rounded shadow-lg max-h-60 overflow-auto"
+            className="absolute z-9999 w-full mt-1 bg-beergam-section-background border border-beergam-input-border rounded shadow-lg max-h-60 overflow-auto"
             role="listbox"
             style={{
               position: "absolute",
@@ -309,7 +306,6 @@ function Select({
             {options && options.length > 0 ? (
               options.map((opt, idx) => {
                 const isSelected = opt.value === value;
-                const isFocused = focusedIndex === idx;
                 const isDisabled = opt.disabled;
 
                 return (
@@ -319,10 +315,9 @@ function Select({
                     role="option"
                     aria-selected={isSelected}
                     className={`
-                      w-full px-3 py-2.5 text-left text-sm text-[#1e1f21] transition-colors duration-150
-                      ${isSelected ? "bg-beergam-orange/10 font-semibold" : ""}
-                      ${isFocused && !isSelected ? "bg-gray-100" : ""}
-                      ${isDisabled ? "opacity-50 cursor-not-allowed!" : "hover:bg-gray-50"}
+                      w-full px-3 py-2.5 text-left text-sm text-beergam-typography-primary transition-colors duration-150
+                      ${isSelected ? "bg-beergam-orange/40 font-semibold" : ""}
+                      ${isDisabled ? "opacity-50 cursor-not-allowed!" : "hover:bg-beergam-orange/10"}
                       ${idx === 0 ? "rounded-t" : ""}
                       ${idx === options.length - 1 ? "rounded-b" : ""}
                     `}

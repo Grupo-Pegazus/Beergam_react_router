@@ -1,26 +1,27 @@
-import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import type { ApiResponse } from "~/features/apiClient/typings";
+import { MarketplaceType } from "~/features/marketplace/typings";
+import authStore from "~/features/store-zustand";
+import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import StatCard from "~/src/components/ui/StatCard";
-import Svg from "~/src/assets/svgs/_index";
-import { MarketplaceType } from "~/features/marketplace/typings";
+import { Modal } from "~/src/components/utils/Modal";
 import { metricsAccountService } from "../../service";
-import type { ApiResponse } from "~/features/apiClient/typings";
 import type { MarketplaceScheduleData } from "../../typings";
 import ScheduleTimesSkeleton from "./Skeleton";
-import { Modal } from "~/src/components/utils/Modal";
-import authStore from "~/features/store-zustand";
-
 
 type ScheduleResponse = ApiResponse<MarketplaceScheduleData<MarketplaceType>>;
 
-const WEEK_ORDER: Array<keyof NonNullable<
-  NonNullable<
+const WEEK_ORDER: Array<
+  keyof NonNullable<
     NonNullable<
-      MarketplaceScheduleData<MarketplaceType.MELI>["schedule"]
-    >["results_by_logistic_type"][string]
-  >["schedule"]
->> = [
+      NonNullable<
+        MarketplaceScheduleData<MarketplaceType.MELI>["schedule"]
+      >["results_by_logistic_type"][string]
+    >["schedule"]
+  >
+> = [
   "monday",
   "tuesday",
   "wednesday",
@@ -41,7 +42,7 @@ const DAY_LABEL: Record<string, string> = {
 };
 
 function isMeliSchedule(
-  payload: MarketplaceScheduleData<MarketplaceType> | null,
+  payload: MarketplaceScheduleData<MarketplaceType> | null
 ): payload is MarketplaceScheduleData<MarketplaceType.MELI> {
   return payload?.marketplace_type === MarketplaceType.MELI;
 }
@@ -68,15 +69,16 @@ export default function ScheduleTimes() {
   const payload = data?.success ? data.data : null;
 
   const summary = useMemo(() => {
-    if (!payload || !isMeliSchedule(payload)) return { label: "—", cutoff: "—" };
-    
+    if (!payload || !isMeliSchedule(payload))
+      return { label: "—", cutoff: "—" };
+
     const meliSchedule = payload.schedule;
     const scheduleByType =
       meliSchedule.results_by_logistic_type?.["drop_off"] ??
       Object.values(meliSchedule.results_by_logistic_type ?? {})[0];
     const schedule = scheduleByType?.schedule;
     if (!schedule) return { label: "—", cutoff: "—" };
-    
+
     // pega o primeiro dia útil com detail válido
     for (const day of WEEK_ORDER) {
       const info = schedule[day];
@@ -101,21 +103,25 @@ export default function ScheduleTimes() {
         )}
       >
         <StatCard
-          icon={<Svg.clock tailWindClasses="w-5 h-5 text-purple-600" />}
+          icon={<Svg.clock tailWindClasses="w-5 h-5" />}
           title="Horário de Corte"
           value={summary.cutoff}
           onClick={() => setOpen(true)}
         >
-          <p className="text-sm text-[#475569] mt-3">
+          <p className="text-sm text-beergam-typography-secondary mt-3">
             {summary.label}. Toque para ver a semana.
           </p>
         </StatCard>
       </AsyncBoundary>
 
-      <Modal title="Horário de corte da semana" isOpen={open} onClose={() => setOpen(false)}>
+      <Modal
+        title="Horário de corte da semana"
+        isOpen={open}
+        onClose={() => setOpen(false)}
+      >
         <div>
           {!payload ? (
-            <div className="text-sm text-[#475569]">
+            <div className="text-sm text-beergam-typography-secondary">
               Sem dados disponíveis para o marketplace selecionado.
             </div>
           ) : isMeliSchedule(payload) ? (
@@ -136,7 +142,7 @@ export default function ScheduleTimes() {
                       className="rounded-xl border border-black/10 p-3 bg-white"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-[#0f172a]">
+                        <span className="text-sm font-semibold text-beergam-typography-tertiary">
                           {DAY_LABEL[day]}
                         </span>
                         <span
@@ -150,7 +156,7 @@ export default function ScheduleTimes() {
                           {work ? "Dia útil" : "Sem operação"}
                         </span>
                       </div>
-                      <div className="mt-2 text-sm text-[#475569]">
+                      <div className="mt-2 text-sm text-beergam-typography-secondary">
                         Corte:{" "}
                         <span className="font-semibold">
                           {cutoff ?? (work ? "—" : "N/A")}
@@ -162,7 +168,7 @@ export default function ScheduleTimes() {
               })()}
             </div>
           ) : (
-            <div className="text-sm text-[#475569]">
+            <div className="text-sm text-beergam-typography-secondary">
               Estrutura de horários de corte ainda não implementada para este
               marketplace.
             </div>
@@ -172,5 +178,3 @@ export default function ScheduleTimes() {
     </>
   );
 }
-
-

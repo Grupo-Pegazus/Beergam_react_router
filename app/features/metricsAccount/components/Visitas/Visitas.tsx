@@ -14,6 +14,7 @@ import { MarketplaceType } from "~/features/marketplace/typings";
 import authStore from "~/features/store-zustand";
 import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import SecondaryButton from "~/src/components/ui/SecondaryButton";
 import StatCard from "~/src/components/ui/StatCard";
 import { ImageCensored } from "~/src/components/utils/Censorship";
 import { metricsAccountService } from "../../service";
@@ -260,23 +261,10 @@ const PeriodButton = memo(
       onSelect(option.value);
     }, [option.value, onSelect]);
 
-    const className = useMemo(
-      () =>
-        [
-          "px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium",
-          "transition-all duration-200 min-h-[36px] sm:min-h-0",
-          "touch-manipulation",
-          isSelected
-            ? "bg-blue-600 text-white shadow-md"
-            : "bg-slate-100 text-slate-700 hover:bg-slate-200 active:bg-slate-300",
-        ].join(" "),
-      [isSelected]
-    );
-
     return (
-      <button onClick={handleClick} className={className}>
+      <SecondaryButton isSelected={isSelected} onSelect={handleClick}>
         {option.label}
-      </button>
+      </SecondaryButton>
     );
   }
 );
@@ -346,9 +334,8 @@ export default function Visitas() {
       ErrorFallback={ErrorFallback}
     >
       <StatCard
-        icon={<Svg.graph tailWindClasses="w-5 h-5 text-blue-600" />}
+        icon={<Svg.graph tailWindClasses="w-5 h-5" />}
         title="Visitas"
-        color="blue"
         variant="soft"
       >
         {isMeliData ? (
