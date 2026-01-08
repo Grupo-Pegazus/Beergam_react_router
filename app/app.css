@@ -31,7 +31,9 @@
   --color-beergam-white: #fff;
   --color-beergam-black: #000;
   --color-beergam-black-blue: #11263c;
-
+  --color-beergam-purple: #8047f8;
+  --color-beergam-purple-light: #f0e6ff;
+  --color-beergam-purple-dark: #6633cc;
   --color-beergam-gray: #8c8c8d;
   --color-beergam-gray-light: #b2b2bf;
 
@@ -42,10 +44,11 @@
   --color-beergam-secundary: var(--color-beergam-orange);
   --color-beergam-typography-primary: var(--color-beergam-blue-primary);
   --color-beergam-typography-secondary: var(--color-beergam-gray);
+  --color-beergam-typography-tertiary: var(--color-beergam-blue-lara);
   --color-beergam-menu-background: var(--color-beergam-blue-primary);
   --color-beergam-layout-background: var(--color-beergam-white);
   --color-beergam-section-background: var(--color-beergam-white);
-  --color-beergam-section-border: var(--color-gray-500);
+  --color-beergam-section-border: transparent;
   --color-beergam-input-background: var(--color-beergam-white);
   --color-beergam-input-border: var(--color-beergam-gray);
   /* Cores de Botão pré definidas */
@@ -87,6 +90,7 @@
   --color-beergam-layout-background: #131313;
   --color-beergam-typography-primary: var(--color-beergam-white);
   --color-beergam-typography-secondary: var(--color-beergam-gray-light);
+  --color-beergam-typography-tertiary: var(--color-beergam-white);
   --color-beergam-input-background: #252525;
   --color-beergam-input-border: transparent;
   --color-beergam-button-background-primary: var(--color-beergam-input-border);

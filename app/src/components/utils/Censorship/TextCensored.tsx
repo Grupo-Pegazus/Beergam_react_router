@@ -30,5 +30,7 @@ export function TextCensored({
     return <span className={className}>{censoredTextTruncated}</span>;
   }
 
-  return <span className={className}>{children}</span>;
+  return (
+    <span className={className + " text-beergam-primary"}>{children}</span>
+  );
 }

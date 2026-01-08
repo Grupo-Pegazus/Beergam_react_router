@@ -173,8 +173,9 @@ const theme = createTheme(
       MuiPaper: {
         styleOverrides: {
           root: {
-            border: "1px solid var(--color-beergam-input-border)",
+            border: "1px solid transparent",
             backgroundColor: "var(--color-beergam-mui-paper)",
+            color: "var(--color-beergam-typography-tertiary)",
             borderRadius: "8px",
             padding: "16px",
             transition: "all 0.3s ease",

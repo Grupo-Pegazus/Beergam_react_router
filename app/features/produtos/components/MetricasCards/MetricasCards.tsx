@@ -1,8 +1,8 @@
 import { createElement } from "react";
-import { useProductsMetrics } from "../../hooks";
+import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import StatCard from "~/src/components/ui/StatCard";
-import Svg from "~/src/assets/svgs/_index";
+import { useProductsMetrics } from "../../hooks";
 import MetricasCardsSkeleton from "./MetricasCardsSkeleton";
 
 interface SummaryCardDefinition {
@@ -46,13 +46,14 @@ const SUMMARY_CARDS: SummaryCardDefinition[] = [
 export default function MetricasCards() {
   const { data, isLoading, error } = useProductsMetrics();
 
-  const metrics = data?.success && data.data
-    ? {
-        totalCadastrados: data.data.total_cadastrados,
-        totalAtivos: data.data.total_ativos,
-        estoqueBaixo: data.data.estoque_baixo,
-      }
-    : defaultMetrics;
+  const metrics =
+    data?.success && data.data
+      ? {
+          totalCadastrados: data.data.total_cadastrados,
+          totalAtivos: data.data.total_ativos,
+          estoqueBaixo: data.data.estoque_baixo,
+        }
+      : defaultMetrics;
 
   return (
     <AsyncBoundary
@@ -70,12 +71,11 @@ export default function MetricasCards() {
           <StatCard
             key={card.key}
             icon={createElement(Svg[card.icon], {
-              tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
+              tailWindClasses: "h-5 w-5 ",
             })}
             title={card.label}
             value={metrics[card.key]}
             variant="soft"
-            color="slate"
             className={[
               "relative overflow-hidden",
               "before:absolute before:inset-0 before:bg-linear-to-br",
@@ -88,4 +88,3 @@ export default function MetricasCards() {
     </AsyncBoundary>
   );
 }
-

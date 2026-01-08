@@ -45,41 +45,45 @@ export function QuestionsMetrics({ insights, loading }: QuestionsMetricsProps) {
       <Grid cols={{ base: 1, md: 2, lg: 4 }}>
         <CensorshipWrapper censorshipKey="perguntas_sla_tempo_medio">
           <StatCard
-            icon={<Svg.clock tailWindClasses="w-5 h-5 text-amber-600" />}
+            icon={<Svg.clock tailWindClasses="w-5 h-5 text-beergam-orange" />}
             title="Tempo médio de resposta"
             value={formatMinutes(insights?.avg_response_minutes)}
             loading={loading}
-            color="amber"
+            color="orange"
+            maintainColor={true}
             censorshipKey="perguntas_sla_tempo_medio"
           />
         </CensorshipWrapper>
         <CensorshipWrapper censorshipKey="perguntas_sla_dentro_de_1h">
           <StatCard
-            icon={<Svg.check tailWindClasses="w-5 h-5 text-emerald-600" />}
+            icon={<Svg.check tailWindClasses="w-5 h-5 text-beergam-green" />}
             title="% dentro de 1h"
             value={formatPercent(insights?.sla_within_1h_percent)}
             loading={loading}
-            color="emerald"
+            color="green"
+            maintainColor={true}
             censorshipKey="perguntas_sla_dentro_de_1h"
           />
         </CensorshipWrapper>
         <CensorshipWrapper censorshipKey="perguntas_sla_pendentes">
           <StatCard
-            icon={<Svg.chat tailWindClasses="w-5 h-5 text-blue-600" />}
+            icon={<Svg.chat tailWindClasses="w-5 h-5 text-beergam-blue" />}
             title="Pendentes"
             value={insights?.pending ?? "—"}
             loading={loading}
             color="blue"
+            maintainColor={true}
             censorshipKey="perguntas_sla_pendentes"
           />
         </CensorshipWrapper>
         <CensorshipWrapper censorshipKey="perguntas_sla_total_periodo">
           <StatCard
-            icon={<Svg.graph tailWindClasses="w-5 h-5 text-purple-600" />}
+            icon={<Svg.graph tailWindClasses="w-5 h-5 text-beergam-purple" />}
             title="Total no período"
             value={insights?.total ?? "—"}
             loading={loading}
             color="purple"
+            maintainColor={true}
             censorshipKey="perguntas_sla_total_periodo"
           ></StatCard>
         </CensorshipWrapper>

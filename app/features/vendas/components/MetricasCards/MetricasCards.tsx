@@ -132,12 +132,11 @@ export default function MetricasCards() {
                   <StatCard
                     censorshipKey={card.censorshipKey}
                     icon={createElement(Svg[card.icon], {
-                      tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
+                      tailWindClasses: "h-5 w-5",
                     })}
                     title={card.label}
                     value={value}
                     variant="soft"
-                    color={card.color}
                   />
                 </CensorshipWrapper>
               );
