@@ -97,7 +97,7 @@ export default function UserForm({ user }: { user: IUser }) {
   return (
     <>
       <form>
-        <Section title="Dados Pessoais" className="bg-beergam-white">
+        <Section title="Dados Pessoais" className="bg-beergam-mui-paper!">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <UserFields
               label="Nome"
@@ -169,7 +169,7 @@ export default function UserForm({ user }: { user: IUser }) {
             />
           </div>
         </Section>
-        <Section title="Dados Financeiros" className="bg-beergam-white">
+        <Section title="Dados Financeiros" className="bg-beergam-mui-paper!">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <UserFields
               label="Faturamento Mensal"

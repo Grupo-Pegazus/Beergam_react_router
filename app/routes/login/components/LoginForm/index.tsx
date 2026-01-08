@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
@@ -10,7 +10,6 @@ import { useSocketContext } from "~/features/socket/context/SocketContext";
 import authStore from "~/features/store-zustand";
 import UserFields from "~/features/user/components/UserFields";
 import { UserRoles } from "~/features/user/typings/BaseUser";
-import {useQueryClient} from "@tanstack/react-query";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import {
   BeergamTurnstile,
@@ -145,7 +144,7 @@ export default function LoginForm({
       {userType === UserRoles.MASTER && (
         <button
           type="button"
-          className="text-beergam-blue-primary hover:text-beergam-orange font-medium text-left w-fit"
+          className="text-beergam-typography-primary hover:text-beergam-orange font-medium text-left w-fit"
           onClick={() => setIsRecoveryModalOpen(true)}
         >
           Esqueceu sua senha?

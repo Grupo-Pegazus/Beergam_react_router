@@ -2,6 +2,7 @@ import { Skeleton } from "@mui/material";
 import { memo, useCallback, useMemo, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import SecondaryButton from "~/src/components/ui/SecondaryButton";
 import StatCard from "~/src/components/ui/StatCard";
 import {
   CensorshipWrapper,
@@ -32,23 +33,10 @@ const PeriodButton = memo(
       onSelect(option.value);
     }, [option.value, onSelect]);
 
-    const className = useMemo(
-      () =>
-        [
-          "px-3 py-2 rounded-lg text-xs sm:text-sm font-medium",
-          "transition-all duration-200 min-h-[36px]",
-          "touch-manipulation",
-          isSelected
-            ? "bg-beergam-blue-primary text-white shadow-md"
-            : "bg-slate-100 text-slate-700 hover:bg-slate-200 active:bg-slate-300",
-        ].join(" "),
-      [isSelected]
-    );
-
     return (
-      <button onClick={handleClick} className={className} type="button">
+      <SecondaryButton isSelected={isSelected} onSelect={handleClick}>
         {option.label}
-      </button>
+      </SecondaryButton>
     );
   }
 );
@@ -150,9 +138,7 @@ export default function HomeSummary() {
               <CensorshipWrapper censorshipKey="home_summary_faturamento_bruto">
                 <StatCard
                   title="Faturamento"
-                  icon={
-                    <Svg.currency_dollar tailWindClasses="h-5 w-5 text-green-500" />
-                  }
+                  icon={<Svg.currency_dollar tailWindClasses="h-5 w-5" />}
                 >
                   <div className="text-lg md:text-xl lg:text-2xl font-bold">
                     <TextCensored
@@ -169,7 +155,7 @@ export default function HomeSummary() {
               <CensorshipWrapper censorshipKey="home_summary_lucro_liquido">
                 <StatCard
                   title="Lucro"
-                  icon={<Svg.graph tailWindClasses="h-5 w-5 text-green-500" />}
+                  icon={<Svg.graph tailWindClasses="h-5 w-5" />}
                 >
                   <div className="flex flex-col gap-1">
                     <TextCensored
@@ -195,7 +181,7 @@ export default function HomeSummary() {
               <CensorshipWrapper censorshipKey="home_summary_vendas">
                 <StatCard
                   title="Vendas"
-                  icon={<Svg.bag tailWindClasses="h-5 w-5 text-green-500" />}
+                  icon={<Svg.bag tailWindClasses="h-5 w-5" />}
                 >
                   <TextCensored
                     censorshipKey="home_summary_vendas"
@@ -210,9 +196,7 @@ export default function HomeSummary() {
               <CensorshipWrapper censorshipKey="home_summary_ticket_medio">
                 <StatCard
                   title="Ticket médio"
-                  icon={
-                    <Svg.currency_dollar tailWindClasses="h-5 w-5 text-green-500" />
-                  }
+                  icon={<Svg.currency_dollar tailWindClasses="h-5 w-5" />}
                 >
                   <TextCensored
                     censorshipKey="home_summary_ticket_medio"
@@ -226,7 +210,7 @@ export default function HomeSummary() {
               <CensorshipWrapper censorshipKey="home_summary_lucro_medio">
                 <StatCard
                   title="Lucro médio"
-                  icon={<Svg.graph tailWindClasses="h-5 w-5 text-green-500" />}
+                  icon={<Svg.graph tailWindClasses="h-5 w-5" />}
                 >
                   <TextCensored
                     censorshipKey="home_summary_lucro_medio"
@@ -240,7 +224,7 @@ export default function HomeSummary() {
               <CensorshipWrapper censorshipKey="home_summary_canceladas">
                 <StatCard
                   title="Canceladas"
-                  icon={<Svg.circle_x tailWindClasses="h-5 w-5 text-red-500" />}
+                  icon={<Svg.circle_x tailWindClasses="h-5 w-5" />}
                 >
                   <div className="flex flex-col gap-1">
                     <TextCensored

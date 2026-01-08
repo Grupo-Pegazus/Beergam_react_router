@@ -1,5 +1,5 @@
-import { Outlet, useLocation } from "react-router";
 import { useEffect } from "react";
+import { Outlet, useLocation } from "react-router";
 import AccessDenied from "~/features/auth/components/AccessDenied/AccessDenied";
 import MaintenanceDenied from "~/features/maintenance/components/MaintenanceDenied";
 import { useMaintenanceCheck } from "~/features/maintenance/hooks";
@@ -51,7 +51,7 @@ export default function MenuLayout() {
     return (
       <MenuProvider>
         <BreadcrumbProvider>
-          <div className="flex bg-beergam-blue-primary">
+          <div className="flex bg-beergam-menu-background">
             <div className="hidden md:block">
               <MenuDesktop />
             </div>
@@ -71,15 +71,13 @@ export default function MenuLayout() {
     return (
       <MenuProvider>
         <BreadcrumbProvider>
-          <div className="flex bg-beergam-blue-primary">
+          <div className="flex bg-beergam-menu-background">
             <div className="hidden md:block">
               <MenuDesktop />
             </div>
             <div className="flex-1 ml-0 min-h-screen">
               <SystemLayout>
-                <MaintenanceDenied
-                  message={maintenanceData.data?.message}
-                />
+                <MaintenanceDenied message={maintenanceData.data?.message} />
               </SystemLayout>
             </div>
           </div>
@@ -92,7 +90,7 @@ export default function MenuLayout() {
   return (
     <MenuProvider>
       <BreadcrumbProvider>
-        <div className="flex bg-beergam-blue-primary">
+        <div className="flex bg-beergam-menu-background">
           <div className="hidden md:block">
             <MenuDesktop />
           </div>

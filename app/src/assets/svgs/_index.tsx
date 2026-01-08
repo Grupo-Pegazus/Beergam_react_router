@@ -48,6 +48,7 @@ import Logout from "./Logout";
 import LowStock from "./LowStock";
 import Megaphone from "./Megaphone";
 import Minus from "./Minus";
+import Moon from "./Moon";
 import Pencil from "./Pencil";
 import PencilSolid from "./PencilSolid";
 import PhoneIcon from "./PhoneIcon";
@@ -59,6 +60,7 @@ import Question from "./Question";
 import QuestionMark from "./QuestionMark";
 import Star from "./Star";
 import StarSolid from "./StarSolid";
+import Sun from "./Sun";
 import Trash from "./Trash";
 import Truck from "./Truck";
 import User from "./User";
@@ -137,6 +139,8 @@ const Svg = {
   calendar: CalendarIcon,
   arrow_long_right: ArrowLongRight,
   minus: Minus,
+  sun: Sun,
+  moon: Moon,
 };
 
 export default Svg;

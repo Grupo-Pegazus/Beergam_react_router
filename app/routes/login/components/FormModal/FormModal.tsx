@@ -269,8 +269,6 @@ export default function FormModal({
         </div>
         <BeergamButton
           title="Entrar"
-          mainColor="beergam-blue-primary"
-          animationStyle="slider"
           type="submit"
           className="w-full rounded-2xl"
           disabled={loginMutation.isPending}

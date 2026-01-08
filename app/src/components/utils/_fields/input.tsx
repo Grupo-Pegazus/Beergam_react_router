@@ -61,8 +61,8 @@ export default function Input({
 
   const baseClasses =
     type != "checkbox"
-      ? "w-full px-3 py-2.5 border border-black/20 rounded text-sm bg-white text-[#1e1f21] transition-colors duration-200 outline-none"
-      : "appearance-none w-5 h-5 cursor-pointer border border-black/20 rounded bg-white relative outline-none checked:bg-beergam-orange checked:border-beergam-orange hover:border-beergam-orange after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:scale-0 after:w-1.5 after:h-2.5 after:border-r-[2.5px] after:border-b-[2.5px] after:border-white after:origin-center after:transition-transform after:duration-200 after:ease-in-out after:opacity-0 checked:after:scale-100 checked:after:rotate-45 checked:after:opacity-100";
+      ? "w-full px-3 py-2.5 border border-beergam-input-border rounded text-sm bg-beergam-input-background text-beergam-typography-primary transition-colors duration-200 outline-none"
+      : "appearance-none w-5 h-5 cursor-pointer border border-beergam-input-border rounded bg-beergam-input-background! relative outline-none checked:bg-beergam-orange checked:border-beergam-orange hover:border-beergam-orange after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:scale-0 after:w-1.5 after:h-2.5 after:border-r-[2.5px] after:border-b-[2.5px] after:border-white after:origin-center after:transition-transform after:duration-200 after:ease-in-out after:opacity-0 checked:after:scale-100 checked:after:rotate-45 checked:after:opacity-100";
   const errorClasses =
     error && error != ""
       ? "!border-beergam-red focus:!border-beergam-red/90"
@@ -70,9 +70,9 @@ export default function Input({
   const successClasses = isValid
     ? "!border-beergam-green focus:!border-beergam-green/90"
     : "";
-  const focusClasses = "focus:border-[#ff8a00] outline-beergam-orange";
+  const focusClasses = "focus:border-beergam-orange outline-beergam-orange";
   const disabledClasses = disabled
-    ? "bg-gray-50 cursor-not-allowed border-gray-300 text-beergam-blue-primary"
+    ? "cursor-not-allowed text-beergam-gray!"
     : "";
   const [isShowPassword, setIsShowPassword] = useState(showPassword);
   // State para verificar se o usuário está focado ou interagindo com o input

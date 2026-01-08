@@ -138,7 +138,10 @@ export default function MinhaAssinatura() {
   const setSubscription = authStore.use.setSubscription();
   // Verifica se há uma subscription válida (com plan válido)
   // Considera válido se: success é true E há um plan E o plan tem display_name (não vazio) ou outros campos
-  const isTrialing = SubscriptionStatus[subscription?.status as unknown as keyof typeof SubscriptionStatus] === SubscriptionStatus.TRIALING;
+  const isTrialing =
+    SubscriptionStatus[
+      subscription?.status as unknown as keyof typeof SubscriptionStatus
+    ] === SubscriptionStatus.TRIALING;
   const getPlanDisplayName = () => {
     if (!subscription?.plan) return "Não possui plano atual";
     return subscription.plan.display_name?.trim() || "Não possui plano atual";
@@ -348,14 +351,14 @@ export default function MinhaAssinatura() {
                   plan={plan}
                   subscription={subscription || null}
                   key={plan.display_name}
-                onAssinarClick={(planSelected) => {
-                  // Verifica se está em trial antes de permitir mudança de plano
-                  if (isTrialing) {
-                    toast.error(
-                      "Não é possível mudar de plano durante o período de trial. Aguarde o término do período de trial para alterar seu plano."
-                    );
-                    return;
-                  }
+                  onAssinarClick={(planSelected) => {
+                    // Verifica se está em trial antes de permitir mudança de plano
+                    if (isTrialing) {
+                      toast.error(
+                        "Não é possível mudar de plano durante o período de trial. Aguarde o término do período de trial para alterar seu plano."
+                      );
+                      return;
+                    }
                     const colabExcedentBenefits = getColabsExcedent({
                       user: user as IUser,
                       selectedBenefits: planSelected.benefits as PlanBenefits,

@@ -89,12 +89,11 @@ export default function MetricasCards() {
           <CensorshipWrapper key={card.key} censorshipKey={card.censorshipKey}>
             <StatCard
               icon={createElement(Svg[card.icon], {
-                tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
+                tailWindClasses: "h-5 w-5",
               })}
               title={card.label}
               value={metrics[card.key]}
               variant="soft"
-              color="slate"
               className={[
                 "relative overflow-hidden",
                 "before:absolute before:inset-0 before:bg-linear-to-br",

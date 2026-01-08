@@ -21,7 +21,7 @@ function Label({
   return (
     <div className={`flex items-center gap-2`}>
       <label
-        className={`font-medium text-sm text-beergam-gray ${tailWindClasses || ""} sm:text-base relative inline-flex items-center gap-2`}
+        className={`font-medium text-sm text-beergam-typography-secondary ${tailWindClasses || ""} sm:text-base relative inline-flex items-center gap-2`}
         style={{ ...styleLabel, textTransform: "inherit" }}
       >
         {text}

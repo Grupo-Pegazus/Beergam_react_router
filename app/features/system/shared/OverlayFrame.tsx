@@ -15,7 +15,7 @@ export default function OverlayFrame({
   children: React.ReactNode;
 }) {
   if (!shouldRender) return null;
-  
+
   return (
     <MobilePortal>
       <div className="fixed inset-0 z-1100 md:hidden">
@@ -32,21 +32,17 @@ export default function OverlayFrame({
             isOpen ? "translate-y-0" : "translate-y-full",
           ].join(" ")}
         >
-          <header className="p-4 border-b border-black/10 flex items-center justify-between bg-beergam-blue-primary text-white">
+          <header className="p-4 border-b border-black/10 flex items-center justify-between bg-beergam-menu-background text-white">
             <h2 className="text-base font-semibold">{title}</h2>
-            <button
-              type="button"
-              aria-label="Fechar"
-              onClick={onRequestClose}
-            >
+            <button type="button" aria-label="Fechar" onClick={onRequestClose}>
               <Svg.x width={24} height={24} tailWindClasses="text-white" />
             </button>
           </header>
-          <div className="flex-1 overflow-y-auto">{children}</div>
+          <div className="flex-1 overflow-y-auto bg-beergam-mui-paper">
+            {children}
+          </div>
         </section>
       </div>
     </MobilePortal>
   );
 }
-
-

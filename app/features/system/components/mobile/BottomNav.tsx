@@ -1,22 +1,44 @@
 import { useEffect, useMemo, useState } from "react";
 import { PrefetchPageLinks, useLocation, useNavigate } from "react-router";
-import mobileNav, { dynamicDefaultParentKey } from "../../config/mobileNav";
-import type { BottomNavItem } from "../../types";
-import MenuOverlay from "~/features/system/components/mobile/MenuOverlay";
-import MobilePortal from "./Portal";
-import MobileAccountOverlay from "~/features/system/components/mobile/MobileAccountOverlay";
 import { useMarketplaceAccounts } from "~/features/marketplace/hooks/useMarketplaceAccounts";
 import { MenuConfig, type IMenuItem } from "~/features/menu/typings";
-import { DEFAULT_INTERNAL_PATH, findKeyPathByRoute, getIcon, getRelativePath } from "~/features/menu/utils";
+import {
+  DEFAULT_INTERNAL_PATH,
+  findKeyPathByRoute,
+  getIcon,
+  getRelativePath,
+} from "~/features/menu/utils";
+import MenuOverlay from "~/features/system/components/mobile/MenuOverlay";
+import MobileAccountOverlay from "~/features/system/components/mobile/MobileAccountOverlay";
 import SubmenuOverlay from "~/features/system/components/mobile/SubmenuOverlay";
 import Svg from "~/src/assets/svgs/_index";
+import mobileNav, { dynamicDefaultParentKey } from "../../config/mobileNav";
+import type { BottomNavItem } from "../../types";
+import MobilePortal from "./Portal";
 
-function NavButton({ item, active, onClick, onIntent }: { item: BottomNavItem; active: boolean; onClick: () => void; onIntent?: () => void }) {
+function NavButton({
+  item,
+  active,
+  onClick,
+  onIntent,
+}: {
+  item: BottomNavItem;
+  active: boolean;
+  onClick: () => void;
+  onIntent?: () => void;
+}) {
   const Icon = active && item.iconSolid ? item.iconSolid : item.icon;
-  const base = "flex flex-col items-center justify-center gap-1 px-3 py-2 text-xs";
+  const base =
+    "flex flex-col items-center justify-center gap-1 px-3 py-2 text-xs";
   const color = active ? "text-beergam-orange" : "text-white/70";
   return (
-    <button type="button" onClick={onClick} onMouseEnter={onIntent} onFocus={onIntent} aria-current={active ? "page" : undefined} className={[base, color].join(" ")}
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={onIntent}
+      onFocus={onIntent}
+      aria-current={active ? "page" : undefined}
+      className={[base, color].join(" ")}
       aria-label={item.label}
     >
       <span className="grid place-items-center text-[22px] leading-none">
@@ -29,12 +51,18 @@ function NavButton({ item, active, onClick, onIntent }: { item: BottomNavItem; a
 
 const LAST_VISITED_PARENTS_KEY = "beergam:lastVisitedParents";
 
-export default function BottomNav({ items = mobileNav.items }: { items?: ReadonlyArray<BottomNavItem> }) {
+export default function BottomNav({
+  items = mobileNav.items,
+}: {
+  items?: ReadonlyArray<BottomNavItem>;
+}) {
   const location = useLocation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
-  const [prefetchPage, setPrefetchPage] = useState<string | undefined>(undefined);
+  const [prefetchPage, setPrefetchPage] = useState<string | undefined>(
+    undefined
+  );
   const [submenuOpen, setSubmenuOpen] = useState<{
     open: boolean;
     items?: Record<string, IMenuItem>;
@@ -51,18 +79,22 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
     }
   });
 
-
   useEffect(() => {
     const { keyChain } = findKeyPathByRoute(MenuConfig, location.pathname);
     if (keyChain.length > 0) {
       const topParent = keyChain[0];
       try {
         setLastVisitedParents((prev) => {
-          const next = [topParent, ...prev.filter((k) => k !== topParent)].slice(0, 8);
+          const next = [
+            topParent,
+            ...prev.filter((k) => k !== topParent),
+          ].slice(0, 8);
           localStorage.setItem(LAST_VISITED_PARENTS_KEY, JSON.stringify(next));
           return next;
         });
-      } catch { void 0; }
+      } catch {
+        void 0;
+      }
     }
   }, [location.pathname]);
 
@@ -73,7 +105,8 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
 
   function isActive(item: BottomNavItem) {
     if (item.key === "complaints") {
-      const parentKey = effectiveParentKey ?? lastVisitedParents[0] ?? dynamicDefaultParentKey;
+      const parentKey =
+        effectiveParentKey ?? lastVisitedParents[0] ?? dynamicDefaultParentKey;
       return currentKeyChain[0] === parentKey;
     }
     if (!item.destination) return false;
@@ -90,7 +123,9 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
     const item = (MenuConfig as Record<string, IMenuItem>)[menuKey];
     if (!item || !item.icon) return undefined;
     const solidKey = (item.icon + "_solid") as keyof typeof Svg;
-    const Solid = (Svg as Record<string, unknown>)[solidKey] as BottomNavItem["icon"] | undefined;
+    const Solid = (Svg as Record<string, unknown>)[solidKey] as
+      | BottomNavItem["icon"]
+      | undefined;
     return Solid;
   };
 
@@ -99,7 +134,10 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
     for (const it of items) {
       if (it.isCenter || it.key === "menu") continue;
       if (!it.destination) continue;
-      const { keyChain } = findKeyPathByRoute(MenuConfig, it.destination.pathname);
+      const { keyChain } = findKeyPathByRoute(
+        MenuConfig,
+        it.destination.pathname
+      );
       if (keyChain.length > 0) set.add(keyChain[0]);
     }
     return set;
@@ -107,15 +145,25 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
 
   const effectiveParentKey = useMemo(() => {
     const choice = lastVisitedParents.find((k) => !excludedParents.has(k));
-    return choice ?? (excludedParents.has(dynamicDefaultParentKey) ? undefined : dynamicDefaultParentKey);
+    return (
+      choice ??
+      (excludedParents.has(dynamicDefaultParentKey)
+        ? undefined
+        : dynamicDefaultParentKey)
+    );
   }, [lastVisitedParents, excludedParents]);
 
   // Construir item dinâmico baseado no pai efetivo (fallback seguro)
   const dynamicItem: BottomNavItem = useMemo(() => {
-    const parentKey = effectiveParentKey ?? lastVisitedParents[0] ?? dynamicDefaultParentKey;
+    const parentKey =
+      effectiveParentKey ?? lastVisitedParents[0] ?? dynamicDefaultParentKey;
     const parent = (MenuConfig as Record<string, IMenuItem>)[parentKey];
-    const icon = parent?.icon ? getIcon(parent.icon) : (items[3]?.icon as BottomNavItem["icon"]);
-    const iconSolid = parent?.icon ? solidIconForMenuKey(parentKey) : (items[3] as BottomNavItem | undefined)?.iconSolid;
+    const icon = parent?.icon
+      ? getIcon(parent.icon)
+      : (items[3]?.icon as BottomNavItem["icon"]);
+    const iconSolid = parent?.icon
+      ? solidIconForMenuKey(parentKey)
+      : (items[3] as BottomNavItem | undefined)?.iconSolid;
     const destinationPath = getRelativePath(parentKey) || DEFAULT_INTERNAL_PATH;
     return {
       key: "complaints",
@@ -138,8 +186,18 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
     const iconSalesSolid = solidIconForMenuKey(salesKey);
     const iconMenu = getIcon("list" as keyof typeof Svg);
 
-    if (iconHome) base[0] = { ...base[0], icon: iconHome, iconSolid: iconHomeSolid ?? base[0].iconSolid } as BottomNavItem;
-    if (iconSales) base[1] = { ...base[1], icon: iconSales, iconSolid: iconSalesSolid ?? base[1].iconSolid } as BottomNavItem;
+    if (iconHome)
+      base[0] = {
+        ...base[0],
+        icon: iconHome,
+        iconSolid: iconHomeSolid ?? base[0].iconSolid,
+      } as BottomNavItem;
+    if (iconSales)
+      base[1] = {
+        ...base[1],
+        icon: iconSales,
+        iconSolid: iconSalesSolid ?? base[1].iconSolid,
+      } as BottomNavItem;
 
     const homeItem = (MenuConfig as Record<string, IMenuItem>)[homeKey];
     const salesItem = (MenuConfig as Record<string, IMenuItem>)[salesKey];
@@ -147,14 +205,19 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
       base[0] = {
         ...base[0],
         label: homeItem.label,
-        destination: { pathname: getRelativePath(homeKey) || DEFAULT_INTERNAL_PATH },
+        destination: {
+          pathname: getRelativePath(homeKey) || DEFAULT_INTERNAL_PATH,
+        },
       } as BottomNavItem;
     }
     if (salesItem) {
       base[1] = {
         ...base[1],
         label: salesItem.label,
-        destination: { pathname: getRelativePath(salesKey) || (DEFAULT_INTERNAL_PATH + "/vendas") },
+        destination: {
+          pathname:
+            getRelativePath(salesKey) || DEFAULT_INTERNAL_PATH + "/vendas",
+        },
       } as BottomNavItem;
     }
 
@@ -172,7 +235,7 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
     <MobilePortal>
       <nav className="fixed bottom-0 inset-x-0 z-1000 md:hidden">
         <div className="relative mx-auto max-w-screen-sm">
-          <div className="rounded-t-2xl shadow-layout-primary bg-beergam-blue-primary/95 backdrop-blur border border-black/5 px-2">
+          <div className="rounded-t-2xl shadow-layout-primary bg-beergam-menu-background backdrop-blur border border-black/5 px-2">
             <div className="grid grid-cols-5 items-end">
               {/* Left two */}
               {leftItems.map((item) => (
@@ -186,8 +249,13 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
                   }}
                   onClick={() => {
                     if (item.key === "complaints") {
-                      const parentKey = effectiveParentKey ?? lastVisitedParents[0] ?? "atendimento";
-                      const parent = (MenuConfig as Record<string, IMenuItem>)[parentKey];
+                      const parentKey =
+                        effectiveParentKey ??
+                        lastVisitedParents[0] ??
+                        "atendimento";
+                      const parent = (MenuConfig as Record<string, IMenuItem>)[
+                        parentKey
+                      ];
                       if (parent?.dropdown) {
                         setSubmenuOpen({
                           open: true,
@@ -217,8 +285,13 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
                   onClick={() => {
                     if (item.key === "menu") setMenuOpen(true);
                     else if (item.key === "complaints") {
-                      const parentKey = effectiveParentKey ?? lastVisitedParents[0] ?? "atendimento";
-                      const parent = (MenuConfig as Record<string, IMenuItem>)[parentKey];
+                      const parentKey =
+                        effectiveParentKey ??
+                        lastVisitedParents[0] ??
+                        "atendimento";
+                      const parent = (MenuConfig as Record<string, IMenuItem>)[
+                        parentKey
+                      ];
                       if (parent?.dropdown) {
                         setSubmenuOpen({
                           open: true,
@@ -229,7 +302,8 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
                         return;
                       }
                       if (item.destination) navigate(item.destination.pathname);
-                    } else if (item.destination) navigate(item.destination.pathname);
+                    } else if (item.destination)
+                      navigate(item.destination.pathname);
                   }}
                 />
               ))}
@@ -243,13 +317,19 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
             className="absolute -top-6 left-1/2 -translate-x-1/2 h-16 w-16 rounded-full bg-beergam-white shadow-xl flex items-center justify-center"
           >
             <div className="h-15 w-15 rounded-full overflow-hidden border-2 border-beergam-blue-primary shadow-[0px_0px_10px_0px_rgba(0,0,0,0.5)]">
-              <img src={current?.marketplace_image} alt={current?.marketplace_name} className="h-full w-full object-cover" />
+              <img
+                src={current?.marketplace_image}
+                alt={current?.marketplace_name}
+                className="h-full w-full object-cover"
+              />
             </div>
           </button>
         </div>
       </nav>
       {menuOpen && <MenuOverlay onClose={() => setMenuOpen(false)} />}
-      {accountOpen && <MobileAccountOverlay onClose={() => setAccountOpen(false)} />}
+      {accountOpen && (
+        <MobileAccountOverlay onClose={() => setAccountOpen(false)} />
+      )}
       {prefetchPage ? <PrefetchPageLinks page={prefetchPage} /> : null}
       {submenuOpen.open && submenuOpen.items && (
         <SubmenuOverlay
@@ -263,5 +343,3 @@ export default function BottomNav({ items = mobileNav.items }: { items?: Readonl
     </MobilePortal>
   );
 }
-
-

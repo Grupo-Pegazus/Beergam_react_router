@@ -9,6 +9,7 @@ interface StatCardProps extends PropsWithChildren {
   icon?: ReactNode;
   title: string;
   value?: ReactNode;
+  maintainColor?: boolean;
   loading?: boolean;
   className?: string;
   onClick?: () => void;
@@ -26,6 +27,7 @@ interface StatCardProps extends PropsWithChildren {
     | "yellow"
     | "light_green"
     | "green";
+  bgColor?: string;
 }
 
 function colorTokens(
@@ -132,7 +134,8 @@ function colorTokens(
         ? `bg-linear-to-r ${t.solidBg}`
         : `bg-linear-to-r ${t.iconBg}`,
     titleColor: variant === "solid" ? t.solidText : "text-[#475569]",
-    valueColor: variant === "solid" ? t.solidText : "text-[#0f172a]",
+    valueColor:
+      variant === "solid" ? t.solidText : "text-beergam-typography-tertiary",
     cardBg: variant === "solid" ? `bg-linear-to-r ${t.solidBg}` : `bg-white`,
     accentText: t.accentText,
   };
@@ -147,10 +150,46 @@ export default function StatCard({
   onClick,
   variant = "soft",
   color = "slate",
+  maintainColor = false,
   children,
   censorshipKey,
+  bgColor = "beergam-mui-paper",
 }: StatCardProps) {
   const tokens = colorTokens(color, variant);
+
+  // Mapa de classes de background com -light para o Tailwind detectar
+  // IMPORTANTE: Classes completas são necessárias para o Tailwind detectar durante a compilação
+  const bgColorLightMap: Record<
+    | "blue"
+    | "purple"
+    | "emerald"
+    | "amber"
+    | "rose"
+    | "slate"
+    | "red"
+    | "orange"
+    | "yellow"
+    | "light_green"
+    | "green",
+    string
+  > = {
+    blue: "bg-beergam-blue-light",
+    purple: "bg-beergam-purple-light",
+    red: "bg-beergam-red-light",
+    orange: "bg-beergam-orange-light",
+    green: "bg-green-50", // Usando cor padrão do Tailwind já que beergam-green-light não existe
+    yellow: "bg-yellow-50", // Usando cor padrão do Tailwind já que beergam-yellow-light não existe
+    emerald: "bg-emerald-50", // Usando cor padrão do Tailwind
+    amber: "bg-amber-50", // Usando cor padrão do Tailwind
+    rose: "bg-rose-50", // Usando cor padrão do Tailwind
+    slate: "bg-slate-50", // Usando cor padrão do Tailwind
+    light_green: "bg-green-50", // Usando cor padrão do Tailwind
+  };
+
+  const iconBgColor = maintainColor
+    ? bgColorLightMap[color]
+    : "bg-beergam-primary!";
+
   return (
     <Paper
       role={onClick ? "button" : undefined}
@@ -160,7 +199,7 @@ export default function StatCard({
         "p-3 md:p-4 lg:p-5",
         "hover:-translate-y-px",
         "ring-1 ring-transparent hover:" + tokens.ring,
-        tokens.cardBg,
+        `bg-${bgColor}`,
         onClick ? "cursor-pointer" : "",
         className ?? "",
       ]
@@ -172,8 +211,9 @@ export default function StatCard({
           {icon ? (
             <div
               className={[
-                "w-9 h-9 md:w-11 md:h-11 rounded-xl grid place-items-center shadow-inner shrink-0",
-                tokens.headerBg,
+                "w-9 h-9 md:w-11 md:h-11 rounded-xl text-beergam-white! grid place-items-center shadow-inner shrink-0",
+                iconBgColor,
+                // tokens.headerBg,
               ].join(" ")}
             >
               {icon}
@@ -181,7 +221,7 @@ export default function StatCard({
           ) : null}
           <span
             className={[
-              "text-xs md:text-sm font-medium truncate",
+              "text-xs md:text-sm font-medium truncate text-beergam-typography-secondary",
               tokens.titleColor,
             ].join(" ")}
           >
