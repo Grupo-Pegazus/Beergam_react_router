@@ -54,9 +54,10 @@
   /* Cores de Botão pré definidas */
   --color-beergam-button-background-primary: var(--color-beergam-white);
   --color-beergam-button-background-blue: var(--color-beergam-blue-primary);
-
   /* MUI */
   --color-beergam-mui-paper: var(--color-beergam-white);
+  /* MENU */
+  --color-beergam-menu-mobile-button: var(--color-beergam-blue-primary);
 }
 
 /* Classes utilitárias para usar as variáveis de tema */
@@ -96,6 +97,7 @@
   --color-beergam-button-background-primary: var(--color-beergam-input-border);
   --color-beergam-button-background-blue: var(--color-beergam-white);
   --color-beergam-mui-paper: #131313;
+  --color-beergam-menu-mobile-button: var(--color-beergam-white);
 }
 
 /* Classe para hover do texto no BeergamButton usando variável CSS dinâmica */

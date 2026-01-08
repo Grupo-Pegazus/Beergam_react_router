@@ -29,7 +29,7 @@ export default function InicioPage() {
         <Section
           title="Resumo de Vendas"
           actions={
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-beergam-typography-secondary">
               Dados dos últimos 90 dias
             </span>
           }

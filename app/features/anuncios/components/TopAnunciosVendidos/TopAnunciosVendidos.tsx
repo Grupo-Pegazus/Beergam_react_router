@@ -34,7 +34,7 @@ export default function TopAnunciosVendidos() {
       {topAnuncios.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-amber-200 bg-white p-10 text-center">
           <Svg.warning_circle tailWindClasses="mx-auto h-8 w-8 text-amber-500" />
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-beergam-typography-secondary">
             Nenhum destaque encontrado no momento.
           </p>
         </div>
@@ -85,7 +85,7 @@ function HighlightCard({
           >
             {anuncio.name}
           </TextCensored>
-          <div className="flex items-center gap-1.5 sm:gap-2 text-[12px] sm:text-xs text-slate-500">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[12px] sm:text-xs text-beergam-typography-secondary">
             <TextCensored censorshipKey={censorshipKey} maxCharacters={1}>
               {formatCurrency(anuncio.price)}
             </TextCensored>
@@ -96,7 +96,7 @@ function HighlightCard({
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-2 text-xs text-slate-500">
+      <div className="flex flex-col gap-2 text-xs text-beergam-typography-secondary">
         <HighlightStat
           icon={
             <span className="text-beergam-white">
