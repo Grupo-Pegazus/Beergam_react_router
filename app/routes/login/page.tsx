@@ -50,7 +50,7 @@ export default function LoginPage({
   const Form = useMemo(() => {
     return (
       <div
-        className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-section-background! h-auto w-full md:mx-auto md:my-auto p-8 md:w-2/3 md:max-w-lg md:rounded-4xl`}
+        className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-mui-paper! h-auto w-full md:mx-auto md:my-auto p-8 md:w-2/3 md:max-w-lg md:rounded-4xl`}
       >
         <div className="flex flex-col md:flex-row md:items-center justify-between items-start">
           <div className="flex gap-2 items-center">

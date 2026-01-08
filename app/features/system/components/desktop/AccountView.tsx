@@ -181,7 +181,7 @@ export default function AccountView({
             >
               {/* User Info Section */}
               {user && (
-                <div className="px-4 py-4 border-b border-beergam-primary">
+                <div className="px-4 py-4 border-b-2 border-beergam-menu-background">
                   <div className="flex items-start gap-3">
                     <UserPhoto className="size-10!" name={user.name} />
                     <div className="min-w-0 flex-1">
@@ -216,7 +216,7 @@ export default function AccountView({
 
               {/* Accounts List - conta atual no topo com estilo de selecionado */}
               {allAccounts.length > 0 && (
-                <div className="border-b border-beergam-primary">
+                <div className="">
                   <div className="max-h-[240px] overflow-y-auto">
                     {allAccounts.map((acc) => {
                       const isProcessing =
@@ -349,7 +349,7 @@ export default function AccountView({
               )}
 
               {/* Action Buttons */}
-              <div className="border-t border-beergam-primary">
+              <div className="border-t-2 border-beergam-menu-background">
                 <div className="p-2 space-y-1">
                   <button
                     type="button"
