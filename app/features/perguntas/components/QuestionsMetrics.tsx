@@ -41,7 +41,7 @@ export function QuestionsMetrics({ insights, loading }: QuestionsMetricsProps) {
   }));
 
   return (
-    <div className="bg-white border border-black/10 rounded-2xl p-4 shadow-sm flex flex-col gap-4">
+    <div className="bg-beergam-mui-paper border border-black/10 rounded-2xl p-4 shadow-sm flex flex-col gap-4">
       <Grid cols={{ base: 1, md: 2, lg: 4 }}>
         <CensorshipWrapper censorshipKey="perguntas_sla_tempo_medio">
           <StatCard
@@ -50,6 +50,7 @@ export function QuestionsMetrics({ insights, loading }: QuestionsMetricsProps) {
             value={formatMinutes(insights?.avg_response_minutes)}
             loading={loading}
             color="orange"
+            bgColor="beergam-section-background!"
             maintainColor={true}
             censorshipKey="perguntas_sla_tempo_medio"
           />
@@ -61,6 +62,7 @@ export function QuestionsMetrics({ insights, loading }: QuestionsMetricsProps) {
             value={formatPercent(insights?.sla_within_1h_percent)}
             loading={loading}
             color="green"
+            bgColor="beergam-section-background!"
             maintainColor={true}
             censorshipKey="perguntas_sla_dentro_de_1h"
           />
@@ -72,6 +74,7 @@ export function QuestionsMetrics({ insights, loading }: QuestionsMetricsProps) {
             value={insights?.pending ?? "—"}
             loading={loading}
             color="blue"
+            bgColor="beergam-section-background!"
             maintainColor={true}
             censorshipKey="perguntas_sla_pendentes"
           />
@@ -83,13 +86,14 @@ export function QuestionsMetrics({ insights, loading }: QuestionsMetricsProps) {
             value={insights?.total ?? "—"}
             loading={loading}
             color="purple"
+            bgColor="beergam-section-background!"
             maintainColor={true}
             censorshipKey="perguntas_sla_total_periodo"
           ></StatCard>
         </CensorshipWrapper>
       </Grid>
 
-      <div className="h-64 w-full">
+      <div className="h-64 w-ful">
         <ImageCensored className="w-full h-full" censorshipKey="perguntas_sla">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart

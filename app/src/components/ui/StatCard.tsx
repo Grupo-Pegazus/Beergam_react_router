@@ -27,6 +27,7 @@ interface StatCardProps extends PropsWithChildren {
     | "yellow"
     | "light_green"
     | "green";
+  bgColor?: string;
 }
 
 function colorTokens(
@@ -152,6 +153,7 @@ export default function StatCard({
   maintainColor = false,
   children,
   censorshipKey,
+  bgColor = "beergam-mui-paper",
 }: StatCardProps) {
   const tokens = colorTokens(color, variant);
 
@@ -197,7 +199,7 @@ export default function StatCard({
         "p-3 md:p-4 lg:p-5",
         "hover:-translate-y-px",
         "ring-1 ring-transparent hover:" + tokens.ring,
-        tokens.cardBg,
+        `bg-${bgColor}`,
         onClick ? "cursor-pointer" : "",
         className ?? "",
       ]

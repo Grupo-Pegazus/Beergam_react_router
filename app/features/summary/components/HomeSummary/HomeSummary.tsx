@@ -2,6 +2,7 @@ import { Skeleton } from "@mui/material";
 import { memo, useCallback, useMemo, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import SecondaryButton from "~/src/components/ui/SecondaryButton";
 import StatCard from "~/src/components/ui/StatCard";
 import {
   CensorshipWrapper,
@@ -32,23 +33,10 @@ const PeriodButton = memo(
       onSelect(option.value);
     }, [option.value, onSelect]);
 
-    const className = useMemo(
-      () =>
-        [
-          "px-3 py-2 rounded-lg text-xs sm:text-sm font-medium",
-          "transition-all duration-200 min-h-[36px]",
-          "touch-manipulation",
-          isSelected
-            ? "bg-beergam-primary text-white shadow-md"
-            : "bg-beergam-button-background-primary text-beergam-typography-secondary hover:bg-beergam-primary/95 hover:text-beergam-white",
-        ].join(" "),
-      [isSelected]
-    );
-
     return (
-      <button onClick={handleClick} className={className} type="button">
+      <SecondaryButton isSelected={isSelected} onSelect={handleClick}>
         {option.label}
-      </button>
+      </SecondaryButton>
     );
   }
 );
