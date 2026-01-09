@@ -2,6 +2,7 @@ import ClickAwayListener from "@mui/material/ClickAwayListener";
 import { useQueryClient } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { Tooltip } from "react-tooltip";
 import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 import StatusTag from "~/features/marketplace/components/StatusTag";
 import { useMarketplaceAccounts } from "~/features/marketplace/hooks/useMarketplaceAccounts";
@@ -13,7 +14,9 @@ import {
   type BaseMarketPlace,
 } from "~/features/marketplace/typings";
 import authStore from "~/features/store-zustand";
+import { isMaster } from "~/features/user/utils";
 import DeleteMarketaplceAccount from "~/routes/choosen_account/components/DeleteMarketaplceAccount";
+import UserPhoto from "~/routes/config/components/UserPhoto";
 import Loading from "~/src/assets/loading";
 import Svg from "~/src/assets/svgs/_index";
 import Modal from "~/src/components/utils/Modal";
@@ -26,8 +29,10 @@ const CreateMarketplaceModal = lazy(
 
 export default function AccountView({
   expanded = true,
+  showMarketplaces = true,
 }: {
   expanded?: boolean;
+  showMarketplaces?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -37,7 +42,7 @@ export default function AccountView({
     useState<BaseMarketPlace | null>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { isLoggingOut, logout } = useLogoutFlow({
+  const { logout } = useLogoutFlow({
     redirectTo: "/login",
   });
   const {
@@ -46,6 +51,8 @@ export default function AccountView({
     isLoading: accountsLoading,
     selectAccount,
   } = useMarketplaceAccounts();
+  const user = authStore.use.user();
+  const marketplace = authStore.use.marketplace();
 
   // Controla animação de abertura/fechamento do dropdown
   useEffect(() => {
@@ -90,7 +97,6 @@ export default function AccountView({
 
         // Se a conta deletada era a selecionada
         if (isSelectedMarketplace) {
-
           authStore.setState({ marketplace: null });
 
           navigate("/interno/choosen_account", { replace: true });
@@ -114,19 +120,27 @@ export default function AccountView({
     setMarketplaceToDelete(null);
   };
 
-  if (accountsLoading) {
-    return <div className="p-3 text-sm opacity-70">Carregando contas...</div>;
+  if (showMarketplaces) {
+    if (accountsLoading) {
+      return <div className="p-3 text-sm opacity-70">Carregando contas...</div>;
+    }
+
+    if (!accounts) {
+      return (
+        <div className="p-3 text-sm opacity-70">Nenhuma conta encontrada</div>
+      );
+    }
   }
 
-  if (!accounts) {
-    return (
-      <div className="p-3 text-sm opacity-70">Nenhuma conta encontrada</div>
-    );
-  }
-
-  const otherAccounts = accounts.filter(
-    (acc) => acc.marketplace_shop_id !== current?.marketplace_shop_id
-  );
+  // Criar lista unificada com a conta atual no topo
+  const allAccounts = current
+    ? [
+        current,
+        ...accounts.filter(
+          (acc) => acc.marketplace_shop_id !== current?.marketplace_shop_id
+        ),
+      ]
+    : accounts;
 
   return (
     <>
@@ -137,243 +151,347 @@ export default function AccountView({
             type="button"
             onClick={() => setOpen((v) => !v)}
             className="flex items-center gap-2.5 bg-transparent border-0 p-0 cursor-pointer hover:opacity-90 transition-opacity"
-            title="Trocar de conta"
-            aria-label="Trocar de conta de marketplace"
+            title={showMarketplaces ? "Trocar de conta" : "Menu do usuário"}
+            aria-label={
+              showMarketplaces
+                ? "Trocar de conta de marketplace"
+                : "Menu do usuário"
+            }
           >
-            {expanded && (
-              <div className="hidden md:flex flex-col min-w-0 text-right text-beergam-white">
-                <p
-                  className="font-semibold leading-4 truncate max-w-[200px]"
-                  title={current?.marketplace_name}
-                >
-                  {current?.marketplace_name}
-                </p>
-                <p className="text-xs opacity-70 leading-4">
-                  {
-                    MarketplaceTypeLabel[
-                      current?.marketplace_type as MarketplaceType
-                    ]
-                  }
-                </p>
-              </div>
+            {showMarketplaces ? (
+              <>
+                {expanded && (
+                  <div className="hidden md:flex flex-col min-w-0 text-right">
+                    <p
+                      className="font-semibold leading-4 truncate max-w-[200px] text-beergam-white!"
+                      title={current?.marketplace_name}
+                    >
+                      {current?.marketplace_name}
+                    </p>
+                    <p className="text-xs opacity-70 leading-4 text-beergam-white!">
+                      {
+                        MarketplaceTypeLabel[
+                          current?.marketplace_type as MarketplaceType
+                        ]
+                      }
+                    </p>
+                  </div>
+                )}
+                <img
+                  src={current?.marketplace_image}
+                  alt={current?.marketplace_name}
+                  className="w-8 h-8 rounded-full object-cover ring-2 ring-white/20"
+                />
+              </>
+            ) : (
+              user && (
+                <>
+                  {expanded && (
+                    <div className="hidden md:flex flex-col min-w-0 text-right">
+                      <p
+                        className="font-semibold leading-4 truncate max-w-[200px] text-beergam-white!"
+                        title={user.name}
+                      >
+                        {user.name}
+                      </p>
+                      <p className="text-xs opacity-70 leading-4 text-beergam-white!">
+                        {isMaster(user) && user.details?.email
+                          ? user.details.email
+                          : user.pin || ""}
+                      </p>
+                    </div>
+                  )}
+                  <UserPhoto className="w-12 h-12!" name={user.name} />
+                </>
+              )
             )}
-            <img
-              src={current?.marketplace_image}
-              alt={current?.marketplace_name}
-              className="w-8 h-8 rounded-full object-cover ring-2 ring-white/20"
-            />
           </button>
 
           {showDropdown && (
             <div
-              className={`absolute right-0 mt-2 w-[340px] rounded-lg bg-white text-[#323130] shadow-xl border border-gray-200 overflow-hidden z-10 ${
+              className={`absolute right-0 mt-2 ${
+                showMarketplaces ? "w-[340px]" : "w-[280px]"
+              } rounded-lg text-beergam-typography-primary bg-beergam-mui-paper shadow-xl border border-beergam-input-border overflow-hidden z-10 ${
                 open ? "animate-slide-down" : "animate-fade-out"
               }`}
             >
-              {/* Current Account Info */}
-              {current && (
-                <div className="px-4 py-3 border-b border-gray-200 relative">
-                  <div className="flex items-start gap-3 mb-2">
-                    <div
-                      className={`w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center shrink-0 ${current.status_parse === MarketplaceStatusParse.PROCESSING ? "opacity-60" : ""}`}
-                    >
-                      {current.marketplace_image ? (
-                        <img
-                          src={current.marketplace_image}
-                          alt={current.marketplace_name}
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-white font-bold text-xl">
-                          {current.marketplace_name.charAt(0).toUpperCase()}
-                        </span>
-                      )}
-                    </div>
+              {/* User Info Section */}
+              {showMarketplaces && user && (
+                <div className="px-4 py-4 border-b-2 border-beergam-menu-background">
+                  <div className="flex items-start gap-3">
+                    <UserPhoto className="size-10!" name={user.name} />
                     <div className="min-w-0 flex-1">
                       <p
-                        className={`font-semibold text-[#323130] truncate mb-1 ${current.status_parse === MarketplaceStatusParse.PROCESSING ? "opacity-60" : ""}`}
-                        title={current.marketplace_name}
+                        className="font-semibold text-beergam-typography-primary! truncate mb-1"
+                        title={user.name}
                       >
-                        {current.marketplace_name}
+                        {user.name}
                       </p>
-                      {/* Marketplace Type e Status de Pedidos na mesma linha */}
-                      <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        <p
-                          className={`text-xs text-gray-600 ${current.status_parse === MarketplaceStatusParse.PROCESSING ? "opacity-60" : ""}`}
-                        >
-                          {
-                            MarketplaceTypeLabel[
-                              current.marketplace_type as MarketplaceType
-                            ]
-                          }
-                        </p>
-                        <StatusTag
-                          status={current.orders_parse_status}
-                          type="orders"
-                          className="text-[10px] py-0.5 px-2"
-                        />
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            navigate("/interno/config");
-                          }}
-                          className="text-xs text-blue-600 hover:text-blue-700 hover:underline font-medium"
-                        >
-                          Minha conta
-                        </button>
-                        <span className="text-gray-300">•</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (current) {
-                              handleDeleteMarketplace(current);
-                            }
-                          }}
-                          disabled={
-                            current?.status_parse ===
-                            MarketplaceStatusParse.PROCESSING
-                          }
-                          className="text-xs text-red-600 hover:text-red-700 hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Excluir conta
-                        </button>
-                        <span className="text-gray-300">•</span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            void logout();
-                          }}
-                          className="text-xs text-red-600 hover:text-red-700 hover:underline font-medium"
-                        >
-                          Sair
-                        </button>
+                      <div className="flex items-center gap-2">
+                        {isMaster(user) && user.details?.email && (
+                          <>
+                            <p
+                              className="text-beergam-typography-secondary! truncate mb-1"
+                              title={user.details.email}
+                            >
+                              {user.details.email}
+                            </p>
+                            <div className="w-1 h-1 bg-beergam-typography-tertiary! rounded-full"></div>
+                          </>
+                        )}
+                        {user.pin && (
+                          <p className="text-beergam-typography-secondary!">
+                            {user.pin}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Other Accounts Section */}
-              {otherAccounts.length > 0 && (
-                <div className="border-b border-gray-200">
+              {/* Accounts List - conta atual no topo com estilo de selecionado */}
+              {showMarketplaces && allAccounts.length > 0 && (
+                <div className="">
                   <div className="max-h-[240px] overflow-y-auto">
-                    {otherAccounts.map((acc) => {
+                    {allAccounts.map((acc) => {
                       const isProcessing =
                         acc.status_parse === MarketplaceStatusParse.PROCESSING;
+                      const isSelected =
+                        current?.marketplace_shop_id ===
+                        acc.marketplace_shop_id;
                       return (
-                        <div key={acc.marketplace_shop_id} className="relative">
-                          {/* Overlay de processamento */}
-                          {isProcessing && (
-                            <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center z-10">
-                              <div className="text-white text-center flex flex-col items-center gap-2">
-                                <Loading color="#ffffff" size="2rem" />
-                                <p className="text-xs font-medium">
-                                  Processando...
-                                </p>
-                              </div>
-                            </div>
-                          )}
+                        <>
                           <div
-                            role="button"
-                            tabIndex={isProcessing ? -1 : 0}
-                            onClick={() => {
-                              if (!isProcessing) selectAccount(acc);
-                            }}
-                            onKeyDown={(e) => {
-                              if (isProcessing) return;
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
-                                selectAccount(acc);
-                              }
-                            }}
-                            aria-disabled={isProcessing}
-                            className={`w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 transition-colors group ${
-                              isProcessing ? "opacity-60 cursor-not-allowed pointer-events-none" : "cursor-pointer"
-                            }`}
+                            key={acc.marketplace_shop_id}
+                            className="relative"
                           >
-                            {acc.marketplace_image ? (
-                              <img
-                                src={acc.marketplace_image}
-                                alt={acc.marketplace_name}
-                                className="w-10 h-10 rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center">
-                                <span className="text-white font-semibold text-sm">
-                                  {acc.marketplace_name.charAt(0).toUpperCase()}
-                                </span>
+                            {/* Overlay de processamento */}
+                            {isProcessing && (
+                              <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center z-10">
+                                <div className="text-white text-center flex flex-col items-center gap-2">
+                                  <Loading color="#ffffff" size="2rem" />
+                                  <p className="text-xs font-medium">
+                                    Processando...
+                                  </p>
+                                </div>
                               </div>
                             )}
-                            <div className="min-w-0 flex-1">
-                              <p
-                                className="truncate text-sm font-medium text-[#323130] group-hover:text-blue-600"
-                                title={acc.marketplace_name}
-                              >
-                                {acc.marketplace_name}
-                              </p>
-                              {/* Marketplace Type e Status de Pedidos na mesma linha */}
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <p className="text-xs text-gray-500">
-                                  {
-                                    MarketplaceTypeLabel[
-                                      acc.marketplace_type as MarketplaceType
-                                    ]
-                                  }
+                            <div
+                              role="button"
+                              tabIndex={isProcessing ? -1 : 0}
+                              onClick={() => {
+                                if (!isProcessing && !isSelected)
+                                  selectAccount(acc);
+                              }}
+                              onKeyDown={(e) => {
+                                if (isProcessing || isSelected) return;
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  selectAccount(acc);
+                                }
+                              }}
+                              aria-disabled={isProcessing || isSelected}
+                              className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-colors group ${
+                                isSelected
+                                  ? "bg-beergam-primary/10 cursor-default"
+                                  : "hover:bg-beergam-primary/10 cursor-pointer"
+                              } ${
+                                isProcessing
+                                  ? "opacity-60 cursor-not-allowed pointer-events-none"
+                                  : ""
+                              }`}
+                            >
+                              {acc.marketplace_image ? (
+                                <img
+                                  src={acc.marketplace_image}
+                                  alt={acc.marketplace_name}
+                                  className="w-10 h-10 rounded-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 bg-beergam-typography-secondary rounded-full flex items-center justify-center">
+                                  <span className="text-beergam-white font-semibold text-sm">
+                                    {acc.marketplace_name
+                                      .charAt(0)
+                                      .toUpperCase()}
+                                  </span>
+                                </div>
+                              )}
+                              <div className="min-w-0 flex-1">
+                                <p
+                                  className={`truncate text-sm font-medium ${
+                                    isSelected
+                                      ? "text-beergam-primary!"
+                                      : "text-beergam-typography-primary! group-hover:text-beergam-primary/80!"
+                                  }`}
+                                  title={acc.marketplace_name}
+                                >
+                                  {acc.marketplace_name}
                                 </p>
-                                <StatusTag
+                                {/* Marketplace Type e Status de Pedidos na mesma linha */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <p className="text-xs text-beergam-typography-secondary!">
+                                    {
+                                      MarketplaceTypeLabel[
+                                        acc.marketplace_type as MarketplaceType
+                                      ]
+                                    }
+                                  </p>
+                                  {/* <StatusTag
                                   status={acc.orders_parse_status}
                                   type="orders"
                                   className="text-[10px] py-0.5 px-2"
-                                />
+                                /> */}
+                                </div>
                               </div>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (!isProcessing)
+                                    handleDeleteMarketplace(acc);
+                                }}
+                                disabled={isProcessing}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-beergam-red/10 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                                aria-label="Excluir conta"
+                                title="Excluir conta"
+                              >
+                                <Svg.trash tailWindClasses="stroke-beergam-red w-4 h-4" />
+                              </button>
+                              <button
+                                data-tooltip-id={`${acc.marketplace_shop_id}-tooltip`}
+                              >
+                                <Svg.information_circle tailWindClasses="w-4 h-4 stroke-beergam-typography-tertiary" />
+                              </button>
                             </div>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (!isProcessing) handleDeleteMarketplace(acc);
-                              }}
-                              disabled={isProcessing}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-red-50 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
-                              aria-label="Excluir conta"
-                              title="Excluir conta"
-                            >
-                              <Svg.trash
-                                tailWindClasses="stroke-red-600 w-4 h-4"
-                              />
-                            </button>
                           </div>
-                        </div>
+                          <Tooltip
+                            // float
+                            place="left"
+                            positionStrategy="fixed"
+                            id={`${acc.marketplace_shop_id}-tooltip`}
+                          >
+                            <StatusTag
+                              status={acc.orders_parse_status}
+                              type="orders"
+                              className="text-[10px] py-0.5 px-2"
+                            />
+                          </Tooltip>
+                        </>
                       );
                     })}
                   </div>
                 </div>
               )}
 
-              {/* Add Account Button */}
-              <div className="p-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setModalOpen(true);
-                    setOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2.5 hover:bg-gray-50 flex items-center gap-3 cursor-pointer rounded transition-colors group"
-                >
-                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-gray-200 transition-colors">
-                    <Svg.user_plus
-                      width={20}
-                      height={20}
-                      tailWindClasses="text-[#323130]"
-                    />
-                  </div>
-                  <span className="text-sm font-medium text-[#323130] group-hover:text-blue-600">
-                    Adicionar conta
-                  </span>
-                </button>
+              {/* Action Buttons */}
+              <div
+                className={`${showMarketplaces ? "border-beergam-menu-background" : "border-transparent"} border-t-2 `}
+              >
+                <div className="p-2 space-y-1">
+                  {showMarketplaces && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setModalOpen(true);
+                        setOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2.5 hover:bg-beergam-primary/10 flex items-center gap-3 cursor-pointer rounded transition-colors group"
+                    >
+                      <div className="w-10 h-10 bg-beergam-primary/10 rounded-full flex items-center justify-center group-hover:bg-beergam-primary/20 transition-colors">
+                        <Svg.globe
+                          width={20}
+                          height={20}
+                          tailWindClasses="text-beergam-primary"
+                        />
+                      </div>
+                      <span className="text-sm font-medium text-beergam-typography-secondary group-hover:text-beergam-primary/80">
+                        Adicionar Marketplace
+                      </span>
+                    </button>
+                  )}
+                  {!showMarketplaces && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (marketplace) {
+                            navigate("/interno");
+                            setOpen(false);
+                          }
+                        }}
+                        disabled={!marketplace}
+                        data-tooltip-id="acessar-sistema-tooltip"
+                        className={`w-full text-left px-3 py-2.5 flex items-center gap-3 rounded transition-colors group ${
+                          marketplace
+                            ? "hover:bg-beergam-primary/10 cursor-pointer"
+                            : "opacity-50 cursor-not-allowed"
+                        }`}
+                      >
+                        <div className="w-10 h-10 bg-beergam-primary/10 rounded-full flex items-center justify-center group-hover:bg-beergam-primary/20 transition-colors">
+                          <Svg.arrow_uturn_right
+                            width={20}
+                            height={20}
+                            tailWindClasses={`${marketplace ? "text-beergam-primary" : "text-beergam-typography-secondary"}`}
+                          />
+                        </div>
+                        <span
+                          className={`text-sm font-medium ${marketplace ? "text-beergam-typography-secondary group-hover:text-beergam-primary/80" : "text-beergam-typography-secondary"}`}
+                        >
+                          Acessar Sistema
+                        </span>
+                      </button>
+                      {!marketplace && (
+                        <Tooltip
+                          id="acessar-sistema-tooltip"
+                          place="left"
+                          positionStrategy="fixed"
+                        >
+                          Selecione um Marketplace
+                        </Tooltip>
+                      )}
+                    </>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigate("/interno/config");
+                      setOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2.5 hover:bg-beergam-primary/10 flex items-center gap-3 cursor-pointer rounded transition-colors group"
+                  >
+                    <div className="w-10 h-10 bg-beergam-primary/10 rounded-full flex items-center justify-center group-hover:bg-beergam-primary/20 transition-colors">
+                      <Svg.cog_8_tooth
+                        width={20}
+                        height={20}
+                        tailWindClasses="text-beergam-primary"
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-beergam-typography-secondary group-hover:text-beergam-primary/80">
+                      Configurações da Conta
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setOpen(false);
+                      void logout();
+                    }}
+                    className="w-full text-left px-3 py-2.5 hover:bg-beergam-red/10 flex items-center gap-3 cursor-pointer rounded transition-colors group"
+                  >
+                    <div className="w-10 h-10 bg-beergam-red/10 rounded-full flex items-center justify-center group-hover:bg-beergam-red/20 transition-colors">
+                      <Svg.logout
+                        width={20}
+                        height={20}
+                        tailWindClasses="text-beergam-red"
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-beergam-typography-secondary group-hover:text-beergam-red/80">
+                      Sair do Sistema
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
           )}

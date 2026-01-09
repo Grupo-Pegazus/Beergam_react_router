@@ -43,7 +43,7 @@ type CSSPropertiesWithVars = CSSProperties & {
 };
 
 function BeergamButtonWrapper({
-  mainColor,
+  mainColor = "beergam-primary",
   animationStyle,
   link,
   children,
@@ -60,8 +60,15 @@ function BeergamButtonWrapper({
   const { isDark } = useThemeContext();
   const { style, ...buttonProps } = props;
   const isSlider = animationStyle === "slider" || animationStyle === "fetcher";
-  const textColor = `${isDark ? `text-beergam-white` : `text-${mainColor}`}`;
-  const bgColor = `${isDark ? `bg-${mainColor}!` : `bg-beergam-white!`}`;
+
+  // Variáveis CSS para cores dinâmicas - solução universal que sempre funciona
+  const mainColorVar = `var(--color-${mainColor})`;
+  const hoverTextColor = isDark ? mainColorVar : "var(--color-beergam-white)";
+
+  // Usar variáveis CSS diretamente no estilo em vez de classes Tailwind dinâmicas
+  const dynamicBgColor = isDark ? mainColorVar : "var(--color-beergam-white)";
+  const dynamicTextColor = isDark ? "var(--color-beergam-white)" : mainColorVar;
+
   const sliderClasses = disabled
     ? "cursor-not-allowed! opacity-50!"
     : isSlider
@@ -74,23 +81,21 @@ function BeergamButtonWrapper({
       : fetcher?.fecthing || loading
         ? "bg-[linear-gradient(90deg,var(--color-beergam-gray-light)_0%,var(--color-beergam-gray-light)_100%)]! bg-[length:100%_100%]!"
         : "";
-  const wrapperClass = `${sliderClasses} ${fectherClasses} ${bgColor} relative overflow-hidden ${textColor} font-semibold py-2! px-4! rounded-lg shadow-sm group ${className} flex items-center gap-2 justify-center`;
+  const wrapperClass = `${sliderClasses} ${fectherClasses} relative overflow-hidden font-semibold py-2! px-4! rounded-lg shadow-sm group ${className} flex items-center gap-2 justify-center`;
 
-  // Variáveis CSS para cores dinâmicas
-  const mainColorVar = `var(--color-${mainColor})`;
-  const hoverTextColor = isDark ? mainColorVar : "var(--color-beergam-white)";
-
-  const sliderStyle: CSSPropertiesWithVars | undefined = isSlider
-    ? {
-        "--bg-slider-color": `${isDark ? "var(--color-beergam-white)" : mainColorVar}`,
-        "--hover-text-color": hoverTextColor,
-      }
-    : {
-        "--hover-text-color": hoverTextColor,
-      };
-
-  const combinedStyle =
-    sliderStyle || style ? { ...sliderStyle, ...style } : undefined;
+  const combinedStyle: CSSPropertiesWithVars = {
+    ...(isSlider
+      ? {
+          "--bg-slider-color": `${isDark ? "var(--color-beergam-white)" : mainColorVar}`,
+          "--hover-text-color": hoverTextColor,
+        }
+      : {
+          "--hover-text-color": hoverTextColor,
+        }),
+    backgroundColor: dynamicBgColor,
+    color: dynamicTextColor,
+    ...style,
+  };
 
   return (
     <>
@@ -148,7 +153,7 @@ function BeergamButtonWrapper({
 
 export default function BeergamButton({
   title,
-  mainColor = "beergam-blue-primary",
+  mainColor = "beergam-primary",
   animationStyle = "slider",
   className,
   link,

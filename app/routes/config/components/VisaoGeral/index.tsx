@@ -52,7 +52,7 @@ export default function VisaoGeral({ user }: { user: IUser | IColab }) {
   return (
     <>
       {isMaster(user) && (
-        <Section className="bg-beergam-white" title="Dados Gerais">
+        <Section className="bg-beergam-mui-paper!" title="Dados Gerais">
           <div className="grid gap-4">
             <div className="flex items-start md:items-center flex-col md:flex-row gap-2 justify-between">
               <div className="flex items-center gap-2">
@@ -90,6 +90,7 @@ export default function VisaoGeral({ user }: { user: IUser | IColab }) {
               <BeergamButton
                 title="Melhorar Plano"
                 link="/interno/config?session=Minha Assinatura"
+                mainColor="beergam-primary"
               />
             </div>
           </div>
@@ -127,7 +128,7 @@ export default function VisaoGeral({ user }: { user: IUser | IColab }) {
         </Section>
       )}
       <Section
-        className="bg-beergam-white"
+        className="bg-beergam-mui-paper!"
         title="Marketplace Selecionado"
         actions={
           <BeergamButton
@@ -139,7 +140,7 @@ export default function VisaoGeral({ user }: { user: IUser | IColab }) {
         {marketplace ? (
           <>
             <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-4">
-              <div className="size-40 min-w-40 border-2 border-beergam-blue-primary rounded-full overflow-hidden">
+              <div className="size-40 min-w-40 border-2 border-beergam-gray rounded-full overflow-hidden">
                 <img
                   src={marketplace.marketplace_image}
                   alt={marketplace.marketplace_name}
@@ -198,7 +199,9 @@ export default function VisaoGeral({ user }: { user: IUser | IColab }) {
           </>
         ) : (
           <>
-            <p>Nenhum marketplace selecionado.</p>
+            <p className="text-beergam-typography-secondary">
+              Nenhum marketplace selecionado.
+            </p>
           </>
         )}
       </Section>

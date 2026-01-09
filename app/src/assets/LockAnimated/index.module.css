@@ -14,14 +14,14 @@ svg.lock {
 }
 
 .fillCircle {
-  fill: var(--color-beergam-blue-primary-dark);
+  fill: var(--color-beergam-primary);
   transition: r 300ms; /* foque na animação do raio */
   r: 1.5; /* valor inicial em CSS, não via atributo */
 }
 
 .topPart,
 .bottomPart {
-  stroke: var(--color-beergam-blue-primary-dark);
+  stroke: var(--color-beergam-primary);
   stroke-miterlimit: 10;
 }
 .lock.open .topPart {

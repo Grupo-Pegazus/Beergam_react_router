@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import {
   lazy,
   Suspense,
@@ -6,7 +7,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useMarketplaceAccounts } from "~/features/marketplace/hooks/useMarketplaceAccounts";
 import { marketplaceService } from "~/features/marketplace/service";
@@ -16,12 +16,12 @@ import {
   type BaseMarketPlace,
 } from "~/features/marketplace/typings";
 import authStore from "~/features/store-zustand";
+import DeleteMarketaplceAccount from "~/routes/choosen_account/components/DeleteMarketaplceAccount";
 import Svg from "~/src/assets/svgs/_index";
 import Modal from "~/src/components/utils/Modal";
 import toast from "~/src/utils/toast";
 import { useOverlay } from "../../hooks/useOverlay";
 import OverlayFrame from "../../shared/OverlayFrame";
-import DeleteMarketaplceAccount from "~/routes/choosen_account/components/DeleteMarketaplceAccount";
 
 const CreateMarketplaceModal = lazy(
   () => import("~/routes/choosen_account/components/CreateMarketplaceModal")
@@ -35,11 +35,12 @@ export default function MobileAccountOverlay({
   const first = useRef<HTMLButtonElement | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [marketplaceToDelete, setMarketplaceToDelete] = useState<BaseMarketPlace | null>(null);
+  const [marketplaceToDelete, setMarketplaceToDelete] =
+    useState<BaseMarketPlace | null>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { isOpen, shouldRender, open, requestClose } = useOverlay();
-  
+
   useEffect(() => {
     open();
   }, [open]);
@@ -53,10 +54,13 @@ export default function MobileAccountOverlay({
     queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
   }, [queryClient]);
 
-  const handleDeleteMarketplace = useCallback((marketplace: BaseMarketPlace) => {
-    setMarketplaceToDelete(marketplace);
-    setShowDeleteModal(true);
-  }, []);
+  const handleDeleteMarketplace = useCallback(
+    (marketplace: BaseMarketPlace) => {
+      setMarketplaceToDelete(marketplace);
+      setShowDeleteModal(true);
+    },
+    []
+  );
 
   const handleConfirmDelete = useCallback(async () => {
     if (!marketplaceToDelete) return;
@@ -117,8 +121,8 @@ export default function MobileAccountOverlay({
       shouldRender={shouldRender}
       onRequestClose={handleClose}
     >
-      <AccountList 
-        onAdd={() => setModalOpen(true)} 
+      <AccountList
+        onAdd={() => setModalOpen(true)}
         onSelected={handleClose}
         onDelete={handleDeleteMarketplace}
       />
@@ -136,7 +140,7 @@ export default function MobileAccountOverlay({
           />
         </Suspense>
       </Modal>
-      
+
       {/* Modal de confirmação de deletar */}
       <Modal
         title="Deletar conta"
@@ -174,9 +178,9 @@ function AccountList({
             <div
               key={acc.marketplace_shop_id}
               className={[
-                "w-[90%] mx-auto my-1 relative flex items-center gap-3 p-3 rounded-xl border border-black/10 bg-white shadow-sm",
+                "w-[90%] mx-auto my-1 relative flex items-center gap-3 p-3 rounded-xl border border-black/10 bg-beergam-mui-paper shadow-sm",
                 acc.marketplace_shop_id === current?.marketplace_shop_id
-                  ? "ring-2 ring-beergam-orange"
+                  ? "ring-2 ring-beergam-primary bg-beergam-primary/10!"
                   : "",
               ].join(" ")}
             >
@@ -195,12 +199,12 @@ function AccountList({
                   className="w-10 h-10 rounded-full object-cover shrink-0"
                 />
                 <div className="text-left min-w-0 flex-1">
-                  <div className="font-medium truncate">
+                  <p className="font-medium truncate text-beergam-typography-primary">
                     {acc.marketplace_name}
-                  </div>
-                  <div className="text-xs opacity-70 truncate">
+                  </p>
+                  <p className="truncate text-beergam-typography-secondary">
                     {MarketplaceTypeLabel[acc.marketplace_type]}
-                  </div>
+                  </p>
                 </div>
               </button>
               <button
@@ -214,24 +218,22 @@ function AccountList({
                 aria-label="Excluir conta"
                 title="Excluir conta"
               >
-                <Svg.trash
-                  tailWindClasses="stroke-red-600 w-5 h-5"
-                />
+                <Svg.trash tailWindClasses="stroke-beergam-red w-5 h-5" />
               </button>
             </div>
           ))}
           <button
             type="button"
             onClick={onAdd}
-            className="fixed w-[90%] mx-auto bottom-6 left-0 right-0 mt-2 px-3 py-4 rounded-xl border border-black/10 bg-beergam-blue-light text-center flex items-center justify-center gap-2"
+            className="fixed w-[90%] mx-auto bottom-6 left-0 right-0 mt-2 px-3 py-4 rounded-xl border border-black/10 bg-beergam-primary/10 text-center flex items-center justify-center gap-2"
           >
-            <Svg.plus
+            <Svg.globe
               width={20}
               height={20}
-              tailWindClasses="text-beergam-blue-primary"
+              tailWindClasses="text-beergam-primary"
             />
-            <span className="text-lg font-medium text-beergam-blue-primary">
-              Adicionar conta
+            <span className="text-lg font-medium text-beergam-primary">
+              Adicionar Marketplace
             </span>
           </button>
         </div>

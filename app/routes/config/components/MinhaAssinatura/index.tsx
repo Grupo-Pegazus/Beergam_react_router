@@ -266,7 +266,7 @@ export default function MinhaAssinatura() {
   return (
     <>
       <Section
-        className="bg-beergam-white"
+        className="bg-beergam-mui-paper!"
         title="Informações da Assinatura"
         actions={
           <>
@@ -336,7 +336,7 @@ export default function MinhaAssinatura() {
           </Section>
         </div>
       </Section>
-      <Section title="Nossos Planos" className="bg-beergam-white">
+      <Section title="Nossos Planos" className="bg-beergam-mui-paper!">
         <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
           {isLoadingPlans ? (
             <>

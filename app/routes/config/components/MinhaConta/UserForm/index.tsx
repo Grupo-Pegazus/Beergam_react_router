@@ -291,7 +291,7 @@ export default function UserForm({ user }: { user: IUser }) {
         }}
         title="Salvar"
         type="submit"
-        className="bg-beergam-white mb-4 md:mb-0 md:w-xs"
+        className="mb-4 md:mb-0 md:w-xs"
         onClick={handleSubmit(onSubmit, (errors) => {
           toast.error("Você possui erros pendentes no formulário.");
           console.log("Erros de validação:", errors);

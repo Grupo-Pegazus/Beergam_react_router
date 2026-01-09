@@ -14,14 +14,16 @@ export default function GlobalLoadingSpinner() {
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-beergam-white flex flex-col items-center justify-center">
-      <Loading color="#183153" size="4rem" />
-      <p className="mt-6 text-beergam-blue-primary text-lg font-medium">
+    <div className="fixed inset-0 z-[9999] bg-beergam-section-background flex flex-col items-center justify-center">
+      <Loading color="var(--color-beergam-primary)" size="4rem" />
+      <p className="mt-6 text-beergam-typography-primary text-lg font-medium">
         {message}
       </p>
       {message === "Saindo da conta..." && (
-        <div className="flex mt-2 flex-col gap-2">
-          <p>Problemas ao sair da conta?</p>
+        <div className="flex mt-2 text-center flex-col gap-2">
+          <p className="text-beergam-typography-secondary">
+            Problemas ao sair da conta?
+          </p>
           <BeergamButton
             title="Fazer Login Novamente"
             link="/login"

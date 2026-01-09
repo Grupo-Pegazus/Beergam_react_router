@@ -55,7 +55,7 @@ function Select({
 
   // Classes baseadas no Input para manter consistência visual
   const baseClasses =
-    "w-full px-3 py-2.5 border border-beergam-input-border bg-beergam-input-background text-beergam-typography-primary rounded text-sm transition-colors duration-200 outline-none appearance-none";
+    "w-full px-3 py-2.5 border border-beergam-input-border bg-beergam-input-background text-beergam-typography-tertiary rounded text-sm transition-colors duration-200 outline-none appearance-none";
   const errorClasses =
     error?.error || hasError
       ? "!border-beergam-red focus:!border-beergam-red/90"
@@ -67,7 +67,7 @@ function Select({
     ? "border-[#ff8a00] outline-beergam-orange"
     : "focus:border-[#ff8a00] outline-beergam-orange";
   const disabledClasses = disabled
-    ? "cursor-not-allowed! border-gray-300! text-beergam-blue-primary!"
+    ? "cursor-not-allowed! border-beergam-input-disabled-border text-beergam-gray!"
     : "";
 
   // Encontrar o label da opção selecionada
@@ -315,9 +315,9 @@ function Select({
                     role="option"
                     aria-selected={isSelected}
                     className={`
-                      w-full px-3 py-2.5 text-left text-sm text-beergam-typography-primary transition-colors duration-150
-                      ${isSelected ? "bg-beergam-orange/40 font-semibold" : ""}
-                      ${isDisabled ? "opacity-50 cursor-not-allowed!" : "hover:bg-beergam-orange/10"}
+                      w-full px-3 py-2.5 text-left text-sm text-beergam-typography-tertiary transition-colors duration-150
+                      ${isSelected ? "bg-beergam-primary/40 font-semibold" : ""}
+                      ${isDisabled ? "opacity-50 cursor-not-allowed!" : "hover:bg-beergam-primary/10"}
                       ${idx === 0 ? "rounded-t" : ""}
                       ${idx === options.length - 1 ? "rounded-b" : ""}
                     `}
@@ -328,14 +328,14 @@ function Select({
                     <div className="flex items-center justify-between">
                       <span>{opt.label}</span>
                       {isSelected && (
-                        <Svg.check tailWindClasses="w-4 h-4 text-beergam-orange" />
+                        <Svg.check tailWindClasses="w-4 h-4 text-beergam-primary" />
                       )}
                     </div>
                   </button>
                 );
               })
             ) : (
-              <div className="px-3 py-2.5 text-sm text-gray-500 text-center">
+              <div className="px-3 py-2.5 text-sm text-beergam-typography-secondary text-center">
                 Nenhuma opção disponível
               </div>
             )}

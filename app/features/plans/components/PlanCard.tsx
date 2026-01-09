@@ -274,14 +274,14 @@ function PlanBenefits({
         ? "text-beergam-green-primary"
         : comparison === "worse"
           ? "text-beergam-red"
-          : "text-beergam-blue-darker";
+          : "text-beergam-typography-secondary";
 
     const compareValueClassName =
       comparison === "better"
         ? "text-beergam-red"
         : comparison === "worse"
           ? "text-beergam-green-primary"
-          : "text-beergam-blue-darker";
+          : "text-beergam-typography-secondary";
 
     const dotsColorClass =
       comparison === "better"
@@ -301,7 +301,7 @@ function PlanBenefits({
             value={compareValue}
             comparison={invertComparison(comparison)}
           />
-          <span className="truncate text-right text-beergam-blue-darker">
+          <span className="truncate text-right text-beergam-typography-secondary">
             <BenefitLabel benefitKey={benefitKey} />
           </span>
           {!compareIsBoolean && (
@@ -353,19 +353,19 @@ function createPlanHeader({
     <div>
       <div className={`flex items-center gap-2`}>
         <div
-          className={`size-10 flex items-center justify-center ${isPopular ? "bg-beergam-orange" : "bg-beergam-blue-primary"} rounded-xl`}
+          className={`size-10 flex items-center justify-center ${isPopular ? "bg-beergam-orange" : "bg-beergam-primary"} rounded-xl`}
         >
           {React.createElement(getPlanIcon(plan), {
             tailWindClasses: `text-beergam-white size-6`,
           })}
         </div>
         <h3
-          className={`${isPopular ? "text-beergam-orange" : "text-beergam-blue-primary"}`}
+          className={`${isPopular ? "text-beergam-orange" : "text-beergam-primary"}`}
         >
           {plan.display_name}
         </h3>
         {isPopular && (
-          <div className="flex items-center bg-beergam-blue-primary p-1 px-3 gap-1 absolute rounded-tl-[0px] rounded-br-[0px] rounded-tr-2xl rounded-bl-2xl right-0 top-0">
+          <div className="flex items-center bg-beergam-primary p-1 px-3 gap-1 absolute rounded-tl-[0px] rounded-br-[0px] rounded-tr-2xl rounded-bl-2xl right-0 top-0">
             <span className="text-beergam-white text-sm">Popular</span>
             <Svg.star_solid
               width={16}
@@ -407,7 +407,7 @@ export default function PlanCard({
   const economiaAnualPercentual = (economiaAnual / (plan.price * 12)) * 100;
   return (
     <div
-      className={`rounded-2xl relative bg-beergam-white p-4  text-beergam-blue-primary flex flex-col gap-2 ${isPopular ? "border-beergam-orange -translate-y-2 h-[calc(100%_+_0.5rem)]" : "border-beergam-gray"} shadow-lg overflow-hidden`}
+      className={`rounded-2xl relative bg-beergam-section-background p-4  text-beergam-primary flex flex-col gap-2 ${isPopular ? "border-beergam-orange -translate-y-2 h-[calc(100%_+_0.5rem)]" : "border-beergam-gray"} shadow-lg overflow-hidden`}
     >
       <div className="flex items-center gap-2 justify-between">
         {planToCompare && (
@@ -421,7 +421,7 @@ export default function PlanCard({
             <Svg.arrow_long_right
               width={32}
               height={32}
-              tailWindClasses="text-beergam-blue-primary"
+              tailWindClasses="text-beergam-primary"
             />
           </>
         )}
@@ -432,7 +432,7 @@ export default function PlanCard({
         })}
       </div>
       <div
-        className={`absolute top-0 opacity-0 left-0 bg-beergam-blue-primary rounded-tl-lg rounded-br-lg p-1 px-2 text-beergam-white ${billingPeriod === "yearly" ? "opacity-100" : ""}`}
+        className={`absolute top-0 opacity-0 left-0 bg-beergam-primary rounded-tl-lg rounded-br-lg p-1 px-2 text-beergam-white ${billingPeriod === "yearly" ? "opacity-100" : ""}`}
       >
         <p className="text-[12px]!">
           Economia de ~{economiaAnualPercentual.toFixed(0)}%
@@ -441,15 +441,13 @@ export default function PlanCard({
       {planToCompare ? null : (
         <p className="text-beergam-gray text-sm">{plan.description}</p>
       )}
-      <div className="flex flex-col gap-2 mb-4 text-beergam-blue-darker">
+      <div className="flex flex-col gap-2 mb-4 text-beergam-typography-secondary">
         <PlanBenefits planToCompare={planToCompare} benefits={plan.benefits} />
       </div>
       {onPlanSelect && (
         <BeergamButton
           title={plan.is_current_plan ? "Plano Atual" : "Escolher Plano"}
-          mainColor={
-            plan.is_current_plan ? "beergam-gray" : "beergam-blue-primary"
-          }
+          mainColor={plan.is_current_plan ? "beergam-gray" : "beergam-primary"}
           animationStyle="slider"
           className={`w-full mt-auto`}
           onClick={() => onPlanSelect?.(plan)}

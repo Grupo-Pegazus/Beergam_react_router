@@ -119,7 +119,6 @@ export default function AllowedTimes({
       {action !== "Visualizar" && (
         <BeergamButton
           title="Horário Comercial"
-          mainColor="beergam-blue-primary"
           animationStyle="slider"
           onClick={handleHorarioComercial}
           icon="clock"
