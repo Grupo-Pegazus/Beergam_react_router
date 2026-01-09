@@ -185,10 +185,10 @@ export default function ColabForm({
     () => (user?.pin ? createColabPhotoUploadService(user.pin) : null),
     [user?.pin]
   );
-  
+
   const photoId = watch("details.photo_id");
   const masterPin = watch("master_pin");
-  
+
   const currentPhotoUrl = useMemo(() => {
     if (!masterPin || !photoId) {
       return null;
@@ -225,7 +225,7 @@ export default function ColabForm({
 
   return (
     <>
-      <Section title="Dados do Colaborador" className="bg-beergam-white">
+      <Section title="Dados do Colaborador" className="bg-beergam-mui-paper!">
         <div className="flex items-center flex-col md:flex-row gap-4">
           <ColabPhoto
             photo_id={watch("details.photo_id")}
@@ -275,7 +275,7 @@ export default function ColabForm({
           </div>
         </div>
       </Section>
-      <Section title="Horários de Funcionamento" className="bg-beergam-white">
+      <Section title="Horários de Funcionamento">
         <AllowedTimes
           schedule={watch("details.allowed_times") ?? getEmptyAllowedTimes()}
           action={action}
@@ -288,7 +288,7 @@ export default function ColabForm({
           }}
         />
       </Section>
-      <Section title="Acessos Permitidos" className="bg-beergam-white">
+      <Section title="Acessos Permitidos">
         <AllowedViews
           accessList={accessList}
           action={action}

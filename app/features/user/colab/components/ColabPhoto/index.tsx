@@ -46,10 +46,10 @@ export default function ColabPhoto({
       )}
       {canUploadPhoto && (
         <>
-          <div className="opacity-0 group-hover:opacity-100 bg-beergam-white/20 absolute inset-0 rounded-full text-beergam-blue-primary flex items-center justify-center">
+          <div className="opacity-0 group-hover:opacity-100 bg-beergam-white/20 absolute inset-0 rounded-full text-beergam-typography-secondary flex items-center justify-center">
             <Svg.pencil_solid width={24} height={24} />
           </div>
-          <div className="absolute -bottom-1 -right-2 rounded-full text-beergam-blue-primary flex items-center justify-center">
+          <div className="absolute -bottom-1 -right-2 rounded-full text-beergam-typography-primary flex items-center justify-center">
             <Svg.camera_solid width={24} height={24} />
           </div>
         </>

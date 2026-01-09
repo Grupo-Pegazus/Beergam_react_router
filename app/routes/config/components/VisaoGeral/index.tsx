@@ -90,6 +90,7 @@ export default function VisaoGeral({ user }: { user: IUser | IColab }) {
               <BeergamButton
                 title="Melhorar Plano"
                 link="/interno/config?session=Minha Assinatura"
+                mainColor="beergam-primary"
               />
             </div>
           </div>

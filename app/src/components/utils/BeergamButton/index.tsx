@@ -43,7 +43,7 @@ type CSSPropertiesWithVars = CSSProperties & {
 };
 
 function BeergamButtonWrapper({
-  mainColor = "beergam-blue-primary",
+  mainColor = "beergam-primary",
   animationStyle,
   link,
   children,
@@ -153,7 +153,7 @@ function BeergamButtonWrapper({
 
 export default function BeergamButton({
   title,
-  mainColor = "beergam-blue-primary",
+  mainColor = "beergam-primary",
   animationStyle = "slider",
   className,
   link,

@@ -185,7 +185,7 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
     <>
       <Section
         title="Gerenciar Colaboradores"
-        className="bg-beergam-white"
+        className="bg-beergam-mui-paper!"
         actions={
           <BeergamButton
             title="Criar Colaborador"
@@ -292,7 +292,7 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
             </>
           )
         }
-        className="bg-beergam-white"
+        className="bg-beergam-mui-paper!"
       >
         {currentColab.colab && currentColab.action ? (
           <ColabForm
@@ -303,7 +303,9 @@ export default function Colaboradores({ colabs }: { colabs: IColab[] | [] }) {
             }}
           />
         ) : (
-          <p>Nenhum colaborador selecionado</p>
+          <p className="text-beergam-typography-secondary">
+            Nenhum colaborador selecionado
+          </p>
         )}
       </Section>
     </>

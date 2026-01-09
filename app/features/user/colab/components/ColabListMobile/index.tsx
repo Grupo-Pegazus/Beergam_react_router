@@ -182,8 +182,10 @@ export default function ColabListMobile({
         className={`grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4 ${filteredColabs.length === 0 ? "grid-cols-1!" : ""}`}
       >
         {filteredColabs.length === 0 ? (
-          <Paper className="p-6 text-center w-full">
-            <p className="text-beergam-gray">Nenhum colaborador encontrado</p>
+          <Paper className="p-6 text-center w-full bg-beergam-section-background!">
+            <p className="text-beergam-typography-secondary">
+              Nenhum colaborador encontrado
+            </p>
           </Paper>
         ) : (
           slots.map((colab, index) => {
@@ -191,7 +193,7 @@ export default function ColabListMobile({
             return (
               <Paper
                 key={colab?.pin || `empty-${index}`}
-                className={`p-4 flex flex-col gap-3 border-1 border-beergam-gray-light relative ${
+                className={`p-4 flex flex-col gap-3 border-1 bg-beergam-section-background! border-beergam-section-border relative ${
                   isEmpty ? "bg-beergam-gray/50! hidden opacity-0" : ""
                 } ${currentColabPin === colab?.pin ? `${actionColor}` : ""} ${colabToDelete?.pin === colab?.pin ? "bg-beergam-red/20! border-beergam-red!" : ""}`}
               >
@@ -247,12 +249,14 @@ export default function ColabListMobile({
                 {/* Header do card - Foto e informações principais */}
                 <div className="flex items-start gap-3">
                   <div className="flex-1 min-w-0 pr-8">
-                    <h3 className="font-bold text-lg truncate text-beergam-blue-primary">
+                    <h3 className="font-bold text-lg truncate text-beergam-typography-primary">
                       {colab?.name || "Placeholder"}
                     </h3>
                     <div className="flex items-center gap-2">
-                      <p className="text-sm text-beergam-blue-primary">PIN:</p>
-                      <span className="text-beergam-blue-primary">
+                      <p className="text-sm text-beergam-typography-secondary">
+                        PIN:
+                      </p>
+                      <span className="text-beergam-typography-primary">
                         {colab?.pin || "---"}
                       </span>
                     </div>
@@ -268,6 +272,7 @@ export default function ColabListMobile({
                   <BeergamButton
                     title="Visualizar"
                     icon="eye"
+                    mainColor="beergam-blue-primary"
                     onClick={() => {
                       if (isEmpty) return;
                       if (!colab) return;
@@ -304,20 +309,22 @@ export default function ColabListMobile({
             size="large"
             sx={{
               "& .MuiPaginationItem-root": {
-                color: "var(--color-beergam-blue-primary)",
+                color: "var(--color-beergam-typography-primary)",
+                hover: "var(--color-beergam-typography-primary)",
                 "&.Mui-selected": {
-                  backgroundColor: "var(--color-beergam-orange)",
+                  backgroundColor: "var(--color-beergam-primary)",
                   color: "white",
-                  "&:hover": {
-                    backgroundColor: "var(--color-beergam-orange)",
-                  },
+                  hover: "var(--color-beergam-primary)",
+                  // "&:hover": {
+                  //   backgroundColor: "var(--color-beergam-orange)",
+                  // },
                 },
               },
             }}
           />
         </div>
       )}
-      <p>
+      <p className="text-beergam-typography-secondary">
         {filteredColabsWithFilters.length} de {colabs.length} colaboradores
         encontrados
       </p>
