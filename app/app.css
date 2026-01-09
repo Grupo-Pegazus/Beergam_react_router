@@ -282,3 +282,7 @@ html {
 .landing-section {
   scroll-margin-top: 4rem;
 }
+
+p {
+  color: var(--color-beergam-typography-secondary);
+}

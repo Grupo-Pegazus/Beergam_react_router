@@ -310,7 +310,6 @@ export default function ColabListMobile({
             sx={{
               "& .MuiPaginationItem-root": {
                 color: "var(--color-beergam-typography-primary)",
-                hover: "var(--color-beergam-typography-primary)",
                 "&.Mui-selected": {
                   backgroundColor: "var(--color-beergam-primary)",
                   color: "white",
