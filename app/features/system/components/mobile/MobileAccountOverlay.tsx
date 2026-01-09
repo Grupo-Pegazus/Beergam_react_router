@@ -180,7 +180,7 @@ function AccountList({
               className={[
                 "w-[90%] mx-auto my-1 relative flex items-center gap-3 p-3 rounded-xl border border-black/10 bg-beergam-mui-paper shadow-sm",
                 acc.marketplace_shop_id === current?.marketplace_shop_id
-                  ? "ring-2 ring-beergam-orange bg-beergam-primary/10!"
+                  ? "ring-2 ring-beergam-primary bg-beergam-primary/10!"
                   : "",
               ].join(" ")}
             >
