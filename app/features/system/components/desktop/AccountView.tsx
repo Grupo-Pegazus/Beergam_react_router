@@ -29,8 +29,10 @@ const CreateMarketplaceModal = lazy(
 
 export default function AccountView({
   expanded = true,
+  showMarketplaces = true,
 }: {
   expanded?: boolean;
+  showMarketplaces?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -50,6 +52,7 @@ export default function AccountView({
     selectAccount,
   } = useMarketplaceAccounts();
   const user = authStore.use.user();
+  const marketplace = authStore.use.marketplace();
 
   // Controla animação de abertura/fechamento do dropdown
   useEffect(() => {
@@ -117,14 +120,16 @@ export default function AccountView({
     setMarketplaceToDelete(null);
   };
 
-  if (accountsLoading) {
-    return <div className="p-3 text-sm opacity-70">Carregando contas...</div>;
-  }
+  if (showMarketplaces) {
+    if (accountsLoading) {
+      return <div className="p-3 text-sm opacity-70">Carregando contas...</div>;
+    }
 
-  if (!accounts) {
-    return (
-      <div className="p-3 text-sm opacity-70">Nenhuma conta encontrada</div>
-    );
+    if (!accounts) {
+      return (
+        <div className="p-3 text-sm opacity-70">Nenhuma conta encontrada</div>
+      );
+    }
   }
 
   // Criar lista unificada com a conta atual no topo
@@ -146,41 +151,72 @@ export default function AccountView({
             type="button"
             onClick={() => setOpen((v) => !v)}
             className="flex items-center gap-2.5 bg-transparent border-0 p-0 cursor-pointer hover:opacity-90 transition-opacity"
-            title="Trocar de conta"
-            aria-label="Trocar de conta de marketplace"
+            title={showMarketplaces ? "Trocar de conta" : "Menu do usuário"}
+            aria-label={
+              showMarketplaces
+                ? "Trocar de conta de marketplace"
+                : "Menu do usuário"
+            }
           >
-            {expanded && (
-              <div className="hidden md:flex flex-col min-w-0 text-right text-beergam-white">
-                <p
-                  className="font-semibold leading-4 truncate max-w-[200px]"
-                  title={current?.marketplace_name}
-                >
-                  {current?.marketplace_name}
-                </p>
-                <p className="text-xs opacity-70 leading-4">
-                  {
-                    MarketplaceTypeLabel[
-                      current?.marketplace_type as MarketplaceType
-                    ]
-                  }
-                </p>
-              </div>
+            {showMarketplaces ? (
+              <>
+                {expanded && (
+                  <div className="hidden md:flex flex-col min-w-0 text-right text-beergam-white">
+                    <p
+                      className="font-semibold leading-4 truncate max-w-[200px]"
+                      title={current?.marketplace_name}
+                    >
+                      {current?.marketplace_name}
+                    </p>
+                    <p className="text-xs opacity-70 leading-4">
+                      {
+                        MarketplaceTypeLabel[
+                          current?.marketplace_type as MarketplaceType
+                        ]
+                      }
+                    </p>
+                  </div>
+                )}
+                <img
+                  src={current?.marketplace_image}
+                  alt={current?.marketplace_name}
+                  className="w-8 h-8 rounded-full object-cover ring-2 ring-white/20"
+                />
+              </>
+            ) : (
+              user && (
+                <>
+                  {expanded && (
+                    <div className="hidden md:flex flex-col min-w-0 text-right text-beergam-white">
+                      <p
+                        className="font-semibold leading-4 truncate max-w-[200px]"
+                        title={user.name}
+                      >
+                        {user.name}
+                      </p>
+                      <p className="text-xs opacity-70 leading-4">
+                        {isMaster(user) && user.details?.email
+                          ? user.details.email
+                          : user.pin || ""}
+                      </p>
+                    </div>
+                  )}
+                  <UserPhoto className="w-12 h-12!" name={user.name} />
+                </>
+              )
             )}
-            <img
-              src={current?.marketplace_image}
-              alt={current?.marketplace_name}
-              className="w-8 h-8 rounded-full object-cover ring-2 ring-white/20"
-            />
           </button>
 
           {showDropdown && (
             <div
-              className={`absolute right-0 mt-2 w-[340px] rounded-lg text-beergam-typography-primary bg-beergam-mui-paper shadow-xl border border-beergam-input-border overflow-hidden z-10 ${
+              className={`absolute right-0 mt-2 ${
+                showMarketplaces ? "w-[340px]" : "w-[280px]"
+              } rounded-lg text-beergam-typography-primary bg-beergam-mui-paper shadow-xl border border-beergam-input-border overflow-hidden z-10 ${
                 open ? "animate-slide-down" : "animate-fade-out"
               }`}
             >
               {/* User Info Section */}
-              {user && (
+              {showMarketplaces && user && (
                 <div className="px-4 py-4 border-b-2 border-beergam-menu-background">
                   <div className="flex items-start gap-3">
                     <UserPhoto className="size-10!" name={user.name} />
@@ -215,7 +251,7 @@ export default function AccountView({
               )}
 
               {/* Accounts List - conta atual no topo com estilo de selecionado */}
-              {allAccounts.length > 0 && (
+              {showMarketplaces && allAccounts.length > 0 && (
                 <div className="">
                   <div className="max-h-[240px] overflow-y-auto">
                     {allAccounts.map((acc) => {
@@ -349,27 +385,73 @@ export default function AccountView({
               )}
 
               {/* Action Buttons */}
-              <div className="border-t-2 border-beergam-menu-background">
+              <div
+                className={`${showMarketplaces ? "border-beergam-menu-background" : "border-transparent"} border-t-2 `}
+              >
                 <div className="p-2 space-y-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setModalOpen(true);
-                      setOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2.5 hover:bg-beergam-primary/10 flex items-center gap-3 cursor-pointer rounded transition-colors group"
-                  >
-                    <div className="w-10 h-10 bg-beergam-primary/10 rounded-full flex items-center justify-center group-hover:bg-beergam-primary/20 transition-colors">
-                      <Svg.globe
-                        width={20}
-                        height={20}
-                        tailWindClasses="text-beergam-primary"
-                      />
-                    </div>
-                    <span className="text-sm font-medium text-beergam-typography-secondary group-hover:text-beergam-primary/80">
-                      Adicionar Marketplace
-                    </span>
-                  </button>
+                  {showMarketplaces && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setModalOpen(true);
+                        setOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2.5 hover:bg-beergam-primary/10 flex items-center gap-3 cursor-pointer rounded transition-colors group"
+                    >
+                      <div className="w-10 h-10 bg-beergam-primary/10 rounded-full flex items-center justify-center group-hover:bg-beergam-primary/20 transition-colors">
+                        <Svg.globe
+                          width={20}
+                          height={20}
+                          tailWindClasses="text-beergam-primary"
+                        />
+                      </div>
+                      <span className="text-sm font-medium text-beergam-typography-secondary group-hover:text-beergam-primary/80">
+                        Adicionar Marketplace
+                      </span>
+                    </button>
+                  )}
+                  {!showMarketplaces && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (marketplace) {
+                            navigate("/interno");
+                            setOpen(false);
+                          }
+                        }}
+                        disabled={!marketplace}
+                        data-tooltip-id="acessar-sistema-tooltip"
+                        className={`w-full text-left px-3 py-2.5 flex items-center gap-3 rounded transition-colors group ${
+                          marketplace
+                            ? "hover:bg-beergam-primary/10 cursor-pointer"
+                            : "opacity-50 cursor-not-allowed"
+                        }`}
+                      >
+                        <div className="w-10 h-10 bg-beergam-primary/10 rounded-full flex items-center justify-center group-hover:bg-beergam-primary/20 transition-colors">
+                          <Svg.arrow_uturn_right
+                            width={20}
+                            height={20}
+                            tailWindClasses={`${marketplace ? "text-beergam-primary" : "text-beergam-typography-secondary"}`}
+                          />
+                        </div>
+                        <span
+                          className={`text-sm font-medium ${marketplace ? "text-beergam-typography-secondary group-hover:text-beergam-primary/80" : "text-beergam-typography-secondary"}`}
+                        >
+                          Acessar Sistema
+                        </span>
+                      </button>
+                      {!marketplace && (
+                        <Tooltip
+                          id="acessar-sistema-tooltip"
+                          place="left"
+                          positionStrategy="fixed"
+                        >
+                          Selecione um Marketplace
+                        </Tooltip>
+                      )}
+                    </>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
