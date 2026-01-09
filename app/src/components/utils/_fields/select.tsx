@@ -47,15 +47,29 @@ function Select({
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [isInteracting, setIsInteracting] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const nativeSelectRef = useRef<HTMLSelectElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const isValid = required && value && !error;
 
+  // Detectar se é dispositivo móvel/iOS
+  useEffect(() => {
+    const checkMobile = () => {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isMobileDevice = window.innerWidth < 768 || isIOS;
+      setIsMobile(isMobileDevice);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   // Classes baseadas no Input para manter consistência visual
   const baseClasses =
-    "w-full px-3 py-2.5 border border-beergam-input-border bg-beergam-input-background text-beergam-typography-tertiary rounded text-sm transition-colors duration-200 outline-none appearance-none";
+    "w-full px-3 py-2.5 border border-beergam-input-border bg-beergam-input-background text-beergam-typography-tertiary rounded text-sm transition-colors duration-200 outline-none";
   const errorClasses =
     error?.error || hasError
       ? "!border-beergam-red focus:!border-beergam-red/90"
@@ -138,6 +152,12 @@ function Select({
 
   const handleSelect = (optionValue: string | null) => {
     if (onChange) {
+      // Atualizar o valor do select nativo se existir
+      if (nativeSelectRef.current) {
+        nativeSelectRef.current.value = optionValue || "";
+      }
+
+      // Disparar evento de mudança
       const syntheticEvent = {
         target: {
           value: optionValue || "",
@@ -155,8 +175,8 @@ function Select({
     setFocusedIndex(null);
     setTimeout(() => {
       setIsInteracting(false);
+      buttonRef.current?.focus();
     }, 100);
-    buttonRef.current?.focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -205,6 +225,91 @@ function Select({
     }
   };
 
+  // No mobile/iOS, usar apenas o select nativo
+  if (isMobile) {
+    return (
+      <>
+        <div
+          ref={selectRef}
+          data-tooltip-id={dataTooltipId}
+          className={`relative ${widthType === "fit" ? "w-fit min-w-[150px]" : "w-full"}`}
+        >
+          <div className="relative w-full flex items-center">
+            {icon && (
+              <div className="absolute left-3 z-10 pointer-events-none">
+                {icon}
+              </div>
+            )}
+            <select
+              ref={nativeSelectRef}
+              value={value || ""}
+              required={required}
+              onChange={onChange}
+              name={name}
+              disabled={disabled}
+              className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses} ${icon ? "pl-10" : ""} ${error?.error || hasError ? "pr-10" : ""} ${tailWindClasses} appearance-none cursor-pointer`}
+              style={{
+                ...style,
+                backgroundColor: backgroundColor ? backgroundColor : undefined,
+                paddingRight: "2.5rem",
+              }}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              aria-label={name || "Select"}
+              aria-invalid={error?.error || hasError}
+              aria-describedby={
+                error?.error && dataTooltipId ? dataTooltipId : undefined
+              }
+            >
+              {!value && (
+                <option value="" disabled>
+                  Selecione uma opção
+                </option>
+              )}
+              {options &&
+                options.map((opt, idx) => (
+                  <option
+                    key={idx}
+                    value={opt.value || ""}
+                    disabled={opt.disabled}
+                  >
+                    {opt.label}
+                  </option>
+                ))}
+              {children}
+            </select>
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none flex items-center gap-2">
+              <Svg.chevron tailWindClasses="w-4 h-4 text-beergam-typography-tertiary" />
+              {(error?.error || hasError) && (
+                <Svg.x_circle
+                  width={20}
+                  height={20}
+                  tailWindClasses="text-beergam-red"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+        {dataTooltipId && (
+          <Tooltip
+            id={dataTooltipId}
+            content={error?.message || ""}
+            isOpen={!isInteracting && !!error?.error && !!error?.message}
+            className="z-50"
+          />
+        )}
+        {hasError && !dataTooltipId && (
+          <p
+            className={`text-xs text-red-500 min-h-5 mt-1 lg:min-h-[16px] 2xl:min-h-5 ${error?.error ? "opacity-100" : "opacity-0"}`}
+          >
+            {error?.message || ""}
+          </p>
+        )}
+      </>
+    );
+  }
+
+  // No desktop, usar UI customizada mas com select nativo como fallback
   return (
     <>
       <div
@@ -218,22 +323,71 @@ function Select({
               {icon}
             </div>
           )}
+          {/* Select nativo para acessibilidade e formulários */}
+          <select
+            ref={nativeSelectRef}
+            value={value || ""}
+            required={required}
+            onChange={(e) => {
+              if (onChange) {
+                onChange(e);
+              }
+              setIsOpen(false);
+            }}
+            name={name}
+            disabled={disabled}
+            className="sr-only"
+            aria-label={name || "Select"}
+            aria-invalid={error?.error || hasError}
+            aria-describedby={
+              error?.error && dataTooltipId ? dataTooltipId : undefined
+            }
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            tabIndex={-1}
+            id={`${name || "select"}-native`}
+          >
+            {!value && (
+              <option value="" disabled>
+                Selecione uma opção
+              </option>
+            )}
+            {options &&
+              options.map((opt, idx) => (
+                <option
+                  key={idx}
+                  value={opt.value || ""}
+                  disabled={opt.disabled}
+                >
+                  {opt.label}
+                </option>
+              ))}
+            {children}
+          </select>
+
+          {/* Botão customizado para visual */}
           <button
             ref={buttonRef}
             type="button"
-            className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses} ${icon ? "pl-10" : ""} ${error?.error || hasError ? "pr-10" : ""} ${tailWindClasses} text-left flex gap-2 items-center justify-between`}
+            className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses} ${icon ? "pl-10" : ""} ${error?.error || hasError ? "pr-10" : ""} ${tailWindClasses} text-left flex gap-2 items-center justify-between appearance-none`}
             style={{
               ...style,
               backgroundColor: backgroundColor ? backgroundColor : undefined,
             }}
-            onClick={handleToggle}
+            onClick={(e) => {
+              e.preventDefault();
+              handleToggle();
+            }}
             onKeyDown={handleKeyDown}
             onBlur={handleBlur}
             onFocus={handleFocus}
             disabled={disabled}
             aria-haspopup="listbox"
             aria-expanded={isOpen}
-            aria-label={name || "Select"}
+            aria-controls={`${name || "select"}-dropdown`}
+            aria-labelledby={name ? `${name}-label` : undefined}
+            role="combobox"
+            tabIndex={0}
           >
             <span
               className={`${value ?? ""} `}
@@ -254,7 +408,7 @@ function Select({
               }`}
             />
           </button>
-          <div className="absolute flex items-center gap-2 justify-center right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+          <div className="absolute flex items-center gap-2 justify-center right-3 top-1/2 transform -translate-y-1/2 pointer-events-none z-10">
             {(error?.error || hasError) && (
               <div className="flex items-center gap-2">
                 <Svg.x_circle
@@ -265,36 +419,16 @@ function Select({
               </div>
             )}
           </div>
-
-          <select
-            className="sr-only"
-            value={value || ""}
-            required={required}
-            onChange={onChange}
-            name={name}
-            disabled={disabled}
-            tabIndex={-1}
-            aria-hidden="true"
-          >
-            {options &&
-              options.map((opt, idx) => (
-                <option
-                  key={idx}
-                  value={opt.value || ""}
-                  disabled={opt.disabled}
-                >
-                  {opt.label}
-                </option>
-              ))}
-            {children}
-          </select>
         </div>
 
         {isOpen && !disabled && (
           <div
             ref={dropdownRef}
+            id={`${name || "select"}-dropdown`}
             className="absolute z-9999 w-full mt-1 bg-beergam-section-background border border-beergam-input-border rounded shadow-lg max-h-60 overflow-auto"
             role="listbox"
+            aria-label={name || "Opções de seleção"}
+            aria-labelledby={name ? `${name}-label` : undefined}
             style={{
               position: "absolute",
               top: "100%",
