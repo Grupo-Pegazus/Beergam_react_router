@@ -30,34 +30,38 @@ export default function Speedometer({
   }, [normalizedValue]);
 
   const color = useMemo(() => {
-    if (normalizedValue === null) return "#94a3b8"; // slate-400
+    if (normalizedValue === null) return "var(--color-beergam-gray)"; // slate-400
 
     if (mode === "asc") {
       // Ascendente: quanto mais próximo do numberToCompare, mais vermelho
-      if (normalizedValue >= 80) return "#ef4444"; // red-500
-      if (normalizedValue >= 60) return "#eab308"; // yellow-500
-      return "#22c55e"; // green-500
+      if (normalizedValue >= 80) return "var(--color-beergam-red)"; // red-500
+      if (normalizedValue >= 60) return "var(--color-beergam-yellow)"; // yellow-500
+      return "var(--color-beergam-primary)"; // green-500
     } else {
       // Decrescente: quanto mais longe do numberToCompare, mais vermelho
-      if (normalizedValue >= 80) return "#22c55e"; // green-500
-      if (normalizedValue >= 60) return "#eab308"; // yellow-500
-      return "#ef4444"; // red-500
+      if (normalizedValue >= 80) return "var(--color-beergam-primary)"; // green-500
+      if (normalizedValue >= 60) return "var(--color-beergam-yellow)"; // yellow-500
+      return "var(--color-beergam-red)"; // red-500
     }
   }, [normalizedValue, mode]);
 
   const trackColor = useMemo(() => {
-    if (normalizedValue === null) return "#cbd5e1"; // slate-300
+    if (normalizedValue === null) return "var(--color-beergam-gray)"; // slate-300
 
     if (mode === "asc") {
       // Ascendente: quanto mais próximo do numberToCompare, mais vermelho
-      if (normalizedValue >= 80) return "#fee2e2"; // red-100
-      if (normalizedValue >= 60) return "#fef9c3"; // yellow-100
-      return "#dcfce7"; // green-100
+      if (normalizedValue >= 80)
+        return "var(--color-beergam-typography-secondary)"; // red-100
+      if (normalizedValue >= 60)
+        return "var(--color-beergam-typography-secondary)"; // yellow-100
+      return "var(--color-beergam-typography-secondary)"; // green-100
     } else {
       // Decrescente: quanto mais longe do numberToCompare, mais vermelho
-      if (normalizedValue >= 80) return "#dcfce7"; // green-100
-      if (normalizedValue >= 60) return "#fef9c3"; // yellow-100
-      return "#fee2e2"; // red-100
+      if (normalizedValue >= 80)
+        return "var(--color-beergam-typography-secondary)"; // green-100
+      if (normalizedValue >= 60)
+        return "var(--color-beergam-typography-secondary)"; // yellow-100
+      return "var(--color-beergam-typography-secondary)"; // red-100
     }
   }, [normalizedValue, mode]);
 
@@ -126,7 +130,8 @@ export default function Speedometer({
           sx={{
             fontSize: size * 0.25,
             fontWeight: 700,
-            color: normalizedValue !== null ? color : "#94a3b8",
+            color:
+              normalizedValue !== null ? color : "var(--color-beergam-gray)",
             lineHeight: 1,
           }}
         >
