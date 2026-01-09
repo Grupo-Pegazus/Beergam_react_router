@@ -161,14 +161,14 @@ export default function AccountView({
             {showMarketplaces ? (
               <>
                 {expanded && (
-                  <div className="hidden md:flex flex-col min-w-0 text-right text-beergam-white">
+                  <div className="hidden md:flex flex-col min-w-0 text-right">
                     <p
-                      className="font-semibold leading-4 truncate max-w-[200px]"
+                      className="font-semibold leading-4 truncate max-w-[200px] text-beergam-white!"
                       title={current?.marketplace_name}
                     >
                       {current?.marketplace_name}
                     </p>
-                    <p className="text-xs opacity-70 leading-4">
+                    <p className="text-xs opacity-70 leading-4 text-beergam-white!">
                       {
                         MarketplaceTypeLabel[
                           current?.marketplace_type as MarketplaceType
@@ -187,14 +187,14 @@ export default function AccountView({
               user && (
                 <>
                   {expanded && (
-                    <div className="hidden md:flex flex-col min-w-0 text-right text-beergam-white">
+                    <div className="hidden md:flex flex-col min-w-0 text-right">
                       <p
-                        className="font-semibold leading-4 truncate max-w-[200px]"
+                        className="font-semibold leading-4 truncate max-w-[200px] text-beergam-white!"
                         title={user.name}
                       >
                         {user.name}
                       </p>
-                      <p className="text-xs opacity-70 leading-4">
+                      <p className="text-xs opacity-70 leading-4 text-beergam-white!">
                         {isMaster(user) && user.details?.email
                           ? user.details.email
                           : user.pin || ""}
@@ -222,7 +222,7 @@ export default function AccountView({
                     <UserPhoto className="size-10!" name={user.name} />
                     <div className="min-w-0 flex-1">
                       <p
-                        className="font-semibold text-beergam-typography-primary truncate mb-1"
+                        className="font-semibold text-beergam-typography-primary! truncate mb-1"
                         title={user.name}
                       >
                         {user.name}
@@ -231,16 +231,16 @@ export default function AccountView({
                         {isMaster(user) && user.details?.email && (
                           <>
                             <p
-                              className="text-beergam-typography-secondary truncate mb-1"
+                              className="text-beergam-typography-secondary! truncate mb-1"
                               title={user.details.email}
                             >
                               {user.details.email}
                             </p>
-                            <div className="w-1 h-1 bg-beergam-typography-tertiary rounded-full"></div>
+                            <div className="w-1 h-1 bg-beergam-typography-tertiary! rounded-full"></div>
                           </>
                         )}
                         {user.pin && (
-                          <p className="text-beergam-typography-secondary">
+                          <p className="text-beergam-typography-secondary!">
                             {user.pin}
                           </p>
                         )}
@@ -309,8 +309,8 @@ export default function AccountView({
                                   className="w-10 h-10 rounded-full object-cover"
                                 />
                               ) : (
-                                <div className="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center">
-                                  <span className="text-white font-semibold text-sm">
+                                <div className="w-10 h-10 bg-beergam-typography-secondary rounded-full flex items-center justify-center">
+                                  <span className="text-beergam-white font-semibold text-sm">
                                     {acc.marketplace_name
                                       .charAt(0)
                                       .toUpperCase()}
@@ -321,8 +321,8 @@ export default function AccountView({
                                 <p
                                   className={`truncate text-sm font-medium ${
                                     isSelected
-                                      ? "text-beergam-primary"
-                                      : "text-beergam-typography-primary group-hover:text-beergam-primary/80"
+                                      ? "text-beergam-primary!"
+                                      : "text-beergam-typography-primary! group-hover:text-beergam-primary/80!"
                                   }`}
                                   title={acc.marketplace_name}
                                 >
@@ -330,7 +330,7 @@ export default function AccountView({
                                 </p>
                                 {/* Marketplace Type e Status de Pedidos na mesma linha */}
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <p className="text-xs text-beergam-typography-secondary">
+                                  <p className="text-xs text-beergam-typography-secondary!">
                                     {
                                       MarketplaceTypeLabel[
                                         acc.marketplace_type as MarketplaceType

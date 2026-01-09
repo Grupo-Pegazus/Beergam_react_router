@@ -98,8 +98,10 @@ export default function LoginPage({
   }, [currentUserType, handleLoginSuccess, handleUserTypeChange]);
   function FormLoggedIn() {
     return (
-      <Paper className="flex flex-col gap-4! text-beergam-blue-primary text-center">
-        <h2 className="text-beergam-blue-primary">Continuar Conectado?</h2>
+      <Paper className="flex flex-col gap-4! text-center">
+        <h2 className="text-beergam-typography-primary">
+          Continuar Conectado?
+        </h2>
         <p className="">
           Você já possui uma sessão ativa como:{" "}
           <span className="font-bold text-beergam-orange">

@@ -34,9 +34,9 @@ export default function PageLayout({
 }) {
   return (
     <>
-      <main className="relative h-screen flex flex-col justify-center items-center overflow-hidden">
+      <main className="relative pt-[90px] h-screen flex flex-col justify-center items-center overflow-hidden">
         {!hideHeader && (
-          <header className="w-full p-4 px-4 md:px-8 flex z-99 items-center justify-between">
+          <header className="w-full fixed top-0 p-4 px-4 md:px-8 flex z-99 items-center justify-between">
             <Link to="/" className="w-10 h-10 cursor-pointer hover:opacity-80">
               <img
                 src={CDN_IMAGES.BERGAMOTA_LOGO}

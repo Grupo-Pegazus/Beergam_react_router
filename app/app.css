@@ -276,6 +276,7 @@ svg {
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
+  background-color: var(--color-beergam-layout-background);
 }
 
 /* Landing page specific styles */
