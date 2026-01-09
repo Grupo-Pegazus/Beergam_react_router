@@ -63,7 +63,7 @@ function Time({
         open={access}
       />
       <div
-        className="w-28 text-left font-semibold cursor-pointer text-gray-500 bg-transparent"
+        className="w-28 text-left font-semibold cursor-pointer text-beergam-typography-secondary bg-transparent"
         onClick={clickDia}
       >
         <p>{dia}</p>

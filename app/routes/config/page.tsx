@@ -142,7 +142,7 @@ export default function ConfigPage() {
         <div className="flex flex-col w-full gap-4">
           <div className="w-full flex justify-start items-center mt-2 md:hidden">
             <button
-              className={`size-10 relavite z-1000 shadow-[2.5px_5px_5px_0px_rgba(0,0,0,0.65)] hover:translate-y-[2px] hover:shadow-transparent flex items-center text-xl! justify-center border ${menuOpen ? "shadow-transparent! translate-y-[2px]!" : ""} text-beergam-white bg-beergam-blue-primary border-beergam-white p-1 rounded-full`}
+              className={`size-10 relavite z-1000 shadow-[2.5px_5px_5px_0px_rgba(0,0,0,0.65)] hover:translate-y-[2px] hover:shadow-transparent flex items-center text-xl! justify-center border ${menuOpen ? "shadow-transparent! translate-y-[2px]!" : ""} text-beergam-white bg-beergam-primary border-beergam-white p-1 rounded-full`}
               onClick={() => setMenuOpen(!menuOpen)}
             >
               {menuOpen ? (
@@ -174,15 +174,6 @@ export default function ConfigPage() {
                     />
                   );
                 })}
-                <button
-                  className={`flex p-2 w-full rounded-lg text-left cursor-pointer gap-2 border border-transparent items-center text-beergam-white hover:bg-beergam-blue-primary/10`}
-                  onClick={() => {
-                    sendUserToInternal();
-                  }}
-                >
-                  <Svg.arrow_uturn_right width={26} height={26} />
-                  <span className="text-sm font-medium">Acessar Programa</span>
-                </button>
               </div>
             </Fade>
           </div>
@@ -207,15 +198,6 @@ export default function ConfigPage() {
                   />
                 );
               })}
-              <button
-                className={`flex p-2 w-full rounded-lg text-left cursor-pointer gap-2 border border-transparent items-center text-beergam-white hover:bg-beergam-blue-primary/10`}
-                onClick={() => {
-                  sendUserToInternal();
-                }}
-              >
-                <Svg.arrow_uturn_right width={26} height={26} />
-                <span className="text-sm font-medium">Acessar Programa</span>
-              </button>
             </div>
           </div>
         </div>

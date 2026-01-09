@@ -50,7 +50,7 @@ export default function LoginPage({
   const Form = useMemo(() => {
     return (
       <div
-        className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-section-background! h-auto w-full md:mx-auto md:my-auto p-8 md:w-2/3 md:max-w-lg md:rounded-4xl`}
+        className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-mui-paper! h-auto w-full md:mx-auto md:my-auto p-8 md:w-2/3 md:max-w-lg md:rounded-4xl`}
       >
         <div className="flex flex-col md:flex-row md:items-center justify-between items-start">
           <div className="flex gap-2 items-center">
@@ -98,8 +98,10 @@ export default function LoginPage({
   }, [currentUserType, handleLoginSuccess, handleUserTypeChange]);
   function FormLoggedIn() {
     return (
-      <Paper className="flex flex-col gap-4! text-beergam-blue-primary text-center">
-        <h2 className="text-beergam-blue-primary">Continuar Conectado?</h2>
+      <Paper className="flex flex-col gap-4! text-center">
+        <h2 className="text-beergam-typography-primary">
+          Continuar Conectado?
+        </h2>
         <p className="">
           Você já possui uma sessão ativa como:{" "}
           <span className="font-bold text-beergam-orange">

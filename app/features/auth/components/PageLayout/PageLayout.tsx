@@ -1,9 +1,5 @@
-import { Box, ClickAwayListener, Fade } from "@mui/material";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
-import authStore from "~/features/store-zustand";
-import { isMaster } from "~/features/user/utils";
+import { Link } from "react-router";
+import AccountView from "~/features/system/components/desktop/AccountView";
 import Svg from "~/src/assets/svgs/_index";
 import ParticlesBackground from "~/src/components/utils/ParticlesBackground";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
@@ -36,34 +32,11 @@ export default function PageLayout({
   tailwindClassName?: string;
   hideHeader?: boolean;
 }) {
-  const user = authStore.use.user();
-  const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState<boolean>(false);
-  const { isLoggingOut, logout } = useLogoutFlow({
-    redirectTo: "/login",
-  });
-  // Função para gerar sigla customizada com base nas regras fornecidas
-  function generateUserInitials(name: string): string {
-    if (!name) return "";
-    const names = name.trim().split(/\s+/);
-    if (names.length > 1) {
-      // Nome composto: pega primeira letra do primeiro (maiúscula) e do segundo (minúscula)
-      const first = names[0][0]?.toUpperCase() ?? "";
-      const second = names[1][0]?.toLowerCase() ?? "";
-      return `${first}${second}`;
-    } else {
-      // Nome simples: pega primeira letra (maiúscula) e última (minúscula)
-      const onlyName = names[0];
-      const first = onlyName[0]?.toUpperCase() ?? "";
-      const last = onlyName[onlyName.length - 1]?.toLowerCase() ?? "";
-      return `${first}${last}`;
-    }
-  }
   return (
     <>
-      <main className="relative h-screen flex flex-col justify-center items-center overflow-hidden">
+      <main className="relative pt-[90px] h-screen flex flex-col justify-center items-center overflow-hidden">
         {!hideHeader && (
-          <header className="w-full p-4 px-4 md:px-8 flex z-99 items-center justify-between">
+          <header className="w-full fixed top-0 p-4 px-4 md:px-8 flex z-99 items-center justify-between">
             <Link to="/" className="w-10 h-10 cursor-pointer hover:opacity-80">
               <img
                 src={CDN_IMAGES.BERGAMOTA_LOGO}
@@ -71,62 +44,7 @@ export default function PageLayout({
                 className="w-full h-full object-contain"
               />
             </Link>
-            {user && (
-              <div className="flex items-center gap-2">
-                <p className="text-beergam-white text-2xl font-bold">
-                  Bem-vindo,{" "}
-                  <span className="text-beergam-blue-primary">{user.name}</span>
-                  !
-                </p>
-                <ClickAwayListener onClickAway={() => setMenuOpen(false)}>
-                  <Box sx={{ position: "relative" }}>
-                    <button
-                      onClick={() => setMenuOpen(!menuOpen)}
-                      className={`relative size-10 shadow-[2.5px_5px_5px_0px_rgba(0,0,0,0.65)] hover:translate-y-[2px] hover:shadow-transparent flex items-center text-xl! justify-center border ${menuOpen ? "shadow-transparent! translate-y-[2px]!" : ""} text-beergam-white bg-beergam-blue-primary border-beergam-white rounded-full`}
-                    >
-                      {generateUserInitials(user.name)}
-                    </button>
-                    <Fade in={menuOpen} timeout={200}>
-                      <div
-                        className={`absolute p-2 top-12 w-[200px] right-4 bg-beergam-blue-primary rounded-xl shadow-[2.5px_5px_5px_0px_rgba(0,0,0,0.65)] border border-beergam-white`}
-                      >
-                        <div className="text-left">
-                          <p className="text-beergam-white text-sm! font-bold!">
-                            {user.name}
-                          </p>
-                          <p className="text-beergam-gray-light">
-                            {isMaster(user) ? user.details?.email : user.pin}
-                          </p>
-                        </div>
-                        <hr className="my-2 border-beergam-white" />
-                        <button
-                          onClick={() => {
-                            if (!menuOpen || isLoggingOut) return;
-                            navigate("/interno/config");
-                          }}
-                          className={`flex mb-2 items-center px-2 py-1 rounded-lg gap-2 justify-between w-full hover:bg-beergam-white/10 ${isLoggingOut ? "opacity-50! cursor-not-allowed!" : ""} ${!menuOpen ? "pointer-events-none! cursor-auto!" : ""}`}
-                        >
-                          <p className="text-beergam-white text-sm!">
-                            Configurações
-                          </p>
-                          <Svg.cog_8_tooth tailWindClasses="text-beergam-white size-6" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (!menuOpen || isLoggingOut) return;
-                            logout();
-                          }}
-                          className={`flex items-center px-2 py-1 rounded-lg gap-2 justify-between w-full hover:bg-beergam-white/10 ${isLoggingOut ? "opacity-50! cursor-not-allowed!" : ""} ${!menuOpen ? "pointer-events-none! cursor-auto!" : ""}`}
-                        >
-                          <p className="text-beergam-white text-sm!">Sair</p>
-                          <Svg.logout tailWindClasses="text-beergam-white size-6" />
-                        </button>
-                      </div>
-                    </Fade>
-                  </Box>
-                </ClickAwayListener>
-              </div>
-            )}
+            <AccountView showMarketplaces={false} />
           </header>
         )}
         <div className="bg-beergam-secundary absolute top-0 left-0 w-full h-full -z-1000"></div>

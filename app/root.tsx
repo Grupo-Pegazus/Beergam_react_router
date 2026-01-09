@@ -197,7 +197,7 @@ const theme = createTheme(
               transform: "translateX(16px)",
               color: "#fff",
               "& + .MuiSwitch-track": {
-                backgroundColor: "var(--color-beergam-green)",
+                backgroundColor: "var(--color-beergam-primary)",
                 opacity: 1,
                 border: 0,
               },
@@ -206,7 +206,7 @@ const theme = createTheme(
               },
             },
             "&.Mui-focusVisible .MuiSwitch-thumb": {
-              color: "var(--color-beergam-green)",
+              color: "var(--color-beergam-primary)",
               border: "6px solid #fff",
             },
             "&.Mui-disabled .MuiSwitch-thumb": {

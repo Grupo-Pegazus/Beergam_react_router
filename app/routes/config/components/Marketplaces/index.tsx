@@ -76,7 +76,7 @@ export default function Marketplaces() {
     <>
       <Section
         title="Marketplaces"
-        className="bg-beergam-white"
+        className="bg-beergam-mui-paper!"
         actions={
           <BeergamButton
             title="Adicionar Marketplace"
@@ -167,7 +167,9 @@ export default function Marketplaces() {
               />
             ))
           ) : (
-            <p>Nenhuma conta encontrada</p>
+            <p className="text-beergam-typography-secondary">
+              Nenhuma conta encontrada
+            </p>
           )}
         </div>
       </Section>

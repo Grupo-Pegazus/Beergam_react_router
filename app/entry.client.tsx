@@ -12,6 +12,12 @@ if (process.env.NODE_ENV === 'production') {
     // Adds request headers and IP for users, for more info visit:
     // https://docs.sentry.io/platforms/javascript/guides/react-router/configuration/options/#sendDefaultPii
     sendDefaultPii: true,
+    integrations: [
+      // Session Replay
+      Sentry.replayIntegration(),
+    ],
+    replaysSessionSampleRate: 0.1, // Capture 10% of all sessions
+    replaysOnErrorSampleRate: 1.0, // Capture 100% of sessions with an error
   });
 }
 

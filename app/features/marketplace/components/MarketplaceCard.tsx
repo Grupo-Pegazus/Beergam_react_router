@@ -40,7 +40,7 @@ export default function MarketplaceCard({
   };
   return (
     <div
-      className={`group cursor-pointer ${selected ? "border-beergam-orange! bg-beergam-orange/10!" : ""} flex justify-center items-center relative mb-4 p-8 shadow-lg/55 rounded-2xl flex-col gap-2 border-2 ${
+      className={`group cursor-pointer ${selected ? "border-beergam-orange! bg-beergam-orange/10!" : ""} flex justify-center items-center relative mb-4 p-8 shadow-lg/55 rounded-2xl flex-col gap-2 border-2 bg-beergam-section-background! ${
         marketplace
           ? `bg-beergam-white border-transparent ${
               isDisabled ? "opacity-60 cursor-not-allowed" : "hover:opacity-75"
@@ -89,7 +89,7 @@ export default function MarketplaceCard({
             alt={marketplace.marketplace_name}
             className="max-w-44 max-h-44 object-cover rounded-2xl shadow-2xl"
           />
-          <h3 className="text-center font-semibold truncate max-w-80">
+          <h3 className="text-center font-semibold truncate max-w-80 text-beergam-typography-primary">
             {marketplace.marketplace_name}
           </h3>
 

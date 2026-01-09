@@ -22,7 +22,9 @@ export default function AllowedViews({
             }}
             canInteract={action == "Criar" || action == "Editar"}
           >
-            <span className="font-medium">{v.label}</span>
+            <span className="font-medium text-beergam-typography-secondary">
+              {v.label}
+            </span>
             <span className="text-xs font-semibold">
               {v.access ? "Ativo" : "Inativo"}
             </span>

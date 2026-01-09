@@ -51,6 +51,8 @@
   --color-beergam-section-border: transparent;
   --color-beergam-input-background: var(--color-beergam-white);
   --color-beergam-input-border: var(--color-beergam-gray);
+  --color-beergam-input-disabled-border: var(--color-beergam-gray-light);
+  --color-beergam-input-disabled-text: var(--color-beergam-gray-light);
   /* Cores de Botão pré definidas */
   --color-beergam-button-background-primary: var(--color-beergam-white);
   --color-beergam-button-background-blue: var(--color-beergam-blue-primary);
@@ -94,6 +96,8 @@
   --color-beergam-typography-tertiary: var(--color-beergam-white);
   --color-beergam-input-background: #252525;
   --color-beergam-input-border: transparent;
+  --color-beergam-input-disabled-border: transparent;
+  --color-beergam-input-disabled-text: #131313;
   --color-beergam-button-background-primary: var(--color-beergam-input-border);
   --color-beergam-button-background-blue: var(--color-beergam-white);
   --color-beergam-mui-paper: #131313;
@@ -107,6 +111,16 @@
 
 .group:hover .beergam-button-hover-text {
   color: var(--hover-text-color, var(--color-beergam-white)) !important;
+}
+
+/* Classes utilitárias dinâmicas usando variáveis CSS - solução universal para cores beergam */
+/* Essas classes usam variáveis CSS que são definidas dinamicamente via style inline */
+[style*="--dynamic-bg-color"] {
+  background-color: var(--dynamic-bg-color) !important;
+}
+
+[style*="--dynamic-text-color"] {
+  color: var(--dynamic-text-color) !important;
 }
 
 * {
@@ -262,9 +276,14 @@ svg {
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
+  background-color: var(--color-beergam-layout-background);
 }
 
 /* Landing page specific styles */
 .landing-section {
   scroll-margin-top: 4rem;
+}
+
+p {
+  color: var(--color-beergam-typography-secondary);
 }

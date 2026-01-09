@@ -67,12 +67,12 @@ export function Modal({
             }}
           >
             <div
-              className={`relative w-full max-w-3xl rounded-2xl bg-white pt-0! p-3 md:p-6 shadow-2xl overflow-y-auto h-auto md:h-auto max-h-[80vh] ${contentClassName ?? ""}`.trim()}
+              className={`relative w-full max-w-3xl rounded-2xl bg-beergam-mui-paper! pt-0! p-3 md:p-6 shadow-2xl overflow-y-auto h-auto md:h-auto max-h-[80vh] ${contentClassName ?? ""}`.trim()}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex sticky top-0 z-10 items-start justify-between bg-white py-4">
+              <div className="flex sticky top-0 z-10 items-start justify-between bg-beergam-mui-paper! py-4">
                 {title && (
-                  <h2 className="text-beergam-blue-primary">{title}</h2>
+                  <h2 className="text-beergam-typography-primary">{title}</h2>
                 )}
                 {/* <button
                   className="rounded-full bg-beergam-gray-100 p-2 text-beergam-gray-500 transition-colors hover:text-beergam-red"
@@ -114,16 +114,16 @@ export function Modal({
               }}
             >
               <div
-                className={`relative w-full max-w-3xl rounded-2xl bg-white pt-0! p-3 md:p-6 shadow-2xl overflow-y-auto h-auto md:h-auto max-h-[80vh] ${contentClassName ?? ""}`.trim()}
+                className={`relative w-full max-w-3xl rounded-2xl bg-beergam-mui-paper! pt-0! p-3 md:p-6 shadow-2xl overflow-y-auto h-auto md:h-auto max-h-[80vh] ${contentClassName ?? ""}`.trim()}
               >
-                <div className="flex sticky top-0 z-10 items-start justify-between bg-white py-4">
+                <div className="flex sticky top-0 z-10 items-start justify-between bg-beergam-mui-paper! py-4">
                   {title && (
-                    <h2 className="text-beergam-blue-primary">{title}</h2>
+                    <h2 className="text-beergam-typography-primary">{title}</h2>
                   )}
                   <BeergamButton onClick={onClose} icon="x" />
                 </div>
                 {children && (
-                  <div className="rounded-lg p-3 text-sm text-beergam-blue-primary">
+                  <div className="rounded-lg p-3 text-sm text-beergam-typography-primary">
                     {children}
                   </div>
                 )}

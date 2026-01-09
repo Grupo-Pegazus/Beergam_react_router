@@ -242,7 +242,6 @@ export default function PlansCardMini({
             <BeergamButton
               title="Assinar"
               icon="star_solid"
-              mainColor="beergam-orange"
               disabled={plan?.is_current_plan || changePlanMutation.isPending}
               onClick={(e) => {
                 e.stopPropagation();
@@ -266,7 +265,7 @@ export default function PlansCardMini({
       <div className="flex md:flex-row flex-col gap-2">
         {" "}
         <div>
-          <h3 className="text-beergam-gray">
+          <h3 className="text-beergam-typography-secondary">
             {plan?.price.toLocaleString("pt-BR", {
               style: "currency",
               currency: "BRL",
@@ -278,11 +277,11 @@ export default function PlansCardMini({
         {plan?.display_name == "Plano Estratégico" && (
           <Section
             title="Comunidade Beergam"
-            className="bg-beergam-blue-primary text-beergam-white"
+            className="bg-beergam-primary! text-beergam-white!"
             titleClassName="text-beergam-white!"
           >
             <hr className="mb-4" />
-            <p>
+            <p className="text-beergam-white!">
               Ao assinar o plano Estratégico, você também terá acesso à
               comunidade Beergam, onde você pode compartilhar suas ideias e
               projetos com outros usuários do sistema.
