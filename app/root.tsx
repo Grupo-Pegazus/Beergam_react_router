@@ -26,7 +26,7 @@ import { AuthStoreProvider } from "./features/auth/context/AuthStoreContext";
 import { SocketStatusIndicator } from "./features/socket/components/SocketStatusIndicator";
 import { SocketProvider } from "./features/socket/context/SocketContext";
 import authStore from "./features/store-zustand";
-import { queryClient } from "./lib/queryClient";
+import { getQueryClient } from "./lib/queryClient";
 import Error from "./src/components/Error";
 import type { TError } from "./src/components/Error/typings";
 import { CensorshipProvider } from "./src/components/utils/Censorship";
@@ -142,27 +142,33 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   const initialError = authState.error;
   const initialUser = authState.user;
   const initialMarketplace = authState.marketplace;
+  const queryClient = getQueryClient();
+  
   if (import.meta.env.DEV) {
     return (
-      <main>
-        <h1>{message}</h1>
-        <p>{details}</p>
-        {stack && (
-          <pre>
-            <code>{stack}</code>
-          </pre>
-        )}
-      </main>
+      <QueryClientProvider client={queryClient}>
+        <main>
+          <h1>{message}</h1>
+          <p>{details}</p>
+          {stack && (
+            <pre>
+              <code>{stack}</code>
+            </pre>
+          )}
+        </main>
+      </QueryClientProvider>
     );
   } else {
     return (
-      <AuthStoreProvider
-        initialError={initialError}
-        initialUser={initialUser}
-        initialMarketplace={initialMarketplace}
-      >
-        <Error error={errorType} />
-      </AuthStoreProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthStoreProvider
+          initialError={initialError}
+          initialUser={initialUser}
+          initialMarketplace={initialMarketplace}
+        >
+          <Error error={errorType} />
+        </AuthStoreProvider>
+      </QueryClientProvider>
     );
   }
 }
@@ -422,6 +428,8 @@ export default function App() {
     user: initialUser,
     marketplace: initialMarketplace,
   } = useLoaderData<typeof clientLoader>();
+
+  const queryClient = getQueryClient();
 
   return (
     <AuthStoreProvider
