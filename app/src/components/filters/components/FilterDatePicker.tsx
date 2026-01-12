@@ -1,8 +1,8 @@
-import { useState, useRef } from "react";
-import { Typography, Button, Popover, Box, IconButton } from "@mui/material";
-import { MonthYearPicker } from "~/src/components/ui/MonthYearPicker";
+import { Box, Button, IconButton, Popover, Typography } from "@mui/material";
 import dayjs, { type Dayjs } from "dayjs";
+import { useRef, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
+import { MonthYearPicker } from "~/src/components/ui/MonthYearPicker";
 
 function convertToDayjs(value?: string): Dayjs | null {
   if (!value) return null;
@@ -31,16 +31,18 @@ function DateTimePopoverPicker({
   const daysInMonth = viewDate.daysInMonth();
   const startWeekday = startOfMonth.day(); // 0 (Sun) - 6 (Sat)
 
-  const handlePrevMonth = () => setViewDate((prev) => prev.subtract(1, "month"));
+  const handlePrevMonth = () =>
+    setViewDate((prev) => prev.subtract(1, "month"));
   const handleNextMonth = () => setViewDate((prev) => prev.add(1, "month"));
 
   const handleSelectDay = (dayNumber: number) => {
     const base = viewDate.date(dayNumber);
-    const withTime = includeTime && value
-      ? base.hour(value.hour()).minute(value.minute())
-      : includeTime
-        ? base.hour(0).minute(0)
-        : base.startOf("day");
+    const withTime =
+      includeTime && value
+        ? base.hour(value.hour()).minute(value.minute())
+        : includeTime
+          ? base.hour(0).minute(0)
+          : base.startOf("day");
     onChange(withTime);
     onClose();
   };
@@ -58,10 +60,13 @@ function DateTimePopoverPicker({
     return `${hh}:${mm}`;
   })();
 
-  const daysArray = Array.from({ length: startWeekday + daysInMonth }, (_, idx) => {
-    const dayNum = idx - startWeekday + 1;
-    return dayNum > 0 ? dayNum : null;
-  });
+  const daysArray = Array.from(
+    { length: startWeekday + daysInMonth },
+    (_, idx) => {
+      const dayNum = idx - startWeekday + 1;
+      return dayNum > 0 ? dayNum : null;
+    }
+  );
 
   const isSelected = (dayNumber: number) =>
     value &&
@@ -88,15 +93,31 @@ function DateTimePopoverPicker({
     >
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {/* Header */}
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <IconButton size="small" onClick={handlePrevMonth}>
-            <Typography sx={{ fontSize: "1.1rem", fontWeight: 700 }}>‹</Typography>
+            <Typography sx={{ fontSize: "1.1rem", fontWeight: 700 }}>
+              ‹
+            </Typography>
           </IconButton>
-          <Typography sx={{ fontWeight: 700, textTransform: "capitalize", color: "#1f2a44" }}>
+          <Typography
+            sx={{
+              fontWeight: 700,
+              textTransform: "capitalize",
+              color: "#1f2a44",
+            }}
+          >
             {monthLabel}
           </Typography>
           <IconButton size="small" onClick={handleNextMonth}>
-            <Typography sx={{ fontSize: "1.1rem", fontWeight: 700 }}>›</Typography>
+            <Typography sx={{ fontSize: "1.1rem", fontWeight: 700 }}>
+              ›
+            </Typography>
           </IconButton>
         </Box>
 
@@ -158,7 +179,10 @@ function DateTimePopoverPicker({
 
         {includeTime && (
           <Box sx={{ display: "flex", gap: 1, alignItems: "center", mt: 1 }}>
-            <Typography variant="body2" sx={{ color: "#475569", fontWeight: 600 }}>
+            <Typography
+              variant="body2"
+              sx={{ color: "#475569", fontWeight: 600 }}
+            >
               Hora
             </Typography>
             <input
@@ -179,7 +203,6 @@ function DateTimePopoverPicker({
   );
 }
 
-
 interface FilterDatePickerProps {
   label: string;
   value?: string;
@@ -191,7 +214,6 @@ interface FilterDatePickerProps {
   widthType?: "fit" | "full";
 }
 
-
 export function FilterDatePicker({
   label,
   value,
@@ -202,9 +224,7 @@ export function FilterDatePicker({
   placeholder,
   widthType = "fit",
 }: FilterDatePickerProps) {
-  const inputType = includeTime
-    ? "datetime-local"
-    : (dateType ?? "date");
+  const inputType = includeTime ? "datetime-local" : (dateType ?? "date");
 
   if (inputType === "month") {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -236,7 +256,11 @@ export function FilterDatePicker({
 
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <Typography variant="subtitle2" color="text.secondary" fontWeight={600}>
+        <Typography
+          variant="subtitle2"
+          className="text-beergam-typography-secondary"
+          fontWeight={600}
+        >
           {label}
         </Typography>
         <Button
@@ -253,17 +277,6 @@ export function FilterDatePicker({
             borderRadius: "24px",
             padding: "8px 16px",
             fontSize: "0.875rem",
-            backgroundColor: "#fff",
-            border: "1px solid #ccc",
-            color: "#1f2a44",
-            "&:hover": {
-              backgroundColor: "#f8fafc",
-              borderColor: "#cbd5e1",
-            },
-            "&:disabled": {
-              backgroundColor: "#f1f5f9",
-              color: "#94a3b8",
-            },
           }}
         >
           {displayValue}
@@ -314,7 +327,8 @@ export function FilterDatePicker({
     ? includeTime
       ? dayjsValue.format("DD/MM/YYYY HH:mm")
       : dayjsValue.format("DD/MM/YYYY")
-    : placeholder || (includeTime ? "Selecione data e hora" : "Selecione a data");
+    : placeholder ||
+      (includeTime ? "Selecione data e hora" : "Selecione a data");
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -361,4 +375,3 @@ export function FilterDatePicker({
     </div>
   );
 }
-
