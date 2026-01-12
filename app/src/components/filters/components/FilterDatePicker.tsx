@@ -109,7 +109,7 @@ function DateTimePopoverPicker({
             sx={{
               fontWeight: 700,
               textTransform: "capitalize",
-              color: "#1f2a44",
+              color: "var(--color-beergam-typography-tertiary)",
             }}
           >
             {monthLabel}
@@ -128,7 +128,7 @@ function DateTimePopoverPicker({
             gridTemplateColumns: "repeat(7, 1fr)",
             gap: 0.5,
             textAlign: "center",
-            color: "#94a3b8",
+            color: "var(--color-beergam-typography-secondary)",
             fontWeight: 600,
             fontSize: "0.75rem",
           }}
@@ -161,13 +161,13 @@ function DateTimePopoverPicker({
                   textTransform: "none",
                   fontSize: "0.85rem",
                   backgroundColor: isSelected(dayNumber)
-                    ? "var(--color-beergam-blue-primary)"
+                    ? "var(--color-beergam-primary)"
                     : "transparent",
-                  color: isSelected(dayNumber) ? "white" : "#1f2a44",
+                  color: isSelected(dayNumber)
+                    ? "var(--color-beergam-white)"
+                    : "var(--color-beergam-typography-tertiary)",
                   "&:hover": {
-                    backgroundColor: isSelected(dayNumber)
-                      ? "var(--color-beergam-blue-primary)"
-                      : "rgba(0,0,0,0.04)",
+                    backgroundColor: "var(--color-beergam-primary)",
                   },
                 }}
               >
@@ -181,7 +181,10 @@ function DateTimePopoverPicker({
           <Box sx={{ display: "flex", gap: 1, alignItems: "center", mt: 1 }}>
             <Typography
               variant="body2"
-              sx={{ color: "#475569", fontWeight: 600 }}
+              sx={{
+                color: "var(--color-beergam-typography-tertiary)",
+                fontWeight: 600,
+              }}
             >
               Hora
             </Typography>
@@ -190,7 +193,7 @@ function DateTimePopoverPicker({
               value={timeValue}
               onChange={(e) => handleTimeChange(e.target.value)}
               style={{
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--color-beergam-input-border)",
                 borderRadius: 12,
                 padding: "6px 10px",
                 fontSize: "0.9rem",
@@ -260,6 +263,7 @@ export function FilterDatePicker({
           variant="subtitle2"
           className="text-beergam-typography-secondary"
           fontWeight={600}
+          textAlign="right"
         >
           {label}
         </Typography>
@@ -332,7 +336,11 @@ export function FilterDatePicker({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <Typography variant="subtitle2" color="text.secondary" fontWeight={600}>
+      <Typography
+        variant="subtitle2"
+        className="text-beergam-typography-secondary"
+        fontWeight={600}
+      >
         {label}
       </Typography>
       <Button
@@ -349,17 +357,6 @@ export function FilterDatePicker({
           borderRadius: "24px",
           padding: "8px 16px",
           fontSize: "0.875rem",
-          backgroundColor: "#fff",
-          border: "1px solid #ccc",
-          color: "#1f2a44",
-          "&:hover": {
-            backgroundColor: "#f8fafc",
-            borderColor: "#cbd5e1",
-          },
-          "&:disabled": {
-            backgroundColor: "#f1f5f9",
-            color: "#94a3b8",
-          },
         }}
       >
         {displayValue}

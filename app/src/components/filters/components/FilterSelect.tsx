@@ -1,7 +1,7 @@
-import { useCallback, useMemo } from "react";
 import { Typography } from "@mui/material";
-import type { FilterFieldProps, FilterOption } from "../types";
+import { useCallback, useMemo } from "react";
 import { Fields } from "~/src/components/utils/_fields";
+import type { FilterFieldProps, FilterOption } from "../types";
 
 export interface FilterSelectProps<T extends string = string>
   extends FilterFieldProps {
@@ -21,7 +21,7 @@ export function FilterSelect<T extends string = string>({
 }: FilterSelectProps<T>) {
   const currentValue = useMemo(
     () => (value as T) ?? defaultValue ?? options[0]?.value,
-    [value, defaultValue, options],
+    [value, defaultValue, options]
   );
 
   const handleChange = useCallback(
@@ -29,12 +29,16 @@ export function FilterSelect<T extends string = string>({
       const newValue = (event.target.value as T) ?? defaultValue;
       onChange(newValue);
     },
-    [onChange, defaultValue],
+    [onChange, defaultValue]
   );
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <Typography variant="subtitle2" color="text.secondary" fontWeight={600}>
+      <Typography
+        variant="subtitle2"
+        className="text-beergam-typography-secondary"
+        fontWeight={600}
+      >
         {label}
       </Typography>
       <Fields.select
@@ -48,4 +52,3 @@ export function FilterSelect<T extends string = string>({
     </div>
   );
 }
-
