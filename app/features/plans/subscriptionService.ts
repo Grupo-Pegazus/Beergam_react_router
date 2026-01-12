@@ -1,7 +1,10 @@
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
 import authStore from "../store-zustand";
-import type { Subscription } from "../user/typings/BaseUser";
+import {
+  SubscriptionStatus,
+  type Subscription,
+} from "../user/typings/BaseUser";
 /**
  * Interface para a resposta do portal do Stripe
  */
@@ -121,9 +124,41 @@ class SubscriptionService {
    */
   async getSubscription(): Promise<ApiResponse<Subscription>> {
     try {
-      const response = await typedApiClient.get<unknown>(
+      const response = await typedApiClient.get<Subscription>(
         "/v1/payments/subscription"
       );
+      if (response.success) {
+        const subscriptionStatusKeys = Object.keys(SubscriptionStatus);
+        const errorCachedValue = authStore.getState().error ?? null;
+        if (subscriptionStatusKeys.includes(response.data?.status as string)) {
+          if (
+            SubscriptionStatus[
+              response.data
+                ?.status as unknown as keyof typeof SubscriptionStatus
+            ] === SubscriptionStatus.CANCELED
+          ) {
+            authStore.setState({
+              error: "SUBSCRIPTION_CANCELLED",
+            });
+          }
+          if (
+            SubscriptionStatus[
+              response.data
+                ?.status as unknown as keyof typeof SubscriptionStatus
+            ] === SubscriptionStatus.ACTIVE
+          ) {
+            if (
+              errorCachedValue === "SUBSCRIPTION_CANCELLED" ||
+              errorCachedValue === "SUBSCRIPTION_NOT_FOUND" ||
+              errorCachedValue === "SUBSCRIPTION_NOT_ACTIVE"
+            ) {
+              authStore.setState({
+                error: null,
+              });
+            }
+          }
+        }
+      }
       // Normaliza diferentes formatos de resposta do backend (objeto ou array)
       type MaybeSubscriptionArray =
         | { data?: Subscription[] }
