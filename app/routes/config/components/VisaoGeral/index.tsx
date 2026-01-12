@@ -60,10 +60,12 @@ export default function VisaoGeral({ user }: { user: IUser | IColab }) {
                   value={Object.keys(user.colabs).length}
                   size={80}
                   mode="asc"
-                  numberToCompare={subscription?.plan.benefits.colab_accounts}
+                  numberToCompare={
+                    subscription?.plan?.benefits?.colab_accounts ?? 0
+                  }
                 />
                 <Fields.label
-                  text={`${Object.keys(user.colabs).length} de ${subscription?.plan.benefits.colab_accounts} Colaboradores Registrados`}
+                  text={`${Object.keys(user.colabs).length} de ${subscription?.plan?.benefits?.colab_accounts ?? 0} Colaboradores Registrados`}
                 />
               </div>
               <BeergamButton
@@ -77,11 +79,13 @@ export default function VisaoGeral({ user }: { user: IUser | IColab }) {
                   value={marketplacesAccounts?.data?.length ?? null}
                   size={80}
                   mode="asc"
-                  numberToCompare={subscription?.plan.benefits.ML_accounts}
+                  numberToCompare={
+                    subscription?.plan?.benefits?.ML_accounts ?? 0
+                  }
                 />
                 {marketplacesAccounts?.data?.length ? (
                   <Fields.label
-                    text={`${marketplacesAccounts?.data?.length} de ${subscription?.plan.benefits.ML_accounts} Marketplaces Integrados`}
+                    text={`${marketplacesAccounts?.data?.length} de ${subscription?.plan?.benefits?.ML_accounts ?? 0} Marketplaces Integrados`}
                   />
                 ) : (
                   <Fields.label text="Não disponível" />
@@ -99,9 +103,9 @@ export default function VisaoGeral({ user }: { user: IUser | IColab }) {
               label="Gestão Financeira"
               name="gestao_financeira"
               value={
-                subscription?.plan.benefits.gestao_financeira
+                subscription?.plan?.benefits?.gestao_financeira
                   ? FormatGestaoFinanceira(
-                      subscription?.plan.benefits.gestao_financeira
+                      subscription?.plan?.benefits?.gestao_financeira
                     )
                   : "Não disponível"
               }
@@ -112,7 +116,7 @@ export default function VisaoGeral({ user }: { user: IUser | IColab }) {
               label="Tipos de Marketplace"
               name="marketplace_types"
               value={
-                subscription?.plan.benefits.marketplaces_integrados ??
+                subscription?.plan?.benefits?.marketplaces_integrados ??
                 "Não disponível"
               }
               canAlter={false}
@@ -120,7 +124,7 @@ export default function VisaoGeral({ user }: { user: IUser | IColab }) {
             <UserFields
               label="Histórico de Vendas"
               name="historico_vendas"
-              value={`${subscription?.plan.benefits.dias_historico_vendas} dias`}
+              value={`${subscription?.plan?.benefits?.dias_historico_vendas ?? 0} dias`}
               canAlter={false}
             />
           </div>

@@ -130,7 +130,7 @@ export default function Alert({
       {timerConfig.active && (
         <div className="w-full absolute left-0 right-0 bottom-0 h-1 bg-beergam-white/20 rounded-full overflow-hidden">
           <div
-            className="h-full bg-beergam-blue-primary rounded-full transition-all ease-linear"
+            className="h-full bg-beergam-primary rounded-full transition-all ease-linear"
             style={{
               width: "100%",
               animation: `timerProgress ${timerConfig.time}ms linear forwards`,

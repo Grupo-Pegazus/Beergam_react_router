@@ -143,7 +143,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   const initialUser = authState.user;
   const initialMarketplace = authState.marketplace;
   const queryClient = getQueryClient();
-  
+
   if (import.meta.env.DEV) {
     return (
       <QueryClientProvider client={queryClient}>
@@ -232,6 +232,30 @@ const theme = createTheme(
             backgroundColor: "#E9E9EA",
             opacity: 1,
             transition: "background-color 500ms",
+          },
+        },
+      },
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            backgroundColor: "var(--color-beergam-input-background)",
+            border: "1px solid var(--color-beergam-input-border)",
+            color: "var(--color-beergam-typography-tertiary)",
+            "&:hover": {
+              backgroundColor: "var(--color-beergam-primary)",
+              color: "var(--color-beergam-white)",
+            },
+            "&:disabled": {
+              backgroundColor: "var(--color-beergam-input-background-disabled)",
+              color: "var(--color-beergam-typography-secondary-disabled)",
+            },
+          },
+        },
+      },
+      MuiStack: {
+        styleOverrides: {
+          root: {
+            backgroundColor: "var(--color-beergam-mui-paper)",
           },
         },
       },

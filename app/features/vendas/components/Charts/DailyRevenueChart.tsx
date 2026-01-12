@@ -1,19 +1,19 @@
-import { useMemo, useState, useCallback } from "react";
+import { Skeleton, Typography } from "@mui/material";
+import dayjs, { type Dayjs } from "dayjs";
+import { useCallback, useMemo, useState } from "react";
 import {
-  BarChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
 } from "recharts";
-import { useDailyRevenue } from "../../hooks";
-import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
-import { Skeleton, Typography } from "@mui/material";
 import { FilterDatePicker } from "~/src/components/filters";
-import dayjs, { type Dayjs } from "dayjs";
+import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import { useDailyRevenue } from "../../hooks";
 
 const formatCurrency = (value: number): string => {
   return new Intl.NumberFormat("pt-BR", {
@@ -32,7 +32,9 @@ interface DailyRevenueChartProps {
   days: number;
 }
 
-export default function DailyRevenueChart({ days = 30 }: DailyRevenueChartProps) {
+export default function DailyRevenueChart({
+  days = 30,
+}: DailyRevenueChartProps) {
   const [selectedMonth, setSelectedMonth] = useState<Dayjs | null>(dayjs());
 
   const { data, isLoading, error } = useDailyRevenue({
@@ -65,7 +67,11 @@ export default function DailyRevenueChart({ days = 30 }: DailyRevenueChartProps)
       error={error as unknown}
       Skeleton={() => (
         <div className="h-80 w-full">
-          <Skeleton variant="rectangular" height="100%" className="rounded-lg" />
+          <Skeleton
+            variant="rectangular"
+            height="100%"
+            className="rounded-lg"
+          />
         </div>
       )}
       ErrorFallback={() => (
@@ -74,7 +80,7 @@ export default function DailyRevenueChart({ days = 30 }: DailyRevenueChartProps)
         </div>
       )}
     >
-      <div className="space-y-3 md:space-y-4">
+      <div className="space-y-3 md:space-y-4 bg-beergam-mui-paper p-4 rounded-lg">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end gap-2 md:gap-4">
           <FilterDatePicker
             label="Período de Provisão"
@@ -86,20 +92,24 @@ export default function DailyRevenueChart({ days = 30 }: DailyRevenueChartProps)
 
         {chartData.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 md:h-80 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
-            <Typography variant="body2" color="text.secondary" className="text-center text-sm md:text-base">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              className="text-center text-sm md:text-base"
+            >
               Nenhum dado disponível para o período selecionado.
             </Typography>
           </div>
         ) : (
           <div className="h-64 md:h-80 w-full overflow-x-auto">
             <ResponsiveContainer width="100%" height="100%" minHeight={256}>
-              <BarChart 
-                data={chartData} 
-                margin={{ 
-                  top: 5, 
-                  right: 10, 
-                  left: 0, 
-                  bottom: 40 
+              <BarChart
+                data={chartData}
+                margin={{
+                  top: 5,
+                  right: 10,
+                  left: 0,
+                  bottom: 40,
                 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -135,10 +145,7 @@ export default function DailyRevenueChart({ days = 30 }: DailyRevenueChartProps)
                   }}
                   formatter={(value: number) => formatCurrency(value)}
                 />
-                <Legend 
-                  wrapperStyle={{ fontSize: "12px" }}
-                  iconSize={12}
-                />
+                <Legend wrapperStyle={{ fontSize: "12px" }} iconSize={12} />
                 <Bar
                   dataKey="Faturamento Bruto"
                   fill="#f59e0b"
@@ -157,4 +164,3 @@ export default function DailyRevenueChart({ days = 30 }: DailyRevenueChartProps)
     </AsyncBoundary>
   );
 }
-
