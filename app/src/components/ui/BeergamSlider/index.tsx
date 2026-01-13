@@ -4,7 +4,8 @@ import { useRef, useState } from "react";
 import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
-import { Pagination } from "swiper/modules";
+import "swiper/css/zoom";
+import { Pagination, Zoom } from "swiper/modules";
 import { Swiper, SwiperSlide, type SwiperProps } from "swiper/react";
 interface BeergamSliderProps extends SwiperProps {
   slides: React.ReactNode[];
@@ -13,7 +14,7 @@ interface BeergamSliderProps extends SwiperProps {
 const DefaultProps: SwiperProps = {
   spaceBetween: 10,
   slidesPerView: 1,
-  modules: [Pagination],
+  modules: [Pagination, Zoom],
 };
 
 export function BeergamSlider({ slides, ...props }: BeergamSliderProps) {
@@ -37,38 +38,40 @@ export function BeergamSlider({ slides, ...props }: BeergamSliderProps) {
         onBeforeInit={(swiper) => {
           swiperRef.current = swiper;
         }}
+        zoom={{
+          limitToOriginalSize: true,
+        }}
         {...mergedProps}
         pagination={false}
         className="w-full h-full"
       >
         {slides.map((slide, index) => (
-          <SwiperSlide className="p-2 overflow-scroll" key={index}>
+          <SwiperSlide className="p-2" key={index}>
             <Paper
               sx={{
                 backgroundColor: "var(--color-beergam-section-background)",
+                height: "100%",
               }}
             >
-              {slide}
+              <div className="max-h-[100%] overflow-scroll">{slide}</div>
             </Paper>
           </SwiperSlide>
         ))}
       </Swiper>
-      {(mergedProps.pagination || !false) && (
-        <div className="flex items-center p-4 justify-center gap-2 w-full">
-          {paginationAmmount > 1 &&
-            Array.from({ length: paginationAmmount }).map((_, index) => (
-              <button
-                onClick={() => swiperRef.current?.slideTo(index)}
-                key={index}
-                className={`swiper-pagination-bullet hover:opacity-100! ${
-                  activeIndex === index ? "swiper-pagination-bullet-active" : ""
-                }`}
-              >
-                <p className="text-beergam-white! text-[10px]!">{index + 1}</p>
-              </button>
-            ))}
-        </div>
-      )}
+      <div className="flex items-center p-4 justify-center gap-2 w-full">
+        {paginationAmmount > 1 &&
+          Array.from({ length: paginationAmmount }).map((_, index) => (
+            <button
+              onClick={() => swiperRef.current?.slideTo(index)}
+              key={index}
+              className={`swiper-pagination-bullet hover:opacity-100! ${
+                activeIndex === index ? "swiper-pagination-bullet-active" : ""
+              }`}
+            >
+              <p className="text-beergam-white! text-[10px]!">{index + 1}</p>
+            </button>
+          ))}
+      </div>
     </>
   );
 }
