@@ -4,7 +4,6 @@ import {
 } from "@stripe/react-stripe-js";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { useCallback, useState } from "react";
-import authStore from "~/features/store-zustand";
 import { subscriptionService } from "~/features/plans/subscriptionService";
 import type { Plan, Subscription } from "~/features/user/typings/BaseUser";
 import { SubscriptionSchema } from "~/features/user/typings/BaseUser";
@@ -80,16 +79,8 @@ export default function StripeCheckout({
       if (!response.success || !response.data.clientSecret) {
         throw new Error(response.message || "Erro ao criar sessão de checkout");
       }
-      const subscriptionResponse = await subscriptionService.getSubscription();
-      authStore.getState().updateAuthInfo(
-        {
-          subscription: subscriptionResponse.data,
-          loading: false,
-          error: null,
-          success: true,
-          usageLimitData: null,
-        }
-      );
+      // Não limpa o erro aqui - só deve limpar após o pagamento ser confirmado
+      // O getSubscription() já atualiza o store, não precisa chamar updateAuthInfo
       return response.data.clientSecret;
     } catch (err) {
       const errorMessage =
@@ -199,16 +190,16 @@ export default function StripeCheckout({
               />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-beergam-blue-primary">
+              <h2 className="text-2xl font-bold text-beergam-typography-primary">
                 Finalizar assinatura
               </h2>
-              <p className="text-sm text-beergam-gray">
+              <p className="text-sm text-beergam-typography-secondary!">
                 Pagamento processado com segurança pela Stripe
               </p>
             </div>
           </div>
           {plan?.display_name && (
-            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-beergam-blue bg-beergam-blue-light/30 px-3 py-1 text-sm text-beergam-blue-primary">
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-beergam-primary bg-beergam-primary/10 px-3 py-1 text-sm text-beergam-typography-primary!">
               <span className="opacity-80">Plano selecionado:</span>
               <span className="font-semibold">{plan.display_name}</span>
             </div>
@@ -217,28 +208,28 @@ export default function StripeCheckout({
 
         {/* Benefícios rápidos */}
         <div className="px-2 sm:px-8 pb-3">
-          <ul className="flex flex-wrap gap-3 text-sm text-beergam-gray">
-            <li className="inline-flex items-center gap-2 rounded-full bg-beergam-blue-light/80 px-3 py-1 ring-1 ring-beergam-blue-light">
+          <ul className="flex flex-wrap gap-3 text-sm text-beergam-tertiary!">
+            <li className="inline-flex items-center gap-2 rounded-full bg-beergam-primary/10 px-3 py-1 ring-1 ring-beergam-primary">
               <Svg.check
                 width={16}
                 height={16}
-                tailWindClasses="text-beergam-green"
+                tailWindClasses="text-beergam-tertiary"
               />
               Sem taxas ocultas
             </li>
-            <li className="inline-flex items-center gap-2 rounded-full bg-beergam-blue-light/80 px-3 py-1 ring-1 ring-beergam-blue-light">
+            <li className="inline-flex items-center gap-2 rounded-full bg-beergam-primary/10 px-3 py-1 ring-1 ring-beergam-primary">
               <Svg.lock_closed
                 width={16}
                 height={16}
-                tailWindClasses="text-beergam-blue-primary"
+                tailWindClasses="text-beergam-tertiary"
               />
               Ambiente seguro
             </li>
-            <li className="inline-flex items-center gap-2 rounded-full bg-beergam-blue-light/80 px-3 py-1 ring-1 ring-beergam-blue-light">
+            <li className="inline-flex items-center gap-2 rounded-full bg-beergam-primary/10 px-3 py-1 ring-1 ring-beergam-primary">
               <Svg.clock
                 width={16}
                 height={16}
-                tailWindClasses="text-beergam-orange"
+                tailWindClasses="text-beergam-tertiary"
               />
               Ativação imediata
             </li>
@@ -247,7 +238,7 @@ export default function StripeCheckout({
 
         {/* Área do checkout */}
         <div className="relative px-2 sm:px-8 pb-6">
-          <div className="rounded-2xl border-2 border-beergam-blue-light bg-beergam-white p-2 sm:p-4">
+          <div className="rounded-2xl border-2 border-beergam-primary bg-beergam-white p-2 sm:p-4">
             <EmbeddedCheckoutProvider
               stripe={stripePromise}
               options={{
@@ -272,19 +263,17 @@ export default function StripeCheckout({
 
         {/* Rodapé */}
         <div className="px-2 sm:px-8 pb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="inline-flex items-center gap-2 text-sm text-beergam-gray">
+          <div className="inline-flex items-center gap-2 text-sm text-beergam-tertiary!">
             <Svg.lock_closed
               width={16}
               height={16}
-              tailWindClasses="text-beergam-blue-primary"
+              tailWindClasses="text-beergam-primary"
             />
             Transações protegidas e criptografadas
           </div>
-          <div className="inline-flex items-center gap-2 text-sm text-beergam-gray">
+          <div className="inline-flex items-center gap-2 text-sm text-beergam-tertiary!">
             <span className="opacity-75">Powered by</span>
-            <span className="font-semibold text-beergam-blue-primary">
-              Stripe
-            </span>
+            <span className="font-semibold text-beergam-primary">Stripe</span>
           </div>
         </div>
 

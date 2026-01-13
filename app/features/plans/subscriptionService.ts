@@ -127,38 +127,6 @@ class SubscriptionService {
       const response = await typedApiClient.get<Subscription>(
         "/v1/payments/subscription"
       );
-      if (response.success) {
-        const subscriptionStatusKeys = Object.keys(SubscriptionStatus);
-        const errorCachedValue = authStore.getState().error ?? null;
-        if (subscriptionStatusKeys.includes(response.data?.status as string)) {
-          if (
-            SubscriptionStatus[
-              response.data
-                ?.status as unknown as keyof typeof SubscriptionStatus
-            ] === SubscriptionStatus.CANCELED
-          ) {
-            authStore.setState({
-              error: "SUBSCRIPTION_CANCELLED",
-            });
-          }
-          if (
-            SubscriptionStatus[
-              response.data
-                ?.status as unknown as keyof typeof SubscriptionStatus
-            ] === SubscriptionStatus.ACTIVE
-          ) {
-            if (
-              errorCachedValue === "SUBSCRIPTION_CANCELLED" ||
-              errorCachedValue === "SUBSCRIPTION_NOT_FOUND" ||
-              errorCachedValue === "SUBSCRIPTION_NOT_ACTIVE"
-            ) {
-              authStore.setState({
-                error: null,
-              });
-            }
-          }
-        }
-      }
       // Normaliza diferentes formatos de resposta do backend (objeto ou array)
       type MaybeSubscriptionArray =
         | { data?: Subscription[] }
@@ -181,18 +149,55 @@ class SubscriptionService {
       } else {
         normalized = rawData as Subscription;
       }
+
+      // Verifica status e gerencia erros apenas se houver subscription
+      if (response.success && normalized) {
+        const subscriptionStatusKeys = Object.keys(SubscriptionStatus);
+        const errorCachedValue = authStore.getState().error ?? null;
+
+        if (subscriptionStatusKeys.includes(normalized.status as string)) {
+          if (
+            SubscriptionStatus[
+              normalized.status as unknown as keyof typeof SubscriptionStatus
+            ] === SubscriptionStatus.CANCELED
+          ) {
+            authStore.setState({
+              error: "SUBSCRIPTION_CANCELLED",
+            });
+          }
+          if (
+            SubscriptionStatus[
+              normalized.status as unknown as keyof typeof SubscriptionStatus
+            ] === SubscriptionStatus.ACTIVE
+          ) {
+            if (
+              errorCachedValue === "SUBSCRIPTION_CANCELLED" ||
+              errorCachedValue === "SUBSCRIPTION_NOT_FOUND" ||
+              errorCachedValue === "SUBSCRIPTION_NOT_ACTIVE"
+            ) {
+              authStore.setState({
+                error: null,
+              });
+            }
+          }
+        }
+      }
+
+      // Sempre atualiza o store com a subscription (pode ser null)
       if (response.success) {
         authStore.setState({
           subscription: normalized,
         });
       }
+      // Sempre retorna success: true, mesmo quando não há subscription
+      // A ausência de subscription não é um erro, apenas uma condição
       return {
         ...(response as ApiResponse<unknown>),
         data: (normalized ?? ({} as Subscription)) as Subscription,
-        success: Boolean(normalized),
-        message:
-          (response as ApiResponse<unknown>).message ??
-          (normalized ? "" : "Nenhuma assinatura encontrada"),
+        success: true, // Sempre true, pois a busca foi bem-sucedida (mesmo que não tenha subscription)
+        message: normalized
+          ? ((response as ApiResponse<unknown>).message ?? "")
+          : "", // Não mostra mensagem de erro quando não há subscription
       } as ApiResponse<Subscription>;
     } catch (error) {
       console.error("Erro ao buscar subscription", error);

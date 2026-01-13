@@ -1,9 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import { Navigate, Outlet, useLocation } from "react-router";
+import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 import authStore from "~/features/store-zustand";
 import { UserRoles } from "~/features/user/typings/BaseUser";
+import type { IColab } from "~/features/user/typings/Colab";
+import { isColab } from "~/features/user/utils";
 import { queryClient } from "~/lib/queryClient";
+import Alert from "~/src/components/utils/Alert";
+import { useModal } from "~/src/components/utils/Modal/useModal";
 import {
   useAuthError,
   useAuthMarketplace,
@@ -17,10 +22,13 @@ const ROUTES_WITHOUT_MARKETPLACE = [
   "/interno/config",
 ];
 export default function AuthLayout() {
+  const { logout, isLoggingOut } = useLogoutFlow({
+    redirectTo: "/login",
+  });
+  const { openModal } = useModal();
   const authError = useAuthError();
   const user = useAuthUser();
   const marketplace = useAuthMarketplace();
-  const isLoggingOut = authStore.use.isLoggingOut();
   const location = useLocation();
   const { data } = useQuery({
     queryKey: ["verifyTimeColab", user?.pin, user?.master_pin, user?.role],
@@ -89,13 +97,30 @@ export default function AuthLayout() {
           if (isOnSubscriptionPage) {
             break;
           }
-          // Caso contrário, navega para a página de assinatura
-          return (
-            <Navigate
-              to={`${targetSubscriptionPath}${targetSubscriptionSearch}`}
-              replace
-            />
-          );
+          if (isColab(user as IColab) && !isLoggingOut) {
+            openModal(
+              <Alert type="error">
+                <p className="text-beergam-typography-tertiary!">
+                  A assinatura não foi encontrada. Por favor, entre em contato
+                  com o suporte ou com seu administrador.
+                </p>
+              </Alert>,
+              {
+                title: "Erro ao verificar assinatura",
+              }
+            );
+            logout();
+            return;
+          } else {
+            return (
+              <Navigate
+                to={`${targetSubscriptionPath}${targetSubscriptionSearch}`}
+                replace
+                state={{ error: authError }}
+              />
+            );
+          }
+        // Caso contrário, navega para a página de assinatura
         case "USAGE_TIME_LIMIT":
           return <UsageTimeLimitWarning />;
       }
