@@ -1,17 +1,16 @@
-import { useState, useMemo } from "react";
 import { Chip, Divider, IconButton, Stack, Typography } from "@mui/material";
-import MainCards from "~/src/components/ui/MainCards";
-import CopyButton from "~/src/components/ui/CopyButton";
-import type { Order } from "../../typings";
 import dayjs from "dayjs";
+import { useMemo, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
+import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
+import CopyButton from "~/src/components/ui/CopyButton";
+import MainCards from "~/src/components/ui/MainCards";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
 import { getStatusOrderMeliInfo } from "~/src/constants/status-order-meli";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+import type { Order } from "../../typings";
 import OrderItemCard from "./OrderItemCard";
-import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
-import toast from "~/src/utils/toast";
-import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface OrderPackageProps {
   packId: string;
@@ -45,7 +44,10 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
       (sum, order) => sum + parseFloat(order.total_amount || "0"),
       0
     );
-    const totalQuantity = orders.reduce((sum, order) => sum + (order.quantity || 0), 0);
+    const totalQuantity = orders.reduce(
+      (sum, order) => sum + (order.quantity || 0),
+      0
+    );
     let totalLiquido = orders.reduce(
       (sum, order) => sum + parseFloat(order.valor_base || "0"),
       0
@@ -114,7 +116,10 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
           <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
             <div className="flex items-center gap-1">
-              <Typography variant="caption" color="text.secondary" className="font-mono text-xs md:text-sm">
+              <Typography
+                variant="caption"
+                className="font-mono text-xs md:text-sm text-beergam-typography-secondary!"
+              >
                 #{packId}
               </Typography>
               <CopyButton
@@ -124,7 +129,10 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
               />
             </div>
             <span className="text-slate-300 hidden md:inline">|</span>
-            <Typography variant="caption" color="text.secondary" className="text-xs md:text-sm">
+            <Typography
+              variant="caption"
+              className="text-xs md:text-sm text-beergam-typography-secondary!"
+            >
               {formatDate(firstOrder.date_created)}
             </Typography>
             <span className="text-slate-300 hidden md:inline">|</span>
@@ -145,14 +153,20 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
           </div>
           {firstOrder.buyer_nickname && (
             <div className="flex items-center gap-1.5 md:gap-2">
-              <Svg.profile tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4 text-slate-500" />
-              <Typography variant="body2" className="text-slate-900 text-sm md:text-base">
-                {firstOrder.buyer_nickname} - {firstOrder.client?.receiver_name} 
+              <Svg.profile tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4 text-beergam-typography-secondary!" />
+              <Typography
+                variant="body2"
+                className="text-slate-900 text-sm md:text-base"
+              >
+                {firstOrder.buyer_nickname} - {firstOrder.client?.receiver_name}
               </Typography>
               {firstOrder.buyer_id && (
                 <>
                   <span className="text-slate-300 hidden md:inline">|</span>
-                  <Typography variant="caption" color="text.secondary" className="text-xs md:text-sm">
+                  <Typography
+                    variant="caption"
+                    className="text-xs md:text-sm text-beergam-typography-secondary!"
+                  >
                     {firstOrder.buyer_id}
                   </Typography>
                 </>
@@ -170,12 +184,12 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
               <Chip
                 label={statusInfo.label}
                 size="small"
-                icon={
-                  (() => {
-                    const IconComponent = Svg[statusInfo.icon];
-                    return <IconComponent tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />;
-                  })()
-                }
+                icon={(() => {
+                  const IconComponent = Svg[statusInfo.icon];
+                  return (
+                    <IconComponent tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />
+                  );
+                })()}
                 sx={{
                   height: 22,
                   fontSize: "0.65rem",
@@ -193,13 +207,21 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
             {(firstOrder.shipment_status || deliveryInfo) && (
               <div className="block mt-1 md:mt-2">
                 {firstOrder.shipment_status && (
-                  <Typography variant="body2" fontWeight={600} className="text-slate-900 mb-0.5 md:mb-1 text-sm md:text-base">
-                    {getStatusOrderMeliInfo(firstOrder.shipment_status)?.label ||
-                      firstOrder.shipment_status}
+                  <Typography
+                    variant="body2"
+                    fontWeight={600}
+                    className="text-slate-900 mb-0.5 md:mb-1 text-sm md:text-base"
+                  >
+                    {getStatusOrderMeliInfo(firstOrder.shipment_status)
+                      ?.label || firstOrder.shipment_status}
                   </Typography>
                 )}
                 {deliveryInfo && (
-                  <Typography variant="caption" fontWeight={400} className="text-slate-700 text-xs md:text-sm">
+                  <Typography
+                    variant="caption"
+                    fontWeight={400}
+                    className="text-beergam-typography-secondary! text-xs md:text-sm"
+                  >
                     {deliveryInfo.label} {deliveryInfo.date}
                   </Typography>
                 )}
@@ -207,12 +229,15 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
             )}
           </div>
 
-          <BeergamButton title="Ver detalhes" mainColor="beergam-blue-primary" link={`/interno/vendas/${packId}`} className="bg-beergam-orange! text-beergam-white!" />
+          <BeergamButton
+            title="Ver detalhes"
+            link={`/interno/vendas/${packId}`}
+          />
         </div>
 
         {/* Resumo do Pacote */}
         <div
-          className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-2 bg-slate-100 rounded-lg p-2.5 md:p-3 cursor-pointer hover:bg-slate-200 transition-colors"
+          className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-2 bg-beergam-section-background! rounded-lg p-2.5 md:p-3 cursor-pointer hover:bg-beergam-section-background-hover! transition-colors"
           onClick={() => setIsPackageExpanded(!isPackageExpanded)}
         >
           <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
@@ -222,14 +247,16 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
                 e.stopPropagation();
                 setIsPackageExpanded(!isPackageExpanded);
               }}
-              sx={{ 
-                padding: 0, 
-                transform: isPackageExpanded ? "rotate(270deg)" : "rotate(90deg)", 
+              sx={{
+                padding: 0,
+                transform: isPackageExpanded
+                  ? "rotate(270deg)"
+                  : "rotate(90deg)",
                 transition: "transform 0.2s",
                 minWidth: "auto",
               }}
             >
-              <Svg.chevron tailWindClasses="h-4 w-4 md:h-5 md:w-5 text-slate-600" />
+              <Svg.chevron tailWindClasses="h-4 w-4 md:h-5 md:w-5 text-beergam-typography-secondary!" />
             </IconButton>
 
             {/* Thumbnails dos produtos */}
@@ -237,32 +264,50 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
               {thumbnailsToDisplay.map((item, index) => (
                 <div
                   key={index}
-                  className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-white overflow-hidden -ml-3 md:-ml-4 shadow-xs first:ml-0 bg-white flex items-center justify-center"
+                  className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-beergam-section-border! overflow-hidden -ml-3 md:-ml-4 shadow-xs first:ml-0 bg-beergam-section-background! flex items-center justify-center"
                 >
-                    <Thumbnail thumbnail={item.thumbnail || ""} tailWindClasses="w-8! h-8! md:w-10! md:h-10!" />
+                  <Thumbnail
+                    thumbnail={item.thumbnail || ""}
+                    tailWindClasses="w-8! h-8! md:w-10! md:h-10!"
+                  />
                 </div>
               ))}
               {hasMoreItems && (
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-white bg-slate-300 flex items-center justify-center -ml-3 md:-ml-4">
-                  <Typography variant="caption" fontWeight={600} className="text-slate-700 text-xs">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-beergam-section-border! bg-beergam-section-background! flex items-center justify-center -ml-3 md:-ml-4">
+                  <Typography
+                    variant="caption"
+                    fontWeight={600}
+                    className="text-beergam-typography-secondary! text-xs"
+                  >
                     +{remainingCount}
                   </Typography>
                 </div>
               )}
             </div>
 
-            <Typography variant="body2" fontWeight={600} className="text-slate-900 text-sm md:text-base truncate">
+            <Typography
+              variant="body2"
+              fontWeight={600}
+              className="text-beergam-typography-primary! text-sm md:text-base truncate"
+            >
               Pacote de {orders.length} produto{orders.length > 1 ? "s" : ""}
             </Typography>
           </div>
 
           <div className="flex items-center justify-between md:justify-end gap-2 md:gap-4">
             <div className="text-left md:text-right">
-              <Typography variant="h6" fontWeight={700} className="text-slate-900 text-base md:text-xl">
+              <Typography
+                variant="h6"
+                fontWeight={700}
+                className="text-beergam-typography-primary! text-base md:text-xl"
+              >
                 {formatCurrency(packageTotals.totalAmount)}
               </Typography>
               {packageTotals.totalLiquido > 0 && (
-                <Typography variant="caption" color="text.secondary" className="text-xs">
+                <Typography
+                  variant="caption"
+                  className="text-xs text-beergam-typography-secondary!"
+                >
                   Líquido: {formatCurrency(packageTotals.totalLiquido)}
                 </Typography>
               )}
@@ -274,8 +319,8 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
                 height: 24,
                 fontSize: "0.7rem",
                 fontWeight: 600,
-                backgroundColor: "#1e40af",
-                color: "#fff",
+                backgroundColor: "beergam-blue-primary",
+                color: "var(--color-beergam-typography-primary)",
                 "& .MuiChip-label": {
                   px: 1,
                 },
@@ -296,4 +341,3 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
     </MainCards>
   );
 }
-

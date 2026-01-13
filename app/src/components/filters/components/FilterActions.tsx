@@ -39,7 +39,6 @@ export function FilterActions({
       {onSubmit && (
         <BeergamButton
           title={isSubmitting ? submittingLabel : submitLabel}
-          mainColor="beergam-green"
           animationStyle="slider"
           onClick={onSubmit}
           disabled={isSubmitting}
@@ -49,4 +48,3 @@ export function FilterActions({
     </Stack>
   );
 }
-

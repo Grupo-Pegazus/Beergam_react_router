@@ -2,6 +2,7 @@ import { z } from "zod";
 import { RegistroFormSchema } from "~/routes/registro/typings";
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
+import { subscriptionService } from "../plans/subscriptionService";
 import { UserRoles, type Subscription } from "../user/typings/BaseUser";
 import type { IColab } from "../user/typings/Colab";
 import { type IUser } from "../user/typings/User";
@@ -33,25 +34,18 @@ class AuthService {
         }
       );
       if (loginResponse.success) {
-        const subscriptionResponse = await this.getSubscription();
-        if (subscriptionResponse.success) {
-          return {
-            success: true,
-            data: {
-              user: loginResponse.data,
-              subscription: subscriptionResponse.data,
-            },
-            message: "Login realizado com sucesso",
-          };
-        } else {
-          return {
-            success: false,
-            data: {} as LoginResponse,
-            message: subscriptionResponse.message,
-            error_code: subscriptionResponse.error_code,
-            error_fields: subscriptionResponse.error_fields,
-          };
-        }
+        const subscriptionResponse =
+          await subscriptionService.getSubscription();
+        // Permite login mesmo sem subscription (subscription pode ser null)
+        // A ausência de subscription não é um erro que impede o login
+        return {
+          success: true,
+          data: {
+            user: loginResponse.data,
+            subscription: subscriptionResponse.data || null,
+          },
+          message: "Login realizado com sucesso",
+        };
       } else {
         return {
           success: false,

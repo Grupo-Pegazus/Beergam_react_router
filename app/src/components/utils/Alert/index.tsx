@@ -70,6 +70,7 @@ interface AlertProps {
   confirmInput?: ConfirmInputProps | null;
   disabledConfirm?: boolean;
   closeTimer?: CloseTimerProps;
+  disabledBackButton?: boolean;
 }
 /**
  * Alert component
@@ -101,6 +102,7 @@ export default function Alert({
   confirmInput,
   disabledConfirm,
   closeTimer = { time: DEFAULT_CLOSE_TIME_MS, active: false },
+  disabledBackButton = false,
 }: AlertProps) {
   const { closeModal } = useModal();
   const [inputText, setInputText] = useState("");
@@ -130,7 +132,7 @@ export default function Alert({
       {timerConfig.active && (
         <div className="w-full absolute left-0 right-0 bottom-0 h-1 bg-beergam-white/20 rounded-full overflow-hidden">
           <div
-            className="h-full bg-beergam-blue-primary rounded-full transition-all ease-linear"
+            className="h-full bg-beergam-primary rounded-full transition-all ease-linear"
             style={{
               width: "100%",
               animation: `timerProgress ${timerConfig.time}ms linear forwards`,
@@ -159,7 +161,7 @@ export default function Alert({
           customIcon={customIcon}
         />
       </div>
-      <div className="flex text-center md:text-left flex-col items-center justify-center gap-2">
+      <div className="flex text-center md:text-left flex-col items-center justify-center gap-2 w-full">
         {/* {mutation && <p>Mutation:{JSON.stringify(mutation)}</p>} */}
         {children}
       </div>
@@ -191,7 +193,7 @@ export default function Alert({
             }
           />
         )}
-        {type !== "error" && (
+        {type !== "error" && !disabledBackButton && (
           <BeergamButton
             onClick={() => {
               onClose?.();

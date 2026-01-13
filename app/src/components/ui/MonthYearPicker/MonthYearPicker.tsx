@@ -1,13 +1,23 @@
-import { useState, useEffect } from "react";
-import { Popover, Button, Box, IconButton, Typography } from "@mui/material";
+import { Box, Button, IconButton, Popover, Typography } from "@mui/material";
 import dayjs, { type Dayjs } from "dayjs";
 import "dayjs/locale/pt-br";
+import { useEffect, useState } from "react";
 
 dayjs.locale("pt-br");
 
 const MONTHS = [
-  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  "Janeiro",
+  "Fevereiro",
+  "Março",
+  "Abril",
+  "Maio",
+  "Junho",
+  "Julho",
+  "Agosto",
+  "Setembro",
+  "Outubro",
+  "Novembro",
+  "Dezembro",
 ];
 
 interface MonthYearPickerProps {
@@ -30,21 +40,27 @@ export function MonthYearPicker({
   const [view, setView] = useState<"month" | "year">("month");
   const currentDate = value || dayjs();
   const [selectedYear, setSelectedYear] = useState(() => currentDate.year());
-  
+
   // Atualiza o ano selecionado quando o valor muda
   useEffect(() => {
     if (value) {
       setSelectedYear(value.year());
     }
   }, [value]);
-  
+
   const currentYear = dayjs().year();
   const startYear = minYear ?? currentYear - 10;
   const endYear = maxYear ?? currentYear + 10;
-  const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
+  const years = Array.from(
+    { length: endYear - startYear + 1 },
+    (_, i) => startYear + i
+  );
 
   const handleMonthSelect = (monthIndex: number) => {
-    const newDate = dayjs().year(selectedYear).month(monthIndex).startOf("month");
+    const newDate = dayjs()
+      .year(selectedYear)
+      .month(monthIndex)
+      .startOf("month");
     onChange(newDate);
     onClose();
   };
@@ -77,13 +93,19 @@ export function MonthYearPicker({
     >
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {/* Header */}
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <Button
             onClick={() => setView(view === "month" ? "year" : "month")}
             sx={{
               textTransform: "none",
               fontWeight: 600,
-              color: "#1f2a44",
+              color: "var(--color-beergam-typography-tertiary)",
             }}
           >
             {view === "month" ? `${selectedYear}` : "Selecionar Ano"}
@@ -98,14 +120,16 @@ export function MonthYearPicker({
                   setSelectedYear(selectedYear - 1);
                 }
               }}
-              sx={{ 
+              sx={{
                 color: "var(--color-beergam-orange)",
                 "&:hover": {
                   backgroundColor: "rgba(0, 0, 0, 0.04)",
                 },
               }}
             >
-              <Typography sx={{ fontSize: "1.2rem", fontWeight: 700 }}>‹</Typography>
+              <Typography sx={{ fontSize: "1.2rem", fontWeight: 700 }}>
+                ‹
+              </Typography>
             </IconButton>
             <IconButton
               size="small"
@@ -116,14 +140,16 @@ export function MonthYearPicker({
                   setSelectedYear(selectedYear + 1);
                 }
               }}
-              sx={{ 
+              sx={{
                 color: "var(--color-beergam-orange)",
                 "&:hover": {
                   backgroundColor: "rgba(0, 0, 0, 0.04)",
                 },
               }}
             >
-              <Typography sx={{ fontSize: "1.2rem", fontWeight: 700 }}>›</Typography>
+              <Typography sx={{ fontSize: "1.2rem", fontWeight: 700 }}>
+                ›
+              </Typography>
             </IconButton>
           </Box>
         </Box>
@@ -150,13 +176,13 @@ export function MonthYearPicker({
                     fontSize: "0.875rem",
                     borderRadius: "8px",
                     backgroundColor: isSelected
-                      ? "var(--color-beergam-blue-primary)"
+                      ? "var(--color-beergam-primary)"
                       : "transparent",
-                    color: isSelected ? "white" : "#1f2a44",
+                    color: isSelected
+                      ? "var(--color-beergam-white)"
+                      : "var(--color-beergam-typography-tertiary)",
                     "&:hover": {
-                      backgroundColor: isSelected
-                        ? "var(--color-beergam-blue-primary)"
-                        : "rgba(0, 0, 0, 0.04)",
+                      backgroundColor: "var(--color-beergam-primary)",
                     },
                   }}
                 >
@@ -187,13 +213,13 @@ export function MonthYearPicker({
                     fontSize: "0.875rem",
                     borderRadius: "8px",
                     backgroundColor: isSelected
-                      ? "var(--color-beergam-blue-primary)"
+                      ? "var(--color-beergam-primary)"
                       : "transparent",
-                    color: isSelected ? "white" : "#1f2a44",
+                    color: isSelected
+                      ? "var(--color-beergam-white)"
+                      : "var(--color-beergam-typography-tertiary)",
                     "&:hover": {
-                      backgroundColor: isSelected
-                        ? "var(--color-beergam-blue-primary)"
-                        : "rgba(0, 0, 0, 0.04)",
+                      backgroundColor: "var(--color-beergam-primary)",
                     },
                   }}
                 >
@@ -207,4 +233,3 @@ export function MonthYearPicker({
     </Popover>
   );
 }
-

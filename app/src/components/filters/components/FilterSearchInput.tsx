@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { Stack, Typography } from "@mui/material";
-import type { FilterOption } from "../types";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Fields } from "~/src/components/utils/_fields";
+import type { FilterOption } from "../types";
 
 export interface FilterSearchInputProps {
   value: string;
@@ -27,14 +27,13 @@ export function FilterSearchInput({
   searchTypeOptions,
   fullWidth = true,
   widthType = "full",
-
 }: FilterSearchInputProps) {
   // Estado interno para evitar disparar requisição a cada tecla
   const [internalValue, setInternalValue] = useState(value ?? "");
 
   const currentSearchType = useMemo(
     () => searchType ?? searchTypeOptions?.[0]?.value ?? "",
-    [searchType, searchTypeOptions],
+    [searchType, searchTypeOptions]
   );
 
   // Sempre que o value externo mudar (ex: reset vindo de fora), sincroniza o interno
@@ -57,7 +56,7 @@ export function FilterSearchInput({
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setInternalValue(event.target.value);
     },
-    [],
+    []
   );
 
   const handleSearchTypeChange = useCallback(
@@ -66,15 +65,28 @@ export function FilterSearchInput({
         onSearchTypeChange(event.target.value);
       }
     },
-    [onSearchTypeChange],
+    [onSearchTypeChange]
   );
 
-  const hasSearchType = Boolean(searchTypeOptions && searchTypeOptions.length > 0);
+  const hasSearchType = Boolean(
+    searchTypeOptions && searchTypeOptions.length > 0
+  );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8, width: fullWidth ? "100%" : "auto" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+        width: fullWidth ? "100%" : "auto",
+      }}
+    >
       {label && (
-        <Typography variant="subtitle2" color="text.secondary" fontWeight={600}>
+        <Typography
+          variant="subtitle2"
+          className="text-beergam-typography-secondary"
+          fontWeight={600}
+        >
           {label}
         </Typography>
       )}
@@ -97,7 +109,12 @@ export function FilterSearchInput({
             value={currentSearchType}
             onChange={handleSearchTypeChange}
             disabled={disabled}
-            options={searchTypeOptions?.map((opt) => ({ value: opt.value, label: opt.label })) || []}
+            options={
+              searchTypeOptions?.map((opt) => ({
+                value: opt.value,
+                label: opt.label,
+              })) || []
+            }
             tailWindClasses="rounded-3xl"
           />
         )}
