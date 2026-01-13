@@ -30,7 +30,7 @@ import Section from "~/src/components/ui/Section";
 import Alert from "~/src/components/utils/Alert";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
-import estoque_preview from "~/src/temp/estoque_preview.png";
+// import estoque_preview from "~/src/temp/estoque_preview.png";
 import ExcedentBenefits from "./ExcedentBenefits";
 import PlansCardMini from "./PlansCardMini";
 export default function MinhaAssinatura() {
@@ -234,7 +234,6 @@ export default function MinhaAssinatura() {
                       </p>
                       <div className="swiper-zoom-container w-full h-full flex items-center justify-center">
                         <img
-                          src={estoque_preview}
                           alt="Controle de Estoque"
                           className="w-full h-full object-cover rounded-lg"
                         />
