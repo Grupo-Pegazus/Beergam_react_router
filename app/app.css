@@ -83,6 +83,25 @@
 .border-theme {
   border-color: var(--color-border);
 }
+/* Configurações do Swiper */
+.swiper-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.swiper-pagination-bullet {
+  background-color: var(--color-beergam-primary) !important;
+  width: 20px !important;
+  height: 20px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.swiper-pagination-bullet-active {
+  background-color: var(--color-beergam-primary) !important;
+  transform: scale(1.2) !important;
+}
 
 /* Modo Escuro - cores que mudam automaticamente */
 .dark {
