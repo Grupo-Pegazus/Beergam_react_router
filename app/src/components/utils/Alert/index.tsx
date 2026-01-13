@@ -70,6 +70,7 @@ interface AlertProps {
   confirmInput?: ConfirmInputProps | null;
   disabledConfirm?: boolean;
   closeTimer?: CloseTimerProps;
+  disabledBackButton?: boolean;
 }
 /**
  * Alert component
@@ -101,6 +102,7 @@ export default function Alert({
   confirmInput,
   disabledConfirm,
   closeTimer = { time: DEFAULT_CLOSE_TIME_MS, active: false },
+  disabledBackButton = false,
 }: AlertProps) {
   const { closeModal } = useModal();
   const [inputText, setInputText] = useState("");
@@ -159,7 +161,7 @@ export default function Alert({
           customIcon={customIcon}
         />
       </div>
-      <div className="flex text-center md:text-left flex-col items-center justify-center gap-2">
+      <div className="flex text-center md:text-left flex-col items-center justify-center gap-2 w-full">
         {/* {mutation && <p>Mutation:{JSON.stringify(mutation)}</p>} */}
         {children}
       </div>
@@ -191,7 +193,7 @@ export default function Alert({
             }
           />
         )}
-        {type !== "error" && (
+        {type !== "error" && !disabledBackButton && (
           <BeergamButton
             onClick={() => {
               onClose?.();

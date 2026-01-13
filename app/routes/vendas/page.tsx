@@ -45,7 +45,7 @@ export default function VendasPage() {
         <Section
           title="Faturamento Diário"
           actions={
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-beergam-typography-secondary">
               Dados dos últimos 30 dias
             </span>
           }

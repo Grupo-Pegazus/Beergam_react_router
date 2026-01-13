@@ -1,17 +1,17 @@
-import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
-import Section from "~/src/components/ui/Section";
-import Grid from "~/src/components/ui/Grid";
+import { QuestionsFilters as QuestionsFiltersBar } from "~/features/perguntas/components/QuestionsFilters";
+import { QuestionsList } from "~/features/perguntas/components/QuestionsList";
+import { QuestionsMetrics } from "~/features/perguntas/components/QuestionsMetrics";
 import { perguntasService } from "~/features/perguntas/service";
 import type {
   QuestionsFilters,
   QuestionsFiltersState,
   QuestionsInsights,
 } from "~/features/perguntas/typings";
-import { QuestionsFilters as QuestionsFiltersBar } from "~/features/perguntas/components/QuestionsFilters";
-import { QuestionsMetrics } from "~/features/perguntas/components/QuestionsMetrics";
-import { QuestionsList } from "~/features/perguntas/components/QuestionsList";
+import Grid from "~/src/components/ui/Grid";
+import Section from "~/src/components/ui/Section";
 
 const DEFAULT_FILTERS: QuestionsFiltersState = {
   status: "",
@@ -26,15 +26,25 @@ const DEFAULT_FILTERS: QuestionsFiltersState = {
   sort_order: "desc",
 };
 
-function mapToApiFilters(filters: QuestionsFiltersState): Partial<QuestionsFilters> {
+function mapToApiFilters(
+  filters: QuestionsFiltersState
+): Partial<QuestionsFilters> {
   return {
     status: filters.status || undefined,
     item_id: filters.item_id || undefined,
     text: filters.text || undefined,
     answered:
-      filters.answered === "all" ? undefined : filters.answered === "answered" ? true : false,
-    date_from: filters.date_from ? new Date(filters.date_from).toISOString() : undefined,
-    date_to: filters.date_to ? new Date(filters.date_to).toISOString() : undefined,
+      filters.answered === "all"
+        ? undefined
+        : filters.answered === "answered"
+          ? true
+          : false,
+    date_from: filters.date_from
+      ? new Date(filters.date_from).toISOString()
+      : undefined,
+    date_to: filters.date_to
+      ? new Date(filters.date_to).toISOString()
+      : undefined,
     page: filters.page,
     per_page: filters.per_page,
     sort_by: filters.sort_by,
@@ -43,11 +53,16 @@ function mapToApiFilters(filters: QuestionsFiltersState): Partial<QuestionsFilte
 }
 
 export default function PerguntasPage() {
-  const [filters, setFilters] = useState<QuestionsFiltersState>(DEFAULT_FILTERS);
-  const [appliedFilters, setAppliedFilters] = useState<QuestionsFiltersState>(DEFAULT_FILTERS);
+  const [filters, setFilters] =
+    useState<QuestionsFiltersState>(DEFAULT_FILTERS);
+  const [appliedFilters, setAppliedFilters] =
+    useState<QuestionsFiltersState>(DEFAULT_FILTERS);
   const queryClient = useQueryClient();
 
-  const apiFilters = useMemo(() => mapToApiFilters(appliedFilters), [appliedFilters]);
+  const apiFilters = useMemo(
+    () => mapToApiFilters(appliedFilters),
+    [appliedFilters]
+  );
 
   const questionsQuery = useQuery({
     queryKey: ["questions", apiFilters],
@@ -61,7 +76,9 @@ export default function PerguntasPage() {
   });
 
   const insights: QuestionsInsights | undefined =
-    (questionsQuery.data?.success ? questionsQuery.data.data.insights : undefined) ??
+    (questionsQuery.data?.success
+      ? questionsQuery.data.data.insights
+      : undefined) ??
     (metricsQuery.data?.success ? metricsQuery.data.data.insights : undefined);
 
   const questions = useMemo(() => {
@@ -70,20 +87,27 @@ export default function PerguntasPage() {
     return Array.isArray(qs) ? qs : [];
   }, [questionsQuery.data]);
 
-  const pagination = questionsQuery.data?.success ? questionsQuery.data.data.pagination : undefined;
+  const pagination = questionsQuery.data?.success
+    ? questionsQuery.data.data.pagination
+    : undefined;
 
   const answerMutation = useMutation({
-    mutationFn: ({ questionId, answer }: { questionId: string; answer: string }) =>
-      perguntasService.answer(questionId, answer),
+    mutationFn: ({
+      questionId,
+      answer,
+    }: {
+      questionId: string;
+      answer: string;
+    }) => perguntasService.answer(questionId, answer),
     onSuccess: async (response) => {
       if (!response.success) {
         toast.error(response.message || "Não foi possível enviar a resposta.");
         throw new Error(response.message || "Erro ao enviar resposta");
       }
       toast.success("Resposta enviada com sucesso.");
-      
+
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+
       queryClient.invalidateQueries({ queryKey: ["questions"] });
       queryClient.invalidateQueries({ queryKey: ["questions_metrics"] });
       await questionsQuery.refetch();
@@ -121,10 +145,10 @@ export default function PerguntasPage() {
   return (
     <>
       <Grid cols={{ base: 1 }} gap={4} className="mb-4">
-        <Section 
+        <Section
           title="Visão geral"
           actions={
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-beergam-typography-secondary">
               Dados dos últimos 30 dias
             </span>
           }
@@ -135,9 +159,7 @@ export default function PerguntasPage() {
           />
         </Section>
 
-        <Section
-          title="Filtrar perguntas"
-        >
+        <Section title="Filtrar perguntas">
           <QuestionsFiltersBar
             value={filters}
             onChange={handleFiltersChange}
@@ -150,10 +172,10 @@ export default function PerguntasPage() {
           title="Perguntas"
           actions={
             <div className="flex flex-col items-end gap-1">
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-beergam-typography-secondary">
                 {pagination ? `${pagination.total_count} encontradas` : "—"}
               </span>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-beergam-typography-secondary">
                 Dados dos últimos 30 dias
               </span>
             </div>
@@ -171,4 +193,3 @@ export default function PerguntasPage() {
     </>
   );
 }
-

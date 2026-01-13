@@ -18,9 +18,13 @@ interface OrderItemCardProps {
 
 function CardInfo({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="flex flex-col gap-0.5 md:gap-1 w-max text-nowrap text-center flex-1 bg-white rounded-lg py-1 px-1.5 md:px-2 border border-slate-200">
-      <p className="text-slate-500 text-xs! md:text-sm! font-medium">{label}</p>
-      <h3 className="text-slate-900 text-xs! md:text-sm! font-bold">{value}</h3>
+    <div className="flex flex-col gap-0.5 md:gap-1 w-max text-nowrap text-center flex-1 bg-beergam-mui-paper! rounded-lg py-1 px-1.5 md:px-2 border border-beergam-section-border!">
+      <p className="text-beergam-typography-secondary! text-xs! md:text-sm! font-medium">
+        {label}
+      </p>
+      <h3 className="text-beergam-primary! text-xs! md:text-sm! font-bold">
+        {value}
+      </h3>
     </div>
   );
 }
@@ -37,9 +41,11 @@ function ProfitCardInfo({
   options?: { money?: boolean; percentage?: boolean };
 }) {
   return (
-    <div className="flex flex-col gap-0.5 md:gap-1 w-full md:w-[50%] text-center flex-1 bg-white rounded-lg py-1 px-1.5 md:px-2 border border-slate-200">
-      <p className="text-slate-500 text-xs! md:text-sm! font-medium">{label}</p>
-      <h3 className="text-xs! md:text-sm! font-bold text-green-500">
+    <div className="flex flex-col gap-0.5 md:gap-1 w-full md:w-[50%] text-center flex-1 bg-beergam-mui-paper! rounded-lg py-1 px-1.5 md:px-2 border border-beergam-section-border!">
+      <p className="text-beergam-typography-secondary! text-xs! md:text-sm! font-medium">
+        {label}
+      </p>
+      <h3 className="text-xs! md:text-sm! font-bold text-beergam-primary!">
         {censored ? "****" : formatCurrency(value, options)}
       </h3>
     </div>
@@ -65,7 +71,7 @@ export default function OrderItemCard({
       : 0;
 
   return (
-    <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-2 bg-slate-200 rounded-lg p-2 md:p-2 w-full min-w-0">
+    <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-2 bg-beergam-section-background! rounded-lg p-2 md:p-2 w-full min-w-0">
       <CensorshipWrapper
         canChange={censorshipKey === "vendas_orders_list_details"}
         censorshipKey={censorshipKey}
@@ -81,7 +87,7 @@ export default function OrderItemCard({
               <Typography
                 variant="body2"
                 fontWeight={600}
-                className="text-slate-900 text-sm md:text-base"
+                className="text-beergam-typography-primary! text-sm md:text-base"
                 noWrap
                 sx={{
                   overflow: "hidden",
@@ -98,8 +104,7 @@ export default function OrderItemCard({
 
             <Typography
               variant="caption"
-              color="text.secondary"
-              className="text-xs md:text-sm"
+              className="text-xs md:text-sm text-beergam-typography-secondary!"
             >
               {censored ? "****" : order.mlb || "—"} |{" "}
               {censored ? "****" : order.sku || "—"}
@@ -107,8 +112,7 @@ export default function OrderItemCard({
             {order.ad_type && (
               <Typography
                 variant="caption"
-                color="text.secondary"
-                className="text-xs md:text-sm"
+                className="text-xs md:text-sm text-beergam-typography-secondary!"
               >
                 {order.ad_type}
               </Typography>
@@ -118,33 +122,31 @@ export default function OrderItemCard({
 
         {/* Mobile: Resumo básico com botão de expandir */}
         <div className="flex md:hidden items-center justify-between gap-2">
-          <div className="flex items-center gap-2 bg-slate-100 px-2 py-1 rounded-lg">
+          <div className="flex items-center gap-2 bg-beergam-section-background! px-2 py-1 rounded-lg">
             <Typography
               variant="caption"
-              color="text.secondary"
-              className="text-xs"
+              className="text-xs text-beergam-typography-secondary!"
             >
               Qtd:
             </Typography>
             <Typography
-              variant="body2"
+              variant="caption"
               fontWeight={600}
-              className="text-slate-900 text-sm"
+              className="text-beergam-typography-primary! text-sm"
             >
               {censored ? "****" : order.quantity || 0}
             </Typography>
             <span className="text-slate-300">|</span>
             <Typography
               variant="caption"
-              color="text.secondary"
-              className="text-xs"
+              className="text-xs text-beergam-typography-secondary!"
             >
               Total Bruto:
             </Typography>
             <Typography
-              variant="body2"
+              variant="caption"
               fontWeight={700}
-              className="text-slate-900 text-sm"
+              className="text-beergam-typography-primary! text-sm"
             >
               {censored ? "****" : formatCurrency(order.total_amount)}
             </Typography>
@@ -153,7 +155,7 @@ export default function OrderItemCard({
           {/* Botão de expandir - Apenas mobile */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center justify-center w-8 h-8 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 transition-colors touch-manipulation shrink-0"
+            className="flex items-center justify-center w-8 h-8 rounded-lg border border-beergam-blue-primary! bg-beergam-blue-primary! hover:bg-beergam-blue-primary-dark! active:bg-beergam-blue-primary-dark! transition-colors touch-manipulation shrink-0"
             aria-label={
               isExpanded
                 ? "Recolher detalhes financeiros"
@@ -170,7 +172,7 @@ export default function OrderItemCard({
 
         {/* Mobile: Detalhes financeiros - Expandido */}
         {isExpanded && (
-          <div className="flex flex-col md:hidden gap-1.5 bg-slate-100 p-2 rounded-lg w-full">
+          <div className="flex flex-col md:hidden gap-1.5 bg-beergam-section-background! p-2 rounded-lg w-full">
             <div className="grid grid-cols-2 gap-1.5">
               <CardInfo
                 label="Bruto:"
@@ -204,7 +206,7 @@ export default function OrderItemCard({
         )}
 
         {/* Desktop: Detalhes financeiros - Sempre visíveis */}
-        <div className="hidden md:flex flex-col items-center gap-2 w-[max-content] bg-slate-100 p-2 rounded-lg shrink-0">
+        <div className="hidden md:flex flex-col items-center gap-2 w-[max-content] bg-beergam-section-background! p-2 rounded-lg shrink-0">
           <div className="flex items-center gap-2 w-full">
             <CardInfo
               label="Qtd:"

@@ -81,8 +81,7 @@ export default function OrderCard({ order }: OrderCardProps) {
               <div className="flex items-center gap-1">
                 <Typography
                   variant="caption"
-                  color="text.secondary"
-                  className="font-mono text-xs md:text-sm"
+                  className="font-mono text-xs md:text-sm text-beergam-typography-secondary!"
                 >
                   #{order.order_id}
                 </Typography>
@@ -95,8 +94,7 @@ export default function OrderCard({ order }: OrderCardProps) {
               <span className="text-slate-300 hidden md:inline">|</span>
               <Typography
                 variant="caption"
-                color="text.secondary"
-                className="text-xs md:text-sm"
+                className="text-xs md:text-sm text-beergam-typography-secondary!"
               >
                 {formatDate(order.date_created)}
               </Typography>
@@ -118,15 +116,15 @@ export default function OrderCard({ order }: OrderCardProps) {
             </div>
             {order.buyer_nickname && (
               <div className="flex items-center gap-1.5 md:gap-2">
-                <Svg.profile tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4 text-slate-500" />
+                <Svg.profile tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4 text-beergam-typography-secondary!" />
                 <TextCensored
                   forceCensor={censored}
                   censorshipKey="vendas_orders_list"
                   replacement="*"
                 >
                   <Typography
-                    variant="body2"
-                    className="text-slate-900 text-sm md:text-base"
+                    variant="caption"
+                    className="text-beergam-typography-primary! text-sm md:text-base"
                   >
                     {order.buyer_nickname} - {order.client?.receiver_name}
                   </Typography>
@@ -142,8 +140,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                     >
                       <Typography
                         variant="caption"
-                        color="text.secondary"
-                        className="text-xs md:text-sm"
+                        className="text-xs md:text-sm text-beergam-typography-secondary!"
                       >
                         {order.buyer_id}
                       </Typography>
@@ -189,9 +186,9 @@ export default function OrderCard({ order }: OrderCardProps) {
                     <div className="mt-1 md:mt-2">
                       {order.shipment_status && (
                         <Typography
-                          variant="body2"
+                          variant="caption"
                           fontWeight={600}
-                          className="text-slate-900 mb-0.5 md:mb-1 text-sm md:text-base"
+                          className="text-beergam-typography-primary! mb-0.5 md:mb-1 text-sm md:text-base"
                         >
                           {getStatusOrderMeliInfo(order.shipment_status)
                             ?.label || order.shipment_status}
@@ -201,7 +198,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                         <Typography
                           variant="caption"
                           fontWeight={400}
-                          className="text-slate-700 text-xs md:text-sm"
+                          className="text-beergam-typography-secondary! text-xs md:text-sm"
                         >
                           {censored ? "************" : deliveryInfo.label}{" "}
                           {censored ? "****" : deliveryInfo.date}
@@ -215,9 +212,7 @@ export default function OrderCard({ order }: OrderCardProps) {
 
             <BeergamButton
               title="Ver detalhes"
-              mainColor="beergam-blue-primary"
               link={`/interno/vendas/${order.order_id}`}
-              className="bg-beergam-orange! text-beergam-white!"
             />
           </div>
 
