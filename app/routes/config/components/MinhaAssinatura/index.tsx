@@ -22,13 +22,19 @@ import {
 } from "~/features/user/typings/BaseUser";
 import type { IUser } from "~/features/user/typings/User";
 import { isMaster } from "~/features/user/utils";
+import {
+  BeergamSlider,
+  BeergamSliderWrapper,
+} from "~/src/components/ui/BeergamSlider";
 import Section from "~/src/components/ui/Section";
 import Alert from "~/src/components/utils/Alert";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
+// import estoque_preview from "~/src/temp/estoque_preview.png";
 import ExcedentBenefits from "./ExcedentBenefits";
 import PlansCardMini from "./PlansCardMini";
 export default function MinhaAssinatura() {
+  const subscriptionError = authStore.use.error();
   const queryClient = useQueryClient();
   function getColabsExcedent({
     //Função para calcular a quantidade de colaboradores excedentes
@@ -203,6 +209,88 @@ export default function MinhaAssinatura() {
 
     void handlePaymentSuccess();
   }, [searchParams, setSearchParams, setSubscription]);
+  useEffect(() => {
+    if (subscriptionError) {
+      switch (subscriptionError) {
+        case "SUBSCRIPTION_NOT_FOUND":
+          openModal(
+            <Alert type="info" disabledBackButton={true}>
+              <p className="text-beergam-typography-tertiary!">
+                Verificamos que você não possui uma assinatura ativa. Assine um
+                dos nossos planos para continuar.
+              </p>
+              <BeergamSliderWrapper>
+                <BeergamSlider
+                  slidesPerView={1}
+                  zoom={true}
+                  slides={[
+                    <div key="slide-1" className="flex flex-col gap-2">
+                      <h3 className="text-beergam-typography-primary!">
+                        Controle de Estoque
+                      </h3>
+                      <p>
+                        Gerencie seu estoque de forma eficiente e organize suas
+                        mercadorias de forma simples e intuitiva.
+                      </p>
+                      <div className="swiper-zoom-container w-full h-full flex items-center justify-center">
+                        <img
+                          alt="Controle de Estoque"
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      </div>
+                    </div>,
+                    <div key="slide-2">
+                      <h3>Gestão Financeira Integrada</h3>
+                      <p>
+                        Gerencie suas finanças de forma eficiente e organize
+                        suas contas de forma simples e intuitiva.
+                      </p>
+                    </div>,
+                    <div key="slide-3">
+                      <h3>SAC</h3>
+                      <p>
+                        Tenha acesso a um canal de atendimento personalizado,
+                        com suporte técnico e comercial para resolver qualquer
+                        dúvida.
+                      </p>
+                    </div>,
+                    <div key="slide-4">
+                      <h3>Comunidade Beergam</h3>
+                      <p>
+                        Tenha acesso a uma comunidade de colaboradores e
+                        clientes, com suporte técnico e comercial para resolver
+                        qualquer dúvida.
+                      </p>
+                    </div>,
+                  ]}
+                />
+              </BeergamSliderWrapper>
+              <p className="text-beergam-typography-secondary!">
+                Se você acredita que isso é um erro, entre em contato com o
+                suporte.
+              </p>
+            </Alert>,
+            {
+              title: "Sem Assinatura",
+            }
+          );
+          break;
+        case "SUBSCRIPTION_CANCELLED":
+          openModal(
+            <Alert type="error" closeTimer={{ time: 50000, active: true }}>
+              <p className="text-beergam-typography-tertiary!">
+                Verificamos que você cancelou sua assinatura. Assine um dos
+                nossos planos para continuar.
+              </p>
+            </Alert>,
+            {
+              title: "Assinatura cancelada",
+            }
+          );
+          break;
+      }
+    }
+  }, [subscriptionError]);
   const openCenteredWindow = (
     url: string,
     width: number = 800,
@@ -262,80 +350,89 @@ export default function MinhaAssinatura() {
       </div>
     );
   }
-
   return (
     <>
-      <Section
-        className="bg-beergam-mui-paper!"
-        title="Informações da Assinatura"
-        actions={
-          <>
-            {!isLoadingSubscription && (
-              <BeergamButton
-                title="Gerenciar Assinatura"
-                icon="card"
-                onClick={handleManageBilling}
-                loading={isBillingLoading}
+      {/* {subscriptionError &&
+        openModal(
+          <Alert type="error" closeTimer={{ time: 30000, active: true }}>
+            <h1>Bá pia achamo um erro ai na assinatura</h1>
+          </Alert>
+        )} */}
+      {subscriptionError !== "SUBSCRIPTION_NOT_FOUND" && (
+        <Section
+          className="bg-beergam-mui-paper!"
+          title="Informações da Assinatura"
+          actions={
+            <>
+              {!isLoadingSubscription && (
+                <BeergamButton
+                  title="Gerenciar Assinatura"
+                  icon="card"
+                  onClick={handleManageBilling}
+                  loading={isBillingLoading}
+                />
+              )}
+            </>
+          }
+        >
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <UserFields
+                label="Status da Assinatura"
+                name="status"
+                canAlter={false}
+                value={
+                  SubscriptionStatus[
+                    subscription?.status as unknown as keyof typeof SubscriptionStatus
+                  ]
+                }
+                loading={isLoadingSubscription}
               />
-            )}
-          </>
-        }
-      >
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <UserFields
-              label="Status da Assinatura"
-              name="status"
-              canAlter={false}
-              value={
-                SubscriptionStatus[
-                  subscription?.status as unknown as keyof typeof SubscriptionStatus
-                ]
-              }
-              loading={isLoadingSubscription}
-            />
-            <UserFields
-              label="Início"
-              name="start_date"
-              canAlter={false}
-              value={
-                subscription?.start_date
-                  ? new Date(subscription.start_date).toLocaleDateString(
-                      "pt-BR"
-                    )
-                  : ""
-              }
-              loading={isLoadingSubscription}
-            />
-            <UserFields
-              label="Término"
-              name="end_date"
-              canAlter={false}
-              value={
-                subscription?.end_date
-                  ? new Date(subscription.end_date).toLocaleDateString("pt-BR")
-                  : ""
-              }
-              loading={isLoadingSubscription}
-            />
-            <UserFields
-              label="Plano Atual"
-              name="plan_name"
-              canAlter={false}
-              value={getPlanDisplayName()}
-              loading={isLoadingSubscription}
-            />
-          </div>
-          <Section title="Seus Benefícios">
-            <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
-              <PlanBenefitsCard
-                loading={isLoadingPlans}
-                benefits={subscription?.plan?.benefits ?? null}
+              <UserFields
+                label="Início"
+                name="start_date"
+                canAlter={false}
+                value={
+                  subscription?.start_date
+                    ? new Date(subscription.start_date).toLocaleDateString(
+                        "pt-BR"
+                      )
+                    : ""
+                }
+                loading={isLoadingSubscription}
+              />
+              <UserFields
+                label="Término"
+                name="end_date"
+                canAlter={false}
+                value={
+                  subscription?.end_date
+                    ? new Date(subscription.end_date).toLocaleDateString(
+                        "pt-BR"
+                      )
+                    : ""
+                }
+                loading={isLoadingSubscription}
+              />
+              <UserFields
+                label="Plano Atual"
+                name="plan_name"
+                canAlter={false}
+                value={getPlanDisplayName()}
+                loading={isLoadingSubscription}
               />
             </div>
-          </Section>
-        </div>
-      </Section>
+            <Section title="Seus Benefícios">
+              <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+                <PlanBenefitsCard
+                  loading={isLoadingPlans}
+                  benefits={subscription?.plan?.benefits ?? null}
+                />
+              </div>
+            </Section>
+          </div>
+        </Section>
+      )}
       <Section title="Nossos Planos" className="bg-beergam-mui-paper!">
         <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
           {isLoadingPlans ? (

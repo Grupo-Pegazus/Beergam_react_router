@@ -61,6 +61,10 @@ export default function LoginForm({
         navigate("/interno/config?session=Minha Assinatura", {
           viewTransition: true,
         });
+      } else if (data.data.subscription?.status === "CANCELED") {
+        navigate("/interno/config?session=Minha Assinatura", {
+          viewTransition: true,
+        });
       } else {
         navigate("/interno/choosen_account", { viewTransition: true });
       }
@@ -71,7 +75,7 @@ export default function LoginForm({
       turnstileRef.current?.reset();
       setTurnstileToken("");
       storeLogin(null, null);
-      return error.message;
+      return `Erro ao fazer login: ${error.message}`;
     },
   });
   const {
@@ -106,6 +110,7 @@ export default function LoginForm({
       loading: "Fazendo login...",
       success: "Login realizado com sucesso",
       error: (error) => {
+        console.log("Erro do login", error);
         if (error instanceof Error) {
           return error.message;
         }

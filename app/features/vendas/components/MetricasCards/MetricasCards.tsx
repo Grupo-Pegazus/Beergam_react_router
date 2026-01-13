@@ -117,7 +117,7 @@ export default function MetricasCards() {
     >
       <div className="space-y-4 md:space-y-6">
         <div>
-          <h4 className="text-xs md:text-sm font-semibold text-slate-700 mb-2 md:mb-3">
+          <h4 className="text-xs md:text-sm font-semibold text-beergam-typography-secondary mb-2 md:mb-3">
             Suas vendas
           </h4>
           <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
@@ -145,7 +145,7 @@ export default function MetricasCards() {
         </div>
 
         <div>
-          <h4 className="text-xs md:text-sm font-semibold text-slate-700 mb-2 md:mb-3">
+          <h4 className="text-xs md:text-sm font-semibold text-beergam-typography-secondary mb-2 md:mb-3">
             Faturamento
           </h4>
           <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
@@ -162,7 +162,7 @@ export default function MetricasCards() {
                   <StatCard
                     censorshipKey={card.censorshipKey}
                     icon={createElement(Svg[card.icon], {
-                      tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
+                      tailWindClasses: "h-5 w-5 text-beergam-white",
                     })}
                     title={card.label}
                     value={formattedValue}

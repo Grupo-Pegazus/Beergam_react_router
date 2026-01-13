@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
 import { Divider, Paper, Stack } from "@mui/material";
+import type { ReactNode } from "react";
 
 export interface FilterContainerProps {
   children: ReactNode;
@@ -10,10 +10,7 @@ export interface FilterContainerProps {
  * Container base para filtros com estilo charmoso
  * Reutilizável e consistente em todo o sistema
  */
-export function FilterContainer({
-  children,
-  sections,
-}: FilterContainerProps) {
+export function FilterContainer({ children, sections }: FilterContainerProps) {
   return (
     <Paper
       elevation={0}
@@ -21,9 +18,6 @@ export function FilterContainer({
         borderRadius: 4,
         border: "1px solid rgba(15, 23, 42, 0.08)",
         padding: { xs: 2, md: 3 },
-        background:
-          "linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95))",
-        boxShadow: "0 20px 35px -25px rgba(15, 23, 42, 0.4)",
         mb: 4,
       }}
     >
@@ -44,4 +38,3 @@ export function FilterContainer({
     </Paper>
   );
 }
-
