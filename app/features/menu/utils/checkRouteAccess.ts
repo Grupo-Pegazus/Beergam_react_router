@@ -22,38 +22,46 @@ export function checkRouteAccess(
   currentPath: string,
   allowedViews: MenuState | undefined
 ): boolean {
-  // Rotas especiais sempre têm acesso
   if (SPECIAL_ROUTES.includes(currentPath)) {
     return true;
   }
 
-  // Se não há permissões definidas, nega acesso por padrão (segurança)
   if (!allowedViews) {
     return false;
   }
 
-  // Encontra qual item do menu corresponde à rota atual
   const { keyChain } = findKeyPathByRoute(MenuConfig, currentPath);
   
-  // Se não encontrou nenhuma correspondência no menu, nega acesso por segurança
-  // (a menos que seja uma rota especial já tratada acima)
   if (keyChain.length === 0) {
     return false;
   }
 
-  // Verifica acesso para cada item da cadeia
-  // Se algum item da cadeia não tiver acesso, nega acesso
   for (let i = 0; i < keyChain.length; i++) {
-    const key = keyChain[i] as MenuKeys;
-    const hasAccess = allowedViews[key]?.access ?? false;
+    const key = keyChain[i];
+    const isMainMenuKey = key in allowedViews;
     
-    // Se encontrou um item sem acesso, nega acesso
-    if (!hasAccess) {
-      return false;
+    if (isMainMenuKey) {
+      const hasAccess = allowedViews[key as MenuKeys]?.access ?? false;
+      
+      if (!hasAccess) {
+        return false;
+      }
+    } else {
+      let ancestorHasAccess = false;
+      for (let j = i - 1; j >= 0; j--) {
+        const ancestorKey = keyChain[j];
+        if (ancestorKey in allowedViews) {
+          ancestorHasAccess = allowedViews[ancestorKey as MenuKeys]?.access ?? false;
+          break;
+        }
+      }
+      
+      if (!ancestorHasAccess) {
+        return false;
+      }
     }
   }
   
-  // Se todos os itens da cadeia têm acesso, permite
   return true;
 }
 
