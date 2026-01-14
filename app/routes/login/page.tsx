@@ -1,8 +1,11 @@
 import { Paper } from "@mui/material";
-import { useCallback, useMemo, useState } from "react";
-import { Link } from "react-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
+import { isSubscriptionError } from "~/features/auth/utils";
+import { subscriptionService } from "~/features/plans/subscriptionService";
+import authStore from "~/features/store-zustand";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import type { IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
@@ -18,9 +21,20 @@ export default function LoginPage({
 }) {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [currentUserType, setCurrentUserType] = useState<UserRoles>(userType);
+  const [isLoadingSubscription, setIsLoadingSubscription] = useState(false);
+  const navigate = useNavigate();
+  const isMountedRef = useRef(true);
   const { isLoggingOut, logout } = useLogoutFlow({
     redirectTo: "/login",
   });
+
+  // Limpa o ref quando o componente desmontar
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
   function ButtonChangeUserType({
     currentUserType,
     userType,
@@ -46,6 +60,80 @@ export default function LoginPage({
   const handleUserTypeChange = useCallback((userType: UserRoles) => {
     setCurrentUserType(userType);
   }, []);
+
+  const handleContinue = useCallback(async () => {
+    if (isLoadingSubscription) return;
+    
+    setIsLoadingSubscription(true);
+    try {
+      await subscriptionService.getSubscription();
+      
+      // Verifica se o componente ainda está montado antes de atualizar estado
+      if (!isMountedRef.current) return;
+      
+      // Verifica se o usuário ainda está logado após a requisição
+      // Se o refresh token expirar durante a requisição, o interceptor chama logout() automaticamente
+      // e limpa o user. Nesse caso, não navega (o AuthLayout já vai redirecionar para /login)
+      const currentUser = authStore.getState().user;
+      if (!currentUser) {
+        setIsLoadingSubscription(false);
+        return;
+      }
+      
+      // Verifica se há erro de subscription (ex: CANCELED)
+      // Se houver, navega para a página de configuração de assinatura
+      // Isso evita loop de redirecionamento com o AuthLayout
+      const authError = authStore.getState().error;
+      const subscription = authStore.getState().subscription;
+      
+      if (authError && isSubscriptionError(authError)) {
+        // Se há erro de subscription, navega para a página de assinatura
+        navigate("/interno/config?session=Minha Assinatura", { replace: true });
+        setIsLoadingSubscription(false);
+        return;
+      }
+      
+      // Verifica se a subscription é válida antes de navegar para /interno/choosen_account
+      // Uma subscription válida precisa:
+      // 1. Não ser null
+      // 2. Ter start_date não null
+      // 3. Não ter status "CANCELED"
+      // Se não for válida, navega para a página de configuração de assinatura
+      if (!subscription || !subscription.start_date) {
+        // Subscription não existe ou não tem start_date
+        navigate("/interno/config?session=Minha Assinatura", { replace: true });
+        setIsLoadingSubscription(false);
+        return;
+      }
+      
+      // Verifica também o status da subscription diretamente
+      // (caso o erro não tenha sido setado ainda)
+      // O status vem da API como string "CANCELED", precisa fazer cast para comparar
+      if ((subscription.status as string) === "CANCELED") {
+        navigate("/interno/config?session=Minha Assinatura", { replace: true });
+        setIsLoadingSubscription(false);
+        return;
+      }
+      
+      // Só navega para /interno/choosen_account se a subscription for válida
+      navigate("/interno/choosen_account");
+    } catch (error) {
+      // Este catch nunca será executado pois getSubscription não lança exceções
+      // Mas mantemos para segurança futura
+      console.error("Erro inesperado ao buscar subscription:", error);
+      if (isMountedRef.current) {
+        const currentUser = authStore.getState().user;
+        if (currentUser) {
+          navigate("/interno/choosen_account");
+        }
+      }
+    } finally {
+      // Só atualiza estado se o componente ainda estiver montado
+      if (isMountedRef.current) {
+        setIsLoadingSubscription(false);
+      }
+    }
+  }, [isLoadingSubscription, navigate]);
 
   const Form = useMemo(() => {
     return (
@@ -112,7 +200,8 @@ export default function LoginPage({
           <BeergamButton
             title="Continuar"
             icon="arrow_uturn_right"
-            link="/interno/choosen_account"
+            onClick={handleContinue}
+            loading={isLoadingSubscription}
             mainColor="beergam-orange"
           />
           <BeergamButton
