@@ -2,7 +2,6 @@ import React from "react";
 import { useCensorship } from "~/src/components/utils/Censorship/CensorshipContext";
 import { TextCensored } from "~/src/components/utils/Censorship/TextCensored";
 import Hint from "~/src/components/utils/Hint";
-import styles from "./DetalhesPedido.module.css";
 
 interface DetalhesPedidoProps {
   titulo: string;
@@ -36,11 +35,13 @@ function DetalhesPedido({
 
   return (
     <div
-      className={`${styles.detalhesPedido} ${isHighlight ? styles.highlight : ""}`}
+      className={`flex items-center justify-between py-4 border-b border-white/10 ${
+        isHighlight ? "border-b-2 border-white/20 pt-4 mt-2" : ""
+      }`}
       style={style}
     >
-      <div className={styles.header}>
-        <p>{titulo}</p>
+      <div className="flex gap-2 max-[488px]:flex-col">
+        <p className="text-lg text-beergam-white!">{titulo}</p>
         {hint && (
           <Hint
             message={hint}
@@ -50,7 +51,9 @@ function DetalhesPedido({
       </div>
 
       <p
-        className={`${styles.value} ${isNegative ? styles.negativo : styles.positivo} ${isHighlight ? styles.highlightValue : ""} text-nowrap`}
+        className={`font-bold text-nowrap ${
+          isNegative ? "text-beergam-red!" : "text-beergam-green!"
+        } ${isHighlight ? "text-xl font-extrabold" : ""}`}
       >
         {censored ? (
           <TextCensored censorshipKey="vendas_orders_list_details">

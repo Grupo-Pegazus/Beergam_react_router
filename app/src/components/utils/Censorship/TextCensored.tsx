@@ -27,7 +27,13 @@ export function TextCensored({
     const text = typeof children === "string" ? children : String(children);
     const censoredText = text.replace(/./g, replacement);
     const censoredTextTruncated = censoredText.slice(0, maxCharacters);
-    return <span className={className}>{censoredTextTruncated}</span>;
+    return (
+      <span
+        className={className ? className : "text-beergam-typography-primary!"}
+      >
+        {censoredTextTruncated}
+      </span>
+    );
   }
 
   return <span className={className}>{children}</span>;
