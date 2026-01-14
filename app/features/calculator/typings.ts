@@ -62,5 +62,48 @@ export interface CalculatorFormData {
   additionalCostsAmount: string;
   additionalCostsPercentage: string;
   calculatorType: "ml" | "shopee";
+
+  classicCommission?: number;
+  premiumCommission?: number;
+}
+
+
+export interface MeliProductPrices {
+  original: number;
+  current: number;
+  alternative: number;
+}
+
+export interface MeliProductImages {
+  main: string | null;
+  thumbnail: string | null;
+  zoom: string | null;
+}
+
+export interface MeliProductResponse {
+  title: string;
+  prices: MeliProductPrices;
+  category_id: string;
+  category_name: string;
+  currency_id: string;
+  logistics_type: string | null;
+  listing_type: string | null;
+  images: MeliProductImages;
+  quantity: number;
+}
+
+export interface MeliSaleFeeDetails {
+  percentage_fee?: number;
+  gross_amount?: number;
+  [key: string]: unknown;
+}
+
+export interface MeliListingPrice {
+  listing_type_id: string;
+  base_price?: number;
+  sale_fee?: number;
+  sale_fee_details?: MeliSaleFeeDetails;
+
+  [key: string]: unknown;
 }
 
