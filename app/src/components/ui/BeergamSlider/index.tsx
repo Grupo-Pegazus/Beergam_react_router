@@ -9,6 +9,7 @@ import { Pagination, Zoom } from "swiper/modules";
 import { Swiper, SwiperSlide, type SwiperProps } from "swiper/react";
 interface BeergamSliderProps extends SwiperProps {
   slides: React.ReactNode[];
+  slidesClassName?: string;
 }
 
 const DefaultProps: SwiperProps = {
@@ -17,7 +18,11 @@ const DefaultProps: SwiperProps = {
   modules: [Pagination, Zoom],
 };
 
-export function BeergamSlider({ slides, ...props }: BeergamSliderProps) {
+export function BeergamSlider({
+  slides,
+  slidesClassName,
+  ...props
+}: BeergamSliderProps) {
   // Props passadas sobrescrevem os defaults
   const swiperRef = useRef<SwiperType | null>(null);
   const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -46,10 +51,12 @@ export function BeergamSlider({ slides, ...props }: BeergamSliderProps) {
         className="w-full h-full"
       >
         {slides.map((slide, index) => (
-          <SwiperSlide className="p-2" key={index}>
+          <SwiperSlide
+            className={`p-2 ${slidesClassName ?? "bg-beergam-section-background"}`}
+            key={index}
+          >
             <Paper
               sx={{
-                backgroundColor: "var(--color-beergam-section-background)",
                 height: "100%",
               }}
             >

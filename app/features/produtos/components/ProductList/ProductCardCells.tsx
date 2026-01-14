@@ -17,6 +17,10 @@ interface StatusCellProps {
   onOpenVariationsModal: () => void;
 }
 
+interface BaseProductCellProps {
+  isVariation?: boolean;
+}
+
 function EmptyCell() {
   return "----";
 }
@@ -24,13 +28,19 @@ function EmptyCell() {
 export function StatusCellWrapper({
   children,
   label,
+  justify = "end",
+  isVariation = false,
 }: {
   children: React.ReactNode;
   label: string;
+  justify?: "start" | "end";
+  isVariation?: boolean;
 }) {
   return (
-    <div className="flex! items-center md:justify-end justify-start gap-2">
-      <p className="md:hidden!">{label}</p>
+    <div
+      className={`flex! items-center ${isVariation ? "justify-start!" : justify === "end" ? "md:justify-end" : "md:justify-start"} justify-start gap-2`}
+    >
+      <p className={`${isVariation ? "" : "md:hidden!"}`}>{label}</p>
       {children}
     </div>
   );
@@ -47,7 +57,7 @@ export function StatusCell({
 }: StatusCellProps) {
   if (!hasVariations) {
     return (
-      <StatusCellWrapper label="Status:">
+      <StatusCellWrapper label="Status:" justify="start">
         <ProductStatusToggle
           status={status}
           isActive={isActive}
@@ -59,7 +69,7 @@ export function StatusCell({
   }
 
   return (
-    <StatusCellWrapper label="Status de variações:">
+    <StatusCellWrapper label="Status de variações:" justify="start">
       <ProductChip
         label={variationsCount.toString()}
         onClick={onOpenVariationsModal}
@@ -73,6 +83,7 @@ interface ProductInfoCellProps {
   title: string;
   registrationType: string;
   categoryName?: string;
+  isVariation?: boolean;
 }
 
 export function ProductInfoCell({
@@ -80,6 +91,7 @@ export function ProductInfoCell({
   title,
   registrationType,
   categoryName,
+  isVariation = false,
 }: ProductInfoCellProps) {
   return (
     <div className="flex items-center gap-2">
@@ -98,7 +110,7 @@ export function ProductInfoCell({
               registrationType === "Completo"
                 ? "bg-beergam-primary!"
                 : "bg-beergam-typography-secondary!"
-            }`}
+            }  ${isVariation && "hidden!"}`}
           />
           {categoryName && (
             <ProductChip
@@ -113,7 +125,7 @@ export function ProductInfoCell({
   );
 }
 
-interface VariationsCountCellProps {
+interface VariationsCountCellProps extends BaseProductCellProps {
   count: number;
   onOpenModal?: () => void;
 }
@@ -121,10 +133,11 @@ interface VariationsCountCellProps {
 export function VariationsCountCell({
   count,
   onOpenModal,
+  isVariation = false,
 }: VariationsCountCellProps) {
   const variationsCount = count === 0 ? EmptyCell() : count.toString();
   return (
-    <StatusCellWrapper label="Variações:">
+    <StatusCellWrapper label="Variações:" isVariation={isVariation}>
       <ProductChip
         label={variationsCount}
         variant="circle"
@@ -135,15 +148,15 @@ export function VariationsCountCell({
   );
 }
 
-interface PriceCellProps {
+interface PriceCellProps extends BaseProductCellProps {
   price?: number | string | null;
 }
 
-export function PriceCell({ price }: PriceCellProps) {
+export function PriceCell({ price, isVariation = false }: PriceCellProps) {
   const numericPrice = typeof price === "string" ? parseFloat(price) : price;
 
   return (
-    <StatusCellWrapper label="Preço de venda:">
+    <StatusCellWrapper label="Preço de venda:" isVariation={isVariation}>
       <TextCensored
         maxCharacters={1}
         className="flex! justify-end"
@@ -159,13 +172,13 @@ export function PriceCell({ price }: PriceCellProps) {
   );
 }
 
-interface SkuCellProps {
+interface SkuCellProps extends BaseProductCellProps {
   sku?: string | null;
 }
 
-export function SkuCell({ sku }: SkuCellProps) {
+export function SkuCell({ sku, isVariation = false }: SkuCellProps) {
   return (
-    <StatusCellWrapper label="SKU:">
+    <StatusCellWrapper label="SKU:" isVariation={isVariation}>
       <TextCensored
         maxCharacters={1}
         className="flex! justify-end"
@@ -179,13 +192,16 @@ export function SkuCell({ sku }: SkuCellProps) {
   );
 }
 
-interface RelatedAdsCellProps {
+interface RelatedAdsCellProps extends BaseProductCellProps {
   count: number;
 }
 
-export function RelatedAdsCell({ count }: RelatedAdsCellProps) {
+export function RelatedAdsCell({
+  count,
+  isVariation = false,
+}: RelatedAdsCellProps) {
   return (
-    <StatusCellWrapper label="Anúncios relacionados:">
+    <StatusCellWrapper label="Anúncios relacionados:" isVariation={isVariation}>
       <TextCensored
         maxCharacters={1}
         className="flex! justify-end"
@@ -199,13 +215,16 @@ export function RelatedAdsCell({ count }: RelatedAdsCellProps) {
   );
 }
 
-interface SalesQuantityCellProps {
+interface SalesQuantityCellProps extends BaseProductCellProps {
   quantity?: number | null;
 }
 
-export function SalesQuantityCell({ quantity }: SalesQuantityCellProps) {
+export function SalesQuantityCell({
+  quantity,
+  isVariation = false,
+}: SalesQuantityCellProps) {
   return (
-    <StatusCellWrapper label="Vendas:">
+    <StatusCellWrapper label="Vendas:" isVariation={isVariation}>
       <TextCensored
         maxCharacters={1}
         className="flex! justify-end"
@@ -219,13 +238,13 @@ export function SalesQuantityCell({ quantity }: SalesQuantityCellProps) {
   );
 }
 
-interface StockCellProps {
+interface StockCellProps extends BaseProductCellProps {
   stock?: number | null;
 }
 
-export function StockCell({ stock }: StockCellProps) {
+export function StockCell({ stock, isVariation = false }: StockCellProps) {
   return (
-    <StatusCellWrapper label="Estoque:">
+    <StatusCellWrapper label="Estoque:" isVariation={isVariation}>
       <TextCensored
         maxCharacters={1}
         className="flex! justify-end"

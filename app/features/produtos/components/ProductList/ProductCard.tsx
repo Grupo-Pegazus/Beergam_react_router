@@ -16,8 +16,8 @@ import {
   StockCell,
   VariationsCountCell,
 } from "./ProductCardCells";
+import VariationsDetailsModal from "./VariationsDetailsModal";
 import VariationsStatusModal from "./VariationsStatusModal/VariationsStatusModal";
-
 interface ProductCardProps {
   product: Product;
 }
@@ -41,7 +41,14 @@ export default function ProductCard({ product }: ProductCardProps) {
       <VariationsStatusModal product={product} onClose={closeModal} />,
       {
         title: "Gerenciar Status das Variações",
-        className: "z-[1000]",
+      }
+    );
+  };
+  const handleOpenVariationsDetailsModal = () => {
+    openModal(
+      <VariationsDetailsModal product={product} onClose={closeModal} />,
+      {
+        title: "Detalhes das Variações",
       }
     );
   };
@@ -137,7 +144,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       <TableCell align="right">
         <VariationsCountCell
           count={variationsCount}
-          onOpenModal={handleOpenVariationsStatusModal}
+          onOpenModal={handleOpenVariationsDetailsModal}
         />
       </TableCell>
       <TableCell align="right">
@@ -186,7 +193,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         />
         <VariationsCountCell
           count={variationsCount}
-          onOpenModal={handleOpenVariationsStatusModal}
+          onOpenModal={handleOpenVariationsDetailsModal}
         />
         <PriceCell
           price={product.price_sale as number | string | null | undefined}
