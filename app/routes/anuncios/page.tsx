@@ -50,10 +50,8 @@ export default function AnunciosPage() {
               action={
                 <BeergamButton
                   title="Ver pendências"
-                  mainColor="beergam-orange"
                   animationStyle="fade"
                   onClick={() => setIsModalOpen(true)}
-                  className="text-sm"
                 />
               }
             >

@@ -1,16 +1,16 @@
+import { Alert, Box, Stack } from "@mui/material";
 import { useMemo } from "react";
-import { Box, Stack, Alert } from "@mui/material";
 import { useAnuncioDetails } from "../../hooks";
-import AnuncioInfo from "./AnuncioInfo/AnuncioInfo";
-import ImageGallery from "./ImageGallery/ImageGallery";
-import FinancialMetrics from "./FinancialMetrics/FinancialMetrics";
-import Improvements from "./Improvements/Improvements";
-import QualityMetrics from "./QualityMetrics/QualityMetrics";
-import VariationsSelector from "./Variations";
-import UpdateSkuSection from "./UpdateSku";
-import VisitsChart from "./VisitsChart";
-import OrdersChart from "./OrdersChart";
 import AnuncioDetailsSkeleton from "./AnuncioDetailsSkeleton";
+import AnuncioInfo from "./AnuncioInfo/AnuncioInfo";
+import FinancialMetrics from "./FinancialMetrics/FinancialMetrics";
+import ImageGallery from "./ImageGallery/ImageGallery";
+import Improvements from "./Improvements/Improvements";
+import OrdersChart from "./OrdersChart";
+import QualityMetrics from "./QualityMetrics/QualityMetrics";
+import UpdateSkuSection from "./UpdateSku";
+import VariationsSelector from "./Variations";
+import VisitsChart from "./VisitsChart";
 
 interface AnuncioDetailsProps {
   anuncioId: string;
@@ -33,17 +33,15 @@ export default function AnuncioDetails({ anuncioId }: AnuncioDetailsProps) {
   if (error) {
     return (
       <Alert severity="error">
-        {error instanceof Error ? error.message : "Erro ao carregar detalhes do anúncio"}
+        {error instanceof Error
+          ? error.message
+          : "Erro ao carregar detalhes do anúncio"}
       </Alert>
     );
   }
 
   if (!anuncio) {
-    return (
-      <Alert severity="warning">
-        Anúncio não encontrado
-      </Alert>
-    );
+    return <Alert severity="warning">Anúncio não encontrado</Alert>;
   }
 
   return (
@@ -85,7 +83,7 @@ export default function AnuncioDetails({ anuncioId }: AnuncioDetailsProps) {
         </Box>
       </Box>
 
-      {(anuncio.variations && anuncio.variations.length > 0) && (
+      {anuncio.variations && anuncio.variations.length > 0 && (
         <VariationsSelector anuncio={anuncio} />
       )}
 
@@ -139,8 +137,6 @@ export default function AnuncioDetails({ anuncioId }: AnuncioDetailsProps) {
 
       {/* Gráfico de vendas */}
       <OrdersChart anuncioId={anuncioId} days={30} />
-
     </Stack>
   );
 }
-

@@ -255,7 +255,14 @@ const theme = createTheme(
       MuiStack: {
         styleOverrides: {
           root: {
-            backgroundColor: "var(--color-beergam-mui-paper)",
+            backgroundColor: "transparent",
+          },
+        },
+      },
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            color: "var(--color-beergam-typography-primary)",
           },
         },
       },

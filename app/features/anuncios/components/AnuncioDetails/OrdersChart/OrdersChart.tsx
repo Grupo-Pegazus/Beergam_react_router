@@ -1,21 +1,21 @@
-import { useMemo, useState, useCallback } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
-import { useAdOrdersChart } from "../../../hooks";
+import { Skeleton } from "@mui/material";
+import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import { Skeleton } from "@mui/material";
 import dayjs, { type Dayjs } from "dayjs";
+import { useCallback, useMemo, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { FilterDatePicker } from "~/src/components/filters";
+import { useAdOrdersChart } from "../../../hooks";
 
 const formatCurrency = (value: number): string => {
   return new Intl.NumberFormat("pt-BR", {
@@ -35,7 +35,10 @@ interface OrdersChartProps {
   days?: number;
 }
 
-export default function OrdersChart({ anuncioId, days = 30 }: OrdersChartProps) {
+export default function OrdersChart({
+  anuncioId,
+  days = 30,
+}: OrdersChartProps) {
   const [selectedMonth, setSelectedMonth] = useState<Dayjs | null>(dayjs());
 
   const { data, isLoading, error } = useAdOrdersChart(anuncioId, {
@@ -74,7 +77,7 @@ export default function OrdersChart({ anuncioId, days = 30 }: OrdersChartProps) 
           bgcolor: "rgba(239, 68, 68, 0.05)",
         }}
       >
-        <Typography variant="body2" color="error">
+        <Typography className="text-beergam-red!" variant="body2">
           Não foi possível carregar o gráfico de vendas.
         </Typography>
       </Paper>
@@ -91,10 +94,17 @@ export default function OrdersChart({ anuncioId, days = 30 }: OrdersChartProps) 
       }}
     >
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+        <Typography
+          className="text-beergam-typography-primary!"
+          variant="h6"
+          sx={{ fontWeight: 700, mb: 0.5 }}
+        >
           Faturamento Diário
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          className="text-beergam-typography-secondary!"
+          variant="caption"
+        >
           Evolução de vendas do anúncio
         </Typography>
       </Box>
@@ -111,7 +121,11 @@ export default function OrdersChart({ anuncioId, days = 30 }: OrdersChartProps) 
 
       {isLoading ? (
         <Box sx={{ height: 320 }}>
-          <Skeleton variant="rectangular" height="100%" sx={{ borderRadius: 2 }} />
+          <Skeleton
+            variant="rectangular"
+            height="100%"
+            sx={{ borderRadius: 2 }}
+          />
         </Box>
       ) : chartData.length === 0 ? (
         <Box
@@ -127,7 +141,11 @@ export default function OrdersChart({ anuncioId, days = 30 }: OrdersChartProps) 
             p: 4,
           }}
         >
-          <Typography variant="body2" color="text.secondary" align="center">
+          <Typography
+            className="text-beergam-typography-secondary!"
+            variant="body2"
+            align="center"
+          >
             Nenhum dado disponível para o período selecionado.
           </Typography>
         </Box>
@@ -143,34 +161,37 @@ export default function OrdersChart({ anuncioId, days = 30 }: OrdersChartProps) 
                 bottom: 40,
               }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="var(--color-beergam-typography-secondary)"
+              />
               <XAxis
                 dataKey="date"
-                stroke="#64748b"
+                stroke="var(--color-beergam-typography-secondary)"
                 fontSize={10}
-                tick={{ fill: "#64748b" }}
+                tick={{ fill: "var(--color-beergam-typography-secondary)" }}
                 angle={-45}
                 textAnchor="end"
                 height={60}
                 interval="preserveStartEnd"
               />
               <YAxis
-                stroke="#64748b"
+                stroke="var(--color-beergam-typography-secondary)"
                 fontSize={10}
-                tick={{ fill: "#64748b" }}
+                tick={{ fill: "var(--color-beergam-typography-secondary)" }}
                 tickFormatter={formatCurrency}
                 width={60}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#fff",
-                  border: "1px solid #e2e8f0",
+                  backgroundColor: "var(--color-beergam-section-background)",
+                  border: "1px solid var(--color-beergam-typography-secondary)",
                   borderRadius: "8px",
                   padding: "8px",
                   fontSize: "12px",
                 }}
                 labelStyle={{
-                  color: "#0f172a",
+                  color: "var(--color-beergam-typography-tertiary)",
                   fontWeight: "bold",
                   fontSize: "12px",
                 }}
@@ -181,18 +202,15 @@ export default function OrdersChart({ anuncioId, days = 30 }: OrdersChartProps) 
                   return [formatCurrency(value), name];
                 }}
               />
-              <Legend
-                wrapperStyle={{ fontSize: "12px" }}
-                iconSize={12}
-              />
+              <Legend wrapperStyle={{ fontSize: "12px" }} iconSize={12} />
               <Bar
                 dataKey="Faturamento Bruto"
-                fill="#f59e0b"
+                fill="var(--color-beergam-primary)"
                 radius={[4, 4, 0, 0]}
               />
               <Bar
                 dataKey="Faturamento Líquido"
-                fill="#3b82f6"
+                fill="var(--color-beergam-primary)"
                 radius={[4, 4, 0, 0]}
               />
             </BarChart>
@@ -202,4 +220,3 @@ export default function OrdersChart({ anuncioId, days = 30 }: OrdersChartProps) 
     </Paper>
   );
 }
-

@@ -1,5 +1,5 @@
-import { useMemo } from "react";
 import { Typography } from "@mui/material";
+import { useMemo } from "react";
 import { Fields } from "~/src/components/utils/_fields";
 
 const ACTIVE_TIME_OPTIONS: Array<{
@@ -15,7 +15,7 @@ const ACTIVE_TIME_OPTIONS: Array<{
 
 function getActiveTimeValue(
   min: number | undefined,
-  max: number | undefined,
+  max: number | undefined
 ): string {
   if (min === undefined && max === undefined) return "Qualquer";
   const match = ACTIVE_TIME_OPTIONS.find((option) => {
@@ -54,9 +54,9 @@ export function ActiveTimeFilter({
     () =>
       getActiveTimeValue(
         state[minKey] as number | undefined,
-        state[maxKey] as number | undefined,
+        state[maxKey] as number | undefined
       ),
-    [state, minKey, maxKey],
+    [state, minKey, maxKey]
   );
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -67,17 +67,23 @@ export function ActiveTimeFilter({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <Typography variant="subtitle2" color="text.secondary" fontWeight={600}>
+      <Typography
+        variant="subtitle2"
+        className="text-beergam-typography-secondary!"
+        fontWeight={600}
+      >
         {label}
       </Typography>
       <Fields.select
         widthType={widthType}
         value={currentValue}
         onChange={handleChange}
-        options={ACTIVE_TIME_OPTIONS.map((option) => ({ value: option.label, label: option.label }))}
+        options={ACTIVE_TIME_OPTIONS.map((option) => ({
+          value: option.label,
+          label: option.label,
+        }))}
         tailWindClasses="rounded-3xl"
       />
     </div>
   );
 }
-

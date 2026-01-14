@@ -88,18 +88,21 @@ export default function AnunciosList({ filters = {} }: AnunciosListProps) {
           error={error as unknown}
           Skeleton={AnuncioListSkeleton}
           ErrorFallback={() => (
-            <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4">
+            <div className="rounded-2xl border border-beergam-red/50 bg-beergam-red/10 text-beergam-red! p-4">
               Não foi possível carregar os anúncios.
             </div>
           )}
         >
           <Stack spacing={2}>
             {anuncios.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
-                <span className="text-slate-400">
+              <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-beergam-typography-secondary!/50 bg-beergam-typography-secondary!/10 p-10 text-center">
+                <span className="text-beergam-typography-secondary!">
                   <Svg.information_circle tailWindClasses="h-10 w-10" />
                 </span>
-                <Typography variant="h6" color="text.secondary">
+                <Typography
+                  variant="h6"
+                  className="text-beergam-typography-secondary!"
+                >
                   Nenhum anúncio encontrado com os filtros atuais.
                 </Typography>
               </div>
@@ -198,8 +201,7 @@ function AnuncioCard({
                   <TextCensored censorshipKey="anuncios_list">
                     <Typography
                       variant="caption"
-                      color="text.secondary"
-                      className="font-mono"
+                      className="text-beergam-typography-secondary!"
                     >
                       # {anuncio.mlb}
                     </Typography>
@@ -217,7 +219,10 @@ function AnuncioCard({
                     <span className="text-slate-300 hidden md:inline">|</span>
                     <div className="flex items-center gap-2">
                       <TextCensored censorshipKey="anuncios_list">
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography
+                          variant="caption"
+                          className="text-beergam-typography-secondary!"
+                        >
                           SKU {anuncio.sku}
                         </Typography>
                       </TextCensored>
@@ -237,12 +242,12 @@ function AnuncioCard({
                 <Typography
                   variant="body2"
                   fontWeight={600}
-                  className="text-slate-900 mb-2 truncate max-w-[90%]"
+                  className="text-beergam-typography-primary! mb-2 truncate max-w-[90%]"
                 >
                   {anuncio.name}
                 </Typography>
               </TextCensored>
-              <div className="flex flex-wrap items-center gap-1.5 mb-2">
+              <div className="flex flex-wrap items-center gap-1.5 mb-2 mt-2">
                 {anuncio.ad_type && (
                   <Chip
                     label={anuncio.ad_type}
@@ -252,9 +257,13 @@ function AnuncioCard({
                       fontSize: "0.65rem",
                       fontWeight: 600,
                       backgroundColor:
-                        anuncio.ad_type === "Premium" ? "#fef3c7" : "#f0fdf4",
+                        anuncio.ad_type === "Premium"
+                          ? "var(--color-beergam-orange-light)"
+                          : "var(--color-beergam-menu-background)",
                       color:
-                        anuncio.ad_type === "Premium" ? "#92400e" : "#166534",
+                        anuncio.ad_type === "Premium"
+                          ? "var(--color-beergam-orange-dark)"
+                          : "var(--color-beergam-white)",
                     }}
                   />
                 )}
@@ -303,25 +312,26 @@ function AnuncioCard({
                   />
                 )}
               </div>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                className="text-beergam-typography-secondary!"
+              >
                 {anuncio.stock} unidades
               </Typography>
             </div>
           </div>
           {anuncio.visits && anuncio.visits.length > 0 && (
-            <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50/50 p-2">
+            <div className="mt-2 rounded-lg bg-beergam-typography-secondary!/10 p-2">
               <div className="flex items-center justify-between mb-1">
                 <Typography
                   variant="caption"
-                  color="text.secondary"
-                  className="text-xs"
+                  className="text-beergam-typography-secondary!"
                 >
                   Evolução de visitas
                 </Typography>
                 <Typography
                   variant="caption"
-                  color="text.secondary"
-                  className="text-xs text-slate-400"
+                  className="text-beergam-typography-secondary!"
                 >
                   Últimos 5 meses
                 </Typography>
@@ -336,8 +346,7 @@ function AnuncioCard({
           <div>
             <Typography
               variant="caption"
-              color="text.secondary"
-              className="block mb-0.5"
+              className="text-beergam-typography-secondary!"
             >
               Vendas e visitas
             </Typography>
@@ -345,7 +354,7 @@ function AnuncioCard({
               <Typography
                 variant="body2"
                 fontWeight={600}
-                className="text-slate-900"
+                className="text-beergam-typography-primary!"
               >
                 {formatNumber(anuncio.geral_visits)} visitas |{" "}
                 {formatNumber(anuncio.sold_quantity)} unidades vendidas
@@ -354,8 +363,7 @@ function AnuncioCard({
             {conversionRate !== null && (
               <Typography
                 variant="caption"
-                color="text.secondary"
-                className="mt-0.5 block"
+                className="text-beergam-typography-tertiary!"
               >
                 Taxa de conversão:{" "}
                 <span className="font-semibold">
@@ -371,7 +379,7 @@ function AnuncioCard({
                 <Typography
                   variant="h6"
                   fontWeight={700}
-                  className="text-slate-900"
+                  className="text-beergam-primary!"
                 >
                   {formatCurrency(anuncio.price)}
                 </Typography>
@@ -380,24 +388,26 @@ function AnuncioCard({
 
             {anuncio.commission && (
               <div
-                className={` border ${anuncio.ad_type === "Premium" ? "border-amber-200 bg-amber-50" : "border-green-200 bg-green-50"} rounded-lg p-2 mt-2`}
+                className={` ${anuncio.ad_type === "Premium" ? "bg-beergam-orange/20" : "bg-beergam-menu-background/20"} rounded-lg p-2 mt-2`}
               >
                 <Typography
                   variant="caption"
-                  color="text.secondary"
-                  className="block mb-1"
+                  className={`${anuncio.ad_type === "Premium" ? "text-beergam-orange" : "text-beergam-secondary!"}`}
                 >
                   {anuncio.ad_type || "Premium"}
                 </Typography>
                 <div className="space-y-0.5">
-                  <Typography variant="caption" className="text-slate-700">
+                  <Typography
+                    variant="caption"
+                    className="text-beergam-typography-tertiary!"
+                  >
                     Tarifa de venda {anuncio.commission.percentage}%
                   </Typography>
                   {anuncio.commission.details?.fixed_fee != null &&
                     anuncio.commission.details.fixed_fee > 0 && (
                       <Typography
                         variant="caption"
-                        className="text-slate-700 block"
+                        className="text-beergam-typography-tertiary! block"
                       >
                         + {formatCurrency(anuncio.commission.details.fixed_fee)}
                       </Typography>
@@ -405,7 +415,7 @@ function AnuncioCard({
                   <Typography
                     variant="caption"
                     fontWeight={600}
-                    className="text-slate-900 block"
+                    className="text-beergam-typography-tertiary! block"
                   >
                     A pagar {formatCurrency(anuncio.commission.value)}
                   </Typography>
@@ -421,18 +431,17 @@ function AnuncioCard({
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Speedometer value={healthScore} size={40} />
-              <div>
+              <div className="flex items-center gap-2">
                 <Typography
                   variant="caption"
                   fontWeight={600}
-                  className="text-slate-900"
+                  className="text-beergam-typography-primary!"
                 >
                   Qualidade do anúncio
                 </Typography>
                 <Typography
                   variant="caption"
-                  color="text.secondary"
-                  className="block"
+                  className="text-beergam-typography-secondary!"
                 >
                   {healthScore !== null
                     ? healthScore >= 80
@@ -449,13 +458,9 @@ function AnuncioCard({
               <div className="mt-2">
                 <Typography
                   variant="caption"
-                  color="text.secondary"
-                  className="block mb-1"
+                  className="text-beergam-typography-secondary!"
                 >
-                  {
-                    anuncio.health.buckets[0].variables[0].rules[0].wordings
-                      .title
-                  }
+                  {`${anuncio.health.buckets[0].variables[0].rules[0].wordings.title} `}
                 </Typography>
                 {anuncio.health.buckets[0].variables[0].rules[0].wordings
                   .link && (
@@ -465,7 +470,7 @@ function AnuncioCard({
                         .link
                     }
                     target="_blank"
-                    className="text-xs text-blue-600 hover:underline"
+                    className="text-xs text-beergam-primary! hover:underline"
                   >
                     {
                       anuncio.health.buckets[0].variables[0].rules[0].wordings
@@ -481,18 +486,17 @@ function AnuncioCard({
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Speedometer value={reputation?.value ?? null} size={40} />
-              <div>
+              <div className="flex items-center gap-2">
                 <Typography
                   variant="caption"
                   fontWeight={600}
-                  className="text-slate-900"
+                  className="text-beergam-typography-primary!"
                 >
                   Experiência de compra
                 </Typography>
                 <Typography
                   variant="caption"
-                  color="text.secondary"
-                  className="block"
+                  className="text-beergam-typography-secondary!"
                 >
                   {reputation?.text || "—"}
                 </Typography>
@@ -501,8 +505,7 @@ function AnuncioCard({
             {anuncio.experience?.subtitles?.[0] && (
               <Typography
                 variant="caption"
-                color="text.secondary"
-                className="block"
+                className="text-beergam-typography-secondary!"
               >
                 {anuncio.experience.subtitles[0].text}
               </Typography>
@@ -510,7 +513,7 @@ function AnuncioCard({
           </div>
 
           {/* Status e Ações */}
-          <div className="space-y-2 pt-2 border-t border-slate-200">
+          <div className="space-y-2 pt-2 border-t border-beergam-typography-secondary!/20">
             <div className="flex items-center justify-between">
               <AnuncioStatusToggle
                 status={anuncio.status}
