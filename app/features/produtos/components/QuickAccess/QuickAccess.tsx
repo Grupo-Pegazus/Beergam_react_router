@@ -1,15 +1,22 @@
-import MainCards from "~/src/components/ui/MainCards";
 import Typography from "@mui/material/Typography";
 import ClickableCard from "~/src/components/ui/ClickableCard";
+import MainCards from "~/src/components/ui/MainCards";
 
 export default function QuickAccess() {
   return (
     <MainCards className="p-3 sm:p-4 md:p-6">
       <div className="mb-3 sm:mb-4">
-        <Typography variant="h6" fontWeight={600} className="text-slate-900 mb-1 text-base sm:text-lg">
+        <Typography
+          variant="h6"
+          fontWeight={600}
+          className="text-beergam-typography-primary mb-1 text-base sm:text-lg"
+        >
           Gestão de Catálogo
         </Typography>
-        <Typography variant="body2" color="text.secondary" className="text-xs sm:text-sm">
+        <Typography
+          variant="body2"
+          className="text-beergam-typography-secondary text-xs sm:text-sm"
+        >
           Gerencie categorias e atributos dos seus produtos
         </Typography>
       </div>
@@ -47,4 +54,3 @@ export default function QuickAccess() {
     </MainCards>
   );
 }
-

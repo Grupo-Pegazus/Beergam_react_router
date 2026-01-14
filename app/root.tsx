@@ -266,6 +266,26 @@ const theme = createTheme(
           },
         },
       },
+      MuiTableCell: {
+        styleOverrides: {
+          sizeMedium: {
+            "@media (max-width: 768px)": {
+              display: "none",
+            },
+          },
+          sizeSmall: {
+            "@media (max-width: 768px)": {
+              display: "none",
+            },
+          },
+          head: {
+            color: "var(--color-beergam-typography-primary)",
+          },
+          body: {
+            color: "var(--color-beergam-typography-secondary)",
+          },
+        },
+      },
     },
     typography: {
       fontFamily: "var(--default-font-family)",
