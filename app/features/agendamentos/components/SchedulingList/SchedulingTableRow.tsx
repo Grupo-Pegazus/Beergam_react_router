@@ -1,4 +1,13 @@
-import { TableRow, TableCell, Chip, IconButton, Menu, MenuItem } from "@mui/material";
+import {
+  Chip,
+  IconButton,
+  Menu,
+  MenuItem,
+  TableCell,
+  TableRow,
+} from "@mui/material";
+import { useState } from "react";
+import Svg from "~/src/assets/svgs/_index";
 import CopyButton from "~/src/components/ui/CopyButton";
 import type { SchedulingList } from "../../typings";
 import {
@@ -7,8 +16,6 @@ import {
   formatSchedulingType,
   getStatusColor,
 } from "../../utils";
-import Svg from "~/src/assets/svgs/_index";
-import { useState } from "react";
 
 interface SchedulingTableRowProps {
   scheduling: SchedulingList;
@@ -61,12 +68,12 @@ export default function SchedulingTableRow({
   return (
     <>
       <TableRow
-        className="hover:bg-slate-50/50 transition-colors cursor-pointer"
+        className="hover:bg-beergam-primary/20 transition-colors cursor-pointer"
         onClick={() => onView?.(scheduling.id)}
       >
         <TableCell>
           <div className="flex items-center gap-1">
-            <span className="font-mono text-xs text-slate-600">
+            <span className="text-xs text-beergam-typography-primary!">
               #{scheduling.id.slice(0, 8)}
             </span>
             <CopyButton
@@ -78,11 +85,11 @@ export default function SchedulingTableRow({
         </TableCell>
         <TableCell>
           <div className="flex flex-col gap-0.5">
-            <span className="font-semibold text-slate-900 text-sm">
+            <span className="font-semibold text-beergam-typography-tertiary! text-sm">
               {scheduling.title}
             </span>
             {scheduling.observation && (
-              <span className="text-xs text-slate-500 line-clamp-1">
+              <span className="text-xs text-beergam-typography-secondary! line-clamp-1">
                 {scheduling.observation}
               </span>
             )}
@@ -96,7 +103,8 @@ export default function SchedulingTableRow({
               height: 22,
               fontSize: "0.65rem",
               fontWeight: 600,
-              backgroundColor: scheduling.type === "ENTRY" ? "#e0f2fe" : "#fef3c7",
+              backgroundColor:
+                scheduling.type === "ENTRY" ? "#e0f2fe" : "#fef3c7",
               color: scheduling.type === "ENTRY" ? "#0369a1" : "#92400e",
               "& .MuiChip-label": {
                 px: 0.75,
@@ -130,18 +138,18 @@ export default function SchedulingTableRow({
             }}
           />
         </TableCell>
-        <TableCell 
-          align="left" 
-          sx={{ 
+        <TableCell
+          align="left"
+          sx={{
             display: { xs: "none", lg: "table-cell" },
           }}
         >
-          <span className="text-sm text-slate-600">
+          <span className="text-sm text-beergam-typography-tertiary!">
             {formatDateTime(scheduling.estimated_arrival_date)}
           </span>
         </TableCell>
         <TableCell align="center">
-          <span className="text-sm text-slate-600">
+          <span className="text-sm text-beergam-typography-tertiary!">
             {scheduling.items_count}
           </span>
         </TableCell>
@@ -149,7 +157,7 @@ export default function SchedulingTableRow({
           <IconButton
             onClick={handleMenuOpen}
             sx={{
-              color: "var(--color-beergam-black)",
+              color: "var(--color-beergam-typography-primary)",
               width: 45,
               height: 45,
               padding: "10px",
@@ -185,7 +193,10 @@ export default function SchedulingTableRow({
           </MenuItem>
         )}
         {canCancel && onCancel && (
-          <MenuItem onClick={() => handleAction("cancel")} sx={{ color: "error.main" }}>
+          <MenuItem
+            onClick={() => handleAction("cancel")}
+            sx={{ color: "error.main" }}
+          >
             <Svg.circle_x tailWindClasses="w-4 h-4 mr-2" />
             Cancelar
           </MenuItem>
@@ -194,4 +205,3 @@ export default function SchedulingTableRow({
     </>
   );
 }
-

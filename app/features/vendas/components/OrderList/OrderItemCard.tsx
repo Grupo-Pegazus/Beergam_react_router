@@ -18,7 +18,7 @@ interface OrderItemCardProps {
 
 function CardInfo({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="flex flex-col gap-0.5 md:gap-1 w-max text-nowrap text-center flex-1 bg-beergam-mui-paper! rounded-lg py-1 px-1.5 md:px-2 border border-beergam-section-border!">
+    <div className="flex flex-col gap-0.5 md:gap-1 w-max text-nowrap text-center flex-1 bg-beergam-mui-paper! rounded-lg py-1 px-1.5 md:px-2 border border-beergam-input-border!">
       <p className="text-beergam-typography-secondary! text-xs! md:text-sm! font-medium">
         {label}
       </p>
@@ -41,7 +41,7 @@ function ProfitCardInfo({
   options?: { money?: boolean; percentage?: boolean };
 }) {
   return (
-    <div className="flex flex-col gap-0.5 md:gap-1 w-full md:w-[50%] text-center flex-1 bg-beergam-mui-paper! rounded-lg py-1 px-1.5 md:px-2 border border-beergam-section-border!">
+    <div className="flex flex-col gap-0.5 md:gap-1 w-full md:w-[50%] text-center flex-1 bg-beergam-mui-paper! rounded-lg py-1 px-1.5 md:px-2 border border-beergam-input-border!">
       <p className="text-beergam-typography-secondary! text-xs! md:text-sm! font-medium">
         {label}
       </p>
@@ -122,7 +122,7 @@ export default function OrderItemCard({
 
         {/* Mobile: Resumo básico com botão de expandir */}
         <div className="flex md:hidden items-center justify-between gap-2">
-          <div className="flex items-center gap-2 bg-beergam-section-background! px-2 py-1 rounded-lg">
+          <div className="flex items-center gap-2 bg-beergam-section-background! border border-beergam-input-border! px-2 py-1 rounded-lg">
             <Typography
               variant="caption"
               className="text-xs text-beergam-typography-secondary!"

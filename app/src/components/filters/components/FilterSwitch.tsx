@@ -1,5 +1,5 @@
-import { useMemo } from "react";
 import { Switch, Typography } from "@mui/material";
+import { useMemo } from "react";
 import type { FilterFieldProps } from "../types";
 
 export interface FilterSwitchProps extends FilterFieldProps {
@@ -19,7 +19,7 @@ export function FilterSwitch({
 }: FilterSwitchProps) {
   const checked = useMemo(
     () => Boolean(value ?? defaultValue ?? false),
-    [value, defaultValue],
+    [value, defaultValue]
   );
 
   const handleChange = () => {
@@ -36,7 +36,11 @@ export function FilterSwitch({
         alignItems: "flex-start",
       }}
     >
-      <Typography variant="subtitle2" color="text.secondary" fontWeight={600}>
+      <Typography
+        variant="subtitle2"
+        className="text-beergam-typography-secondary!"
+        fontWeight={600}
+      >
         {label}
       </Typography>
       <Switch
@@ -52,4 +56,3 @@ export function FilterSwitch({
     </div>
   );
 }
-

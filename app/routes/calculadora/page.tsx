@@ -25,6 +25,8 @@ const initialFormData: CalculatorFormData = {
   additionalCostsAmount: "",
   additionalCostsPercentage: "",
   calculatorType: "ml",
+  classicCommission: undefined,
+  premiumCommission: undefined,
 };
 
 export default function CalculadoraPage() {

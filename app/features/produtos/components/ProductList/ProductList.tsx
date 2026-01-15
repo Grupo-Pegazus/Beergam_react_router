@@ -1,13 +1,21 @@
+import {
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
-import { Stack, Typography } from "@mui/material";
-import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
-import MainCards from "~/src/components/ui/MainCards";
 import Svg from "~/src/assets/svgs/_index";
-import { useProducts } from "../../hooks";
-import type { ProductsFilters, Product } from "../../typings";
-import ProductListSkeleton from "./ProductListSkeleton";
-import ProductCard from "./ProductCard";
+import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import PaginationBar from "~/src/components/ui/PaginationBar";
+import { useProducts } from "../../hooks";
+import type { Product, ProductsFilters } from "../../typings";
+import ProductCard from "./ProductCard";
+import ProductListSkeleton from "./ProductListSkeleton";
 
 interface ProductListProps {
   filters?: Partial<ProductsFilters>;
@@ -52,77 +60,57 @@ export default function ProductList({ filters = {} }: ProductListProps) {
           error={error as unknown}
           Skeleton={ProductListSkeleton}
           ErrorFallback={() => (
-            <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4">
+            <div className="rounded-2xl border border-beergam-red/20 bg-beergam-red/10 text-beergam-red p-4">
               Não foi possível carregar os produtos.
             </div>
           )}
         >
           <Stack spacing={2}>
             {products.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
-                <span className="text-slate-400">
+              <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-beergam-typography-secondary!/50 bg-beergam-typography-secondary!/10 p-10 text-center">
+                <span className="text-beergam-typography-secondary!">
                   <Svg.information_circle tailWindClasses="h-10 w-10" />
                 </span>
-                <Typography variant="h6" color="text.secondary">
+                <Typography
+                  variant="h6"
+                  className="text-beergam-typography-secondary!"
+                >
                   Nenhum produto encontrado com os filtros atuais.
                 </Typography>
               </div>
             ) : (
               <>
                 {/* Cabeçalho das colunas - Oculto em mobile */}
-                <MainCards className="bg-slate-100/50 border-slate-200 hidden md:block">
-                  <div className="flex items-center gap-2 md:gap-4 py-2 px-2 md:px-4">
-                    <div className="shrink-0 w-12 md:w-16 flex justify-center">
-                      <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
-                        Status
-                      </Typography>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
-                        Produto
-                      </Typography>
-                    </div>
-                    <div className="shrink-0 w-16 md:w-20 text-center">
-                      <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
-                        Variações
-                      </Typography>
-                    </div>
-                    <div className="shrink-0 w-20 md:w-28">
-                      <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
-                        Preço
-                      </Typography>
-                    </div>
-                    <div className="shrink-0 w-24 md:w-32 hidden lg:block">
-                      <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
-                        SKU
-                      </Typography>
-                    </div>
-                    <div className="shrink-0 w-16 md:w-20 text-center">
-                      <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
-                        Anúncios
-                      </Typography>
-                    </div>
-                    <div className="shrink-0 w-20 md:w-24 text-center hidden lg:block">
-                      <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
-                        Vendas
-                      </Typography>
-                    </div>
-                    <div className="shrink-0 w-20 md:w-28 text-center">
-                      <Typography variant="caption" fontWeight={600} className="text-slate-600 uppercase text-xs">
-                        Estoque
-                      </Typography>
-                    </div>
-                    <div className="shrink-0 w-8 md:w-10">
-                      {/* Espaço para ícone de configurações */}
-                    </div>
-                  </div>
-                </MainCards>
-
-                <Stack spacing={2}>
-                  {products.map((product) => (
-                    <ProductCard key={product.product_id} product={product} />
-                  ))}
-                </Stack>
+                <TableContainer>
+                  <Table className="flex! flex-col md:table!">
+                    <TableHead className="hidden! md:table-header-group!">
+                      <TableRow>
+                        <TableCell>Status</TableCell>
+                        <TableCell align="left">Produto</TableCell>
+                        <TableCell align="right">Variações</TableCell>
+                        <TableCell align="right">Preço</TableCell>
+                        <TableCell align="right">SKU</TableCell>
+                        <TableCell align="right">Anúncios</TableCell>
+                        <TableCell align="right">Vendas</TableCell>
+                        <TableCell align="right">Estoque</TableCell>
+                        <TableCell align="right">Ações</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody className="flex! flex-col md:table-row-group!">
+                      {products.map((product) => (
+                        <TableRow
+                          key={product.product_id}
+                          className="flex! flex-col md:table-row!"
+                        >
+                          <ProductCard
+                            key={product.product_id}
+                            product={product}
+                          />
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </>
             )}
           </Stack>
@@ -141,5 +129,3 @@ export default function ProductList({ filters = {} }: ProductListProps) {
     </>
   );
 }
-
-

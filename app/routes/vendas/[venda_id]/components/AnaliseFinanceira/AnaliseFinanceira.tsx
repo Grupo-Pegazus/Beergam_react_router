@@ -1,7 +1,6 @@
 import { CensorshipWrapper } from "~/src/components/utils/Censorship";
 import AvisoProdutosNaoCadastrados from "../AvisoProdutosNaoCadastrados/AvisoProdutosNaoCadastrados";
 import DetalhesPedido from "../DetalhesPedido/DetalhesPedido";
-import styles from "./AnaliseFinanceira.module.css";
 
 interface AnaliseFinanceiraProps {
   valorTotalVenda: number;
@@ -38,11 +37,13 @@ function AnaliseFinanceira({
 }: AnaliseFinanceiraProps) {
   return (
     <CensorshipWrapper censorshipKey="vendas_orders_list_details">
-      <div className={styles.analiseFinanceira}>
-        <h2 className={styles.title}>Análise Financeira do Pedido</h2>
+      <div className="bg-beergam-menu-background rounded-[15px] p-6 text-white border border-white/10">
+        <h2 className="text-2xl font-semibold mb-6 text-white">
+          Análise Financeira do Pedido
+        </h2>
 
         {/* Receita */}
-        <div className={styles.section}>
+        <div className="mb-6">
           <DetalhesPedido
             titulo="Valor total da Venda"
             hint=""
@@ -89,8 +90,10 @@ function AnaliseFinanceira({
         </div>
 
         {/* Custos Internos */}
-        <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>Custos Internos Cadastrados</h3>
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-4 text-[#d9d9d9] pb-2 border-b border-white/10">
+            Custos Internos Cadastrados
+          </h3>
           <DetalhesPedido
             titulo="Custo do Produto"
             hint="Valor interno cadastrado no sistema"
@@ -127,7 +130,7 @@ function AnaliseFinanceira({
         )}
 
         {/* Lucro Final */}
-        <div className={styles.lucroFinal}>
+        <div className="mt-6 pt-4 border-t-2 border-white/20">
           <DetalhesPedido
             titulo="Lucro Final (Valor com Impostos e Custos)"
             hint=""
@@ -142,10 +145,10 @@ function AnaliseFinanceira({
           href={`https://www.mercadolivre.com.br/vendas/${orderId || ""}/detalhe`}
           target="_blank"
           rel="noopener noreferrer"
-          className={styles.actionButton}
+          className="flex items-center justify-center gap-2 w-full py-3 px-5 mt-6 bg-[var(--color-beergam-orange)] text-white no-underline rounded-lg font-semibold transition-all duration-300 border-none cursor-pointer hover:bg-[var(--color-beergam-orange-dark)] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(255,138,0,0.3)]"
         >
           <span>Ver no mercado livre sobre a venda</span>
-          <i className="fa-solid fa-arrow-right"></i>
+          <i className="fa-solid fa-arrow-right text-sm"></i>
         </a>
       </div>
     </CensorshipWrapper>

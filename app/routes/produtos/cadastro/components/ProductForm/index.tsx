@@ -1,31 +1,39 @@
-import { useState, useEffect, type FormEvent, type MouseEvent } from "react";
-import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Alert,
+  Box,
+  Button,
+  Paper,
+  Step,
+  StepLabel,
+  Stepper,
+} from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState, type FormEvent, type MouseEvent } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
-import { Stepper, Step, StepLabel, Box, Button, Alert } from "@mui/material";
-import toast from "~/src/utils/toast";
-import BeergamButton from "~/src/components/utils/BeergamButton";
+import AttributeFormModal from "~/features/catalog/components/AttributeFormModal";
+import CategoryFormModal from "~/features/catalog/components/CategoryFormModal";
+import { useProductDetails } from "~/features/produtos/hooks";
 import { produtosService } from "~/features/produtos/service";
 import {
-  CreateSimplifiedProductSchema,
   CreateCompleteProductSchema,
-  type CreateSimplifiedProduct,
+  CreateSimplifiedProductSchema,
   type CreateCompleteProduct,
+  type CreateSimplifiedProduct,
   type RegistrationType,
 } from "~/features/produtos/typings/createProduct";
 import { transformProductDetailsToCreateProduct } from "~/features/produtos/utils/productTransform";
-import { useProductDetails } from "~/features/produtos/hooks";
-import ProductBasicFields from "./ProductBasicFields";
-import PricingFields from "./PricingFields";
-import MeasuresFields from "./MeasuresFields";
-import StockFields from "./StockFields";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import toast from "~/src/utils/toast";
 import ExtrasFields from "./ExtrasFields";
-import VariationsSection from "./VariationsSection";
 import ImageUploadSection from "./ImageUploadSection";
+import MeasuresFields from "./MeasuresFields";
+import PricingFields from "./PricingFields";
+import ProductBasicFields from "./ProductBasicFields";
 import { validateStep } from "./stepValidation";
-import CategoryFormModal from "~/features/catalog/components/CategoryFormModal";
-import AttributeFormModal from "~/features/catalog/components/AttributeFormModal";
+import StockFields from "./StockFields";
+import VariationsSection from "./VariationsSection";
 
 interface ProductFormProps {
   registrationType: RegistrationType;
@@ -33,7 +41,14 @@ interface ProductFormProps {
   allowUpgradeToComplete?: boolean;
 }
 
-type TabId = "basic" | "pricing" | "measures" | "stock" | "extras" | "images" | "variations";
+type TabId =
+  | "basic"
+  | "pricing"
+  | "measures"
+  | "stock"
+  | "extras"
+  | "images"
+  | "variations";
 
 interface Tab {
   id: TabId;
@@ -52,16 +67,17 @@ export default function ProductForm({
   const [activeStep, setActiveStep] = useState(0);
   const [hasVariations, setHasVariations] = useState(false);
   const [highestStepVisited, setHighestStepVisited] = useState(0);
-  const [registrationType, setRegistrationType] = useState<RegistrationType>(initialRegistrationType);
+  const [registrationType, setRegistrationType] = useState<RegistrationType>(
+    initialRegistrationType
+  );
   const [showUpgradeAlert, setShowUpgradeAlert] = useState(false);
   const [hasLoadedProductData, setHasLoadedProductData] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isAttributeModalOpen, setIsAttributeModalOpen] = useState(false);
 
   const isEditMode = !!productId;
-  const { data: productDetailsResponse, isLoading: isLoadingProduct } = useProductDetails(
-    productId || ""
-  );
+  const { data: productDetailsResponse, isLoading: isLoadingProduct } =
+    useProductDetails(productId || "");
 
   const schema =
     registrationType === "simplified"
@@ -121,10 +137,17 @@ export default function ProductForm({
 
   // Carrega os dados do produto quando estiver em modo de edição
   useEffect(() => {
-    if (isEditMode && productDetailsResponse?.success && productDetailsResponse.data && !hasLoadedProductData) {
+    if (
+      isEditMode &&
+      productDetailsResponse?.success &&
+      productDetailsResponse.data &&
+      !hasLoadedProductData
+    ) {
       const productDetails = productDetailsResponse.data;
       const currentRegistrationType =
-        productDetails.product_registration_type === "Completo" ? "complete" : "simplified";
+        productDetails.product_registration_type === "Completo"
+          ? "complete"
+          : "simplified";
 
       // Sincroniza o registrationType com o tipo real do produto
       // Isso evita problemas quando o registrationType inicial não corresponde ao produto
@@ -136,10 +159,7 @@ export default function ProductForm({
       }
 
       // Se o produto é simplificado e permite upgrade, mostra o alerta
-      if (
-        currentRegistrationType === "simplified" &&
-        allowUpgradeToComplete
-      ) {
+      if (currentRegistrationType === "simplified" && allowUpgradeToComplete) {
         setShowUpgradeAlert(true);
       }
 
@@ -156,12 +176,14 @@ export default function ProductForm({
           productDetails.variations && productDetails.variations.length > 0;
         setHasVariations(hasVariationsValue);
         setShowVariationsTab(hasVariationsValue);
-        
+
         // Marca que os dados foram carregados
         setHasLoadedProductData(true);
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : "Erro ao carregar dados do produto";
+          error instanceof Error
+            ? error.message
+            : "Erro ao carregar dados do produto";
         toast.error(message);
         navigate("/interno/produtos/gestao");
       }
@@ -178,7 +200,9 @@ export default function ProductForm({
   ]);
 
   const createProductMutation = useMutation({
-    mutationFn: async (data: CreateSimplifiedProduct | CreateCompleteProduct) => {
+    mutationFn: async (
+      data: CreateSimplifiedProduct | CreateCompleteProduct
+    ) => {
       if (isEditMode && productId) {
         const response = await produtosService.updateProduct(productId, data);
         if (!response.success) {
@@ -198,11 +222,15 @@ export default function ProductForm({
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["products-metrics"] });
       if (isEditMode) {
-        queryClient.invalidateQueries({ queryKey: ["products", "details", productId] });
+        queryClient.invalidateQueries({
+          queryKey: ["products", "details", productId],
+        });
       }
       toast.success(
         response.data?.message ||
-          (isEditMode ? "Produto atualizado com sucesso!" : "Produto criado com sucesso!")
+          (isEditMode
+            ? "Produto atualizado com sucesso!"
+            : "Produto criado com sucesso!")
       );
       navigate("/interno/produtos/gestao");
     },
@@ -233,7 +261,9 @@ export default function ProductForm({
         reset(formData);
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : "Erro ao atualizar formulário";
+          error instanceof Error
+            ? error.message
+            : "Erro ao atualizar formulário";
         toast.error(message);
       }
     }
@@ -242,18 +272,29 @@ export default function ProductForm({
   const handleVariationsChange = (value: string) => {
     const hasVariationsValue = value === "yes";
     const previousSteps = getSteps();
-    const previousVariationsIndex = previousSteps.findIndex((step) => step.id === "variations");
-    const previousImagesIndex = previousSteps.findIndex((step) => step.id === "images");
-    const previousPricingIndex = previousSteps.findIndex((step) => step.id === "pricing");
-    const previousStockIndex = previousSteps.findIndex((step) => step.id === "stock");
-    
+    const previousVariationsIndex = previousSteps.findIndex(
+      (step) => step.id === "variations"
+    );
+    const previousImagesIndex = previousSteps.findIndex(
+      (step) => step.id === "images"
+    );
+    const previousPricingIndex = previousSteps.findIndex(
+      (step) => step.id === "pricing"
+    );
+    const previousStockIndex = previousSteps.findIndex(
+      (step) => step.id === "stock"
+    );
+
     setHasVariations(hasVariationsValue);
     setShowVariationsTab(hasVariationsValue);
-    
+
     if (!hasVariationsValue) {
       setValue("variations", []);
       // Se estiver na aba de variações, volta para a anterior
-      if (activeStep === previousVariationsIndex && previousVariationsIndex >= 0) {
+      if (
+        activeStep === previousVariationsIndex &&
+        previousVariationsIndex >= 0
+      ) {
         setActiveStep(Math.max(0, previousVariationsIndex - 1));
       }
     } else {
@@ -261,20 +302,26 @@ export default function ProductForm({
       if (!watchedHasVariations || watchedHasVariations.length === 0) {
         setValue("variations", []);
       }
-      
+
       // Se estava em alguma das abas que serão removidas, ajusta o step
-      const isOnRemovedStep = 
+      const isOnRemovedStep =
         (activeStep === previousImagesIndex && previousImagesIndex >= 0) ||
         (activeStep === previousPricingIndex && previousPricingIndex >= 0) ||
         (activeStep === previousStockIndex && previousStockIndex >= 0);
-      
+
       if (isOnRemovedStep) {
         // Vai para a aba anterior disponível (basic, measures ou extras)
         // ou para variações se já existir
-        const basicIndex = previousSteps.findIndex((step) => step.id === "basic");
-        const measuresIndex = previousSteps.findIndex((step) => step.id === "measures");
-        const extrasIndex = previousSteps.findIndex((step) => step.id === "extras");
-        
+        const basicIndex = previousSteps.findIndex(
+          (step) => step.id === "basic"
+        );
+        const measuresIndex = previousSteps.findIndex(
+          (step) => step.id === "measures"
+        );
+        const extrasIndex = previousSteps.findIndex(
+          (step) => step.id === "extras"
+        );
+
         // Tenta ir para extras, depois measures, depois basic
         let targetStep = basicIndex >= 0 ? basicIndex : 0;
         if (extrasIndex >= 0 && extrasIndex < activeStep) {
@@ -284,11 +331,11 @@ export default function ProductForm({
         } else if (basicIndex >= 0) {
           targetStep = basicIndex;
         }
-        
+
         setActiveStep(targetStep);
       }
     }
-    
+
     // Lógica do SKU: se tem variações, limpa e desabilita o SKU
     if (hasVariationsValue) {
       setValue("product.sku", null);
@@ -325,19 +372,35 @@ export default function ProductForm({
   const getSteps = () => {
     const allSteps = [
       { id: "basic" as TabId, label: "Informações Básicas", visible: true },
-      { id: "pricing" as TabId, label: "Precificação", visible: !showVariationsTab }, // Só mostra se não tiver variações
-      { id: "measures" as TabId, label: "Medidas", visible: registrationType === "complete" },
+      {
+        id: "pricing" as TabId,
+        label: "Precificação",
+        visible: !showVariationsTab,
+      }, // Só mostra se não tiver variações
+      {
+        id: "measures" as TabId,
+        label: "Medidas",
+        visible: registrationType === "complete",
+      },
       { id: "stock" as TabId, label: "Estoque", visible: !showVariationsTab }, // Só mostra se não tiver variações
-      { id: "extras" as TabId, label: "Extras", visible: registrationType === "complete" },
+      {
+        id: "extras" as TabId,
+        label: "Extras",
+        visible: registrationType === "complete",
+      },
       { id: "images" as TabId, label: "Imagens", visible: !showVariationsTab }, // Só mostra se não tiver variações
-      { id: "variations" as TabId, label: "Variações", visible: showVariationsTab },
+      {
+        id: "variations" as TabId,
+        label: "Variações",
+        visible: showVariationsTab,
+      },
     ] satisfies Tab[];
-    
+
     return allSteps.filter((step) => step.visible);
   };
 
   const steps = getSteps();
-  
+
   // Ajusta o activeStep se o step atual não existir mais (ex: variações foi desmarcado ou imagens foi removido)
   useEffect(() => {
     const currentStep = steps[activeStep];
@@ -362,10 +425,7 @@ export default function ProductForm({
         return basicFields;
       }
       case "pricing": {
-        const pricingFields = [
-          "product.price_sale",
-          "product.price_cost",
-        ];
+        const pricingFields = ["product.price_sale", "product.price_cost"];
         if (registrationType === "complete") {
           pricingFields.push("product.packaging_cost", "product.extra_cost");
         }
@@ -393,25 +453,28 @@ export default function ProductForm({
   const handleNext = async (e?: MouseEvent<HTMLButtonElement>) => {
     e?.preventDefault();
     e?.stopPropagation();
-    
+
     const currentStep = steps[activeStep];
     if (!currentStep) return;
 
     // Valida os campos do step atual
     const fieldsToValidate = getFieldsForStep(currentStep.id);
-    
+
     if (fieldsToValidate.length > 0) {
       // Trigger validation no react-hook-form para mostrar os erros
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const isValid = await trigger(fieldsToValidate as any);
-      
+
       if (!isValid) {
         // Verifica se há erros específicos para mostrar mensagens mais detalhadas
         const formErrors = form.formState.errors;
         const hasSkuError = formErrors.product?.sku;
-        
+
         if (hasSkuError) {
-          toast.error(hasSkuError.message || "Por favor, preencha o SKU antes de continuar");
+          toast.error(
+            hasSkuError.message ||
+              "Por favor, preencha o SKU antes de continuar"
+          );
         } else {
           toast.error("Por favor, corrija os erros antes de continuar");
         }
@@ -421,13 +484,20 @@ export default function ProductForm({
 
     // Validação adicional com Zod para garantir consistência
     const formData = form.getValues();
-    const validation = validateStep(currentStep.id, formData, registrationType, hasVariations);
+    const validation = validateStep(
+      currentStep.id,
+      formData,
+      registrationType,
+      hasVariations
+    );
 
     if (!validation.isValid) {
       // Mostra mensagens de erro específicas
       const errorMessages = Object.values(validation.errors);
       if (errorMessages.length > 0) {
-        toast.error(errorMessages[0] || "Por favor, corrija os erros antes de continuar");
+        toast.error(
+          errorMessages[0] || "Por favor, corrija os erros antes de continuar"
+        );
       } else {
         toast.error("Por favor, corrija os erros antes de continuar");
       }
@@ -446,7 +516,7 @@ export default function ProductForm({
   const handleBack = (e?: MouseEvent<HTMLButtonElement>) => {
     e?.preventDefault();
     e?.stopPropagation();
-    
+
     if (activeStep > 0) {
       setActiveStep((prev) => prev - 1);
     }
@@ -503,23 +573,23 @@ export default function ProductForm({
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Se não estiver no último step, apenas avança para o próximo
     if (!isLastStep) {
       await handleNext();
       return;
     }
-    
+
     // Se estiver no último step, valida todos os campos antes de fazer o submit
     const currentStep = steps[activeStep];
     if (currentStep) {
       const fieldsToValidate = getFieldsForStep(currentStep.id);
-      
+
       if (fieldsToValidate.length > 0) {
         // Trigger validation no react-hook-form para mostrar os erros
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const isValid = await trigger(fieldsToValidate as any);
-        
+
         if (!isValid) {
           toast.error("Por favor, corrija os erros antes de salvar");
           return;
@@ -528,12 +598,19 @@ export default function ProductForm({
 
       // Validação adicional com Zod para garantir consistência
       const formData = form.getValues();
-      const validation = validateStep(currentStep.id, formData, registrationType, hasVariations);
+      const validation = validateStep(
+        currentStep.id,
+        formData,
+        registrationType,
+        hasVariations
+      );
 
       if (!validation.isValid) {
         const errorMessages = Object.values(validation.errors);
         if (errorMessages.length > 0) {
-          toast.error(errorMessages[0] || "Por favor, corrija os erros antes de salvar");
+          toast.error(
+            errorMessages[0] || "Por favor, corrija os erros antes de salvar"
+          );
         } else {
           toast.error("Por favor, corrija os erros antes de salvar");
         }
@@ -549,11 +626,11 @@ export default function ProductForm({
       toast.error("Por favor, corrija todos os erros antes de salvar");
       return;
     }
-    
+
     // Se estiver no último step e tudo estiver válido, faz o submit normalmente
     const formData = form.getValues();
     console.log("Submetendo formulário:", formData);
-    
+
     // Chama o onSubmit diretamente se a validação passou
     try {
       await onSubmit(formData);
@@ -569,7 +646,9 @@ export default function ProductForm({
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-beergam-blue-primary mx-auto mb-4"></div>
-          <p className="text-beergam-gray-dark">Carregando dados do produto...</p>
+          <p className="text-beergam-gray-dark">
+            Carregando dados do produto...
+          </p>
         </div>
       </div>
     );
@@ -577,180 +656,141 @@ export default function ProductForm({
 
   return (
     <FormProvider {...form}>
-      <form
-        onSubmit={handleFormSubmit}
-        className="flex flex-col gap-6 p-6 bg-beergam-white rounded-xl"
-      >
-        <div className="flex flex-col gap-4">
-          {/* Alerta de upgrade para cadastro completo */}
-          {showUpgradeAlert && (
-            <Alert
-              severity="info"
-              action={
-                <div className="flex gap-2">
-                  <Button
-                    color="inherit"
-                    size="small"
-                    onClick={() => setShowUpgradeAlert(false)}
-                  >
-                    Manter Simplificado
-                  </Button>
-                  <Button
-                    color="primary"
-                    size="small"
-                    onClick={handleUpgradeToComplete}
-                  >
-                    Deixar Completo
-                  </Button>
-                </div>
-              }
-              sx={{ mb: 2 }}
-            >
-              Este produto está cadastrado como simplificado. Você pode atualizá-lo para cadastro
-              completo para ter acesso a mais campos e funcionalidades.
-            </Alert>
-          )}
+      <form onSubmit={handleFormSubmit} className="">
+        <Paper className="flex flex-col gap-6 border border-beergam-section-background">
+          <div className="flex flex-col gap-4">
+            {/* Alerta de upgrade para cadastro completo */}
+            {showUpgradeAlert && (
+              <Alert
+                severity="info"
+                action={
+                  <div className="flex gap-2">
+                    <Button
+                      color="inherit"
+                      size="small"
+                      onClick={() => setShowUpgradeAlert(false)}
+                    >
+                      Manter Simplificado
+                    </Button>
+                    <Button
+                      color="primary"
+                      size="small"
+                      onClick={handleUpgradeToComplete}
+                    >
+                      Deixar Completo
+                    </Button>
+                  </div>
+                }
+                sx={{ mb: 2 }}
+              >
+                Este produto está cadastrado como simplificado. Você pode
+                atualizá-lo para cadastro completo para ter acesso a mais campos
+                e funcionalidades.
+              </Alert>
+            )}
 
-          {/* Stepper do MUI */}
-          <Box sx={{ width: "100%", mb: 4 }}>
-            <Stepper activeStep={activeStep} alternativeLabel>
-              {steps.map((step, index) => (
+            {/* Stepper do MUI */}
+            <Box sx={{ width: "100%", mb: 4 }}>
+              <Stepper activeStep={activeStep} alternativeLabel>
+                {steps.map((step, index) => (
                   <Step
                     key={step.id}
                     completed={index < activeStep}
                     sx={{
-                      cursor: index <= highestStepVisited ? "pointer" : "not-allowed",
+                      cursor:
+                        index <= highestStepVisited ? "pointer" : "not-allowed",
                       opacity: index <= highestStepVisited ? 1 : 0.4,
-                      transition: "all 0.2s ease-in-out",
                       "&:hover": {
                         opacity: index <= highestStepVisited ? 1 : 0.4,
-                        transform: index <= highestStepVisited ? "scale(1.05)" : "scale(1)",
+                        transform:
+                          index <= highestStepVisited
+                            ? "scale(1.05)"
+                            : "scale(1)",
                       },
                       "& .MuiStepLabel-root": {
-                        cursor: index <= highestStepVisited ? "pointer" : "not-allowed",
+                        cursor:
+                          index <= highestStepVisited
+                            ? "pointer"
+                            : "not-allowed",
                       },
                       "& .MuiStepIcon-root": {
-                        cursor: index <= highestStepVisited ? "pointer" : "not-allowed",
+                        cursor:
+                          index <= highestStepVisited
+                            ? "pointer"
+                            : "not-allowed",
                         opacity: index <= highestStepVisited ? 1 : 0.4,
+                        color: "var(--color-beergam-primary)",
                         "&.Mui-completed": {
                           opacity: index <= highestStepVisited ? 1 : 0.4,
+                          color: "var(--color-beergam-primary)",
+                        },
+                        "&.Mui-active": {
+                          color: "var(--color-beergam-primary)",
                         },
                       },
                     }}
                     onClick={() => handleStepClick(index)}
                   >
-                    <StepLabel
-                      sx={{
-                        "& .MuiStepLabel-label": {
-                          fontSize: "0.875rem",
-                          fontWeight: index === activeStep ? 600 : index <= highestStepVisited ? 500 : 400,
-                          opacity: index <= highestStepVisited ? 1 : 0.4,
-                          color: index <= highestStepVisited 
-                            ? index === activeStep 
-                              ? "primary.main" 
-                              : index < activeStep 
-                                ? "text.secondary" 
-                                : "text.primary"
-                            : "text.disabled",
-                          transition: "all 0.2s ease-in-out",
-                          position: "relative",
-                          "&::after": index <= highestStepVisited && index !== activeStep && index >= activeStep
-                            ? {
-                                content: '""',
-                                position: "absolute",
-                                bottom: "-4px",
-                                left: "50%",
-                                transform: "translateX(-50%)",
-                                width: "4px",
-                                height: "4px",
-                                borderRadius: "50%",
-                                backgroundColor: "primary.main",
-                                opacity: 0.6,
-                              }
-                            : {},
-                        },
-                        "& .MuiStepLabel-label.Mui-active": {
-                          color: "primary.main",
-                          fontWeight: 600,
-                        },
-                        "& .MuiStepLabel-label.Mui-completed": {
-                          color: "text.secondary",
-                        },
-                        "&:hover": {
-                          "& .MuiStepLabel-label": {
-                            opacity: index <= highestStepVisited ? 1 : 0.4,
-                            color: index <= highestStepVisited && index !== activeStep
-                              ? "primary.main"
-                              : undefined,
-                            fontWeight: index <= highestStepVisited && index !== activeStep ? 600 : undefined,
-                          },
-                        },
-                      }}
-                    >
-                      {step.label}
-                    </StepLabel>
+                    <StepLabel>{step.label}</StepLabel>
                   </Step>
-              ))}
-            </Stepper>
-          </Box>
+                ))}
+              </Stepper>
+            </Box>
 
-          {/* Conteúdo do step ativo */}
-          <Box sx={{ minHeight: "400px", py: 2 }}>
-            {renderStepContent()}
-          </Box>
-        </div>
+            {/* Conteúdo do step ativo */}
+            <Box sx={{ minHeight: "400px", py: 2 }}>{renderStepContent()}</Box>
+          </div>
 
-        {/* Botões de navegação */}
-        <div className="flex justify-between gap-4 pt-4 border-t">
-          <div className="flex gap-4">
-            <BeergamButton
-              title="Cancelar"
-              mainColor="beergam-gray"
-              animationStyle="slider"
-              type="button"
-              onClick={() => navigate("/interno/produtos/gestao")}
-              className="px-6"
-            />
-            {activeStep > 0 && (
+          {/* Botões de navegação */}
+          <div className="flex justify-between gap-4 pt-4 border-t">
+            <div className="flex gap-4">
               <BeergamButton
-                title="Voltar"
-                mainColor="beergam-gray"
+                title="Cancelar"
+                mainColor="beergam-red"
                 animationStyle="slider"
                 type="button"
-                onClick={handleBack}
+                onClick={() => navigate("/interno/produtos/gestao")}
                 className="px-6"
               />
-            )}
+              {activeStep > 0 && (
+                <BeergamButton
+                  title="Voltar"
+                  mainColor="beergam-gray"
+                  animationStyle="slider"
+                  type="button"
+                  onClick={handleBack}
+                  className="opacity-80! hover:opacity-100!"
+                />
+              )}
+            </div>
+            <div className="flex gap-4">
+              {!isLastStep && (
+                <BeergamButton
+                  title="Próximo"
+                  animationStyle="slider"
+                  type="button"
+                  onClick={handleNext}
+                  className="px-6"
+                />
+              )}
+              {isLastStep && (
+                <BeergamButton
+                  title={isEditMode ? "Atualizar Produto" : "Salvar Produto"}
+                  animationStyle="slider"
+                  type="submit"
+                  icon="check"
+                  disabled={createProductMutation.isPending}
+                  fetcher={{
+                    fecthing: createProductMutation.isPending,
+                    completed: createProductMutation.isSuccess,
+                    error: createProductMutation.isError,
+                    mutation: createProductMutation,
+                  }}
+                />
+              )}
+            </div>
           </div>
-          <div className="flex gap-4">
-            {!isLastStep && (
-              <BeergamButton
-                title="Próximo"
-                mainColor="beergam-blue-primary"
-                animationStyle="slider"
-                type="button"
-                onClick={handleNext}
-                className="px-6"
-              />
-            )}
-            {isLastStep && (
-              <BeergamButton
-                title={isEditMode ? "Atualizar Produto" : "Salvar Produto"}
-                mainColor="beergam-blue-primary"
-                animationStyle="slider"
-                type="submit"
-                className="px-6"
-                disabled={createProductMutation.isPending}
-                fetcher={{
-                  fecthing: createProductMutation.isPending,
-                  completed: createProductMutation.isSuccess,
-                  error: createProductMutation.isError,
-                  mutation: createProductMutation,
-                }}
-              />
-            )}
-          </div>
-        </div>
+        </Paper>
       </form>
 
       {/* Modais de criação rápida de Categoria e Atributo */}
@@ -767,4 +807,3 @@ export default function ProductForm({
     </FormProvider>
   );
 }
-

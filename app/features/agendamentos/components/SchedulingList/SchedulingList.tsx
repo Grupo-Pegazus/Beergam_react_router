@@ -1,23 +1,23 @@
-import { useEffect, useMemo, useState } from "react";
 import {
+  Paper,
   Stack,
-  Typography,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
+  Typography,
 } from "@mui/material";
-import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import { useEffect, useMemo, useState } from "react";
+import Loading from "~/src/assets/loading";
 import Svg from "~/src/assets/svgs/_index";
+import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import PaginationBar from "~/src/components/ui/PaginationBar";
 import { useSchedulings } from "../../hooks";
 import type { SchedulingFilters, SchedulingList } from "../../typings";
 import SchedulingCard from "./SchedulingCard";
 import SchedulingTableRow from "./SchedulingTableRow";
-import Loading from "~/src/assets/loading";
-import PaginationBar from "~/src/components/ui/PaginationBar";
 
 interface SchedulingListProps {
   filters?: Partial<SchedulingFilters>;
@@ -77,49 +77,31 @@ export default function SchedulingList({
     >
       <Stack spacing={2}>
         {schedulings.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
-            <span className="text-slate-400">
+          <Paper className="flex justify-center items-center gap-2 flex-col">
+            <span className="text-beergam-typography-primary!">
               <Svg.information_circle tailWindClasses="h-10 w-10" />
             </span>
-            <Typography variant="h6" color="text.secondary">
+            <Typography
+              variant="h6"
+              className="text-beergam-typography-secondary!"
+            >
               Nenhum agendamento encontrado com os filtros atuais.
             </Typography>
-          </div>
+          </Paper>
         ) : (
           <>
             {/* Versão Desktop - Tabela */}
             <div className="hidden md:block">
-              <TableContainer component={Paper} sx={{ borderRadius: "16px", overflow: "hidden" }}>
+              <TableContainer component={Paper}>
                 <Table>
                   <TableHead>
-                    <TableRow sx={{ backgroundColor: "#f8fafc" }}>
-                      <TableCell sx={{ fontWeight: 600, fontSize: "0.75rem", textTransform: "uppercase", color: "#64748b" }}>
-                        ID
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 600, fontSize: "0.75rem", textTransform: "uppercase", color: "#64748b" }}>
-                        Título
-                      </TableCell>
-                      <TableCell align="center" sx={{ fontWeight: 600, fontSize: "0.75rem", textTransform: "uppercase", color: "#64748b" }}>
-                        Tipo
-                      </TableCell>
-                      <TableCell align="center" sx={{ fontWeight: 600, fontSize: "0.75rem", textTransform: "uppercase", color: "#64748b" }}>
-                        Status
-                      </TableCell>
-                      <TableCell 
-                        align="left" 
-                        sx={{ 
-                          fontWeight: 600, 
-                          fontSize: "0.75rem", 
-                          textTransform: "uppercase", 
-                          color: "#64748b",
-                          display: { xs: "none", lg: "table-cell" },
-                        }}
-                      >
-                        Data Prevista
-                      </TableCell>
-                      <TableCell align="center" sx={{ fontWeight: 600, fontSize: "0.75rem", textTransform: "uppercase", color: "#64748b" }}>
-                        Itens
-                      </TableCell>
+                    <TableRow>
+                      <TableCell>ID</TableCell>
+                      <TableCell>Título</TableCell>
+                      <TableCell align="center">Tipo</TableCell>
+                      <TableCell align="center">Status</TableCell>
+                      <TableCell align="left">Data Prevista</TableCell>
+                      <TableCell align="center">Itens</TableCell>
                       <TableCell sx={{ width: 50 }}></TableCell>
                     </TableRow>
                   </TableHead>
@@ -168,4 +150,3 @@ export default function SchedulingList({
     </AsyncBoundary>
   );
 }
-

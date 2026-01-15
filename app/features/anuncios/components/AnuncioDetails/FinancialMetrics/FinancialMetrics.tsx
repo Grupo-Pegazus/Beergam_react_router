@@ -45,18 +45,26 @@ export default function FinancialMetrics({ anuncio }: FinancialMetricsProps) {
           p: 3,
           borderRadius: 2,
           border: "1px solid rgba(15, 23, 42, 0.08)",
+          backgroundColor: "var(--color-beergam-section-background)",
         }}
       >
         <Stack spacing={3}>
           {/* Título */}
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+          <Typography
+            className="text-beergam-typography-primary!"
+            variant="h6"
+            sx={{ fontWeight: 700 }}
+          >
             Visão Geral de Performance Financeira
           </Typography>
 
           {/* Lucro total e médio */}
           <Stack direction="row" spacing={4} flexWrap="wrap" gap={3}>
             <Box>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                className="text-beergam-typography-secondary!"
+                variant="caption"
+              >
                 Lucro total do anúncio
               </Typography>
               <TextCensored
@@ -67,7 +75,7 @@ export default function FinancialMetrics({ anuncio }: FinancialMetricsProps) {
                   variant="h5"
                   sx={{
                     fontWeight: 700,
-                    color: "var(--color-beergam-green-primary)",
+                    color: "var(--color-beergam-primary)",
                   }}
                 >
                   {formatCurrency(totalProfit)}
@@ -75,7 +83,10 @@ export default function FinancialMetrics({ anuncio }: FinancialMetricsProps) {
               </TextCensored>
             </Box>
             <Box>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                className="text-beergam-typography-secondary!"
+                variant="caption"
+              >
                 Lucro médio por venda
               </Typography>
               <TextCensored
@@ -86,7 +97,7 @@ export default function FinancialMetrics({ anuncio }: FinancialMetricsProps) {
                   variant="h5"
                   sx={{
                     fontWeight: 700,
-                    color: "var(--color-beergam-green-primary)",
+                    color: "var(--color-beergam-primary)",
                   }}
                 >
                   {formatCurrency(averageProfitPerSale)}
@@ -99,7 +110,8 @@ export default function FinancialMetrics({ anuncio }: FinancialMetricsProps) {
           <Stack spacing={2}>
             <Typography
               variant="subtitle2"
-              sx={{ fontWeight: 600, color: "text.secondary" }}
+              className="text-beergam-typography-secondary!"
+              sx={{ fontWeight: 600 }}
             >
               Custos por unidade:
             </Typography>
@@ -108,10 +120,13 @@ export default function FinancialMetrics({ anuncio }: FinancialMetricsProps) {
                 display="flex"
                 alignItems="center"
                 justifyContent="space-between"
+                className="border-b border-b-beergam-typography-secondary"
               >
                 <Box display="flex" alignItems="center" gap={1}>
                   <Tooltip title="Comissão da plataforma">
-                    <Typography variant="body2">Taxa</Typography>
+                    <Typography className="font-bold!" variant="body2">
+                      Taxa
+                    </Typography>
                   </Tooltip>
                 </Box>
                 <TextCensored
@@ -120,7 +135,8 @@ export default function FinancialMetrics({ anuncio }: FinancialMetricsProps) {
                 >
                   <Typography
                     variant="body2"
-                    sx={{ fontWeight: 600, color: "error.main" }}
+                    className="text-beergam-red!"
+                    sx={{ fontWeight: 600 }}
                   >
                     -{formatCurrency(commission)}
                     {commissionPercentage > 0 &&
@@ -132,10 +148,13 @@ export default function FinancialMetrics({ anuncio }: FinancialMetricsProps) {
                 display="flex"
                 alignItems="center"
                 justifyContent="space-between"
+                className="border-b border-b-beergam-typography-secondary"
               >
                 <Box display="flex" alignItems="center" gap={1}>
                   <Tooltip title="Impostos sobre a venda">
-                    <Typography variant="body2">Impostos</Typography>
+                    <Typography className="font-bold!" variant="body2">
+                      Impostos
+                    </Typography>
                   </Tooltip>
                 </Box>
                 <TextCensored
@@ -144,7 +163,8 @@ export default function FinancialMetrics({ anuncio }: FinancialMetricsProps) {
                 >
                   <Typography
                     variant="body2"
-                    sx={{ fontWeight: 600, color: "error.main" }}
+                    className="text-beergam-red!"
+                    sx={{ fontWeight: 600 }}
                   >
                     -{formatCurrency(taxes)}
                   </Typography>
@@ -154,10 +174,13 @@ export default function FinancialMetrics({ anuncio }: FinancialMetricsProps) {
                 display="flex"
                 alignItems="center"
                 justifyContent="space-between"
+                className="border-b border-b-beergam-typography-secondary"
               >
                 <Box display="flex" alignItems="center" gap={1}>
                   <Tooltip title="Custo de compra do produto">
-                    <Typography variant="body2">Custo</Typography>
+                    <Typography className="font-bold!" variant="body2">
+                      Custo
+                    </Typography>
                   </Tooltip>
                 </Box>
                 <TextCensored
@@ -166,7 +189,8 @@ export default function FinancialMetrics({ anuncio }: FinancialMetricsProps) {
                 >
                   <Typography
                     variant="body2"
-                    sx={{ fontWeight: 600, color: "error.main" }}
+                    className="text-beergam-red!"
+                    sx={{ fontWeight: 600 }}
                   >
                     -{formatCurrency(purchasePrice)}
                   </Typography>
@@ -176,10 +200,13 @@ export default function FinancialMetrics({ anuncio }: FinancialMetricsProps) {
                 display="flex"
                 alignItems="center"
                 justifyContent="space-between"
+                className="border-b border-b-beergam-typography-secondary"
               >
                 <Box display="flex" alignItems="center" gap={1}>
                   <Tooltip title="Custo de frete">
-                    <Typography variant="body2">Frete</Typography>
+                    <Typography className="font-bold!" variant="body2">
+                      Frete
+                    </Typography>
                   </Tooltip>
                 </Box>
                 <TextCensored
@@ -188,7 +215,8 @@ export default function FinancialMetrics({ anuncio }: FinancialMetricsProps) {
                 >
                   <Typography
                     variant="body2"
-                    sx={{ fontWeight: 600, color: "error.main" }}
+                    className="text-beergam-red!"
+                    sx={{ fontWeight: 600 }}
                   >
                     -{formatCurrency(shipping)}
                   </Typography>

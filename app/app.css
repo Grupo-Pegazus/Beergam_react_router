@@ -20,7 +20,7 @@
   --color-beergam-blue-primary-dark: #192a55;
   --color-beergam-blue-lara: #010314;
   --color-beergam-blue-plano: #0e172abf;
-
+  --color-beergam-yellow-light: #fff3e6;
   --color-beergam-yellow: #f2cd18;
   --color-beergam-red: #de7272;
   --color-beergam-red-primary: #bd362f;
@@ -36,8 +36,8 @@
   --color-beergam-purple-dark: #6633cc;
   --color-beergam-gray: #8c8c8d;
   --color-beergam-gray-light: #b2b2bf;
-  --color-beergam-gray-blueish: #1d2128;
-  --color-beergam-gray-blueish-dark: #15181d;
+  --color-beergam-gray-blueish: #1e242f;
+  --color-beergam-gray-blueish-dark: #191e28;
   --shadow-layout-primary: 0px 0px 10px 0px rgba(0, 0, 0, 0.8);
 
   /* Cores que são alteradas dependendo do tema */
@@ -84,6 +84,9 @@
   border-color: var(--color-border);
 }
 /* Configurações do Swiper */
+.swiper-slide {
+  height: auto !important;
+}
 .swiper-pagination {
   display: flex;
   align-items: center;
@@ -170,6 +173,54 @@ span {
 
 button {
   cursor: pointer;
+}
+
+/* Customização do formulário de feedback do Sentry */
+#sentry-feedback,
+[data-sentry-feedback] {
+  --sentry-feedback-font-family: var(--default-font-family);
+  --sentry-feedback-border-radius: 8px;
+  --sentry-feedback-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Ajuste automático dos botões flutuantes para mobile */
+/* Em mobile (< 768px), os botões flutuantes precisam estar acima da navegação inferior */
+@media (max-width: 767px) {
+  /* Classe específica para ajuste em rotas internas (onde há navegação inferior) */
+  .floating-action-buttons {
+    bottom: 5rem; /* 80px - altura aproximada da navegação inferior + padding */
+  }
+}
+
+/* Em desktop, mantém posição padrão */
+@media (min-width: 768px) {
+  .floating-action-buttons {
+    bottom: 1.5rem; /* 24px - bottom-6 */
+  }
+}
+
+/* Tema claro */
+#sentry-feedback[data-theme="light"],
+[data-sentry-feedback][data-theme="light"] {
+  --sentry-feedback-background: var(--color-beergam-white);
+  --sentry-feedback-foreground: var(--color-beergam-typography-primary);
+  --sentry-feedback-accent-background: var(--color-beergam-primary);
+  --sentry-feedback-accent-foreground: var(--color-beergam-white);
+  --sentry-feedback-border: var(--color-beergam-input-border);
+  --sentry-feedback-success: var(--color-beergam-green);
+  --sentry-feedback-error: var(--color-beergam-red);
+}
+
+/* Tema escuro */
+.dark #sentry-feedback,
+.dark [data-sentry-feedback] {
+  --sentry-feedback-background: var(--color-beergam-gray-blueish-dark);
+  --sentry-feedback-foreground: var(--color-beergam-typography-primary);
+  --sentry-feedback-accent-background: var(--color-beergam-primary);
+  --sentry-feedback-accent-foreground: var(--color-beergam-white);
+  --sentry-feedback-border: transparent;
+  --sentry-feedback-success: var(--color-beergam-green);
+  --sentry-feedback-error: var(--color-beergam-red);
 }
 
 .transition-height {

@@ -13,7 +13,7 @@ export type RelatedProduct = z.infer<typeof RelatedProductSchema>;
 // Schema para categoria
 const CategorySchema = z.object({
   id: z.string(),
-  name: z.string(),
+  name: z.string().min(1, "Nome é obrigatório").max(255, "Nome deve ter no máximo 255 caracteres"),
   description: z.string().nullable(),
   created_at: z.string().nullable(),
   related_products_count: z.number().default(0),
@@ -25,7 +25,7 @@ export type Category = z.infer<typeof CategorySchema>;
 // Schema para atributo
 const AttributeSchema = z.object({
   id: z.string(),
-  name: z.string(),
+  name: z.string().min(1, "Nome é obrigatório").max(255, "Nome deve ter no máximo 255 caracteres"),
   allowed_values: z.array(z.string()).nullable(),
   created_at: z.string().nullable(),
   related_products_count: z.number().default(0),
@@ -91,32 +91,42 @@ export type AttributesFilters = z.infer<typeof AttributesFiltersSchema>;
 
 // Schema para criação de categoria
 export const CreateCategorySchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
-  description: z.string().optional(),
+  name: z.string()
+    .min(1, "Nome é obrigatório")
+    .max(255, "Nome deve ter no máximo 255 caracteres"),
+  description: z.string().max(1000, "Descrição deve ter no máximo 1000 caracteres").optional(),
 });
 
 export type CreateCategory = z.infer<typeof CreateCategorySchema>;
 
 // Schema para atualização de categoria
 export const UpdateCategorySchema = z.object({
-  name: z.string().min(1, "Nome não pode ser vazio").optional(),
-  description: z.string().optional(),
+  name: z.string()
+    .min(1, "Nome não pode ser vazio")
+    .max(255, "Nome deve ter no máximo 255 caracteres")
+    .optional(),
+  description: z.string().max(1000, "Descrição deve ter no máximo 1000 caracteres").optional(),
 });
 
 export type UpdateCategory = z.infer<typeof UpdateCategorySchema>;
 
 // Schema para criação de atributo
 export const CreateAttributeSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
-  allowed_values: z.array(z.string()).optional(),
+  name: z.string()
+    .min(1, "Nome é obrigatório")
+    .max(255, "Nome deve ter no máximo 255 caracteres"),
+  allowed_values: z.array(z.string().max(255, "Cada valor deve ter no máximo 255 caracteres")).optional(),
 });
 
 export type CreateAttribute = z.infer<typeof CreateAttributeSchema>;
 
 // Schema para atualização de atributo
 export const UpdateAttributeSchema = z.object({
-  name: z.string().min(1, "Nome não pode ser vazio").optional(),
-  allowed_values: z.array(z.string()).optional(),
+  name: z.string()
+    .min(1, "Nome não pode ser vazio")
+    .max(255, "Nome deve ter no máximo 255 caracteres")
+    .optional(),
+  allowed_values: z.array(z.string().max(255, "Cada valor deve ter no máximo 255 caracteres")).optional(),
 });
 
 export type UpdateAttribute = z.infer<typeof UpdateAttributeSchema>;

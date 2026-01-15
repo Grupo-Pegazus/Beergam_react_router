@@ -1,9 +1,9 @@
-import { useState, useMemo } from "react";
-import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import { useMemo, useState } from "react";
 import type { AnuncioDetails } from "../../../typings";
 
 interface ImageGalleryProps {
@@ -17,7 +17,13 @@ export default function ImageGallery({ anuncio }: ImageGalleryProps) {
     if (anuncio.images.length > 0) {
       return anuncio.images;
     }
-    return [{ url: anuncio.thumbnail, secure_url: anuncio.thumbnail, id: "thumbnail" }];
+    return [
+      {
+        url: anuncio.thumbnail,
+        secure_url: anuncio.thumbnail,
+        id: "thumbnail",
+      },
+    ];
   }, [anuncio.images, anuncio.thumbnail]);
 
   const currentImage = images[selectedIndex];
@@ -48,9 +54,10 @@ export default function ImageGallery({ anuncio }: ImageGalleryProps) {
         height: "100%",
         width: "100%",
         maxWidth: "100%",
+        backgroundColor: "var(--color-beergam-section-background)",
       }}
     >
-      <Stack spacing={2} sx={{ width: "100%" }}>
+      <Stack bgcolor="transparent" spacing={2} sx={{ width: "100%" }}>
         {/* Imagem principal */}
         <Box
           sx={{
@@ -64,6 +71,7 @@ export default function ImageGallery({ anuncio }: ImageGalleryProps) {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            backgroundColor: "transparent",
           }}
         >
           <Box
@@ -89,7 +97,11 @@ export default function ImageGallery({ anuncio }: ImageGalleryProps) {
                   height: { xs: 32, sm: 40 },
                 }}
               >
-                <Typography sx={{ fontSize: { xs: 20, sm: 24 }, fontWeight: 700 }}>‹</Typography>
+                <Typography
+                  sx={{ fontSize: { xs: 20, sm: 24 }, fontWeight: 700 }}
+                >
+                  ‹
+                </Typography>
               </IconButton>
               <IconButton
                 onClick={handleNext}
@@ -102,7 +114,11 @@ export default function ImageGallery({ anuncio }: ImageGalleryProps) {
                   height: { xs: 32, sm: 40 },
                 }}
               >
-                <Typography sx={{ fontSize: { xs: 20, sm: 24 }, fontWeight: 700 }}>›</Typography>
+                <Typography
+                  sx={{ fontSize: { xs: 20, sm: 24 }, fontWeight: 700 }}
+                >
+                  ›
+                </Typography>
               </IconButton>
             </>
           )}
@@ -158,7 +174,10 @@ export default function ImageGallery({ anuncio }: ImageGalleryProps) {
                     overflow: "hidden",
                     cursor: "pointer",
                     border: selectedIndex === index ? 2 : 1,
-                    borderColor: selectedIndex === index ? "var(--color-beergam-orange)" : "rgba(0, 0, 0, 0.1)",
+                    borderColor:
+                      selectedIndex === index
+                        ? "var(--color-beergam-primary)"
+                        : "rgba(0, 0, 0, 0.1)",
                     opacity: selectedIndex === index ? 1 : 0.7,
                     transition: "all 0.2s",
                     "&:hover": {
@@ -189,4 +208,3 @@ export default function ImageGallery({ anuncio }: ImageGalleryProps) {
     </Paper>
   );
 }
-

@@ -1,7 +1,17 @@
-import { useState, type ReactNode } from "react";
-import { Box, Chip, Collapse, IconButton, Menu, MenuItem, Typography } from "@mui/material";
-import MainCards from "~/src/components/ui/MainCards";
+import {
+  Box,
+  Chip,
+  Collapse,
+  IconButton,
+  Menu,
+  MenuItem,
+  Paper,
+  Typography,
+} from "@mui/material";
+import { useMemo, useState, type ReactNode } from "react";
+import { Tooltip } from "react-tooltip";
 import Svg from "~/src/assets/svgs/_index";
+import MainCards from "~/src/components/ui/MainCards";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface RelatedItem {
@@ -47,6 +57,8 @@ interface RelatedEntityCardBaseProps {
   onEdit: () => void;
   onDelete: () => void;
   canDelete: boolean;
+  /** Mensagem do tooltip quando não pode deletar */
+  deleteTooltipMessage?: string;
 }
 
 export default function RelatedEntityCardBase({
@@ -66,8 +78,15 @@ export default function RelatedEntityCardBase({
   onEdit,
   onDelete,
   canDelete,
+  deleteTooltipMessage,
 }: RelatedEntityCardBaseProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+  // Gera um ID único para o tooltip baseado no título
+  const deleteTooltipId = useMemo(
+    () => `delete-tooltip-${title.replace(/\s+/g, "-").toLowerCase()}`,
+    [title]
+  );
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
@@ -94,7 +113,7 @@ export default function RelatedEntityCardBase({
 
   return (
     <>
-      <MainCards className="transition-all duration-300 hover:shadow-md">
+      <MainCards className="transition-all duration-300 hover:shadow-md bg-beergam-section-background!">
         <div className={`p-6 ${!isExpanded ? "min-h-[260px]" : ""}`}>
           {/* Header sempre visível */}
           <div className="flex flex-col items-center justify-center relative">
@@ -103,11 +122,13 @@ export default function RelatedEntityCardBase({
               <IconButton
                 onClick={handleMenuOpen}
                 size="small"
-                className="text-beergam-blue-primary"
+                className="text-beergam-white"
                 sx={{
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
+                  backgroundColor: "var(--color-beergam-primary)",
+                  color: "var(--color-beergam-white)",
                   "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 1)",
+                    backgroundColor:
+                      "var(--color-beergam-typography-secondary)",
                   },
                 }}
               >
@@ -116,7 +137,9 @@ export default function RelatedEntityCardBase({
             </div>
 
             {/* Ícone circular */}
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 ${circleBgClass}`}>
+            <div
+              className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 ${circleBgClass}`}
+            >
               <span className="text-white font-bold text-2xl">
                 {circleLabel.toUpperCase()}
               </span>
@@ -125,7 +148,7 @@ export default function RelatedEntityCardBase({
             {/* Título */}
             <Typography
               variant="h6"
-              className="font-semibold text-beergam-blue-primary text-center mb-2"
+              className="font-semibold text-beergam-typography-primary text-center mb-2"
             >
               {title}
             </Typography>
@@ -134,8 +157,7 @@ export default function RelatedEntityCardBase({
             {description && (
               <Typography
                 variant="body2"
-                color="text.secondary"
-                className="text-center mb-3 text-sm"
+                className="text-center mb-3 text-sm text-beergam-typography-secondary"
               >
                 {description}
               </Typography>
@@ -153,22 +175,23 @@ export default function RelatedEntityCardBase({
                   sx={{
                     fontSize: "0.75rem",
                     fontWeight: 600,
-                    backgroundColor: "#dbeafe",
-                    color: "#1e40af",
+                    backgroundColor:
+                      "var(--color-beergam-typography-secondary)",
+                    color: "var(--color-beergam-white)",
                   }}
                 />
                 <BeergamButton
                   title={`${isExpanded ? "Ocultar" : "Ver"} produtos`}
-                  mainColor="beergam-blue-primary"
-                  animationStyle="fade"
                   onClick={handleToggleClick}
-                  className="text-xs mt-1 flex items-center gap-1"
                 />
               </div>
             )}
 
             {!hasRelated && (
-              <Typography variant="caption" color="text.secondary" className="mt-2">
+              <Typography
+                variant="caption"
+                className="text-beergam-typography-tertiary mt-2"
+              >
                 Nenhum produto relacionado
               </Typography>
             )}
@@ -186,7 +209,7 @@ export default function RelatedEntityCardBase({
               >
                 <Typography
                   variant="subtitle2"
-                  className="font-semibold mb-3 text-gray-700 text-sm"
+                  className="font-semibold mb-3 text-beergam-typography-primary text-sm"
                 >
                   {relatedSectionTitle}
                 </Typography>
@@ -212,19 +235,19 @@ export default function RelatedEntityCardBase({
                 >
                   <div className="space-y-2 pr-2">
                     {relatedItems.map((item) => (
-                      <div
+                      <Paper
                         key={item.id}
-                        className="flex items-start gap-2 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                        className="flex items-start border border-beergam-input-border!"
                       >
-                        <div className="w-1.5 h-1.5 rounded-full bg-beergam-blue-primary mt-2 shrink-0" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-beergam-primary mt-2 mr-2 shrink-0" />
                         <div className="flex-1 min-w-0">
                           <Typography
                             variant="body2"
-                            className="font-medium text-gray-900 text-sm"
+                            className="font-medium text-beergam-primary! text-sm"
                           >
                             {item.title}
                             {item.extraTag && (
-                              <span className="text-xs text-gray-500 ml-2">
+                              <span className="text-xs text-beergam-typography-tertiary ml-2">
                                 {item.extraTag}
                               </span>
                             )}
@@ -232,20 +255,21 @@ export default function RelatedEntityCardBase({
                           {item.sku && (
                             <Typography
                               variant="caption"
-                              className="text-gray-500 text-xs"
+                              className="text-beergam-typography-tertiary text-xs"
                             >
                               SKU: {item.sku}
                             </Typography>
                           )}
                         </div>
-                      </div>
+                      </Paper>
                     ))}
                     {remainingCount && remainingCount > 0 && (
                       <Typography
                         variant="caption"
                         className="text-gray-500 italic text-center block mt-2 text-xs"
                       >
-                        ... e mais {remainingCount} {remainingSuffix ?? "produto(s)"}
+                        ... e mais {remainingCount}{" "}
+                        {remainingSuffix ?? "produto(s)"}
                       </Typography>
                     )}
                   </div>
@@ -257,24 +281,60 @@ export default function RelatedEntityCardBase({
       </MainCards>
 
       {/* Menu comum (editar/excluir) */}
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
         <MenuItem onClick={handleEditClick}>
           <Svg.pencil tailWindClasses="w-4 h-4 mr-2" />
           Editar
         </MenuItem>
-        <MenuItem
-          onClick={handleDeleteClick}
-          disabled={!canDelete}
-          sx={{
-            color: canDelete ? "error.main" : "text.disabled",
-          }}
-        >
-          <Svg.trash tailWindClasses="w-4 h-4 mr-2" />
-          Excluir
-        </MenuItem>
+        {!canDelete && deleteTooltipMessage ? (
+          <div
+            data-tooltip-id={deleteTooltipId}
+            className="w-full"
+            style={{ cursor: "not-allowed" }}
+          >
+            <MenuItem
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              disabled
+              sx={{
+                color: "text.disabled",
+                "&.Mui-disabled": {
+                  opacity: 0.6,
+                },
+              }}
+            >
+              <Svg.trash tailWindClasses="w-4 h-4 mr-2" />
+              Excluir
+            </MenuItem>
+          </div>
+        ) : (
+          <MenuItem
+            onClick={handleDeleteClick}
+            sx={{
+              color: "error.main",
+            }}
+          >
+            <Svg.trash tailWindClasses="w-4 h-4 mr-2" />
+            Excluir
+          </MenuItem>
+        )}
       </Menu>
+
+      {/* Tooltip para botão de deletar desabilitado */}
+      {!canDelete && deleteTooltipMessage && (
+        <Tooltip
+          id={deleteTooltipId}
+          content={deleteTooltipMessage}
+          place="left"
+          className="z-50"
+        />
+      )}
     </>
   );
 }
-
-

@@ -367,7 +367,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
             {timelineItems.length > 0 && (
               <div
                 style={{
-                  background: "var(--white)",
+                  background: "var(--color-beergam-section-background)!",
                   borderRadius: "15px",
                   padding: "20px",
                   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
@@ -395,20 +395,35 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
               <CensorshipWrapper censorshipKey="vendas_orders_list_details_endereco">
                 <DetalhesEnvio title="Endereço">
                   <div className="flex gap-[0.3rem] mb-[5px]">
-                    <p className="font-bold text-[#11263c]">Endereço:</p>
-                    <TextCensored censorshipKey="vendas_orders_list_details_endereco">
+                    <p className="font-bold text-beergam-typography-primary!">
+                      Endereço:
+                    </p>
+                    <TextCensored
+                      className="text-beergam-typography-secondary!"
+                      censorshipKey="vendas_orders_list_details_endereco"
+                    >
                       {firstOrder.shipping_details?.address_line || "N/A"}
                     </TextCensored>
                   </div>
                   <div className="flex gap-[0.3rem] mb-[5px]">
-                    <p className="font-bold text-[#11263c]">Bairro:</p>
-                    <TextCensored censorshipKey="vendas_orders_list_details_endereco">
+                    <p className="font-bold text-beergam-typography-primary!">
+                      Bairro:
+                    </p>
+                    <TextCensored
+                      className="text-beergam-typography-secondary!"
+                      censorshipKey="vendas_orders_list_details_endereco"
+                    >
                       {firstOrder.shipping_details?.neighborhood || "N/A"}
                     </TextCensored>
                   </div>
                   <div className="flex gap-[0.3rem] mb-[5px]">
-                    <p className="font-bold text-[#11263c]">Estado:</p>
-                    <TextCensored censorshipKey="vendas_orders_list_details_endereco">
+                    <p className="font-bold text-beergam-typography-primary!">
+                      Estado:
+                    </p>
+                    <TextCensored
+                      className="text-beergam-typography-secondary!"
+                      censorshipKey="vendas_orders_list_details_endereco"
+                    >
                       {firstOrder.shipping_destination_state || "N/A"}
                     </TextCensored>
                   </div>
@@ -417,14 +432,18 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
               <DetalhesEnvio title="Entrega">
                 {/* <LabelText label="Método" text={firstOrder.tracking_method || "N/A"} /> */}
                 <div className="flex gap-[0.3rem] mb-[5px]">
-                  <p className="font-bold text-[#11263c]">Modo de Envio:</p>
+                  <p className="font-bold text-beergam-typography-primary!">
+                    Modo de Envio:
+                  </p>
                   <p>
                     {getLogisticTypeMeliInfo(firstOrder.shipping_mode ?? "")
                       ?.label || "N/A"}
                   </p>
                 </div>
                 <div className="flex gap-[0.3rem] mb-[5px]">
-                  <p className="font-bold text-[#11263c]">Frete Pago Por:</p>
+                  <p className="font-bold text-beergam-typography-primary!">
+                    Frete Pago Por:
+                  </p>
                   <p>
                     {getShippingPaidByLabel(firstOrder.shipping_paid_by) ||
                       "N/A"}

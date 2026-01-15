@@ -80,19 +80,21 @@ export const MeliScheduleSchema = z.object({
   marketplace_type: z.literal(MarketplaceType.MELI),
   results_by_logistic_type: z.record(
     z.string(),
-    z.object({
-      node_id: z.string().nullable(),
-      schedule: z.object({
-        monday: MeliScheduleDaySchema.optional(),
-        tuesday: MeliScheduleDaySchema.optional(),
-        wednesday: MeliScheduleDaySchema.optional(),
-        thursday: MeliScheduleDaySchema.optional(),
-        friday: MeliScheduleDaySchema.optional(),
-        saturday: MeliScheduleDaySchema.optional(),
-        sunday: MeliScheduleDaySchema.optional(),
-      }),
-      seller_id: z.string().nullable(),
-    }),
+    z
+      .object({
+        node_id: z.string().nullable(),
+        schedule: z.object({
+          monday: MeliScheduleDaySchema.optional(),
+          tuesday: MeliScheduleDaySchema.optional(),
+          wednesday: MeliScheduleDaySchema.optional(),
+          thursday: MeliScheduleDaySchema.optional(),
+          friday: MeliScheduleDaySchema.optional(),
+          saturday: MeliScheduleDaySchema.optional(),
+          sunday: MeliScheduleDaySchema.optional(),
+        }),
+        seller_id: z.string().nullable(),
+      })
+      .nullable(),
   ),
   schedule_mode: z.string(),
 });
