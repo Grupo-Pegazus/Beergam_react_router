@@ -63,19 +63,9 @@ export default function LandingAbout() {
             </div>
           </div>
           <div className="grid grid-cols-1 grid-rows-2 h-full gap-4 max-h-[500px]">
-            <div className="bg-beergam-blue-primary-dark rounded-2xl">
-              <img
-                src={CDN_IMAGES.ANUNCIOS_PREVIEW}
-                alt="About"
-                className="w-full h-full object-cover rounded-2xl"
-              />
+            <div className="bg-beergam-blue-primary-dark rounded-2xl" style={{ backgroundImage: `url(${CDN_IMAGES.ANUNCIOS_PREVIEW})`, backgroundSize: "200%", backgroundPositionY: "bottom", backgroundPositionX: "left" }}>
             </div>
-            <div className="bg-beergam-blue-primary-dark rounded-2xl">
-              <img
-                src={CDN_IMAGES.COLAB_PREVIEW}
-                alt="About"
-                className="w-full h-full object-cover rounded-2xl"
-              />
+            <div className="bg-beergam-blue-primary-dark rounded-2xl" style={{ backgroundImage: `url(${CDN_IMAGES.COLAB_PREVIEW})`, backgroundSize: "200%", backgroundPositionY: "bottom", backgroundPositionX: "left" }}>
             </div>
           </div>
         </div>

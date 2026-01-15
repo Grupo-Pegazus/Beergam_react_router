@@ -11,7 +11,7 @@ export const CDN_IMAGES = {
   AUTH_WORLD_BG: "https://cdn.beergam.com.br/world_bg.webp",
   BERGAMOTA_LOGO: "https://cdn2.beergam.com.br/landing_page/Bergamota.webp",
   ANUNCIOS_PREVIEW:
-    "https://cdn2.beergam.com.br/landing_page/AnunciosPreview.webp",
+    "https://media.discordapp.net/attachments/1307841142527754314/1461442649109172394/image.png?ex=696a9207&is=69694087&hm=c1e536a6a510861778f6398f937a7f4f9823af375995fa49ca0afdc4e024bacd&=&format=webp&quality=lossless&width=1860&height=644",
   COLAB_PREVIEW: "https://cdn2.beergam.com.br/landing_page/ColabPreview.webp",
   LARA_WORKER: "https://cdn.beergam.com.br/petBeergam.png",
   LARA_CONFUSED: "https://cdn2.beergam.com.br/landing_page/confused-lara.webp",
