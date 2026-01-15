@@ -32,7 +32,8 @@ import type { TError } from "./src/components/Error/typings";
 import { CensorshipProvider } from "./src/components/utils/Censorship";
 import { ModalProvider } from "./src/components/utils/Modal/ModalProvider";
 import { ThemeProvider as DarkModeThemeProvider } from "./src/components/utils/ThemeProvider";
-import { ThemeToggle } from "./src/components/utils/ThemeToggle";
+import { SentryUserSync } from "./features/sentry/components/SentryUserSync";
+import { FloatingActionButtons } from "./src/components/utils/FloatingActionButtons";
 import "./zod";
 dayjs.locale("pt-br");
 
@@ -492,10 +493,11 @@ export default function App() {
         <Analytics />
         <QueryClientProvider client={queryClient}>
           <ModalProvider>
+            <SentryUserSync />
             <GlobalLoadingSpinner />
             <SocketConnectionManager />
             <AuthStoreMonitor />
-            <ThemeToggle />
+            <FloatingActionButtons size="lg" />
           </ModalProvider>
         </QueryClientProvider>
       </CensorshipProvider>
