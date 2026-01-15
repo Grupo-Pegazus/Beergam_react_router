@@ -27,7 +27,10 @@ export default function AnuncioStatusToggle({
   const isClosed = normalizedStatus === "closed";
   const isUnderReview = normalizedStatus === "under_review";
   // Se showControl é false, sempre mostra a mensagem se houver
-  const statusMessage = (!showControl || showStatusMessage) ? getStatusMessage(status, subStatus) : null;
+  const statusMessage =
+    !showControl || showStatusMessage
+      ? getStatusMessage(status, subStatus)
+      : null;
 
   // Se apenas a mensagem deve ser mostrada (para layout customizado)
   if (!showControl) {
@@ -35,8 +38,7 @@ export default function AnuncioStatusToggle({
       return (
         <Typography
           variant="caption"
-          color="text.secondary"
-          className="block text-xs"
+          className="text-beergam-typography-secondary!"
           sx={{ lineHeight: 1.4 }}
         >
           {statusMessage}
@@ -90,10 +92,10 @@ export default function AnuncioStatusToggle({
       <div className="flex items-center gap-2">
         <Typography
           variant="caption"
-          color={isActive ? "text.secondary" : "text.disabled"}
+          className={`${isActive ? "text-beergam-primary!" : "text-beergam-typography-secondary!"}`}
           sx={{ fontSize: "0.7rem" }}
         >
-          Pausado
+          {isActive ? "Ativo" : "Pausado"}
         </Typography>
         <div className="relative">
           <Switch
@@ -112,13 +114,6 @@ export default function AnuncioStatusToggle({
             </div>
           )}
         </div>
-        <Typography
-          variant="caption"
-          color={isActive ? "text.primary" : "text.disabled"}
-          sx={{ fontSize: "0.7rem", fontWeight: 600 }}
-        >
-          Ativo
-        </Typography>
       </div>
     );
   };
@@ -228,4 +223,3 @@ function getStatusMessage(status: string, subStatus: string[]): string | null {
 
   return null;
 }
-

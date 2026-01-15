@@ -255,7 +255,34 @@ const theme = createTheme(
       MuiStack: {
         styleOverrides: {
           root: {
-            backgroundColor: "var(--color-beergam-mui-paper)",
+            backgroundColor: "transparent",
+          },
+        },
+      },
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            color: "var(--color-beergam-typography-primary)",
+          },
+        },
+      },
+      MuiTableCell: {
+        styleOverrides: {
+          sizeMedium: {
+            "@media (max-width: 768px)": {
+              display: "none",
+            },
+          },
+          sizeSmall: {
+            "@media (max-width: 768px)": {
+              display: "none",
+            },
+          },
+          head: {
+            color: "var(--color-beergam-typography-primary)",
+          },
+          body: {
+            color: "var(--color-beergam-typography-secondary)",
           },
         },
       },

@@ -1,17 +1,17 @@
-import { useMemo, useState } from "react";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
-import Stack from "@mui/material/Stack";
-import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
-import { useChangeAdStatus } from "../../../hooks";
-import type { AnuncioDetails } from "../../../typings";
+import Chip from "@mui/material/Chip";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
-import { useQueryClient } from "@tanstack/react-query";
-import AnuncioFeatures from "../AnuncioFeatures/AnuncioFeatures";
-import AnuncioStatusToggle from "../../AnuncioStatusToggle";
+import { useMemo, useState } from "react";
 import BeergamButton from "~/src/components/utils/BeergamButton";
+import { useChangeAdStatus } from "../../../hooks";
+import type { AnuncioDetails } from "../../../typings";
+import AnuncioStatusToggle from "../../AnuncioStatusToggle";
+import AnuncioFeatures from "../AnuncioFeatures/AnuncioFeatures";
 
 interface AnuncioInfoProps {
   anuncio: AnuncioDetails;
@@ -23,7 +23,9 @@ export default function AnuncioInfo({ anuncio }: AnuncioInfoProps) {
   const changeStatusMutation = useChangeAdStatus();
 
   const formattedDate = useMemo(() => {
-    return dayjs(anuncio.date_created_ad).locale("pt-br").format("DD [de] MMM [de] YYYY");
+    return dayjs(anuncio.date_created_ad)
+      .locale("pt-br")
+      .format("DD [de] MMM [de] YYYY");
   }, [anuncio.date_created_ad]);
 
   const adTypeLabel = useMemo(() => {
@@ -44,7 +46,9 @@ export default function AnuncioInfo({ anuncio }: AnuncioInfoProps) {
       {
         onSettled: () => {
           setIsMutating(false);
-          queryClient.invalidateQueries({ queryKey: ["anuncios", "details", anuncio.mlb] });
+          queryClient.invalidateQueries({
+            queryKey: ["anuncios", "details", anuncio.mlb],
+          });
         },
       }
     );
@@ -57,18 +61,26 @@ export default function AnuncioInfo({ anuncio }: AnuncioInfoProps) {
         p: 3,
         borderRadius: 2,
         border: "1px solid rgba(15, 23, 42, 0.08)",
+        backgroundColor: "var(--color-beergam-section-background)",
       }}
     >
-      <Stack spacing={2}>
+      <Stack bgcolor="transparent" spacing={2}>
         {/* Título do produto */}
-        <Typography variant="h4" sx={{ fontWeight: 700, fontSize: "1.5rem" }}>
+        <Typography
+          className="text-beergam-typography-primary!"
+          variant="h4"
+          sx={{ fontWeight: 700, fontSize: "1.5rem" }}
+        >
           {anuncio.name}
         </Typography>
 
         {/* ID e SKU */}
         <Stack direction="row" spacing={2} flexWrap="wrap" gap={1}>
           <Box>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              className="text-beergam-typography-secondary!"
+            >
               ID:
             </Typography>
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -77,18 +89,27 @@ export default function AnuncioInfo({ anuncio }: AnuncioInfoProps) {
           </Box>
           {anuncio.variations && anuncio.variations.length === 0 && (
             <Box>
-                <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                className="text-beergam-typography-secondary!"
+              >
                 SKU:
-                </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
                 {anuncio.sku || "SKU-None"}
-                </Typography>
+              </Typography>
             </Box>
           )}
         </Stack>
 
         {/* Tipo de anúncio, status e idade */}
-        <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" gap={1}>
+        <Stack
+          direction="row"
+          spacing={2}
+          alignItems="center"
+          flexWrap="wrap"
+          gap={1}
+        >
           <Chip
             label={adTypeLabel}
             size="small"
@@ -110,10 +131,16 @@ export default function AnuncioInfo({ anuncio }: AnuncioInfoProps) {
             }
           />
 
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            className="text-beergam-typography-secondary!"
+          >
             Criado há {anuncio.active_days} dias ativo
           </Typography>
-          <Typography variant="caption" color="text.secondary">
+          <Typography
+            variant="caption"
+            className="text-beergam-typography-secondary!"
+          >
             {formattedDate}
           </Typography>
         </Stack>
@@ -123,10 +150,17 @@ export default function AnuncioInfo({ anuncio }: AnuncioInfoProps) {
         {/* Métricas de performance */}
         <Stack direction="row" spacing={3} flexWrap="wrap" gap={2}>
           <Box>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              className="text-beergam-typography-secondary!"
+            >
               Visitas totais
             </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.65rem", display: "block", mt: 0.5 }}>
+            <Typography
+              variant="caption"
+              className="text-beergam-typography-secondary!"
+              sx={{ fontSize: "0.65rem", display: "block", mt: 0.5 }}
+            >
               Últimos 150 dias
             </Typography>
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
@@ -134,7 +168,10 @@ export default function AnuncioInfo({ anuncio }: AnuncioInfoProps) {
             </Typography>
           </Box>
           <Box>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              className="text-beergam-typography-secondary!"
+            >
               Vendas Totais
             </Typography>
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
@@ -146,18 +183,31 @@ export default function AnuncioInfo({ anuncio }: AnuncioInfoProps) {
         {/* Preço e Estoque */}
         <Stack direction="row" spacing={3} alignItems="center">
           <Box>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              className="text-beergam-typography-secondary!"
+            >
               Preço
             </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 700, color: "var(--color-beergam-orange)" }}>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: 700, color: "var(--color-beergam-primary)" }}
+            >
               R$ {parseFloat(anuncio.price).toFixed(2).replace(".", ",")}
             </Typography>
           </Box>
           <Box>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              className="text-beergam-typography-secondary!"
+            >
               Estoque
             </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 700 }}>
+            <Typography
+              className="text-beergam-typography-primary!"
+              variant="h5"
+              sx={{ fontWeight: 700 }}
+            >
               {anuncio.stock}
             </Typography>
           </Box>
@@ -175,17 +225,15 @@ export default function AnuncioInfo({ anuncio }: AnuncioInfoProps) {
           />
         </Stack>
         <Stack direction="row" spacing={3} alignItems="center">
-            <Box>
-                <BeergamButton
-                  title="Ver no Mercado Livre"
-                  mainColor="beergam-blue-primary"
-                  animationStyle="slider"
-                  onClick={() => window.open(anuncio.link, "_blank")}
-                />
-            </Box>
+          <Box>
+            <BeergamButton
+              title="Ver no Mercado Livre"
+              animationStyle="slider"
+              onClick={() => window.open(anuncio.link, "_blank")}
+            />
+          </Box>
         </Stack>
       </Stack>
     </Paper>
   );
 }
-

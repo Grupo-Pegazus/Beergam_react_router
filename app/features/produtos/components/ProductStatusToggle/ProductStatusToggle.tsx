@@ -30,10 +30,9 @@ export default function ProductStatusToggle({
       />
       {isMutating && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-beergam-blue-primary border-t-transparent" />
         </div>
       )}
     </div>
   );
 }
-

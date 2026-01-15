@@ -1,17 +1,18 @@
-import { useMemo } from "react";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
-import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
-import Speedometer from "../../Speedometer/Speedometer";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import { useMemo } from "react";
 import type { AnuncioDetails } from "../../../typings";
+import Speedometer from "../../Speedometer/Speedometer";
 
 interface QualityMetricsProps {
   anuncio: AnuncioDetails;
 }
 
 export default function QualityMetrics({ anuncio }: QualityMetricsProps) {
-  const qaScore = anuncio.quality_metrics?.qa_score ?? anuncio.health?.score ?? null;
+  const qaScore =
+    anuncio.quality_metrics?.qa_score ?? anuncio.health?.score ?? null;
   const ecScore = anuncio.quality_metrics?.ec_score ?? null;
 
   const qaLabel = useMemo(() => {
@@ -35,6 +36,7 @@ export default function QualityMetrics({ anuncio }: QualityMetricsProps) {
         p: 3,
         borderRadius: 2,
         border: "1px solid rgba(15, 23, 42, 0.08)",
+        backgroundColor: "var(--color-beergam-section-background)",
         height: "100%",
         overflowY: "auto",
         maxHeight: "350px",
@@ -43,13 +45,20 @@ export default function QualityMetrics({ anuncio }: QualityMetricsProps) {
       <Stack spacing={3}>
         {/* Qualidade do Anúncio */}
         <Box>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
+          <Typography
+            className="text-beergam-typography-primary!"
+            variant="subtitle2"
+            sx={{ fontWeight: 600, mb: 2 }}
+          >
             Qualidade do Anúncio (QA)
           </Typography>
           <Stack direction="row" spacing={2} alignItems="center">
             <Speedometer value={qaScore} size={80} />
             <Box>
-              <Typography variant="body2" color="text.primary">
+              <Typography
+                className="text-beergam-typography-tertiary!"
+                variant="body2"
+              >
                 {qaLabel}
               </Typography>
             </Box>
@@ -58,13 +67,20 @@ export default function QualityMetrics({ anuncio }: QualityMetricsProps) {
 
         {/* Experiência de Compra */}
         <Box>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
+          <Typography
+            className="text-beergam-typography-primary!"
+            variant="subtitle2"
+            sx={{ fontWeight: 600, mb: 2 }}
+          >
             Experiência de Compra (EC)
           </Typography>
           <Stack direction="row" spacing={2} alignItems="center">
             <Speedometer value={ecScore} size={80} />
             <Box>
-              <Typography variant="body2" color="text.primary">
+              <Typography
+                className="text-beergam-typography-tertiary!"
+                variant="body2"
+              >
                 {ecLabel}
               </Typography>
             </Box>
@@ -74,4 +90,3 @@ export default function QualityMetrics({ anuncio }: QualityMetricsProps) {
     </Paper>
   );
 }
-

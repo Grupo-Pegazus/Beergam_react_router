@@ -1,5 +1,5 @@
-import { Link } from "react-router";
 import Typography from "@mui/material/Typography";
+import { Link } from "react-router";
 import Svg from "~/src/assets/svgs/_index";
 
 export interface ClickableCardProps {
@@ -10,7 +10,12 @@ export interface ClickableCardProps {
   /** Ícone a ser exibido (chave do objeto Svg) */
   icon: keyof typeof Svg;
   /** Cor principal do card (classe Tailwind) */
-  mainColor: "beergam-orange" | "beergam-blue-primary" | "beergam-green" | "beergam-red" | "beergam-gray";
+  mainColor:
+    | "beergam-orange"
+    | "beergam-blue-primary"
+    | "beergam-green"
+    | "beergam-red"
+    | "beergam-gray";
   /** Link de destino */
   to: string;
   /** Classe CSS adicional */
@@ -64,23 +69,33 @@ export default function ClickableCard({
   return (
     <Link
       to={to}
-      className={`group relative flex flex-col p-3 sm:p-4 md:p-5 rounded-lg sm:rounded-xl border-2 border-slate-200 bg-linear-to-br from-white to-slate-50 ${colors.border} hover:shadow-lg transition-all duration-200 ${className}`}
+      className={`group relative flex flex-col p-3 sm:p-4 md:p-5 rounded-lg sm:rounded-xl border border-beergam-input-border bg-beergam-section-background ${colors.border} hover:shadow-lg transition-all duration-200 ${className}`}
     >
       <div className="flex items-start justify-between mb-2 sm:mb-3">
-        <div className={`p-2 sm:p-2.5 md:p-3 rounded-lg ${colors.iconBg} transition-colors`}>
-          <IconComponent tailWindClasses={`w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 ${colors.iconColor}`} />
+        <div
+          className={`p-2 sm:p-2.5 md:p-3 rounded-lg ${colors.iconBg} transition-colors`}
+        >
+          <IconComponent
+            tailWindClasses={`w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 ${colors.iconColor}`}
+          />
         </div>
         <Svg.chevron
-          tailWindClasses={`w-4 h-4 sm:w-5 sm:h-5 text-slate-400 ${colors.chevronColor} group-hover:translate-x-1 transition-all shrink-0`}
+          tailWindClasses={`w-4 h-4 sm:w-5 sm:h-5 text-beergam-typography-secondary ${colors.chevronColor} group-hover:translate-x-1 transition-all shrink-0`}
         />
       </div>
-      <Typography variant="h6" fontWeight={600} className="text-slate-900 mb-1 text-sm sm:text-base md:text-lg">
+      <Typography
+        variant="h6"
+        fontWeight={600}
+        className="text-beergam-typography-primary mb-1 text-sm sm:text-base md:text-lg"
+      >
         {title}
       </Typography>
-      <Typography variant="body2" color="text.secondary" className="text-xs sm:text-sm leading-tight sm:leading-normal">
+      <Typography
+        variant="body2"
+        className="text-beergam-typography-secondary text-xs sm:text-sm leading-tight sm:leading-normal"
+      >
         {description}
       </Typography>
     </Link>
   );
 }
-
