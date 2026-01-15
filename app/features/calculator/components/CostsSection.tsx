@@ -4,13 +4,13 @@ import RadioGroup from "./RadioGroup";
 import NumberInput from "./NumberInput";
 
 interface CostsSectionProps {
-  adType: "classico" | "premium" | "normal" | "indicado";
+  adType: "classico" | "premium" | "sem_frete_gratis" | "com_frete_gratis";
   commissionPercentage: string;
   salePrice: string;
   calculatorType: "ml" | "shopee";
   classicCommission?: number;
   premiumCommission?: number;
-  onAdTypeChange: (value: "classico" | "premium" | "normal" | "indicado") => void;
+  onAdTypeChange: (value: "classico" | "premium" | "sem_frete_gratis" | "com_frete_gratis") => void;
   onCommissionPercentageChange: (value: string) => void;
 }
 
@@ -32,7 +32,7 @@ export default function CostsSection({
   // Para Shopee, definir porcentagem fixa baseada no tipo de taxa
   useEffect(() => {
     if (isShopee) {
-      const fixedPercentage = adType === "normal" ? "14" : adType === "indicado" ? "20" : "14";
+      const fixedPercentage = adType === "sem_frete_gratis" ? "14" : adType === "com_frete_gratis" ? "20" : "14";
       // Só atualizar se o adType ou calculatorType mudou
       if (
         adType !== prevAdTypeRef.current ||
@@ -114,8 +114,8 @@ export default function CostsSection({
   const getAdTypeOptions = () => {
     if (isShopee) {
       return [
-        { value: "normal", label: "Normal" },
-        { value: "indicado", label: "Indicado" },
+        { value: "sem_frete_gratis", label: "Sem Programa de Frete Grátis" },
+        { value: "com_frete_gratis", label: "Programa de Frete Grátis" },
       ];
     }
     return [
@@ -145,7 +145,7 @@ export default function CostsSection({
           name="adType"
           value={adType}
           options={getAdTypeOptions()}
-          onChange={(value) => onAdTypeChange(value as "classico" | "premium" | "normal" | "indicado")}
+          onChange={(value) => onAdTypeChange(value as "classico" | "premium" | "sem_frete_gratis" | "com_frete_gratis")}
         />
       </Fields.wrapper>
 

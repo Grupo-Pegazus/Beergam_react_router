@@ -47,6 +47,37 @@ function isMeliSchedule(
   return payload?.marketplace_type === MarketplaceType.MELI;
 }
 
+/**
+ * Encontra o primeiro valor não-nulo em results_by_logistic_type.
+ * Retorna null se todos os valores forem null.
+ */
+function findFirstNonEmptySchedule(
+  resultsByLogisticType: MarketplaceScheduleData<MarketplaceType.MELI>["schedule"]["results_by_logistic_type"]
+): NonNullable<
+  MarketplaceScheduleData<MarketplaceType.MELI>["schedule"]["results_by_logistic_type"][string]
+> | null {
+  if (!resultsByLogisticType) return null;
+
+  // Itera sobre os valores do objeto e retorna o primeiro que não seja null ou undefined
+  // O record pode ter valores null, então precisamos verificar explicitamente
+  const values = Object.values(resultsByLogisticType);
+  
+  for (const value of values) {
+    // Verifica se o valor existe, não é null e tem a estrutura esperada
+    if (
+      value != null &&
+      typeof value === "object" &&
+      "schedule" in value
+    ) {
+      return value as NonNullable<
+        MarketplaceScheduleData<MarketplaceType.MELI>["schedule"]["results_by_logistic_type"][string]
+      >;
+    }
+  }
+
+  return null;
+}
+
 export default function ScheduleTimes() {
   const [open, setOpen] = useState(false);
   const selectedMarketplace = authStore.use.marketplace();
@@ -73,10 +104,21 @@ export default function ScheduleTimes() {
       return { label: "—", cutoff: "—" };
 
     const meliSchedule = payload.schedule;
-    const scheduleByType =
-      meliSchedule.results_by_logistic_type?.["drop_off"] ??
-      Object.values(meliSchedule.results_by_logistic_type ?? {})[0];
-    const schedule = scheduleByType?.schedule;
+    
+    // Verifica se results_by_logistic_type existe
+    if (!meliSchedule.results_by_logistic_type) {
+      return { label: "Sem dados", cutoff: "—" };
+    }
+
+    const scheduleByType = findFirstNonEmptySchedule(
+      meliSchedule.results_by_logistic_type
+    );
+
+    if (!scheduleByType) {
+      return { label: "Sem dados", cutoff: "—" };
+    }
+
+    const schedule = scheduleByType.schedule;
     if (!schedule) return { label: "—", cutoff: "—" };
 
     // pega o primeiro dia útil com detail válido
@@ -125,48 +167,59 @@ export default function ScheduleTimes() {
               Sem dados disponíveis para o marketplace selecionado.
             </div>
           ) : isMeliSchedule(payload) ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {(() => {
-                const meliSchedule = payload.schedule;
-                const scheduleByType =
-                  meliSchedule.results_by_logistic_type?.["drop_off"] ??
-                  Object.values(meliSchedule.results_by_logistic_type ?? {})[0];
-                const schedule = scheduleByType?.schedule ?? {};
-                return WEEK_ORDER.map((day) => {
-                  const info = schedule[day];
-                  const work: boolean = info?.work ?? false;
-                  const cutoff: string | undefined = info?.detail?.[0]?.cutoff;
-                  return (
-                    <div
-                      key={day}
-                      className="rounded-xl border border-black/10 p-3 bg-white"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-beergam-typography-tertiary">
-                          {DAY_LABEL[day]}
-                        </span>
-                        <span
-                          className={[
-                            "text-xs px-2 py-0.5 rounded-full",
-                            work
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : "bg-slate-100 text-slate-600 border border-slate-200",
-                          ].join(" ")}
-                        >
-                          {work ? "Dia útil" : "Sem operação"}
-                        </span>
+            (() => {
+              const meliSchedule = payload.schedule;
+              const scheduleByType = findFirstNonEmptySchedule(
+                meliSchedule.results_by_logistic_type
+              );
+
+              if (!scheduleByType) {
+                return (
+                  <div className="text-sm text-beergam-typography-secondary">
+                    Sem dados disponíveis de horários de corte.
+                  </div>
+                );
+              }
+
+              const schedule = scheduleByType.schedule ?? {};
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {WEEK_ORDER.map((day) => {
+                    const info = schedule[day];
+                    const work: boolean = info?.work ?? false;
+                    const cutoff: string | undefined = info?.detail?.[0]?.cutoff;
+                    return (
+                      <div
+                        key={day}
+                        className="rounded-xl border border-black/10 p-3 bg-white"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-semibold text-beergam-typography-tertiary">
+                            {DAY_LABEL[day]}
+                          </span>
+                          <span
+                            className={[
+                              "text-xs px-2 py-0.5 rounded-full",
+                              work
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                : "bg-slate-100 text-slate-600 border border-slate-200",
+                            ].join(" ")}
+                          >
+                            {work ? "Dia útil" : "Sem operação"}
+                          </span>
+                        </div>
+                        <div className="mt-2 text-sm text-beergam-typography-secondary">
+                          Corte:{" "}
+                          <span className="font-semibold">
+                            {cutoff ?? (work ? "—" : "N/A")}
+                          </span>
+                        </div>
                       </div>
-                      <div className="mt-2 text-sm text-beergam-typography-secondary">
-                        Corte:{" "}
-                        <span className="font-semibold">
-                          {cutoff ?? (work ? "—" : "N/A")}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                });
-              })()}
-            </div>
+                    );
+                  })}
+                </div>
+              );
+            })()
           ) : (
             <div className="text-sm text-beergam-typography-secondary">
               Estrutura de horários de corte ainda não implementada para este

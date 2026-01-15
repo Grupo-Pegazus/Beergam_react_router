@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { Category, RelatedProduct } from "../typings";
 import { useDeleteCategory } from "../hooks";
 import toast from "~/src/utils/toast";
@@ -83,6 +82,11 @@ export default function CategoryCard({
         onEdit={() => onEdit(category)}
         onDelete={handleDeleteClick}
         canDelete={canDelete}
+        deleteTooltipMessage={
+          !canDelete
+            ? "Não é possível excluir esta categoria pois ela está sendo usada por produtos relacionados"
+            : undefined
+        }
       />
     </>
   );
