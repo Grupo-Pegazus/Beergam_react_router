@@ -206,13 +206,15 @@ export default function UserForm({ user }: { user: IUser }) {
                 label: CalcTax[key as keyof typeof CalcTax],
               }))}
             />
-            <UserFields
-              label="Cálculo Fixo de Imposto (%)"
-              {...register("details.tax_percent_fixed")}
-              value={watch("details.tax_percent_fixed") ?? ""}
-              error={errors.details?.tax_percent_fixed?.message}
-              canAlter={true}
-            />
+            {(watch("details.calc_tax") as string) === "VALOR_PORCENTAGEM_FIXA" && (
+              <UserFields
+                label="Cálculo Fixo de Imposto (%)"
+                {...register("details.tax_percent_fixed")}
+                value={watch("details.tax_percent_fixed") ?? ""}
+                error={errors.details?.tax_percent_fixed?.message}
+                canAlter={true}
+              />
+            )}
             <UserFields
               label="Faturador Atual"
               {...register("details.current_billing")}
