@@ -68,13 +68,13 @@ function Timeline({items}: TimelineProps) {
                 ))}
             </div>
 
-            <BeergamButton
+            {/* <BeergamButton
               title={mostrarDetalhes ? "Esconder detalhes" : "Mostrar detalhes"}
               mainColor="beergam-gray"
               animationStyle="fade"
               onClick={clickDetalhes}
               className={styles.btnEsconder}
-            />
+            /> */}
         </div>
     );
 };
