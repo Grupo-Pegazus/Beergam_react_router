@@ -130,6 +130,7 @@ export default function ScheduleTimes() {
                 const meliSchedule = payload.schedule;
                 const scheduleByType =
                   meliSchedule.results_by_logistic_type?.["drop_off"] ??
+                  meliSchedule.results_by_logistic_type?.["xd_drop_off"] ??
                   Object.values(meliSchedule.results_by_logistic_type ?? {})[0];
                 const schedule = scheduleByType?.schedule ?? {};
                 return WEEK_ORDER.map((day) => {
