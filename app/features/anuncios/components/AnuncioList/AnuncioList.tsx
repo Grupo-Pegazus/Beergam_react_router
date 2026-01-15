@@ -316,7 +316,7 @@ function AnuncioCard({
                 variant="caption"
                 className="text-beergam-typography-secondary!"
               >
-                {anuncio.stock} unidades
+                {anuncio.stock} em estoque
               </Typography>
             </div>
           </div>
