@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material";
+import { createTheme, Paper } from "@mui/material";
 import { ptBR } from "@mui/material/locale";
 
 export const muiTheme = createTheme(
@@ -94,6 +94,11 @@ export const muiTheme = createTheme(
           },
         },
       },
+      MuiTableContainer: {
+        defaultProps: {
+          component: Paper,
+        },
+      },
       MuiTableCell: {
         styleOverrides: {
           sizeMedium: {
@@ -177,6 +182,18 @@ export const muiTheme = createTheme(
                 padding: "10px 12px", // py-2.5 px-3
                 borderRadius: "8px", // rounded
                 borderColor: "var(--color-beergam-input-border)",
+                "& input": {
+                  "&::placeholder": {
+                    color: "var(--color-beergam-typography-tertiary)",
+                    opacity: 1,
+                  },
+                },
+                "& textarea": {
+                  "&::placeholder": {
+                    color: "var(--color-beergam-typography-tertiary)",
+                    opacity: 1,
+                  },
+                },
                 "& fieldset": {
                   borderColor: "var(--color-beergam-input-border)",
                   borderWidth: "1px",
@@ -218,7 +235,7 @@ export const muiTheme = createTheme(
               },
             },
             "& .MuiInputLabel-root": {
-              color: "var(--color-beergam-typography-secondary)",
+              color: "var(--color-beergam-typography-tertiary)",
               fontSize: "0.875rem", // text-sm
               "&.Mui-focused": {
                 color: "var(--color-beergam-orange)",
@@ -229,7 +246,7 @@ export const muiTheme = createTheme(
             },
             "& .MuiFormHelperText-root": {
               fontSize: "0.75rem",
-              color: "var(--color-beergam-typography-secondary)",
+              color: "var(--color-beergam-typography-tertiary)",
               "&.Mui-error": {
                 color: "var(--color-beergam-red)",
               },
@@ -248,6 +265,18 @@ export const muiTheme = createTheme(
               padding: "10px 12px", // py-2.5 px-3
               borderRadius: "8px", // rounded
               borderColor: "var(--color-beergam-input-border)",
+              "& input": {
+                "&::placeholder": {
+                  color: "var(--color-beergam-typography-tertiary)",
+                  opacity: 1,
+                },
+              },
+              "& textarea": {
+                "&::placeholder": {
+                  color: "var(--color-beergam-typography-tertiary)",
+                  opacity: 1,
+                },
+              },
               "& fieldset": {
                 borderColor: "var(--color-beergam-input-border)",
                 borderWidth: "1px",

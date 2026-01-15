@@ -1,21 +1,30 @@
-import { Chip, Divider, Table, TableBody, TableCell, TableHead, TableRow, Typography, TextField } from "@mui/material";
-import Modal from "~/src/components/utils/Modal";
-import BeergamButton from "~/src/components/utils/BeergamButton";
-import { useScheduling } from "../../hooks";
-import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
-import Loading from "~/src/assets/loading";
 import {
+  Chip,
+  Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import Loading from "~/src/assets/loading";
+import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import CopyButton from "~/src/components/ui/CopyButton";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import Modal from "~/src/components/utils/Modal";
+import { useScheduling } from "../../hooks";
+import type { Scheduling } from "../../typings";
+import {
+  calculateItemsTotal,
+  formatCurrency,
   formatDateTime,
+  formatItemStatus,
   formatSchedulingStatus,
   formatSchedulingType,
-  formatItemStatus,
-  formatCurrency,
-  calculateItemsTotal,
-  getStatusColor,
   getItemStatusColor,
+  getStatusColor,
 } from "../../utils";
-import CopyButton from "~/src/components/ui/CopyButton";
-import type { Scheduling } from "../../typings";
 
 interface SchedulingDetailsModalProps {
   isOpen: boolean;
@@ -53,7 +62,7 @@ export default function SchedulingDetailsModal({
         error={error as unknown}
         Skeleton={Loading}
         ErrorFallback={() => (
-          <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4">
+          <div className="rounded-2xl border border-beergam-red bg-beergam-red/10 text-beergam-red p-4">
             Não foi possível carregar os detalhes do agendamento.
           </div>
         )}
@@ -63,11 +72,17 @@ export default function SchedulingDetailsModal({
             {/* Informações Gerais */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Typography variant="caption" color="text.secondary" className="text-xs">
+                <Typography
+                  variant="caption"
+                  className="text-xs text-beergam-typography-secondary!"
+                >
                   ID do Agendamento
                 </Typography>
                 <div className="flex items-center gap-2 mt-1">
-                  <Typography variant="body2" className="font-mono text-sm">
+                  <Typography
+                    variant="body2"
+                    className="text-sm text-beergam-typography-primary!"
+                  >
                     {scheduling.id}
                   </Typography>
                   <CopyButton
@@ -79,16 +94,26 @@ export default function SchedulingDetailsModal({
               </div>
 
               <div>
-                <Typography variant="caption" color="text.secondary" className="text-xs">
+                <Typography
+                  variant="caption"
+                  className="text-xs text-beergam-typography-secondary!"
+                >
                   Título
                 </Typography>
-                <Typography variant="body1" fontWeight={600} className="mt-1">
+                <Typography
+                  variant="body1"
+                  fontWeight={600}
+                  className="mt-1 text-beergam-typography-tertiary!"
+                >
                   {scheduling.title}
                 </Typography>
               </div>
 
               <div>
-                <Typography variant="caption" color="text.secondary" className="text-xs">
+                <Typography
+                  variant="caption"
+                  className="text-xs text-beergam-typography-secondary!"
+                >
                   Tipo
                 </Typography>
                 <div className="mt-1">
@@ -99,15 +124,20 @@ export default function SchedulingDetailsModal({
                       height: 24,
                       fontSize: "0.75rem",
                       fontWeight: 600,
-                      backgroundColor: scheduling.type === "ENTRY" ? "#e0f2fe" : "#fef3c7",
-                      color: scheduling.type === "ENTRY" ? "#0369a1" : "#92400e",
+                      backgroundColor:
+                        scheduling.type === "ENTRY" ? "#e0f2fe" : "#fef3c7",
+                      color:
+                        scheduling.type === "ENTRY" ? "#0369a1" : "#92400e",
                     }}
                   />
                 </div>
               </div>
 
               <div>
-                <Typography variant="caption" color="text.secondary" className="text-xs">
+                <Typography
+                  variant="caption"
+                  className="text-xs text-beergam-typography-secondary!"
+                >
                   Status
                 </Typography>
                 <div className="mt-1">
@@ -136,29 +166,47 @@ export default function SchedulingDetailsModal({
               </div>
 
               <div>
-                <Typography variant="caption" color="text.secondary" className="text-xs">
+                <Typography
+                  variant="caption"
+                  className="text-xs text-beergam-typography-secondary!"
+                >
                   Data Prevista
                 </Typography>
-                <Typography variant="body2" className="mt-1">
+                <Typography
+                  variant="body2"
+                  className="mt-1 text-beergam-typography-tertiary!"
+                >
                   {formatDateTime(scheduling.estimated_arrival_date)}
                 </Typography>
               </div>
 
               <div>
-                <Typography variant="caption" color="text.secondary" className="text-xs">
+                <Typography
+                  variant="caption"
+                  className="text-xs text-beergam-typography-secondary!"
+                >
                   Criado em
                 </Typography>
-                <Typography variant="body2" className="mt-1">
+                <Typography
+                  variant="body2"
+                  className="mt-1 text-beergam-typography-tertiary!"
+                >
                   {formatDateTime(scheduling.created_at)}
                 </Typography>
               </div>
 
               {scheduling.updated_at && (
                 <div>
-                  <Typography variant="caption" color="text.secondary" className="text-xs">
+                  <Typography
+                    variant="caption"
+                    className="text-xs text-beergam-typography-secondary!"
+                  >
                     Atualizado em
                   </Typography>
-                  <Typography variant="body2" className="mt-1">
+                  <Typography
+                    variant="body2"
+                    className="mt-1 text-beergam-typography-tertiary!"
+                  >
                     {formatDateTime(scheduling.updated_at)}
                   </Typography>
                 </div>
@@ -166,24 +214,15 @@ export default function SchedulingDetailsModal({
 
               {scheduling.observation && (
                 <div className="md:col-span-2">
-                  <Typography variant="caption" color="text.secondary" className="text-xs">
+                  <Typography
+                    variant="caption"
+                    className="text-xs text-beergam-typography-secondary!"
+                  >
                     Observação
                   </Typography>
-                  <TextField
-                    multiline
-                    rows={3}
-                    value={scheduling.observation}
-                    disabled
-                    fullWidth
-                    variant="outlined"
-                    sx={{
-                      mt: 1,
-                      "& .MuiOutlinedInput-root": {
-                        backgroundColor: "#f9fafb",
-                        borderRadius: "8px",
-                      },
-                    }}
-                  />
+                  <p className="mt-1 text-beergam-typography-tertiary!">
+                    {scheduling.observation}
+                  </p>
                 </div>
               )}
             </div>
@@ -197,7 +236,7 @@ export default function SchedulingDetailsModal({
               </Typography>
 
               {scheduling.items.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-beergam-typography-tertiary!">
                   Nenhum item cadastrado neste agendamento.
                 </div>
               ) : (
@@ -218,38 +257,68 @@ export default function SchedulingDetailsModal({
                         <TableRow key={item.id}>
                           <TableCell>
                             {item.title ? (
-                              <Typography variant="body2">
+                              <Typography
+                                variant="body2"
+                                className="text-beergam-typography-tertiary!"
+                              >
                                 {item.product_id ? (
-                                  <>Produto: <b>{item.title}</b></>
+                                  <>
+                                    Produto: <b>{item.title}</b>
+                                  </>
                                 ) : (
-                                  <>Variação: <b>{item.title}</b></>
+                                  <>
+                                    Variação: <b>{item.title}</b>
+                                  </>
                                 )}
                               </Typography>
                             ) : (
-                              <Typography variant="body2">
+                              <Typography
+                                variant="body2"
+                                className="text-beergam-typography-tertiary!"
+                              >
                                 {item.product_id ? (
-                                  <>Produto ID: <b>{item.product_id}</b></>
+                                  <>
+                                    Produto ID: <b>{item.product_id}</b>
+                                  </>
                                 ) : (
-                                  <>Variação ID: <b>{item.product_variation_id}</b></>
+                                  <>
+                                    Variação ID:{" "}
+                                    <b>{item.product_variation_id}</b>
+                                  </>
                                 )}
                               </Typography>
                             )}
                           </TableCell>
                           <TableCell align="right">
-                            <Typography variant="body2">{item.quantity}</Typography>
+                            <Typography
+                              variant="body2"
+                              className="text-beergam-typography-tertiary!"
+                            >
+                              {item.quantity}
+                            </Typography>
                           </TableCell>
                           <TableCell align="right">
-                            <Typography variant="body2">
+                            <Typography
+                              variant="body2"
+                              className="text-beergam-typography-tertiary!"
+                            >
                               {item.received_quantity ?? "-"}
                             </Typography>
                           </TableCell>
                           <TableCell align="right">
-                            <Typography variant="body2">
+                            <Typography
+                              variant="body2"
+                              className="text-beergam-typography-tertiary!"
+                            >
                               {formatCurrency(item.unity_price)}
                             </Typography>
                           </TableCell>
                           <TableCell align="right">
-                            <Typography variant="body2" fontWeight={600}>
+                            <Typography
+                              variant="body2"
+                              fontWeight={600}
+                              className="text-beergam-typography-tertiary!"
+                            >
                               {formatCurrency(item.total_price)}
                             </Typography>
                           </TableCell>
@@ -264,17 +333,21 @@ export default function SchedulingDetailsModal({
                                 backgroundColor:
                                   getItemStatusColor(item.status) === "warning"
                                     ? "#fef3c7"
-                                    : getItemStatusColor(item.status) === "success"
+                                    : getItemStatusColor(item.status) ===
+                                        "success"
                                       ? "#d1fae5"
-                                      : getItemStatusColor(item.status) === "error"
+                                      : getItemStatusColor(item.status) ===
+                                          "error"
                                         ? "#fee2e2"
                                         : "#e0f2fe",
                                 color:
                                   getItemStatusColor(item.status) === "warning"
                                     ? "#92400e"
-                                    : getItemStatusColor(item.status) === "success"
+                                    : getItemStatusColor(item.status) ===
+                                        "success"
                                       ? "#065f46"
-                                      : getItemStatusColor(item.status) === "error"
+                                      : getItemStatusColor(item.status) ===
+                                          "error"
                                         ? "#991b1b"
                                         : "#0369a1",
                               }}
@@ -290,10 +363,17 @@ export default function SchedulingDetailsModal({
               {scheduling.items.length > 0 && (
                 <div className="mt-4 flex justify-end">
                   <div className="text-right">
-                    <Typography variant="caption" color="text.secondary" className="text-xs">
+                    <Typography
+                      variant="caption"
+                      className="text-xs text-beergam-typography-secondary!"
+                    >
                       Valor Total
                     </Typography>
-                    <Typography variant="h6" fontWeight={700} className="text-slate-900">
+                    <Typography
+                      variant="h6"
+                      fontWeight={700}
+                      className="text-beergam-typography-tertiary!"
+                    >
                       {formatCurrency(calculateItemsTotal(scheduling.items))}
                     </Typography>
                   </div>
@@ -309,7 +389,7 @@ export default function SchedulingDetailsModal({
                 <BeergamButton
                   title="Ver Logs"
                   mainColor="beergam-blue-primary"
-                  animationStyle="fade"
+                  icon={"document_glass_solid"}
                   onClick={() => {
                     onViewLogs(scheduling.id);
                     onClose();
@@ -321,7 +401,7 @@ export default function SchedulingDetailsModal({
                 <BeergamButton
                   title="Editar"
                   mainColor="beergam-orange"
-                  animationStyle="fade"
+                  icon={"pencil_solid"}
                   onClick={() => {
                     onEdit(scheduling);
                     onClose();
@@ -333,7 +413,7 @@ export default function SchedulingDetailsModal({
                 <BeergamButton
                   title="Cancelar"
                   mainColor="beergam-red"
-                  animationStyle="fade"
+                  icon={"arrow_uturn_left"}
                   onClick={() => {
                     onCancel(scheduling);
                     onClose();
@@ -344,8 +424,9 @@ export default function SchedulingDetailsModal({
               {scheduling.status === "PENDING" && onReceive && (
                 <BeergamButton
                   title="Dar Baixa"
-                  mainColor="beergam-green"
+                  mainColor="beergam-green-primary"
                   animationStyle="slider"
+                  icon={"box_arrow_down_solid"}
                   onClick={() => {
                     onReceive(scheduling);
                     onClose();
@@ -356,7 +437,7 @@ export default function SchedulingDetailsModal({
               <BeergamButton
                 title="Fechar"
                 mainColor="beergam-gray"
-                animationStyle="fade"
+                icon={"x"}
                 onClick={onClose}
                 type="button"
               />
@@ -367,4 +448,3 @@ export default function SchedulingDetailsModal({
     </Modal>
   );
 }
-

@@ -1,10 +1,10 @@
 import { Chip } from "@mui/material";
-import type { Attribute, RelatedProduct } from "../typings";
-import { useDeleteAttribute } from "../hooks";
+import { useModal } from "~/src/components/utils/Modal/useModal";
 import toast from "~/src/utils/toast";
+import { useDeleteAttribute } from "../hooks";
+import type { Attribute, RelatedProduct } from "../typings";
 import DeleteAttributeModal from "./DeleteAttributeModal";
 import RelatedEntityCardBase from "./RelatedEntityCardBase";
-import { useModal } from "~/src/components/utils/Modal/useModal";
 
 interface AttributeCardProps {
   attribute: Attribute;
@@ -49,9 +49,10 @@ export default function AttributeCard({
         onConfirm={handleConfirmDelete}
       />,
       {
-        title: attribute.related_products_count > 0 
-          ? "Não é possível excluir este atributo"
-          : "Confirmar exclusão",
+        title:
+          attribute.related_products_count > 0
+            ? "Não é possível excluir este atributo"
+            : "Confirmar exclusão",
       }
     );
   };
@@ -66,19 +67,22 @@ export default function AttributeCard({
       <RelatedEntityCardBase
         title={attribute.name}
         circleLabel={attribute.name.charAt(0)}
-        circleBgClass="bg-beergam-orange"
+        circleBgClass="bg-beergam-primary"
         description={null}
         hasRelated={hasRelatedProducts}
         badgeLabel={`${attribute.related_products_count} produto(s)`}
         isExpanded={isExpanded}
         onToggleExpand={onToggleExpand}
         relatedSectionTitle="Produtos/Variações Relacionados:"
-        relatedItems={attribute.related_products.map((product: RelatedProduct) => ({
-          id: product.product_id || product.variation_id || `${product.title}`,
-          title: product.title,
-          sku: product.sku,
-          extraTag: product.variation_id ? "[Variação]" : undefined,
-        }))}
+        relatedItems={attribute.related_products.map(
+          (product: RelatedProduct) => ({
+            id:
+              product.product_id || product.variation_id || `${product.title}`,
+            title: product.title,
+            sku: product.sku,
+            extraTag: product.variation_id ? "[Variação]" : undefined,
+          })
+        )}
         remainingCount={remainingCount > 0 ? remainingCount : undefined}
         remainingSuffix="produto(s)/variação(ões)"
         extraHeaderContent={
@@ -92,8 +96,9 @@ export default function AttributeCard({
                   sx={{
                     height: 18,
                     fontSize: "0.85rem",
-                    backgroundColor: "#f3f4f6",
-                    color: "#374151",
+                    backgroundColor:
+                      "var(--color-beergam-typography-secondary)",
+                    color: "var(--color-beergam-white)",
                   }}
                 />
               ))}
@@ -104,8 +109,9 @@ export default function AttributeCard({
                   sx={{
                     height: 18,
                     fontSize: "0.85rem",
-                    backgroundColor: "#f3f4f6",
-                    color: "#374151",
+                    backgroundColor:
+                      "var(--color-beergam-typography-secondary)",
+                    color: "var(--color-beergam-white)",
                   }}
                 />
               )}
@@ -124,4 +130,3 @@ export default function AttributeCard({
     </>
   );
 }
-

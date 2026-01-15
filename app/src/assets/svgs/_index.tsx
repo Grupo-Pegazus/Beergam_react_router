@@ -29,6 +29,7 @@ import Cog8Tooth from "./Cog8Tooth";
 import Copy from "./Copy";
 import CopySolid from "./CopySolid";
 import CurrencyDollar from "./CurrencyDollar";
+import DocumentGlassSolid from "./DocumentGlassSolid";
 import DocumentIcon from "./DocumentIcon";
 import DollyIcon from "./DollyIcon";
 import ElipsisHorizontal from "./ElipsisHorizontal";
@@ -143,6 +144,7 @@ const Svg = {
   sun: Sun,
   moon: Moon,
   box_arrow_down_solid: BoxArrowDownSolid,
+  document_glass_solid: DocumentGlassSolid,
 };
 
 export default Svg;

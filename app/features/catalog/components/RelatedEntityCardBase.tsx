@@ -5,6 +5,7 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Paper,
   Typography,
 } from "@mui/material";
 import { useMemo, useState, type ReactNode } from "react";
@@ -189,8 +190,7 @@ export default function RelatedEntityCardBase({
             {!hasRelated && (
               <Typography
                 variant="caption"
-                color="text.secondary"
-                className="mt-2"
+                className="text-beergam-typography-tertiary mt-2"
               >
                 Nenhum produto relacionado
               </Typography>
@@ -209,7 +209,7 @@ export default function RelatedEntityCardBase({
               >
                 <Typography
                   variant="subtitle2"
-                  className="font-semibold mb-3 text-gray-700 text-sm"
+                  className="font-semibold mb-3 text-beergam-typography-primary text-sm"
                 >
                   {relatedSectionTitle}
                 </Typography>
@@ -235,19 +235,19 @@ export default function RelatedEntityCardBase({
                 >
                   <div className="space-y-2 pr-2">
                     {relatedItems.map((item) => (
-                      <div
+                      <Paper
                         key={item.id}
-                        className="flex items-start gap-2 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                        className="flex items-start border border-beergam-input-border!"
                       >
-                        <div className="w-1.5 h-1.5 rounded-full bg-beergam-blue-primary mt-2 shrink-0" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-beergam-primary mt-2 mr-2 shrink-0" />
                         <div className="flex-1 min-w-0">
                           <Typography
                             variant="body2"
-                            className="font-medium text-gray-900 text-sm"
+                            className="font-medium text-beergam-primary! text-sm"
                           >
                             {item.title}
                             {item.extraTag && (
-                              <span className="text-xs text-gray-500 ml-2">
+                              <span className="text-xs text-beergam-typography-tertiary ml-2">
                                 {item.extraTag}
                               </span>
                             )}
@@ -255,13 +255,13 @@ export default function RelatedEntityCardBase({
                           {item.sku && (
                             <Typography
                               variant="caption"
-                              className="text-gray-500 text-xs"
+                              className="text-beergam-typography-tertiary text-xs"
                             >
                               SKU: {item.sku}
                             </Typography>
                           )}
                         </div>
-                      </div>
+                      </Paper>
                     ))}
                     {remainingCount && remainingCount > 0 && (
                       <Typography
