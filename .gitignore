@@ -8,3 +8,5 @@
 package-lock.json
 .env
 /app/src/temp/
+# Sentry Config File
+.env.sentry-build-plugin

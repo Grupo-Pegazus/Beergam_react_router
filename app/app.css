@@ -175,6 +175,38 @@ button {
   cursor: pointer;
 }
 
+/* Customização do formulário de feedback do Sentry */
+#sentry-feedback,
+[data-sentry-feedback] {
+  --sentry-feedback-font-family: var(--default-font-family);
+  --sentry-feedback-border-radius: 8px;
+  --sentry-feedback-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Tema claro */
+#sentry-feedback[data-theme="light"],
+[data-sentry-feedback][data-theme="light"] {
+  --sentry-feedback-background: var(--color-beergam-white);
+  --sentry-feedback-foreground: var(--color-beergam-typography-primary);
+  --sentry-feedback-accent-background: var(--color-beergam-primary);
+  --sentry-feedback-accent-foreground: var(--color-beergam-white);
+  --sentry-feedback-border: var(--color-beergam-input-border);
+  --sentry-feedback-success: var(--color-beergam-green);
+  --sentry-feedback-error: var(--color-beergam-red);
+}
+
+/* Tema escuro */
+.dark #sentry-feedback,
+.dark [data-sentry-feedback] {
+  --sentry-feedback-background: var(--color-beergam-gray-blueish-dark);
+  --sentry-feedback-foreground: var(--color-beergam-typography-primary);
+  --sentry-feedback-accent-background: var(--color-beergam-primary);
+  --sentry-feedback-accent-foreground: var(--color-beergam-white);
+  --sentry-feedback-border: transparent;
+  --sentry-feedback-success: var(--color-beergam-green);
+  --sentry-feedback-error: var(--color-beergam-red);
+}
+
 .transition-height {
   transition: height 200ms ease;
 }
