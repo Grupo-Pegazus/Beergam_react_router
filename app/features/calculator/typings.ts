@@ -9,7 +9,7 @@ export interface CalculatorRequest {
   additional_costs_amount?: number;
   additional_costs_percentage?: number;
   calculator_type?: "ml" | "shopee";
-  typeAd?: "classico" | "premium" | "normal" | "indicado";
+  typeAd?: "classico" | "premium" | "sem_frete_gratis" | "com_frete_gratis";
 }
 
 export interface CalculatorCosts {
@@ -54,7 +54,7 @@ export interface CalculatorFormData {
   weeklySales: string;
   freeShipping: boolean;
   shippingCost: string;
-  adType: "classico" | "premium" | "normal" | "indicado";
+  adType: "classico" | "premium" | "sem_frete_gratis" | "com_frete_gratis";
   commissionPercentage: string;
   taxRegime: string;
   annualRevenue: string;
