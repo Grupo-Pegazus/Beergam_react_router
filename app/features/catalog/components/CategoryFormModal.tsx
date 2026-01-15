@@ -3,6 +3,7 @@ import { TextField } from "@mui/material";
 import Modal from "~/src/components/utils/Modal";
 import { Fields } from "~/src/components/utils/_fields";
 import type { Category, CreateCategory, UpdateCategory } from "../typings";
+import { CreateCategorySchema, UpdateCategorySchema } from "../typings";
 import { useCreateCategory, useUpdateCategory } from "../hooks";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 
@@ -26,7 +27,7 @@ export default function CategoryFormModal({
     description: "",
   });
 
-  const [errors, setErrors] = useState<{ name?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string; description?: string }>({});
 
   useEffect(() => {
     if (category) {
@@ -43,32 +44,67 @@ export default function CategoryFormModal({
     setErrors({});
   }, [category, isOpen]);
 
-  const validate = (): boolean => {
-    const newErrors: { name?: string } = {};
+  const validate = (): { isValid: boolean; errors: { name?: string; description?: string } } => {
+    // Normalizar dados: converter strings vazias em undefined para campos opcionais
+    const normalizedData = {
+      name: formData.name?.trim() || undefined,
+      description: formData.description?.trim() || undefined,
+    };
 
-    if (!formData.name || formData.name.trim().length === 0) {
-      newErrors.name = "Nome é obrigatório";
+    const schema = isEditing ? UpdateCategorySchema : CreateCategorySchema;
+    const result = schema.safeParse(normalizedData);
+
+    if (result.success) {
+      setErrors({});
+      return { isValid: true, errors: {} };
+    }
+
+    const newErrors: { name?: string; description?: string } = {};
+    if (result.error && result.error.issues) {
+      result.error.issues.forEach((issue) => {
+        const path = issue.path[0] as string;
+        if (path && issue.message) {
+          // Se já existe um erro para este campo, manter o primeiro (mais específico)
+          if (!newErrors[path as keyof typeof newErrors]) {
+            newErrors[path as keyof typeof newErrors] = issue.message;
+          }
+        }
+      });
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return { isValid: false, errors: newErrors };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validate()) {
+    const validation = validate();
+    if (!validation.isValid) {
+      // Scroll para o primeiro erro se houver
+      const firstErrorField = Object.keys(validation.errors)[0];
+      if (firstErrorField) {
+        const errorElement = document.querySelector(`[name="${firstErrorField}"]`) || 
+                            document.querySelector(`input[placeholder*="${firstErrorField === 'name' ? 'Categoria' : 'Descrição'}"]`);
+        errorElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return;
     }
+
+    // Normalizar dados antes de enviar
+    const dataToSend = {
+      name: formData.name?.trim(),
+      description: formData.description?.trim() || undefined,
+    };
 
     try {
       if (isEditing && category) {
         await updateMutation.mutateAsync({
           categoryId: category.id,
-          data: formData as UpdateCategory,
+          data: dataToSend as UpdateCategory,
         });
       } else {
-        await createMutation.mutateAsync(formData as CreateCategory);
+        await createMutation.mutateAsync(dataToSend as CreateCategory);
       }
       onClose();
     } catch {
@@ -106,12 +142,18 @@ export default function CategoryFormModal({
             rows={3}
             placeholder="Descreva a categoria..."
             value={formData.description || ""}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
+            onChange={(e) => {
+              setFormData({ ...formData, description: e.target.value });
+              // Limpar erro quando o usuário começar a digitar
+              if (errors.description) {
+                setErrors({ ...errors, description: undefined });
+              }
+            }}
             disabled={isLoading}
             fullWidth
             variant="outlined"
+            error={!!errors.description}
+            helperText={errors.description}
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "8px",

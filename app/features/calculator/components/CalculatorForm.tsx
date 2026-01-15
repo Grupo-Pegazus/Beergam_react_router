@@ -1,5 +1,6 @@
 import type { CalculatorFormData } from "../typings";
 import MarketplaceSelector from "./MarketplaceSelector";
+import MeliProductLinkSection from "./MeliProductLinkSection";
 import ProductInfoSection from "./ProductInfoSection";
 import CostsSection from "./CostsSection";
 import ShippingSection from "./ShippingSection";
@@ -31,6 +32,28 @@ export default function CalculatorForm({
         />
       </div>
 
+      {formData.calculatorType === "ml" && (
+        <MeliProductLinkSection
+          productLink={formData.productLink}
+          onProductLinkChange={(value) => updateField("productLink", value)}
+          onProductDataLoaded={(data) => {
+            // Atualiza preço de venda
+            updateField("salePrice", data.salePrice);
+            
+            // Atualiza comissões salvas (essas serão aplicadas automaticamente no CostsSection)
+            if (data.classicCommission !== undefined) {
+              updateField("classicCommission", data.classicCommission);
+            }
+            if (data.premiumCommission !== undefined) {
+              updateField("premiumCommission", data.premiumCommission);
+            }
+            
+            // A porcentagem será calculada automaticamente no CostsSection
+            // baseada no tipo de anúncio selecionado e nas comissões salvas
+          }}
+        />
+      )}
+
       <ProductInfoSection
         salePrice={formData.salePrice}
         costPrice={formData.costPrice}
@@ -45,6 +68,8 @@ export default function CalculatorForm({
         commissionPercentage={formData.commissionPercentage}
         salePrice={formData.salePrice}
         calculatorType={formData.calculatorType}
+        classicCommission={formData.classicCommission}
+        premiumCommission={formData.premiumCommission}
         onAdTypeChange={(value) => updateField("adType", value)}
         onCommissionPercentageChange={(value) =>
           updateField("commissionPercentage", value)

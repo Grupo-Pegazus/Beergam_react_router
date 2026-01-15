@@ -3,6 +3,7 @@ import { Chip, Box } from "@mui/material";
 import Modal from "~/src/components/utils/Modal";
 import { Fields } from "~/src/components/utils/_fields";
 import type { Attribute, CreateAttribute, UpdateAttribute } from "../typings";
+import { CreateAttributeSchema, UpdateAttributeSchema } from "../typings";
 import { useCreateAttribute, useUpdateAttribute } from "../hooks";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 
@@ -46,19 +47,38 @@ export default function AttributeFormModal({
     setErrors({});
   }, [attribute, isOpen]);
 
-  const validate = (): boolean => {
-    const newErrors: { name?: string, allowed_values?: string } = {};
+  const validate = (): { isValid: boolean; errors: { name?: string; allowed_values?: string } } => {
+    // Normalizar dados: converter strings vazias em undefined para campos opcionais
+    const normalizedData = {
+      name: formData.name?.trim() || undefined,
+      allowed_values: formData.allowed_values && formData.allowed_values.length > 0 
+        ? formData.allowed_values.map(v => v.trim()).filter(v => v.length > 0)
+        : undefined,
+    };
 
-    if (!formData.name || formData.name.trim().length === 0) {
-      newErrors.name = "Nome é obrigatório";
+    const schema = isEditing ? UpdateAttributeSchema : CreateAttributeSchema;
+    const result = schema.safeParse(normalizedData);
+
+    if (result.success) {
+      setErrors({});
+      return { isValid: true, errors: {} };
     }
 
-    if (formData.allowed_values && formData.allowed_values.length === 0) {
-      newErrors.allowed_values = "Pelo menos um valor é obrigatório";
+    const newErrors: { name?: string; allowed_values?: string } = {};
+    if (result.error && result.error.issues) {
+      result.error.issues.forEach((issue) => {
+        const path = issue.path[0] as string;
+        if (path && issue.message) {
+          // Se já existe um erro para este campo, manter o primeiro (mais específico)
+          if (!newErrors[path as keyof typeof newErrors]) {
+            newErrors[path as keyof typeof newErrors] = issue.message;
+          }
+        }
+      });
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return { isValid: false, errors: newErrors };
   };
 
   const handleAddAllowedValue = () => {
@@ -85,18 +105,27 @@ export default function AttributeFormModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validate()) {
+    const validation = validate();
+    if (!validation.isValid) {
       return;
     }
+
+    // Normalizar dados antes de enviar
+    const dataToSend = {
+      name: formData.name?.trim(),
+      allowed_values: formData.allowed_values && formData.allowed_values.length > 0
+        ? formData.allowed_values.map(v => v.trim()).filter(v => v.length > 0)
+        : undefined,
+    };
 
     try {
       if (isEditing && attribute) {
         await updateMutation.mutateAsync({
           attributeId: attribute.id,
-          data: formData as UpdateAttribute,
+          data: dataToSend as UpdateAttribute,
         });
       } else {
-        await createMutation.mutateAsync(formData as CreateAttribute);
+        await createMutation.mutateAsync(dataToSend as CreateAttribute);
       }
       onClose();
     } catch {
@@ -128,7 +157,7 @@ export default function AttributeFormModal({
         </Fields.wrapper>
 
         <Fields.wrapper>
-          <Fields.label text="Valores Permitidos (opcional)" />
+          <Fields.label text="Valores Permitidos" />
           <p className="text-xs text-gray-500 mb-2">
             Adicione valores permitidos para este atributo. Ex: Para &quot;Cor&quot; você
             pode adicionar &quot;Vermelho&quot;, &quot;Azul&quot;, &quot;Verde&quot;, etc.

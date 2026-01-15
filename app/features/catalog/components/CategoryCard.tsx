@@ -85,6 +85,11 @@ export default function CategoryCard({
         onEdit={() => onEdit(category)}
         onDelete={handleDeleteClick}
         canDelete={canDelete}
+        deleteTooltipMessage={
+          !canDelete
+            ? "Não é possível excluir esta categoria pois ela está sendo usada por produtos relacionados"
+            : undefined
+        }
       />
     </>
   );

@@ -7,7 +7,8 @@ import {
   MenuItem,
   Typography,
 } from "@mui/material";
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
+import { Tooltip } from "react-tooltip";
 import Svg from "~/src/assets/svgs/_index";
 import MainCards from "~/src/components/ui/MainCards";
 import BeergamButton from "~/src/components/utils/BeergamButton";
@@ -55,6 +56,8 @@ interface RelatedEntityCardBaseProps {
   onEdit: () => void;
   onDelete: () => void;
   canDelete: boolean;
+  /** Mensagem do tooltip quando não pode deletar */
+  deleteTooltipMessage?: string;
 }
 
 export default function RelatedEntityCardBase({
@@ -74,8 +77,15 @@ export default function RelatedEntityCardBase({
   onEdit,
   onDelete,
   canDelete,
+  deleteTooltipMessage,
 }: RelatedEntityCardBaseProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+  // Gera um ID único para o tooltip baseado no título
+  const deleteTooltipId = useMemo(
+    () => `delete-tooltip-${title.replace(/\s+/g, "-").toLowerCase()}`,
+    [title]
+  );
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
@@ -280,17 +290,51 @@ export default function RelatedEntityCardBase({
           <Svg.pencil tailWindClasses="w-4 h-4 mr-2" />
           Editar
         </MenuItem>
-        <MenuItem
-          onClick={handleDeleteClick}
-          disabled={!canDelete}
-          sx={{
-            color: canDelete ? "error.main" : "text.disabled",
-          }}
-        >
-          <Svg.trash tailWindClasses="w-4 h-4 mr-2" />
-          Excluir
-        </MenuItem>
+        {!canDelete && deleteTooltipMessage ? (
+          <div
+            data-tooltip-id={deleteTooltipId}
+            className="w-full"
+            style={{ cursor: "not-allowed" }}
+          >
+            <MenuItem
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              disabled
+              sx={{
+                color: "text.disabled",
+                "&.Mui-disabled": {
+                  opacity: 0.6,
+                },
+              }}
+            >
+              <Svg.trash tailWindClasses="w-4 h-4 mr-2" />
+              Excluir
+            </MenuItem>
+          </div>
+        ) : (
+          <MenuItem
+            onClick={handleDeleteClick}
+            sx={{
+              color: "error.main",
+            }}
+          >
+            <Svg.trash tailWindClasses="w-4 h-4 mr-2" />
+            Excluir
+          </MenuItem>
+        )}
       </Menu>
+
+      {/* Tooltip para botão de deletar desabilitado */}
+      {!canDelete && deleteTooltipMessage && (
+        <Tooltip
+          id={deleteTooltipId}
+          content={deleteTooltipMessage}
+          place="left"
+          className="z-50"
+        />
+      )}
     </>
   );
 }

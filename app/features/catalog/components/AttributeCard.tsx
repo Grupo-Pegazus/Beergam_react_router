@@ -115,6 +115,11 @@ export default function AttributeCard({
         onEdit={() => onEdit(attribute)}
         onDelete={handleDeleteClick}
         canDelete={canDelete}
+        deleteTooltipMessage={
+          !canDelete
+            ? "Não é possível excluir este atributo pois ele está sendo usado por produtos/variações relacionados"
+            : undefined
+        }
       />
     </>
   );
