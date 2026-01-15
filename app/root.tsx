@@ -8,14 +8,13 @@ import {
   useLoaderData,
 } from "react-router";
 
-import { createTheme, ThemeProvider } from "@mui/material";
-// Enable MUI X Date Pickers component keys in theme.components
-import { ptBR } from "@mui/material/locale";
+import { ThemeProvider } from "@mui/material";
 import * as Sentry from "@sentry/react-router";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
+import { muiTheme } from "./src/theme/MuiTheme";
 // import { useEffect, useMemo, useState } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Toaster } from "react-hot-toast";
@@ -173,175 +172,6 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 }
 
-const theme = createTheme(
-  {
-    components: {
-      MuiPaper: {
-        styleOverrides: {
-          root: {
-            border: "1px solid transparent",
-            backgroundColor: "var(--color-beergam-mui-paper)",
-            color: "var(--color-beergam-typography-tertiary)",
-            borderRadius: "8px",
-            padding: "16px",
-            transition: "all 0.3s ease",
-          },
-        },
-      },
-      MuiSwitch: {
-        styleOverrides: {
-          root: {
-            width: 42,
-            height: 26,
-            padding: 0,
-          },
-          switchBase: {
-            padding: 0,
-            margin: 2,
-            transitionDuration: "300ms",
-            "&.Mui-checked": {
-              transform: "translateX(16px)",
-              color: "#fff",
-              "& + .MuiSwitch-track": {
-                backgroundColor: "var(--color-beergam-primary)",
-                opacity: 1,
-                border: 0,
-              },
-              "&.Mui-disabled + .MuiSwitch-track": {
-                opacity: 0.5,
-              },
-            },
-            "&.Mui-focusVisible .MuiSwitch-thumb": {
-              color: "var(--color-beergam-primary)",
-              border: "6px solid #fff",
-            },
-            "&.Mui-disabled .MuiSwitch-thumb": {
-              color: "#f5f5f5",
-            },
-            "&.Mui-disabled + .MuiSwitch-track": {
-              opacity: 0.7,
-            },
-          },
-          thumb: {
-            boxSizing: "border-box",
-            width: 22,
-            height: 22,
-          },
-          track: {
-            borderRadius: 13,
-            backgroundColor: "#E9E9EA",
-            opacity: 1,
-            transition: "background-color 500ms",
-          },
-        },
-      },
-      MuiButton: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "var(--color-beergam-input-background)",
-            border: "1px solid var(--color-beergam-input-border)",
-            color: "var(--color-beergam-typography-tertiary)",
-            "&:hover": {
-              backgroundColor: "var(--color-beergam-primary)",
-              color: "var(--color-beergam-white)",
-            },
-            "&:disabled": {
-              backgroundColor: "var(--color-beergam-input-background-disabled)",
-              color: "var(--color-beergam-typography-secondary-disabled)",
-            },
-          },
-        },
-      },
-      MuiStack: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "transparent",
-          },
-        },
-      },
-      MuiIconButton: {
-        styleOverrides: {
-          root: {
-            color: "var(--color-beergam-typography-primary)",
-          },
-        },
-      },
-      MuiTableCell: {
-        styleOverrides: {
-          sizeMedium: {
-            "@media (max-width: 768px)": {
-              display: "none",
-            },
-          },
-          sizeSmall: {
-            "@media (max-width: 768px)": {
-              display: "none",
-            },
-          },
-          head: {
-            color: "var(--color-beergam-typography-primary)",
-          },
-          body: {
-            color: "var(--color-beergam-typography-secondary)",
-          },
-        },
-      },
-      MuiStep: {
-        styleOverrides: {
-          root: {
-            transition: "all 0.2s ease-in-out",
-            "&:hover": {
-              transform: "scale(1.05)",
-            },
-            "& .MuiStepLabel-root": {
-              cursor: "pointer",
-            },
-            "& .MuiStepIcon-root": {
-              cursor: "pointer",
-              color: "var(--color-beergam-primary)",
-              "&.Mui-completed": {
-                color: "var(--color-beergam-primary)",
-              },
-              "&.Mui-active": {
-                color: "var(--color-beergam-primary)",
-              },
-            },
-          },
-        },
-      },
-      MuiStepLabel: {
-        styleOverrides: {
-          root: {
-            "& .MuiStepLabel-label": {
-              fontSize: "0.875rem",
-              transition: "all 0.2s ease-in-out",
-              position: "relative",
-              color: "var(--color-beergam-typography-secondary)",
-            },
-            "& .MuiStepLabel-label.Mui-active": {
-              color: "var(--color-beergam-primary)",
-              fontWeight: 600,
-            },
-            "& .MuiStepLabel-label.Mui-completed": {
-              color: "var(--color-beergam-typography-secondary)",
-            },
-            "&:hover": {
-              "& .MuiStepLabel-label": {
-                color: "var(--color-beergam-primary)",
-                fontWeight: 600,
-              },
-            },
-          },
-        },
-      },
-    },
-    typography: {
-      fontFamily: "var(--default-font-family)",
-    },
-  },
-  ptBR
-);
-
 export async function clientLoader() {
   const state = authStore.getState();
   const error = state.error;
@@ -418,7 +248,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <DarkModeThemeProvider>
-          <ThemeProvider theme={theme}>{children}</ThemeProvider>
+          <ThemeProvider theme={muiTheme}>{children}</ThemeProvider>
         </DarkModeThemeProvider>
         <ScrollRestoration />
         <Scripts />
