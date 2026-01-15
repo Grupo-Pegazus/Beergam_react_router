@@ -51,7 +51,8 @@ type UploadItem = {
   key: string;
   filename: string;
   previewUrl?: string;
-  remoteId?: string;
+  remoteId?: string; // Usado para sincronização com initialFiles (image_url)
+  imageId?: string; // ID da imagem (image_id) usado no onChange
   status: UploadItemStatus;
   origin: UploadItemOrigin;
   isImage: boolean;
@@ -115,6 +116,25 @@ function buildErrorContext(
   return { origin, message, cause };
 }
 
+/**
+ * Extrai o image_id de uma URL quando ela segue o padrão esperado.
+ * Para URLs de colaborador: https://cdn.beergam.com.br/colab_photos/colab/{masterPin}/{image_id}.webp
+ * Retorna o image_id se conseguir extrair, caso contrário retorna undefined.
+ */
+function extractImageIdFromUrl(url: string): string | undefined {
+  try {
+    // Tenta extrair o nome do arquivo sem extensão
+    const filename = url.substring(url.lastIndexOf("/") + 1);
+    const lastDotIndex = filename.lastIndexOf(".");
+    if (lastDotIndex > 0) {
+      return filename.substring(0, lastDotIndex);
+    }
+    return filename;
+  } catch {
+    return undefined;
+  }
+}
+
 export default function Upload<ResponseSchema = unknown>(
   props: UploadProps<ResponseSchema>
 ) {
@@ -166,17 +186,21 @@ export default function Upload<ResponseSchema = unknown>(
     // Quando o modal abre (isOpen muda de false para true)
     if (isOpen && !previousIsOpenRef.current) {
       // Cria items para as fotos já enviadas (initialFiles)
-      const uploadedItems: UploadItem[] = initialFiles.map((url, index) => ({
-        key: `initial-${url}-${index}`,
-        filename:
-          url.substring(url.lastIndexOf("/") + 1) || `imagem-${index + 1}`,
-        previewUrl: url,
-        status: "uploaded" as const,
-        origin: "internal" as const,
-        isImage: true,
-        generatedPreview: false,
-        remoteId: url,
-      }));
+      const uploadedItems: UploadItem[] = initialFiles.map((url, index) => {
+        const imageId = extractImageIdFromUrl(url);
+        return {
+          key: `initial-${url}-${index}`,
+          filename:
+            url.substring(url.lastIndexOf("/") + 1) || `imagem-${index + 1}`,
+          previewUrl: url,
+          status: "uploaded" as const,
+          origin: "internal" as const,
+          isImage: true,
+          generatedPreview: false,
+          remoteId: url,
+          imageId: imageId, // Extrai image_id da URL quando possível
+        };
+      });
 
       // Mantém os items que já existem (fotos selecionadas mas não enviadas)
       // e adiciona os novos items de initialFiles que ainda não existem
@@ -218,17 +242,21 @@ export default function Upload<ResponseSchema = unknown>(
         const newUrls = initialFiles.filter(
           (url) => !currentUrls.includes(url)
         );
-        const newUploadedItems: UploadItem[] = newUrls.map((url, index) => ({
-          key: `initial-${url}-${Date.now()}-${index}`,
-          filename:
-            url.substring(url.lastIndexOf("/") + 1) || `imagem-${index + 1}`,
-          previewUrl: url,
-          status: "uploaded" as const,
-          origin: "internal" as const,
-          isImage: true,
-          generatedPreview: false,
-          remoteId: url,
-        }));
+        const newUploadedItems: UploadItem[] = newUrls.map((url, index) => {
+          const imageId = extractImageIdFromUrl(url);
+          return {
+            key: `initial-${url}-${Date.now()}-${index}`,
+            filename:
+              url.substring(url.lastIndexOf("/") + 1) || `imagem-${index + 1}`,
+            previewUrl: url,
+            status: "uploaded" as const,
+            origin: "internal" as const,
+            isImage: true,
+            generatedPreview: false,
+            remoteId: url,
+            imageId: imageId, // Extrai image_id da URL quando possível
+          };
+        });
 
         return [...itemsToKeep, ...newUploadedItems];
       });
@@ -259,9 +287,13 @@ export default function Upload<ResponseSchema = unknown>(
       if (!onChange) {
         return;
       }
+      // Para upload interno, usa imageId (image_id), caso contrário usa remoteId
       const ids = nextItems
-        .filter((item) => item.status === "uploaded" && item.remoteId)
-        .map((item) => item.remoteId!)
+        .filter((item) => item.status === "uploaded" && (item.imageId || item.remoteId))
+        .map((item) => {
+          // Prioriza imageId para upload interno, fallback para remoteId
+          return item.imageId || item.remoteId!;
+        })
         .filter(Boolean);
       onChange(ids);
     },
@@ -375,6 +407,7 @@ export default function Upload<ResponseSchema = unknown>(
               ...item,
               status: STATUS.uploaded,
               remoteId: response.image_url, // Usa image_url como remoteId para sincronizar com initialFiles
+              imageId: response.image_id, // Armazena image_id separadamente para usar no onChange
               filename: response.filename,
               previewUrl: response.image_url,
               generatedPreview: false,

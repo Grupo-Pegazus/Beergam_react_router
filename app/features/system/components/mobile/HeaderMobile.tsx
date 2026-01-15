@@ -11,7 +11,7 @@ export default function HeaderMobile() {
   const user = authStore.use.user();
   const { isOpen, shouldRender, open, requestClose } = useOverlay();
   const navigate = useNavigate();
-  const { isLoggingOut, logout } = useLogoutFlow({
+  const { logout } = useLogoutFlow({
     redirectTo: "/login",
   });
 
@@ -23,7 +23,6 @@ export default function HeaderMobile() {
 
   return (
     <>
-      {/* {isLoggingOut && <LogoutOverlay />} */}
       <OverlayFrame
         title="Usuário"
         isOpen={isOpen}
@@ -95,7 +94,7 @@ export default function HeaderMobile() {
           </span>
         </button>
         <div className="flex items-center justify-center gap-5">
-          <button
+          {/* <button
             type="button"
             aria-label="Notificações"
             className="grid place-items-center"
@@ -117,7 +116,7 @@ export default function HeaderMobile() {
             className="grid place-items-center"
           >
             <Svg.question tailWindClasses="size-4.5" />
-          </button>
+          </button> */}
         </div>
       </div>
     </>

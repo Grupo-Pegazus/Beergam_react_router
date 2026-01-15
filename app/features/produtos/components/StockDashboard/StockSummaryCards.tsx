@@ -1,15 +1,13 @@
 import { createElement } from "react";
-import type { StockDashboardResponse } from "../../typings";
-import StatCard from "~/src/components/ui/StatCard";
 import Svg from "~/src/assets/svgs/_index";
+import StatCard from "~/src/components/ui/StatCard";
+import type { StockDashboardResponse } from "../../typings";
 
 interface StockSummaryCardsProps {
   summary: StockDashboardResponse["stock_summary"];
 }
 
-export default function StockSummaryCards({
-  summary,
-}: StockSummaryCardsProps) {
+export default function StockSummaryCards({ summary }: StockSummaryCardsProps) {
   const formatNumber = (value: number) => {
     return value.toLocaleString("pt-BR");
   };
@@ -51,7 +49,7 @@ export default function StockSummaryCards({
         <StatCard
           key={card.key}
           icon={createElement(Svg[card.icon], {
-            tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
+            tailWindClasses: "h-5 w-5 text-beergam-white",
           })}
           title={card.label}
           value={card.value}
@@ -62,4 +60,3 @@ export default function StockSummaryCards({
     </div>
   );
 }
-
