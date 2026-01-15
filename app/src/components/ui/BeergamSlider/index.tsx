@@ -1,12 +1,13 @@
 import Paper from "@mui/material/Paper";
 import type { PropsWithChildren } from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/zoom";
 import { Pagination, Zoom } from "swiper/modules";
 import { Swiper, SwiperSlide, type SwiperProps } from "swiper/react";
+
 interface BeergamSliderProps extends SwiperProps {
   slides: React.ReactNode[];
   slidesClassName?: string;
@@ -18,6 +19,40 @@ const DefaultProps: SwiperProps = {
   modules: [Pagination, Zoom],
 };
 
+/**
+ * Calcula o slidesPerView atual baseado nos breakpoints e no tamanho da tela
+ */
+function getCurrentSlidesPerView(
+  breakpoints: SwiperProps["breakpoints"],
+  defaultSlidesPerView: number | "auto" | undefined
+): number {
+  if (!breakpoints || typeof window === "undefined") {
+    return typeof defaultSlidesPerView === "number" ? defaultSlidesPerView : 1;
+  }
+
+  const width = window.innerWidth;
+  const breakpointKeys = Object.keys(breakpoints)
+    .map((key) => parseInt(key))
+    .sort((a, b) => b - a); // Ordena do maior para o menor
+
+  // Encontra o breakpoint mais adequado para a largura atual
+  for (const breakpoint of breakpointKeys) {
+    if (width >= breakpoint) {
+      const breakpointConfig = breakpoints[breakpoint];
+      if (
+        breakpointConfig &&
+        typeof breakpointConfig === "object" &&
+        "slidesPerView" in breakpointConfig
+      ) {
+        const slidesPerView = breakpointConfig.slidesPerView;
+        return typeof slidesPerView === "number" ? slidesPerView : 1;
+      }
+    }
+  }
+
+  return typeof defaultSlidesPerView === "number" ? defaultSlidesPerView : 1;
+}
+
 export function BeergamSlider({
   slides,
   slidesClassName,
@@ -26,12 +61,33 @@ export function BeergamSlider({
   // Props passadas sobrescrevem os defaults
   const swiperRef = useRef<SwiperType | null>(null);
   const [activeIndex, setActiveIndex] = useState<number>(0);
+  const [currentSlidesPerView, setCurrentSlidesPerView] = useState<number>(1);
   const mergedProps = { ...DefaultProps, ...props };
+
+  // Calcula o slidesPerView atual baseado nos breakpoints
+  useEffect(() => {
+    const calculateSlidesPerView = () => {
+      const slidesPerView = getCurrentSlidesPerView(
+        mergedProps.breakpoints,
+        mergedProps.slidesPerView
+      );
+      setCurrentSlidesPerView(slidesPerView);
+    };
+
+    // Calcula inicialmente
+    calculateSlidesPerView();
+
+    // Recalcula quando a janela for redimensionada
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", calculateSlidesPerView);
+      return () => window.removeEventListener("resize", calculateSlidesPerView);
+    }
+  }, [mergedProps.breakpoints, mergedProps.slidesPerView]);
+
+  // Calcula a quantidade de paginação baseada no slidesPerView atual
   const paginationAmmount =
-    mergedProps.slidesPerView &&
-    typeof mergedProps.slidesPerView === "number" &&
-    mergedProps.slidesPerView > 1
-      ? Math.max(1, slides.length - mergedProps.slidesPerView + 1)
+    currentSlidesPerView > 1
+      ? Math.max(1, slides.length - currentSlidesPerView + 1)
       : slides.length;
   return (
     <>
