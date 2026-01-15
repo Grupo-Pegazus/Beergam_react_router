@@ -1,10 +1,10 @@
 import { useFormContext } from "react-hook-form";
-import { Fields } from "~/src/components/utils/_fields";
 import type {
-  CreateSimplifiedProduct,
   CreateCompleteProduct,
+  CreateSimplifiedProduct,
   RegistrationType,
 } from "~/features/produtos/typings/createProduct";
+import { Fields } from "~/src/components/utils/_fields";
 
 interface StockFieldsProps {
   registrationType: RegistrationType;
@@ -22,7 +22,7 @@ export default function StockFields({ registrationType }: StockFieldsProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-xl font-semibold text-beergam-blue-primary">
+      <h2 className="text-xl font-semibold text-beergam-typography-primary">
         Estoque
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -33,7 +33,9 @@ export default function StockFields({ registrationType }: StockFieldsProps) {
             name="product.stock_handling"
             label="Ativar controle de estoque"
             checked={watch("product.stock_handling")}
-            onChange={(e) => setValue("product.stock_handling", e.target.checked)}
+            onChange={(e) =>
+              setValue("product.stock_handling", e.target.checked)
+            }
             error={errors.product?.stock_handling?.message}
             dataTooltipId="product-stock-handling-checkbox"
           />
@@ -75,7 +77,16 @@ export default function StockFields({ registrationType }: StockFieldsProps) {
             ]}
             {...register("product.unity_type")}
             value={watch("product.unity_type") || "UNITY"}
-            error={errors.product?.unity_type ? { message: errors.product.unity_type.message || "Tipo de unidade é obrigatório", error: true } : undefined}
+            error={
+              errors.product?.unity_type
+                ? {
+                    message:
+                      errors.product.unity_type.message ||
+                      "Tipo de unidade é obrigatório",
+                    error: true,
+                  }
+                : undefined
+            }
             hasError={!!errors.product?.unity_type}
           />
         </Fields.wrapper>
@@ -89,7 +100,10 @@ export default function StockFields({ registrationType }: StockFieldsProps) {
               min="0"
               placeholder="0"
               {...register("product.maximum_quantity", { valueAsNumber: true })}
-              error={(errors.product as CreateCompleteProduct['product'])?.maximum_quantity?.message}
+              error={
+                (errors.product as CreateCompleteProduct["product"])
+                  ?.maximum_quantity?.message
+              }
               dataTooltipId="product-maximum-quantity-input"
             />
           </Fields.wrapper>
@@ -104,7 +118,10 @@ export default function StockFields({ registrationType }: StockFieldsProps) {
               min="0"
               placeholder="0"
               {...register("product.minimum_quantity", { valueAsNumber: true })}
-              error={(errors.product as CreateCompleteProduct['product'])?.minimum_quantity?.message}
+              error={
+                (errors.product as CreateCompleteProduct["product"])
+                  ?.minimum_quantity?.message
+              }
               dataTooltipId="product-minimum-quantity-input"
             />
           </Fields.wrapper>
@@ -113,4 +130,3 @@ export default function StockFields({ registrationType }: StockFieldsProps) {
     </div>
   );
 }
-

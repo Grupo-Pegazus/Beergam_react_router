@@ -1,15 +1,15 @@
-import { useState, useMemo } from "react";
 import { Typography } from "@mui/material";
+import { useMemo, useState } from "react";
+import Svg from "~/src/assets/svgs/_index";
+import { FilterSearchInput } from "~/src/components/filters/components/FilterSearchInput";
+import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import MainCards from "~/src/components/ui/MainCards";
+import PaginationBar from "~/src/components/ui/PaginationBar";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useAttributes } from "../hooks";
+import type { Attribute } from "../typings";
 import AttributeCard from "./AttributeCard";
 import AttributeFormModal from "./AttributeFormModal";
-import type { Attribute } from "../typings";
-import MainCards from "~/src/components/ui/MainCards";
-import Svg from "~/src/assets/svgs/_index";
-import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
-import { FilterSearchInput } from "~/src/components/filters/components/FilterSearchInput";
-import BeergamButton from "~/src/components/utils/BeergamButton";
-import PaginationBar from "~/src/components/ui/PaginationBar";
 
 interface AttributesListProps {
   filters?: {
@@ -22,8 +22,12 @@ export default function AttributesList({ filters = {} }: AttributesListProps) {
   const [perPage] = useState(20);
   const [searchTerm, setSearchTerm] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingAttribute, setEditingAttribute] = useState<Attribute | null>(null);
-  const [expandedAttributeId, setExpandedAttributeId] = useState<string | null>(null);
+  const [editingAttribute, setEditingAttribute] = useState<Attribute | null>(
+    null
+  );
+  const [expandedAttributeId, setExpandedAttributeId] = useState<string | null>(
+    null
+  );
 
   const { data, isLoading, error } = useAttributes({
     ...filters,
@@ -67,11 +71,16 @@ export default function AttributesList({ filters = {} }: AttributesListProps) {
       ErrorFallback={() => (
         <MainCards>
           <div className="flex flex-col items-center justify-center py-12 px-4">
-            <Typography variant="h6" color="error" className="mb-2">
+            <Typography variant="h6" className="mb-2 text-beergam-red">
               Erro ao carregar atributos
             </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {error instanceof Error ? error.message : "Ocorreu um erro inesperado"}
+            <Typography
+              variant="body2"
+              className="text-beergam-typography-secondary"
+            >
+              {error instanceof Error
+                ? error.message
+                : "Ocorreu um erro inesperado"}
             </Typography>
           </div>
         </MainCards>
@@ -94,7 +103,6 @@ export default function AttributesList({ filters = {} }: AttributesListProps) {
             </div>
             <BeergamButton
               title="Criar Atributo"
-              mainColor="beergam-blue-primary"
               animationStyle="slider"
               onClick={handleCreateClick}
               className="whitespace-nowrap"
@@ -106,11 +114,17 @@ export default function AttributesList({ filters = {} }: AttributesListProps) {
         {attributes.length === 0 && !isLoading ? (
           <MainCards>
             <div className="flex flex-col items-center justify-center py-12 px-4">
-              <Svg.bag tailWindClasses="w-16 h-16 text-gray-300 mb-4" />
-              <Typography variant="h6" color="text.secondary" className="mb-2">
+              <Svg.bag tailWindClasses="w-16 h-16 text-beergam-typography-primary mb-4" />
+              <Typography
+                variant="h6"
+                className="mb-2 text-beergam-typography-secondary"
+              >
                 Nenhum atributo encontrado
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                className="text-beergam-typography-secondary"
+              >
                 {searchTerm
                   ? "Tente pesquisar com outros termos"
                   : "Crie seu primeiro atributo para começar"}
@@ -160,4 +174,3 @@ export default function AttributesList({ filters = {} }: AttributesListProps) {
     </AsyncBoundary>
   );
 }
-

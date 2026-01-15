@@ -1,8 +1,8 @@
 import { createElement } from "react";
-import type { StockDashboardResponse } from "../../typings";
-import StatCard from "~/src/components/ui/StatCard";
 import Svg from "~/src/assets/svgs/_index";
+import StatCard from "~/src/components/ui/StatCard";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+import type { StockDashboardResponse } from "../../typings";
 
 interface StockMetricsCardsProps {
   metrics: StockDashboardResponse["metrics"];
@@ -50,7 +50,7 @@ export default function StockMetricsCards({ metrics }: StockMetricsCardsProps) {
         <StatCard
           key={card.key}
           icon={createElement(Svg[card.icon], {
-            tailWindClasses: "h-5 w-5 text-beergam-blue-primary",
+            tailWindClasses: "h-5 w-5 text-beergam-white",
           })}
           title={card.label}
           value={card.value}
@@ -61,4 +61,3 @@ export default function StockMetricsCards({ metrics }: StockMetricsCardsProps) {
     </div>
   );
 }
-

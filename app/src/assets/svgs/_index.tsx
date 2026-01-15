@@ -6,6 +6,7 @@ import ArrowUturnRight from "./ArrowUturnRight";
 import BagIcon from "./BagIcon";
 import BagSolid from "./BagSolid";
 import Bell from "./Bell";
+import BoxArrowDownSolid from "./BoxArrowDownSolid";
 import BoxIcon from "./BoxIcon";
 import BoxIconSolid from "./BoxIconSolid";
 import BuildingLibrary from "./BuildingLibrary";
@@ -28,6 +29,7 @@ import Cog8Tooth from "./Cog8Tooth";
 import Copy from "./Copy";
 import CopySolid from "./CopySolid";
 import CurrencyDollar from "./CurrencyDollar";
+import DocumentGlassSolid from "./DocumentGlassSolid";
 import DocumentIcon from "./DocumentIcon";
 import DollyIcon from "./DollyIcon";
 import ElipsisHorizontal from "./ElipsisHorizontal";
@@ -141,6 +143,8 @@ const Svg = {
   minus: Minus,
   sun: Sun,
   moon: Moon,
+  box_arrow_down_solid: BoxArrowDownSolid,
+  document_glass_solid: DocumentGlassSolid,
 };
 
 export default Svg;

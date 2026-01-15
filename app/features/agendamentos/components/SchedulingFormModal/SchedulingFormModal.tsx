@@ -1,15 +1,31 @@
-import { useState, useEffect } from "react";
-import { TextField, Table, TableBody, TableCell, TableHead, TableRow, IconButton } from "@mui/material";
-import Modal from "~/src/components/utils/Modal";
-import { Fields } from "~/src/components/utils/_fields";
-import BeergamButton from "~/src/components/utils/BeergamButton";
-import { ProductVariationSelectorModal, type SelectedProductVariation } from "../ProductVariationSelectorModal";
-import { useCreateScheduling, useUpdateScheduling } from "../../hooks";
-import type { Scheduling, CreateScheduling, UpdateScheduling, CreateSchedulingItem } from "../../typings";
-import { SchedulingType } from "../../typings";
-import { calculateItemTotal, formatCurrency } from "../../utils";
+import {
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TextField,
+} from "@mui/material";
+import { useEffect, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
 import { FilterDatePicker } from "~/src/components/filters/components/FilterDatePicker";
+import { Fields } from "~/src/components/utils/_fields";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import Modal from "~/src/components/utils/Modal";
+import { useCreateScheduling, useUpdateScheduling } from "../../hooks";
+import type {
+  CreateScheduling,
+  CreateSchedulingItem,
+  Scheduling,
+  UpdateScheduling,
+} from "../../typings";
+import { SchedulingType } from "../../typings";
+import { calculateItemTotal, formatCurrency } from "../../utils";
+import {
+  ProductVariationSelectorModal,
+  type SelectedProductVariation,
+} from "../ProductVariationSelectorModal";
 
 interface SchedulingFormModalProps {
   isOpen: boolean;
@@ -39,7 +55,7 @@ export default function SchedulingFormModal({
   type FormSchedulingItem = CreateSchedulingItem & {
     title?: string; // Apenas para exibição no formulário
   };
-  
+
   const [items, setItems] = useState<FormSchedulingItem[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -85,17 +101,20 @@ export default function SchedulingFormModal({
         newErrors[`item_${index}`] = "Item deve ter produto ou variação";
       }
       if (!item.quantity || item.quantity < 1) {
-        newErrors[`item_quantity_${index}`] = "Quantidade deve ser maior que zero";
+        newErrors[`item_quantity_${index}`] =
+          "Quantidade deve ser maior que zero";
       }
       if (!item.unity_price) {
         newErrors[`item_price_${index}`] = "Preço unitário é obrigatório";
       } else {
         // Validar que o preço não seja zero
-        const priceValue = typeof item.unity_price === "string" 
-          ? parseFloat(item.unity_price) 
-          : item.unity_price;
+        const priceValue =
+          typeof item.unity_price === "string"
+            ? parseFloat(item.unity_price)
+            : item.unity_price;
         if (priceValue === 0 || isNaN(priceValue) || priceValue < 0) {
-          newErrors[`item_price_${index}`] = "Preço unitário deve ser maior que zero";
+          newErrors[`item_price_${index}`] =
+            "Preço unitário deve ser maior que zero";
         }
       }
     });
@@ -125,7 +144,7 @@ export default function SchedulingFormModal({
           quantity: item.quantity,
           unity_price: item.unity_price,
         }));
-        
+
         await createMutation.mutateAsync({
           ...formData,
           items: itemsToSend,
@@ -139,9 +158,12 @@ export default function SchedulingFormModal({
 
   const handleAddItems = (selections: SelectedProductVariation[]) => {
     const newItems: FormSchedulingItem[] = selections.map((selection) => {
-      const displayTitle = selection.title || 
-        (selection.product_id ? `Produto ${selection.product_id}` : `Variação ${selection.product_variation_id}`);
-      
+      const displayTitle =
+        selection.title ||
+        (selection.product_id
+          ? `Produto ${selection.product_id}`
+          : `Variação ${selection.product_variation_id}`);
+
       return {
         product_id: selection.product_id,
         product_variation_id: selection.product_variation_id,
@@ -150,7 +172,7 @@ export default function SchedulingFormModal({
         title: displayTitle, // Apenas para exibição no formulário
       };
     });
-    
+
     setItems([...items, ...newItems]);
     const newErrors = { ...errors };
     delete newErrors.items;
@@ -162,7 +184,11 @@ export default function SchedulingFormModal({
     setItems(items.filter((_, i) => i !== index));
   };
 
-  const handleItemChange = (index: number, field: keyof FormSchedulingItem, value: unknown) => {
+  const handleItemChange = (
+    index: number,
+    field: keyof FormSchedulingItem,
+    value: unknown
+  ) => {
     const updatedItems = [...items];
     updatedItems[index] = { ...updatedItems[index], [field]: value };
     setItems(updatedItems);
@@ -187,7 +213,9 @@ export default function SchedulingFormModal({
               type="text"
               placeholder="Ex: Entrada - Fornecedor ABC"
               value={formData.title || ""}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
               error={errors.title}
               disabled={isLoading}
             />
@@ -198,7 +226,9 @@ export default function SchedulingFormModal({
             <FilterDatePicker
               label=""
               value={formData.estimated_arrival_date}
-              onChange={(value) => setFormData({ ...formData, estimated_arrival_date: value })}
+              onChange={(value) =>
+                setFormData({ ...formData, estimated_arrival_date: value })
+              }
               disabled={isLoading}
               includeTime={true}
               widthType="full"
@@ -210,7 +240,10 @@ export default function SchedulingFormModal({
             <Fields.select
               value={formData.type || SchedulingType.ENTRY}
               onChange={(e) =>
-                setFormData({ ...formData, type: e.target.value as SchedulingType })
+                setFormData({
+                  ...formData,
+                  type: e.target.value as SchedulingType,
+                })
               }
               options={[
                 { value: SchedulingType.ENTRY, label: "Entrada" },
@@ -274,83 +307,102 @@ export default function SchedulingFormModal({
                     </TableHead>
                     <TableBody>
                       {items.map((item, index) => {
-                        const displayTitle = item.title || (item.product_id ? `Produto ID: ${item.product_id}` : `Variação ID: ${item.product_variation_id}`);
+                        const displayTitle =
+                          item.title ||
+                          (item.product_id
+                            ? `Produto ID: ${item.product_id}`
+                            : `Variação ID: ${item.product_variation_id}`);
                         return (
-                        <TableRow key={index}>
-                          <TableCell>
-                            {item.product_id ? (
-                              <span>Produto: <b>{displayTitle}</b></span>
-                            ) : (
-                              <span>Variação: <b>{displayTitle}</b></span>
-                            )}
-                          </TableCell>
-                          <TableCell align="right">
-                            <Fields.input
-                              type="number"
-                              value={item.quantity || ""}
-                              onChange={(e) =>
-                                handleItemChange(index, "quantity", parseInt(e.target.value) || 0)
-                              }
-                              error={errors[`item_quantity_${index}`]}
-                              disabled={isLoading}
-                              tailWindClasses="w-20"
-                            />
-                          </TableCell>
-                          <TableCell align="right">
-                            <Fields.input
-                              type="number"
-                              step="0.01"
-                              min="0.01"
-                              value={item.unity_price || ""}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                handleItemChange(index, "unity_price", value);
-                                // Validar em tempo real
-                                const priceValue = parseFloat(value);
-                                if (value && (priceValue === 0 || isNaN(priceValue) || priceValue < 0)) {
-                                  setErrors({
-                                    ...errors,
-                                    [`item_price_${index}`]: "Preço unitário deve ser maior que zero",
-                                  });
-                                } else {
-                                  const newErrors = { ...errors };
-                                  delete newErrors[`item_price_${index}`];
-                                  setErrors(newErrors);
+                          <TableRow key={index}>
+                            <TableCell>
+                              {item.product_id ? (
+                                <span>
+                                  Produto: <b>{displayTitle}</b>
+                                </span>
+                              ) : (
+                                <span>
+                                  Variação: <b>{displayTitle}</b>
+                                </span>
+                              )}
+                            </TableCell>
+                            <TableCell align="right">
+                              <Fields.input
+                                type="number"
+                                value={item.quantity || ""}
+                                onChange={(e) =>
+                                  handleItemChange(
+                                    index,
+                                    "quantity",
+                                    parseInt(e.target.value) || 0
+                                  )
                                 }
-                              }}
-                              error={errors[`item_price_${index}`]}
-                              disabled={isLoading}
-                              tailWindClasses="w-24"
-                            />
-                          </TableCell>
-                          <TableCell align="right">
-                            {formatCurrency(
-                              calculateItemTotal(
-                                item.quantity || 0,
-                                typeof item.unity_price === "string"
-                                  ? parseFloat(item.unity_price || "0")
-                                  : item.unity_price || 0
-                              )
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <IconButton
-                              size="small"
-                              onClick={() => handleRemoveItem(index)}
-                              disabled={isLoading}
-                            >
-                              <Svg.circle_x tailWindClasses="w-5 h-5" />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
+                                error={errors[`item_quantity_${index}`]}
+                                disabled={isLoading}
+                                tailWindClasses="w-20"
+                              />
+                            </TableCell>
+                            <TableCell align="right">
+                              <Fields.input
+                                type="number"
+                                step="0.01"
+                                min="0.01"
+                                value={item.unity_price || ""}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  handleItemChange(index, "unity_price", value);
+                                  // Validar em tempo real
+                                  const priceValue = parseFloat(value);
+                                  if (
+                                    value &&
+                                    (priceValue === 0 ||
+                                      isNaN(priceValue) ||
+                                      priceValue < 0)
+                                  ) {
+                                    setErrors({
+                                      ...errors,
+                                      [`item_price_${index}`]:
+                                        "Preço unitário deve ser maior que zero",
+                                    });
+                                  } else {
+                                    const newErrors = { ...errors };
+                                    delete newErrors[`item_price_${index}`];
+                                    setErrors(newErrors);
+                                  }
+                                }}
+                                error={errors[`item_price_${index}`]}
+                                disabled={isLoading}
+                                tailWindClasses="w-24"
+                              />
+                            </TableCell>
+                            <TableCell align="right">
+                              {formatCurrency(
+                                calculateItemTotal(
+                                  item.quantity || 0,
+                                  typeof item.unity_price === "string"
+                                    ? parseFloat(item.unity_price || "0")
+                                    : item.unity_price || 0
+                                )
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <IconButton
+                                size="small"
+                                onClick={() => handleRemoveItem(index)}
+                                disabled={isLoading}
+                              >
+                                <Svg.circle_x tailWindClasses="w-5 h-5" />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
                         );
                       })}
                     </TableBody>
                   </Table>
                 </div>
               ) : (
-                <div className="text-center py-8 text-gray-500">
-                  Nenhum item adicionado. Clique em &quot;Adicionar Item&quot; para começar.
+                <div className="text-center py-8 text-beergam-typography-tertiary!">
+                  Nenhum item adicionado. Clique em &quot;Adicionar Item&quot;
+                  para começar.
                 </div>
               )}
             </div>
@@ -367,7 +419,9 @@ export default function SchedulingFormModal({
               type="button"
             />
             <BeergamButton
-              title={isLoading ? "Salvando..." : isEditing ? "Salvar" : "Salvar"}
+              title={
+                isLoading ? "Salvando..." : isEditing ? "Salvar" : "Salvar"
+              }
               mainColor="beergam-orange"
               animationStyle="slider"
               disabled={isLoading}
@@ -396,4 +450,3 @@ export default function SchedulingFormModal({
     </>
   );
 }
-

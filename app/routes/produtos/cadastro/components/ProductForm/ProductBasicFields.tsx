@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 import { useFormContext } from "react-hook-form";
-import { Fields } from "~/src/components/utils/_fields";
 import { useCategories } from "~/features/catalog/hooks";
 import type {
-  CreateSimplifiedProduct,
   CreateCompleteProduct,
+  CreateSimplifiedProduct,
   RegistrationType,
 } from "~/features/produtos/typings/createProduct";
+import { Fields } from "~/src/components/utils/_fields";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface ProductBasicFieldsProps {
@@ -43,7 +43,7 @@ export default function ProductBasicFields({
 
   // Busca categorias do sistema
   const { data: categoriesData } = useCategories({ per_page: 100 });
-  
+
   const categoryOptions = useMemo(() => {
     if (!categoriesData?.success || !categoriesData.data?.categories) {
       return [];
@@ -73,14 +73,21 @@ export default function ProductBasicFields({
         <Fields.wrapper className="md:col-span-2">
           <Fields.label text="DESCRIÇÃO" />
           <textarea
-            className="w-full px-3 py-2.5 border border-black/20 rounded text-sm bg-white text-[#1e1f21] transition-colors duration-200 outline-none focus:border-beergam-orange resize-none"
+            className="w-full px-3 py-2.5 border border-beergam-primary/20 rounded text-sm bg-beergam-input-background text-beergam-typography-tertiary transition-colors duration-200 outline-none focus:border-beergam-orange resize-none"
             rows={4}
             placeholder="Digite a descrição do produto"
             {...register("product.description")}
           />
-          {(errors.product as unknown as CreateCompleteProduct['product'])?.description && (
+          {(errors.product as unknown as CreateCompleteProduct["product"])
+            ?.description && (
             <p className="text-xs text-beergam-red mt-1">
-              {((errors.product as unknown as CreateCompleteProduct['product']).description as { message?: string })?.message}
+              {
+                (
+                  (
+                    errors.product as unknown as CreateCompleteProduct["product"]
+                  ).description as { message?: string }
+                )?.message
+              }
             </p>
           )}
         </Fields.wrapper>
@@ -101,7 +108,15 @@ export default function ProductBasicFields({
             },
           })}
           value={watch("product.status")}
-          error={errors.product?.status ? { message: errors.product.status.message || "Status é obrigatório", error: true } : undefined}
+          error={
+            errors.product?.status
+              ? {
+                  message:
+                    errors.product.status.message || "Status é obrigatório",
+                  error: true,
+                }
+              : undefined
+          }
           hasError={!!errors.product?.status}
           dataTooltipId="product-status-select"
         />
@@ -132,10 +147,16 @@ export default function ProductBasicFields({
         <Fields.label text="SKU" required={!hasVariations} />
         <Fields.input
           type="text"
-          placeholder={hasVariations ? "SKU deve ser preenchido nas variações" : "Digite o SKU"}
+          placeholder={
+            hasVariations
+              ? "SKU deve ser preenchido nas variações"
+              : "Digite o SKU"
+          }
           disabled={hasVariations}
           {...register("product.sku", {
-            required: !hasVariations ? "SKU é obrigatório quando não há variações" : false,
+            required: !hasVariations
+              ? "SKU é obrigatório quando não há variações"
+              : false,
             validate: (value) => {
               if (!hasVariations && (!value || value.trim() === "")) {
                 return "SKU é obrigatório quando não há variações";
@@ -156,7 +177,12 @@ export default function ProductBasicFields({
             type="text"
             placeholder="Digite a marca"
             {...register("product.brand")}
-            error={((errors.product as unknown as CreateCompleteProduct['product'])?.brand as { message?: string })?.message}
+            error={
+              (
+                (errors.product as unknown as CreateCompleteProduct["product"])
+                  ?.brand as { message?: string }
+              )?.message
+            }
             dataTooltipId="product-brand-input"
           />
         </Fields.wrapper>
@@ -172,7 +198,10 @@ export default function ProductBasicFields({
               {...register("product.category_name", {
                 required: "Categoria é obrigatória",
                 validate: (value) => {
-                  if (!value || (typeof value === "string" && value.trim() === "")) {
+                  if (
+                    !value ||
+                    (typeof value === "string" && value.trim() === "")
+                  ) {
                     return "Categoria é obrigatória";
                   }
                   return true;
@@ -182,7 +211,9 @@ export default function ProductBasicFields({
               error={
                 errors.product?.category_name
                   ? {
-                      message: errors.product.category_name.message || "Categoria é obrigatória",
+                      message:
+                        errors.product.category_name.message ||
+                        "Categoria é obrigatória",
                       error: true,
                     }
                   : undefined
@@ -192,8 +223,7 @@ export default function ProductBasicFields({
             />
           </div>
           <BeergamButton
-            title="Criar categoria"
-            mainColor="beergam-blue-primary"
+            title="Criar Categoria"
             animationStyle="slider"
             onClick={onCreateCategoryClick}
             className="whitespace-nowrap"
@@ -204,4 +234,3 @@ export default function ProductBasicFields({
     </div>
   );
 }
-
