@@ -183,6 +183,22 @@ button {
   --sentry-feedback-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
+/* Ajuste automático dos botões flutuantes para mobile */
+/* Em mobile (< 768px), os botões flutuantes precisam estar acima da navegação inferior */
+@media (max-width: 767px) {
+  /* Classe específica para ajuste em rotas internas (onde há navegação inferior) */
+  .floating-action-buttons {
+    bottom: 5rem; /* 80px - altura aproximada da navegação inferior + padding */
+  }
+}
+
+/* Em desktop, mantém posição padrão */
+@media (min-width: 768px) {
+  .floating-action-buttons {
+    bottom: 1.5rem; /* 24px - bottom-6 */
+  }
+}
+
 /* Tema claro */
 #sentry-feedback[data-theme="light"],
 [data-sentry-feedback][data-theme="light"] {
