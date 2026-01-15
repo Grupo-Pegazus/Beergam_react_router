@@ -1,6 +1,6 @@
 import { useFormContext } from "react-hook-form";
-import { Fields } from "~/src/components/utils/_fields";
 import type { CreateCompleteProduct } from "~/features/produtos/typings/createProduct";
+import { Fields } from "~/src/components/utils/_fields";
 
 export default function ProductCompleteFields() {
   const {
@@ -18,7 +18,7 @@ export default function ProductCompleteFields() {
         <Fields.wrapper className="md:col-span-2">
           <Fields.label text="DESCRIÇÃO" />
           <textarea
-            className="w-full px-3 py-2.5 border border-black/20 rounded text-sm bg-white text-[#1e1f21] transition-colors duration-200 outline-none focus:border-beergam-orange resize-none"
+            className="w-full px-3 py-2.5 border border-beergam-primary/20 rounded text-sm bg-beergam-input-background text-beergam-typography-tertiary transition-colors duration-200 outline-none focus:border-beergam-orange resize-none"
             rows={4}
             placeholder="Digite a descrição do produto"
             {...register("product.description")}
@@ -160,10 +160,7 @@ export default function ProductCompleteFields() {
         {/* ICMS */}
         <Fields.wrapper>
           <Fields.label text="ICMS" />
-          <Fields.checkbox
-            {...register("product.icms")}
-            label="Possui ICMS"
-          />
+          <Fields.checkbox {...register("product.icms")} label="Possui ICMS" />
         </Fields.wrapper>
 
         {/* Substituição Tributária */}
@@ -248,4 +245,3 @@ export default function ProductCompleteFields() {
     </div>
   );
 }
-

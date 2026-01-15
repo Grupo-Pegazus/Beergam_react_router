@@ -1,15 +1,15 @@
-import { useState, useMemo } from "react";
 import { Typography } from "@mui/material";
+import { useMemo, useState } from "react";
+import Svg from "~/src/assets/svgs/_index";
+import { FilterSearchInput } from "~/src/components/filters/components/FilterSearchInput";
+import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import MainCards from "~/src/components/ui/MainCards";
+import PaginationBar from "~/src/components/ui/PaginationBar";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useCategories } from "../hooks";
+import type { Category } from "../typings";
 import CategoryCard from "./CategoryCard";
 import CategoryFormModal from "./CategoryFormModal";
-import type { Category } from "../typings";
-import MainCards from "~/src/components/ui/MainCards";
-import Svg from "~/src/assets/svgs/_index";
-import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
-import { FilterSearchInput } from "~/src/components/filters/components/FilterSearchInput";
-import BeergamButton from "~/src/components/utils/BeergamButton";
-import PaginationBar from "~/src/components/ui/PaginationBar";
 
 interface CategoriesListProps {
   filters?: {
@@ -24,7 +24,9 @@ export default function CategoriesList({ filters = {} }: CategoriesListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null);
+  const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(
+    null
+  );
 
   const { data, isLoading, error } = useCategories({
     ...filters,
@@ -72,7 +74,9 @@ export default function CategoriesList({ filters = {} }: CategoriesListProps) {
               Erro ao carregar categorias
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {error instanceof Error ? error.message : "Ocorreu um erro inesperado"}
+              {error instanceof Error
+                ? error.message
+                : "Ocorreu um erro inesperado"}
             </Typography>
           </div>
         </MainCards>
@@ -95,7 +99,6 @@ export default function CategoriesList({ filters = {} }: CategoriesListProps) {
             </div>
             <BeergamButton
               title="Criar Categoria"
-              mainColor="beergam-blue-primary"
               animationStyle="slider"
               onClick={handleCreateClick}
               className="whitespace-nowrap"
@@ -105,13 +108,19 @@ export default function CategoriesList({ filters = {} }: CategoriesListProps) {
 
         {/* Lista de categorias */}
         {categories.length === 0 && !isLoading ? (
-          <MainCards>
+          <MainCards className="bg-beergam-section-background!">
             <div className="flex flex-col items-center justify-center py-12 px-4">
-              <Svg.box tailWindClasses="w-16 h-16 text-gray-300 mb-4" />
-              <Typography variant="h6" color="text.secondary" className="mb-2">
+              <Svg.box tailWindClasses="w-16 h-16 text-beergam-typography-primary mb-4" />
+              <Typography
+                variant="h6"
+                className="mb-2 text-beergam-typography-primary"
+              >
                 Nenhuma categoria encontrada
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                className="text-beergam-typography-secondary"
+              >
                 {searchTerm
                   ? "Tente pesquisar com outros termos"
                   : "Crie sua primeira categoria para começar"}
@@ -161,4 +170,3 @@ export default function CategoriesList({ filters = {} }: CategoriesListProps) {
     </AsyncBoundary>
   );
 }
-

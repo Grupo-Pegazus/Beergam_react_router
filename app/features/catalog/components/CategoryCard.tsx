@@ -1,10 +1,9 @@
-import { useState } from "react";
-import type { Category, RelatedProduct } from "../typings";
-import { useDeleteCategory } from "../hooks";
+import { useModal } from "~/src/components/utils/Modal/useModal";
 import toast from "~/src/utils/toast";
+import { useDeleteCategory } from "../hooks";
+import type { Category, RelatedProduct } from "../typings";
 import DeleteCategoryModal from "./DeleteCategoryModal";
 import RelatedEntityCardBase from "./RelatedEntityCardBase";
-import { useModal } from "~/src/components/utils/Modal/useModal";
 
 interface CategoryCardProps {
   category: Category;
@@ -49,9 +48,10 @@ export default function CategoryCard({
         onConfirm={handleConfirmDelete}
       />,
       {
-        title: category.related_products_count > 0 
-          ? "Não é possível excluir esta categoria"
-          : "Confirmar exclusão",
+        title:
+          category.related_products_count > 0
+            ? "Não é possível excluir esta categoria"
+            : "Confirmar exclusão",
       }
     );
   };
@@ -66,18 +66,20 @@ export default function CategoryCard({
       <RelatedEntityCardBase
         title={category.name}
         circleLabel={category.name.charAt(0)}
-        circleBgClass="bg-beergam-blue-primary"
+        circleBgClass="bg-beergam-primary"
         description={category.description}
         hasRelated={hasRelatedProducts}
         badgeLabel={`${category.related_products_count} produto(s)`}
         isExpanded={isExpanded}
         onToggleExpand={onToggleExpand}
         relatedSectionTitle="Produtos Relacionados:"
-        relatedItems={category.related_products.map((product: RelatedProduct) => ({
-          id: product.product_id,
-          title: product.title,
-          sku: product.sku,
-        }))}
+        relatedItems={category.related_products.map(
+          (product: RelatedProduct) => ({
+            id: product.product_id,
+            title: product.title,
+            sku: product.sku,
+          })
+        )}
         remainingCount={remainingCount > 0 ? remainingCount : undefined}
         remainingSuffix="produto(s)"
         onEdit={() => onEdit(category)}
@@ -87,4 +89,3 @@ export default function CategoryCard({
     </>
   );
 }
-

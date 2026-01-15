@@ -1,7 +1,15 @@
+import {
+  Box,
+  Chip,
+  Collapse,
+  IconButton,
+  Menu,
+  MenuItem,
+  Typography,
+} from "@mui/material";
 import { useState, type ReactNode } from "react";
-import { Box, Chip, Collapse, IconButton, Menu, MenuItem, Typography } from "@mui/material";
-import MainCards from "~/src/components/ui/MainCards";
 import Svg from "~/src/assets/svgs/_index";
+import MainCards from "~/src/components/ui/MainCards";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface RelatedItem {
@@ -94,7 +102,7 @@ export default function RelatedEntityCardBase({
 
   return (
     <>
-      <MainCards className="transition-all duration-300 hover:shadow-md">
+      <MainCards className="transition-all duration-300 hover:shadow-md bg-beergam-section-background!">
         <div className={`p-6 ${!isExpanded ? "min-h-[260px]" : ""}`}>
           {/* Header sempre visível */}
           <div className="flex flex-col items-center justify-center relative">
@@ -103,11 +111,13 @@ export default function RelatedEntityCardBase({
               <IconButton
                 onClick={handleMenuOpen}
                 size="small"
-                className="text-beergam-blue-primary"
+                className="text-beergam-white"
                 sx={{
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
+                  backgroundColor: "var(--color-beergam-primary)",
+                  color: "var(--color-beergam-white)",
                   "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 1)",
+                    backgroundColor:
+                      "var(--color-beergam-typography-secondary)",
                   },
                 }}
               >
@@ -116,7 +126,9 @@ export default function RelatedEntityCardBase({
             </div>
 
             {/* Ícone circular */}
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 ${circleBgClass}`}>
+            <div
+              className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 ${circleBgClass}`}
+            >
               <span className="text-white font-bold text-2xl">
                 {circleLabel.toUpperCase()}
               </span>
@@ -125,7 +137,7 @@ export default function RelatedEntityCardBase({
             {/* Título */}
             <Typography
               variant="h6"
-              className="font-semibold text-beergam-blue-primary text-center mb-2"
+              className="font-semibold text-beergam-typography-primary text-center mb-2"
             >
               {title}
             </Typography>
@@ -134,8 +146,7 @@ export default function RelatedEntityCardBase({
             {description && (
               <Typography
                 variant="body2"
-                color="text.secondary"
-                className="text-center mb-3 text-sm"
+                className="text-center mb-3 text-sm text-beergam-typography-secondary"
               >
                 {description}
               </Typography>
@@ -153,22 +164,24 @@ export default function RelatedEntityCardBase({
                   sx={{
                     fontSize: "0.75rem",
                     fontWeight: 600,
-                    backgroundColor: "#dbeafe",
-                    color: "#1e40af",
+                    backgroundColor:
+                      "var(--color-beergam-typography-secondary)",
+                    color: "var(--color-beergam-white)",
                   }}
                 />
                 <BeergamButton
                   title={`${isExpanded ? "Ocultar" : "Ver"} produtos`}
-                  mainColor="beergam-blue-primary"
-                  animationStyle="fade"
                   onClick={handleToggleClick}
-                  className="text-xs mt-1 flex items-center gap-1"
                 />
               </div>
             )}
 
             {!hasRelated && (
-              <Typography variant="caption" color="text.secondary" className="mt-2">
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                className="mt-2"
+              >
                 Nenhum produto relacionado
               </Typography>
             )}
@@ -245,7 +258,8 @@ export default function RelatedEntityCardBase({
                         variant="caption"
                         className="text-gray-500 italic text-center block mt-2 text-xs"
                       >
-                        ... e mais {remainingCount} {remainingSuffix ?? "produto(s)"}
+                        ... e mais {remainingCount}{" "}
+                        {remainingSuffix ?? "produto(s)"}
                       </Typography>
                     )}
                   </div>
@@ -257,7 +271,11 @@ export default function RelatedEntityCardBase({
       </MainCards>
 
       {/* Menu comum (editar/excluir) */}
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
         <MenuItem onClick={handleEditClick}>
           <Svg.pencil tailWindClasses="w-4 h-4 mr-2" />
           Editar
@@ -276,5 +294,3 @@ export default function RelatedEntityCardBase({
     </>
   );
 }
-
-
