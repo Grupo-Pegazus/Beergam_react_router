@@ -129,7 +129,12 @@ export default function VariationsDetailsModal({
       </div>
 
       <BeergamSlider
-        slidesPerView={2}
+        slidesPerView={1}
+        breakpoints={{
+          768: {
+            slidesPerView: 2,
+          },
+        }}
         slides={variations.map((variation) => {
           const variationImageUrl = variation.images?.product?.[0];
           const isActive = variation.status.toLowerCase().trim() === "ativo";
@@ -146,20 +151,6 @@ export default function VariationsDetailsModal({
               key={variation.product_variation_id}
               className="flex flex-col gap-2"
             >
-              <StatusCell
-                hasVariations={false}
-                variationsCount={0}
-                status={variation.status}
-                isActive={isActive}
-                isMutating={isMutating}
-                onToggleStatus={() =>
-                  handleToggleStatus(
-                    variation.product_variation_id,
-                    variation.status
-                  )
-                }
-                onOpenVariationsModal={() => {}}
-              />
               <ProductInfoCell
                 imageUrl={variationImageUrl}
                 title={variation.title}
@@ -186,7 +177,20 @@ export default function VariationsDetailsModal({
                 stock={variation.available_quantity ?? null}
                 isVariation={true}
               />
-
+              <StatusCell
+                hasVariations={false}
+                variationsCount={0}
+                status={variation.status}
+                isActive={isActive}
+                isMutating={isMutating}
+                onToggleStatus={() =>
+                  handleToggleStatus(
+                    variation.product_variation_id,
+                    variation.status
+                  )
+                }
+                onOpenVariationsModal={() => {}}
+              />
               {/* Atributos da variação */}
               {variation.attributes && variation.attributes.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-slate-200">

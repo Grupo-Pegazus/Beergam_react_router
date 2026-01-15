@@ -70,10 +70,11 @@ export function StatusCell({
 
   return (
     <StatusCellWrapper label="Status de variações:" justify="start">
-      <ProductChip
+      {/* <ProductChip
         label={variationsCount.toString()}
         onClick={onOpenVariationsModal}
-      />
+      /> */}
+      {EmptyCell()}
     </StatusCellWrapper>
   );
 }
@@ -95,7 +96,9 @@ export function ProductInfoCell({
 }: ProductInfoCellProps) {
   return (
     <div className="flex items-center gap-2">
-      <ProductImage imageUrl={imageUrl} alt={title} size="small" />
+      <div className="">
+        <ProductImage imageUrl={imageUrl} alt={title} size="medium" />
+      </div>
       <div>
         <TextCensored className="flex!" censorshipKey="produtos_list">
           <h4 className="text-beergam-typography-primary font-medium">
@@ -141,8 +144,8 @@ export function VariationsCountCell({
       <ProductChip
         label={variationsCount}
         variant="circle"
-        className="bg-beergam-typography-secondary!"
-        onClick={onOpenModal ?? null}
+        className={`${count === 0 ? "bg-beergam-typography-secondary!" : ""}`}
+        onClick={onOpenModal && count > 0 ? onOpenModal : null}
       />
     </StatusCellWrapper>
   );
@@ -252,7 +255,7 @@ export function StockCell({ stock, isVariation = false }: StockCellProps) {
       >
         <ProductChip
           label={stock ? stock.toString() : EmptyCell()}
-          className="bg-beergam-green!"
+          className={`${stock ? "bg-beergam-green!" : "bg-beergam-typography-secondary!"}`}
           variant="circle"
         />
       </TextCensored>

@@ -176,15 +176,6 @@ export default function ProductCard({ product }: ProductCardProps) {
         />
       </TableCell>
       <Paper className="flex! flex-col gap-2 md:hidden! mb-4 relative">
-        <StatusCell
-          hasVariations={hasVariations}
-          variationsCount={variationsCount}
-          status={product.status}
-          isActive={isActive}
-          isMutating={isMutating}
-          onToggleStatus={handleToggleStatus}
-          onOpenVariationsModal={handleOpenVariationsStatusModal}
-        />
         <ProductInfoCell
           imageUrl={mainImageUrl}
           title={product.title}
@@ -202,6 +193,15 @@ export default function ProductCard({ product }: ProductCardProps) {
         <RelatedAdsCell count={relatedAdsCount} />
         <SalesQuantityCell quantity={product.sales_quantity} />
         <StockCell stock={totalStock ?? null} />
+        <StatusCell
+          hasVariations={hasVariations}
+          variationsCount={variationsCount}
+          status={product.status}
+          isActive={isActive}
+          isMutating={isMutating}
+          onToggleStatus={handleToggleStatus}
+          onOpenVariationsModal={handleOpenVariationsStatusModal}
+        />
         <ActionsCell
           productId={product.product_id}
           hasStock={totalStock !== undefined}

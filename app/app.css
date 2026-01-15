@@ -84,6 +84,9 @@
   border-color: var(--color-border);
 }
 /* Configurações do Swiper */
+.swiper-slide {
+  height: auto !important;
+}
 .swiper-pagination {
   display: flex;
   align-items: center;
