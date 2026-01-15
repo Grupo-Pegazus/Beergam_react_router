@@ -286,6 +286,54 @@ const theme = createTheme(
           },
         },
       },
+      MuiStep: {
+        styleOverrides: {
+          root: {
+            transition: "all 0.2s ease-in-out",
+            "&:hover": {
+              transform: "scale(1.05)",
+            },
+            "& .MuiStepLabel-root": {
+              cursor: "pointer",
+            },
+            "& .MuiStepIcon-root": {
+              cursor: "pointer",
+              color: "var(--color-beergam-primary)",
+              "&.Mui-completed": {
+                color: "var(--color-beergam-primary)",
+              },
+              "&.Mui-active": {
+                color: "var(--color-beergam-primary)",
+              },
+            },
+          },
+        },
+      },
+      MuiStepLabel: {
+        styleOverrides: {
+          root: {
+            "& .MuiStepLabel-label": {
+              fontSize: "0.875rem",
+              transition: "all 0.2s ease-in-out",
+              position: "relative",
+              color: "var(--color-beergam-typography-secondary)",
+            },
+            "& .MuiStepLabel-label.Mui-active": {
+              color: "var(--color-beergam-primary)",
+              fontWeight: 600,
+            },
+            "& .MuiStepLabel-label.Mui-completed": {
+              color: "var(--color-beergam-typography-secondary)",
+            },
+            "&:hover": {
+              "& .MuiStepLabel-label": {
+                color: "var(--color-beergam-primary)",
+                fontWeight: 600,
+              },
+            },
+          },
+        },
+      },
     },
     typography: {
       fontFamily: "var(--default-font-family)",

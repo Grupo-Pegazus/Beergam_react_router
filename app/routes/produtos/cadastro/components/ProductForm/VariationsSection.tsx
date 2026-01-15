@@ -1,16 +1,17 @@
-import { useState, useRef, useMemo } from "react";
-import { useFormContext, useFieldArray } from "react-hook-form";
-import { Fields } from "~/src/components/utils/_fields";
-import Upload from "~/src/components/utils/upload";
-import { productUploadService } from "~/features/produtos/services/uploadService";
+import { useMemo, useRef, useState } from "react";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import { useAttributes } from "~/features/catalog/hooks";
+import { productUploadService } from "~/features/produtos/services/uploadService";
 import type {
-  CreateSimplifiedProduct,
+  CompleteVariation,
   CreateCompleteProduct,
+  CreateSimplifiedProduct,
   RegistrationType,
   SimplifiedVariation,
-  CompleteVariation,
 } from "~/features/produtos/typings/createProduct";
+import { Fields } from "~/src/components/utils/_fields";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import Upload from "~/src/components/utils/upload";
 
 interface VariationsSectionProps {
   registrationType: RegistrationType;
@@ -21,15 +22,24 @@ export default function VariationsSection({
   registrationType,
   onCreateAttributeClick,
 }: VariationsSectionProps) {
-  const { control, formState: { errors }, setValue, watch } = useFormContext<CreateSimplifiedProduct | CreateCompleteProduct>();
+  const {
+    control,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useFormContext<CreateSimplifiedProduct | CreateCompleteProduct>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "variations",
   });
 
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
-  const [uploadVariationIndex, setUploadVariationIndex] = useState<number | null>(null);
-  const [uploadType, setUploadType] = useState<"product" | "marketplace" | "shipping">("product");
+  const [uploadVariationIndex, setUploadVariationIndex] = useState<
+    number | null
+  >(null);
+  const [uploadType, setUploadType] = useState<
+    "product" | "marketplace" | "shipping"
+  >("product");
   const previousUploadKeyRef = useRef<string>("");
   // Usa um objeto para manter uma key única por variação e tipo
   const uploadKeysRef = useRef<Record<string, number>>({});
@@ -72,7 +82,10 @@ export default function VariationsSection({
     }
   };
 
-  const handleUploadClick = (index: number, type: "product" | "marketplace" | "shipping") => {
+  const handleUploadClick = (
+    index: number,
+    type: "product" | "marketplace" | "shipping"
+  ) => {
     const newKey = `variation-${index}-${type}`;
     // Se mudou a variação ou o tipo, incrementa a key para forçar reset do componente Upload
     if (previousUploadKeyRef.current !== newKey) {
@@ -86,7 +99,7 @@ export default function VariationsSection({
     setUploadType(type);
     setUploadModalOpen(true);
   };
-  
+
   const handleCloseModal = () => {
     setUploadModalOpen(false);
   };
@@ -96,14 +109,20 @@ export default function VariationsSection({
     // Usamos onInternalUpload que recebe os objetos completos
   };
 
-  const handleInternalUpload = (responses: Array<{ image_id: string; image_url: string; filename: string }>) => {
+  const handleInternalUpload = (
+    responses: Array<{ image_id: string; image_url: string; filename: string }>
+  ) => {
     if (uploadVariationIndex === null) return;
-    
-    const currentImages = watch(`variations.${uploadVariationIndex}.images.${uploadType}`) || [];
+
+    const currentImages =
+      watch(`variations.${uploadVariationIndex}.images.${uploadType}`) || [];
     // Salva as URLs completas das imagens
     const newImageUrls = responses.map((response) => response.image_url);
     const newImages = [...currentImages, ...newImageUrls];
-    setValue(`variations.${uploadVariationIndex}.images.${uploadType}`, newImages);
+    setValue(
+      `variations.${uploadVariationIndex}.images.${uploadType}`,
+      newImages
+    );
     setUploadModalOpen(false);
     // NÃO incrementa a key aqui - queremos preservar o estado para mostrar as fotos já enviadas
   };
@@ -111,26 +130,25 @@ export default function VariationsSection({
   return (
     <div className="flex flex-col gap-4 border-t pt-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-beergam-blue-primary">
+        <h2 className="text-xl font-semibold text-beergam-typography-primary">
           Variações do Produto
         </h2>
-        <button
-          type="button"
+        <BeergamButton
+          title="Adicionar Variação"
           onClick={addVariation}
-          className="px-4 py-2 bg-beergam-blue-primary text-white rounded-lg text-sm font-medium hover:bg-beergam-blue transition-colors"
-        >
-          Adicionar Variação
-        </button>
+          icon="plus"
+        />
       </div>
 
       {fields.length === 0 && (
         <div className="text-center py-8 text-beergam-gray border border-dashed border-beergam-gray-200 rounded-lg">
-          Nenhuma variação adicionada. Clique em &quot;Adicionar Variação&quot; para começar.
+          Nenhuma variação adicionada. Clique em &quot;Adicionar Variação&quot;
+          para começar.
         </div>
       )}
 
       {fields.map((field, index) => (
-      <VariationForm
+        <VariationForm
           key={field.id}
           index={index}
           registrationType={registrationType}
@@ -162,7 +180,9 @@ export default function VariationsSection({
         onInternalUpload={handleInternalUpload}
         initialFiles={
           uploadVariationIndex !== null
-            ? (watch(`variations.${uploadVariationIndex}.images.${uploadType}`) as string[]) || []
+            ? (watch(
+                `variations.${uploadVariationIndex}.images.${uploadType}`
+              ) as string[]) || []
             : []
         }
       />
@@ -174,7 +194,10 @@ interface VariationFormProps {
   index: number;
   registrationType: RegistrationType;
   onRemove: () => void;
-  onUploadClick: (index: number, type: "product" | "marketplace" | "shipping") => void;
+  onUploadClick: (
+    index: number,
+    type: "product" | "marketplace" | "shipping"
+  ) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors?: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -194,38 +217,53 @@ function VariationForm({
   setValue,
   onCreateAttributeClick,
 }: VariationFormProps) {
-  const { register } = useFormContext<CreateSimplifiedProduct | CreateCompleteProduct>();
+  const { register } = useFormContext<
+    CreateSimplifiedProduct | CreateCompleteProduct
+  >();
 
   const statusOptions = [
     { value: "ACTIVE", label: "Ativo" },
     { value: "INACTIVE", label: "Inativo" },
   ];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const productImages = ((watch(`variations.${index}.images.product` as any) as string[]) || []) as string[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const marketplaceImages = ((watch(`variations.${index}.images.marketplace` as any) as string[]) || []) as string[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const shippingImages = ((watch(`variations.${index}.images.shipping` as any) as string[]) || []) as string[];
+  const productImages = ((watch(
+    `variations.${index}.images.product` as any
+  ) as string[]) || []) as string[];
 
-  const handleRemoveImage = (type: "product" | "marketplace" | "shipping", imgIndex: number) => {
+  const marketplaceImages = ((watch(
+    `variations.${index}.images.marketplace` as any
+  ) as string[]) || []) as string[];
+
+  const shippingImages = ((watch(
+    `variations.${index}.images.shipping` as any
+  ) as string[]) || []) as string[];
+
+  const handleRemoveImage = (
+    type: "product" | "marketplace" | "shipping",
+    imgIndex: number
+  ) => {
     const currentImages = watch(`variations.${index}.images.${type}`) || [];
-    const newImages = currentImages.filter((_: string, i: number) => i !== imgIndex);
+    const newImages = currentImages.filter(
+      (_: string, i: number) => i !== imgIndex
+    );
     setValue(`variations.${index}.images.${type}`, newImages);
   };
 
-  const renderImageGrid = (images: string[], type: "product" | "marketplace" | "shipping", label: string) => {
+  const renderImageGrid = (
+    images: string[],
+    type: "product" | "marketplace" | "shipping",
+    label: string
+  ) => {
     return (
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <Fields.label text={label} />
-          <button
+          <BeergamButton
             type="button"
             onClick={() => onUploadClick(index, type)}
-            className="px-3 py-1 bg-beergam-blue-primary text-white rounded text-sm hover:bg-beergam-blue transition-colors"
-          >
-            Adicionar Imagens
-          </button>
+            icon="camera_solid"
+            title="Adicionar Imagens"
+          />
         </div>
         <div className="grid grid-cols-4 gap-2">
           {images.map((imageUrl: string, imgIndex: number) => (
@@ -259,18 +297,17 @@ function VariationForm({
   };
 
   return (
-    <div className="border border-beergam-gray-200 rounded-lg p-4 space-y-4">
+    <div className="border border-beergam-primary rounded-lg p-4 space-y-4">
       <div className="flex items-center justify-between border-b pb-2">
-        <h3 className="text-lg font-medium text-beergam-blue-primary">
+        <h3 className="text-lg font-medium text-beergam-typography-primary">
           Variação {index + 1}
         </h3>
-        <button
+        <BeergamButton
           type="button"
           onClick={onRemove}
-          className="px-3 py-1 bg-beergam-red text-white rounded text-sm hover:bg-red-600 transition-colors"
-        >
-          Remover
-        </button>
+          mainColor="beergam-red"
+          icon="trash"
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -307,8 +344,14 @@ function VariationForm({
           <Fields.checkbox
             name={`variations.${index}.stock_handling`}
             label="Ativar controle de estoque"
-            checked={(watch(`variations.${index}.stock_handling` as `variations.${number}.stock_handling`) as boolean) || false}
-            onChange={(e) => setValue(`variations.${index}.stock_handling`, e.target.checked)}
+            checked={
+              (watch(
+                `variations.${index}.stock_handling` as `variations.${number}.stock_handling`
+              ) as boolean) || false
+            }
+            onChange={(e) =>
+              setValue(`variations.${index}.stock_handling`, e.target.checked)
+            }
             error={errors?.stock_handling?.message}
             dataTooltipId={`variation-${index}-stock-handling-checkbox`}
           />
@@ -319,9 +362,20 @@ function VariationForm({
           <Fields.select
             options={statusOptions}
             {...register(`variations.${index}.status`)}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            value={(watch(`variations.${index}.status` as any) as string | null | undefined) || null}
-            error={errors?.status ? { message: errors.status.message || "Campo obrigatório", error: true } : undefined}
+            value={
+              (watch(`variations.${index}.status` as any) as
+                | string
+                | null
+                | undefined) || null
+            }
+            error={
+              errors?.status
+                ? {
+                    message: errors.status.message || "Campo obrigatório",
+                    error: true,
+                  }
+                : undefined
+            }
             hasError={!!errors?.status}
           />
         </Fields.wrapper>
@@ -331,7 +385,7 @@ function VariationForm({
             <Fields.wrapper>
               <Fields.label text="DESCRIÇÃO" />
               <textarea
-                className="w-full px-3 py-2.5 border border-black/20 rounded text-sm bg-white text-[#1e1f21] transition-colors duration-200 outline-none focus:border-beergam-orange resize-none"
+                className="w-full px-3 py-2.5 border border-beergam-primary/20 rounded text-sm bg-beergam-input-background text-beergam-typography-tertiary transition-colors duration-200 outline-none focus:border-beergam-orange resize-none"
                 rows={3}
                 placeholder="Digite a descrição da variação"
                 {...register(`variations.${index}.description`)}
@@ -345,7 +399,9 @@ function VariationForm({
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                {...register(`variations.${index}.price_sale`, { valueAsNumber: true })}
+                {...register(`variations.${index}.price_sale`, {
+                  valueAsNumber: true,
+                })}
                 error={errors?.price_sale?.message}
               />
             </Fields.wrapper>
@@ -357,7 +413,9 @@ function VariationForm({
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                {...register(`variations.${index}.price_cost`, { valueAsNumber: true })}
+                {...register(`variations.${index}.price_cost`, {
+                  valueAsNumber: true,
+                })}
                 error={errors?.price_cost?.message}
               />
             </Fields.wrapper>
@@ -369,7 +427,9 @@ function VariationForm({
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                {...register(`variations.${index}.packaging_cost`, { valueAsNumber: true })}
+                {...register(`variations.${index}.packaging_cost`, {
+                  valueAsNumber: true,
+                })}
                 error={errors?.packaging_cost?.message}
               />
             </Fields.wrapper>
@@ -381,7 +441,9 @@ function VariationForm({
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                {...register(`variations.${index}.extra_cost`, { valueAsNumber: true })}
+                {...register(`variations.${index}.extra_cost`, {
+                  valueAsNumber: true,
+                })}
                 error={errors?.extra_cost?.message}
               />
             </Fields.wrapper>
@@ -392,7 +454,9 @@ function VariationForm({
                 type="number"
                 min="0"
                 placeholder="0"
-                {...register(`variations.${index}.minimum_quantity`, { valueAsNumber: true })}
+                {...register(`variations.${index}.minimum_quantity`, {
+                  valueAsNumber: true,
+                })}
                 error={errors?.minimum_quantity?.message}
               />
             </Fields.wrapper>
@@ -403,7 +467,9 @@ function VariationForm({
                 type="number"
                 min="0"
                 placeholder="0"
-                {...register(`variations.${index}.maximum_quantity`, { valueAsNumber: true })}
+                {...register(`variations.${index}.maximum_quantity`, {
+                  valueAsNumber: true,
+                })}
                 error={errors?.maximum_quantity?.message}
               />
             </Fields.wrapper>
@@ -457,22 +523,39 @@ function VariationForm({
               { value: "KIT", label: "Kit" },
             ]}
             {...register(`variations.${index}.unity_type`)}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            value={(watch(`variations.${index}.unity_type` as any) as string | null | undefined) || "UNITY"}
-            error={errors?.unity_type ? { message: errors.unity_type.message || "Tipo de unidade é obrigatório", error: true } : undefined}
+            value={
+              (watch(`variations.${index}.unity_type` as any) as
+                | string
+                | null
+                | undefined) || "UNITY"
+            }
+            error={
+              errors?.unity_type
+                ? {
+                    message:
+                      errors.unity_type.message ||
+                      "Tipo de unidade é obrigatório",
+                    error: true,
+                  }
+                : undefined
+            }
             hasError={!!errors?.unity_type}
           />
         </Fields.wrapper>
 
         {/* Quantidade Disponível - Aparece em todas as variações quando stock_handling está ativo */}
-        {(watch(`variations.${index}.stock_handling` as `variations.${number}.stock_handling`) as boolean) && (
+        {(watch(
+          `variations.${index}.stock_handling` as `variations.${number}.stock_handling`
+        ) as boolean) && (
           <Fields.wrapper>
             <Fields.label text="QUANTIDADE DISPONÍVEL" />
             <Fields.input
               type="number"
               min="0"
               placeholder="0"
-              {...register(`variations.${index}.available_quantity`, { valueAsNumber: true })}
+              {...register(`variations.${index}.available_quantity`, {
+                valueAsNumber: true,
+              })}
               error={errors?.available_quantity?.message}
             />
           </Fields.wrapper>
@@ -490,11 +573,15 @@ function VariationForm({
 
       {/* Upload de imagens da variação */}
       <div className="flex flex-col gap-4 border-t pt-4">
-        <h4 className="text-lg font-semibold text-beergam-blue-primary">
+        <h4 className="text-lg font-semibold text-beergam-typography-primary">
           Imagens da Variação
         </h4>
         {renderImageGrid(productImages, "product", "IMAGENS DO PRODUTO")}
-        {renderImageGrid(marketplaceImages, "marketplace", "IMAGENS PARA MARKETPLACE")}
+        {renderImageGrid(
+          marketplaceImages,
+          "marketplace",
+          "IMAGENS PARA MARKETPLACE"
+        )}
         {renderImageGrid(shippingImages, "shipping", "IMAGENS PARA ENVIO")}
       </div>
     </div>
@@ -519,23 +606,33 @@ function VariationAttributes({
   errors,
   onCreateAttributeClick,
 }: VariationAttributesProps) {
-  const { control, register } = useFormContext<CreateSimplifiedProduct | CreateCompleteProduct>();
+  const { control, register } = useFormContext<
+    CreateSimplifiedProduct | CreateCompleteProduct
+  >();
   const { fields, append, remove } = useFieldArray({
     control,
     name: `variations.${index}.attributes`,
   });
-  
+
   // Estado para controlar os valores selecionados nos selects de valores
-  const [selectedValueForAttribute, setSelectedValueForAttribute] = useState<Record<number, string>>({});
+  const [selectedValueForAttribute, setSelectedValueForAttribute] = useState<
+    Record<number, string>
+  >({});
 
   // Busca atributos do sistema
   const { data: attributesData } = useAttributes({ per_page: 100 });
 
   const attributesMap = useMemo(() => {
     if (!attributesData?.success || !attributesData.data?.attributes) {
-      return new Map<string, { name: string; allowed_values: string[] | null }>();
+      return new Map<
+        string,
+        { name: string; allowed_values: string[] | null }
+      >();
     }
-    const map = new Map<string, { name: string; allowed_values: string[] | null }>();
+    const map = new Map<
+      string,
+      { name: string; allowed_values: string[] | null }
+    >();
     attributesData.data.attributes.forEach((attr) => {
       map.set(attr.name, {
         name: attr.name,
@@ -552,8 +649,11 @@ function VariationAttributes({
     }));
   }, [attributesMap]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const currentAttributes = (watch(`variations.${index}.attributes` as any) as Array<{ name: string; value: string[] }>) || [];
+  const currentAttributes =
+    (watch(`variations.${index}.attributes` as any) as Array<{
+      name: string;
+      value: string[];
+    }>) || [];
 
   const addAttribute = () => {
     append({ name: "", value: [] });
@@ -585,26 +685,25 @@ function VariationAttributes({
       <div className="flex items-center justify-between">
         <Fields.label text="ATRIBUTOS DA VARIAÇÃO" required />
         <div className="flex items-center gap-2">
-          <button
+          <BeergamButton
             type="button"
             onClick={onCreateAttributeClick}
-            className="px-3 py-1 bg-white border border-beergam-blue-primary text-beergam-blue-primary rounded text-sm hover:bg-beergam-blue-primary/5 transition-colors"
-          >
-            Novo atributo
-          </button>
-          <button
+            title="Novo Atributo"
+            icon="box_solid"
+          />
+          <BeergamButton
             type="button"
             onClick={addAttribute}
-            className="px-3 py-1 bg-beergam-blue-primary text-white rounded text-sm hover:bg-beergam-blue transition-colors"
-          >
-            Adicionar Atributo
-          </button>
+            title="Adicionar Atributo"
+            icon="box_arrow_down_solid"
+          />
         </div>
       </div>
 
       {fields.length === 0 && (
         <div className="text-center py-4 text-beergam-gray border border-dashed border-beergam-gray-200 rounded-lg">
-          Nenhum atributo adicionado. Adicione pelo menos um atributo para diferenciar esta variação.
+          Nenhum atributo adicionado. Adicione pelo menos um atributo para
+          diferenciar esta variação.
         </div>
       )}
 
@@ -614,23 +713,46 @@ function VariationAttributes({
         const attributeValues = currentAttr?.value || [];
 
         return (
-          <div key={field.id} className="border border-beergam-gray-200 rounded-lg p-4 space-y-3">
+          <div
+            key={field.id}
+            className="border border-beergam-gray-200 rounded-lg p-4 space-y-3"
+          >
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Fields.wrapper>
                   <Fields.label text="NOME DO ATRIBUTO" required />
                   <Fields.select
                     options={attributeOptions}
-                    {...register(`variations.${index}.attributes.${attrIndex}.name`)}
+                    {...register(
+                      `variations.${index}.attributes.${attrIndex}.name`
+                    )}
                     value={attributeName}
                     onChange={(e) => {
-                      setValue(`variations.${index}.attributes.${attrIndex}.name`, e.target.value);
+                      setValue(
+                        `variations.${index}.attributes.${attrIndex}.name`,
+                        e.target.value
+                      );
                       // Limpa os valores quando muda o atributo
-                      setValue(`variations.${index}.attributes.${attrIndex}.value`, []);
+                      setValue(
+                        `variations.${index}.attributes.${attrIndex}.value`,
+                        []
+                      );
                       // Reseta o estado do select de valores
-                      setSelectedValueForAttribute((prev) => ({ ...prev, [attrIndex]: "" }));
+                      setSelectedValueForAttribute((prev) => ({
+                        ...prev,
+                        [attrIndex]: "",
+                      }));
                     }}
-                    error={errors?.attributes?.[attrIndex]?.name ? { message: errors.attributes[attrIndex].name.message || "Nome do atributo é obrigatório", error: true } : undefined}
+                    error={
+                      errors?.attributes?.[attrIndex]?.name
+                        ? {
+                            message:
+                              errors.attributes[attrIndex].name.message ||
+                              "Nome do atributo é obrigatório",
+                            error: true,
+                          }
+                        : undefined
+                    }
                     hasError={!!errors?.attributes?.[attrIndex]?.name}
                   />
                 </Fields.wrapper>
@@ -647,12 +769,14 @@ function VariationAttributes({
                     }
 
                     const selectedAttribute = attributesMap.get(attributeName);
-                    const allowedValues = selectedAttribute?.allowed_values || [];
-                    
+                    const allowedValues =
+                      selectedAttribute?.allowed_values || [];
+
                     if (allowedValues.length === 0) {
                       return (
                         <div className="text-sm text-beergam-gray">
-                          Este atributo não possui valores permitidos cadastrados.
+                          Este atributo não possui valores permitidos
+                          cadastrados.
                         </div>
                       );
                     }
@@ -671,8 +795,13 @@ function VariationAttributes({
                         {availableValues.length > 0 ? (
                           <Fields.select
                             options={[
-                              { value: "", label: "Selecione um valor para adicionar" },
-                              ...valueOptions.filter((opt) => availableValues.includes(opt.value))
+                              {
+                                value: "",
+                                label: "Selecione um valor para adicionar",
+                              },
+                              ...valueOptions.filter((opt) =>
+                                availableValues.includes(opt.value)
+                              ),
                             ]}
                             value={selectedValueForAttribute[attrIndex] || ""}
                             onChange={(e) => {
@@ -680,7 +809,10 @@ function VariationAttributes({
                               if (selectedValue && selectedValue !== "") {
                                 addValueToAttribute(attrIndex, selectedValue);
                                 // Reseta o select
-                                setSelectedValueForAttribute((prev) => ({ ...prev, [attrIndex]: "" }));
+                                setSelectedValueForAttribute((prev) => ({
+                                  ...prev,
+                                  [attrIndex]: "",
+                                }));
                               }
                             }}
                           />
@@ -690,25 +822,31 @@ function VariationAttributes({
                           </div>
                         )}
                         <div className="flex flex-wrap gap-2 mt-2">
-                          {attributeValues.map((value: string, valueIndex: number) => (
-                            <span
-                              key={valueIndex}
-                              className="inline-flex items-center gap-1 px-2 py-1 bg-beergam-blue-primary/10 text-beergam-blue-primary rounded text-sm"
-                            >
-                              {value}
-                              <button
-                                type="button"
-                                onClick={() => removeValueFromAttribute(attrIndex, valueIndex)}
-                                className="text-beergam-red hover:text-red-600"
+                          {attributeValues.map(
+                            (value: string, valueIndex: number) => (
+                              <span
+                                key={valueIndex}
+                                className="inline-flex items-center gap-4 px-2 py-1 bg-beergam-typography-primary/10 text-beergam-typography-primary rounded text-sm"
                               >
-                                ×
-                              </button>
-                            </span>
-                          ))}
+                                {value}
+                                <BeergamButton
+                                  onClick={() =>
+                                    removeValueFromAttribute(
+                                      attrIndex,
+                                      valueIndex
+                                    )
+                                  }
+                                  icon="x"
+                                  mainColor="beergam-red"
+                                />
+                              </span>
+                            )
+                          )}
                         </div>
                         {errors?.attributes?.[attrIndex]?.value && (
                           <p className="text-xs text-beergam-red mt-1">
-                            {errors.attributes[attrIndex].value.message || "Pelo menos um valor é obrigatório"}
+                            {errors.attributes[attrIndex].value.message ||
+                              "Pelo menos um valor é obrigatório"}
                           </p>
                         )}
                       </>
@@ -716,13 +854,13 @@ function VariationAttributes({
                   })()}
                 </Fields.wrapper>
               </div>
-              <button
+              <BeergamButton
                 type="button"
                 onClick={() => removeAttribute(attrIndex)}
-                className="px-3 py-1 bg-beergam-red text-white rounded text-sm hover:bg-red-600 transition-colors"
-              >
-                Remover
-              </button>
+                title="Remover Atributo"
+                icon="trash"
+                mainColor="beergam-red"
+              />
             </div>
           </div>
         );
@@ -730,4 +868,3 @@ function VariationAttributes({
     </div>
   );
 }
-

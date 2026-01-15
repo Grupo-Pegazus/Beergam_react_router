@@ -1,17 +1,20 @@
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
-import Upload from "~/src/components/utils/upload";
 import { productUploadService } from "~/features/produtos/services/uploadService";
-import { Fields } from "~/src/components/utils/_fields";
 import type {
-  CreateSimplifiedProduct,
   CreateCompleteProduct,
+  CreateSimplifiedProduct,
 } from "~/features/produtos/typings/createProduct";
+import { Fields } from "~/src/components/utils/_fields";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import Upload from "~/src/components/utils/upload";
 
 type ImageType = "product" | "marketplace" | "shipping";
 
 export default function ImageUploadSection() {
-  const { setValue, watch } = useFormContext<CreateSimplifiedProduct | CreateCompleteProduct>();
+  const { setValue, watch } = useFormContext<
+    CreateSimplifiedProduct | CreateCompleteProduct
+  >();
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [uploadType, setUploadType] = useState<ImageType>("product");
   const previousUploadTypeRef = useRef<ImageType>("product");
@@ -48,16 +51,17 @@ export default function ImageUploadSection() {
     setUploadType(type);
     setUploadModalOpen(true);
   };
-  
+
   const handleCloseModal = () => {
     setUploadModalOpen(false);
     // Não incrementa a key aqui para manter o estado quando voltar para o mesmo tipo
   };
 
-  const handleUploadSuccess = () => {
-  };
+  const handleUploadSuccess = () => {};
 
-  const handleInternalUpload = (responses: Array<{ image_id: string; image_url: string; filename: string }>) => {
+  const handleInternalUpload = (
+    responses: Array<{ image_id: string; image_url: string; filename: string }>
+  ) => {
     const currentImages = watch(`product.images.${uploadType}`) || [];
     // Salva as URLs completas das imagens
     const newImageUrls = responses.map((response) => response.image_url);
@@ -73,18 +77,22 @@ export default function ImageUploadSection() {
     setValue(`product.images.${type}`, newImages);
   };
 
-  const renderImageGrid = (images: string[], type: ImageType, label: string) => {
+  const renderImageGrid = (
+    images: string[],
+    type: ImageType,
+    label: string
+  ) => {
     return (
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <Fields.label text={label} />
-          <button
-            type="button"
+          <BeergamButton
+            title="Adicionar Imagens"
             onClick={() => handleUploadClick(type)}
-            className="px-4 py-2 bg-beergam-blue-primary text-white rounded-lg text-sm font-medium hover:bg-beergam-blue transition-colors"
-          >
-            Adicionar Imagens
-          </button>
+            icon="plus"
+            // animationStyle="slider"
+            // className="px-4 py-2 bg-beergam-blue-primary text-white rounded-lg text-sm font-medium hover:bg-beergam-blue transition-colors"
+          />
         </div>
         <div className="grid grid-cols-4 gap-4">
           {images.map((imageUrl, index) => (
@@ -98,13 +106,13 @@ export default function ImageUploadSection() {
                   target.src = `https://via.placeholder.com/150?text=Imagem+${index + 1}`;
                 }}
               />
-              <button
-                type="button"
+              <BeergamButton
+                title="Remover Imagem"
                 onClick={() => handleRemoveImage(type, index)}
-                className="absolute top-2 right-2 bg-beergam-red text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                ×
-              </button>
+                icon="trash"
+                mainColor="beergam-red"
+                className="absolute top-2 right-2"
+              />
             </div>
           ))}
           {images.length === 0 && (
@@ -119,12 +127,16 @@ export default function ImageUploadSection() {
 
   return (
     <div className="flex flex-col gap-6 border-t pt-4">
-      <h2 className="text-xl font-semibold text-beergam-blue-primary">
+      <h2 className="text-xl font-semibold text-beergam-typography-primary">
         Imagens do Produto
       </h2>
 
       {renderImageGrid(productImages, "product", "IMAGENS DO PRODUTO")}
-      {renderImageGrid(marketplaceImages, "marketplace", "IMAGENS PARA MARKETPLACE")}
+      {renderImageGrid(
+        marketplaceImages,
+        "marketplace",
+        "IMAGENS PARA MARKETPLACE"
+      )}
       {renderImageGrid(shippingImages, "shipping", "IMAGENS PARA ENVIO")}
 
       <Upload
@@ -146,4 +158,3 @@ export default function ImageUploadSection() {
     </div>
   );
 }
-

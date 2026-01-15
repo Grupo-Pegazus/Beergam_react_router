@@ -6,6 +6,7 @@ import ArrowUturnRight from "./ArrowUturnRight";
 import BagIcon from "./BagIcon";
 import BagSolid from "./BagSolid";
 import Bell from "./Bell";
+import BoxArrowDownSolid from "./BoxArrowDownSolid";
 import BoxIcon from "./BoxIcon";
 import BoxIconSolid from "./BoxIconSolid";
 import BuildingLibrary from "./BuildingLibrary";
@@ -141,6 +142,7 @@ const Svg = {
   minus: Minus,
   sun: Sun,
   moon: Moon,
+  box_arrow_down_solid: BoxArrowDownSolid,
 };
 
 export default Svg;

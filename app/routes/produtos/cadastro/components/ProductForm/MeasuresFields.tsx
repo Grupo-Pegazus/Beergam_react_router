@@ -1,12 +1,17 @@
 import { useFormContext } from "react-hook-form";
+import type {
+  CreateCompleteProduct,
+  RegistrationType,
+} from "~/features/produtos/typings/createProduct";
 import { Fields } from "~/src/components/utils/_fields";
-import type { CreateCompleteProduct, RegistrationType } from "~/features/produtos/typings/createProduct";
 
 interface MeasuresFieldsProps {
   registrationType: RegistrationType;
 }
 
-export default function MeasuresFields({ registrationType }: MeasuresFieldsProps) {
+export default function MeasuresFields({
+  registrationType,
+}: MeasuresFieldsProps) {
   const {
     register,
     formState: { errors },
@@ -18,7 +23,7 @@ export default function MeasuresFields({ registrationType }: MeasuresFieldsProps
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-xl font-semibold text-beergam-blue-primary">
+      <h2 className="text-xl font-semibold text-beergam-typography-primary">
         Medidas
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -95,4 +100,3 @@ export default function MeasuresFields({ registrationType }: MeasuresFieldsProps
     </div>
   );
 }
-
