@@ -34,6 +34,7 @@ interface BeergamButtonProps
     BeergamButtonWrapperProps {
   icon?: keyof typeof Svg | null;
   loading?: boolean;
+  iconClassName?: string;
   tooltip?: BeergamButtonTooltipProps;
   isDark?: boolean;
 }
@@ -52,6 +53,7 @@ function BeergamButtonWrapper({
   disabled,
   fetcher,
   icon,
+  iconClassName,
   type,
   loading,
   tooltip,
@@ -112,7 +114,9 @@ function BeergamButtonWrapper({
           data-tooltip-id={tooltip?.id}
         >
           {icon && (
-            <span className="beergam-button-hover-text">
+            <span
+              className={`beergam-button-hover-text ${iconClassName ?? ""}`}
+            >
               {React.createElement(getIcon(icon as keyof typeof Svg), {
                 width: "22px",
                 height: "22px",
@@ -136,7 +140,9 @@ function BeergamButtonWrapper({
           {...buttonProps}
         >
           {icon && (
-            <span className="beergam-button-hover-text">
+            <span
+              className={`beergam-button-hover-text ${iconClassName ?? ""}`}
+            >
               {React.createElement(getIcon(icon as keyof typeof Svg), {
                 width: "22px",
                 height: "22px",
@@ -161,6 +167,7 @@ export default function BeergamButton({
   disabled,
   fetcher,
   icon,
+  iconClassName,
   type = "button",
   loading,
   tooltip,
@@ -184,6 +191,7 @@ export default function BeergamButton({
       disabled={disabled || isLoading}
       fetcher={fetcher}
       icon={icon}
+      iconClassName={iconClassName}
       type={type}
       loading={isLoading}
       tooltip={tooltip}

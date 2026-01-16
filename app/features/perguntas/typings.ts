@@ -11,11 +11,17 @@ interface Answer {
   text: string;
 }
 
+export enum QuestionStatus {
+  answered = "Respondida",
+  unanswered = "Sem resposta",
+  banned = "Bloqueada",
+}
+
 export interface Question {
   id: string;
   text: string;
   answer?: Answer | null;
-  status?: string;
+  status?: QuestionStatus;
   item_id?: string;
   item_title?: string;
   seller_id?: string;
@@ -23,6 +29,13 @@ export interface Question {
   answer_date?: string | null;
   from?: From;
   [key: string]: unknown;
+}
+
+export function getQuestionStatus(status?: string): QuestionStatus {
+  return (
+    QuestionStatus[status as keyof typeof QuestionStatus] ??
+    QuestionStatus.unanswered
+  );
 }
 
 export interface QuestionsFilters {
@@ -90,4 +103,3 @@ export interface QuestionsFiltersState {
   sort_by?: string;
   sort_order?: "asc" | "desc";
 }
-

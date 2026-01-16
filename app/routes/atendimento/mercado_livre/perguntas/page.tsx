@@ -4,14 +4,16 @@ import { toast } from "react-hot-toast";
 import { QuestionsFilters as QuestionsFiltersBar } from "~/features/perguntas/components/QuestionsFilters";
 import { QuestionsList } from "~/features/perguntas/components/QuestionsList";
 import { QuestionsMetrics } from "~/features/perguntas/components/QuestionsMetrics";
-import { perguntasService } from "~/features/perguntas/service";
 import type {
   QuestionsFilters,
   QuestionsFiltersState,
   QuestionsInsights,
+  QuestionsListApiResponse,
+  QuestionsListResponse,
 } from "~/features/perguntas/typings";
 import Grid from "~/src/components/ui/Grid";
 import Section from "~/src/components/ui/Section";
+import mockQuestionsData from "~/src/temp/mock/mockQuestions.json";
 
 const DEFAULT_FILTERS: QuestionsFiltersState = {
   status: "",
@@ -64,14 +66,117 @@ export default function PerguntasPage() {
     [appliedFilters]
   );
 
+  // Função para simular a resposta da API usando o mock
+  const getMockQuestions = async (): Promise<QuestionsListApiResponse> => {
+    // Simula delay da API
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Aplica filtros básicos no mock
+    let filteredQuestions = [...mockQuestionsData.questions];
+
+    // Filtro por status
+    if (apiFilters.status) {
+      filteredQuestions = filteredQuestions.filter(
+        (q) => q.status === apiFilters.status
+      );
+    }
+
+    // Filtro por answered
+    if (apiFilters.answered !== undefined) {
+      filteredQuestions = filteredQuestions.filter((q) => {
+        const isAnswered = q.answer !== null && q.answer !== undefined;
+        return apiFilters.answered === isAnswered;
+      });
+    }
+
+    // Filtro por texto
+    if (apiFilters.text) {
+      const searchText = apiFilters.text.toLowerCase();
+      filteredQuestions = filteredQuestions.filter(
+        (q) =>
+          q.text.toLowerCase().includes(searchText) ||
+          q.item_title?.toLowerCase().includes(searchText)
+      );
+    }
+
+    // Filtro por item_id
+    if (apiFilters.item_id) {
+      filteredQuestions = filteredQuestions.filter(
+        (q) => q.item_id === apiFilters.item_id
+      );
+    }
+
+    // Ordenação
+    const sortBy = apiFilters.sort_by || "date_created";
+    const sortOrder = apiFilters.sort_order || "desc";
+    filteredQuestions.sort((a, b) => {
+      let aValue: string | number | undefined;
+      let bValue: string | number | undefined;
+
+      if (sortBy === "date_created") {
+        aValue = a.date_created ? new Date(a.date_created).getTime() : 0;
+        bValue = b.date_created ? new Date(b.date_created).getTime() : 0;
+      } else {
+        aValue = a[sortBy as keyof typeof a] as string | number | undefined;
+        bValue = b[sortBy as keyof typeof b] as string | number | undefined;
+      }
+
+      if (aValue === undefined) aValue = 0;
+      if (bValue === undefined) bValue = 0;
+
+      if (sortOrder === "asc") {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    // Paginação
+    const page = apiFilters.page || 1;
+    const perPage = apiFilters.per_page || 10;
+    const startIndex = (page - 1) * perPage;
+    const endIndex = startIndex + perPage;
+    const paginatedQuestions = filteredQuestions.slice(startIndex, endIndex);
+
+    const response: QuestionsListResponse = {
+      questions: paginatedQuestions,
+      pagination: {
+        page,
+        per_page: perPage,
+        total_count: filteredQuestions.length,
+        total_pages: Math.ceil(filteredQuestions.length / perPage),
+      },
+      filters_applied: apiFilters,
+      insights: mockQuestionsData.insights,
+    };
+
+    return {
+      success: true,
+      message: "Dados carregados com sucesso",
+      data: response,
+    };
+  };
+
   const questionsQuery = useQuery({
     queryKey: ["questions", apiFilters],
-    queryFn: () => perguntasService.list(apiFilters),
+    queryFn: getMockQuestions,
   });
 
   const metricsQuery = useQuery({
     queryKey: ["questions_metrics"],
-    queryFn: () => perguntasService.getMetrics(),
+    queryFn: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      return {
+        success: true,
+        message: "Métricas carregadas com sucesso",
+        data: {
+          metrics: {},
+          needs_refresh: false,
+          scheduled_refresh: false,
+          insights: mockQuestionsData.insights,
+        },
+      };
+    },
     staleTime: 1000 * 60 * 5,
   });
 
@@ -92,18 +197,24 @@ export default function PerguntasPage() {
     : undefined;
 
   const answerMutation = useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       questionId,
       answer,
     }: {
       questionId: string;
       answer: string;
-    }) => perguntasService.answer(questionId, answer),
-    onSuccess: async (response) => {
-      if (!response.success) {
-        toast.error(response.message || "Não foi possível enviar a resposta.");
-        throw new Error(response.message || "Erro ao enviar resposta");
-      }
+    }) => {
+      // Simula delay da API
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Simula resposta de sucesso
+      return {
+        success: true,
+        message: "Resposta enviada com sucesso",
+        data: { question_id: questionId, answer },
+      };
+    },
+    onSuccess: async () => {
       toast.success("Resposta enviada com sucesso.");
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
