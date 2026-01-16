@@ -8,7 +8,7 @@ import {
   type SubmitHandler,
 } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { z } from "zod";
 import { authService } from "~/features/auth/service";
 import UserFields from "~/features/user/components/UserFields";
@@ -25,6 +25,7 @@ type RegistroFormValues = z.infer<typeof RegistroFormSchema>;
 
 export default function RegistroForm() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const resolver: Resolver<RegistroFormValues> = zodResolver(
     RegistroFormSchema
   ) as unknown as Resolver<RegistroFormValues>;
@@ -123,6 +124,15 @@ export default function RegistroForm() {
       setValue("cpf", undefined);
     }
   }, [selectedDocument]);
+
+  useEffect(() => {
+    const referralCodeFromUrl = searchParams.get("referral_code");
+    if (referralCodeFromUrl) {
+      setValue("referral_code", referralCodeFromUrl);
+    } else {
+      setValue("referral_code", "SITE_14DIAS_FREE");
+    }
+  }, [searchParams, setValue]);
   return (
     <section className="h-full overflow-y-auto overflow-x-hidden shadow-lg/55 bg-beergam-mui-paper p-8 rounded-tl-none rounded-tr-none rounded-xl gap-4 flex flex-col lg:rounded-tl-2xl lg:rounded-br-none">
       <div className="flex md:flex-row flex-col md:items-center gap-2">
@@ -205,6 +215,7 @@ export default function RegistroForm() {
           type="text"
           canAlter={true}
           error={errors.referral_code?.message}
+          value={watch("referral_code") ?? searchParams.get("referral_code") ?? "SITE_14DIAS_FREE"}
         />
         <UserFields
           label="Como Conheceu o Beergam?"

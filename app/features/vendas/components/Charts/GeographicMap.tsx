@@ -132,7 +132,7 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
         </div>
       )}
     >
-      <MainCards className="p-3 md:p-4">
+      <MainCards className="p-3 md:p-4 bg-beergam-section-background!">
         <div className="space-y-3 md:space-y-4">
           <div className="flex flex-col gap-3 md:gap-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-4">
