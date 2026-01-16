@@ -1,7 +1,6 @@
-import React from "react";
+import { Paper } from "@mui/material";
 import { Fields } from "~/src/components/utils/_fields";
 import RadioGroup from "./RadioGroup";
-import NumberInput from "./NumberInput";
 
 interface ShippingSectionProps {
   freeShipping: boolean;
@@ -17,8 +16,8 @@ export default function ShippingSection({
   onShippingCostChange,
 }: ShippingSectionProps) {
   return (
-    <div className="space-y-5 bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-      <h2 className="text-lg font-semibold text-beergam-blue-primary">
+    <Paper className="space-y-4">
+      <h2 className="text-lg font-semibold text-beergam-typography-primary">
         Envio
       </h2>
 
@@ -44,17 +43,20 @@ export default function ShippingSection({
             text="Custo de envio"
             hint="Custo do envio do produto"
           />
-          <NumberInput
+          <Fields.input
+            type="number"
             value={shippingCost}
-            onChange={onShippingCostChange}
+            onChange={(e) => onShippingCostChange(e.target.value)}
             placeholder="0,00"
             prefix="R$"
             step={0.01}
             min={0}
           />
-          <p className="text-xs text-beergam-gray mt-1.5">Opcional</p>
+          <p className="text-xs text-beergam-typography-secondary mt-1.5">
+            Opcional
+          </p>
         </Fields.wrapper>
       )}
-    </div>
+    </Paper>
   );
 }

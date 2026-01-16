@@ -1,6 +1,6 @@
-import React, { useRef } from "react";
+import { Paper } from "@mui/material";
+import { useRef } from "react";
 import { Fields } from "~/src/components/utils/_fields";
-import NumberInput from "./NumberInput";
 
 interface AdditionalCostsSectionProps {
   additionalCostsAmount: string;
@@ -33,10 +33,12 @@ export default function AdditionalCostsSection({
     const amountNum = parseFloat(value) || 0;
 
     if (salePriceNum > 0 && amountNum >= 0) {
-      const calculatedPercentage = ((amountNum / salePriceNum) * 100).toFixed(2);
+      const calculatedPercentage = ((amountNum / salePriceNum) * 100).toFixed(
+        2
+      );
       const currentPercentage = parseFloat(additionalCostsPercentage) || 0;
       const calculatedPercentageNum = parseFloat(calculatedPercentage);
-      
+
       if (Math.abs(calculatedPercentageNum - currentPercentage) > 0.01) {
         onAdditionalCostsPercentageChange(calculatedPercentage);
       }
@@ -62,10 +64,12 @@ export default function AdditionalCostsSection({
     const percentageNum = parseFloat(value) || 0;
 
     if (salePriceNum > 0 && percentageNum >= 0) {
-      const calculatedAmount = ((salePriceNum * percentageNum) / 100).toFixed(2);
+      const calculatedAmount = ((salePriceNum * percentageNum) / 100).toFixed(
+        2
+      );
       const currentAmount = parseFloat(additionalCostsAmount) || 0;
       const calculatedAmountNum = parseFloat(calculatedAmount);
-      
+
       if (Math.abs(calculatedAmountNum - currentAmount) > 0.01) {
         onAdditionalCostsAmountChange(calculatedAmount);
       }
@@ -79,8 +83,8 @@ export default function AdditionalCostsSection({
   };
 
   return (
-    <div className="space-y-5 bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-      <h2 className="text-lg font-semibold text-beergam-blue-primary">
+    <Paper className="space-y-4">
+      <h2 className="text-lg font-semibold text-beergam-typography-primary">
         Custos adicionais
       </h2>
 
@@ -91,9 +95,9 @@ export default function AdditionalCostsSection({
         />
         <div className="flex gap-4">
           <div className="flex-1">
-            <NumberInput
+            <Fields.input
               value={additionalCostsAmount}
-              onChange={handleAmountChange}
+              onChange={(e) => handleAmountChange(e.target.value)}
               placeholder="0,00"
               prefix="R$"
               step={0.01}
@@ -101,11 +105,11 @@ export default function AdditionalCostsSection({
             />
           </div>
           <div className="flex-1">
-            <NumberInput
+            <Fields.input
               value={additionalCostsPercentage}
-              onChange={handlePercentageChange}
+              onChange={(e) => handlePercentageChange(e.target.value)}
               placeholder="0"
-              suffix="%"
+              prefix="%"
               step={0.01}
               min={0}
             />
@@ -113,6 +117,6 @@ export default function AdditionalCostsSection({
         </div>
         <p className="text-xs text-beergam-gray mt-1.5">Opcional</p>
       </Fields.wrapper>
-    </div>
+    </Paper>
   );
 }

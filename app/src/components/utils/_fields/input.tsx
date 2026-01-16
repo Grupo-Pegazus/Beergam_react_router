@@ -31,6 +31,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   onEyeChange?: (showPassword: boolean) => void;
   clipboard?: boolean;
   widthType?: "fit" | "full";
+  prefix?: string;
 }
 export default function Input({
   error,
@@ -55,6 +56,7 @@ export default function Input({
   showPassword,
   clipboard,
   widthType = "full",
+  prefix,
   ...props
 }: InputProps) {
   const isValid = value && (!error || error != "") && success;
@@ -97,6 +99,11 @@ export default function Input({
         data-tooltip-id={dataTooltipId}
         className={`relative ${widthType === "full" ? "w-full" : "w-auto"} flex justify-center flex-col ${wrapperSize}`}
       >
+        {prefix && (
+          <span className="text-beergam-typography-tertiary! text-base absolute left-4 top-1/2 transform -translate-y-1/2">
+            {prefix}
+          </span>
+        )}
         <input
           type={
             type === "password" ? (isShowPassword ? "text" : "password") : type
@@ -104,7 +111,7 @@ export default function Input({
           value={value}
           placeholder={placeholder}
           required={required}
-          className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses} ${type === "password" ? "pr-10" : ""} ${tailWindClasses}`}
+          className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses} ${type === "password" ? "pr-10" : ""} ${tailWindClasses} ${prefix ? "pl-9" : ""}`}
           onChange={onChange}
           onBlur={handleBlur}
           onFocus={handleFocus}
