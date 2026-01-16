@@ -5,6 +5,7 @@ import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import MainCards from "~/src/components/ui/MainCards";
 import {
   CensorshipWrapper,
+  ImageCensored,
   TextCensored,
 } from "~/src/components/utils/Censorship";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
@@ -70,13 +71,15 @@ function HighlightCard({
 }) {
   return (
     <MainCards className="relative flex h-full flex-col gap-4 p-4 sm:p-5">
-      <div className="absolute left-0 top-0">
+      <div className="absolute left-0 top-0 z-40">
         <span className="flex h-8 w-8 items-center justify-center rounded-tl-[8px] rounded-br-[8px] bg-amber-500 text-xs sm:text-sm font-bold text-white shadow-md">
           {position}º
         </span>
       </div>
       <div className="flex items-start gap-3 sm:gap-4 pt-1">
-        <Thumbnail thumbnail={anuncio.thumbnail} name={anuncio.name} />
+        <ImageCensored className="w-12! h-12! md:w-16! md:h-16! shrink-0" censorshipKey={censorshipKey}>
+          <Thumbnail thumbnail={anuncio.thumbnail} name={anuncio.name} />
+        </ImageCensored>
         <div className="min-w-0 flex-1 space-y-1">
           <TextCensored
             censorshipKey={censorshipKey}
