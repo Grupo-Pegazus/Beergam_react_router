@@ -1,4 +1,5 @@
 import { type ImgHTMLAttributes, type ReactNode } from "react";
+import Svg from "~/src/assets/svgs/_index";
 import { useCensorship } from "./CensorshipContext";
 
 interface ImageCensoredProps extends ImgHTMLAttributes<HTMLImageElement> {
@@ -21,18 +22,23 @@ export function ImageCensored({
   const { isCensored } = useCensorship();
   const censored = forceCensor || isCensored(censorshipKey);
 
-  const blurStyle: React.CSSProperties = censored
-    ? {
-        filter: `blur(${blurIntensity}px)`,
-        backgroundColor: "rgba(0, 0, 0, 0.1)",
-        userSelect: "none",
-        pointerEvents: "none",
-        ...style,
-      }
-    : style;
-
   if (censored) {
-    return <div {...imgProps} className={className} style={blurStyle} />;
+    return (
+      <div
+        {...imgProps}
+        className={`relative ${className || ""}`}
+        style={style}
+      >
+        {children}
+        <div className="absolute inset-0 flex items-center justify-center bg-beergam-typography-secondary! rounded-lg">
+          <Svg.eye_slash
+            width={24}
+            height={24}
+            tailWindClasses="text-beergam-white!"
+          />
+        </div>
+      </div>
+    );
   }
   return <>{children}</>;
 }

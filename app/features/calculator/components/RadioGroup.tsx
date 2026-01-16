@@ -1,5 +1,3 @@
-import React from "react";
-
 interface RadioOption {
   value: string;
   label: string;
@@ -29,8 +27,8 @@ export default function RadioGroup({
             key={option.value}
             className={`flex items-center gap-2 cursor-pointer px-4 py-2.5 rounded-lg border-2 transition-all ${
               isSelected
-                ? "border-beergam-orange bg-beergam-orange/10"
-                : "border-gray-200 bg-white hover:border-gray-300"
+                ? "border-beergam-primary bg-beergam-primary/10"
+                : "border-beergam-input-border bg-beergam-input-background hover:border-beergam-primary"
             }`}
           >
             <input
@@ -39,11 +37,13 @@ export default function RadioGroup({
               value={option.value}
               checked={isSelected}
               onChange={(e) => onChange(e.target.value)}
-              className="w-4 h-4 text-beergam-orange focus:ring-beergam-orange focus:ring-2 cursor-pointer accent-beergam-orange"
+              className="w-4 h-4 text-beergam-primary focus:ring-beergam-primary focus:ring-2 cursor-pointer accent-beergam-primary"
             />
             <span
               className={`text-sm font-medium ${
-                isSelected ? "text-beergam-orange" : "text-beergam-gray"
+                isSelected
+                  ? "text-beergam-primary"
+                  : "text-beergam-typography-secondary"
               }`}
             >
               {option.label}

@@ -113,6 +113,20 @@ export default function OrderCard({ order }: OrderCardProps) {
                   },
                 }}
               />
+              {/* Status do envio */}
+              {order.shipment_status && (
+                <>
+                  <span className="text-slate-300 hidden md:inline">|</span>
+                  <Typography
+                    variant="caption"
+                    fontWeight={600}
+                    className="text-beergam-typography-primary! text-sm md:text-base"
+                  >
+                    {getStatusOrderMeliInfo(order.shipment_status)
+                      ?.label || order.shipment_status}
+                  </Typography>
+                </>
+              )}
             </div>
             {order.buyer_nickname && (
               <div className="flex items-center gap-1.5 md:gap-2">
@@ -178,22 +192,11 @@ export default function OrderCard({ order }: OrderCardProps) {
                   }}
                 />
               </div>
-
               {/* Status do envio */}
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   {(order.shipment_status || deliveryInfo) && (
                     <div className="mt-1 md:mt-2">
-                      {order.shipment_status && (
-                        <Typography
-                          variant="caption"
-                          fontWeight={600}
-                          className="text-beergam-typography-primary! mb-0.5 md:mb-1 text-sm md:text-base"
-                        >
-                          {getStatusOrderMeliInfo(order.shipment_status)
-                            ?.label || order.shipment_status}
-                        </Typography>
-                      )}
                       {deliveryInfo && (
                         <Typography
                           variant="caption"
@@ -208,6 +211,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                   )}
                 </div>
               </div>
+
             </div>
 
             <BeergamButton

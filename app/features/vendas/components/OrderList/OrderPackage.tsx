@@ -150,6 +150,20 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
                 },
               }}
             />
+            {/* Status do envio */}
+            {firstOrder.shipment_status && (
+              <>
+                <span className="text-slate-300 hidden md:inline">|</span>
+                <Typography
+                  variant="caption"
+                  fontWeight={600}
+                  className="text-beergam-typography-primary! text-sm md:text-base"
+                >
+                  {getStatusOrderMeliInfo(firstOrder.shipment_status)
+                    ?.label || firstOrder.shipment_status}
+                </Typography>
+              </>
+            )}
           </div>
           {firstOrder.buyer_nickname && (
             <div className="flex items-center gap-1.5 md:gap-2">
@@ -202,29 +216,16 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
                 }}
               />
             </div>
-
-            {/* Status do envio */}
-            {(firstOrder.shipment_status || deliveryInfo) && (
-              <div className="block mt-1 md:mt-2">
-                {firstOrder.shipment_status && (
-                  <Typography
-                    variant="body2"
-                    fontWeight={600}
-                    className="text-slate-900 mb-0.5 md:mb-1 text-sm md:text-base"
-                  >
-                    {getStatusOrderMeliInfo(firstOrder.shipment_status)
-                      ?.label || firstOrder.shipment_status}
-                  </Typography>
-                )}
-                {deliveryInfo && (
-                  <Typography
-                    variant="caption"
-                    fontWeight={400}
-                    className="text-beergam-typography-secondary! text-xs md:text-sm"
-                  >
-                    {deliveryInfo.label} {deliveryInfo.date}
-                  </Typography>
-                )}
+            {/* Informação de entrega */}
+            {deliveryInfo && (
+              <div className="mt-1 md:mt-2">
+                <Typography
+                  variant="caption"
+                  fontWeight={400}
+                  className="text-beergam-typography-secondary! text-xs md:text-sm"
+                >
+                  {deliveryInfo.label} {deliveryInfo.date}
+                </Typography>
               </div>
             )}
           </div>

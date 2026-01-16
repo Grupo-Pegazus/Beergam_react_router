@@ -4,6 +4,7 @@ import Svg from "~/src/assets/svgs/_index";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 import {
   CensorshipWrapper,
+  ImageCensored,
   TextCensored,
   useCensorship,
 } from "~/src/components/utils/Censorship";
@@ -78,10 +79,12 @@ export default function OrderItemCard({
         className="w-full flex"
       >
         <div className="flex items-center gap-2 flex-1 min-w-0 w-full md:w-auto">
-          <Thumbnail
-            thumbnail={order.thumbnail ?? ""}
-            tailWindClasses="w-12! h-12! md:w-16! md:h-16! shrink-0"
-          />
+          <ImageCensored className="w-12! h-12! md:w-16! md:h-16! shrink-0" censorshipKey={censorshipKey}>
+            <Thumbnail
+              thumbnail={order.thumbnail ?? ""}
+              tailWindClasses="w-12! h-12! md:w-16! md:h-16! shrink-0"
+            />
+          </ImageCensored>
           <div className="flex flex-col gap-0.5 md:gap-1 min-w-0 flex-1 overflow-hidden w-0">
             <TextCensored forceCensor={censored} censorshipKey={censorshipKey}>
               <Typography

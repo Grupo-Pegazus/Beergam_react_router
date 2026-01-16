@@ -1,6 +1,7 @@
 import { useMemo, useCallback } from "react";
-import { Stack } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { FilterContainer, FilterSelect, FilterSwitch, FilterActions, FilterSearchInput } from "~/src/components/filters";
+import { Fields } from "~/src/components/utils/_fields";
 import { ActiveTimeFilter } from "./ActiveTimeFilter";
 import type {
   AnunciosFiltersProps,
@@ -59,6 +60,102 @@ export default function AnunciosFilters({
     [value, onChange],
   );
 
+  const handlePriceChange = useCallback(
+    (key: "price_min" | "price_max", priceValue: string) => {
+      const updated = { ...value };
+      const trimmedValue = priceValue?.trim();
+      
+      let numValue: number | undefined;
+      if (trimmedValue === "" || trimmedValue === null || trimmedValue === undefined) {
+        numValue = undefined;
+      } else {
+        const parsed = Number(trimmedValue);
+        numValue = isNaN(parsed) ? undefined : parsed;
+      }
+      
+      if (key === "price_min") {
+        updated.price_min = numValue;
+      } else if (key === "price_max") {
+        updated.price_max = numValue;
+      }
+
+      onChange(updated);
+    },
+    [value, onChange],
+  );
+
+  const handleStockChange = useCallback(
+    (key: "stock_min" | "stock_max", stockValue: string) => {
+      const updated = { ...value };
+      const trimmedValue = stockValue?.trim();
+      
+      let numValue: number | undefined;
+      if (trimmedValue === "" || trimmedValue === null || trimmedValue === undefined) {
+        numValue = undefined;
+      } else {
+        const parsed = Number(trimmedValue);
+        numValue = isNaN(parsed) ? undefined : parsed;
+      }
+      
+      if (key === "stock_min") {
+        updated.stock_min = numValue;
+      } else if (key === "stock_max") {
+        updated.stock_max = numValue;
+      }
+
+      onChange(updated);
+    },
+    [value, onChange],
+  );
+
+  const handleHealthScoreChange = useCallback(
+    (key: "health_score_min" | "health_score_max", scoreValue: string) => {
+      const updated = { ...value };
+      const trimmedValue = scoreValue?.trim();
+      
+      let numValue: number | undefined;
+      if (trimmedValue === "" || trimmedValue === null || trimmedValue === undefined) {
+        numValue = undefined;
+      } else {
+        const parsed = Number(trimmedValue);
+        numValue = isNaN(parsed) ? undefined : parsed;
+      }
+      
+      if (key === "health_score_min") {
+        updated.health_score_min = numValue;
+      } else if (key === "health_score_max") {
+        updated.health_score_max = numValue;
+      }
+
+      onChange(updated);
+    },
+    [value, onChange],
+  );
+
+  const handleExperienceScoreChange = useCallback(
+    (key: "experience_score_min" | "experience_score_max", scoreValue: string) => {
+      const updated = { ...value };
+      const trimmedValue = scoreValue?.trim();
+      
+      let numValue: number | undefined;
+      if (trimmedValue === "" || trimmedValue === null || trimmedValue === undefined) {
+        numValue = undefined;
+      } else {
+        const parsed = Number(trimmedValue);
+        numValue = isNaN(parsed) ? undefined : parsed;
+      }
+      
+      if (key === "experience_score_min") {
+        updated.experience_score_min = numValue;
+      } else if (key === "experience_score_max") {
+        updated.experience_score_max = numValue;
+      }
+
+      onChange(updated);
+    },
+    [value, onChange],
+  );
+
   // Wrapper para onChange que aplica transformações necessárias
   const handleFilterChange = useCallback(
     (key: string, newValue: unknown) => {
@@ -110,6 +207,46 @@ export default function AnunciosFilters({
   const catalogOnlyValue = useMemo(
     () => Boolean(value.onlyCatalog),
     [value.onlyCatalog],
+  );
+
+  const priceMinValue = useMemo(
+    () => value.price_min?.toString() || "",
+    [value.price_min],
+  );
+
+  const priceMaxValue = useMemo(
+    () => value.price_max?.toString() || "",
+    [value.price_max],
+  );
+
+  const stockMinValue = useMemo(
+    () => value.stock_min?.toString() || "",
+    [value.stock_min],
+  );
+
+  const stockMaxValue = useMemo(
+    () => value.stock_max?.toString() || "",
+    [value.stock_max],
+  );
+
+  const healthScoreMinValue = useMemo(
+    () => value.health_score_min?.toString() || "",
+    [value.health_score_min],
+  );
+
+  const healthScoreMaxValue = useMemo(
+    () => value.health_score_max?.toString() || "",
+    [value.health_score_max],
+  );
+
+  const experienceScoreMinValue = useMemo(
+    () => value.experience_score_min?.toString() || "",
+    [value.experience_score_min],
+  );
+
+  const experienceScoreMaxValue = useMemo(
+    () => value.experience_score_max?.toString() || "",
+    [value.experience_score_max],
   );
 
   const currentSearchType = useMemo(() => {
@@ -222,6 +359,7 @@ export default function AnunciosFilters({
             onSearchTypeChange={handleSearchTypeChange}
             searchTypeOptions={SEARCH_TYPE_OPTIONS}
             widthType="full"
+            onEnterPress={onSubmit}
           />
         </div>
       </Stack>,
@@ -294,6 +432,202 @@ export default function AnunciosFilters({
           />
         </div>
       </Stack>,
+
+      // Terceira seção: Preço e Estoque (mínimo e máximo)
+      <Stack
+        key="price-stock-section"
+        direction={{ xs: "column", md: "row" }}
+        spacing={3}
+      >
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <Typography
+              variant="subtitle2"
+              className="text-beergam-typography-secondary"
+              fontWeight={600}
+            >
+              Preço mínimo
+            </Typography>
+            <Fields.input
+              widthType="full"
+              type="number"
+              value={priceMinValue}
+              onChange={(e) => handlePriceChange("price_min", e.target.value)}
+              placeholder="R$ 0,00"
+              disabled={isSubmitting}
+              min={0}
+              step={0.01}
+              tailWindClasses="rounded-3xl"
+            />
+          </div>
+        </div>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <Typography
+              variant="subtitle2"
+              className="text-beergam-typography-secondary"
+              fontWeight={600}
+            >
+              Preço máximo
+            </Typography>
+            <Fields.input
+              widthType="full"
+              type="number"
+              value={priceMaxValue}
+              onChange={(e) => handlePriceChange("price_max", e.target.value)}
+              placeholder="R$ 0,00"
+              disabled={isSubmitting}
+              min={0}
+              step={0.01}
+              tailWindClasses="rounded-3xl"
+            />
+          </div>
+        </div>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <Typography
+              variant="subtitle2"
+              className="text-beergam-typography-secondary"
+              fontWeight={600}
+            >
+              Estoque mínimo
+            </Typography>
+            <Fields.input
+              widthType="full"
+              type="number"
+              value={stockMinValue}
+              onChange={(e) => handleStockChange("stock_min", e.target.value)}
+              placeholder="0"
+              disabled={isSubmitting}
+              min={0}
+              step={1}
+              tailWindClasses="rounded-3xl"
+            />
+          </div>
+        </div>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <Typography
+              variant="subtitle2"
+              className="text-beergam-typography-secondary"
+              fontWeight={600}
+            >
+              Estoque máximo
+            </Typography>
+            <Fields.input
+              widthType="full"
+              type="number"
+              value={stockMaxValue}
+              onChange={(e) => handleStockChange("stock_max", e.target.value)}
+              placeholder="0"
+              disabled={isSubmitting}
+              min={0}
+              step={1}
+              tailWindClasses="rounded-3xl"
+            />
+          </div>
+        </div>
+      </Stack>,
+
+      // Quarta seção: Experiência e Qualidade (mínimo e máximo)
+      <Stack
+        key="experience-health-section"
+        direction={{ xs: "column", md: "row" }}
+        spacing={3}
+      >
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <Typography
+              variant="subtitle2"
+              className="text-beergam-typography-secondary"
+              fontWeight={600}
+            >
+              Qualidade mínima
+            </Typography>
+            <Fields.input
+              widthType="full"
+              type="number"
+              value={healthScoreMinValue}
+              onChange={(e) => handleHealthScoreChange("health_score_min", e.target.value)}
+              placeholder="0"
+              disabled={isSubmitting}
+              min={0}
+              max={100}
+              step={0.01}
+              tailWindClasses="rounded-3xl"
+            />
+          </div>
+        </div>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <Typography
+              variant="subtitle2"
+              className="text-beergam-typography-secondary"
+              fontWeight={600}
+            >
+              Qualidade máxima
+            </Typography>
+            <Fields.input
+              widthType="full"
+              type="number"
+              value={healthScoreMaxValue}
+              onChange={(e) => handleHealthScoreChange("health_score_max", e.target.value)}
+              placeholder="100"
+              disabled={isSubmitting}
+              min={0}
+              max={100}
+              step={0.01}
+              tailWindClasses="rounded-3xl"
+            />
+          </div>
+        </div>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <Typography
+              variant="subtitle2"
+              className="text-beergam-typography-secondary"
+              fontWeight={600}
+            >
+              Experiência mínima
+            </Typography>
+            <Fields.input
+              widthType="full"
+              type="number"
+              value={experienceScoreMinValue}
+              onChange={(e) => handleExperienceScoreChange("experience_score_min", e.target.value)}
+              placeholder="0"
+              disabled={isSubmitting}
+              min={0}
+              max={100}
+              step={0.01}
+              tailWindClasses="rounded-3xl"
+            />
+          </div>
+        </div>
+        <div style={{ flex: 1 }} className="md:w-auto w-full">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <Typography
+              variant="subtitle2"
+              className="text-beergam-typography-secondary"
+              fontWeight={600}
+            >
+              Experiência máxima
+            </Typography>
+            <Fields.input
+              widthType="full"
+              type="number"
+              value={experienceScoreMaxValue}
+              onChange={(e) => handleExperienceScoreChange("experience_score_max", e.target.value)}
+              placeholder="100"
+              disabled={isSubmitting}
+              min={0}
+              max={100}
+              step={0.01}
+              tailWindClasses="rounded-3xl"
+            />
+          </div>
+        </div>
+      </Stack>,
     ],
     [
       searchValue,
@@ -308,6 +642,19 @@ export default function AnunciosFilters({
       value,
       handleFilterChange,
       handleActiveTimeChange,
+      priceMinValue,
+      priceMaxValue,
+      handlePriceChange,
+      stockMinValue,
+      stockMaxValue,
+      handleStockChange,
+      healthScoreMinValue,
+      healthScoreMaxValue,
+      handleHealthScoreChange,
+      experienceScoreMinValue,
+      experienceScoreMaxValue,
+      handleExperienceScoreChange,
+      isSubmitting,
     ],
   );
 

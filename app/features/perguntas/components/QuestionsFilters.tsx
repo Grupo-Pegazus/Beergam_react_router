@@ -51,6 +51,7 @@ export function QuestionsFilters({
           placeholder="Digite para buscar no texto da pergunta"
           fullWidth={true}
           widthType="full"
+          onEnterPress={onSubmit}
         />
       </div>
       <div style={{ flex: 1 }} className="md:w-auto w-full">
@@ -61,6 +62,7 @@ export function QuestionsFilters({
           placeholder="Digite o ID do item"
           fullWidth={true}
           widthType="full"
+          onEnterPress={onSubmit}
         />
       </div>
     </Stack>,

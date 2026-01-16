@@ -1,7 +1,7 @@
-import { useRef, useEffect, useMemo } from "react";
+import { Paper } from "@mui/material";
+import { useEffect, useMemo, useRef } from "react";
 import { Fields } from "~/src/components/utils/_fields";
 import RadioGroup from "./RadioGroup";
-import NumberInput from "./NumberInput";
 
 interface CostsSectionProps {
   adType: "classico" | "premium" | "sem_frete_gratis" | "com_frete_gratis";
@@ -10,7 +10,9 @@ interface CostsSectionProps {
   calculatorType: "ml" | "shopee";
   classicCommission?: number;
   premiumCommission?: number;
-  onAdTypeChange: (value: "classico" | "premium" | "sem_frete_gratis" | "com_frete_gratis") => void;
+  onAdTypeChange: (
+    value: "classico" | "premium" | "sem_frete_gratis" | "com_frete_gratis"
+  ) => void;
   onCommissionPercentageChange: (value: string) => void;
 }
 
@@ -32,7 +34,12 @@ export default function CostsSection({
   // Para Shopee, definir porcentagem fixa baseada no tipo de taxa
   useEffect(() => {
     if (isShopee) {
-      const fixedPercentage = adType === "sem_frete_gratis" ? "14" : adType === "com_frete_gratis" ? "20" : "14";
+      const fixedPercentage =
+        adType === "sem_frete_gratis"
+          ? "14"
+          : adType === "com_frete_gratis"
+            ? "20"
+            : "14";
       // Só atualizar se o adType ou calculatorType mudou
       if (
         adType !== prevAdTypeRef.current ||
@@ -45,7 +52,13 @@ export default function CostsSection({
     }
     prevAdTypeRef.current = adType;
     prevCalculatorTypeRef.current = calculatorType;
-  }, [isShopee, adType, calculatorType, commissionPercentage, onCommissionPercentageChange]);
+  }, [
+    isShopee,
+    adType,
+    calculatorType,
+    commissionPercentage,
+    onCommissionPercentageChange,
+  ]);
 
   // Para Meli, quando há comissões salvas e o usuário muda o tipo de anúncio,
   // atualizar automaticamente a porcentagem baseada na comissão em R$
@@ -64,8 +77,11 @@ export default function CostsSection({
 
         // Se temos uma comissão salva para o tipo selecionado, atualiza a porcentagem automaticamente
         if (commissionValue !== undefined && commissionValue > 0) {
-          const calculatedPercentage = ((commissionValue / price) * 100).toFixed(2);
-          
+          const calculatedPercentage = (
+            (commissionValue / price) *
+            100
+          ).toFixed(2);
+
           // Atualiza quando:
           // 1. Mudou o tipo de anúncio OU
           // 2. A porcentagem atual é diferente da calculada (caso o preço tenha mudado)
@@ -94,7 +110,7 @@ export default function CostsSection({
   const calculatedCommission = useMemo(() => {
     if (!salePrice) return "0,00";
     const price = parseFloat(salePrice) || 0;
-    
+
     // Se temos comissão salva para o tipo selecionado, usar ela diretamente
     if (isMeli && price > 0) {
       if (adType === "classico" && classicCommission !== undefined) {
@@ -104,12 +120,19 @@ export default function CostsSection({
         return premiumCommission.toFixed(2);
       }
     }
-    
+
     // Caso contrário, calcular pela porcentagem
     if (!commissionPercentage) return "0,00";
     const percentage = parseFloat(commissionPercentage) || 0;
     return (price * (percentage / 100)).toFixed(2);
-  }, [salePrice, commissionPercentage, isMeli, adType, classicCommission, premiumCommission]);
+  }, [
+    salePrice,
+    commissionPercentage,
+    isMeli,
+    adType,
+    classicCommission,
+    premiumCommission,
+  ]);
 
   const getAdTypeOptions = () => {
     if (isShopee) {
@@ -132,58 +155,69 @@ export default function CostsSection({
     return isShopee ? "Taxa" : "Comissão";
   };
   return (
-    <div className="space-y-5 bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-      <h2 className="text-lg font-semibold text-beergam-blue-primary">
+    <Paper className="space-y-4">
+      <h2 className="text-lg font-semibold text-beergam-typography-primary">
         Custos
       </h2>
 
       <Fields.wrapper>
-        <Fields.label
-          text={getAdTypeLabel()}
-        />
+        <Fields.label text={getAdTypeLabel()} />
         <RadioGroup
           name="adType"
           value={adType}
           options={getAdTypeOptions()}
-          onChange={(value) => onAdTypeChange(value as "classico" | "premium" | "sem_frete_gratis" | "com_frete_gratis")}
+          onChange={(value) =>
+            onAdTypeChange(
+              value as
+                | "classico"
+                | "premium"
+                | "sem_frete_gratis"
+                | "com_frete_gratis"
+            )
+          }
         />
       </Fields.wrapper>
 
       <Fields.wrapper>
-        <Fields.label
-          text={getCommissionLabel()}
-        />
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-center">
           <div className="flex-1">
-            <NumberInput
-              value={commissionPercentage}
-              onChange={onCommissionPercentageChange}
-              placeholder="0"
-              suffix="%"
-              step={0.01}
-              min={0}
-              disabled={isShopee}
-            />
+            <Fields.wrapper>
+              <Fields.label
+                hint={
+                  isShopee
+                    ? "A taxa é fixa conforme o tipo selecionado"
+                    : classicCommission !== undefined ||
+                        premiumCommission !== undefined
+                      ? "Comissão obtida automaticamente do Mercado Livre"
+                      : "É aplicada uma média de comissão"
+                }
+                text={getCommissionLabel()}
+              />
+              <Fields.input
+                type="number"
+                value={commissionPercentage}
+                onChange={(e) => onCommissionPercentageChange(e.target.value)}
+                placeholder="0"
+                prefix="%"
+                step={0.01}
+                min={0}
+              />
+            </Fields.wrapper>
+
+            <p className="text-xs text-beergam-gray mt-1.5">Opcional</p>
           </div>
           <div className="flex-1">
-            <div className="px-4 py-3.5 border-2 border-gray-200 rounded-lg bg-gray-50 text-sm">
-              <span className="text-beergam-gray text-xs block mb-1">
+            <Paper className="bg-beergam-section-background! flex items-center gap-2">
+              <span className="text-beergam-typography-tertiary!">
                 {isShopee ? "Taxa em R$" : "Comissão em R$"}
               </span>
-              <div className="text-beergam-blue-primary font-semibold text-base">
-                R$ {calculatedCommission}
+              <div className="text-beergam-typography-primary font-semibold text-base">
+                {calculatedCommission}
               </div>
-            </div>
+            </Paper>
           </div>
         </div>
-        <p className="text-xs text-beergam-gray mt-1.5">
-          {isShopee 
-            ? "A taxa é fixa conforme o tipo selecionado" 
-            : (classicCommission !== undefined || premiumCommission !== undefined)
-            ? "Comissão obtida automaticamente do Mercado Livre"
-            : "É aplicada uma média de comissão"}
-        </p>
       </Fields.wrapper>
-    </div>
+    </Paper>
   );
 }

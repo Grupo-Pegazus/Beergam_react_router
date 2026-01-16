@@ -319,6 +319,13 @@ export const muiTheme = createTheme(
           },
         },
       },
+      MuiSkeleton: {
+        styleOverrides: {
+          root: {
+            backgroundColor: "var(--color-beergam-mui-paper)",
+          },
+        },
+      },
     },
     typography: {
       fontFamily: "var(--default-font-family)",

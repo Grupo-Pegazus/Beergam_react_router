@@ -1,6 +1,5 @@
-import React from "react";
+import { Paper } from "@mui/material";
 import { Fields } from "~/src/components/utils/_fields";
-import NumberInput from "./NumberInput";
 
 interface TaxesSectionProps {
   taxRegime: string;
@@ -88,56 +87,56 @@ export default function TaxesSection({
   };
 
   return (
-    <div className="space-y-5 bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-      <h2 className="text-lg font-semibold text-beergam-blue-primary">
+    <Paper className="space-y-4">
+      <h2 className="text-lg font-semibold text-beergam-typography-primary">
         Impostos
       </h2>
 
-      <Fields.wrapper>
-        <Fields.label
-          text="Regime Fiscal"
-          hint="Regime fiscal da empresa"
-        />
-        <Fields.select
-          value={taxRegime}
-          options={TAX_REGIME_OPTIONS}
-          onChange={(e) => handleTaxRegimeChange(e.target.value)}
-        />
-        <p className="text-xs text-beergam-gray mt-1.5">Opcional</p>
-      </Fields.wrapper>
-
-      {showAnnualRevenue && (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Fields.wrapper>
-          <Fields.label
-            text="Faturamento bruto anual"
-            hint="Faturamento bruto anual da empresa"
-          />
+          <Fields.label text="Regime Fiscal" hint="Regime fiscal da empresa" />
           <Fields.select
-            value={annualRevenue}
-            options={ANNUAL_REVENUE_OPTIONS}
-            onChange={(e) => handleAnnualRevenueChange(e.target.value)}
+            value={taxRegime}
+            options={TAX_REGIME_OPTIONS}
+            onChange={(e) => handleTaxRegimeChange(e.target.value)}
           />
           <p className="text-xs text-beergam-gray mt-1.5">Opcional</p>
         </Fields.wrapper>
-      )}
 
-      <Fields.wrapper>
-        <Fields.label
-          text="Impostos"
-          hint="Porcentagem de impostos sobre a venda"
-        />
-        <NumberInput
-          value={taxesPercentage}
-          onChange={onTaxesPercentageChange}
-          placeholder="0"
-          suffix="%"
-          step={0.01}
-          min={0}
-        />
-        <p className="text-xs text-beergam-gray mt-1.5">
-          {isSimplesNacional ? "Preenchido automaticamente" : "Opcional"}
-        </p>
-      </Fields.wrapper>
-    </div>
+        {showAnnualRevenue && (
+          <Fields.wrapper>
+            <Fields.label
+              text="Faturamento bruto anual"
+              hint="Faturamento bruto anual da empresa"
+            />
+            <Fields.select
+              value={annualRevenue}
+              options={ANNUAL_REVENUE_OPTIONS}
+              onChange={(e) => handleAnnualRevenueChange(e.target.value)}
+            />
+            <p className="text-xs text-beergam-gray mt-2">Opcional</p>
+          </Fields.wrapper>
+        )}
+
+        <Fields.wrapper>
+          <Fields.label
+            text="Impostos"
+            hint="Porcentagem de impostos sobre a venda"
+          />
+          <Fields.input
+            type="number"
+            value={taxesPercentage}
+            onChange={(e) => onTaxesPercentageChange(e.target.value)}
+            placeholder="0"
+            prefix="%"
+            step={0.01}
+            min={0}
+          />
+          <p className="text-xs text-beergam-gray mt-1.5">
+            {isSimplesNacional ? "Preenchido automaticamente" : "Opcional"}
+          </p>
+        </Fields.wrapper>
+      </div>
+    </Paper>
   );
 }

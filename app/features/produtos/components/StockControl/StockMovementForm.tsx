@@ -1,23 +1,23 @@
-import { useState } from "react";
 import {
+  Alert,
+  Box,
   Card,
   CardContent,
-  Typography,
-  Box,
   ToggleButton,
   ToggleButtonGroup,
-  Alert,
+  Typography,
 } from "@mui/material";
+import { useState } from "react";
 import { z } from "zod";
 import { Fields } from "~/src/components/utils/_fields";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+import { useCreateStockMovement } from "../../hooks";
 import type {
-  StockMovementForm as StockMovementFormType,
   StockMovementApiPayload,
+  StockMovementForm as StockMovementFormType,
 } from "../../typings";
 import { StockMovementFormSchema } from "../../typings";
-import { useCreateStockMovement } from "../../hooks";
-import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
-import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface StockMovementFormProps {
   productId: string;
@@ -30,7 +30,6 @@ export default function StockMovementForm({
   variationId,
   onSuccess,
 }: StockMovementFormProps) {
-  
   const [formData, setFormData] = useState<Partial<StockMovementFormType>>({
     modification_type: "ENTRY",
     quantity: undefined,
@@ -46,14 +45,15 @@ export default function StockMovementForm({
 
   const validateField = (name: string, value: unknown): string | null => {
     try {
-      const fieldSchema = StockMovementFormSchema.shape[
-        name as keyof typeof StockMovementFormSchema.shape
-      ];
-      
+      const fieldSchema =
+        StockMovementFormSchema.shape[
+          name as keyof typeof StockMovementFormSchema.shape
+        ];
+
       if (!fieldSchema) return null;
-      
+
       const result = fieldSchema.safeParse(value);
-      
+
       if (!result.success && result.error.issues.length > 0) {
         return result.error.issues[0].message;
       }
@@ -104,11 +104,14 @@ export default function StockMovementForm({
         unity_cost: validatedData.unity_cost,
         auto_sync: true,
       };
-      
-      if (variationId !== undefined && variationId !== null && variationId !== "") {
-          apiPayload.variation_id = variationId;
-      }
 
+      if (
+        variationId !== undefined &&
+        variationId !== null &&
+        variationId !== ""
+      ) {
+        apiPayload.variation_id = variationId;
+      }
 
       createMutation.mutate(apiPayload, {
         onSuccess: () => {
@@ -140,17 +143,31 @@ export default function StockMovementForm({
 
   const isEntry = formData.modification_type === "ENTRY";
   const hasErrors = Object.keys(errors).length > 0;
-  const isFormValid = !hasErrors && formData.quantity && formData.reason && (isEntry ? formData.unity_cost !== undefined : true);
+  const isFormValid =
+    !hasErrors &&
+    formData.quantity &&
+    formData.reason &&
+    (isEntry ? formData.unity_cost !== undefined : true);
 
   return (
     <Card variant="outlined" sx={{ mb: 3 }}>
       <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-        <Typography variant="h6" fontWeight={600} sx={{ mb: { xs: 2, sm: 3 } }} className="text-base sm:text-lg">
+        <Typography
+          variant="h6"
+          fontWeight={600}
+          className="text-base sm:text-lg text-beergam-typography-primary! mb-2 sm:mb-3"
+        >
           Nova Movimentação de Estoque
         </Typography>
 
         <form onSubmit={handleSubmit}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 2, sm: 3 } }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: { xs: 2, sm: 3 },
+            }}
+          >
             <Fields.wrapper>
               <Fields.label text="Tipo de Movimentação" required />
               <ToggleButtonGroup
@@ -168,12 +185,13 @@ export default function StockMovementForm({
                 sx={{
                   "& .MuiToggleButton-root": {
                     border: "1px solid",
-                    borderColor: "grey.300",
+                    borderColor: "var(--color-beergam-input-border)",
+                    color: "var(--color-beergam-typography-primary)",
                     "&.Mui-selected": {
-                      bgcolor: "primary.main",
-                      color: "white",
+                      bgcolor: "var(--color-beergam-primary)",
+                      color: "var(--color-beergam-white)",
                       "&:hover": {
-                        bgcolor: "primary.dark",
+                        opacity: 0.8,
                       },
                     },
                   },
@@ -195,9 +213,13 @@ export default function StockMovementForm({
                     parseFloat(e.target.value) || undefined
                   )
                 }
-                onBlur={() => setTouched((prev) => ({ ...prev, quantity: true }))}
+                onBlur={() =>
+                  setTouched((prev) => ({ ...prev, quantity: true }))
+                }
                 error={
-                  touched.quantity && errors.quantity ? errors.quantity : undefined
+                  touched.quantity && errors.quantity
+                    ? errors.quantity
+                    : undefined
                 }
                 required
                 min={0.01}
@@ -216,7 +238,7 @@ export default function StockMovementForm({
                       left: 12,
                       top: "50%",
                       transform: "translateY(-50%)",
-                      color: "text.secondary",
+                      color: "var(--color-beergam-typography-secondary)",
                       zIndex: 1,
                       pointerEvents: "none",
                     }}
@@ -279,7 +301,9 @@ export default function StockMovementForm({
               <Fields.input
                 type="text"
                 value={formData.description || ""}
-                onChange={(e) => handleFieldChange("description", e.target.value)}
+                onChange={(e) =>
+                  handleFieldChange("description", e.target.value)
+                }
                 placeholder="Informações adicionais sobre a movimentação"
               />
             </Fields.wrapper>
@@ -294,8 +318,11 @@ export default function StockMovementForm({
 
             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
               <BeergamButton
-                title={createMutation.isPending ? "Salvando..." : "Salvar Movimentação"}
-                mainColor="beergam-blue-primary"
+                title={
+                  createMutation.isPending
+                    ? "Salvando..."
+                    : "Salvar Movimentação"
+                }
                 animationStyle="slider"
                 type="submit"
                 disabled={!isFormValid || createMutation.isPending}
@@ -314,4 +341,3 @@ export default function StockMovementForm({
     </Card>
   );
 }
-

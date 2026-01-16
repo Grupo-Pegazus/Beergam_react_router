@@ -96,6 +96,10 @@ function sanitizeFilters(state: AnunciosFiltersState): Partial<AdsFilters> {
   if (state.geral_visits_min !== undefined) apiFilters.geral_visits_min = state.geral_visits_min;
   if (state.geral_visits_max !== undefined) apiFilters.geral_visits_max = state.geral_visits_max;
   if (state.freeShippingOnly) apiFilters.free_shipping = true;
+  if (state.health_score_min !== undefined) apiFilters.health_score_min = state.health_score_min;
+  if (state.health_score_max !== undefined) apiFilters.health_score_max = state.health_score_max;
+  if (state.experience_score_min !== undefined) apiFilters.experience_score_min = state.experience_score_min;
+  if (state.experience_score_max !== undefined) apiFilters.experience_score_max = state.experience_score_max;
 
   return apiFilters;
 }

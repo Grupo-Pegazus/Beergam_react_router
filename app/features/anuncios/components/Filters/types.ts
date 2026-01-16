@@ -24,6 +24,10 @@ export interface AnunciosFiltersState
   freeShippingOnly?: boolean;
   onlyCatalog?: boolean;
   classification?: string;
+  health_score_min?: number;
+  health_score_max?: number;
+  experience_score_min?: number;
+  experience_score_max?: number;
 }
 
 export interface AnunciosFiltersProps {

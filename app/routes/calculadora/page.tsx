@@ -1,7 +1,6 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import Grid from "~/src/components/ui/Grid";
 import CalculatorForm from "~/features/calculator/components/CalculatorForm";
 import CalculatorResults from "~/features/calculator/components/CalculatorResults";
 import { calculatorService } from "~/features/calculator/service";
@@ -9,6 +8,7 @@ import type {
   CalculatorFormData,
   CalculatorRequest,
 } from "~/features/calculator/typings";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 
 const initialFormData: CalculatorFormData = {
   productLink: "",
@@ -123,26 +123,38 @@ export default function CalculadoraPage() {
 
   return (
     <>
-      <p className="text-sm text-beergam-gray mb-6">
+      <p className="text-sm text-beergam-typography-secondary! mb-6">
         Avalie a rentabilidade dos produtos com a nossa calculadora para
         aumentar seu lucro em cada venda
       </p>
 
-      <Grid cols={{ base: 1, lg: 2 }} gap={6}>
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6">
         <div className="relative">
           <CalculatorForm
             formData={formData}
             onFormDataChange={handleFormDataChange}
           />
           <div className="sticky bottom-4 mt-6 flex justify-end z-10">
-            <button
+            {/* <button
               type="button"
               onClick={handleCalculate}
               disabled={calculateMutation.isPending}
               className="px-8 py-3 md:w-auto w-full bg-beergam-orange text-white rounded-lg hover:bg-beergam-orange-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-lg"
             >
               {calculateMutation.isPending ? "Calculando..." : "Calcular"}
-            </button>
+            </button> */}
+            <BeergamButton
+              title={calculateMutation.isPending ? "Calculando..." : "Calcular"}
+              animationStyle="slider"
+              onClick={handleCalculate}
+              disabled={calculateMutation.isPending}
+              fetcher={{
+                fecthing: calculateMutation.isPending,
+                completed: false,
+                error: false,
+                mutation: calculateMutation,
+              }}
+            />
           </div>
         </div>
 
@@ -156,7 +168,7 @@ export default function CalculadoraPage() {
             calculatorType={formData.calculatorType}
           />
         </div>
-      </Grid>
+      </div>
     </>
   );
 }

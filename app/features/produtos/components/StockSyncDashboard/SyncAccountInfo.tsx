@@ -1,7 +1,7 @@
 import { Chip } from "@mui/material";
-import type { StockSyncDashboardResponse } from "../../typings";
-import MainCards from "~/src/components/ui/MainCards";
 import Svg from "~/src/assets/svgs/_index";
+import MainCards from "~/src/components/ui/MainCards";
+import type { StockSyncDashboardResponse } from "../../typings";
 
 interface SyncAccountInfoProps {
   accountInfo: StockSyncDashboardResponse["account_info"];
@@ -19,53 +19,57 @@ function formatDate(dateString: string | null) {
   });
 }
 
-export default function SyncAccountInfo({
-  accountInfo,
-}: SyncAccountInfoProps) {
+export default function SyncAccountInfo({ accountInfo }: SyncAccountInfoProps) {
   return (
     <MainCards className="p-6">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-slate-900">
+          <h3 className="text-lg font-semibold text-beergam-typography-primary!">
             Informações da Conta
           </h3>
           <Chip
             label={accountInfo.marketplace_name}
             size="small"
             sx={{
-              backgroundColor: "#dbeafe",
-              color: "#1e40af",
+              backgroundColor: "var(--color-beergam-primary)",
+              color: "var(--color-beergam-white)",
               fontWeight: 600,
             }}
           />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <p className="text-xs text-slate-500 mb-1">ID da Loja</p>
-            <p className="text-sm font-semibold text-slate-900">
+            <p className="text-xs text-beergam-typography-secondary! mb-1">
+              ID da Loja
+            </p>
+            <p className="text-sm font-semibold text-beergam-typography-primary!">
               {accountInfo.marketplace_shop_id}
             </p>
           </div>
           <div>
-            <p className="text-xs text-slate-500 mb-1">Tipo de Conta</p>
-            <p className="text-sm font-semibold text-slate-900">
+            <p className="text-xs text-beergam-typography-secondary! mb-1">
+              Tipo de Conta
+            </p>
+            <p className="text-sm font-semibold text-beergam-typography-primary!">
               {accountInfo.account_type}
             </p>
           </div>
           <div>
-            <p className="text-xs text-slate-500 mb-1">User Products</p>
+            <p className="text-xs text-beergam-typography-secondary! mb-1">
+              User Products
+            </p>
             <div className="flex items-center gap-2">
               {accountInfo.user_product_seller ? (
                 <>
-                  <Svg.check_circle tailWindClasses="h-5 w-5 text-emerald-500" />
-                  <p className="text-sm font-semibold text-emerald-600">
+                  <Svg.check_circle tailWindClasses="h-5 w-5 text-beergam-green-primary!" />
+                  <p className="text-sm font-semibold text-beergam-green-primary!">
                     Habilitado
                   </p>
                 </>
               ) : (
                 <>
-                  <Svg.x_circle tailWindClasses="h-5 w-5 text-slate-400" />
-                  <p className="text-sm font-semibold text-slate-500">
+                  <Svg.x_circle tailWindClasses="h-5 w-5 text-beergam-red!" />
+                  <p className="text-sm font-semibold text-beergam-red!">
                     Não habilitado
                   </p>
                 </>
@@ -73,8 +77,10 @@ export default function SyncAccountInfo({
             </div>
           </div>
           <div>
-            <p className="text-xs text-slate-500 mb-1">Última Detecção</p>
-            <p className="text-sm font-semibold text-slate-900">
+            <p className="text-xs text-beergam-typography-secondary! mb-1">
+              Última Detecção
+            </p>
+            <p className="text-sm font-semibold text-beergam-typography-primary!">
               {formatDate(accountInfo.last_detection)}
             </p>
           </div>
@@ -83,4 +89,3 @@ export default function SyncAccountInfo({
     </MainCards>
   );
 }
-

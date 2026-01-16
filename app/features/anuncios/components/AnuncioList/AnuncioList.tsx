@@ -14,7 +14,7 @@ import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import CopyButton from "~/src/components/ui/CopyButton";
 import MainCards from "~/src/components/ui/MainCards";
 import PaginationBar from "~/src/components/ui/PaginationBar";
-import { TextCensored } from "~/src/components/utils/Censorship";
+import { ImageCensored, TextCensored } from "~/src/components/utils/Censorship";
 import { useCensorship } from "~/src/components/utils/Censorship/CensorshipContext";
 import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
 import { useAnuncios, useChangeAdStatus } from "../../hooks";
@@ -178,7 +178,9 @@ function AnuncioCard({
         <div className="col-span-12 md:col-span-5 flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <div className="relative shrink-0">
-              <Thumbnail thumbnail={anuncio.thumbnail ?? ""} />
+              <ImageCensored className="w-12! h-12! md:w-16! md:h-16! shrink-0" censorshipKey="anuncios_list">
+                <Thumbnail thumbnail={anuncio.thumbnail ?? ""} />
+              </ImageCensored>
               {hasVariations && (
                 <button
                   onClick={handleToggleExpansion}
@@ -316,7 +318,7 @@ function AnuncioCard({
                 variant="caption"
                 className="text-beergam-typography-secondary!"
               >
-                {anuncio.stock} unidades
+                {anuncio.stock} em estoque
               </Typography>
             </div>
           </div>

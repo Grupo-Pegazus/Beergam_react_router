@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { Paper } from "@mui/material";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Fields } from "~/src/components/utils/_fields";
+import { calculatorService } from "../service";
+import type { MeliProductResponse } from "../typings";
 import {
   extractMlbFromLink,
   isValidMercadoLivreDomain,
 } from "../utils/extractMlbFromLink";
-import { calculatorService } from "../service";
-import type { MeliProductResponse } from "../typings";
 
 interface MeliProductLinkSectionProps {
   productLink: string;
@@ -61,7 +63,9 @@ export default function MeliProductLinkSection({
 
     // Valida se o link é do domínio do Mercado Livre
     if (!isValidMercadoLivreDomain(link)) {
-      setError("Link inválido. Por favor, insira um link do Mercado Livre (www.mercadolivre.com.br)");
+      setError(
+        "Link inválido. Por favor, insira um link do Mercado Livre (www.mercadolivre.com.br)"
+      );
       setProductInfo(null);
       lastProcessedMlbRef.current = null;
       return;
@@ -69,7 +73,9 @@ export default function MeliProductLinkSection({
 
     const mlb = extractMlbFromLink(link);
     if (!mlb) {
-      setError("Link inválido. Não foi possível encontrar o ID do produto no link");
+      setError(
+        "Link inválido. Não foi possível encontrar o ID do produto no link"
+      );
       setProductInfo(null);
       lastProcessedMlbRef.current = null;
       return;
@@ -254,38 +260,29 @@ export default function MeliProductLinkSection({
   }, []);
 
   return (
-    <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
-      <h2 className="text-lg font-semibold text-beergam-blue-primary mb-4">
+    <div className="bg-beergam-mui-paper p-5 rounded-lg border border-beergam-section-border shadow-sm">
+      <h2 className="text-lg font-semibold text-beergam-typography-primary! mb-4">
         Buscar produto do Mercado Livre
       </h2>
 
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-beergam-gray">
-          Link do produto
-        </label>
-        <div className="relative">
-          <input
-            type="text"
-            value={productLink}
-            onChange={(e) => onProductLinkChange(e.target.value)}
-            placeholder="Insira aqui o link do produto (Mercado Livre)"
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-beergam-blue-primary transition-colors pr-12"
-            disabled={isFetching}
-          />
-          {isFetching && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-beergam-blue-primary"></div>
-            </div>
-          )}
-        </div>
-        <p className="text-xs text-beergam-gray">
-          O link será buscado automaticamente ao inserir
-        </p>
-      </div>
+      <Fields.wrapper>
+        <Fields.label
+          text="Link do produto"
+          hint="Insira aqui o link do produto (Mercado Livre)"
+        />
+        <Fields.input
+          type="text"
+          value={productLink}
+          onChange={(e) => onProductLinkChange(e.target.value)}
+          placeholder="Insira aqui o link do produto (Mercado Livre)"
+          // className="w-full px-4 py-3 border-2 border-beergam-input-border rounded-lg focus:outline-none focus:border-beergam-primary transition-colors pr-12"
+          disabled={isFetching}
+        />
+      </Fields.wrapper>
 
       {/* Informações do produto */}
       {productInfo && !error && (
-        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+        <Paper className="mt-4">
           <div className="flex gap-4">
             {/* Imagem do produto */}
             {productInfo.imageUrl && (
@@ -293,7 +290,7 @@ export default function MeliProductLinkSection({
                 <img
                   src={productInfo.imageUrl}
                   alt={productInfo.title}
-                  className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                  className="w-20 h-20 object-cover rounded-lg border border-beergam-section-border"
                   onError={(e) => {
                     // Se a imagem falhar ao carregar, esconde o elemento
                     e.currentTarget.style.display = "none";
@@ -301,34 +298,30 @@ export default function MeliProductLinkSection({
                 />
               </div>
             )}
-            
+
             {/* Informações do produto */}
             <div className="flex-1 space-y-2">
               <div>
-                <span className="text-xs font-semibold text-beergam-gray">
+                <span className="text-xs font-semibold text-beergam-typography-primary">
                   Produto:
                 </span>
-                <p className="text-sm text-beergam-blue-primary font-medium">
-                  {productInfo.title}
-                </p>
+                <p className="text-sm">{productInfo.title}</p>
               </div>
               <div>
-                <span className="text-xs font-semibold text-beergam-gray">
+                <span className="text-xs font-semibold text-beergam-typography-primary">
                   Categoria:
                 </span>
-                <p className="text-sm text-beergam-blue-primary">
-                  {productInfo.categoryName}
-                </p>
+                <p className="text-sm">{productInfo.categoryName}</p>
               </div>
             </div>
           </div>
-        </div>
+        </Paper>
       )}
 
       {/* Mensagem de erro */}
       {error && (
-        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="mt-4 p-4 bg-beergam-red-light border border-beergam-red rounded-lg">
+          <p className="text-sm text-beergam-red">{error}</p>
         </div>
       )}
     </div>

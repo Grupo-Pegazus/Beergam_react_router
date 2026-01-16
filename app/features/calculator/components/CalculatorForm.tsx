@@ -1,11 +1,11 @@
 import type { CalculatorFormData } from "../typings";
+import AdditionalCostsSection from "./AdditionalCostsSection";
+import CostsSection from "./CostsSection";
 import MarketplaceSelector from "./MarketplaceSelector";
 import MeliProductLinkSection from "./MeliProductLinkSection";
 import ProductInfoSection from "./ProductInfoSection";
-import CostsSection from "./CostsSection";
 import ShippingSection from "./ShippingSection";
 import TaxesSection from "./TaxesSection";
-import AdditionalCostsSection from "./AdditionalCostsSection";
 
 interface CalculatorFormProps {
   formData: CalculatorFormData;
@@ -25,7 +25,7 @@ export default function CalculatorForm({
 
   return (
     <div className="space-y-6">
-      <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+      <div className="bg-beergam-mui-paper p-5 rounded-lg border border-beergam-section-border shadow-sm">
         <MarketplaceSelector
           value={formData.calculatorType}
           onChange={(value) => updateField("calculatorType", value)}
@@ -39,7 +39,7 @@ export default function CalculatorForm({
           onProductDataLoaded={(data) => {
             // Atualiza preço de venda
             updateField("salePrice", data.salePrice);
-            
+
             // Atualiza comissões salvas (essas serão aplicadas automaticamente no CostsSection)
             if (data.classicCommission !== undefined) {
               updateField("classicCommission", data.classicCommission);
@@ -47,7 +47,7 @@ export default function CalculatorForm({
             if (data.premiumCommission !== undefined) {
               updateField("premiumCommission", data.premiumCommission);
             }
-            
+
             // A porcentagem será calculada automaticamente no CostsSection
             // baseada no tipo de anúncio selecionado e nas comissões salvas
           }}
@@ -63,18 +63,19 @@ export default function CalculatorForm({
         onWeeklySalesChange={(value) => updateField("weeklySales", value)}
       />
 
-      <CostsSection
-        adType={formData.adType}
-        commissionPercentage={formData.commissionPercentage}
-        salePrice={formData.salePrice}
-        calculatorType={formData.calculatorType}
-        classicCommission={formData.classicCommission}
-        premiumCommission={formData.premiumCommission}
-        onAdTypeChange={(value) => updateField("adType", value)}
-        onCommissionPercentageChange={(value) =>
-          updateField("commissionPercentage", value)
-        }
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CostsSection
+          adType={formData.adType}
+          commissionPercentage={formData.commissionPercentage}
+          salePrice={formData.salePrice}
+          calculatorType={formData.calculatorType}
+          classicCommission={formData.classicCommission}
+          premiumCommission={formData.premiumCommission}
+          onAdTypeChange={(value) => updateField("adType", value)}
+          onCommissionPercentageChange={(value) =>
+            updateField("commissionPercentage", value)
+          }
+        />
 
         {formData.calculatorType === "ml" && (
           <ShippingSection
@@ -84,29 +85,29 @@ export default function CalculatorForm({
             onShippingCostChange={(value) => updateField("shippingCost", value)}
           />
         )}
+        <TaxesSection
+          taxRegime={formData.taxRegime}
+          annualRevenue={formData.annualRevenue}
+          taxesPercentage={formData.taxesPercentage}
+          onTaxRegimeChange={(value) => updateField("taxRegime", value)}
+          onAnnualRevenueChange={(value) => updateField("annualRevenue", value)}
+          onTaxesPercentageChange={(value) =>
+            updateField("taxesPercentage", value)
+          }
+        />
 
-      <TaxesSection
-        taxRegime={formData.taxRegime}
-        annualRevenue={formData.annualRevenue}
-        taxesPercentage={formData.taxesPercentage}
-        onTaxRegimeChange={(value) => updateField("taxRegime", value)}
-        onAnnualRevenueChange={(value) => updateField("annualRevenue", value)}
-        onTaxesPercentageChange={(value) =>
-          updateField("taxesPercentage", value)
-        }
-      />
-
-      <AdditionalCostsSection
-        additionalCostsAmount={formData.additionalCostsAmount}
-        additionalCostsPercentage={formData.additionalCostsPercentage}
-        salePrice={formData.salePrice}
-        onAdditionalCostsAmountChange={(value) =>
-          updateField("additionalCostsAmount", value)
-        }
-        onAdditionalCostsPercentageChange={(value) =>
-          updateField("additionalCostsPercentage", value)
-        }
-      />
+        <AdditionalCostsSection
+          additionalCostsAmount={formData.additionalCostsAmount}
+          additionalCostsPercentage={formData.additionalCostsPercentage}
+          salePrice={formData.salePrice}
+          onAdditionalCostsAmountChange={(value) =>
+            updateField("additionalCostsAmount", value)
+          }
+          onAdditionalCostsPercentageChange={(value) =>
+            updateField("additionalCostsPercentage", value)
+          }
+        />
+      </div>
     </div>
   );
 }

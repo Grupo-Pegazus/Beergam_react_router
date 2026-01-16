@@ -122,6 +122,7 @@ export default function ProdutosFilters({
             placeholder="Digite SKU ou título do produto..."
             fullWidth={true}
             widthType="full"
+            onEnterPress={onSubmit}
           />
         </div>
         <div style={{ flex: 1 }} className="md:w-auto w-full">
@@ -132,6 +133,7 @@ export default function ProdutosFilters({
             placeholder="Digite o nome da categoria..."
             fullWidth={true}
             widthType="full"
+            onEnterPress={onSubmit}
           />
         </div>
       </Stack>,

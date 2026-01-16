@@ -14,6 +14,7 @@ export interface FilterSearchInputProps {
   searchTypeOptions?: Array<FilterOption<string>>;
   fullWidth?: boolean;
   widthType?: "fit" | "full";
+  onEnterPress?: () => void;
 }
 
 export function FilterSearchInput({
@@ -27,6 +28,7 @@ export function FilterSearchInput({
   searchTypeOptions,
   fullWidth = true,
   widthType = "full",
+  onEnterPress,
 }: FilterSearchInputProps) {
   // Estado interno para evitar disparar requisição a cada tecla
   const [internalValue, setInternalValue] = useState(value ?? "");
@@ -68,6 +70,16 @@ export function FilterSearchInput({
     [onSearchTypeChange]
   );
 
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === "Enter" && onEnterPress && !disabled) {
+        event.preventDefault();
+        onEnterPress();
+      }
+    },
+    [onEnterPress, disabled]
+  );
+
   const hasSearchType = Boolean(
     searchTypeOptions && searchTypeOptions.length > 0
   );
@@ -99,6 +111,7 @@ export function FilterSearchInput({
           widthType={widthType}
           value={internalValue}
           onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
           disabled={disabled}
           placeholder={placeholder}
           tailWindClasses="rounded-3xl"

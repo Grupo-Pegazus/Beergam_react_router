@@ -152,14 +152,15 @@ export const OrdersMetricsSchema = z.object({
     em_transito: z.number(),
     concluidas: z.number(),
   }),
-  faturamento_bruto_90d: z.string(),
-  faturamento_liquido_90d: z.string(),
-  media_faturamento_diario_90d: z.string(),
+  faturamento_bruto: z.string(),
+  faturamento_liquido: z.string(),
+  media_faturamento_diario: z.string(),
   comparacao_periodo_anterior: z.object({
     faturamento_bruto_diff: z.string(),
     faturamento_liquido_diff: z.string(),
     media_diaria_diff: z.string(),
   }),
+  period_days: z.number().optional(),
 });
 
 export type OrdersMetrics = z.infer<typeof OrdersMetricsSchema>;
