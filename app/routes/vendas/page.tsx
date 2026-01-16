@@ -30,11 +30,6 @@ export default function VendasPage() {
       <CensorshipWrapper controlChildren censorshipKey="vendas_resumo">
         <Section
           title="Resumo"
-          actions={
-            <span className="text-xs text-beergam-typography-secondary">
-              Dados dos últimos 90 dias
-            </span>
-          }
         >
           <Grid cols={{ base: 1 }}>
             <MetricasCards />
@@ -44,11 +39,6 @@ export default function VendasPage() {
       <CensorshipWrapper censorshipKey="vendas_faturamento_diario">
         <Section
           title="Faturamento Diário"
-          actions={
-            <span className="text-xs text-beergam-typography-secondary">
-              Dados dos últimos 30 dias
-            </span>
-          }
         >
           <Grid cols={{ base: 1 }}>
             <ImageCensored
