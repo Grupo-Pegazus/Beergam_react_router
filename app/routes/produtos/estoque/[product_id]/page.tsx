@@ -1,28 +1,26 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
 import { Alert } from "@mui/material";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
-import Section from "~/src/components/ui/Section";
-import Grid from "~/src/components/ui/Grid";
-import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
-import { Fields } from "~/src/components/utils/_fields";
-import Loading from "~/src/assets/loading";
-import { useBreadcrumbCustomization } from "~/features/system/context/BreadcrumbContext";
-import { useStockTracking, useProductDetails } from "~/features/produtos/hooks";
-import StockSummary from "~/features/produtos/components/StockControl/StockSummary";
 import AverageCostCard from "~/features/produtos/components/StockControl/AverageCostCard";
 import StockMovementForm from "~/features/produtos/components/StockControl/StockMovementForm";
-import StockTrackingTable from "~/features/produtos/components/StockControl/StockTrackingTable";
+import StockSummary from "~/features/produtos/components/StockControl/StockSummary";
 import StockTrackingFilters from "~/features/produtos/components/StockControl/StockTrackingFilters";
+import StockTrackingTable from "~/features/produtos/components/StockControl/StockTrackingTable";
+import { useProductDetails, useStockTracking } from "~/features/produtos/hooks";
 import type { StockTrackingFilters as StockTrackingFiltersType } from "~/features/produtos/typings";
+import { useBreadcrumbCustomization } from "~/features/system/context/BreadcrumbContext";
+import Loading from "~/src/assets/loading";
+import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import Grid from "~/src/components/ui/Grid";
+import Section from "~/src/components/ui/Section";
+import { Fields } from "~/src/components/utils/_fields";
 import StockControlSkeleton from "./StockControlSkeleton";
 
 interface StockControlPageProps {
   productId: string;
 }
 
-export default function StockControlPage({
-  productId,
-}: StockControlPageProps) {
+export default function StockControlPage({ productId }: StockControlPageProps) {
   const { setCustomLabel } = useBreadcrumbCustomization();
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState<Partial<StockTrackingFiltersType>>({
@@ -83,12 +81,12 @@ export default function StockControlPage({
 
   const firstVariationId = useMemo(() => {
     if (!hasVariations || variationsWithStockHandling.length === 0) return null;
-    
+
     const firstVariation = variationsWithStockHandling[0];
     const productVariationId = firstVariation?.product_variation_id;
-    
+
     if (!productVariationId) return null;
-    
+
     // Mantém como string para consistência
     return String(productVariationId);
   }, [hasVariations, variationsWithStockHandling]);
@@ -98,13 +96,13 @@ export default function StockControlPage({
     if (!hasVariations || !product) return;
 
     const variationFromUrl = searchParams.get("variation");
-    
+
     if (variationFromUrl) {
       // Verifica se a variação da URL existe na lista de variações
       const variationExists = variationsWithStockHandling.some(
         (v) => String(v.product_variation_id) === variationFromUrl
       );
-      
+
       if (variationExists) {
         // Sincroniza o filtro com a URL se for diferente
         if (filters.variation_id !== variationFromUrl) {
@@ -119,7 +117,7 @@ export default function StockControlPage({
         const newSearchParams = new URLSearchParams(searchParams);
         newSearchParams.delete("variation");
         setSearchParams(newSearchParams, { replace: true });
-        
+
         if (firstVariationId) {
           setFilters((prev) => ({
             ...prev,
@@ -139,7 +137,15 @@ export default function StockControlPage({
       newSearchParams.set("variation", firstVariationId);
       setSearchParams(newSearchParams, { replace: true });
     }
-  }, [searchParams, hasVariations, variationsWithStockHandling, product, firstVariationId, filters.variation_id, setSearchParams]);
+  }, [
+    searchParams,
+    hasVariations,
+    variationsWithStockHandling,
+    product,
+    firstVariationId,
+    filters.variation_id,
+    setSearchParams,
+  ]);
 
   const selectedVariationId = useMemo((): string | null => {
     if (hasVariations) {
@@ -152,23 +158,26 @@ export default function StockControlPage({
     }
     return null;
   }, [filters.variation_id, hasVariations, firstVariationId]);
-  
-  const handleVariationChange = useCallback((variationId: string | null) => {
-    setFilters((prev) => ({
-      ...prev,
-      variation_id: variationId ?? undefined,
-      page: 1,
-    }));
-    
-    // Atualiza a URL com o novo variation_id
-    const newSearchParams = new URLSearchParams(searchParams);
-    if (variationId) {
-      newSearchParams.set("variation", variationId);
-    } else {
-      newSearchParams.delete("variation");
-    }
-    setSearchParams(newSearchParams, { replace: true });
-  }, [searchParams, setSearchParams]);
+
+  const handleVariationChange = useCallback(
+    (variationId: string | null) => {
+      setFilters((prev) => ({
+        ...prev,
+        variation_id: variationId ?? undefined,
+        page: 1,
+      }));
+
+      // Atualiza a URL com o novo variation_id
+      const newSearchParams = new URLSearchParams(searchParams);
+      if (variationId) {
+        newSearchParams.set("variation", variationId);
+      } else {
+        newSearchParams.delete("variation");
+      }
+      setSearchParams(newSearchParams, { replace: true });
+    },
+    [searchParams, setSearchParams]
+  );
 
   setCustomLabel(product?.title || "");
 
@@ -194,7 +203,8 @@ export default function StockControlPage({
     return (
       <Alert severity="warning" sx={{ m: 3 }}>
         Este produto não possui controle de estoque ativo. Ative o controle de
-        estoque nas configurações do produto ou de suas variações para acessar esta funcionalidade.
+        estoque nas configurações do produto ou de suas variações para acessar
+        esta funcionalidade.
       </Alert>
     );
   }
@@ -203,7 +213,7 @@ export default function StockControlPage({
     <>
       <Section>
         {product.sku && (
-          <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
+          <p className="text-xs sm:text-sm text-beergam-typography-secondary! mb-2 sm:mb-3">
             SKU: {product.sku}
           </p>
         )}
@@ -218,7 +228,9 @@ export default function StockControlPage({
                   const value = e.target.value;
                   if (value === "" && variationsWithStockHandling.length > 0) {
                     // Se vazio, seleciona a primeira variação
-                    const firstId = String(variationsWithStockHandling[0]?.product_variation_id);
+                    const firstId = String(
+                      variationsWithStockHandling[0]?.product_variation_id
+                    );
                     if (firstId) {
                       handleVariationChange(firstId);
                     }
@@ -261,7 +273,11 @@ export default function StockControlPage({
               <Grid cols={{ base: 1, lg: 1 }} className="mb-3 sm:mb-4">
                 <StockMovementForm
                   productId={productId}
-                  variationId={hasVariations && selectedVariationId !== null ? selectedVariationId : undefined}
+                  variationId={
+                    hasVariations && selectedVariationId !== null
+                      ? selectedVariationId
+                      : undefined
+                  }
                   onSuccess={handleMovementSuccess}
                 />
               </Grid>
@@ -289,4 +305,3 @@ export default function StockControlPage({
     </>
   );
 }
-
