@@ -22,7 +22,7 @@ export default function LandingAbout() {
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-beergam-orange flex items-center justify-center flex-shrink-0 mt-1">
-                  <span className="text-beergam-white text-sm">✓</span>
+                  <span className="text-beergam-white text-sm!">✓</span>
                 </div>
                 <div>
                   <h3 className="text-beergam-white font-semibold mb-1">
@@ -36,7 +36,7 @@ export default function LandingAbout() {
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-beergam-orange flex items-center justify-center flex-shrink-0 mt-1">
-                  <span className="text-beergam-white text-sm">✓</span>
+                  <span className="text-beergam-white text-sm!">✓</span>
                 </div>
                 <div>
                   <h3 className="text-beergam-white font-semibold mb-1">
@@ -49,7 +49,7 @@ export default function LandingAbout() {
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-beergam-orange flex items-center justify-center flex-shrink-0 mt-1">
-                  <span className="text-beergam-white text-sm">✓</span>
+                  <span className="text-beergam-white text-sm!">✓</span>
                 </div>
                 <div>
                   <h3 className="text-beergam-white font-semibold mb-1">

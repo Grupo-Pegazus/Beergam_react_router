@@ -7,7 +7,7 @@ export default function MultipleDeviceWarning() {
   return (
     <PageLayout tailwindClassName="flex items-center justify-center">
       <div
-        className={`flex shadow-lg/55 relative z-10 flex-col justify-center items-center gap-4 bg-beergam-white w-full mx-auto my-auto p-8 sm:w-2/3 sm:max-w-lg sm:rounded-4xl`}
+        className={`flex shadow-lg/55 relative z-10 flex-col justify-center items-center gap-4 bg-beergam-white w-full mx-auto my-auto p-8 sm:w-2/3 sm:max-w-2xl sm:rounded-4xl`}
       >
         <div className="flex justify-center">
           <div className="relative">
@@ -53,15 +53,15 @@ export default function MultipleDeviceWarning() {
 
         {/* Mensagem */}
         <div className="space-y-2">
-          <p className="text-center text-base leading-relaxed text-beergam-gray">
+          <p className="text-center text-xl! leading-relaxed text-beergam-gray">
             Sua conta foi acessada em outro dispositivo. Por segurança, sua
             sessão atual foi encerrada.
           </p>
-          <p className="text-center text-base leading-relaxed text-beergam-gray">
+          <p className="text-center text-xl! leading-relaxed text-beergam-gray">
             Se você for um colaborador, suas informações podem ter sido
             alteradas pelo empregador responsável.
           </p>
-          <p className="text-center text-sm text-beergam-gray-light">
+          <p className="text-center text-xl! text-beergam-gray-light">
             Para continuar, faça login novamente.
           </p>
         </div>
