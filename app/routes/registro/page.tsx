@@ -22,7 +22,7 @@ export default function RegistroPage() {
             </h2>
             <h3 className="font-medium mx-auto lg:w-2/3">
               Controle todas as áreas do seu e-commerce em um só lugar e{" "}
-              <span className="font-black">tome decisões com confiança</span>.
+              <span className="font-black text-lg! lg:text-sm! xl:text-xl! 2xl:text-2xl!">tome decisões com confiança</span>.
             </h3>
             <h4>
               <span className="font-black">Deixe as planilhas para trás</span> e

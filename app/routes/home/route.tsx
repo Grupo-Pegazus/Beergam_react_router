@@ -83,14 +83,14 @@ export default function Home() {
       <section className="w-full text-center py-24 flex flex-col items-center justify-center gap-6">
         <h1>
           Teste o Beergam{" "}
-          <span className="text-beergam-orange">gratuitamente</span>.
+          <span className="text-beergam-orange text-4xl! font-bold lg:text-4xl!  xl:text-5xl! 2xl:text-6xl!">gratuitamente</span>.
         </h1>
         <p>O destino do seu E-Commerce está aqui.</p>
         <BeergamButton
           title="Testar Agora"
           mainColor="beergam-orange"
           animationStyle="slider"
-          className="text-2xl"
+          className="text-2xl!"
           link="/registro"
         ></BeergamButton>
       </section>
