@@ -4,10 +4,10 @@ export default function LandingHero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-10">
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-beergam-blue-lara via-beergam-blue-primary-dark to-beergam-black-blue" />
+      <div className="absolute inset-0 bg-linear-to-br from-beergam-blue-lara via-beergam-blue-primary-dark to-beergam-black-blue" />
 
       {/* Animated gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-beergam-orange/20 via-transparent to-beergam-orange/10 animate-pulse" />
+      <div className="absolute inset-0 bg-linear-to-r from-beergam-orange/20 via-transparent to-beergam-orange/10 animate-pulse" />
 
       {/* Grain texture */}
       <div className="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMTAwdjEwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=')]" />
@@ -21,16 +21,16 @@ export default function LandingHero() {
         </div>
 
         {/* Main headline */}
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold text-beergam-white mb-6 leading-tight">
+        <h1 className="font-bold text-beergam-white mb-6 leading-tight">
           Gerencie seu e-commerce
           <br />
-          <span className="bg-gradient-to-r from-beergam-orange to-beergam-orange-dark bg-clip-text text-transparent">
+          <span className="text-4xl! font-bold lg:text-4xl! xl:text-5xl! 2xl:text-6xl! bg-linear-to-r from-beergam-orange to-beergam-orange-dark bg-clip-text text-transparent">
             com inteligência
           </span>
         </h1>
 
         {/* Subheadline */}
-        <p className="text-xl sm:text-2xl text-beergam-gray-light max-w-3xl mx-auto mb-12 leading-relaxed">
+        <p className="text-xl! sm:text-2xl! text-beergam-gray-light max-w-3xl mx-auto mb-12 leading-relaxed">
           Simplifique seus processos, automatize suas vendas e expanda seu
           negócio com a plataforma mais completa para vendedores de e-commerce.
         </p>
