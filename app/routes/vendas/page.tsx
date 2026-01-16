@@ -13,6 +13,7 @@ import {
   CensorshipWrapper,
   ImageCensored,
 } from "~/src/components/utils/Censorship";
+import { Paper } from "@mui/material";
 
 export default function VendasPage() {
   const { filters, setFilters, resetFilters, apiFilters, applyFilters } =
@@ -53,14 +54,14 @@ export default function VendasPage() {
 
       <CensorshipWrapper censorshipKey="vendas_distribuicao_geografica">
         <Section title="Distribuição Geográfica">
-          <Grid cols={{ base: 1 }}>
+          <Paper className="grid gap-4">
             <ImageCensored
               className="w-full h-full min-h-56"
               censorshipKey="vendas_distribuicao_geografica"
             >
               <GeographicMap period="last_day" />
             </ImageCensored>
-          </Grid>
+          </Paper>
         </Section>
       </CensorshipWrapper>
       <CensorshipWrapper censorshipKey="vendas_orders_list" controlChildren>
