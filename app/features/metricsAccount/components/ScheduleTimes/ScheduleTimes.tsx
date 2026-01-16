@@ -61,14 +61,10 @@ function findFirstNonEmptySchedule(
   // Itera sobre os valores do objeto e retorna o primeiro que não seja null ou undefined
   // O record pode ter valores null, então precisamos verificar explicitamente
   const values = Object.values(resultsByLogisticType);
-  
+
   for (const value of values) {
     // Verifica se o valor existe, não é null e tem a estrutura esperada
-    if (
-      value != null &&
-      typeof value === "object" &&
-      "schedule" in value
-    ) {
+    if (value != null && typeof value === "object" && "schedule" in value) {
       return value as NonNullable<
         MarketplaceScheduleData<MarketplaceType.MELI>["schedule"]["results_by_logistic_type"][string]
       >;
@@ -104,7 +100,7 @@ export default function ScheduleTimes() {
       return { label: "—", cutoff: "—" };
 
     const meliSchedule = payload.schedule;
-    
+
     // Verifica se results_by_logistic_type existe
     if (!meliSchedule.results_by_logistic_type) {
       return { label: "Sem dados", cutoff: "—" };
@@ -187,30 +183,31 @@ export default function ScheduleTimes() {
                   {WEEK_ORDER.map((day) => {
                     const info = schedule[day];
                     const work: boolean = info?.work ?? false;
-                    const cutoff: string | undefined = info?.detail?.[0]?.cutoff;
+                    const cutoff: string | undefined =
+                      info?.detail?.[0]?.cutoff;
                     return (
                       <div
                         key={day}
-                        className="rounded-xl border border-black/10 p-3 bg-white"
+                        className="rounded-xl border border-beergam-section-border p-3 bg-beergam-section-background!"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-semibold text-beergam-typography-tertiary">
+                          <span className="text-sm font-semibold text-beergam-typography-primary!">
                             {DAY_LABEL[day]}
                           </span>
                           <span
                             className={[
                               "text-xs px-2 py-0.5 rounded-full",
                               work
-                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                                : "bg-slate-100 text-slate-600 border border-slate-200",
+                                ? "bg-beergam-primary/10 text-beergam-primary border border-beergam-primary/30"
+                                : "bg-beergam-typography-secondary/10 text-beergam-typography-secondary border border-beergam-typography-secondary/30",
                             ].join(" ")}
                           >
                             {work ? "Dia útil" : "Sem operação"}
                           </span>
                         </div>
-                        <div className="mt-2 text-sm text-beergam-typography-secondary">
+                        <div className="mt-2 text-sm text-beergam-typography-secondary!">
                           Corte:{" "}
-                          <span className="font-semibold">
+                          <span className="font-semibold text-beergam-typography-primary!">
                             {cutoff ?? (work ? "—" : "N/A")}
                           </span>
                         </div>

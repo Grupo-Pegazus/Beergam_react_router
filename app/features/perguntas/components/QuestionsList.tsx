@@ -1,14 +1,19 @@
-import { useMemo, useState } from "react";
+import { Paper } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { anuncioService } from "~/features/anuncios/service";
+import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
+import CopyButton from "~/src/components/ui/CopyButton";
+import PaginationBar from "~/src/components/ui/PaginationBar";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { Fields } from "~/src/components/utils/_fields";
-import Svg from "~/src/assets/svgs/_index";
-import CopyButton from "~/src/components/ui/CopyButton";
-import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
-import PaginationBar from "~/src/components/ui/PaginationBar";
-import { anuncioService } from "~/features/anuncios/service";
+import {
+  getQuestionStatus,
+  type Question,
+  type QuestionsPagination,
+  QuestionStatus,
+} from "../typings";
 import QuestionsListSkeleton from "./QuestionsListSkeleton";
-import type { Question, QuestionsPagination } from "../typings";
 
 interface QuestionsListProps {
   questions: Question[];
@@ -24,31 +29,13 @@ function formatDate(value?: string | null): string {
   return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 }
 
-function translateStatus(status?: string): string {
-  const statusMap: Record<string, string> = {
-    UNANSWERED: "Pendente",
-    ANSWERED: "Respondida",
-    BANNED: "Bloqueada",
-    ACTIVE: "Ativa",
-  };
-  return statusMap[status ?? ""] ?? status ?? "N/A";
-}
-
-function getCardStyle(status?: string): string {
-  const baseStyle = "rounded-2xl p-4 shadow-sm flex flex-col gap-3";
-  if (status === "ANSWERED") {
-    return `${baseStyle} bg-emerald-50 border-emerald-200`;
-  }
-  if (status === "UNANSWERED") {
-    return `${baseStyle} bg-amber-50 border-amber-200`;
-  }
-  if (status === "BANNED") {
-    return `${baseStyle} bg-red-50 border-red-200`;
-  }
-  return `${baseStyle} bg-white border-black/5`;
-}
-
-function QuestionCard({ question, onAnswer }: { question: Question; onAnswer: (questionId: string, answer: string) => Promise<void> }) {
+function QuestionCard({
+  question,
+  onAnswer,
+}: {
+  question: Question;
+  onAnswer: (questionId: string, answer: string) => Promise<void>;
+}) {
   const [showAnswerInput, setShowAnswerInput] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [newAnswerText, setNewAnswerText] = useState("");
@@ -80,24 +67,21 @@ function QuestionCard({ question, onAnswer }: { question: Question; onAnswer: (q
     }
   }
 
-  const statusTranslated = translateStatus(question.status);
-  const cardStyle = getCardStyle(question.status);
-
   // Determina o título do item
   const itemTitle = question.item_title?.trim() || null;
   const hasItemInfo = itemTitle || question.item_id;
-
+  const questionStatus = getQuestionStatus(question.status);
   return (
-    <div className={cardStyle}>
+    <Paper className="space-y-4!">
       {/* Cabeçalho da pergunta */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div className="flex flex-col gap-2 min-w-0 flex-1">
           {hasItemInfo && (
-            <div className="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm text-slate-500">
+            <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-beergam-typography-secondary!">
               {question.item_id && (
                 <>
                   {itemTitle && <span className="hidden sm:inline">•</span>}
-                  <span className="font-mono break-all">{String(question.item_id)}</span>
+                  <span className="break-all">{String(question.item_id)}</span>
                   <CopyButton
                     textToCopy={String(question.item_id)}
                     successMessage="MLB copiado para a área de transferência"
@@ -105,7 +89,9 @@ function QuestionCard({ question, onAnswer }: { question: Question; onAnswer: (q
                     ariaLabel="Copiar MLB"
                   />
                   <span className="hidden sm:inline">•</span>
-                  <span className="break-all">Usuário {String(question.from?.id)}</span>
+                  <span className="break-all">
+                    Usuário {String(question.from?.id)}
+                  </span>
                   <CopyButton
                     textToCopy={String(question.from?.id)}
                     successMessage="ID do usuário copiado para a área de transferência"
@@ -116,20 +102,24 @@ function QuestionCard({ question, onAnswer }: { question: Question; onAnswer: (q
               )}
             </div>
           )}
-          <p className="text-sm sm:text-base font-semibold text-slate-900 wrap-break-word">{String(question.text ?? "")}</p>
-          <div className="flex flex-wrap gap-2 text-xs text-slate-600">
-            <span className={`px-2 py-1 rounded-full border ${
-              question.status === "ANSWERED" 
-                ? "bg-emerald-100 border-emerald-300 text-emerald-800" 
-                : question.status === "UNANSWERED"
-                ? "bg-amber-100 border-amber-300 text-amber-800"
-                : question.status === "BANNED"
-                ? "bg-red-100 border-red-300 text-red-800"
-                : "bg-slate-100 border-slate-200"
-            }`}>
-              Status: {statusTranslated}
+          <p className="text-sm sm:text-base font-semibold text-beergam-typography-primary! wrap-break-word">
+            {String(question.text ?? "")}
+          </p>
+          <div className="flex flex-wrap gap-2 text-xs text-beergam-typography-secondary!">
+            <span
+              className={`px-2 py-1 rounded-full border ${
+                questionStatus === QuestionStatus.answered
+                  ? "bg-beergam-primary/10 border-beergam-primary/30 text-beergam-primary"
+                  : questionStatus === QuestionStatus.unanswered
+                    ? "bg-beergam-typography-secondary/10 border-beergam-typography-secondary/30 text-beergam-typography-secondary"
+                    : questionStatus === QuestionStatus.banned
+                      ? "bg-beeram-red/10 border-beeram-red/30 text-beeram-red"
+                      : "bg-slate-100 border-slate-200"
+              }`}
+            >
+              Status: {questionStatus}
             </span>
-            <span className="px-2 py-1 rounded-full bg-amber-50 border border-amber-200 whitespace-nowrap">
+            <span className="px-2 py-1 rounded-full bg-beergam-typography-tertiary/10 border border-beergam-typography-tertiary/30 text-beergam-typography-tertiary! whitespace-nowrap">
               Criada: {formatDate(question.date_created)}
             </span>
           </div>
@@ -178,21 +168,72 @@ function QuestionCard({ question, onAnswer }: { question: Question; onAnswer: (q
         </div>
       )}
 
-      {/* Resposta existente (acordeon) */}
-      {question.answer?.text && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-sm text-emerald-800">
-          <div className="flex flex-col gap-3 mb-2">
-            <div className="flex gap-1 items-baseline">
-              <p className="font-semibold mb-1">Resposta</p>
-              <span className="text-xs text-emerald-700 ml-auto">Respondida em: {formatDate(question.answer?.date_created)}</span>
+      <Paper className="bg-beergam-section-background! space-y-4!">
+        <p className="font-semibold text-beergam-typography-primary! mb-2">
+          Anúncio
+        </p>
+        {anuncioQuery.isLoading ? (
+          <p className="text-xs text-beergam-typography-secondary!">
+            Carregando...
+          </p>
+        ) : anuncio ? (
+          <>
+            <div className="flex flex-col sm:flex-row gap-3 mb-2">
+              <Thumbnail thumbnail={anuncio.thumbnail ?? ""} />
+              <div className="flex-1 min-w-0">
+                <p className="text-beergam-typography-primary! mb-1 wrap-break-word">
+                  {anuncio.name ?? "—"}
+                </p>
+                <div className="flex flex-wrap items-center gap-1.5 text-xs text-beergam-typography-secondary!">
+                  <span className="break-all">
+                    MLB: {anuncio.mlb ?? question.item_id ?? "—"}
+                  </span>
+                  {(anuncio.mlb || question.item_id) && (
+                    <CopyButton
+                      textToCopy={String(anuncio.mlb ?? question.item_id)}
+                      successMessage="MLB copiado para a área de transferência"
+                      iconSize="h-3 w-3"
+                      ariaLabel="Copiar MLB"
+                    />
+                  )}
+                </div>
+              </div>
             </div>
-            <p className="whitespace-pre-wrap">{question.answer?.text}</p>
-          </div>
-        </div>
-      )}
+            <p className="text-xs text-beergam-typography-secondary!">
+              SKU: {anuncio.sku ?? "—"}
+            </p>
+            <p className="text-xs text-beergam-typography-secondary!">
+              Preço: {anuncio.price ? `R$ ${anuncio.price}` : "—"}
+            </p>
+            <p className="text-xs text-beergam-typography-secondary!">
+              Estoque: {anuncio.stock ?? "—"}
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="text-beergam-typography-primary! mb-1">
+              {question.item_title ?? "—"}
+            </p>
+            <div className="flex items-center gap-1.5 text-xs text-beergam-typography-secondary!">
+              <span>Item ID: {question.item_id ?? "—"}</span>
+              {question.item_id && (
+                <CopyButton
+                  textToCopy={String(question.item_id)}
+                  successMessage="MLB copiado para a área de transferência"
+                  iconSize="h-3 w-3"
+                  ariaLabel="Copiar MLB"
+                />
+              )}
+            </div>
+            <p className="text-xs text-beergam-typography-secondary!">
+              Seller ID: {question.seller_id ?? "—"}
+            </p>
+          </>
+        )}
+      </Paper>
 
       {/* Botão de detalhes */}
-      <button
+      {/* <button
         onClick={() => setShowDetails(!showDetails)}
         className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-slate-50 transition-colors text-left"
       >
@@ -202,73 +243,41 @@ function QuestionCard({ question, onAnswer }: { question: Question; onAnswer: (q
             showDetails ? "rotate-270" : "rotate-90"
           }`}
         />
-      </button>
+      </button> */}
+      <BeergamButton
+        title="Ver detalhes"
+        icon="chevron"
+        iconClassName={showDetails ? "rotate-270" : "rotate-90"}
+        animationStyle="slider"
+        onClick={() => setShowDetails(!showDetails)}
+      />
 
       {/* Detalhes expandidos (acordeon) */}
       {showDetails && (
         <div className="mt-2 pt-3 border-t border-slate-200">
-          <div className={`grid grid-cols-1 ${question.status === "ANSWERED" ? "sm:grid-cols-2" : ""} gap-3 text-sm text-slate-700`}>
-            {/* Informações da pergunta - só mostra se for respondida */}
-            {question.status === "ANSWERED" && (
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
-                <p className="font-semibold text-slate-900 mb-2">Pergunta</p>
-                <p className="mb-2">{String(question.text ?? "")}</p>
-                <p className="text-xs text-slate-500">
-                  Criada em {question.date_created ? formatDate(question.date_created) : "—"}
-                </p>
+          <div className="grid grid-cols-1 gap-2">
+            {/* Resposta existente (acordeon) */}
+            {question.answer?.text && (
+              <div className="bg-beergam-primary/10 border border-beergam-primary/30 rounded-xl p-3 text-sm text-beergam-primary">
+                <div className="flex flex-col gap-3 mb-2">
+                  <div className="flex gap-1 items-baseline">
+                    <p className="font-semibold text-beergam-typography-primary! mb-1">
+                      Resposta
+                    </p>
+                    <span className="text-xs text-beergam-typography-primary ml-auto">
+                      Respondida em: {formatDate(question.answer?.date_created)}
+                    </span>
+                  </div>
+                  <p className="whitespace-pre-wrap text-beergam-typography-tertiary!">
+                    {question.answer?.text}
+                  </p>
+                </div>
               </div>
             )}
-
-            {/* Informações do anúncio */}
-            <div className="bg-white border border-slate-200 rounded-xl p-3">
-              <p className="font-semibold text-slate-900 mb-2">Anúncio</p>
-              {anuncioQuery.isLoading ? (
-                <p className="text-xs text-slate-500">Carregando...</p>
-              ) : anuncio ? (
-                <>
-                  <div className="flex flex-col sm:flex-row gap-3 mb-2">
-                    <Thumbnail thumbnail={anuncio.thumbnail ?? ""} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-slate-800 mb-1 wrap-break-word">{anuncio.name ?? "—"}</p>
-                      <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
-                        <span className="break-all">MLB: {anuncio.mlb ?? question.item_id ?? "—"}</span>
-                        {(anuncio.mlb || question.item_id) && (
-                          <CopyButton
-                            textToCopy={String(anuncio.mlb ?? question.item_id)}
-                            successMessage="MLB copiado para a área de transferência"
-                            iconSize="h-3 w-3"
-                            ariaLabel="Copiar MLB"
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-500">SKU: {anuncio.sku ?? "—"}</p>
-                  <p className="text-xs text-slate-500">Preço: {anuncio.price ? `R$ ${anuncio.price}` : "—"}</p>
-                  <p className="text-xs text-slate-500">Estoque: {anuncio.stock ?? "—"}</p>
-                </>
-              ) : (
-                <>
-                  <p className="text-slate-800 mb-1">{question.item_title ?? "—"}</p>
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                    <span>Item ID: {question.item_id ?? "—"}</span>
-                    {question.item_id && (
-                      <CopyButton
-                        textToCopy={String(question.item_id)}
-                        successMessage="MLB copiado para a área de transferência"
-                        iconSize="h-3 w-3"
-                        ariaLabel="Copiar MLB"
-                      />
-                    )}
-                  </div>
-                  <p className="text-xs text-slate-500">Seller ID: {question.seller_id ?? "—"}</p>
-                </>
-              )}
-            </div>
           </div>
         </div>
       )}
-    </div>
+    </Paper>
   );
 }
 
@@ -279,9 +288,14 @@ export function QuestionsList({
   onPageChange,
   onAnswer,
 }: QuestionsListProps) {
-  const hasPagination = Boolean(pagination?.total_pages && pagination.total_pages > 1);
+  const hasPagination = Boolean(
+    pagination?.total_pages && pagination.total_pages > 1
+  );
 
-  const empty = useMemo(() => !loading && questions.length === 0, [loading, questions.length]);
+  const empty = useMemo(
+    () => !loading && questions.length === 0,
+    [loading, questions.length]
+  );
 
   return (
     <div className="space-y-3" id="questions-list-top">
@@ -299,7 +313,13 @@ export function QuestionsList({
           if (!question || typeof question !== "object" || !question.id) {
             return null;
           }
-          return <QuestionCard key={question.id} question={question} onAnswer={onAnswer} />;
+          return (
+            <QuestionCard
+              key={question.id}
+              question={question}
+              onAnswer={onAnswer}
+            />
+          );
         })}
 
       {hasPagination && pagination ? (

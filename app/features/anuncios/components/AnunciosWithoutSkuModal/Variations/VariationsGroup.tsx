@@ -26,7 +26,7 @@ export default function VariationsGroup({
       {groupedVariations.map((group, groupIndex) => (
         <div key={groupIndex} className="space-y-2">
           {/* Lista de variações */}
-          <div className="space-y-2 border-t border-slate-200 pt-2">
+          <div className="space-y-2 border-t border-beergam-border-secondary! pt-2">
             {group.variations.map((variation) => (
               <VariationSkuInput
                 key={variation.variation_id}
@@ -44,4 +44,3 @@ export default function VariationsGroup({
     </div>
   );
 }
-
