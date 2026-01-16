@@ -205,12 +205,12 @@ export default function OrdersChart({
               <Legend wrapperStyle={{ fontSize: "12px" }} iconSize={12} />
               <Bar
                 dataKey="Faturamento Bruto"
-                fill="var(--color-beergam-primary)"
+                fill="var(--color-beergam-orange)"
                 radius={[4, 4, 0, 0]}
               />
               <Bar
                 dataKey="Faturamento Líquido"
-                fill="var(--color-beergam-primary)"
+                fill="var(--color-beergam-blue)"
                 radius={[4, 4, 0, 0]}
               />
             </BarChart>
