@@ -222,6 +222,7 @@ export default function AnunciosFilters({
             onSearchTypeChange={handleSearchTypeChange}
             searchTypeOptions={SEARCH_TYPE_OPTIONS}
             widthType="full"
+            onEnterPress={onSubmit}
           />
         </div>
       </Stack>,

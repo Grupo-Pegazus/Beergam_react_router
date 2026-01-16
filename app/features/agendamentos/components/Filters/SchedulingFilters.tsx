@@ -139,6 +139,7 @@ export default function SchedulingFilters({
           onChange={handleSearchChange}
           placeholder="Pesquisar por N° de pedido, nota fiscal ou destinatário..."
           disabled={isSubmitting}
+          onEnterPress={onSubmit}
         />
 
         {/* Filtros principais */}

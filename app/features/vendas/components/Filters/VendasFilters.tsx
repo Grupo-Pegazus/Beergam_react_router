@@ -223,6 +223,7 @@ export default function VendasFilters({
             searchType={currentSearchType}
             onSearchTypeChange={handleSearchTypeChange}
             searchTypeOptions={SEARCH_TYPE_OPTIONS}
+            onEnterPress={onSubmit}
           />
         </div>
       </Stack>,
