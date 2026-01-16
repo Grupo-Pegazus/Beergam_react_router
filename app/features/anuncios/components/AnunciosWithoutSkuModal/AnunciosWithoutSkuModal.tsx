@@ -1,9 +1,9 @@
-import { useState, useMemo } from "react";
-import { Typography, Stack, Alert, Divider } from "@mui/material";
+import { Alert, Divider, Stack, Typography } from "@mui/material";
+import { useMemo, useState } from "react";
+import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import { Modal } from "~/src/components/utils/Modal";
 import { useAdsWithoutSku, useUpdateSku } from "../../hooks";
-import type { UpdateSkuRequest, AdWithoutSku } from "../../typings";
-import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import type { AdWithoutSku, UpdateSkuRequest } from "../../typings";
 import AdWithoutSkuCard from "./components/AdWithoutSkuCard";
 import AdWithoutVariationsCard from "./components/AdWithoutVariationsCard";
 
@@ -19,10 +19,13 @@ export default function AnunciosWithoutSkuModal({
   const { data, isLoading, error } = useAdsWithoutSku();
   const updateSkuMutation = useUpdateSku();
 
-  const [skuValues, setSkuValues] = useState<Record<string, Record<string, string>>>({});
+  const [skuValues, setSkuValues] = useState<
+    Record<string, Record<string, string>>
+  >({});
 
   const adsData = useMemo(() => {
-    if (!data?.success || !data.data) return { withVariations: [], withoutVariations: [] };
+    if (!data?.success || !data.data)
+      return { withVariations: [], withoutVariations: [] };
     return {
       withVariations: data.data.with_variations || [],
       withoutVariations: data.data.without_variations || [],
@@ -30,7 +33,11 @@ export default function AnunciosWithoutSkuModal({
     };
   }, [data]);
 
-  const handleSkuChange = (adId: string, variationId: string, value: string) => {
+  const handleSkuChange = (
+    adId: string,
+    variationId: string,
+    value: string
+  ) => {
     setSkuValues((prev) => ({
       ...prev,
       [adId]: {
@@ -83,20 +90,28 @@ export default function AnunciosWithoutSkuModal({
       title={`Anúncios sem SKU (${totalPendencies})`}
       contentClassName="max-w-5xl w-full"
     >
-      <div className="space-y-6 bg-transparent p-0 text-slate-900">
+      <div className="space-y-6 bg-transparent p-0 text-beergam-typography-primary!">
         <AsyncBoundary
           isLoading={isLoading}
           error={error as unknown}
           ErrorFallback={() => (
-            <Alert severity="error">Não foi possível carregar os anúncios sem SKU.</Alert>
+            <Alert severity="error">
+              Não foi possível carregar os anúncios sem SKU.
+            </Alert>
           )}
         >
           {totalPendencies === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
-              <Typography variant="h6" color="text.secondary" className="mb-2">
+              <Typography
+                variant="h6"
+                className="mb-2 text-beergam-typography-secondary!"
+              >
                 Nenhum anúncio sem SKU encontrado
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                className="text-beergam-typography-secondary!"
+              >
                 Todos os anúncios possuem SKU cadastrado.
               </Typography>
             </div>
@@ -125,12 +140,18 @@ export default function AnunciosWithoutSkuModal({
               {adsData.withoutVariations.length > 0 && (
                 <div>
                   <Divider className="my-4" />
-                  <Typography variant="h6" className="mb-3 text-slate-900">
+                  <Typography
+                    variant="h6"
+                    className="mb-3 text-beergam-typography-primary!"
+                  >
                     Anúncios sem variações ({adsData.withoutVariations.length})
                   </Typography>
-                  <Alert severity="warning" className="mb-3">
-                    ATENÇÃO: Anúncios sem variações devem ter o SKU cadastrado diretamente no
-                    Mercado Livre.
+                  <Alert
+                    severity="warning"
+                    className="mb-3 text-beergam-typography-secondary!"
+                  >
+                    ATENÇÃO: Anúncios sem variações devem ter o SKU cadastrado
+                    diretamente no Mercado Livre.
                   </Alert>
                   <Stack spacing={3}>
                     {adsData.withoutVariations.map((ad) => (
@@ -146,4 +167,3 @@ export default function AnunciosWithoutSkuModal({
     </Modal>
   );
 }
-

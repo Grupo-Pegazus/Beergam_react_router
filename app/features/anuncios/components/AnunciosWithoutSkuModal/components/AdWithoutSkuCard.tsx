@@ -1,9 +1,9 @@
 import { Chip, Typography } from "@mui/material";
+import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 import MainCards from "~/src/components/ui/MainCards";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 import type { AdWithoutSku } from "../../../typings";
 import VariationsGroup from "../Variations/VariationsGroup";
-import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
-import BeergamButton from "~/src/components/utils/BeergamButton";
 
 interface AdWithoutSkuCardProps {
   ad: AdWithoutSku;
@@ -29,17 +29,25 @@ export default function AdWithoutSkuCard({
           <div className="mb-2 flex flex-col sm:flex-row sm:items-center gap-2">
             <div className="flex items-center gap-2 shrink-0">
               <Thumbnail thumbnail={ad.thumbnail ?? ""} />
-              <Chip label={ad.mlb} size="small" variant="outlined" className="shrink-0" />
+              <Chip
+                label={ad.mlb}
+                size="small"
+                variant="outlined"
+                className="shrink-0"
+              />
             </div>
             <Typography
               variant="subtitle1"
               fontWeight={600}
-              className="text-slate-900"
+              className="text-beergam-typography-primary!"
             >
               {ad.name}
             </Typography>
           </div>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            className="text-beergam-typography-secondary!"
+          >
             {ad?.variations_without_sku?.length ?? 0} variação(ões) sem SKU
           </Typography>
         </div>
@@ -47,7 +55,6 @@ export default function AdWithoutSkuCard({
           {hasPendingChanges && (
             <BeergamButton
               title={isSaving ? "Salvando..." : "Salvar SKUs"}
-              mainColor="beergam-blue-primary"
               animationStyle="slider"
               onClick={onSave}
               disabled={isSaving}
@@ -56,7 +63,12 @@ export default function AdWithoutSkuCard({
                 fecthing: isSaving,
                 completed: false,
                 error: false,
-                mutation: { reset: () => {}, isPending: isSaving, isSuccess: false, isError: false },
+                mutation: {
+                  reset: () => {},
+                  isPending: isSaving,
+                  isSuccess: false,
+                  isError: false,
+                },
               }}
             />
           )}
@@ -75,4 +87,3 @@ export default function AdWithoutSkuCard({
     </MainCards>
   );
 }
-

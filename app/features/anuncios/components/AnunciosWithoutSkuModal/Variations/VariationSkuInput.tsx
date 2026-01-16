@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
+import { Fields } from "~/src/components/utils/_fields";
 import type { Variation } from "../../../typings";
 import { formatCurrency } from "../utils";
-import { Fields } from "~/src/components/utils/_fields";
 
 interface VariationSkuInputProps {
   variation: Variation;
@@ -21,9 +21,12 @@ export default function VariationSkuInput({
   onUseMlbAsSku,
 }: VariationSkuInputProps) {
   // Pega todos os atributos que variam
-  const varyingAttributes = varyingAttributeIds.length > 0
-    ? variation.attributes.filter((attr) => varyingAttributeIds.includes(attr.id))
-    : variation.attributes;
+  const varyingAttributes =
+    varyingAttributeIds.length > 0
+      ? variation.attributes.filter((attr) =>
+          varyingAttributeIds.includes(attr.id)
+        )
+      : variation.attributes;
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-lg border border-slate-100 bg-slate-50 p-3">
@@ -42,22 +45,34 @@ export default function VariationSkuInput({
                     {attr.value_name || "-"}
                   </span>
                   {idx < varyingAttributes.length - 1 && (
-                    <span className="text-slate-300 mx-1 hidden sm:inline">|</span>
+                    <span className="text-slate-300 mx-1 hidden sm:inline">
+                      |
+                    </span>
                   )}
                 </Typography>
               ))}
             </div>
-            <Typography variant="caption" color="text.secondary" className="block">
-              Preço: {formatCurrency(variation.price)} | Estoque: {variation.stock}
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              className="block"
+            >
+              Preço: {formatCurrency(variation.price)} | Estoque:{" "}
+              {variation.stock}
             </Typography>
           </>
         ) : (
           <>
-            <Typography variant="caption" color="text.secondary" className="block mb-1 break-all">
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              className="block mb-1 break-all"
+            >
               Variação ID: {variation.variation_id}
             </Typography>
             <Typography variant="body2" className="text-slate-700">
-              Preço: {formatCurrency(variation.price)} | Estoque: {variation.stock}
+              Preço: {formatCurrency(variation.price)} | Estoque:{" "}
+              {variation.stock}
             </Typography>
           </>
         )}
@@ -85,4 +100,3 @@ export default function VariationSkuInput({
     </div>
   );
 }
-
