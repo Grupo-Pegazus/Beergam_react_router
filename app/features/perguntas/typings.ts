@@ -12,9 +12,9 @@ interface Answer {
 }
 
 export enum QuestionStatus {
-  answered = "Respondida",
-  unanswered = "Sem resposta",
-  banned = "Bloqueada",
+  ANSWERED = "Respondida",
+  UNANSWERED = "Sem resposta",
+  BANNED = "Bloqueada",
 }
 
 export interface Question {
