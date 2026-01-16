@@ -168,82 +168,25 @@ function QuestionCard({
         </div>
       )}
 
-      <Paper className="bg-beergam-section-background! space-y-4!">
-        <p className="font-semibold text-beergam-typography-primary! mb-2">
-          Anúncio
-        </p>
-        {anuncioQuery.isLoading ? (
-          <p className="text-xs text-beergam-typography-secondary!">
-            Carregando...
-          </p>
-        ) : anuncio ? (
-          <>
-            <div className="flex flex-col sm:flex-row gap-3 mb-2">
-              <Thumbnail thumbnail={anuncio.thumbnail ?? ""} />
-              <div className="flex-1 min-w-0">
-                <p className="text-beergam-typography-primary! mb-1 wrap-break-word">
-                  {anuncio.name ?? "—"}
-                </p>
-                <div className="flex flex-wrap items-center gap-1.5 text-xs text-beergam-typography-secondary!">
-                  <span className="break-all">
-                    MLB: {anuncio.mlb ?? question.item_id ?? "—"}
-                  </span>
-                  {(anuncio.mlb || question.item_id) && (
-                    <CopyButton
-                      textToCopy={String(anuncio.mlb ?? question.item_id)}
-                      successMessage="MLB copiado para a área de transferência"
-                      iconSize="h-3 w-3"
-                      ariaLabel="Copiar MLB"
-                    />
-                  )}
-                </div>
-              </div>
+      {/* Resposta existente (acordeon) */}
+      {question.answer?.text && (
+        <div className="bg-beergam-primary/10 border border-beergam-primary/30 rounded-xl p-3 text-sm text-beergam-primary">
+          <div className="flex flex-col gap-3 mb-2">
+            <div className="flex gap-1 items-baseline">
+              <p className="font-semibold text-beergam-typography-primary! mb-1">
+                Resposta
+              </p>
+              <span className="text-xs text-beergam-typography-primary ml-auto">
+                Respondida em: {formatDate(question.answer?.date_created)}
+              </span>
             </div>
-            <p className="text-xs text-beergam-typography-secondary!">
-              SKU: {anuncio.sku ?? "—"}
+            <p className="whitespace-pre-wrap text-beergam-typography-tertiary!">
+              {question.answer?.text}
             </p>
-            <p className="text-xs text-beergam-typography-secondary!">
-              Preço: {anuncio.price ? `R$ ${anuncio.price}` : "—"}
-            </p>
-            <p className="text-xs text-beergam-typography-secondary!">
-              Estoque: {anuncio.stock ?? "—"}
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="text-beergam-typography-primary! mb-1">
-              {question.item_title ?? "—"}
-            </p>
-            <div className="flex items-center gap-1.5 text-xs text-beergam-typography-secondary!">
-              <span>Item ID: {question.item_id ?? "—"}</span>
-              {question.item_id && (
-                <CopyButton
-                  textToCopy={String(question.item_id)}
-                  successMessage="MLB copiado para a área de transferência"
-                  iconSize="h-3 w-3"
-                  ariaLabel="Copiar MLB"
-                />
-              )}
-            </div>
-            <p className="text-xs text-beergam-typography-secondary!">
-              Seller ID: {question.seller_id ?? "—"}
-            </p>
-          </>
-        )}
-      </Paper>
+          </div>
+        </div>
+      )}
 
-      {/* Botão de detalhes */}
-      {/* <button
-        onClick={() => setShowDetails(!showDetails)}
-        className="flex items-center justify-between w-full p-2 rounded-lg hover:bg-slate-50 transition-colors text-left"
-      >
-        <span className="text-sm font-medium text-slate-700">Ver detalhes</span>
-        <Svg.chevron
-          tailWindClasses={`h-4 w-4 transition-transform duration-200 ${
-            showDetails ? "rotate-270" : "rotate-90"
-          }`}
-        />
-      </button> */}
       <BeergamButton
         title="Ver detalhes"
         icon="chevron"
@@ -256,24 +199,69 @@ function QuestionCard({
       {showDetails && (
         <div className="mt-2 pt-3 border-t border-slate-200">
           <div className="grid grid-cols-1 gap-2">
-            {/* Resposta existente (acordeon) */}
-            {question.answer?.text && (
-              <div className="bg-beergam-primary/10 border border-beergam-primary/30 rounded-xl p-3 text-sm text-beergam-primary">
-                <div className="flex flex-col gap-3 mb-2">
-                  <div className="flex gap-1 items-baseline">
-                    <p className="font-semibold text-beergam-typography-primary! mb-1">
-                      Resposta
-                    </p>
-                    <span className="text-xs text-beergam-typography-primary ml-auto">
-                      Respondida em: {formatDate(question.answer?.date_created)}
-                    </span>
+            <Paper className="bg-beergam-section-background! space-y-4!">
+              <p className="font-semibold text-beergam-typography-primary! mb-2">
+                Anúncio
+              </p>
+              {anuncioQuery.isLoading ? (
+                <p className="text-xs text-beergam-typography-secondary!">
+                  Carregando...
+                </p>
+              ) : anuncio ? (
+                <>
+                  <div className="flex flex-col sm:flex-row gap-3 mb-2">
+                    <Thumbnail thumbnail={anuncio.thumbnail ?? ""} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-beergam-typography-primary! mb-1 wrap-break-word">
+                        {anuncio.name ?? "—"}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-1.5 text-xs text-beergam-typography-secondary!">
+                        <span className="break-all">
+                          MLB: {anuncio.mlb ?? question.item_id ?? "—"}
+                        </span>
+                        {(anuncio.mlb || question.item_id) && (
+                          <CopyButton
+                            textToCopy={String(anuncio.mlb ?? question.item_id)}
+                            successMessage="MLB copiado para a área de transferência"
+                            iconSize="h-3 w-3"
+                            ariaLabel="Copiar MLB"
+                          />
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <p className="whitespace-pre-wrap text-beergam-typography-tertiary!">
-                    {question.answer?.text}
+                  <p className="text-xs text-beergam-typography-secondary!">
+                    SKU: {anuncio.sku ?? "—"}
                   </p>
-                </div>
-              </div>
-            )}
+                  <p className="text-xs text-beergam-typography-secondary!">
+                    Preço: {anuncio.price ? `R$ ${anuncio.price}` : "—"}
+                  </p>
+                  <p className="text-xs text-beergam-typography-secondary!">
+                    Estoque: {anuncio.stock ?? "—"}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-beergam-typography-primary! mb-1">
+                    {question.item_title ?? "—"}
+                  </p>
+                  <div className="flex items-center gap-1.5 text-xs text-beergam-typography-secondary!">
+                    <span>Item ID: {question.item_id ?? "—"}</span>
+                    {question.item_id && (
+                      <CopyButton
+                        textToCopy={String(question.item_id)}
+                        successMessage="MLB copiado para a área de transferência"
+                        iconSize="h-3 w-3"
+                        ariaLabel="Copiar MLB"
+                      />
+                    )}
+                  </div>
+                  <p className="text-xs text-beergam-typography-secondary!">
+                    Seller ID: {question.seller_id ?? "—"}
+                  </p>
+                </>
+              )}
+            </Paper>
           </div>
         </div>
       )}
