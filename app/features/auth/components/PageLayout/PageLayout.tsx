@@ -27,14 +27,18 @@ export default function PageLayout({
   children,
   tailwindClassName,
   hideHeader = false,
+  paddingTop = true,
 }: {
   children: React.ReactNode;
   tailwindClassName?: string;
   hideHeader?: boolean;
+  paddingTop?: boolean;
 }) {
   return (
     <>
-      <main className="relative pt-[90px] h-screen flex flex-col justify-center items-center overflow-hidden">
+      <main
+        className={`relative h-screen flex flex-col justify-center items-center overflow-hidden ${paddingTop ? "pt-[90px]" : "pt-0"}`}
+      >
         {!hideHeader && (
           <header className="w-full fixed top-0 p-4 px-4 md:px-8 flex z-99 items-center justify-between">
             <Link to="/" className="w-10 h-10 cursor-pointer hover:opacity-80">
