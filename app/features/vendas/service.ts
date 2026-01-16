@@ -33,8 +33,14 @@ class VendasService {
     return response as ApiResponse<OrdersResponse>;
   }
 
-  async getOrdersMetrics(): Promise<ApiResponse<OrdersMetrics>> {
-    const response = await typedApiClient.get<OrdersMetrics>("/v1/orders/metrics");
+  async getOrdersMetrics(period?: string): Promise<ApiResponse<OrdersMetrics>> {
+    const queryParams = new URLSearchParams();
+    if (period) queryParams.append("period", period);
+
+    const queryString = queryParams.toString();
+    const url = `/v1/orders/metrics${queryString ? `?${queryString}` : ""}`;
+
+    const response = await typedApiClient.get<OrdersMetrics>(url);
     return response as ApiResponse<OrdersMetrics>;
   }
 

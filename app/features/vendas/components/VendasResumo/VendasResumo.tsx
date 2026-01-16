@@ -38,21 +38,21 @@ const QUICK_STATUS_CARDS: SummaryCardDefinition[] = [
 
 const REVENUE_CARDS: SummaryCardDefinition[] = [
   {
-    key: "faturamento_bruto_90d",
+    key: "faturamento_bruto",
     label: "Faturamento Bruto",
     icon: "currency_dollar",
     color: "blue",
     formatter: formatCurrency,
   },
   {
-    key: "faturamento_liquido_90d",
+    key: "faturamento_liquido",
     label: "Faturamento Líquido",
     icon: "currency_dollar",
     color: "green",
     formatter: formatCurrency,
   },
   {
-    key: "media_faturamento_diario_90d",
+    key: "media_faturamento_diario",
     label: "Média diária",
     icon: "graph",
     color: "slate",
@@ -86,16 +86,15 @@ export default function VendasResumo() {
   const revenueMetrics = useMemo(() => {
     if (!metricsData?.success || !metricsData.data) {
       return {
-        faturamento_bruto_90d: "0",
-        faturamento_liquido_90d: "0",
-        media_faturamento_diario_90d: "0",
+        faturamento_bruto: "0",
+        faturamento_liquido: "0",
+        media_faturamento_diario: "0",
       };
     }
     return {
-      faturamento_bruto_90d: metricsData.data.faturamento_bruto_90d,
-      faturamento_liquido_90d: metricsData.data.faturamento_liquido_90d,
-      media_faturamento_diario_90d:
-        metricsData.data.media_faturamento_diario_90d,
+      faturamento_bruto: metricsData.data.faturamento_bruto,
+      faturamento_liquido: metricsData.data.faturamento_liquido,
+      media_faturamento_diario: metricsData.data.media_faturamento_diario,
     };
   }, [metricsData]);
 

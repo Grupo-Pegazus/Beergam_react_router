@@ -25,11 +25,22 @@ export function useOrders(filters?: Partial<OrdersFilters>) {
   });
 }
 
-export function useOrdersMetrics() {
+export function useOrdersMetrics(period?: 0 | 1 | 7 | 15 | 30 | 90) {
+  const periodParam = useMemo(() => {
+    // Converte o número para o formato esperado pelo backend
+    if (period === 0) return "today";
+    if (period === 1) return "yesterday";
+    if (period === 7) return "7d";
+    if (period === 15) return "15d";
+    if (period === 30) return "30d";
+    if (period === 90) return "90d";
+    return undefined;
+  }, [period]);
+
   return useQuery<ApiResponse<OrdersMetrics>>({
-    queryKey: ["orders", "metrics"],
+    queryKey: ["orders", "metrics", periodParam],
     queryFn: async () => {
-      const res = await vendasService.getOrdersMetrics();
+      const res = await vendasService.getOrdersMetrics(periodParam);
       if (!res.success) {
         throw new Error(res.message || "Erro ao buscar métricas");
       }

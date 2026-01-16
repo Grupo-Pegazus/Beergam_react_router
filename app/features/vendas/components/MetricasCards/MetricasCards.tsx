@@ -1,11 +1,45 @@
-import { createElement, useMemo } from "react";
+import { createElement, memo, useCallback, useMemo, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import SecondaryButton from "~/src/components/ui/SecondaryButton";
 import StatCard from "~/src/components/ui/StatCard";
 import { CensorshipWrapper } from "~/src/components/utils/Censorship";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import { useOrdersMetrics } from "../../hooks";
 import MetricasCardsSkeleton from "./MetricasCardsSkeleton";
+
+type PeriodFilter = 0 | 1 | 7 | 15 | 30 | 90;
+
+const PERIOD_OPTIONS: { value: PeriodFilter; label: string }[] = [
+  { value: 0, label: "Hoje" },
+  { value: 1, label: "1 dia" },
+  { value: 7, label: "7 dias" },
+  { value: 15, label: "15 dias" },
+  { value: 30, label: "30 dias" },
+  { value: 90, label: "90 dias" },
+];
+
+type PeriodButtonProps = {
+  option: { value: PeriodFilter; label: string };
+  isSelected: boolean;
+  onSelect: (value: PeriodFilter) => void;
+};
+
+const PeriodButton = memo(
+  ({ option, isSelected, onSelect }: PeriodButtonProps) => {
+    const handleClick = useCallback(() => {
+      onSelect(option.value);
+    }, [option.value, onSelect]);
+
+    return (
+      <SecondaryButton isSelected={isSelected} onSelect={handleClick}>
+        {option.label}
+      </SecondaryButton>
+    );
+  }
+);
+
+PeriodButton.displayName = "PeriodButton";
 
 interface SummaryCardDefinition {
   key: string;
@@ -49,33 +83,38 @@ const SUMMARY_CARDS: SummaryCardDefinition[] = [
 
 const REVENUE_CARDS: SummaryCardDefinition[] = [
   {
-    key: "faturamento_bruto_90d",
+    key: "faturamento_bruto",
     label: "Total Bruto",
     icon: "currency_dollar",
     color: "blue",
     formatter: formatCurrency,
-    censorshipKey: "vendas_resumo_faturamento_bruto_90d",
+    censorshipKey: "vendas_resumo_faturamento_bruto",
   },
   {
-    key: "faturamento_liquido_90d",
+    key: "faturamento_liquido",
     label: "Total Líquido",
     icon: "currency_dollar",
     color: "green",
     formatter: formatCurrency,
-    censorshipKey: "vendas_resumo_faturamento_liquido_90d",
+    censorshipKey: "vendas_resumo_faturamento_liquido",
   },
   {
-    key: "media_faturamento_diario_90d",
-    label: "Média Bruto Diário",
+    key: "media_faturamento_diario",
+    label: "Média Diária",
     icon: "graph",
     color: "slate",
     formatter: formatCurrency,
-    censorshipKey: "vendas_resumo_media_faturamento_diario_90d",
+    censorshipKey: "vendas_resumo_media_faturamento_diario",
   },
 ];
 
 export default function MetricasCards() {
-  const { data, isLoading, error } = useOrdersMetrics();
+  const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>(90);
+  const { data, isLoading, error } = useOrdersMetrics(selectedPeriod);
+
+  const handlePeriodChange = useCallback((period: PeriodFilter) => {
+    setSelectedPeriod(period);
+  }, []);
 
   const ordersByStatus = useMemo(() => {
     if (!data?.success || !data.data) {
@@ -92,15 +131,15 @@ export default function MetricasCards() {
   const revenueData = useMemo(() => {
     if (!data?.success || !data.data) {
       return {
-        faturamento_bruto_90d: "0",
-        faturamento_liquido_90d: "0",
-        media_faturamento_diario_90d: "0",
+        faturamento_bruto: "0",
+        faturamento_liquido: "0",
+        media_faturamento_diario: "0",
       };
     }
     return {
-      faturamento_bruto_90d: data.data.faturamento_bruto_90d,
-      faturamento_liquido_90d: data.data.faturamento_liquido_90d,
-      media_faturamento_diario_90d: data.data.media_faturamento_diario_90d,
+      faturamento_bruto: data.data.faturamento_bruto,
+      faturamento_liquido: data.data.faturamento_liquido,
+      media_faturamento_diario: data.data.media_faturamento_diario,
     };
   }, [data]);
 
@@ -116,6 +155,18 @@ export default function MetricasCards() {
       )}
     >
       <div className="space-y-4 md:space-y-6">
+        {/* Filtros de período */}
+        <div className="flex flex-wrap gap-2">
+          {PERIOD_OPTIONS.map((option) => (
+            <PeriodButton
+              key={option.value}
+              option={option}
+              isSelected={selectedPeriod === option.value}
+              onSelect={handlePeriodChange}
+            />
+          ))}
+        </div>
+
         <div>
           <h4 className="text-xs md:text-sm font-semibold text-beergam-typography-secondary mb-2 md:mb-3">
             Suas vendas
