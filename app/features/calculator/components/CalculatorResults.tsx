@@ -1,6 +1,5 @@
-import React from "react";
-import type { CalculatorResponse } from "../typings";
 import Hint from "~/src/components/utils/Hint";
+import type { CalculatorResponse } from "../typings";
 
 interface CalculatorResultsProps {
   results: CalculatorResponse | null;
@@ -74,35 +73,34 @@ export default function CalculatorResults({
   const displayResults = results || getDefaultResults(formData);
   const { costs, unit_calculation, weekly_calculation, margins } =
     displayResults;
-  
+
   const isShopee = calculatorType === "shopee";
 
   return (
-    <div className="sticky top-4 space-y-6 bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-
+    <div className="sticky top-4 bg-beergam-menu-background rounded-[15px] p-6 text-white border border-white/10">
       <div className="space-y-4">
         <div className="flex justify-between items-center py-2 border-b border-gray-200">
-          <span className="text-sm font-medium text-beergam-gray">
+          <span className="text-sm font-medium text-beergam-white">
             Preço de venda
           </span>
-          <span className="text-base font-semibold text-beergam-blue-primary">
+          <span className="text-base font-semibold text-beergam-white">
             {formatCurrency(unit_calculation.revenue)}
           </span>
         </div>
 
         <div className="space-y-3">
-          <h3 className="text-base font-semibold text-beergam-blue-primary">
-            Custos
-          </h3>
+          <h3 className="text-base font-semibold text-beergam-white">Custos</h3>
           <div className="space-y-2.5">
             <div className="flex justify-between items-center py-1">
-              <span className="text-sm text-beergam-gray">Preço de compra</span>
+              <span className="text-sm text-beergam-white">
+                Preço de compra
+              </span>
               <span className="text-sm font-medium">
                 {formatCurrency(costs.purchase_price)}
               </span>
             </div>
             <div className="flex justify-between items-center py-1">
-              <span className="text-sm text-beergam-gray">
+              <span className="text-sm text-beergam-white">
                 {isShopee ? "Taxa" : "Comissão"}
               </span>
               <span className="text-sm font-medium">
@@ -110,7 +108,7 @@ export default function CalculatorResults({
               </span>
             </div>
             <div className="flex justify-between items-center py-1">
-              <span className="text-sm text-beergam-gray">
+              <span className="text-sm text-beergam-white">
                 {isShopee ? "Taxa fixa" : "Frete"}
               </span>
               <span className="text-sm font-medium">
@@ -118,13 +116,13 @@ export default function CalculatorResults({
               </span>
             </div>
             <div className="flex justify-between items-center py-1">
-              <span className="text-sm text-beergam-gray">Impostos</span>
+              <span className="text-sm text-beergam-white">Impostos</span>
               <span className="text-sm font-medium">
                 {formatCurrency(costs.fiscal_tributes)}
               </span>
             </div>
             <div className="flex justify-between items-center py-1">
-              <span className="text-sm text-beergam-gray">
+              <span className="text-sm text-beergam-white">
                 Custos adicionais
               </span>
               <span className="text-sm font-medium">
@@ -135,18 +133,18 @@ export default function CalculatorResults({
         </div>
 
         <div className="space-y-3 pt-4 border-t border-gray-200">
-          <h3 className="text-base font-semibold text-beergam-blue-primary">
+          <h3 className="text-base font-semibold text-beergam-white">
             Resultado do cálculo
           </h3>
 
           <div className="space-y-4">
             <div>
-              <h4 className="text-sm font-semibold text-beergam-gray mb-3">
+              <h4 className="text-sm font-semibold text-beergam-white mb-3">
                 Por unidade
               </h4>
               <div className="space-y-2.5 pl-2">
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-sm text-beergam-gray">
+                  <span className="text-sm text-beergam-white">
                     Despesas totais
                   </span>
                   <span className="text-sm font-medium">
@@ -155,7 +153,7 @@ export default function CalculatorResults({
                 </div>
                 <div className="flex justify-between items-center py-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-beergam-gray">Receita</span>
+                    <span className="text-sm text-beergam-white">Receita</span>
                     <Hint
                       message="Receita total por unidade vendida"
                       anchorSelect="revenue-tooltip"
@@ -167,7 +165,7 @@ export default function CalculatorResults({
                 </div>
                 <div className="flex justify-between items-center py-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-beergam-gray">
+                    <span className="text-sm text-beergam-white">
                       Lucro bruto
                     </span>
                     <Hint
@@ -175,13 +173,15 @@ export default function CalculatorResults({
                       anchorSelect="gross-profit-tooltip"
                     />
                   </div>
-                  <span className={`text-sm font-semibold ${getValueColor(unit_calculation.gross_profit)}`}>
+                  <span
+                    className={`text-sm font-semibold ${getValueColor(unit_calculation.gross_profit)}`}
+                  >
                     {formatCurrency(unit_calculation.gross_profit)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-beergam-gray">
+                    <span className="text-sm text-beergam-white">
                       Lucro líquido
                     </span>
                     <Hint
@@ -189,7 +189,9 @@ export default function CalculatorResults({
                       anchorSelect="net-profit-tooltip"
                     />
                   </div>
-                  <span className={`text-sm font-semibold ${getValueColor(unit_calculation.net_profit)}`}>
+                  <span
+                    className={`text-sm font-semibold ${getValueColor(unit_calculation.net_profit)}`}
+                  >
                     {formatCurrency(unit_calculation.net_profit)}
                   </span>
                 </div>
@@ -197,12 +199,12 @@ export default function CalculatorResults({
             </div>
 
             <div>
-              <h4 className="text-sm font-semibold text-beergam-gray mb-3">
+              <h4 className="text-sm font-semibold text-beergam-white mb-3">
                 Incluindo todas as vendas
               </h4>
               <div className="space-y-2.5 pl-2">
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-sm text-beergam-gray">
+                  <span className="text-sm text-beergam-white">
                     Média semanal de vendas
                   </span>
                   <span className="text-sm font-medium">
@@ -210,7 +212,7 @@ export default function CalculatorResults({
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-sm text-beergam-gray">
+                  <span className="text-sm text-beergam-white">
                     Despesas totais
                   </span>
                   <span className="text-sm font-medium">
@@ -219,7 +221,7 @@ export default function CalculatorResults({
                 </div>
                 <div className="flex justify-between items-center py-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-beergam-gray">Receita</span>
+                    <span className="text-sm text-beergam-white">Receita</span>
                     <Hint
                       message="Receita total considerando todas as vendas semanais"
                       anchorSelect="total-revenue-tooltip"
@@ -231,7 +233,7 @@ export default function CalculatorResults({
                 </div>
                 <div className="flex justify-between items-center py-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-beergam-gray">
+                    <span className="text-sm text-beergam-white">
                       Lucro bruto
                     </span>
                     <Hint
@@ -239,13 +241,15 @@ export default function CalculatorResults({
                       anchorSelect="total-gross-profit-tooltip"
                     />
                   </div>
-                  <span className={`text-sm font-semibold ${getValueColor(weekly_calculation.total_gross_profit)}`}>
+                  <span
+                    className={`text-sm font-semibold ${getValueColor(weekly_calculation.total_gross_profit)}`}
+                  >
                     {formatCurrency(weekly_calculation.total_gross_profit)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-beergam-gray">
+                    <span className="text-sm text-beergam-white">
                       Lucro líquido
                     </span>
                     <Hint
@@ -253,7 +257,9 @@ export default function CalculatorResults({
                       anchorSelect="total-net-profit-tooltip"
                     />
                   </div>
-                  <span className={`text-sm font-semibold ${getValueColor(weekly_calculation.total_net_profit)}`}>
+                  <span
+                    className={`text-sm font-semibold ${getValueColor(weekly_calculation.total_net_profit)}`}
+                  >
                     {formatCurrency(weekly_calculation.total_net_profit)}
                   </span>
                 </div>
@@ -263,7 +269,7 @@ export default function CalculatorResults({
             <div className="pt-4 border-t border-gray-200 space-y-2.5">
               <div className="flex justify-between items-center py-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-beergam-gray">
+                  <span className="text-sm font-semibold text-beergam-white">
                     Margem bruta
                   </span>
                   <Hint
@@ -271,13 +277,15 @@ export default function CalculatorResults({
                     anchorSelect="gross-margin-tooltip"
                   />
                 </div>
-                <span className={`text-sm font-semibold ${getValueColor(margins.gross_margin_per_unit)}`}>
+                <span
+                  className={`text-sm font-semibold ${getValueColor(margins.gross_margin_per_unit)}`}
+                >
                   {formatPercentage(margins.gross_margin_per_unit)}
                 </span>
               </div>
               <div className="flex justify-between items-center py-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-beergam-gray">
+                  <span className="text-sm font-semibold text-beergam-white">
                     Margem líquida
                   </span>
                   <Hint
@@ -285,7 +293,9 @@ export default function CalculatorResults({
                     anchorSelect="net-margin-tooltip"
                   />
                 </div>
-                <span className={`text-sm font-semibold ${getValueColor(margins.net_margin_per_unit)}`}>
+                <span
+                  className={`text-sm font-semibold ${getValueColor(margins.net_margin_per_unit)}`}
+                >
                   {formatPercentage(margins.net_margin_per_unit)}
                 </span>
               </div>

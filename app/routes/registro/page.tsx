@@ -8,8 +8,9 @@ import RegistroForm from "./components/RegistroForm";
 export default function RegistroPage() {
   return (
     <PageLayout
-      tailwindClassName="max-h-full! overflow-y-auto!"
+      tailwindClassName="max-h-full! overflow-y-auto! mt-0!"
       hideHeader={true}
+      paddingTop={false}
     >
       <div className="w-full flex flex-col justify-between h-auto lg:flex-row-reverse lg:h-lvh">
         <div className="w-full lg:w-2/3">
@@ -22,7 +23,10 @@ export default function RegistroPage() {
             </h2>
             <h3 className="font-medium mx-auto lg:w-2/3">
               Controle todas as áreas do seu e-commerce em um só lugar e{" "}
-              <span className="font-black text-lg! lg:text-sm! xl:text-xl! 2xl:text-2xl!">tome decisões com confiança</span>.
+              <span className="font-black text-lg! lg:text-sm! xl:text-xl! 2xl:text-2xl!">
+                tome decisões com confiança
+              </span>
+              .
             </h3>
             <h4>
               <span className="font-black">Deixe as planilhas para trás</span> e

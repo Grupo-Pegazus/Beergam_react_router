@@ -1,8 +1,8 @@
 import { createElement } from "react";
-import type { StockTrackingResponse } from "../../typings";
-import StatCard from "~/src/components/ui/StatCard";
 import Svg from "~/src/assets/svgs/_index";
+import StatCard from "~/src/components/ui/StatCard";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+import type { StockTrackingResponse } from "../../typings";
 
 interface StockSummaryProps {
   data: StockTrackingResponse;
@@ -59,15 +59,14 @@ export default function StockSummary({ data }: StockSummaryProps) {
         <StatCard
           key={card.key}
           icon={createElement(Svg[card.icon], {
-            tailWindClasses: "h-4 w-4 sm:h-5 sm:w-5 text-beergam-blue-primary",
+            tailWindClasses: "h-4 w-4 sm:h-5 sm:w-5 text-beergam-white!",
           })}
           title={card.label}
           value={card.value}
           variant="soft"
-          color={card.color}
+          // color={card.color}
         />
       ))}
     </div>
   );
 }
-

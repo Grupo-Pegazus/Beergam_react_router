@@ -75,7 +75,7 @@ function Select({
       ? "!border-beergam-red focus:!border-beergam-red/90"
       : "";
   const successClasses = isValid
-    ? "!border-beergam-green focus:!border-beergam-green/90"
+    ? "!border-beergam-primary focus:!border-beergam-primary/90"
     : "";
   const focusClasses = isOpen
     ? "border-[#ff8a00] outline-beergam-orange"

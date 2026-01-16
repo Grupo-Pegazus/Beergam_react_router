@@ -51,7 +51,7 @@ export default function Loading({
           <div
             className="h-[20%] w-[20%] rounded-full opacity-50 animate-pulse-loading"
             style={{
-              backgroundColor: color,
+              backgroundColor: "var(--color-beergam-primary)",
               boxShadow: `0 0 20px ${shadowColor}`,
               animationDelay: `${delays[index] * speed}s`,
               animationDuration: animationDuration,

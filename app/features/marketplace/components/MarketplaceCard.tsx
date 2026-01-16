@@ -16,12 +16,14 @@ interface MarketplaceCardProps {
   onCardClick?: () => void;
   onDelete?: (marketplace: BaseMarketPlace) => void;
   selected?: boolean;
+  className?: string;
 }
 export default function MarketplaceCard({
   marketplace,
   onCardClick,
   onDelete,
   selected = false,
+  className,
 }: MarketplaceCardProps) {
   const isProcessing =
     marketplace?.status_parse === MarketplaceStatusParse.PROCESSING;
@@ -40,12 +42,12 @@ export default function MarketplaceCard({
   };
   return (
     <div
-      className={`group cursor-pointer ${selected ? "border-beergam-orange! bg-beergam-orange/10!" : ""} flex justify-center items-center relative mb-4 p-8 shadow-lg/55 rounded-2xl flex-col gap-2 border-2 bg-beergam-section-background! ${
+      className={`group cursor-pointer ${className ?? ""} ${selected ? "border-beergam-orange! bg-beergam-orange/10!" : ""} flex justify-center items-center relative mb-4 p-8 shadow-lg/55 rounded-2xl flex-col gap-2 border-2 bg-beergam-section-background! ${
         marketplace
           ? `bg-beergam-white border-transparent ${
               isDisabled ? "opacity-60 cursor-not-allowed" : "hover:opacity-75"
             }`
-          : "bg-beergam-blue-primary/75 border-dashed border-beergam-white hover:opacity-75"
+          : "bg-beergam-blue-primary/75 border-dashed border-beergam-typography-primary hover:opacity-75"
       }`}
       onClick={handleCardClick}
       role="button"
@@ -119,8 +121,8 @@ export default function MarketplaceCard({
         </>
       ) : (
         <>
-          <h2 className="text-beergam-white">Adicionar Lojas</h2>
-          <Svg.plus_circle tailWindClasses="stroke-beergam-white w-14 lg:w-20" />
+          <h2 className="text-beergam-typography-primary">Adicionar Lojas</h2>
+          <Svg.plus_circle tailWindClasses="stroke-beergam-typography-primary w-14 lg:w-20" />
         </>
       )}
     </div>

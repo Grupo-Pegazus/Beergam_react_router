@@ -124,7 +124,7 @@ export default function RegistroForm() {
     }
   }, [selectedDocument]);
   return (
-    <section className="h-full overflow-y-auto overflow-x-hidden shadow-lg/55 bg-beergam-white p-8 rounded-tl-none rounded-tr-none rounded-xl gap-4 flex flex-col lg:rounded-tl-2xl lg:rounded-br-none">
+    <section className="h-full overflow-y-auto overflow-x-hidden shadow-lg/55 bg-beergam-mui-paper p-8 rounded-tl-none rounded-tr-none rounded-xl gap-4 flex flex-col lg:rounded-tl-2xl lg:rounded-br-none">
       <div className="flex md:flex-row flex-col md:items-center gap-2">
         <Link to="/" className="w-10 h-10 cursor-pointer hover:opacity-80">
           <img
@@ -133,7 +133,7 @@ export default function RegistroForm() {
             className="w-full h-full object-contain"
           />
         </Link>
-        <h1 className="text-beergam-blue-primary">Cadastre-se</h1>
+        <h1 className="text-beergam-typography-primary">Cadastre-se</h1>
       </div>
       <UserFields
         label="E-mail"
@@ -255,7 +255,6 @@ export default function RegistroForm() {
       <input type="hidden" name="turnstile_token" value={turnstileToken} />
       <BeergamButton
         title="Cadastrar"
-        mainColor="beergam-orange"
         animationStyle="slider"
         type="submit"
         className="w-full rounded-2xl"
@@ -267,7 +266,7 @@ export default function RegistroForm() {
       <p className="text-beergam-gray font-medium">
         Ao começar o teste gratuito, declaro que li e aceito os{" "}
         <Link
-          className="text-beergam-blue-primary hover:text-beergam-orange underline"
+          className="text-beergam-primary hover:opacity-80 underline"
           to="/termos-de-servico"
           target="_blank"
         >
@@ -278,7 +277,7 @@ export default function RegistroForm() {
       <p className="text-beergam-gray font-medium">
         Já possui uma conta?{" "}
         <Link
-          className="text-beergam-blue-primary hover:text-beergam-orange underline"
+          className="text-beergam-primary hover:opacity-80 underline"
           to="/login"
         >
           Acessar
