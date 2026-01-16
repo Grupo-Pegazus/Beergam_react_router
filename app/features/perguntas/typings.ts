@@ -34,7 +34,7 @@ export interface Question {
 export function getQuestionStatus(status?: string): QuestionStatus {
   return (
     QuestionStatus[status as keyof typeof QuestionStatus] ??
-    QuestionStatus.unanswered
+    QuestionStatus.UNANSWERED
   );
 }
 

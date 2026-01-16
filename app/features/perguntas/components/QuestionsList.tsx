@@ -108,11 +108,11 @@ function QuestionCard({
           <div className="flex flex-wrap gap-2 text-xs text-beergam-typography-secondary!">
             <span
               className={`px-2 py-1 rounded-full border ${
-                questionStatus === QuestionStatus.answered
+                questionStatus === QuestionStatus.ANSWERED
                   ? "bg-beergam-primary/10 border-beergam-primary/30 text-beergam-primary"
-                  : questionStatus === QuestionStatus.unanswered
+                  : questionStatus === QuestionStatus.UNANSWERED
                     ? "bg-beergam-typography-secondary/10 border-beergam-typography-secondary/30 text-beergam-typography-secondary"
-                    : questionStatus === QuestionStatus.banned
+                    : questionStatus === QuestionStatus.BANNED
                       ? "bg-beeram-red/10 border-beeram-red/30 text-beeram-red"
                       : "bg-slate-100 border-slate-200"
               }`}
