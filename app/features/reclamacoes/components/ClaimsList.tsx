@@ -187,12 +187,15 @@ function ClaimCard({
                         ))}
                     </div>
                     {/* Efeito fade no final */}
-                    <div
-                        className="absolute bottom-6 left-0 right-0 h-6 pointer-events-none"
-                        style={{
-                            background: 'linear-gradient(to top, var(--color-beergam-mui-paper) 0%, transparent 100%)'
-                        }}
-                    />
+                    {(messages.length > 1 ||
+                        (messages.length === 1 && (messages[0].message?.length ?? 0) > 300)) && (
+                            <div
+                                className="absolute bottom-11 left-0 right-0 h-7 pointer-events-none"
+                                style={{
+                                    background: 'linear-gradient(to top, var(--color-beergam-mui-paper) 0%, transparent 100%)'
+                                }}
+                            />
+                        )}
                     {/* Link para ir ao chat */}
                     <button
                         onClick={handleGoToChat}
