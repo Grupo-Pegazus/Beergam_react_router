@@ -149,6 +149,8 @@ export function getResolutionReasonLabel(reason?: string): string {
             return "Encerramento porque o envio não conseguiu ser interrompido";
         case "cancel_installation":
             return "Cancelamento de serviço de instalação";
+        case "return_cancelled":
+            return "Devolução cancelada pelo comprador";
         default:
             return reason;
     }
