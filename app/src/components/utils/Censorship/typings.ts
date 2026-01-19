@@ -54,6 +54,14 @@ const PREDEFINED_PRODUTOS_KEYS = [
   "produtos_list_details_financial",
 ] as const;
 
+const PREDEFINED_RECLAMACOES_KEYS = [
+  "reclamacoes_tempo_medio_resolucao",
+  "reclamacoes_abertas",
+  "reclamacoes_fechadas",
+  "reclamacoes_total_periodo",
+  "reclamacoes_tendencia",
+] as const;
+
 /**
  * Lista de chaves pré-definidas para inicialização do sistema de censura.
  * Todas as chaves serão criadas com valor padrão `false` se não existirem.
@@ -63,6 +71,7 @@ export const PREDEFINED_CENSORSHIP_KEYS = [
   ...PREDEFINED_VENDAS_KEYS,
   ...PREDEFINED_ANUNCIOS_KEYS,
   ...PREDEFINED_PRODUTOS_KEYS,
+  ...PREDEFINED_RECLAMACOES_KEYS,
 ] as const;
 
 /**
