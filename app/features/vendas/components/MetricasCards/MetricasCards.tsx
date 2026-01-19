@@ -46,24 +46,24 @@ interface SummaryCardDefinition {
   censorshipKey: string;
   label: string;
   icon: keyof typeof Svg;
-  color: "slate" | "yellow" | "blue" | "green";
+  color: "slate" | "yellow" | "blue" | "green" | "orange";
   formatter?: (value: string | number) => string;
 }
 
 const SUMMARY_CARDS: SummaryCardDefinition[] = [
-  {
-    key: "a_preparar",
-    censorshipKey: "vendas_resumo_a_preparar",
-    label: "A preparar",
-    icon: "clock",
-    color: "slate",
-  },
   {
     key: "prontas_para_enviar",
     censorshipKey: "vendas_resumo_status_prontas_para_enviar",
     label: "Prontas para enviar",
     icon: "in_box_stack",
     color: "yellow",
+  },
+  {
+    key: "pendentes",
+    censorshipKey: "vendas_resumo_status_pendentes",
+    label: "Pendentes",
+    icon: "warning_circle",
+    color: "orange",
   },
   {
     key: "em_transito",
@@ -119,7 +119,6 @@ export default function MetricasCards() {
   const ordersByStatus = useMemo(() => {
     if (!data?.success || !data.data) {
       return {
-        a_preparar: 0,
         prontas_para_enviar: 0,
         em_transito: 0,
         concluidas: 0,

@@ -13,6 +13,7 @@ const PREDEFINED_HOME_KEYS = [
   "perguntas_sla_dentro_de_1h",
   "perguntas_sla_pendentes",
   "perguntas_sla_total_periodo",
+  "reclamacoes_resumo",
   "resumo_anuncios",
   "resumo_anuncios_categorias",
   "resumo_anuncios_total_anuncios",
@@ -29,8 +30,8 @@ const PREDEFINED_HOME_KEYS = [
 
 const PREDEFINED_VENDAS_KEYS = [
   "vendas_resumo",
-  "vendas_resumo_a_preparar",
   "vendas_resumo_status_prontas_para_enviar",
+  "vendas_resumo_status_pendentes",
   "vendas_resumo_status_em_transito",
   "vendas_resumo_status_concluidas",
   "vendas_resumo_faturamento_bruto",
