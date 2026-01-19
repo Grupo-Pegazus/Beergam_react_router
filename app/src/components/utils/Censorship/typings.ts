@@ -13,6 +13,7 @@ const PREDEFINED_HOME_KEYS = [
   "perguntas_sla_dentro_de_1h",
   "perguntas_sla_pendentes",
   "perguntas_sla_total_periodo",
+  "reclamacoes_resumo",
   "resumo_anuncios",
   "resumo_anuncios_categorias",
   "resumo_anuncios_total_anuncios",
@@ -29,8 +30,8 @@ const PREDEFINED_HOME_KEYS = [
 
 const PREDEFINED_VENDAS_KEYS = [
   "vendas_resumo",
-  "vendas_resumo_a_preparar",
   "vendas_resumo_status_prontas_para_enviar",
+  "vendas_resumo_status_pendentes",
   "vendas_resumo_status_em_transito",
   "vendas_resumo_status_concluidas",
   "vendas_resumo_faturamento_bruto",
@@ -54,6 +55,14 @@ const PREDEFINED_PRODUTOS_KEYS = [
   "produtos_list_details_financial",
 ] as const;
 
+const PREDEFINED_RECLAMACOES_KEYS = [
+  "reclamacoes_tempo_medio_resolucao",
+  "reclamacoes_abertas",
+  "reclamacoes_fechadas",
+  "reclamacoes_total_periodo",
+  "reclamacoes_tendencia",
+] as const;
+
 /**
  * Lista de chaves pré-definidas para inicialização do sistema de censura.
  * Todas as chaves serão criadas com valor padrão `false` se não existirem.
@@ -63,6 +72,7 @@ export const PREDEFINED_CENSORSHIP_KEYS = [
   ...PREDEFINED_VENDAS_KEYS,
   ...PREDEFINED_ANUNCIOS_KEYS,
   ...PREDEFINED_PRODUTOS_KEYS,
+  ...PREDEFINED_RECLAMACOES_KEYS,
 ] as const;
 
 /**

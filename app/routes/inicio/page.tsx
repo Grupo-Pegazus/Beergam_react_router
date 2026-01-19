@@ -5,6 +5,7 @@ import ScheduleTimes from "~/features/metricsAccount/components/ScheduleTimes/Sc
 import Visitas from "~/features/metricsAccount/components/Visitas/Visitas";
 import QuestionsOverviewHome from "~/features/perguntas/components/QuestionsOverviewHome";
 import ProdutosMetricasCards from "~/features/produtos/components/MetricasCards/MetricasCards";
+import ClaimsOverviewHome from "~/features/reclamacoes/components/ClaimsOverviewHome";
 import HomeSummary from "~/features/summary/components/HomeSummary";
 import VendasResumo from "~/features/vendas/components/VendasResumo/VendasResumo";
 import Grid from "~/src/components/ui/Grid";
@@ -43,6 +44,11 @@ export default function InicioPage() {
       <CensorshipWrapper controlChildren censorshipKey="perguntas_sla">
         <Section title="Perguntas e SLA">
           <QuestionsOverviewHome />
+        </Section>
+      </CensorshipWrapper>
+      <CensorshipWrapper controlChildren censorshipKey="reclamacoes_resumo">
+        <Section title="Resumo de Reclamações">
+          <ClaimsOverviewHome />
         </Section>
       </CensorshipWrapper>
       <CensorshipWrapper controlChildren censorshipKey="resumo_anuncios">

@@ -15,7 +15,7 @@ export default function GlobalLoadingSpinner() {
 
   return (
     <div className="fixed inset-0 z-[9999] bg-beergam-section-background flex flex-col items-center justify-center">
-      <Loading color="var(--color-beergam-primary)" size="4rem" />
+      <Loading color="var(--color-beergam-typography-primary)" size="4rem" />
       <p className="mt-6 text-beergam-typography-primary text-lg font-medium">
         {message}
       </p>

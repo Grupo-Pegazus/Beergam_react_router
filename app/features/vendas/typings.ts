@@ -147,7 +147,6 @@ export type OrdersResponse = z.infer<typeof OrdersResponseSchema>;
 // Schema para métricas de pedidos
 export const OrdersMetricsSchema = z.object({
   orders_by_status: z.object({
-    a_preparar: z.number(),
     prontas_para_enviar: z.number(),
     em_transito: z.number(),
     concluidas: z.number(),

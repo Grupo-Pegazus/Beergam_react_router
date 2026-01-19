@@ -1,18 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "~/src/utils/toast";
+import type { ApiResponse } from "../apiClient/typings";
 import { produtosService } from "./service";
 import type {
-  ProductsFilters,
-  ProductsResponse,
   ProductDetails,
+  ProductsFilters,
   ProductsMetrics,
-  StockTrackingResponse,
-  StockTrackingFilters,
-  StockMovementApiPayload,
+  ProductsResponse,
   StockDashboardResponse,
+  StockMovementApiPayload,
   StockSyncDashboardResponse,
+  StockTrackingFilters,
+  StockTrackingResponse,
 } from "./typings";
-import type { ApiResponse } from "../apiClient/typings";
-import toast from "~/src/utils/toast";
 
 export function useProducts(filters?: Partial<ProductsFilters>) {
   return useQuery<ApiResponse<ProductsResponse>>({
@@ -81,7 +81,10 @@ export function useChangeProductStatus() {
       toast.success("Status do produto alterado com sucesso");
     },
     onError: (error: unknown) => {
-      const message = error instanceof Error ? error.message : "Erro ao alterar status do produto";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Erro ao alterar status do produto";
       toast.error(message);
     },
   });
@@ -100,7 +103,11 @@ export function useChangeVariationStatus() {
       variationId: string;
       status: "Ativo" | "Inativo";
     }) => {
-      const res = await produtosService.changeVariationStatus(productId, variationId, status);
+      const res = await produtosService.changeVariationStatus(
+        productId,
+        variationId,
+        status
+      );
       if (!res.success) {
         throw new Error(res.message || "Erro ao alterar status da variação");
       }
@@ -115,7 +122,74 @@ export function useChangeVariationStatus() {
       toast.success("Status da variação alterado com sucesso");
     },
     onError: (error: unknown) => {
-      const message = error instanceof Error ? error.message : "Erro ao alterar status da variação";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Erro ao alterar status da variação";
+      toast.error(message);
+    },
+  });
+}
+
+/**
+ * Hook global que decide automaticamente qual mutation usar baseado nos parâmetros
+ * Se variationId for fornecido, usa useChangeVariationStatus
+ * Caso contrário, usa useChangeProductStatus
+ */
+export function useChangeStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      productId,
+      variationId,
+      status,
+    }: {
+      productId: string;
+      variationId?: string;
+      status: "Ativo" | "Inativo";
+    }) => {
+      // Se variationId for fornecido, altera status da variação
+      if (variationId) {
+        const res = await produtosService.changeVariationStatus(
+          productId,
+          variationId,
+          status
+        );
+        if (!res.success) {
+          throw new Error(res.message || "Erro ao alterar status da variação");
+        }
+        return { ...res, type: "variation" as const };
+      }
+
+      // Caso contrário, altera status do produto
+      const res = await produtosService.changeProductStatus(productId, status);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao alterar status do produto");
+      }
+      return { ...res, type: "product" as const };
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+
+      // Se foi alteração de variação, invalida também a query de detalhes
+      if (variables.variationId) {
+        queryClient.invalidateQueries({
+          queryKey: ["products", "details", variables.productId],
+        });
+        toast.success("Status da variação alterado com sucesso");
+      } else {
+        toast.success("Status do produto alterado com sucesso");
+      }
+    },
+    onError: (error: unknown, variables) => {
+      const isVariation = !!variables.variationId;
+      const message =
+        error instanceof Error
+          ? error.message
+          : isVariation
+            ? "Erro ao alterar status da variação"
+            : "Erro ao alterar status do produto";
       toast.error(message);
     },
   });
@@ -242,11 +316,12 @@ export function useStockSyncDashboard() {
     queryFn: async () => {
       const res = await produtosService.getStockSyncDashboard();
       if (!res.success) {
-        throw new Error(res.message || "Erro ao buscar dashboard de sincronização");
+        throw new Error(
+          res.message || "Erro ao buscar dashboard de sincronização"
+        );
       }
       return res;
     },
     staleTime: 1000 * 60 * 2, // 2 minutos
   });
 }
-

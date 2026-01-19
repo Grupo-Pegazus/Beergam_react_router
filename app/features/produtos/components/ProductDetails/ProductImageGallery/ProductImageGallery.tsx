@@ -1,19 +1,16 @@
-import { useState, useMemo } from "react";
-import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Chip from "@mui/material/Chip";
-import type { ProductDetails } from "../../../typings";
-import BeergamButton from "~/src/components/utils/BeergamButton";
+import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
+import Typography from "@mui/material/Typography";
+import { useMemo, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
+import { Fields } from "~/src/components/utils/_fields";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import type { ProductDetails } from "../../../typings";
 
 interface ProductImageGalleryProps {
   product: ProductDetails;
@@ -27,13 +24,17 @@ const imageTypeLabels: Record<ImageType, string> = {
   shipping: "Imagens para Envio",
 };
 
-export default function ProductImageGallery({ product }: ProductImageGalleryProps) {
+export default function ProductImageGallery({
+  product,
+}: ProductImageGalleryProps) {
   const [selectedTab, setSelectedTab] = useState<ImageType>("product");
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [selectedVariationId, setSelectedVariationId] = useState<string | null>(null);
+  const [selectedVariationId, setSelectedVariationId] = useState<string | null>(
+    null
+  );
 
   const hasVariations = product.variations && product.variations.length > 0;
-  
+
   // Seleciona a primeira variação por padrão se houver variações
   const defaultVariationId = useMemo(() => {
     if (hasVariations && product.variations && product.variations.length > 0) {
@@ -43,19 +44,27 @@ export default function ProductImageGallery({ product }: ProductImageGalleryProp
   }, [hasVariations, product.variations]);
 
   const activeVariationId = selectedVariationId || defaultVariationId;
-  
+
   // Encontra a variação selecionada
   const selectedVariation = useMemo(() => {
     if (!hasVariations || !activeVariationId) return null;
-    return product.variations?.find(
-      (v) => v.product_variation_id === activeVariationId
-    ) || null;
+    return (
+      product.variations?.find(
+        (v) => v.product_variation_id === activeVariationId
+      ) || null
+    );
   }, [hasVariations, activeVariationId, product.variations]);
 
   // Determina quais imagens usar: da variação selecionada ou do produto
   const imagesSource = useMemo(() => {
     if (hasVariations && selectedVariation) {
-      return selectedVariation.images || { product: [], marketplace: [], shipping: [] };
+      return (
+        selectedVariation.images || {
+          product: [],
+          marketplace: [],
+          shipping: [],
+        }
+      );
     }
     return product.images;
   }, [hasVariations, selectedVariation, product.images]);
@@ -64,17 +73,24 @@ export default function ProductImageGallery({ product }: ProductImageGalleryProp
     return imagesSource[selectedTab] || [];
   }, [imagesSource, selectedTab]);
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: ImageType) => {
+  const handleTabChange = (
+    _event: React.SyntheticEvent,
+    newValue: ImageType
+  ) => {
     setSelectedTab(newValue);
     setSelectedIndex(0);
   };
 
   const handlePrevious = () => {
-    setSelectedIndex((prev) => (prev === 0 ? currentImages.length - 1 : prev - 1));
+    setSelectedIndex((prev) =>
+      prev === 0 ? currentImages.length - 1 : prev - 1
+    );
   };
 
   const handleNext = () => {
-    setSelectedIndex((prev) => (prev === currentImages.length - 1 ? 0 : prev + 1));
+    setSelectedIndex((prev) =>
+      prev === currentImages.length - 1 ? 0 : prev + 1
+    );
   };
 
   const handleThumbnailClick = (index: number) => {
@@ -86,71 +102,94 @@ export default function ProductImageGallery({ product }: ProductImageGalleryProp
   };
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: { xs: 1.5, sm: 2 },
-        borderRadius: 2,
-        border: "1px solid rgba(15, 23, 42, 0.08)",
-        height: "100%",
-        width: "100%",
-        maxWidth: "100%",
-      }}
-    >
+    <Paper>
       <Stack spacing={2} sx={{ width: "100%" }}>
         {/* Seletor de variações - apenas quando há variações */}
-        {hasVariations && product.variations && product.variations.length > 0 && (
-          <FormControl fullWidth size="small">
-            <InputLabel id="variation-select-label">Variação</InputLabel>
-            <Select
-              labelId="variation-select-label"
-              value={activeVariationId || ""}
-              label="Variação"
-              onChange={(e) => {
-                setSelectedVariationId(e.target.value as string);
-                setSelectedIndex(0); // Reset para primeira imagem ao trocar variação
-              }}
-              sx={{
-                "& .MuiSelect-select": {
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                },
-              }}
-            >
-              {product.variations.map((variation) => {
-                const variationImages = variation.images?.product || [];
-                const hasImages = variationImages.length > 0;
-                return (
-                  <MenuItem key={variation.product_variation_id} value={variation.product_variation_id}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: "100%" }}>
-                      <Typography variant="body2" sx={{ flex: 1 }}>
-                        {variation.title}
-                      </Typography>
-                      {variation.sku && (
-                        <Typography variant="caption" sx={{ color: "text.secondary", fontFamily: "monospace" }}>
-                          {variation.sku}
+        {hasVariations &&
+          product.variations &&
+          product.variations.length > 0 && (
+            <FormControl fullWidth size="small">
+              {/* <InputLabel id="variation-select-label">Variação</InputLabel>
+              <Select
+                labelId="variation-select-label"
+                value={activeVariationId || ""}
+                label="Variação"
+                onChange={(e) => {
+                  setSelectedVariationId(e.target.value as string);
+                  setSelectedIndex(0); // Reset para primeira imagem ao trocar variação
+                }}
+                sx={{
+                  "& .MuiSelect-select": {
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                  },
+                }}
+              >
+                {product.variations.map((variation) => {
+                  const variationImages = variation.images?.product || [];
+                  const hasImages = variationImages.length > 0;
+                  return (
+                    <MenuItem
+                      key={variation.product_variation_id}
+                      value={variation.product_variation_id}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                          width: "100%",
+                        }}
+                      >
+                        <Typography variant="body2" sx={{ flex: 1 }}>
+                          {variation.title}
                         </Typography>
-                      )}
-                      {hasImages && (
-                        <Chip
-                          label={variationImages.length}
-                          size="small"
-                          sx={{
-                            height: 20,
-                            fontSize: "0.65rem",
-                            bgcolor: "primary.main",
-                            color: "white",
-                          }}
-                        />
-                      )}
-                    </Box>
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
-        )}
+                        {variation.sku && (
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: "text.secondary",
+                              fontFamily: "monospace",
+                            }}
+                          >
+                            {variation.sku}
+                          </Typography>
+                        )}
+                        {hasImages && (
+                          <Chip
+                            label={variationImages.length}
+                            size="small"
+                            sx={{
+                              height: 20,
+                              fontSize: "0.65rem",
+                              bgcolor: "primary.main",
+                              color: "white",
+                            }}
+                          />
+                        )}
+                      </Box>
+                    </MenuItem>
+                  );
+                })}
+              </Select> */}
+              <Fields.wrapper>
+                <Fields.label text="Variação" />
+                <Fields.select
+                  value={activeVariationId || ""}
+                  onChange={(e) => {
+                    setSelectedVariationId(e.target.value as string);
+                    setSelectedIndex(0);
+                  }}
+                  options={product.variations.map((variation) => ({
+                    value: variation.product_variation_id,
+                    label: variation.title,
+                  }))}
+                  // required
+                />
+              </Fields.wrapper>
+            </FormControl>
+          )}
 
         {/* Tabs para selecionar tipo de imagem */}
         <Tabs
@@ -162,7 +201,11 @@ export default function ProductImageGallery({ product }: ProductImageGalleryProp
             borderBottom: 1,
             borderColor: "divider",
             minHeight: 48,
+            "& .MuiTabs-list": {
+              gridTemplateColumns: "1fr 1fr 1fr",
+            },
           }}
+          className="bg-beergam-section-background!"
         >
           {Object.entries(imageTypeLabels).map(([key, label]) => {
             const imageType = key as ImageType;
@@ -246,7 +289,11 @@ export default function ProductImageGallery({ product }: ProductImageGalleryProp
                       height: { xs: 32, sm: 40 },
                     }}
                   >
-                    <Typography sx={{ fontSize: { xs: 20, sm: 24 }, fontWeight: 700 }}>‹</Typography>
+                    <Typography
+                      sx={{ fontSize: { xs: 20, sm: 24 }, fontWeight: 700 }}
+                    >
+                      ‹
+                    </Typography>
                   </IconButton>
                   <IconButton
                     onClick={handleNext}
@@ -259,7 +306,11 @@ export default function ProductImageGallery({ product }: ProductImageGalleryProp
                       height: { xs: 32, sm: 40 },
                     }}
                   >
-                    <Typography sx={{ fontSize: { xs: 20, sm: 24 }, fontWeight: 700 }}>›</Typography>
+                    <Typography
+                      sx={{ fontSize: { xs: 20, sm: 24 }, fontWeight: 700 }}
+                    >
+                      ›
+                    </Typography>
                   </IconButton>
                 </>
               )}
@@ -315,7 +366,10 @@ export default function ProductImageGallery({ product }: ProductImageGalleryProp
                         overflow: "hidden",
                         cursor: "pointer",
                         border: selectedIndex === index ? 2 : 1,
-                        borderColor: selectedIndex === index ? "var(--color-beergam-orange)" : "rgba(0, 0, 0, 0.1)",
+                        borderColor:
+                          selectedIndex === index
+                            ? "var(--color-beergam-orange)"
+                            : "rgba(0, 0, 0, 0.1)",
                         opacity: selectedIndex === index ? 1 : 0.7,
                         transition: "all 0.2s",
                         "&:hover": {
@@ -348,50 +402,39 @@ export default function ProductImageGallery({ product }: ProductImageGalleryProp
             )}
           </>
         ) : (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: 300,
-              gap: 2,
-              p: 3,
-            }}
-          >
-            <Box
+          <div className="flex flex-col items-center rounded-lg bg-beergam-section-background justify-center min-h-96 gap-2 p-3">
+            <div className="flex items-center justify-center w-20 h-20 rounded-full bg-beergam-primary/20 mb-1">
+              <Svg.bag tailWindClasses="h-10 w-10 text-beergam-primary" />
+            </div>
+            <Typography
+              variant="h6"
+              className="text-beergam-typography-primary"
               sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 80,
-                height: 80,
-                borderRadius: "50%",
-                bgcolor: "grey.100",
-                mb: 1,
+                fontWeight: 600,
+                textAlign: "center",
               }}
             >
-              <Svg.bag tailWindClasses="h-10 w-10 text-slate-400" />
-            </Box>
-            <Typography variant="h6" sx={{ fontWeight: 600, color: "text.primary", textAlign: "center" }}>
               Nenhuma imagem disponível
             </Typography>
-            <Typography variant="body2" sx={{ color: "text.secondary", textAlign: "center", maxWidth: 300 }}>
-              Este produto não possui {imageTypeLabels[selectedTab].toLowerCase()} cadastradas. Adicione imagens editando o produto.
+            <Typography
+              variant="body2"
+              className="text-beergam-typography-secondary text-center max-w-96"
+            >
+              Este produto não possui{" "}
+              {imageTypeLabels[selectedTab].toLowerCase()} cadastradas. Adicione
+              imagens editando o produto.
             </Typography>
             <Box sx={{ mt: 1 }}>
               <BeergamButton
                 title="Editar Produto"
-                mainColor="beergam-blue-primary"
                 animationStyle="slider"
                 link={`/interno/produtos/editar/${product.product_id}`}
                 icon="pencil"
               />
             </Box>
-          </Box>
+          </div>
         )}
       </Stack>
     </Paper>
   );
 }
-

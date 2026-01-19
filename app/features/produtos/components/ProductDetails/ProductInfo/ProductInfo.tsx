@@ -1,21 +1,23 @@
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
-import Paper from "@mui/material/Paper";
-import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { getStockStatus } from "~/features/produtos/utils/getStockStatus";
+import { BeergamSlider } from "~/src/components/ui/BeergamSlider";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import {
   CensorshipWrapper,
   TextCensored,
 } from "~/src/components/utils/Censorship";
 import { useModal } from "~/src/components/utils/Modal/useModal";
+import ViewToggle from "~/src/components/utils/ViewToggle";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
-import { useChangeProductStatus } from "../../../hooks";
+import { useChangeStatus } from "../../../hooks";
 import type { ProductDetails } from "../../../typings";
+import VariationCardNew from "../../ProductList/Variations/VariationCardNew";
 import VariationsStatusModal from "../../ProductList/VariationsStatusModal/VariationsStatusModal";
 import { ProductStatusToggle } from "../../ProductStatusToggle";
 
@@ -25,8 +27,7 @@ interface ProductInfoProps {
 
 export default function ProductInfo({ product }: ProductInfoProps) {
   const queryClient = useQueryClient();
-  const [isMutating, setIsMutating] = useState(false);
-  const changeStatusMutation = useChangeProductStatus();
+  const changeStatusMutation = useChangeStatus();
   const { openModal, closeModal } = useModal();
 
   const hasVariations = product.variations && product.variations.length > 0;
@@ -46,17 +47,24 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
   const isActive = product.status.toLowerCase().trim() === "ativo";
 
-  const handleToggleStatus = () => {
-    const nextStatus = isActive ? "Inativo" : "Ativo";
-    setIsMutating(true);
+  const handleToggleStatus = (variationId?: string, currentStatus?: string) => {
+    const nextStatus =
+      variationId && currentStatus
+        ? currentStatus.toLowerCase().trim() === "ativo"
+          ? "Inativo"
+          : "Ativo"
+        : isActive
+          ? "Inativo"
+          : "Ativo";
+
     changeStatusMutation.mutate(
       {
         productId: product.product_id,
+        variationId,
         status: nextStatus as "Ativo" | "Inativo",
       },
       {
         onSettled: () => {
-          setIsMutating(false);
           queryClient.invalidateQueries({
             queryKey: ["products", "details", product.product_id],
           });
@@ -82,33 +90,27 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
   return (
     <CensorshipWrapper controlChildren censorshipKey="produtos_list_details">
-      <Paper
-        elevation={0}
-        sx={{
-          p: 3,
-          borderRadius: 2,
-          border: "1px solid rgba(15, 23, 42, 0.08)",
-        }}
-      >
-        <Stack spacing={2}>
-          {/* Título do produto */}
-          <Typography variant="h4" sx={{ fontWeight: 700, fontSize: "1.5rem" }}>
-            {product.title}
-          </Typography>
-
+      <div className="flex flex-col gap-4">
+        <div className="flex items-baseline gap-2">
           {/* ID e SKU */}
-          <Stack direction="row" spacing={2} flexWrap="wrap" gap={1}>
-            <Box>
-              <Typography variant="caption" color="text.secondary">
+          <div className="flex items-center gap-2">
+            <div className="flex items-baseline gap-2">
+              <Typography
+                variant="caption"
+                className="text-beergam-typography-tertiary!"
+              >
                 ID:
               </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              <Typography variant="body2" className="font-medium">
                 {product.product_id}
               </Typography>
-            </Box>
+            </div>
             {product.sku && (
-              <Box>
-                <Typography variant="caption" color="text.secondary">
+              <div className="flex items-baseline gap-2">
+                <Typography
+                  variant="caption"
+                  className="text-beergam-typography-tertiary!"
+                >
                   SKU:
                 </Typography>
                 <TextCensored
@@ -116,22 +118,12 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                   maxCharacters={3}
                   censorshipKey="produtos_list_details"
                 >
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  <Typography variant="body2" className="font-medium">
                     {product.sku}
                   </Typography>
                 </TextCensored>
-              </Box>
+              </div>
             )}
-          </Stack>
-
-          {/* Tipo de registro e status */}
-          <Stack
-            direction="row"
-            spacing={2}
-            alignItems="center"
-            flexWrap="wrap"
-            gap={1}
-          >
             <Chip
               label={registrationTypeLabel}
               size="small"
@@ -139,6 +131,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 bgcolor: "var(--color-beergam-orange-light)",
                 color: "var(--color-beergam-orange-dark)",
                 fontWeight: 600,
+                maxWidth: "fit-content",
               }}
               icon={
                 <Box
@@ -152,190 +145,253 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 />
               }
             />
-            <Typography variant="caption" color="text.secondary">
-              Criado em {formattedCreatedAt}
-            </Typography>
-            {formattedUpdatedAt !== formattedCreatedAt && (
-              <Typography variant="caption" color="text.secondary">
-                Atualizado em {formattedUpdatedAt}
-              </Typography>
-            )}
-          </Stack>
-
-          {/* Descrição */}
-          {product.description && (
-            <Box>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ display: "block", mb: 0.5 }}
-              >
-                Descrição:
-              </Typography>
-              <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
-                {product.description}
-              </Typography>
-            </Box>
-          )}
-
-          {/* Categorias */}
-          {product.categories && product.categories.length > 0 && (
-            <Box>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ display: "block", mb: 0.5 }}
-              >
-                Categorias:
-              </Typography>
-              <Stack direction="row" spacing={1} flexWrap="wrap">
-                {product.categories.map((category, index) => (
-                  <Chip
-                    key={index}
-                    label={category.name}
-                    size="small"
-                    sx={{
-                      bgcolor: "grey.100",
-                      color: "text.primary",
-                      fontWeight: 500,
-                    }}
-                  />
-                ))}
-              </Stack>
-            </Box>
-          )}
-
-          {hasVariations && (
-            <Chip
-              label={`Verifique informações de preço e estoque nas variações abaixo`}
-              size="small"
-              onClick={handleOpenVariationsStatusModal}
-              sx={{
-                height: 32,
-                fontSize: "0.75rem",
-                fontWeight: 600,
-                width: "100%",
-                backgroundColor: "#dbeafe",
-                color: "#1e40af",
-              }}
-            />
-          )}
-
-          {/* Preços */}
-          {!hasVariations && (
-            <Stack direction="row" spacing={3} flexWrap="wrap" gap={2}>
-              <Box>
-                <Typography variant="caption" color="text.secondary">
-                  Preço de Custo
-                </Typography>
-                <TextCensored
-                  className="flex!"
-                  maxCharacters={3}
-                  censorshipKey="produtos_list_details"
-                >
-                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    {formatCurrency(product.price_cost)}
-                  </Typography>
-                </TextCensored>
-              </Box>
-              <Box>
-                <Typography variant="caption" color="text.secondary">
-                  Preço de Venda
-                </Typography>
-                <TextCensored
-                  className="flex!"
-                  maxCharacters={3}
-                  censorshipKey="produtos_list_details"
-                >
-                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    {formatCurrency(product.price_sale)}
-                  </Typography>
-                </TextCensored>
-              </Box>
-            </Stack>
-          )}
-
-          {/* Estoque */}
-          {!hasVariations && (
-            <Stack
-              direction="row"
-              spacing={3}
-              alignItems="center"
-              flexWrap="wrap"
-              gap={2}
+          </div>
+        </div>
+        {/* Tipo de registro e status */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-baseline gap-2">
+            <Typography
+              variant="caption"
+              className="text-beergam-typography-tertiary!"
             >
-              <Box>
-                <Typography variant="caption" color="text.secondary">
-                  Estoque Disponível
-                </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  {product.available_quantity.toLocaleString("pt-BR")}
-                </Typography>
-              </Box>
-              <Box>
-                <Typography variant="caption" color="text.secondary">
-                  Estoque Inicial
-                </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {product.initial_quantity.toLocaleString("pt-BR")}
-                </Typography>
-              </Box>
-            </Stack>
-          )}
-
-          {/* Status Toggle e Botão de Editar */}
-          <Stack
-            direction="row"
-            spacing={3}
-            alignItems="flex-end"
-            flexWrap="wrap"
-            gap={2}
-          >
-            <Box className="flex flex-col items-baseline gap-2">
-              <Typography variant="caption" color="text.secondary">
-                Status:
+              Criado em:
+            </Typography>
+            <Typography variant="body2" className="font-medium">
+              {formattedCreatedAt}
+            </Typography>
+          </div>
+          {formattedUpdatedAt !== formattedCreatedAt && (
+            <div className="flex items-baseline gap-2">
+              <Typography
+                variant="caption"
+                className="text-beergam-typography-tertiary!"
+              >
+                Atualizado em:
               </Typography>
-              {!hasVariations ? (
-                <ProductStatusToggle
-                  status={product.status}
-                  isActive={isActive}
-                  isMutating={isMutating}
-                  onToggle={handleToggleStatus}
-                />
-              ) : (
+              <Typography variant="body2" className="font-medium">
+                {formattedUpdatedAt}
+              </Typography>
+            </div>
+          )}
+        </div>
+        {/* Descrição */}
+        {product.description && (
+          <Box>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ display: "block", mb: 0.5 }}
+            >
+              Descrição:
+            </Typography>
+            <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+              {product.description}
+            </Typography>
+          </Box>
+        )}
+
+        {/* Categorias */}
+        {product.categories && product.categories.length > 0 && (
+          <div className="flex items-baseline gap-2">
+            <Typography
+              variant="caption"
+              className="text-beergam-typography-tertiary!"
+            >
+              Categoria:
+            </Typography>
+            <div className="flex items-center gap-2">
+              {product.categories.map((category, index) => (
                 <Chip
-                  label={`Veja as variações`}
+                  key={index}
+                  label={category.name}
                   size="small"
-                  onClick={handleOpenVariationsStatusModal}
                   sx={{
-                    height: 32,
-                    fontSize: "0.75rem",
-                    fontWeight: 600,
-                    backgroundColor: "#dbeafe",
-                    color: "#1e40af",
-                    cursor: "pointer",
-                    "&:hover": {
-                      backgroundColor: "#bfdbfe",
-                    },
-                    "& .MuiChip-label": {
-                      px: 1.5,
+                    bgcolor: "grey.100",
+                    color: "text.primary",
+                    fontWeight: 500,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Preços */}
+        {!hasVariations && (
+          <div className="flex items-center gap-2">
+            <div className="flex items-baseline gap-2">
+              <Typography
+                variant="caption"
+                className="text-beergam-typography-tertiary!"
+              >
+                Preço de Custo:
+              </Typography>
+              <TextCensored
+                className="flex!"
+                maxCharacters={3}
+                censorshipKey="produtos_list_details"
+              >
+                <Typography variant="h6" className="font-medium">
+                  {formatCurrency(product.price_cost)}
+                </Typography>
+              </TextCensored>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <Typography
+                variant="caption"
+                className="text-beergam-typography-tertiary!"
+              >
+                Preço de Venda:
+              </Typography>
+              <TextCensored
+                className="flex!"
+                maxCharacters={3}
+                censorshipKey="produtos_list_details"
+              >
+                <Typography variant="h6" className="font-medium">
+                  {formatCurrency(product.price_sale)}
+                </Typography>
+              </TextCensored>
+            </div>
+          </div>
+        )}
+        {product.variations && product.variations.length > 0 && (
+          <>
+            <div className="flex items-center gap-2">
+              <Typography
+                variant="caption"
+                className="text-beergam-typography-tertiary!"
+              >
+                Variações cadastradas:
+              </Typography>
+              <p>{variationsCount}</p>
+            </div>
+            <ViewToggle
+              listElement={<p>teste</p>}
+              cardElement={
+                <BeergamSlider
+                  slidesPerView={1}
+                  slides={product.variations.map((variation) => (
+                    <VariationCardNew
+                      key={variation.product_variation_id}
+                      variation={variation}
+                      isMutating={changeStatusMutation.isPending}
+                      onToggleStatus={(variationId, currentStatus) =>
+                        handleToggleStatus(variationId, currentStatus)
+                      }
+                    />
+                  ))}
+                  breakpoints={{
+                    768: {
+                      slidesPerView: 3,
                     },
                   }}
-                  title={`Clique para gerenciar status de ${variationsCount} variação${variationsCount > 1 ? "ões" : ""}`}
-                  aria-label={`Abrir modal para gerenciar status das variações`}
                 />
-              )}
-            </Box>
-            <BeergamButton
-              title="Editar Produto"
-              mainColor="beergam-blue-primary"
-              animationStyle="slider"
-              link={`/interno/produtos/editar/${product.product_id}`}
-              icon="pencil"
+              }
+              defaultView="card"
+              onViewChange={(view) =>
+                console.log("Visualização alterada:", view)
+              }
             />
-          </Stack>
-        </Stack>
-      </Paper>
+          </>
+        )}
+        {/* Estoque */}
+        {!hasVariations && (
+          <>
+            <div className="flex items-center gap-2">
+              <div className="flex items-baseline gap-2">
+                <Typography
+                  variant="caption"
+                  className="text-beergam-typography-tertiary!"
+                >
+                  Estoque Disponível:
+                </Typography>
+                <h3>{product.available_quantity.toLocaleString("pt-BR")}</h3>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <Typography
+                  variant="caption"
+                  className="text-beergam-typography-tertiary!"
+                >
+                  Estoque Inicial:
+                </Typography>
+                <h3>{product.initial_quantity.toLocaleString("pt-BR")}</h3>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <Typography
+                  variant="caption"
+                  className="text-beergam-typography-tertiary!"
+                >
+                  Estoque Mínimo:
+                </Typography>
+                <h3>{product.minimum_quantity.toLocaleString("pt-BR")}</h3>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <Typography
+                  variant="caption"
+                  className="text-beergam-typography-tertiary!"
+                >
+                  Estoque Máximo:
+                </Typography>
+                <h3>{product.maximum_quantity.toLocaleString("pt-BR")}</h3>
+              </div>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <Typography
+                variant="caption"
+                className="text-beergam-typography-tertiary!"
+              >
+                Status do Estoque:
+              </Typography>
+              <Chip
+                label={
+                  getStockStatus(
+                    product.available_quantity,
+                    product.minimum_quantity
+                  ).label
+                }
+                size="small"
+                sx={{
+                  bgcolor: getStockStatus(
+                    product.available_quantity,
+                    product.minimum_quantity
+                  ).bgColor,
+                  color: getStockStatus(
+                    product.available_quantity,
+                    product.minimum_quantity
+                  ).textColor,
+                }}
+              />
+            </div>
+          </>
+        )}
+
+        {/* Status Toggle e Botão de Editar */}
+        <div className="flex items-center gap-2">
+          {!hasVariations && (
+            <div className="flex items-center gap-2">
+              <Typography
+                variant="caption"
+                className="text-beergam-typography-tertiary!"
+              >
+                Status:
+              </Typography>
+              <ProductStatusToggle
+                status={product.status}
+                isActive={isActive}
+                isMutating={changeStatusMutation.isPending}
+                onToggle={handleToggleStatus}
+              />
+            </div>
+          )}
+          <BeergamButton
+            title="Editar Produto"
+            animationStyle="slider"
+            link={`/interno/produtos/editar/${product.product_id}`}
+            icon="pencil"
+          />
+        </div>
+      </div>
     </CensorshipWrapper>
   );
 }

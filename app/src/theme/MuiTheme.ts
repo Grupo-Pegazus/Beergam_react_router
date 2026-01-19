@@ -326,6 +326,35 @@ export const muiTheme = createTheme(
           },
         },
       },
+      MuiTabs: {
+        styleOverrides: {
+          list: {
+            display: "grid",
+          },
+          root: {
+            color: "var(--color-beergam-typography-secondary)",
+            "& .MuiTabs-indicator": {
+              backgroundColor: "var(--color-beergam-primary)",
+            },
+            "& .MuiTab-root": {
+              color: "var(--color-beergam-typography-secondary)",
+            },
+            "& .MuiTab-root.Mui-selected": {
+              color: "var(--color-beergam-primary)",
+            },
+          },
+        },
+      },
+      MuiTab: {
+        styleOverrides: {
+          root: {
+            color: "var(--color-beergam-typography-secondary)",
+          },
+          selected: {
+            color: "var(--color-beergam-primary)",
+          },
+        },
+      },
     },
     typography: {
       fontFamily: "var(--default-font-family)",
