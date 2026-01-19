@@ -1,14 +1,14 @@
+import { Alert, Box, Paper, Stack } from "@mui/material";
 import { useEffect, useMemo } from "react";
-import { Box, Stack, Alert } from "@mui/material";
-import { useProductDetails } from "../../hooks";
-import ProductInfo from "./ProductInfo/ProductInfo";
-import ProductImageGallery from "./ProductImageGallery/ProductImageGallery";
-import StockPreview from "./StockPreview/StockPreview";
-import ProductVariations from "./ProductVariations/ProductVariations";
-import ProductAdditionalInfo from "./ProductAdditionalInfo/ProductAdditionalInfo";
-import ProductRelatedAds from "./ProductRelatedAds/ProductRelatedAds";
-import ProductDetailsSkeleton from "./ProductDetailsSkeleton";
 import { useBreadcrumbCustomization } from "~/features/system/context/BreadcrumbContext";
+import { useProductDetails } from "../../hooks";
+import ProductAdditionalInfo from "./ProductAdditionalInfo/ProductAdditionalInfo";
+import ProductDetailsSkeleton from "./ProductDetailsSkeleton";
+import ProductImageGallery from "./ProductImageGallery/ProductImageGallery";
+import ProductInfo from "./ProductInfo/ProductInfo";
+import ProductRelatedAds from "./ProductRelatedAds/ProductRelatedAds";
+import ProductVariations from "./ProductVariations/ProductVariations";
+import StockPreview from "./StockPreview/StockPreview";
 
 interface ProductDetailsProps {
   productId: string;
@@ -38,53 +38,28 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
   if (error) {
     return (
       <Alert severity="error">
-        {error instanceof Error ? error.message : "Erro ao carregar detalhes do produto"}
+        {error instanceof Error
+          ? error.message
+          : "Erro ao carregar detalhes do produto"}
       </Alert>
     );
   }
 
   if (!product) {
-    return (
-      <Alert severity="warning">
-        Produto não encontrado
-      </Alert>
-    );
+    return <Alert severity="warning">Produto não encontrado</Alert>;
   }
 
   return (
     <Stack spacing={3}>
       {/* Primeira linha: Galeria de imagens e informações principais */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          gap: 3,
-          alignItems: "stretch",
-        }}
-      >
-        <Box
-          sx={{
-            width: { xs: "100%", md: "40%" },
-            display: "flex",
-            flexDirection: "column",
-            minWidth: 0,
-            overflow: "hidden",
-          }}
-        >
-          <ProductImageGallery product={product} />
-        </Box>
+      <Box className="grid grid-cols-1 md:grid-cols-[38%_60%] gap-4 items-stretch">
+        <ProductImageGallery product={product} />
 
-        <Box
-          sx={{
-            width: { xs: "100%", md: "60%" },
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+        <Paper className="w-full flex flex-col bg-beergam-section-background!">
           <Stack spacing={2} sx={{ height: "100%" }}>
             <ProductInfo product={product} />
           </Stack>
-        </Box>
+        </Paper>
       </Box>
 
       {/* Segunda linha: Prévia de estoque */}
@@ -105,4 +80,3 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
     </Stack>
   );
 }
-

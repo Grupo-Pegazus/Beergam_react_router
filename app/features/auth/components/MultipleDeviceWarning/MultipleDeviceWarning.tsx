@@ -7,7 +7,7 @@ export default function MultipleDeviceWarning() {
   return (
     <PageLayout tailwindClassName="flex items-center justify-center">
       <div
-        className={`flex shadow-lg/55 relative z-10 flex-col justify-center items-center gap-4 bg-beergam-white w-full mx-auto my-auto p-8 sm:w-2/3 sm:max-w-2xl sm:rounded-4xl`}
+        className={`flex shadow-lg/55 relative z-10 flex-col justify-center items-center gap-4 bg-beergam-section-background! w-full mx-auto my-auto p-8 sm:w-2/3 sm:max-w-2xl sm:rounded-4xl`}
       >
         <div className="flex justify-center">
           <div className="relative">
@@ -47,7 +47,7 @@ export default function MultipleDeviceWarning() {
         </div>
 
         {/* Título */}
-        <h1 className="text-center text-2xl font-bold text-beergam-blue-primary">
+        <h1 className="text-center text-2xl font-bold text-beergam-typography-primary!">
           Sessão Encerrada
         </h1>
 
