@@ -64,7 +64,7 @@ export const MenuConfig = {
           },
           reclamacoes: {
             label: "Reclamações",
-            status: "red",
+            status: "green",
             path: "/reclamacoes",
             launched: true,
           },
@@ -186,8 +186,8 @@ export class MenuClass {
     const withDefaults = (item: IMenuItem): IMenuItem => {
       const dropdown = item.dropdown
         ? Object.fromEntries(
-            Object.entries(item.dropdown).map(([k, v]) => [k, withDefaults(v)])
-          )
+          Object.entries(item.dropdown).map(([k, v]) => [k, withDefaults(v)])
+        )
         : undefined;
       return {
         ...item,

@@ -11,7 +11,7 @@ interface SummaryCardDefinition {
   key: string;
   label: string;
   icon: keyof typeof Svg;
-  color: "slate" | "yellow" | "blue" | "green";
+  color: "slate" | "yellow" | "blue" | "green" | "orange";
   formatter?: (value: string | number) => string;
 }
 
@@ -21,6 +21,12 @@ const QUICK_STATUS_CARDS: SummaryCardDefinition[] = [
     label: "Prontas para enviar",
     icon: "in_box_stack",
     color: "yellow",
+  },
+  {
+    key: "pendentes",
+    label: "Pendentes",
+    icon: "warning_circle",
+    color: "orange",
   },
   {
     key: "em_transito",
@@ -65,7 +71,7 @@ export default function VendasResumo() {
     data: metricsData,
     isLoading: isLoadingMetrics,
     error: metricsError,
-  } = useOrdersMetrics();
+  } = useOrdersMetrics(90);
 
   const ordersByStatus = useMemo(() => {
     if (!metricsData?.success || !metricsData.data) {
