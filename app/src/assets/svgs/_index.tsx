@@ -45,6 +45,7 @@ import InBoxStackIcon from "./InBoxStackIcon";
 import InformationCircle from "./InformationCircle";
 import Line from "./Line";
 import List from "./List";
+import ListBullet from "./ListBullet";
 import LockClosed from "./LockClosed";
 import Logout from "./Logout";
 import LowStock from "./LowStock";
@@ -145,6 +146,7 @@ const Svg = {
   moon: Moon,
   box_arrow_down_solid: BoxArrowDownSolid,
   document_glass_solid: DocumentGlassSolid,
+  list_bullet: ListBullet,
 };
 
 export default Svg;

@@ -13,6 +13,7 @@ import {
   TextCensored,
 } from "~/src/components/utils/Censorship";
 import { useModal } from "~/src/components/utils/Modal/useModal";
+import ViewToggle from "~/src/components/utils/ViewToggle";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import { useChangeStatus } from "../../../hooks";
 import type { ProductDetails } from "../../../typings";
@@ -265,23 +266,32 @@ export default function ProductInfo({ product }: ProductInfoProps) {
               </Typography>
               <p>{variationsCount}</p>
             </div>
-            <BeergamSlider
-              slidesPerView={1}
-              slides={product.variations.map((variation) => (
-                <VariationCardNew
-                  key={variation.product_variation_id}
-                  variation={variation}
-                  isMutating={changeStatusMutation.isPending}
-                  onToggleStatus={(variationId, currentStatus) =>
-                    handleToggleStatus(variationId, currentStatus)
-                  }
+            <ViewToggle
+              listElement={<p>teste</p>}
+              cardElement={
+                <BeergamSlider
+                  slidesPerView={1}
+                  slides={product.variations.map((variation) => (
+                    <VariationCardNew
+                      key={variation.product_variation_id}
+                      variation={variation}
+                      isMutating={changeStatusMutation.isPending}
+                      onToggleStatus={(variationId, currentStatus) =>
+                        handleToggleStatus(variationId, currentStatus)
+                      }
+                    />
+                  ))}
+                  breakpoints={{
+                    768: {
+                      slidesPerView: 3,
+                    },
+                  }}
                 />
-              ))}
-              breakpoints={{
-                768: {
-                  slidesPerView: 3,
-                },
-              }}
+              }
+              defaultView="card"
+              onViewChange={(view) =>
+                console.log("Visualização alterada:", view)
+              }
             />
           </>
         )}
