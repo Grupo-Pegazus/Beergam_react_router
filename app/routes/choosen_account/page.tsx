@@ -193,6 +193,8 @@ export default function ChoosenAccountPage({
             ) : (
               <BeergamSlider
                 slidesPerView={1}
+                mousewheel={{ enabled: true, sensitivity: 1 }}
+                keyboard={{ enabled: true, pageUpDown: true }}
                 breakpoints={{
                   1024: {
                     slidesPerView: 3,
