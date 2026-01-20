@@ -4,7 +4,7 @@ import Alert from "~/src/components/utils/Alert";
 import { useModal } from "~/src/components/utils/Modal/useModal";
 import toast from "~/src/utils/toast";
 import { useChangeProductStatus, useDeleteProduct } from "../../hooks";
-import type { Product } from "../../typings";
+import type { Product, VariationBasic } from "../../typings";
 import {
   ActionsCell,
   PriceCell,
@@ -19,10 +19,14 @@ import {
 import VariationsDetailsModal from "./VariationsDetailsModal";
 import VariationsStatusModal from "./VariationsStatusModal/VariationsStatusModal";
 interface ProductCardProps {
-  product: Product;
+  product: Product | VariationBasic;
+  isVariation?: boolean;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  isVariation = false,
+}: ProductCardProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [isMutating, setIsMutating] = useState(false);
   const hasVariations = product.variations && product.variations.length > 0;
@@ -139,14 +143,18 @@ export default function ProductCard({ product }: ProductCardProps) {
           title={product.title}
           registrationType={product.registration_type}
           categoryName={product.categories?.[0]?.name}
+          isVariation={isVariation}
+          attributes={product.attributes}
         />
       </TableCell>
-      <TableCell align="right">
-        <VariationsCountCell
-          count={variationsCount}
-          onOpenModal={handleOpenVariationsDetailsModal}
-        />
-      </TableCell>
+      {!isVariation && (
+        <TableCell align="right">
+          <VariationsCountCell
+            count={variationsCount}
+            onOpenModal={handleOpenVariationsDetailsModal}
+          />
+        </TableCell>
+      )}
       <TableCell align="right">
         <PriceCell
           price={product.price_sale as number | string | null | undefined}
@@ -155,26 +163,30 @@ export default function ProductCard({ product }: ProductCardProps) {
       <TableCell align="right">
         <SkuCell sku={product.sku} />
       </TableCell>
-      <TableCell align="right">
-        <RelatedAdsCell count={relatedAdsCount} />
-      </TableCell>
+      {!isVariation && (
+        <TableCell align="right">
+          <RelatedAdsCell count={relatedAdsCount} />
+        </TableCell>
+      )}
       <TableCell align="right">
         <SalesQuantityCell quantity={product.sales_quantity} />
       </TableCell>
       <TableCell align="right">
         <StockCell stock={totalStock ?? null} />
       </TableCell>
-      <TableCell align="right">
-        <ActionsCell
-          productId={product.product_id}
-          hasStock={totalStock !== undefined}
-          hasVariations={hasVariations}
-          anchorEl={anchorEl}
-          onMenuOpen={handleMenuOpen}
-          onMenuClose={handleMenuClose}
-          onDelete={handleDeleteClick}
-        />
-      </TableCell>
+      {!isVariation && (
+        <TableCell align="right">
+          <ActionsCell
+            productId={product.product_id}
+            hasStock={totalStock !== undefined}
+            hasVariations={hasVariations}
+            anchorEl={anchorEl}
+            onMenuOpen={handleMenuOpen}
+            onMenuClose={handleMenuClose}
+            onDelete={handleDeleteClick}
+          />
+        </TableCell>
+      )}
       <Paper className="flex! flex-col gap-2 md:hidden! mb-4 relative">
         <ProductInfoCell
           imageUrl={mainImageUrl}

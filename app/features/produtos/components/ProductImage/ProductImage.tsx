@@ -8,9 +8,9 @@ interface ProductImageProps {
 }
 
 const sizeClasses = {
-  small: "h-12 w-12",
-  medium: "h-16 w-16",
-  large: "h-24 w-24",
+  small: "size-12",
+  medium: "size-16",
+  large: "size-24",
 };
 
 export default function ProductImage({
@@ -19,7 +19,6 @@ export default function ProductImage({
   className = "",
   size = "medium",
 }: ProductImageProps) {
-
   if (imageUrl) {
     return (
       <img
@@ -38,4 +37,3 @@ export default function ProductImage({
     </div>
   );
 }
-

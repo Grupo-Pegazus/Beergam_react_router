@@ -61,6 +61,8 @@ import Profile from "./Profile";
 import ProfileSolid from "./ProfileSolid";
 import Question from "./Question";
 import QuestionMark from "./QuestionMark";
+import Square3StackSolid from "./Square3StackSolid";
+import Squares2x2Solid from "./Squares2x2Solid";
 import Star from "./Star";
 import StarSolid from "./StarSolid";
 import Sun from "./Sun";
@@ -147,6 +149,8 @@ const Svg = {
   box_arrow_down_solid: BoxArrowDownSolid,
   document_glass_solid: DocumentGlassSolid,
   list_bullet: ListBullet,
+  square_3_stack_solid: Square3StackSolid,
+  squares_2x2_solid: Squares2x2Solid,
 };
 
 export default Svg;
