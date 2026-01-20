@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import Svg from "~/src/assets/svgs/_index";
 import { TextCensored } from "~/src/components/utils/Censorship";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+import type { VariationAttribute } from "../../typings/createProduct";
 import ProductImage from "../ProductImage/ProductImage";
 import { ProductStatusToggle } from "../ProductStatusToggle";
 import ProductChip from "./ProductChip";
@@ -85,6 +86,7 @@ interface ProductInfoCellProps {
   registrationType: string;
   categoryName?: string;
   isVariation?: boolean;
+  attributes?: VariationAttribute[];
 }
 
 export function ProductInfoCell({
@@ -93,6 +95,7 @@ export function ProductInfoCell({
   registrationType,
   categoryName,
   isVariation = false,
+  attributes,
 }: ProductInfoCellProps) {
   return (
     <div className="flex items-center gap-2">
@@ -106,15 +109,40 @@ export function ProductInfoCell({
           </h4>
         </TextCensored>
         <div className="flex items-center gap-2 mt-2">
-          <ProductChip
-            label={registrationType}
-            variant="rounded"
-            className={`${
-              registrationType === "Completo"
-                ? "bg-beergam-primary!"
-                : "bg-beergam-typography-secondary!"
-            }  ${isVariation && "hidden!"}`}
-          />
+          {!isVariation && (
+            <ProductChip
+              label={registrationType}
+              variant="rounded"
+              className={`${
+                registrationType === "Completo"
+                  ? "bg-beergam-primary!"
+                  : "bg-beergam-typography-secondary!"
+              }  ${isVariation && "hidden!"}`}
+            />
+          )}
+          {isVariation && (
+            <div className="flex max-w-[100%] flex-nowrap overflow-x-scroll gap-2">
+              {attributes?.map((attr) => (
+                // <ProductChip
+                //   key={attr.id}
+                //   label={`${attr.name}: ${attr.value.join(", ")}`}
+                //   variant="rounded"
+                //   className="bg-beergam-section-background! text-beergam-typography-primary! border-beergam-input-border!"
+                // />
+                <div
+                  className="flex items-center bg-beergam-section-background p-2 rounded-md border border-beergam-input-border! gap-1"
+                  key={`${attr.name}-${attr.value.join(", ")}`}
+                >
+                  <p className="text-beergam-typography-primary! font-medium">
+                    {attr.name}:
+                  </p>
+                  <p className="text-beergam-typography-tertiary!">
+                    {attr.value.join(", ")}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
           {categoryName && (
             <ProductChip
               label={categoryName}

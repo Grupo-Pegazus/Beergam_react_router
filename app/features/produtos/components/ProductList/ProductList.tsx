@@ -1,21 +1,12 @@
-import {
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-} from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import PaginationBar from "~/src/components/ui/PaginationBar";
 import { useProducts } from "../../hooks";
 import type { Product, ProductsFilters } from "../../typings";
-import ProductCard from "./ProductCard";
 import ProductListSkeleton from "./ProductListSkeleton";
+import ProductTable from "./ProductTable";
 
 interface ProductListProps {
   filters?: Partial<ProductsFilters>;
@@ -79,39 +70,7 @@ export default function ProductList({ filters = {} }: ProductListProps) {
                 </Typography>
               </div>
             ) : (
-              <>
-                {/* Cabeçalho das colunas - Oculto em mobile */}
-                <TableContainer>
-                  <Table className="flex! flex-col md:table!">
-                    <TableHead className="hidden! md:table-header-group!">
-                      <TableRow>
-                        <TableCell>Status</TableCell>
-                        <TableCell align="left">Produto</TableCell>
-                        <TableCell align="right">Variações</TableCell>
-                        <TableCell align="right">Preço</TableCell>
-                        <TableCell align="right">SKU</TableCell>
-                        <TableCell align="right">Anúncios</TableCell>
-                        <TableCell align="right">Vendas</TableCell>
-                        <TableCell align="right">Estoque</TableCell>
-                        <TableCell align="right">Ações</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody className="flex! flex-col md:table-row-group!">
-                      {products.map((product) => (
-                        <TableRow
-                          key={product.product_id}
-                          className="flex! flex-col md:table-row!"
-                        >
-                          <ProductCard
-                            key={product.product_id}
-                            product={product}
-                          />
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </>
+              <ProductTable products={products} />
             )}
           </Stack>
         </AsyncBoundary>

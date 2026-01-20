@@ -45,7 +45,7 @@ const VariationBasicSchema = z.object({
     )
     .optional(),
 });
-
+export type VariationBasic = z.infer<typeof VariationBasicSchema>;
 // Schema para produto (da lista)
 export const ProductSchema = z.object({
   product_id: z.string(),
@@ -96,6 +96,8 @@ const VariationFullSchema = z.object({
   extra_cost: z.string().optional(),
   packaging_cost: z.string().optional(),
 });
+
+export type VariationFull = z.infer<typeof VariationFullSchema>;
 
 // Schema para produto completo (detalhes)
 export const ProductDetailsSchema = z.object({
@@ -186,9 +188,12 @@ export const ProductsFiltersSchema = z.object({
   category_name: z.string().optional(),
   // Paginação
   page: z.number().default(1),
-  per_page: z.number().default(20).refine((val) => val <= 100, {
-    message: "per_page deve ser no máximo 100",
-  }),
+  per_page: z
+    .number()
+    .default(20)
+    .refine((val) => val <= 100, {
+      message: "per_page deve ser no máximo 100",
+    }),
   // Ordenação
   sort_by: z
     .enum(["created_at", "sku", "title", "status", "registration_type"])
@@ -208,23 +213,30 @@ export const ProductsMetricsSchema = z.object({
 export type ProductsMetrics = z.infer<typeof ProductsMetricsSchema>;
 
 // Schema para valores monetários que vêm como objeto com source e parsedValue
-const MonetaryValueSchema = z.object({
-  source: z.string(),
-  parsedValue: z.number(),
-}).nullable();
+const MonetaryValueSchema = z
+  .object({
+    source: z.string(),
+    parsedValue: z.number(),
+  })
+  .nullable();
 
 // Schema para meta que contém informações sobre variação e sincronização
-const StockTrackingMetaSchema = z.object({
-  auto_sync: z.boolean().optional(),
-  cost_fallback_applied: z.boolean().optional(),
-  marketplace: z.string().optional(),
-  marketplace_shop_id: z.string().optional(),
-  product_id: z.string().optional(),
-  variation_id: z.string().nullable().optional(),
-  variation_sku: z.string().nullable().optional(),
-  product_variation_id: z.union([z.string(), z.number()]).nullable().optional(),
-  sku: z.string().nullable().optional(),
-}).passthrough(); // Permite campos adicionais
+const StockTrackingMetaSchema = z
+  .object({
+    auto_sync: z.boolean().optional(),
+    cost_fallback_applied: z.boolean().optional(),
+    marketplace: z.string().optional(),
+    marketplace_shop_id: z.string().optional(),
+    product_id: z.string().optional(),
+    variation_id: z.string().nullable().optional(),
+    variation_sku: z.string().nullable().optional(),
+    product_variation_id: z
+      .union([z.string(), z.number()])
+      .nullable()
+      .optional(),
+    sku: z.string().nullable().optional(),
+  })
+  .passthrough(); // Permite campos adicionais
 
 // Schema para entrada individual de stock tracking
 export const StockTrackingEntrySchema = z.object({
@@ -370,9 +382,7 @@ export const StockMovementResponseSchema = z.object({
     .optional(),
 });
 
-export type StockMovementResponse = z.infer<
-  typeof StockMovementResponseSchema
->;
+export type StockMovementResponse = z.infer<typeof StockMovementResponseSchema>;
 
 // Schema para movimentação recente no dashboard
 const RecentMovementSchema = z.object({
@@ -497,4 +507,3 @@ export const StockSyncDashboardResponseSchema = z.object({
 export type StockSyncDashboardResponse = z.infer<
   typeof StockSyncDashboardResponseSchema
 >;
-
