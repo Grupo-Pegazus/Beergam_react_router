@@ -12,8 +12,7 @@ export interface ClientsListProps {
     onClientSelect?: (client: Client) => void;
 }
 
-// Altura estimada de cada card (será medida dinamicamente)
-const ESTIMATED_CARD_HEIGHT = 120; // Altura aproximada inicial (card + gap)
+const ESTIMATED_CARD_HEIGHT = 140;
 
 function ClientsListComponent({
     clients,
@@ -27,7 +26,7 @@ function ClientsListComponent({
         count: clients.length,
         getScrollElement: () => parentRef.current,
         estimateSize: () => ESTIMATED_CARD_HEIGHT,
-        overscan: 5, // Renderiza 5 itens extras acima/abaixo para scroll suave
+        overscan: 5,
         getItemKey: (index) => {
             const client = clients[index];
             return client?.client_id || `client-${index}`;
@@ -53,7 +52,7 @@ function ClientsListComponent({
             ref={parentRef}
             className="h-full overflow-y-auto"
             style={{
-                contain: "strict", // Otimização de performance do browser
+                contain: "strict",
             }}
         >
             <div
@@ -65,10 +64,8 @@ function ClientsListComponent({
             >
                 {virtualizer.getVirtualItems().map((virtualItem) => {
                     const client = clients[virtualItem.index];
-                    // Usa client_id como chave, com fallback para índice caso não exista
                     const uniqueKey = client?.client_id || `client-${virtualItem.index}`;
 
-                    // Proteção contra clientes undefined/null
                     if (!client) {
                         return null;
                     }
@@ -83,10 +80,9 @@ function ClientsListComponent({
                                 top: 0,
                                 left: 0,
                                 width: "100%",
-                                height: `${virtualItem.size}px`,
                                 transform: `translateY(${virtualItem.start}px)`,
                             }}
-                            className="pb-2" // gap-2 equivalente
+                            className="pb-2"
                         >
                             <ClientCard
                                 client={client}
