@@ -1,87 +1,88 @@
-import { Avatar, Fade, Paper, TextField } from "@mui/material";
+import { Avatar, Fade, Paper, Skeleton, TextField } from "@mui/material";
 import dayjs from "dayjs";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import type { Chat, ChatMessage as ChatMessageType } from "../../typings";
 import ChatMessage from "../ChatMessage";
+import ChatMessageSkeleton from "../ChatMessage/skeleton";
 import ChatHeader, { type ChatType } from "./ChatHeader";
 
-
-//     {
-//         id: "refund",
-//         label: "Devolver o dinheiro do comprador",
-//         icon: "currency_dollar",
-//         onClick: () => console.log("Refund action"),
-//     },
-//     {
-//         id: "open_dispute",
-//         label: "Iniciar uma mediação",
-//         icon: "megaphone",
-//         onClick: () => console.log("Open dispute action"),
-//     },
-//     {
-//         id: "send_potential_shipping",
-//         label: "Enviar uma promessa de envio, uma data",
-//         icon: "calendar",
-//         onClick: () => console.log("Send potential shipping action"),
-//     },
-//     {
-//         id: "add_shipping_evidence",
-//         label: "Publicar uma evidência de que o produto foi enviado",
-//         icon: "document",
-//         onClick: () => console.log("Add shipping evidence action"),
-//     },
-//     {
-//         id: "send_attachments",
-//         label: "Enviar mensagem com anexos",
-//         icon: "camera",
-//         onClick: () => console.log("Send attachments action"),
-//     },
-//     {
-//         id: "allow_return",
-//         label: "Gerar etiqueta de devolução",
-//         icon: "arrow_uturn_left",
-//         onClick: () => console.log("Allow return action"),
-//     },
-//     {
-//         id: "allow_return_label",
-//         label: "Gerar etiqueta de devolução",
-//         icon: "arrow_uturn_left",
-//         onClick: () => console.log("Allow return label action"),
-//     },
-//     {
-//         id: "allow_partial_refund",
-//         label: "Devolução parcial do dinheiro do comprador para reclamações do tipo PDD",
-//         icon: "currency_dollar",
-//         onClick: () => console.log("Allow partial refund action"),
-//     },
-//     {
-//         id: "send_tracking_number",
-//         label: "Enviar o número de rastreamento do envio (tracking number)",
-//         icon: "truck",
-//         onClick: () => console.log("Send tracking number action"),
-//     },
-//     {
-//         id: "return_review",
-//         label: "Realizar a revisão de uma devolução, indicando se o produto chegou conforme esperado ou não",
-//         icon: "check_circle",
-//         onClick: () => console.log("Return review action"),
-//     },
-// ];
+/**
+ * Props do componente ChatArea
+ * 
+ * Estende a interface Chat que contém:
+ * - sender: Informações detalhadas do remetente (ChatUserDetails | null)
+ * - messages: Array de mensagens do chat (ChatMessage[])
+ * - actions: Array opcional de ações disponíveis no chat (ChatAction[])
+ * 
+ * Props adicionais específicas do ChatArea:
+ */
 export interface ChatAreaProps extends Chat {
+    /**
+     * Tipo de chat ativo. Define qual aba está selecionada no header.
+     * Valores possíveis: "pos_venda" | "reclamacao" | "mediacao"
+     * @default "pos_venda"
+     */
     chatType?: ChatType;
+    
+    /**
+     * Callback chamado quando o tipo de chat é alterado pelo usuário.
+     * Recebe o novo tipo de chat selecionado.
+     */
     onChatTypeChange?: (type: ChatType) => void;
+    
+    /**
+     * Indica se o componente está em estado de carregamento.
+     * Quando true, exibe skeletons das mensagens ao invés das mensagens reais.
+     * @default false
+     */
+    isLoading?: boolean;
 }
+
+/**
+ * Componente principal de área de chat.
+ * 
+ * Exibe uma interface completa de chat incluindo:
+ * - Header com abas para diferentes tipos de chat (Pós-venda, Reclamação, Mediação)
+ * - Informações do remetente (avatar, nickname, data de criação)
+ * - Lista de mensagens com scroll automático
+ * - Campo de input para envio de novas mensagens
+ * - Botões de ações contextuais (quando disponíveis)
+ * 
+ * Estados internos:
+ * - message: Texto da mensagem sendo digitada
+ * - showActions: Controla a exibição de overlay de ações
+ * 
+ * Comportamento:
+ * - Quando isLoading é true, exibe skeletons aleatórios (2-10) das mensagens
+ * - Quando não há mensagens, exibe mensagem "Nenhuma mensagem encontrada"
+ * - Campo de input só é habilitado quando há um sender definido
+ * - Ações são renderizadas como botões no header quando disponíveis
+ * 
+ * @example
+ * ```tsx
+ * <ChatArea
+ *   chatType="pos_venda"
+ *   onChatTypeChange={(type) => console.log(type)}
+ *   messages={chatMessages}
+ *   sender={chatSender}
+ *   actions={chatActions}
+ *   isLoading={false}
+ * />
+ * ```
+ */
 export default function ChatArea({
     chatType = "pos_venda",
     onChatTypeChange,
     messages = [],
     actions = [],
-    sender
+    sender,
+    isLoading = false
 }: ChatAreaProps) {
     const [message, setMessage] = useState<string>("");
     const [showActions, setShowActions] = useState<boolean>(false);
     const actionRef = useRef<HTMLDivElement>(null);
+    const randomSkeletonAmmount = useMemo(() => Math.floor(Math.random() * 10) + 2, [messages.length]);
     return (
         <div className="flex flex-col h-full overflow-hidden">
             <ChatHeader activeType={chatType} onTypeChange={onChatTypeChange} />
@@ -93,7 +94,8 @@ export default function ChatArea({
                                 <Avatar className="bg-beergam-primary!">{sender.details.nickname.charAt(0) || "C"}</Avatar>
                                 <div className="flex flex-col gap-1 items-start">
                                     <h4 className="text-beergam-white!">{sender.details.nickname || "Cliente"}</h4>
-                                    {messages.length > 0 && <p className="text-beergam-white!">Criado em {dayjs(messages[0].date_created).format("DD/MM/YYYY HH:mm")}</p>}
+                                    {messages.length > 0 && !isLoading && <p className="text-beergam-white!">Criado em {dayjs(messages[0].date_created).format("DD/MM/YYYY HH:mm")}</p>}
+                                    {isLoading && <Skeleton variant="text" width={100} height={16} />}
                                 </div>
                             </div>
                         )}
@@ -125,11 +127,12 @@ export default function ChatArea({
                                 <p className="text-beergam-typography-primary!">Nenhuma mensagem encontrada</p>
                             </div>
                         )}
-                        {messages.map((message, index) => (
+                        {isLoading && <><ChatMessageSkeleton ammount={randomSkeletonAmmount} /></>}
+                        {!isLoading && <>{messages.map((message, index) => (
                             <ChatMessage key={`${message.user}-${message.date_created}-${index}`} message={message as ChatMessageType} />
-                        ))}
+                        ))}</>}
                     </div>
-                    {sender && <div className="p-2 sticky bottom-0 bg-beergam-menu-background/80! rounded-lg z-25 flex items-center gap-2">
+                    {sender && !isLoading && <div className="p-2 sticky bottom-0 bg-beergam-menu-background/80! rounded-lg z-25 flex items-center gap-2">
                         <TextField
                             fullWidth
                             placeholder="Digite sua mensagem..."
