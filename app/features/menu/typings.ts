@@ -51,9 +51,15 @@ export const MenuConfig = {
     icon: "chat",
     launched: true,
     dropdown: {
+      chat: {
+        label: "Chat",
+        status: "yellow",
+        path: "/chat",
+        launched: true,
+      },
       mercado_livre: {
         label: "Mercado Livre",
-        status: "yellow",
+        status: "green",
         launched: true,
         dropdown: {
           perguntas: {
@@ -67,11 +73,6 @@ export const MenuConfig = {
             status: "green",
             path: "/reclamacoes",
             launched: true,
-          },
-          mensagens: {
-            label: "Mensagens",
-            status: "red",
-            path: "/mensagens",
           },
         },
       },
