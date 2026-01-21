@@ -8,7 +8,6 @@ export enum ClaimStatus {
 export type ClaimMessageRole = "complainant" | "respondent" | "mediator" | "purchase";
 
 export interface ClaimMessage {
-    message: string;
     date_created?: string;
     sender_role?: ClaimMessageRole;
     receiver_role?: ClaimMessageRole;

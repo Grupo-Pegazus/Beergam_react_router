@@ -62,7 +62,7 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
   const siteUrl = "https://beergam.com.br";
   const siteName = "Beergam";
   const title = "Beergam | ERP Completo para E-commerce";
