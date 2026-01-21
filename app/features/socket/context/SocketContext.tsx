@@ -22,6 +22,7 @@ import type {
   SocketContextValue,
   SocketNamespace,
 } from "../typings/socket.types";
+import { subscriptionService } from "~/features/plans/subscriptionService";
 
 const SocketContext = createContext<SocketContextValue | undefined>(undefined);
 
@@ -318,6 +319,13 @@ export function SocketProvider({
       }
     });
 
+    socket.on("stripe_subscription_change", (data) => {
+      console.log("Atualização de assinatura recebida:", data);
+      // TODO: atualizar as outras informações também no auth debug
+      // verifiquei que dentro de user.details.subscription a assinatura não é atualizada
+      subscriptionService.getSubscription();
+    });
+
     socket.on("heartbeat", (data) => {
       console.log("💓 Heartbeat recebido:", data);
     });
@@ -484,11 +492,18 @@ export function SocketProvider({
     const shouldConnect = isAuthenticated && isInternalRoute;
     
     if (shouldConnect) {
+      // Aguardar 2 segundos antes de conectar o socket de status online 
+      // para evitar erros de autenticação devido ao token correto não estar disponível imediatamente
+      // em casos de reautenticação (refresh)
       if (!sessionSocketRef.current) {
-        connectSession();
+        setTimeout(() => {
+          connectSession();
+        }, 2000);
       }
       if (!onlineStatusSocketRef.current) {
-        connectOnlineStatus();
+        setTimeout(() => {
+          connectOnlineStatus();
+        }, 2000);
       }
     } else {
       // Só desconectar se estiver conectado
