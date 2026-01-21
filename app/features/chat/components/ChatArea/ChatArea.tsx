@@ -86,7 +86,7 @@ export default function ChatArea({
         <div className="flex flex-col h-full overflow-hidden">
             <ChatHeader activeType={chatType} onTypeChange={onChatTypeChange} />
             <Paper className="p-0! text-center mt-2 bg-beergam-section-background! relative flex-1 flex flex-col min-h-0">
-                   <div className="sticky top-0 z-1000">
+                   <div className="sticky top-0 z-100">
                     <div className="text-beergam-white flex items-center justify-between  rounded-t-lg bg-beergam-menu-background/80! p-2">
                         {sender && (
                             <div className="flex items-start gap-2">
@@ -109,7 +109,7 @@ export default function ChatArea({
                                         setShowActions(false);
                                     }}
                                     className="justify-start! text-left! w-full! p-2! h-auto! whitespace-normal!"
-                                    mainColor="beergam-menu-background"
+                                    mainColor="beergam-primary"
                                 />
                             ))}
                         </div>

@@ -1,7 +1,7 @@
-import { memo } from "react";
 import { Chip, Paper } from "@mui/material";
-import { getMarketplaceImageUrl } from "~/src/constants/cdn-images";
+import { memo } from "react";
 import { MarketplaceTypeLabel } from "~/features/marketplace/typings";
+import { getMarketplaceImageUrl } from "~/src/constants/cdn-images";
 import type { Client } from "../../typings";
 
 interface ClientCardProps {
@@ -32,8 +32,8 @@ function ClientCardComponent({
     return (
         <Paper
             className={`rounded-xl p-4 cursor-pointer transition-all duration-200 border ${selected
-                ? "bg-beergam-orange-light! border-beergam-orange! shadow-md"
-                : "bg-beergam-section-background border-beergam-section-border hover:shadow-md hover:border-beergam-primary/30"
+                ? "bg-beergam-primary/10! border-beergam-primary! shadow-md"
+                : "bg-beergam-section-background! border-transparent! hover:shadow-md hover:border-beergam-primary/30!"
                 }`}
             onClick={handleClick}
             role="button"
@@ -90,12 +90,12 @@ function ClientCardComponent({
                     </div>
 
                     {/* Nome do receiver */}
-                    <p className="text-xs text-beergam-typography-secondary truncate mb-2">
+                    <p className="text-xs text-beergam-typography-tertiary! truncate mb-2">
                         {client.receiver_name}
                     </p>
 
                     {/* Estatísticas */}
-                    <div className="flex items-center gap-4 text-xs text-beergam-typography-secondary">
+                    <div className="flex items-center gap-4 text-xs text-beergam-typography-tertiary!">
                         <span>
                             {client.total_orders} pedido{client.total_orders !== 1 ? "s" : ""}
                         </span>

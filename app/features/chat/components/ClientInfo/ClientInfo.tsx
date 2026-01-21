@@ -1,5 +1,5 @@
-import { memo } from "react";
 import { Paper } from "@mui/material";
+import { memo } from "react";
 import type { Client } from "../../typings";
 
 export interface ClientInfoProps {
@@ -33,12 +33,12 @@ function ClientInfoComponent({ client }: ClientInfoProps) {
 
                 <div className="flex flex-col gap-4">
                     {/* Informações básicas */}
-                    <div className="space-y-2">
+                    <div className="grid grid-cols-3 space-y-2">
                         <div>
                             <p className="text-xs text-beergam-typography-secondary mb-1">
                                 Apelido
                             </p>
-                            <p className="text-sm font-medium text-beergam-typography-primary">
+                            <p className="text-sm font-medium text-beergam-typography-tertiary!">
                                 {client.nickname}
                             </p>
                         </div>
@@ -47,7 +47,7 @@ function ClientInfoComponent({ client }: ClientInfoProps) {
                             <p className="text-xs text-beergam-typography-secondary mb-1">
                                 Nome Completo
                             </p>
-                            <p className="text-sm font-medium text-beergam-typography-primary">
+                            <p className="text-sm font-medium text-beergam-typography-tertiary!">
                                 {client.receiver_name}
                             </p>
                         </div>
@@ -56,7 +56,7 @@ function ClientInfoComponent({ client }: ClientInfoProps) {
                             <p className="text-xs text-beergam-typography-secondary mb-1">
                                 Documento
                             </p>
-                            <p className="text-sm font-medium text-beergam-typography-primary">
+                            <p className="text-sm font-medium text-beergam-typography-tertiary!">
                                 {client.receiver_document.id}: {client.receiver_document.value}
                             </p>
                         </div>
