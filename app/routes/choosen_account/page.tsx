@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
-import { useFetcher, useNavigate } from "react-router";
+import { useFetcher } from "react-router";
 
 import { Paper } from "@mui/material";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
@@ -43,7 +43,6 @@ export default function ChoosenAccountPage({
   const [typeFilter, setTypeFilter] = useState<string | null>("");
   const fetcher = useFetcher();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (fetcher.data && fetcher.data.success && fetcher.state === "idle") {
@@ -174,7 +173,7 @@ export default function ChoosenAccountPage({
                     setSearchTerm("");
                     setTypeFilter("");
                   }}
-                  // className="px-3 py-2 rounded-[12px] border border-black/20 text-sm text-[#1e1f21] hover:bg-gray-50 transition-colors whitespace-nowrap"
+                // className="px-3 py-2 rounded-[12px] border border-black/20 text-sm text-[#1e1f21] hover:bg-gray-50 transition-colors whitespace-nowrap"
                 />
                 {/* <div className="px-3 py-2 rounded-[12px] bg-[#f6f8fb] text-[#1e1f21] text-sm border border-black/10 min-w-[60px] text-center flex items-center justify-center">
                   {resultsCount}

@@ -367,7 +367,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
             {timelineItems.length > 0 && (
               <div
                 style={{
-                  background: "var(--color-beergam-section-background)!",
+                  background: "var(--color-beergam-section-background)",
                   borderRadius: "15px",
                   padding: "20px",
                   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
