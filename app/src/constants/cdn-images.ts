@@ -24,7 +24,10 @@ const MARKETPLACE_IMAGES: Record<MarketplaceType, string> = {
 };
 
 export function getMarketplaceImageUrl(
-  marketplaceType: MarketplaceType
+  marketplaceType: MarketplaceType | null
 ): string {
+  if (!marketplaceType) {
+    return "";
+  }
   return MARKETPLACE_IMAGES[marketplaceType];
 }

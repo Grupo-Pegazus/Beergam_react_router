@@ -24,10 +24,14 @@ export function useMarketplaceAccounts() {
       );
       return res;
     },
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
       if (res.success) {
-        queryClient.invalidateQueries({ refetchType: "active" });
         authStore.setState({ marketplace: res.data });
+
+        await queryClient.invalidateQueries();
+
+        await queryClient.refetchQueries();
+
         toast.success("Conta selecionada");
       } else {
         toast.error(res.message);
