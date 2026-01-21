@@ -120,7 +120,7 @@ export default function ChatPage() {
 
             {/* Coluna Meio - Chat (50%) */}
             <div className="flex-1 flex flex-col min-w-0">
-                <ChatArea sender={transformClientToChatUserDetails(selectedClient)} messages={[]} chatType={chatType} onChatTypeChange={handleChatTypeChange} />
+                <ChatArea sender={transformClientToChatUserDetails(selectedClient)} messages={[]} chatType={chatType} isLoading={true} onChatTypeChange={handleChatTypeChange} />
             </div>
 
             {/* Coluna Direita - Informações do Cliente (30%) */}
