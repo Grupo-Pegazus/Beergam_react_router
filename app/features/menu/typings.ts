@@ -150,6 +150,20 @@ export const MenuConfig = {
     path: "/calculadora",
     icon: "calculator",
     launched: true,
+  },
+  financeiro: {
+    label: "Financeiro",
+    status: "green",
+    icon: "currency_dollar",
+    launched: true,
+    dropdown: {
+      relatorio_vendas: {
+        label: "Relatório de Vendas",
+        status: "green",
+        path: "/relatorio_vendas",
+        launched: true,
+      }
+    }
   }
 } satisfies IMenuConfig;
 
@@ -174,6 +188,9 @@ export const MenuViewExtraInfo: Record<
   },
   calculadora: {
     description: "Área de calculadora do sistema",
+  },
+  financeiro: {
+    description: "Área de financeiro do sistema",
   },
 };
 

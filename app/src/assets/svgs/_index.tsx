@@ -29,6 +29,7 @@ import Cog8Tooth from "./Cog8Tooth";
 import Copy from "./Copy";
 import CopySolid from "./CopySolid";
 import CurrencyDollar from "./CurrencyDollar";
+import CurrencyDollarSolid from "./CurrencyDollarSolid";
 import DocumentGlassSolid from "./DocumentGlassSolid";
 import DocumentIcon from "./DocumentIcon";
 import DollyIcon from "./DollyIcon";
@@ -91,6 +92,7 @@ const Svg = {
   phone: PhoneIcon,
   cog_8_tooth: Cog8Tooth,
   currency_dollar: CurrencyDollar,
+  currency_dollar_solid: CurrencyDollarSolid,
   building_library: BuildingLibrary,
   clock: ClockIcon,
   dolly: DollyIcon,
