@@ -1,12 +1,12 @@
-import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { ClientsList } from "~/features/chat/components/ClientsList";
-import { ClientsFilters } from "~/features/chat/components/ClientsFilters";
-import { ChatArea } from "~/features/chat/components/ChatArea";
-import { ClientInfo } from "~/features/chat/components/ClientInfo";
-import { useClients } from "~/features/chat/hooks";
-import type { Client, ClientsFilters as ClientsFiltersType, ClientsFiltersState } from "~/features/chat/typings";
+import { useCallback, useMemo, useState } from "react";
 import type { ChatType } from "~/features/chat/components/ChatArea";
+import { ChatArea } from "~/features/chat/components/ChatArea";
+import { ClientsFilters } from "~/features/chat/components/ClientsFilters";
+import { ClientsList } from "~/features/chat/components/ClientsList";
+import { useClients } from "~/features/chat/hooks";
+import type { Client, ClientsFiltersState, ClientsFilters as ClientsFiltersType } from "~/features/chat/typings";
+import { transformClientToChatUserDetails } from "~/features/chat/typings";
 
 const DEFAULT_FILTERS: ClientsFiltersState = {
     client_id: "",
@@ -88,7 +88,7 @@ export default function ChatPage() {
     return (
         <div className="h-[calc(100vh-200px)] flex flex-col lg:flex-row gap-4">
             {/* Coluna Esquerda - Lista de Clientes (20%) */}
-            <div className="w-full lg:w-[20%] lg:min-w-[250px] flex flex-col gap-4">
+            <div className="w-full lg:w-[40%] lg:min-w-[250px] flex flex-col gap-4">
                 <ClientsFilters
                     value={filters}
                     onChange={handleFiltersChange}
@@ -120,13 +120,13 @@ export default function ChatPage() {
 
             {/* Coluna Meio - Chat (50%) */}
             <div className="flex-1 flex flex-col min-w-0">
-                <ChatArea chatType={chatType} onChatTypeChange={handleChatTypeChange} />
+                <ChatArea sender={transformClientToChatUserDetails(selectedClient)} messages={[]} chatType={chatType} onChatTypeChange={handleChatTypeChange} />
             </div>
 
             {/* Coluna Direita - Informações do Cliente (30%) */}
-            <div className="w-full lg:w-[30%] lg:min-w-[300px] flex flex-col">
+            {/* <div className="w-full lg:w-[30%] lg:min-w-[300px] flex flex-col">
                 <ClientInfo client={selectedClient || undefined} />
-            </div>
+            </div> */}
         </div>
     );
 }

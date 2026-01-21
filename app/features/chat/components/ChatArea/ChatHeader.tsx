@@ -1,6 +1,5 @@
+import { Tab, Tabs } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Tabs, Tab } from "@mui/material";
-
 export type ChatType = "pos_venda" | "reclamacao" | "mediacao";
 
 export interface ChatHeaderProps {

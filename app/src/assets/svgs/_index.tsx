@@ -57,6 +57,7 @@ import PencilSolid from "./PencilSolid";
 import PhoneIcon from "./PhoneIcon";
 import Plus from "./Plus";
 import PlusCircle from "./PlusCircle";
+import PlusCircleSolid from "./PlusCircleSolid";
 import Profile from "./Profile";
 import ProfileSolid from "./ProfileSolid";
 import Question from "./Question";
@@ -147,6 +148,7 @@ const Svg = {
   box_arrow_down_solid: BoxArrowDownSolid,
   document_glass_solid: DocumentGlassSolid,
   list_bullet: ListBullet,
+  plus_circle_solid: PlusCircleSolid,
 };
 
 export default Svg;
