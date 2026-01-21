@@ -17,6 +17,7 @@ import ViewToggle from "~/src/components/utils/ViewToggle";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import { useChangeStatus } from "../../../hooks";
 import type { ProductDetails } from "../../../typings";
+import ProductTable from "../../ProductList/ProductTable";
 import VariationCardNew from "../../ProductList/Variations/VariationCardNew";
 import VariationsStatusModal from "../../ProductList/VariationsStatusModal/VariationsStatusModal";
 import { ProductStatusToggle } from "../../ProductStatusToggle";
@@ -267,7 +268,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
               <p>{variationsCount}</p>
             </div>
             <ViewToggle
-              listElement={<p>teste</p>}
+              listElement={<ProductTable products={product.variations} />}
               cardElement={
                 <BeergamSlider
                   slidesPerView={1}

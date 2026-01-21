@@ -49,7 +49,7 @@ const authBaseStore = create<IAuthStore>()(
       user: null,
       marketplace: null,
       usageLimitData: null,
-      login: (subscription: Subscription | null, user: IUser | IColab | null) =>
+      login: (subscription: Subscription | null, user: IUser | IColab | null, shouldClearMarketplace: boolean = true) =>
         set({
           subscription,
           user,
@@ -57,6 +57,7 @@ const authBaseStore = create<IAuthStore>()(
           success: true,
           error: null,
           isLoggingOut: false,
+          marketplace: shouldClearMarketplace ? null : get().marketplace,
         }),
       logout: () => {
         set({
@@ -74,7 +75,7 @@ const authBaseStore = create<IAuthStore>()(
         set({
           error,
           loading: false,
-          success: false,
+          // success: false,
           subscription: null,
           usageLimitData: usageLimitData ?? null,
         }),

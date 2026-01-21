@@ -1,5 +1,4 @@
 import Box from "@mui/material/Box";
-import FormControl from "@mui/material/FormControl";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
@@ -8,7 +7,6 @@ import Tabs from "@mui/material/Tabs";
 import Typography from "@mui/material/Typography";
 import { useMemo, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
-import { Fields } from "~/src/components/utils/_fields";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import type { ProductDetails } from "../../../typings";
 
@@ -57,17 +55,8 @@ export default function ProductImageGallery({
 
   // Determina quais imagens usar: da variação selecionada ou do produto
   const imagesSource = useMemo(() => {
-    if (hasVariations && selectedVariation) {
-      return (
-        selectedVariation.images || {
-          product: [],
-          marketplace: [],
-          shipping: [],
-        }
-      );
-    }
     return product.images;
-  }, [hasVariations, selectedVariation, product.images]);
+  }, [product.images]);
 
   const currentImages = useMemo(() => {
     return imagesSource[selectedTab] || [];
@@ -104,93 +93,6 @@ export default function ProductImageGallery({
   return (
     <Paper>
       <Stack spacing={2} sx={{ width: "100%" }}>
-        {/* Seletor de variações - apenas quando há variações */}
-        {hasVariations &&
-          product.variations &&
-          product.variations.length > 0 && (
-            <FormControl fullWidth size="small">
-              {/* <InputLabel id="variation-select-label">Variação</InputLabel>
-              <Select
-                labelId="variation-select-label"
-                value={activeVariationId || ""}
-                label="Variação"
-                onChange={(e) => {
-                  setSelectedVariationId(e.target.value as string);
-                  setSelectedIndex(0); // Reset para primeira imagem ao trocar variação
-                }}
-                sx={{
-                  "& .MuiSelect-select": {
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                  },
-                }}
-              >
-                {product.variations.map((variation) => {
-                  const variationImages = variation.images?.product || [];
-                  const hasImages = variationImages.length > 0;
-                  return (
-                    <MenuItem
-                      key={variation.product_variation_id}
-                      value={variation.product_variation_id}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                          width: "100%",
-                        }}
-                      >
-                        <Typography variant="body2" sx={{ flex: 1 }}>
-                          {variation.title}
-                        </Typography>
-                        {variation.sku && (
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: "text.secondary",
-                              fontFamily: "monospace",
-                            }}
-                          >
-                            {variation.sku}
-                          </Typography>
-                        )}
-                        {hasImages && (
-                          <Chip
-                            label={variationImages.length}
-                            size="small"
-                            sx={{
-                              height: 20,
-                              fontSize: "0.65rem",
-                              bgcolor: "primary.main",
-                              color: "white",
-                            }}
-                          />
-                        )}
-                      </Box>
-                    </MenuItem>
-                  );
-                })}
-              </Select> */}
-              <Fields.wrapper>
-                <Fields.label text="Variação" />
-                <Fields.select
-                  value={activeVariationId || ""}
-                  onChange={(e) => {
-                    setSelectedVariationId(e.target.value as string);
-                    setSelectedIndex(0);
-                  }}
-                  options={product.variations.map((variation) => ({
-                    value: variation.product_variation_id,
-                    label: variation.title,
-                  }))}
-                  // required
-                />
-              </Fields.wrapper>
-            </FormControl>
-          )}
-
         {/* Tabs para selecionar tipo de imagem */}
         <Tabs
           value={selectedTab}
@@ -220,16 +122,8 @@ export default function ProductImageGallery({
                     </Typography>
                     {imageCount > 0 && (
                       <Typography
+                      className="bg-beergam-primary text-white px-3 py-1 rounded-md"
                         variant="caption"
-                        sx={{
-                          bgcolor: "primary.main",
-                          color: "white",
-                          px: 0.75,
-                          py: 0.25,
-                          borderRadius: 1,
-                          fontSize: "0.65rem",
-                          fontWeight: 600,
-                        }}
                       >
                         {imageCount}
                       </Typography>
@@ -251,7 +145,7 @@ export default function ProductImageGallery({
               sx={{
                 position: "relative",
                 width: "100%",
-                maxWidth: { xs: "100%", sm: "80%", md: "60%", lg: "50%" },
+                maxWidth: "250px",
                 margin: "0 auto !important",
                 aspectRatio: "1",
                 borderRadius: 2,

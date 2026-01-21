@@ -19,6 +19,7 @@ interface ViewToggleProps {
  * @param defaultView - Visualização padrão ("list" ou "card")
  * @param onViewChange - Callback chamado quando a visualização é alterada
  * @param className - Classes CSS adicionais para o container
+ * @description Por padrão a visualização em cards é exibida em mobile, e os botões de visualização são exibidos somente em desktop.
  */
 export default function ViewToggle({
   listElement,
@@ -47,6 +48,7 @@ export default function ViewToggle({
           exclusive
           onChange={handleViewChange}
           aria-label="tipo de visualização"
+          className="hidden! md:flex!"
           sx={{
             "& .MuiToggleButton-root": {
               padding: "8px 12px",
@@ -78,14 +80,15 @@ export default function ViewToggle({
             value="card"
             aria-label="visualização em cards"
           >
-            <Svg.card_solid />
+            <Svg.squares_2x2_solid />
           </ToggleButton>
         </ToggleButtonGroup>
       </div>
 
-      <div className="flex-1">
+      <div className="flex-1 hidden md:block">
         {view === "list" ? listElement : cardElement}
       </div>
+      <div className="flex-1 block md:hidden">{cardElement}</div>
     </div>
   );
 }
