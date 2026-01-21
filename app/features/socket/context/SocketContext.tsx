@@ -498,12 +498,12 @@ export function SocketProvider({
       if (!sessionSocketRef.current) {
         setTimeout(() => {
           connectSession();
-        }, 2000);
+        }, 2100);
       }
       if (!onlineStatusSocketRef.current) {
         setTimeout(() => {
           connectOnlineStatus();
-        }, 2000);
+        }, 2100);
       }
     } else {
       // Só desconectar se estiver conectado
