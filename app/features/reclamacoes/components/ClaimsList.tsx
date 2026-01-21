@@ -33,28 +33,6 @@ function formatDate(value?: string | null): string {
     return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 }
 
-function isHtmlContent(text: string): boolean {
-    return /<[a-z][\s\S]*>/i.test(text);
-}
-
-function MessageContent({ message }: { message: string }) {
-    const isHtml = isHtmlContent(message);
-
-    if (isHtml) {
-        return (
-            <div
-                className="text-beergam-typography-secondary flex-1 min-w-0 **:text-xs **:leading-relaxed [&_strong]:font-semibold [&_strong]:text-beergam-typography-primary [&_p]:mb-1 [&_ul]:list-disc [&_ul]:ml-4 [&_ul]:space-y-1 [&_li]:mb-0.5"
-                dangerouslySetInnerHTML={{ __html: message }}
-            />
-        );
-    }
-
-    return (
-        <p className="text-beergam-typography-secondary line-clamp-2 flex-1 min-w-0">
-            {message}
-        </p>
-    );
-}
 
 function ClaimCard({
     claim,
@@ -75,10 +53,6 @@ function ClaimCard({
     const anuncio = anuncioQuery.data?.success ? anuncioQuery.data.data : null;
     const claimStatus = getClaimStatus(claim.status);
     const isOpened = claimStatus === ClaimStatus.OPENED;
-    // Messages pode ser array ou objeto vazio {}
-    const allMessages = Array.isArray(claim.messages) ? claim.messages : [];
-    // Limita a exibição das últimas 5 mensagens
-    const messages = allMessages.slice(-5);
     const detail = claim.detail;
     const resolution = claim.resolution;
     const affectsReputation = claim.affects_reputation;
@@ -158,53 +132,14 @@ function ClaimCard({
                         </span>
                     </div>
                 </div>
-                {/* Botão ir para chat - apenas se estiver aberta */}
-                {isOpened && (
-                    <BeergamButton
-                        title="Ir para Chat"
-                        mainColor="beergam-orange"
-                        animationStyle="slider"
-                        onClick={handleGoToChat}
-                        className="w-full sm:w-auto sm:shrink-0 px-4"
-                    />
-                )}
+                <BeergamButton
+                    title="Ir para Chat"
+                    mainColor="beergam-orange"
+                    animationStyle="slider"
+                    onClick={handleGoToChat}
+                    className="w-full sm:w-auto sm:shrink-0 px-4"
+                />
             </div>
-
-            {/* Preview de mensagens - pequeno e discreto */}
-            {messages.length > 0 && (
-                <div className="relative">
-                    <div className="space-y-1.5 max-h-20 overflow-hidden mb-6">
-                        {messages.slice(-2).map((msg, idx) => (
-                            <div
-                                key={idx}
-                                className="flex items-start gap-2 text-xs"
-                            >
-                                <span className="text-beergam-typography-tertiary font-medium shrink-0 min-w-[60px]">
-                                    {getRoleLabel(msg.sender_role) || "Sistema"}:
-                                </span>
-                                <MessageContent message={msg.message} />
-                            </div>
-                        ))}
-                    </div>
-                    {/* Efeito fade no final */}
-                    {(messages.length > 1 ||
-                        (messages.length === 1 && (messages[0].message?.length ?? 0) > 300)) && (
-                            <div
-                                className="absolute bottom-11 left-0 right-0 h-7 pointer-events-none"
-                                style={{
-                                    background: 'linear-gradient(to top, var(--color-beergam-mui-paper) 0%, transparent 100%)'
-                                }}
-                            />
-                        )}
-                    {/* Link para ir ao chat */}
-                    <button
-                        onClick={handleGoToChat}
-                        className="relative z-10 text-xs text-beergam-blue hover:text-beergam-blue-primary transition-colors w-full text-left mt-1"
-                    >
-                        Ver todas as mensagens no chat →
-                    </button>
-                </div>
-            )}
 
             <BeergamButton
                 title="Ver detalhes"
