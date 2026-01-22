@@ -136,7 +136,7 @@ export default function ChoosenAccountRoute() {
   const accounts: BaseMarketPlace[] = Array.isArray(data?.data)
     ? (data.data as BaseMarketPlace[])
     : [];
-  
+
   useAccountPolling(accounts);
 
   if (marketplace) {

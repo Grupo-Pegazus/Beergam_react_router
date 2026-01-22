@@ -59,12 +59,12 @@ export default function MobileAccountOverlay({
     (marketplace: BaseMarketPlace) => {
       const isProcessing =
         marketplace.status_parse === MarketplaceStatusParse.PROCESSING;
-      
+
       if (isProcessing) {
         toast.error("Não é possível excluir uma conta enquanto ela está sendo processada");
         return;
       }
-      
+
       setMarketplaceToDelete(marketplace);
       setShowDeleteModal(true);
     },
@@ -76,7 +76,7 @@ export default function MobileAccountOverlay({
 
     const isProcessing =
       marketplaceToDelete.status_parse === MarketplaceStatusParse.PROCESSING;
-    
+
     if (isProcessing) {
       toast.error("Não é possível excluir uma conta enquanto ela está sendo processada");
       setShowDeleteModal(false);
