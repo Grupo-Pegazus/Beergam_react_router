@@ -112,31 +112,33 @@ export default function ChatArea({
                 <div className="sticky top-0 z-100">
                     <div className="text-beergam-white flex items-center justify-between  rounded-t-lg bg-beergam-menu-background/80! p-2">
                         {sender && (
-                            <div className="flex items-start gap-2">
-                                <Avatar className="bg-beergam-primary!">{sender.details.nickname.charAt(0) || "C"}</Avatar>
-                                <div className="flex flex-col gap-1 items-start">
-                                    <h4 className="text-beergam-white!">{sender.details.nickname || "Cliente"}</h4>
-                                    {messages.length > 0 && !isLoading && <p className="text-beergam-white!">Criado em {dayjs(messages[0].date_created).format("DD/MM/YYYY HH:mm")}</p>}
-                                    {isLoading && <Skeleton variant="text" width={100} height={16} />}
+                            <>
+                                <div className="flex items-start gap-2">
+                                    <Avatar className="bg-beergam-primary!">{sender.details.nickname.charAt(0) || "C"}</Avatar>
+                                    <div className="flex flex-col gap-1 items-start">
+                                        <h4 className="text-beergam-white!">{sender.details.nickname || "Cliente"}</h4>
+                                        {messages.length > 0 && !isLoading && <p className="text-beergam-white!">Criado em {dayjs(messages[0].date_created).format("DD/MM/YYYY HH:mm")}</p>}
+                                        {isLoading && <Skeleton variant="text" width={100} height={16} />}
+                                    </div>
                                 </div>
-                            </div>
+                                <div ref={actionRef} className="flex items-center gap-2">
+                                    <BeergamButton icon="user_plus_solid" title="Detalhes" onClick={() => setShowClientModal(true)} />
+                                    {actions && actions.length > 0 && actions.map((action) => (
+                                        <BeergamButton
+                                            key={action.id}
+                                            icon={action.icon}
+                                            title={action.label}
+                                            onClick={() => {
+                                                action.onClick();
+                                                setShowActions(false);
+                                            }}
+                                            className="justify-start! text-left! w-full! p-2! h-auto! whitespace-normal!"
+                                            mainColor="beergam-primary"
+                                        />
+                                    ))}
+                                </div>
+                            </>
                         )}
-                        <div ref={actionRef} className="flex items-center gap-2">
-                            <BeergamButton icon="user_plus_solid" title="Detalhes" onClick={() => setShowClientModal(true)} />
-                            {actions && actions.length > 0 && actions.map((action) => (
-                                <BeergamButton
-                                    key={action.id}
-                                    icon={action.icon}
-                                    title={action.label}
-                                    onClick={() => {
-                                        action.onClick();
-                                        setShowActions(false);
-                                    }}
-                                    className="justify-start! text-left! w-full! p-2! h-auto! whitespace-normal!"
-                                    mainColor="beergam-primary"
-                                />
-                            ))}
-                        </div>
                     </div>
                 </div>
                 <div className="p-4 pb-4 flex-1 bg-beergam-section-background! overflow-y-auto min-h-0">
