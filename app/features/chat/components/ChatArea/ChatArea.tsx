@@ -52,6 +52,28 @@ export interface ChatAreaProps extends Chat {
      * Opcional, usado para abrir o modal de detalhes do cliente.
      */
     client?: Client;
+
+    /**
+     * Order ID atualmente ativo para exibir no chat.
+     * Usado para mostrar qual pedido está sendo visualizado e permitir troca.
+     */
+    activeOrderId?: string | null;
+
+    /**
+     * Claim ID atualmente ativo para exibir no chat.
+     * Usado para mostrar qual reclamação está sendo visualizada e permitir troca.
+     */
+    activeClaimId?: string | null;
+
+    /**
+     * Callback chamado quando o usuário quer trocar o pedido atual.
+     */
+    onOrderChange?: () => void;
+
+    /**
+     * Callback chamado quando o usuário quer trocar a reclamação atual.
+     */
+    onClaimChange?: () => void;
 }
 
 /**
@@ -95,6 +117,10 @@ export default function ChatArea({
     isLoading = false,
     hasClaims = false,
     client,
+    activeOrderId,
+    activeClaimId,
+    onOrderChange,
+    onClaimChange,
 }: ChatAreaProps) {
     const [message, setMessage] = useState<string>("");
     const [showActions, setShowActions] = useState<boolean>(false);
@@ -113,15 +139,43 @@ export default function ChatArea({
                     <div className="text-beergam-white flex items-center justify-between  rounded-t-lg bg-beergam-menu-background/80! p-2">
                         {sender && (
                             <>
-                                <div className="flex items-start gap-2">
+                                <div className="flex items-start gap-2 flex-1 min-w-0">
                                     <Avatar className="bg-beergam-primary!">{sender.details.nickname.charAt(0) || "C"}</Avatar>
-                                    <div className="flex flex-col gap-1 items-start">
+                                    <div className="flex flex-col gap-1 items-start min-w-0 flex-1">
                                         <h4 className="text-beergam-white!">{sender.details.nickname || "Cliente"}</h4>
                                         {messages.length > 0 && !isLoading && <p className="text-beergam-white!">Criado em {dayjs(messages[0].date_created).format("DD/MM/YYYY HH:mm")}</p>}
                                         {isLoading && <Skeleton variant="text" width={100} height={16} />}
+                                        {/* Mostra qual pedido/reclamação está ativo */}
+                                        {chatType === "pos_venda" && activeOrderId && (
+                                            <p className="text-xs text-beergam-white/70!">
+                                                Pedido: {activeOrderId}
+                                            </p>
+                                        )}
+                                        {(chatType === "reclamacao" || chatType === "mediacao") && activeClaimId && (
+                                            <p className="text-xs text-beergam-white/70!">
+                                                Reclamação: {activeClaimId}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
-                                <div ref={actionRef} className="flex items-center gap-2">
+                                <div ref={actionRef} className="flex items-center gap-2 shrink-0">
+                                    {/* Botão para trocar pedido/reclamação */}
+                                    {chatType === "pos_venda" && client && client.orders.length > 1 && onOrderChange && (
+                                        <BeergamButton
+                                            icon="arrow_path"
+                                            title="Trocar pedido"
+                                            onClick={onOrderChange}
+                                            className="!p-2"
+                                        />
+                                    )}
+                                    {(chatType === "reclamacao" || chatType === "mediacao") && client && client.claims.length > 1 && onClaimChange && (
+                                        <BeergamButton
+                                            icon="arrow_path"
+                                            title="Trocar reclamação"
+                                            onClick={onClaimChange}
+                                            className="!p-2"
+                                        />
+                                    )}
                                     <BeergamButton icon="user_plus_solid" title="Detalhes" onClick={() => setShowClientModal(true)} />
                                     {actions && actions.length > 0 && actions.map((action) => (
                                         <BeergamButton

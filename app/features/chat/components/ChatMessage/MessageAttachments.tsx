@@ -1,12 +1,6 @@
 import { IconButton } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
-import type { Swiper as SwiperType } from "swiper";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/zoom";
-import { Navigation, Zoom } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
-import Modal from "~/src/components/utils/Modal";
+import { useState } from "react";
+import ImageViewerModal from "./ImageViewerModal";
 import type { ChatAttachment } from "../../typings";
 
 interface MessageAttachmentsProps {
@@ -32,9 +26,8 @@ export default function MessageAttachments({
     isSender,
     isSystem,
 }: MessageAttachmentsProps) {
-    const [openModal, setOpenModal] = useState(false);
+    const [isViewerOpen, setIsViewerOpen] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const swiperRef = useRef<SwiperType | null>(null);
 
     if (!attachments || attachments.length === 0) {
         return null;
@@ -42,32 +35,12 @@ export default function MessageAttachments({
 
     const handleImageClick = (index: number) => {
         setSelectedIndex(index);
-        setOpenModal(true);
+        setIsViewerOpen(true);
     };
 
-    const handleCloseModal = () => {
-        setOpenModal(false);
+    const handleCloseViewer = () => {
+        setIsViewerOpen(false);
     };
-
-    // Adicionar suporte para fechar com ESC
-    useEffect(() => {
-        if (!openModal) return;
-
-        const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === "Escape") {
-                handleCloseModal();
-            }
-        };
-
-        document.addEventListener("keydown", handleEscape);
-        // Prevenir scroll do body quando modal está aberto
-        document.body.style.overflow = "hidden";
-
-        return () => {
-            document.removeEventListener("keydown", handleEscape);
-            document.body.style.overflow = "";
-        };
-    }, [openModal, handleCloseModal]);
 
     const handleDownload = (attachment: ChatAttachment) => {
         const link = document.createElement("a");
@@ -246,156 +219,13 @@ export default function MessageAttachments({
                 {renderAttachmentsGrid()}
             </div>
 
-            {/* Modal com Swiper para visualização em tela cheia */}
-            <Modal
-                isOpen={openModal}
-                onClose={handleCloseModal}
-                className="z-1000 bg-black/95!"
-                contentClassName="!max-w-full !w-full !h-screen !max-h-screen !rounded-none !bg-transparent !shadow-none !p-0 !overflow-hidden [&>div:first-child]:!hidden"
-                disableClickAway={false}
-            >
-                <div
-                    className="relative w-full h-full flex flex-col bg-black/95 overflow-hidden"
-                    onClick={(e) => {
-                        if (e.target === e.currentTarget) {
-                            handleCloseModal();
-                        }
-                    }}
-                >
-                    {/* Header com botão de fechar e download */}
-                    <div
-                        onClick={(e) => {
-                            if (e.target === e.currentTarget) {
-                                handleCloseModal();
-                            }
-                        }}
-                        className="absolute bottom-0 left-0 right-0 z-50 flex justify-between items-center p-4 bg-linear-to-b from-black/80 to-transparent pointer-events-none">
-                        <div className="pointer-events-auto">
-                            <IconButton
-                                onClick={handleCloseModal}
-                                className="text-white! bg-white/20! hover:bg-white/30!"
-                                size="large"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-6 w-6"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </IconButton>
-                        </div>
-                        {attachments[selectedIndex] && (
-                            <div className="flex items-center gap-2 pointer-events-auto">
-                                <span className="text-white text-sm">
-                                    {selectedIndex + 1} / {attachments.length}
-                                </span>
-                                <IconButton
-                                    onClick={() => handleDownload(attachments[selectedIndex])}
-                                    className="text-white! bg-white/20! hover:bg-white/30!"
-                                    size="large"
-                                    title="Baixar imagem"
-                                >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-6 w-6"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                                        />
-                                    </svg>
-                                </IconButton>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Swiper com zoom */}
-                    <Swiper
-                        modules={[Navigation, Zoom]}
-                        navigation
-                        zoom={{
-                            maxRatio: 3,
-                            minRatio: 1,
-                        }}
-                        onSwiper={(swiper) => {
-                            swiperRef.current = swiper;
-                            swiper.slideTo(selectedIndex);
-                        }}
-                        onSlideChange={(swiper) => {
-                            setSelectedIndex(swiper.activeIndex);
-                        }}
-                        className="w-full h-full"
-                        style={{ height: "calc(100vh - 64px)", zIndex: 1000 }}
-                    >
-                        {attachments.map((attachment, index) => {
-                            const isImage = /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(
-                                attachment.original_filename || attachment.url
-                            );
-
-                            return (
-                                <SwiperSlide key={attachment.id} className="flex items-center justify-center h-screen!">
-                                    <div
-                                        className="swiper-zoom-container w-full h-full flex items-center justify-center"
-                                        onClick={(e) => {
-                                            // Prevenir que cliques na imagem fechem o modal
-                                            e.stopPropagation();
-                                        }}
-                                    >
-                                        {isImage ? (
-                                            <img
-                                                src={attachment.url}
-                                                alt={attachment.original_filename || `Anexo ${index + 1}`}
-                                                className="max-w-full max-h-screen object-contain"
-                                                style={{ maxHeight: "100vh" }}
-                                                loading="eager"
-                                                decoding="async"
-                                                onClick={(e) => e.stopPropagation()}
-                                            />
-                                        ) : (
-                                            <div className="text-white text-center p-8">
-                                                <p className="text-lg mb-4">{attachment.original_filename || "Arquivo"}</p>
-                                                <IconButton
-                                                    onClick={() => handleDownload(attachment)}
-                                                    className="text-white! bg-white/20! hover:bg-white/30!"
-                                                    size="large"
-                                                >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        className="h-8 w-8"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke="currentColor"
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                                                        />
-                                                    </svg>
-                                                </IconButton>
-                                            </div>
-                                        )}
-                                    </div>
-                                </SwiperSlide>
-                            );
-                        })}
-                    </Swiper>
-                </div>
-            </Modal>
+            <ImageViewerModal
+                isOpen={isViewerOpen}
+                attachments={attachments}
+                initialIndex={selectedIndex}
+                onClose={handleCloseViewer}
+                onDownload={handleDownload}
+            />
         </>
     );
 }

@@ -3,6 +3,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import type { ChatType } from "~/features/chat/components/ChatArea";
 import { ChatArea } from "~/features/chat/components/ChatArea";
+import ClaimSelectionModal from "~/features/chat/components/ChatArea/ClaimSelectionModal";
+import OrderSelectionModal from "~/features/chat/components/ChatArea/OrderSelectionModal";
 import { ClientsFilters } from "~/features/chat/components/ClientsFilters";
 import { ClientsList } from "~/features/chat/components/ClientsList";
 import { useClients, usePosPurchaseMessages, useClaimMessages, useMediationMessages } from "~/features/chat/hooks";
@@ -41,10 +43,15 @@ export default function ChatPage() {
     const [chatType, setChatType] = useState<ChatType>("pos_venda");
     const [filters, setFilters] = useState<ClientsFiltersState>(DEFAULT_FILTERS);
     const [appliedFilters, setAppliedFilters] = useState<ClientsFiltersState>(DEFAULT_FILTERS);
+    const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+    const [selectedClaimId, setSelectedClaimId] = useState<string | null>(null);
+    const [showOrderSelection, setShowOrderSelection] = useState(false);
+    const [showClaimSelection, setShowClaimSelection] = useState(false);
     const queryClient = useQueryClient();
 
-    // Ref para evitar loops infinitos ao atualizar URL
     const isUpdatingFromUrlRef = useRef(false);
+    const lastProcessedClientIdRef = useRef<string | null>(null);
+    const isSelectingClientRef = useRef(false);
 
     const apiFilters = useMemo(
         () => mapToApiFilters(appliedFilters),
@@ -58,31 +65,29 @@ export default function ChatPage() {
             return [];
         }
         const responseData = clientsQuery.data.data;
-
-        // O backend retorna diretamente um array de clientes
         return Array.isArray(responseData) ? responseData : [];
     }, [clientsQuery.data]);
 
-    // Efeito para selecionar cliente automaticamente quando houver order_id ou claim_id
     useEffect(() => {
+        if (isSelectingClientRef.current || isUpdatingFromUrlRef.current) {
+            return;
+        }
+
         if (!clients.length || (!orderIdParam && !claimIdParam)) {
             return;
         }
 
-        // Marca que está atualizando a partir da URL para evitar loop
         isUpdatingFromUrlRef.current = true;
 
         let clientToSelect: Client | null = null;
         let chatTypeToSet: ChatType = "pos_venda";
 
         if (orderIdParam) {
-            // Busca cliente que tem o order_id
             clientToSelect = clients.find((client) =>
                 client.orders.some((orderId) => orderId === orderIdParam || orderId.includes(orderIdParam))
             ) || null;
             chatTypeToSet = "pos_venda";
         } else if (claimIdParam) {
-            // Busca cliente que tem o claim_id
             clientToSelect = clients.find((client) =>
                 client.claims.some((claimId) => String(claimId) === String(claimIdParam))
             ) || null;
@@ -92,25 +97,32 @@ export default function ChatPage() {
         if (clientToSelect && clientToSelect.client_id !== selectedClient?.client_id) {
             setSelectedClient(clientToSelect);
             setChatType(chatTypeToSet);
+            if (orderIdParam) {
+                setSelectedOrderId(orderIdParam);
+            } else if (claimIdParam) {
+                setSelectedClaimId(claimIdParam);
+            }
+            lastProcessedClientIdRef.current = `${clientToSelect.client_id}-${chatTypeToSet}`;
         }
 
-        // Reset do flag após um pequeno delay
         setTimeout(() => {
             isUpdatingFromUrlRef.current = false;
         }, 100);
     }, [clients, orderIdParam, claimIdParam, selectedClient?.client_id]);
 
-    // Efeito para ajustar chatType quando o cliente muda e não tem claims mas está em reclamação/mediação
     useEffect(() => {
-        if (!selectedClient || isUpdatingFromUrlRef.current) {
+        if (!selectedClient || isUpdatingFromUrlRef.current || isSelectingClientRef.current) {
             return;
         }
 
-        // Se está em reclamação/mediação mas o cliente não tem claims, muda para pós-venda
+        const clientChatKey = `${selectedClient.client_id}-${chatType}`;
+        if (lastProcessedClientIdRef.current === clientChatKey) {
+            return;
+        }
+
         if ((chatType === "reclamacao" || chatType === "mediacao") && selectedClient.claims.length === 0) {
             setChatType("pos_venda");
 
-            // Atualiza a URL para pós-venda
             const newSearchParams = new URLSearchParams(searchParams);
             newSearchParams.delete("claim_id");
 
@@ -122,95 +134,124 @@ export default function ChatPage() {
             }
 
             setSearchParams(newSearchParams, { replace: true });
+            lastProcessedClientIdRef.current = `${selectedClient.client_id}-pos_venda`;
+        } else {
+            lastProcessedClientIdRef.current = clientChatKey;
         }
-    }, [selectedClient, chatType, searchParams, setSearchParams, orderIdParam]);
+    }, [selectedClient?.client_id, chatType, searchParams, setSearchParams, orderIdParam]);
 
     const handleClientSelect = useCallback((client: Client) => {
-        // Verifica se precisa ajustar o tipo de chat
-        let newChatType = chatType;
-
-        // Se está em reclamação/mediação mas o novo cliente não tem claims, muda para pós-venda
-        if ((chatType === "reclamacao" || chatType === "mediacao") && client.claims.length === 0) {
-            newChatType = "pos_venda";
-        }
-
-        setSelectedClient(client);
-        if (newChatType !== chatType) {
-            setChatType(newChatType);
-        }
-
-        // Evita atualizar URL se está vindo da URL
-        if (isUpdatingFromUrlRef.current) {
+        if (isUpdatingFromUrlRef.current || selectedClient?.client_id === client.client_id) {
             return;
         }
 
-        // Atualiza a URL dinamicamente baseado no cliente selecionado e tipo de chat (ajustado se necessário)
-        const newSearchParams = new URLSearchParams(searchParams);
+        isSelectingClientRef.current = true;
+        isUpdatingFromUrlRef.current = true;
 
-        // Remove parâmetros antigos
+        let newChatType: ChatType = "pos_venda";
+        let newOrderId: string | null = null;
+        let newClaimId: string | null = null;
+
+        if (client.claims.length > 0) {
+            if (chatType === "reclamacao" || chatType === "mediacao") {
+                newChatType = chatType;
+            } else {
+                newChatType = "reclamacao";
+            }
+            newClaimId = String(client.claims[0]);
+        } else {
+            newChatType = "pos_venda";
+            if (client.orders.length > 0) {
+                newOrderId = client.orders[0];
+            }
+        }
+
+        lastProcessedClientIdRef.current = null;
+
+        setSelectedOrderId(newOrderId);
+        setSelectedClaimId(newClaimId);
+        setSelectedClient(client);
+        setChatType(newChatType);
+
+        const newSearchParams = new URLSearchParams();
+
+        if (newChatType === "pos_venda" && newOrderId) {
+            newSearchParams.set("order_id", newOrderId);
+        } else if ((newChatType === "reclamacao" || newChatType === "mediacao") && newClaimId) {
+            newSearchParams.set("claim_id", newClaimId);
+        }
+
+        setSearchParams(newSearchParams, { replace: true });
+        lastProcessedClientIdRef.current = `${client.client_id}-${newChatType}`;
+
+        setTimeout(() => {
+            isSelectingClientRef.current = false;
+            isUpdatingFromUrlRef.current = false;
+        }, 300);
+    }, [chatType, selectedClient?.client_id, setSearchParams]);
+
+    const updateUrlForChatType = useCallback((type: ChatType, client: Client, orderId?: string | null, claimId?: string | null) => {
+        const newSearchParams = new URLSearchParams(searchParams);
         newSearchParams.delete("order_id");
         newSearchParams.delete("claim_id");
 
-        // Adiciona o parâmetro correto baseado no tipo de chat
-        // Prioriza usar o order_id/claim_id da URL se existir e pertencer ao cliente, senão usa o primeiro disponível
-        if (newChatType === "pos_venda" && client.orders.length > 0) {
-            // Se há order_id na URL e ele pertence a este cliente, mantém ele
-            const urlOrderId = orderIdParam && client.orders.some(id => id === orderIdParam || id.includes(orderIdParam))
+        if (type === "pos_venda") {
+            const orderIdToUse = orderId || (orderIdParam && client.orders.some(id => id === orderIdParam || id.includes(orderIdParam))
                 ? orderIdParam
-                : client.orders[0];
-            newSearchParams.set("order_id", urlOrderId);
-        } else if ((newChatType === "reclamacao" || newChatType === "mediacao") && client.claims.length > 0) {
-            // Se há claim_id na URL e ele pertence a este cliente, mantém ele
-            const urlClaimId = claimIdParam && client.claims.some(id => String(id) === String(claimIdParam))
+                : client.orders[0]);
+            if (orderIdToUse) {
+                newSearchParams.set("order_id", orderIdToUse);
+            }
+        } else if (type === "reclamacao" || type === "mediacao") {
+            const claimIdToUse = claimId || (claimIdParam && client.claims.some(id => String(id) === String(claimIdParam))
                 ? claimIdParam
-                : String(client.claims[0]);
-            newSearchParams.set("claim_id", urlClaimId);
+                : String(client.claims[0]));
+            if (claimIdToUse) {
+                newSearchParams.set("claim_id", claimIdToUse);
+            }
         }
-        // Se não tem orders nem claims, mantém a URL limpa (sem parâmetros)
 
         setSearchParams(newSearchParams, { replace: true });
-    }, [chatType, searchParams, setSearchParams, orderIdParam, claimIdParam]);
+    }, [searchParams, setSearchParams, orderIdParam, claimIdParam]);
 
     const handleChatTypeChange = useCallback((type: ChatType) => {
-        setChatType(type);
-
-        // Evita atualizar URL se está vindo da URL ou não há cliente selecionado
         if (isUpdatingFromUrlRef.current || !selectedClient) {
             return;
         }
 
-        // Atualiza a URL quando o tipo de chat muda
-        const newSearchParams = new URLSearchParams(searchParams);
-
-        // Remove parâmetros antigos
-        newSearchParams.delete("order_id");
-        newSearchParams.delete("claim_id");
-
-        // Adiciona o parâmetro correto baseado no novo tipo de chat
-        // Prioriza usar o order_id/claim_id da URL se existir e pertencer ao cliente, senão usa o primeiro disponível
-        if (type === "pos_venda" && selectedClient.orders.length > 0) {
-            // Se há order_id na URL e ele pertence a este cliente, mantém ele
-            const urlOrderId = orderIdParam && selectedClient.orders.some(id => id === orderIdParam || id.includes(orderIdParam))
-                ? orderIdParam
-                : selectedClient.orders[0];
-            newSearchParams.set("order_id", urlOrderId);
-        } else if ((type === "reclamacao" || type === "mediacao") && selectedClient.claims.length > 0) {
-            // Se há claim_id na URL e ele pertence a este cliente, mantém ele
-            const urlClaimId = claimIdParam && selectedClient.claims.some(id => String(id) === String(claimIdParam))
-                ? claimIdParam
-                : String(selectedClient.claims[0]);
-            newSearchParams.set("claim_id", urlClaimId);
+        if (type === "pos_venda" && selectedClient.orders.length > 1) {
+            setShowOrderSelection(true);
+            return;
         }
 
-        setSearchParams(newSearchParams, { replace: true });
-    }, [selectedClient, searchParams, setSearchParams, orderIdParam, claimIdParam]);
+        if ((type === "reclamacao" || type === "mediacao") && selectedClient.claims.length > 1) {
+            setShowClaimSelection(true);
+            return;
+        }
+
+        setChatType(type);
+        updateUrlForChatType(type, selectedClient);
+    }, [selectedClient, updateUrlForChatType]);
+
+    const handleOrderSelect = useCallback((orderId: string) => {
+        setSelectedOrderId(orderId);
+        setChatType("pos_venda");
+        updateUrlForChatType("pos_venda", selectedClient!, orderId, null);
+    }, [selectedClient, updateUrlForChatType]);
+
+    const handleClaimSelect = useCallback((claimId: string) => {
+        setSelectedClaimId(claimId);
+        if (chatType === "reclamacao" || chatType === "mediacao") {
+            setChatType(chatType);
+            updateUrlForChatType(chatType, selectedClient!, null, claimId);
+        }
+    }, [selectedClient, chatType, updateUrlForChatType]);
 
     const handleFiltersChange = useCallback((next: ClientsFiltersState) => {
         setFilters(next);
     }, []);
 
     const applyFilters = useCallback(() => {
-        // Só aplica se realmente mudou algo
         const hasChanges = Object.keys(filters).some(
             (key) => filters[key as keyof ClientsFiltersState] !== appliedFilters[key as keyof ClientsFiltersState]
         );
@@ -227,32 +268,32 @@ export default function ChatPage() {
         queryClient.invalidateQueries({ queryKey: ["clients"] });
     }, [queryClient]);
 
-    // Determina qual order_id ou claim_id usar baseado no cliente selecionado e tipo de chat
     const activeOrderId = useMemo(() => {
+        if (selectedOrderId) {
+            return selectedOrderId;
+        }
         if (chatType === "pos_venda" && selectedClient && orderIdParam) {
-            // Se há order_id na URL, usa ele
             return orderIdParam;
         }
-        // Se não há order_id na URL mas há cliente selecionado, usa o primeiro order_id do cliente
         if (chatType === "pos_venda" && selectedClient && selectedClient.orders.length > 0) {
             return selectedClient.orders[0];
         }
         return null;
-    }, [chatType, selectedClient, orderIdParam]);
+    }, [chatType, selectedClient, orderIdParam, selectedOrderId]);
 
     const activeClaimId = useMemo(() => {
+        if (selectedClaimId) {
+            return selectedClaimId;
+        }
         if ((chatType === "reclamacao" || chatType === "mediacao") && selectedClient && claimIdParam) {
-            // Se há claim_id na URL, usa ele
             return claimIdParam;
         }
-        // Se não há claim_id na URL mas há cliente selecionado, usa o primeiro claim_id do cliente
         if ((chatType === "reclamacao" || chatType === "mediacao") && selectedClient && selectedClient.claims.length > 0) {
             return String(selectedClient.claims[0]);
         }
         return null;
-    }, [chatType, selectedClient, claimIdParam]);
+    }, [chatType, selectedClient, claimIdParam, selectedClaimId]);
 
-    // Busca mensagens baseado no tipo de chat
     const posPurchaseMessagesQuery = usePosPurchaseMessages(
         activeOrderId,
         chatType === "pos_venda" && Boolean(selectedClient)
@@ -268,7 +309,6 @@ export default function ChatPage() {
         chatType === "mediacao" && Boolean(selectedClient)
     );
 
-    // Seleciona as mensagens corretas baseado no tipo de chat
     const messages: ChatMessage[] = useMemo(() => {
         if (!selectedClient) return [];
 
@@ -293,7 +333,6 @@ export default function ChatPage() {
         }
     }, [chatType, posPurchaseMessagesQuery.data, claimMessagesQuery.data, mediationMessagesQuery.data, selectedClient]);
 
-    // Determina se está carregando mensagens
     const isLoadingMessages = useMemo(() => {
         if (!selectedClient) return false;
 
@@ -311,7 +350,6 @@ export default function ChatPage() {
 
     return (
         <div className="h-[calc(100vh-200px)] flex flex-col lg:flex-row gap-4">
-            {/* Coluna Esquerda - Lista de Clientes (20%) */}
             <div className="w-full lg:w-[40%] lg:min-w-[250px] flex flex-col gap-4">
                 <ClientsFilters
                     value={filters}
@@ -342,7 +380,6 @@ export default function ChatPage() {
                 </div>
             </div>
 
-            {/* Coluna Meio - Chat (50%) */}
             <div className="flex-1 flex flex-col min-w-0">
                 <ChatArea
                     sender={transformClientToChatUserDetails(selectedClient)}
@@ -352,13 +389,31 @@ export default function ChatPage() {
                     onChatTypeChange={handleChatTypeChange}
                     hasClaims={selectedClient ? selectedClient.claims.length > 0 : false}
                     client={selectedClient || undefined}
+                    activeOrderId={activeOrderId}
+                    activeClaimId={activeClaimId}
+                    onOrderChange={() => setShowOrderSelection(true)}
+                    onClaimChange={() => setShowClaimSelection(true)}
                 />
             </div>
 
-            {/* Coluna Direita - Informações do Cliente (30%) */}
-            {/* <div className="w-full lg:w-[30%] lg:min-w-[300px] flex flex-col">
-                <ClientInfo client={selectedClient || undefined} />
-            </div> */}
+            {selectedClient && (
+                <>
+                    <OrderSelectionModal
+                        isOpen={showOrderSelection}
+                        onClose={() => setShowOrderSelection(false)}
+                        orderIds={selectedClient.orders}
+                        onSelect={handleOrderSelect}
+                        currentOrderId={activeOrderId}
+                    />
+                    <ClaimSelectionModal
+                        isOpen={showClaimSelection}
+                        onClose={() => setShowClaimSelection(false)}
+                        claimIds={selectedClient.claims}
+                        onSelect={handleClaimSelect}
+                        currentClaimId={activeClaimId}
+                    />
+                </>
+            )}
         </div>
     );
 }
