@@ -143,7 +143,7 @@ export const OrderTranslatedAttributes: OrderTranslatedAttributes = {
   bonus_por_envio_estorno: "Bônus por Estorno de Envio",
   tax_percentage: "Percentual de Imposto",
   tax_amount: "Valor do Imposto",
-  price_cost: "Custo do Preço",
+  price_cost: "Custo do Produto",
   packaging_cost: "Custo de Embalagem",
   extra_cost: "Custo Extra",
   shipment_costs: "Custos de Envio",

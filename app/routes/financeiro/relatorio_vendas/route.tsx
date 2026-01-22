@@ -38,6 +38,7 @@ export default function RelatorioVendasRoute() {
             mlb: 150,
             date_created: 150,
             title: 200,
+            pack_id: 150,
         };
         
         // Usa a ordem definida em OrderAttributeDisplayOrder
