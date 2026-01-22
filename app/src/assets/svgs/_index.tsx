@@ -23,6 +23,7 @@ import Check from "./Check";
 import CheckCircle from "./CheckCircle";
 import CheckSolid from "./CheckSolid";
 import Chevron from "./Chevron";
+import ChevronUpAndDown from "./ChevronUpAndDown";
 import CircleX from "./CircleX";
 import ClockIcon from "./ClockIcon";
 import Cog8Tooth from "./Cog8Tooth";
@@ -155,6 +156,7 @@ const Svg = {
   plus_circle_solid: PlusCircleSolid,
   square_3_stack_solid: Square3StackSolid,
   squares_2x2_solid: Squares2x2Solid,
+  chevron_up_and_down: ChevronUpAndDown,
 };
 
 export default Svg;
