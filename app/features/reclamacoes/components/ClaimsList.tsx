@@ -65,8 +65,7 @@ function ClaimCard({
                 "—";
 
     function handleGoToChat() {
-        // Redireciona para a página de chat/mensagens com o ID da reclamação
-        navigate(`/interno/mensagens?claim_id=${claim.id}`);
+        navigate(`/interno/atendimento/chat?claim_id=${claim.id}`);
     }
 
     return (
@@ -408,17 +407,14 @@ export function ClaimsList({
 
             {!loading &&
                 Array.isArray(claims) &&
-                claims.map((claim) => {
-                    if (!claim || typeof claim !== "object" || !claim.id) {
-                        return null;
-                    }
-                    return (
+                claims
+                    .filter((claim) => claim && typeof claim === "object" && claim.id)
+                    .map((claim) => (
                         <ClaimCard
                             key={claim.id}
                             claim={claim}
                         />
-                    );
-                })}
+                    ))}
 
             {hasPagination && pagination ? (
                 <PaginationBar

@@ -24,19 +24,26 @@ export interface ChatAreaProps extends Chat {
      * @default "pos_venda"
      */
     chatType?: ChatType;
-    
+
     /**
      * Callback chamado quando o tipo de chat é alterado pelo usuário.
      * Recebe o novo tipo de chat selecionado.
      */
     onChatTypeChange?: (type: ChatType) => void;
-    
+
     /**
      * Indica se o componente está em estado de carregamento.
      * Quando true, exibe skeletons das mensagens ao invés das mensagens reais.
      * @default false
      */
     isLoading?: boolean;
+    
+    /**
+     * Indica se o cliente selecionado tem reclamações.
+     * Se false, as abas de reclamação e mediação serão desabilitadas.
+     * @default false
+     */
+    hasClaims?: boolean;
 }
 
 /**
@@ -77,7 +84,8 @@ export default function ChatArea({
     messages = [],
     actions = [],
     sender,
-    isLoading = false
+    isLoading = false,
+    hasClaims = false,
 }: ChatAreaProps) {
     const [message, setMessage] = useState<string>("");
     const [showActions, setShowActions] = useState<boolean>(false);
@@ -85,9 +93,13 @@ export default function ChatArea({
     const randomSkeletonAmmount = useMemo(() => Math.floor(Math.random() * 10) + 2, [messages.length]);
     return (
         <div className="flex flex-col h-full overflow-hidden">
-            <ChatHeader activeType={chatType} onTypeChange={onChatTypeChange} />
-            <Paper className="p-0! text-center mt-2 bg-beergam-section-background! relative flex-1 flex flex-col min-h-0">
-                   <div className="sticky top-0 z-100">
+            <ChatHeader 
+                activeType={chatType} 
+                onTypeChange={onChatTypeChange}
+                hasClaims={hasClaims}
+            />
+            <Paper className="p-0! mt-2 bg-beergam-section-background! relative flex-1 flex flex-col min-h-0">
+                <div className="sticky top-0 z-100">
                     <div className="text-beergam-white flex items-center justify-between  rounded-t-lg bg-beergam-menu-background/80! p-2">
                         {sender && (
                             <div className="flex items-start gap-2">
@@ -116,43 +128,47 @@ export default function ChatArea({
                             ))}
                         </div>
                     </div>
-                   </div>
-                    <div className="p-2 pb-4 flex-1 bg-beergam-section-background! overflow-y-auto min-h-0">
-                        <Fade in={showActions} timeout={300}>
-                            <div className="absolute rounded-lg bottom-0 top-0 right-0 left-0 bg-black/50 z-50">
-                            </div>
-                        </Fade>
-                        {messages.length === 0 && (
-                            <div className="flex items-center justify-center h-full">
-                                <p className="text-beergam-typography-primary!">Nenhuma mensagem encontrada</p>
-                            </div>
-                        )}
-                        {isLoading && <><ChatMessageSkeleton ammount={randomSkeletonAmmount} /></>}
-                        {!isLoading && <>{messages.map((message, index) => (
-                            <ChatMessage key={`${message.user}-${message.date_created}-${index}`} message={message as ChatMessageType} />
-                        ))}</>}
-                    </div>
-                    {sender && !isLoading && <div className="p-2 sticky bottom-0 bg-beergam-menu-background/80! rounded-lg z-25 flex items-center gap-2">
-                        <TextField
-                            fullWidth
-                            placeholder="Digite sua mensagem..."
-                            value={message}
-                            disabled={!sender}
-                            sx={{
-                                "& .MuiInputBase-root": {
-                                    backgroundColor: "var(--color-beergam-mui-paper)",
-                                    borderColor: "transparent",
-                                    outline: "none"
-                                },
-                            }}
-                            multiline
-                            onChange={(e) => setMessage(e.target.value)}
-                        />
-                        <BeergamButton
-                            icon={"arrow_uturn_right"}
-                            onClick={() => {}}
-                        />
-                    </div>}
+                </div>
+                <div className="p-4 pb-4 flex-1 bg-beergam-section-background! overflow-y-auto min-h-0">
+                    <Fade in={showActions} timeout={300}>
+                        <div className="absolute rounded-lg bottom-0 top-0 right-0 left-0 bg-black/50 z-50">
+                        </div>
+                    </Fade>
+                    {messages.length === 0 && !isLoading && (
+                        <div className="flex items-center justify-center h-full">
+                            <p className="text-beergam-typography-primary!">Nenhuma mensagem encontrada</p>
+                        </div>
+                    )}
+                    {isLoading && <><ChatMessageSkeleton ammount={randomSkeletonAmmount} /></>}
+                    {!isLoading && messages.length > 0 && (
+                        <>
+                            {messages.map((message, index) => (
+                                <ChatMessage key={`${message.user}-${message.date_created}-${index}`} message={message as ChatMessageType} />
+                            ))}
+                        </>
+                    )}
+                </div>
+                {sender && !isLoading && <div className="p-2 sticky bottom-0 bg-beergam-menu-background/80! rounded-lg z-25 flex items-center gap-2">
+                    <TextField
+                        fullWidth
+                        placeholder="Digite sua mensagem..."
+                        value={message}
+                        disabled={!sender}
+                        sx={{
+                            "& .MuiInputBase-root": {
+                                backgroundColor: "var(--color-beergam-mui-paper)",
+                                borderColor: "transparent",
+                                outline: "none"
+                            },
+                        }}
+                        multiline
+                        onChange={(e) => setMessage(e.target.value)}
+                    />
+                    <BeergamButton
+                        icon={"arrow_uturn_right"}
+                        onClick={() => { }}
+                    />
+                </div>}
             </Paper>
         </div>
     );

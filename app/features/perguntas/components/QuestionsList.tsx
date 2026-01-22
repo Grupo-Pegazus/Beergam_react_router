@@ -107,15 +107,14 @@ function QuestionCard({
           </p>
           <div className="flex flex-wrap gap-2 text-xs text-beergam-typography-secondary!">
             <span
-              className={`px-2 py-1 rounded-full border ${
-                questionStatus === QuestionStatus.ANSWERED
+              className={`px-2 py-1 rounded-full border ${questionStatus === QuestionStatus.ANSWERED
                   ? "bg-beergam-primary/10 border-beergam-primary/30 text-beergam-primary"
                   : questionStatus === QuestionStatus.UNANSWERED
                     ? "bg-beergam-typography-secondary/10 border-beergam-typography-secondary/30 text-beergam-typography-secondary"
                     : questionStatus === QuestionStatus.BANNED
                       ? "bg-beeram-red/10 border-beeram-red/30 text-beeram-red"
                       : "bg-slate-100 border-slate-200"
-              }`}
+                }`}
             >
               Status: {questionStatus}
             </span>
@@ -297,18 +296,15 @@ export function QuestionsList({
 
       {!loading &&
         Array.isArray(questions) &&
-        questions.map((question) => {
-          if (!question || typeof question !== "object" || !question.id) {
-            return null;
-          }
-          return (
+        questions
+          .filter((question) => question && typeof question === "object" && question.id)
+          .map((question) => (
             <QuestionCard
               key={question.id}
               question={question}
               onAnswer={onAnswer}
             />
-          );
-        })}
+          ))}
 
       {hasPagination && pagination ? (
         <PaginationBar

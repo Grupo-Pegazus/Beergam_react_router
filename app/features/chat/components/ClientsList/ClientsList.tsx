@@ -1,4 +1,4 @@
-import { memo, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import { Paper } from "@mui/material";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { Client } from "../../typings";
@@ -33,6 +33,67 @@ function ClientsListComponent({
         },
     });
 
+    // Ref para rastrear se já fez scroll para evitar múltiplos scrolls
+    const hasScrolledRef = useRef<string | null>(null);
+    const previousClientsLengthRef = useRef<number>(0);
+
+    // Reset do ref quando a lista de clientes mudar completamente (nova busca)
+    useEffect(() => {
+        if (clients.length !== previousClientsLengthRef.current) {
+            hasScrolledRef.current = null;
+            previousClientsLengthRef.current = clients.length;
+        }
+    }, [clients.length]);
+
+    // Efeito para fazer scroll até o cliente selecionado
+    useEffect(() => {
+        if (!selectedClientId || clients.length === 0 || loading) {
+            return;
+        }
+
+        // Se já fez scroll para este cliente, não faz novamente
+        if (hasScrolledRef.current === selectedClientId) {
+            return;
+        }
+
+        const clientIndex = clients.findIndex(
+            (client) => client.client_id === selectedClientId
+        );
+
+        if (clientIndex >= 0) {
+            // Marca que já fez scroll para este cliente
+            hasScrolledRef.current = selectedClientId;
+
+            // Usa um pequeno delay para garantir que o virtualizer está pronto
+            const timeoutId = setTimeout(() => {
+                requestAnimationFrame(() => {
+                    try {
+                        virtualizer.scrollToIndex(clientIndex, {
+                            align: "center",
+                            behavior: "auto",
+                        });
+                    } catch (error) {
+                        // Ignora erros de scroll (pode acontecer se o índice não estiver disponível)
+                        console.warn("Erro ao fazer scroll para cliente:", error);
+                        // Tenta novamente após um pequeno delay
+                        setTimeout(() => {
+                            try {
+                                virtualizer.scrollToIndex(clientIndex, {
+                                    align: "center",
+                                    behavior: "auto",
+                                });
+                            } catch (retryError) {
+                                // Ignora erro na segunda tentativa também
+                            }
+                        }, 100);
+                    }
+                });
+            }, 50);
+
+            return () => clearTimeout(timeoutId);
+        }
+    }, [selectedClientId, clients, loading, virtualizer]);
+
     if (loading) {
         return <ClientsListSkeleton />;
     }
@@ -62,36 +123,37 @@ function ClientsListComponent({
                     position: "relative",
                 }}
             >
-                {virtualizer.getVirtualItems().map((virtualItem) => {
-                    const client = clients[virtualItem.index];
-                    const uniqueKey = client?.client_id || `client-${virtualItem.index}`;
+                {virtualizer.getVirtualItems()
+                    .filter((virtualItem) => {
+                        const client = clients[virtualItem.index];
+                        return client && typeof client === "object" && client.client_id;
+                    })
+                    .map((virtualItem) => {
+                        const client = clients[virtualItem.index];
+                        const uniqueKey = client?.client_id || `client-${virtualItem.index}`;
 
-                    if (!client) {
-                        return null;
-                    }
-
-                    return (
-                        <div
-                            key={uniqueKey}
-                            data-index={virtualItem.index}
-                            ref={virtualizer.measureElement}
-                            style={{
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                width: "100%",
-                                transform: `translateY(${virtualItem.start}px)`,
-                            }}
-                            className="pb-2"
-                        >
-                            <ClientCard
-                                client={client}
-                                selected={selectedClientId === client.client_id}
-                                onSelect={onClientSelect}
-                            />
-                        </div>
-                    );
-                })}
+                        return (
+                            <div
+                                key={uniqueKey}
+                                data-index={virtualItem.index}
+                                ref={virtualizer.measureElement}
+                                style={{
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    width: "100%",
+                                    transform: `translateY(${virtualItem.start}px)`,
+                                }}
+                                className="pb-2"
+                            >
+                                <ClientCard
+                                    client={client!}
+                                    selected={selectedClientId === client?.client_id}
+                                    onSelect={onClientSelect}
+                                />
+                            </div>
+                        );
+                    })}
             </div>
         </div>
     );
