@@ -1,22 +1,25 @@
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import type { ColumnDef, Row } from '@tanstack/react-table';
+import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import type { ColumnDef, Row, SortingState } from '@tanstack/react-table';
 import {
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
-// Importa a extensão de tipos para meta.headerColor/bodyColor
+// Importa a extensão de tipos para meta customizado
+import Svg from '~/src/assets/svgs/_index';
 import './types';
 
+
 /** Calcula o tamanho da coluna baseado no texto do header */
-function calculateColumnWidth(headerText: string, minWidth = 80, maxWidth = 300): number {
+function calculateColumnWidth(headerText: string, minWidth = 80, maxWidth = 300, canSort = false): number {
   // ~8px por caractere (font 12px) + 32px de padding (16px cada lado)
   const charWidth = 8;
   const padding = 32;
-  const calculated = headerText.length * charWidth + padding;
+  const calculated = headerText.length * charWidth + padding + (canSort ? 30 : 0);
   return Math.min(Math.max(calculated, minWidth), maxWidth);
 }
 
@@ -48,38 +51,50 @@ export default function TanstackTable<TData>({
   const renderCount = useRef(0);
   renderCount.current++;
 
+  // Estado de sorting
+  const [sorting, setSorting] = useState<SortingState>([]);
+
   // Ref para o container scrollável
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
-  // Processa as colunas para calcular o tamanho baseado no header
+  // Processa as colunas para calcular o tamanho e configurar sorting
   const columnsWithSize = useMemo(() => {
     return columns.map((col) => {
-      // Se já tem size definido na coluna, usa ele
-      if (col.size) return col;
-      
-      // Se tem customWidth no meta, usa ele (prioridade sobre cálculo automático)
-      const customWidth = col.meta?.customWidth;
-      if (customWidth) {
-        return { ...col, size: customWidth };
+      // Calcula o tamanho
+      let size = col.size;
+      if (!size) {
+        const customWidth = col.meta?.customWidth;
+        if (customWidth) {
+          size = customWidth;
+        } else {
+          const headerText = typeof col.header === 'string' 
+            ? col.header 
+            : String(col.header || col.id || '');
+          size = calculateColumnWidth(headerText, minColumnWidth, maxColumnWidth, col.meta?.enableSorting ?? false);
+        }
       }
       
-      // Extrai o texto do header para calcular automaticamente
-      const headerText = typeof col.header === 'string' 
-        ? col.header 
-        : String(col.header || col.id || '');
+      // Configura enableSorting baseado no meta (default: false)
+      const enableSorting = col.meta?.enableSorting ?? false;
       
       return {
         ...col,
-        size: calculateColumnWidth(headerText, minColumnWidth, maxColumnWidth),
+        size,
+        enableSorting,
       };
     });
   }, [columns, minColumnWidth, maxColumnWidth]);
 
-  // Configurar TanStack Table
+  // Configurar TanStack Table com sorting
   const table = useReactTable({
     data,
     columns: columnsWithSize,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     debugTable: process.env.NODE_ENV === 'development',
   });
 
@@ -141,28 +156,57 @@ export default function TanstackTable<TData>({
                 key={headerGroup.id}
                 sx={{ display: 'flex', width: '100%' }}
               >
-                {headerGroup.headers.map((header) => (
-                  <TableCell
-                    key={header.id}
-                    sx={{
-                      display: 'flex',
-                      width: header.getSize(),
-                      fontWeight: 600,
-                      fontSize: '12px',
-                      whiteSpace: 'nowrap',
-                      color: "var(--color-beergam-gray-blueish-dark)",
-                      bgcolor: header.column.columnDef.meta?.headerColor || 'grey.100',
-                      borderRight: '1px solid rgba(0,0,0,0.08)',
-                    }}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableCell>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  const canSort = header.column.getCanSort();
+                  const isSorted = header.column.getIsSorted();
+                  
+                  return (
+                    <TableCell
+                      key={header.id}
+                      onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 0.5,
+                        width: header.getSize(),
+                        fontWeight: 600,
+                        fontSize: '12px',
+                        whiteSpace: 'nowrap',
+                        color: "var(--color-beergam-gray-blueish-dark)",
+                        bgcolor: header.column.columnDef.meta?.headerColor || 'grey.100',
+                        borderRight: '1px solid rgba(0,0,0,0.08)',
+                        cursor: canSort ? 'pointer' : 'default',
+                        userSelect: canSort ? 'none' : 'auto',
+                        '&:hover': canSort ? {
+                          bgcolor: 'rgba(0,0,0,0.08)',
+                        } : {},
+                        transition: 'background-color 0.15s',
+                      }}
+                    >
+                      <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </Box>
+                      {/* Ícone de sorting */}
+                      {canSort && (
+                        <Box component="span" sx={{ display: 'flex', alignItems: 'center', ml: 0.5 }}>
+                          {isSorted === 'asc' ? (
+                            <Svg.chevron tailWindClasses="rotate-270" width={20} height={20} />
+                          ) : isSorted === 'desc' ? (
+                            <Svg.chevron tailWindClasses="rotate-90" width={20} height={20} />
+                          ) : (
+                            <Svg.chevron_up_and_down width={24} height={24} />
+                          )}
+                        </Box>
+                      )}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))}
           </TableHead>

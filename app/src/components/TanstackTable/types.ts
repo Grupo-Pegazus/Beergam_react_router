@@ -1,6 +1,6 @@
 import '@tanstack/react-table';
 
-// Extende o tipo ColumnMeta do TanStack Table para incluir cores e tamanhos customizados
+// Extende o tipo ColumnMeta do TanStack Table para incluir cores, tamanhos e sorting customizados
 declare module '@tanstack/react-table' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface ColumnMeta<TData, TValue> {
@@ -12,5 +12,7 @@ declare module '@tanstack/react-table' {
     sectionName?: string;
     /** Largura customizada da coluna (sobrescreve o cálculo automático) */
     customWidth?: number;
+    /** Habilita sorting para esta coluna (default: false) */
+    enableSorting?: boolean;
   }
 }

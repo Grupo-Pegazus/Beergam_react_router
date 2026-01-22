@@ -41,6 +41,23 @@ export default function RelatorioVendasRoute() {
             pack_id: 150,
         };
         
+        // Colunas que podem ser ordenadas (sorting)
+        const sortableColumns: (keyof Order)[] = [
+            'order_id',
+            'date_created',
+            'date_closed',
+            'status',
+            'total_amount',
+            'paid_amount',
+            'quantity',
+            'unit_price',
+            'valor_base',
+            'valor_liquido',
+            'sku',
+            'mlb',
+            'buyer_nickname',
+        ];
+        
         // Usa a ordem definida em OrderAttributeDisplayOrder
         return OrderAttributeDisplayOrder
             .filter((key) => !excludedKeys.includes(key))
@@ -54,6 +71,7 @@ export default function RelatorioVendasRoute() {
                         bodyColor: colors.bodyColor,
                         sectionName: getAttributeSectionName(key),
                         customWidth: customWidths[key],
+                        enableSorting: sortableColumns.includes(key),
                     },
                 };
             });
