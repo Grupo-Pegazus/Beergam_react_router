@@ -42,7 +42,7 @@ export default function ChatPage() {
     const [filters, setFilters] = useState<ClientsFiltersState>(DEFAULT_FILTERS);
     const [appliedFilters, setAppliedFilters] = useState<ClientsFiltersState>(DEFAULT_FILTERS);
     const queryClient = useQueryClient();
-    
+
     // Ref para evitar loops infinitos ao atualizar URL
     const isUpdatingFromUrlRef = useRef(false);
 
@@ -109,18 +109,18 @@ export default function ChatPage() {
         // Se está em reclamação/mediação mas o cliente não tem claims, muda para pós-venda
         if ((chatType === "reclamacao" || chatType === "mediacao") && selectedClient.claims.length === 0) {
             setChatType("pos_venda");
-            
+
             // Atualiza a URL para pós-venda
             const newSearchParams = new URLSearchParams(searchParams);
             newSearchParams.delete("claim_id");
-            
+
             if (selectedClient.orders.length > 0) {
                 const urlOrderId = orderIdParam && selectedClient.orders.some(id => id === orderIdParam || id.includes(orderIdParam))
                     ? orderIdParam
                     : selectedClient.orders[0];
                 newSearchParams.set("order_id", urlOrderId);
             }
-            
+
             setSearchParams(newSearchParams, { replace: true });
         }
     }, [selectedClient, chatType, searchParams, setSearchParams, orderIdParam]);
@@ -128,29 +128,29 @@ export default function ChatPage() {
     const handleClientSelect = useCallback((client: Client) => {
         // Verifica se precisa ajustar o tipo de chat
         let newChatType = chatType;
-        
+
         // Se está em reclamação/mediação mas o novo cliente não tem claims, muda para pós-venda
         if ((chatType === "reclamacao" || chatType === "mediacao") && client.claims.length === 0) {
             newChatType = "pos_venda";
         }
-        
+
         setSelectedClient(client);
         if (newChatType !== chatType) {
             setChatType(newChatType);
         }
-        
+
         // Evita atualizar URL se está vindo da URL
         if (isUpdatingFromUrlRef.current) {
             return;
         }
-        
+
         // Atualiza a URL dinamicamente baseado no cliente selecionado e tipo de chat (ajustado se necessário)
         const newSearchParams = new URLSearchParams(searchParams);
-        
+
         // Remove parâmetros antigos
         newSearchParams.delete("order_id");
         newSearchParams.delete("claim_id");
-        
+
         // Adiciona o parâmetro correto baseado no tipo de chat
         // Prioriza usar o order_id/claim_id da URL se existir e pertencer ao cliente, senão usa o primeiro disponível
         if (newChatType === "pos_venda" && client.orders.length > 0) {
@@ -167,25 +167,25 @@ export default function ChatPage() {
             newSearchParams.set("claim_id", urlClaimId);
         }
         // Se não tem orders nem claims, mantém a URL limpa (sem parâmetros)
-        
+
         setSearchParams(newSearchParams, { replace: true });
     }, [chatType, searchParams, setSearchParams, orderIdParam, claimIdParam]);
 
     const handleChatTypeChange = useCallback((type: ChatType) => {
         setChatType(type);
-        
+
         // Evita atualizar URL se está vindo da URL ou não há cliente selecionado
         if (isUpdatingFromUrlRef.current || !selectedClient) {
             return;
         }
-        
+
         // Atualiza a URL quando o tipo de chat muda
         const newSearchParams = new URLSearchParams(searchParams);
-        
+
         // Remove parâmetros antigos
         newSearchParams.delete("order_id");
         newSearchParams.delete("claim_id");
-        
+
         // Adiciona o parâmetro correto baseado no novo tipo de chat
         // Prioriza usar o order_id/claim_id da URL se existir e pertencer ao cliente, senão usa o primeiro disponível
         if (type === "pos_venda" && selectedClient.orders.length > 0) {
@@ -201,7 +201,7 @@ export default function ChatPage() {
                 : String(selectedClient.claims[0]);
             newSearchParams.set("claim_id", urlClaimId);
         }
-        
+
         setSearchParams(newSearchParams, { replace: true });
     }, [selectedClient, searchParams, setSearchParams, orderIdParam, claimIdParam]);
 
@@ -351,6 +351,7 @@ export default function ChatPage() {
                     isLoading={isLoadingMessages}
                     onChatTypeChange={handleChatTypeChange}
                     hasClaims={selectedClient ? selectedClient.claims.length > 0 : false}
+                    client={selectedClient || undefined}
                 />
             </div>
 

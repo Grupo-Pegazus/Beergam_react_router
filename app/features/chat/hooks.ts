@@ -92,3 +92,6 @@ export function useMediationMessages(claimId?: string | null, enabled = true) {
         refetchOnMount: true,
     });
 }
+
+// Re-export useClaimDetails from hooks subdirectory
+export { useClaimDetails } from "./hooks/useClaimDetails";

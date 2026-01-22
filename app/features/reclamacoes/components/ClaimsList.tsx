@@ -34,7 +34,7 @@ function formatDate(value?: string | null): string {
 }
 
 
-function ClaimCard({
+export function ClaimCard({
     claim,
 }: {
     claim: Claim;

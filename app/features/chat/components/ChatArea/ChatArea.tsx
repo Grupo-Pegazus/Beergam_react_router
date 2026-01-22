@@ -2,9 +2,11 @@ import { Avatar, Fade, Paper, Skeleton, TextField } from "@mui/material";
 import dayjs from "dayjs";
 import { useMemo, useRef, useState } from "react";
 import BeergamButton from "~/src/components/utils/BeergamButton";
-import type { Chat, ChatMessage as ChatMessageType } from "../../typings";
+import Modal from "~/src/components/utils/Modal";
+import type { Chat, ChatMessage as ChatMessageType, Client } from "../../typings";
 import ChatMessage from "../ChatMessage";
 import ChatMessageSkeleton from "../ChatMessage/skeleton";
+import { ClientInfo } from "../ClientInfo";
 import ChatHeader, { type ChatType } from "./ChatHeader";
 
 /**
@@ -37,13 +39,19 @@ export interface ChatAreaProps extends Chat {
      * @default false
      */
     isLoading?: boolean;
-    
+
     /**
      * Indica se o cliente selecionado tem reclamações.
      * Se false, as abas de reclamação e mediação serão desabilitadas.
      * @default false
      */
     hasClaims?: boolean;
+
+    /**
+     * Cliente completo para exibir informações detalhadas no modal.
+     * Opcional, usado para abrir o modal de detalhes do cliente.
+     */
+    client?: Client;
 }
 
 /**
@@ -86,15 +94,17 @@ export default function ChatArea({
     sender,
     isLoading = false,
     hasClaims = false,
+    client,
 }: ChatAreaProps) {
     const [message, setMessage] = useState<string>("");
     const [showActions, setShowActions] = useState<boolean>(false);
+    const [showClientModal, setShowClientModal] = useState<boolean>(false);
     const actionRef = useRef<HTMLDivElement>(null);
     const randomSkeletonAmmount = useMemo(() => Math.floor(Math.random() * 10) + 2, [messages.length]);
     return (
         <div className="flex flex-col h-full overflow-hidden">
-            <ChatHeader 
-                activeType={chatType} 
+            <ChatHeader
+                activeType={chatType}
                 onTypeChange={onChatTypeChange}
                 hasClaims={hasClaims}
             />
@@ -112,7 +122,7 @@ export default function ChatArea({
                             </div>
                         )}
                         <div ref={actionRef} className="flex items-center gap-2">
-                            {/* <BeergamButton icon="user_plus_solid" title="Visualizar cliente" /> */}
+                            <BeergamButton icon="user_plus_solid" title="Detalhes" onClick={() => setShowClientModal(true)} />
                             {actions && actions.length > 0 && actions.map((action) => (
                                 <BeergamButton
                                     key={action.id}
@@ -170,6 +180,17 @@ export default function ChatArea({
                     />
                 </div>}
             </Paper>
+
+            {/* Modal de detalhes do cliente */}
+            <Modal
+                isOpen={showClientModal}
+                onClose={() => setShowClientModal(false)}
+                title="Detalhes do Cliente"
+                className="z-1000"
+                contentClassName="!max-w-2xl !max-h-[90vh] overflow-y-auto"
+            >
+                <ClientInfo client={client} />
+            </Modal>
         </div>
     );
 }
