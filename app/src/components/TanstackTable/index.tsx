@@ -1,3 +1,4 @@
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import type { ColumnDef, Row } from '@tanstack/react-table';
 import {
   flexRender,
@@ -68,45 +69,44 @@ export default function TanstackTable<TData>({
       )}
 
       {/* Container scrollável */}
-      <div
+      <TableContainer
+        component={Paper}
         ref={tableContainerRef}
-        className="rounded-lg border border-gray-200 bg-white"
-        style={{
+        sx={{
           overflow: 'auto',
           position: 'relative',
           height: `${height}px`,
+          borderRadius: 2,
         }}
       >
         {/* Usamos CSS Grid para permitir alturas dinâmicas nas rows */}
-        <table style={{ display: 'grid' }}>
+        <Table sx={{ display: 'grid' }}>
           {/* Header sticky */}
-          <thead
-            style={{
+          <TableHead
+            sx={{
               display: 'grid',
               position: 'sticky',
               top: 0,
               zIndex: 1,
+              bgcolor: 'grey.100',
             }}
-            className="bg-gray-100"
           >
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr
+              <TableRow
                 key={headerGroup.id}
-                style={{ display: 'flex', width: '100%' }}
+                sx={{ display: 'flex', width: '100%' }}
               >
                 {headerGroup.headers.map((header) => (
-                  <th
+                  <TableCell
                     key={header.id}
-                    style={{
+                    component="th"
+                    sx={{
                       display: 'flex',
                       width: header.getSize(),
-                      padding: '8px 12px',
                       fontWeight: 600,
                       fontSize: '12px',
-                      textAlign: 'left',
                       whiteSpace: 'nowrap',
-                      borderBottom: '1px solid #e5e7eb',
-                      backgroundColor: '#f9fafb',
+                      bgcolor: 'grey.50',
                     }}
                   >
                     {header.isPlaceholder
@@ -115,15 +115,15 @@ export default function TanstackTable<TData>({
                           header.column.columnDef.header,
                           header.getContext()
                         )}
-                  </th>
+                  </TableCell>
                 ))}
-              </tr>
+              </TableRow>
             ))}
-          </thead>
+          </TableHead>
 
           {/* Body virtualizado */}
-          <tbody
-            style={{
+          <TableBody
+            sx={{
               display: 'grid',
               height: `${rowVirtualizer.getTotalSize()}px`,
               position: 'relative',
@@ -132,28 +132,29 @@ export default function TanstackTable<TData>({
             {virtualRows.map((virtualRow) => {
               const row = rows[virtualRow.index] as Row<TData>;
               return (
-                <tr
+                <TableRow
                   key={row.id}
                   data-index={virtualRow.index}
                   ref={(node) => rowVirtualizer.measureElement(node)}
-                  style={{
+                  sx={{
                     display: 'flex',
                     position: 'absolute',
                     transform: `translateY(${virtualRow.start}px)`,
                     width: '100%',
+                    '&:hover': {
+                      bgcolor: 'grey.50',
+                    },
+                    transition: 'background-color 0.15s',
                   }}
-                  className="hover:bg-gray-50 transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <td
+                    <TableCell
                       key={cell.id}
-                      style={{
+                      sx={{
                         display: 'flex',
                         alignItems: 'center',
                         width: cell.column.getSize(),
-                        padding: '8px 12px',
                         fontSize: '12px',
-                        borderBottom: '1px solid #f3f4f6',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
@@ -163,14 +164,14 @@ export default function TanstackTable<TData>({
                         cell.column.columnDef.cell,
                         cell.getContext()
                       )}
-                    </td>
+                    </TableCell>
                   ))}
-                </tr>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 }
