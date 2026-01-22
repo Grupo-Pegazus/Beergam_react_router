@@ -2,8 +2,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { useAuth } from "~/features/auth/hooks";
-import { authService } from "~/features/auth/service";
 import { plansService } from "~/features/plans/service";
+import { subscriptionService } from "~/features/plans/subscriptionService";
 import type { Plan } from "~/features/user/typings/BaseUser";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import PlansGrid from "../../features/plans/components/PlansGrid";
@@ -32,7 +32,7 @@ export default function Home() {
   const { authInfo } = useAuth();
   const navigate = useNavigate();
   const getSubscription = useMutation({
-    mutationFn: authService.getSubscription,
+    mutationFn: subscriptionService.getSubscription,
   });
   function handlePlanSelect(plan: Plan) {
     if (!authInfo.success) {

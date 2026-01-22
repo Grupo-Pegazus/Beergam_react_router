@@ -25,7 +25,11 @@ interface IAuthStore {
   logout: () => void;
   setAuthError: (error: TAuthError, usageLimitData?: UsageLimitData) => void;
   setSubscription: (subscription: Subscription | null) => void;
-  updateSubscription: (subscription: Subscription | null) => void;
+  updateSubscription: (
+    subscription: Subscription | null,
+    success?: boolean,
+    error?: TAuthError | null
+  ) => void;
   updateAuthInfo: (auth: IAuthState) => void;
   updateColab: (colab: IColab) => void;
   createColab: (colab: IColab) => void;
@@ -81,12 +85,43 @@ const authBaseStore = create<IAuthStore>()(
         }),
       setSubscription: (subscription: Subscription | null) =>
         set({ subscription, loading: false, success: true, error: null }),
-      updateSubscription: (subscription: Subscription | null) => {
-        set({
-          subscription,
-          loading: false,
-          success: true,
-          error: null,
+      updateSubscription: (
+        subscription: Subscription | null,
+        success: boolean = true,
+        error: TAuthError | null = get().error
+      ) => {
+        set((state) => {
+          const currentUser = state.user;
+          if (currentUser?.details) {
+            const updatedUser = isMaster(currentUser)
+              ? ({
+                  ...currentUser,
+                  details: {
+                    ...currentUser.details,
+                    subscription,
+                  },
+                } as IUser)
+              : ({
+                  ...currentUser,
+                  details: {
+                    ...currentUser.details,
+                    subscription,
+                  },
+                } as IColab);
+            return {
+              subscription,
+              loading: false,
+              success,
+              error,
+              user: updatedUser,
+            };
+          }
+          return {
+            subscription,
+            loading: false,
+            success,
+            error,
+          };
         });
       },
       updateAuthInfo: (auth: IAuthState) => {
