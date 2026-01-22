@@ -1,22 +1,25 @@
 import { Alert } from "@mui/material";
+import type { ColumnDef } from '@tanstack/react-table';
 import { useMemo } from "react";
 import { useOrders } from "~/features/vendas/hooks";
 import type { Order } from "~/features/vendas/typings";
-import { OrderTranslatedAttributes } from "~/features/vendas/typings";
+import {
+    OrderAttributeDisplayOrder,
+    OrderTranslatedAttributes,
+    getAttributeColors,
+    getAttributeSectionName,
+} from "~/features/vendas/typings";
 import TanstackTable from "~/src/components/TanstackTable";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
-interface OrderColumns {
-    header: string;
-    accessorKey: keyof Order;
-    hidden?: boolean;
-}
+
 export default function RelatorioVendasRoute() {
     const filters = useMemo(() => ({
         page: 1,
         per_page: 100,
     }), []);
     const { data, isLoading, error } = useOrders(filters);
-    const columns: OrderColumns[] = useMemo(() => {
+    
+    const columns: ColumnDef<Order>[] = useMemo(() => {
         // Campos que são objetos ou arrays e não podem ser renderizados diretamente
         const excludedKeys: (keyof Order)[] = [
             'tags',
@@ -25,17 +28,34 @@ export default function RelatorioVendasRoute() {
             'shipment_costs',
             'client',
             'id',
-            "title",
-            'thumbnail'
+            'thumbnail',
+            'created_at'
         ];
         
-        return Object.entries(OrderTranslatedAttributes)
-            .filter(([key]) => !excludedKeys.includes(key as keyof Order))
-            .map(([key, header]) => ({
-                header,
-                accessorKey: key as keyof Order,
-                hidden: false,
-            }));
+        // Larguras customizadas para colunas específicas
+        const customWidths: Partial<Record<keyof Order, number>> = {
+            sku: 150,
+            mlb: 150,
+            date_created: 150,
+            title: 200,
+        };
+        
+        // Usa a ordem definida em OrderAttributeDisplayOrder
+        return OrderAttributeDisplayOrder
+            .filter((key) => !excludedKeys.includes(key))
+            .map((key) => {
+                const colors = getAttributeColors(key);
+                return {
+                    header: OrderTranslatedAttributes[key],
+                    accessorKey: key,
+                    meta: {
+                        headerColor: colors.headerColor,
+                        bodyColor: colors.bodyColor,
+                        sectionName: getAttributeSectionName(key),
+                        customWidth: customWidths[key],
+                    },
+                };
+            });
     }, []);
     const orders = useMemo(() => {
         if (!data?.success || !data.data?.orders) return [];

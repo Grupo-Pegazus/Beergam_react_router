@@ -154,7 +154,182 @@ export const OrderTranslatedAttributes: OrderTranslatedAttributes = {
   created_at: "Criado Em",
   updated_at: "Atualizado Em",
 } as const;
+// ============================================
+// SISTEMA DE SEÇÕES E CORES PARA TABELA
+// ============================================
 
+/** Tipos de seções disponíveis */
+export type OrderSection = 
+  | 'identification'
+  | 'dates_status'
+  | 'product'
+  | 'order_values'
+  | 'taxes_costs'
+  | 'shipping_logistics'
+  | 'shipping_costs';
+
+/** Configuração de cor para cada seção */
+export interface SectionColorConfig {
+  name: string;
+  headerColor: string;  // Cor mais forte para o header
+  bodyColor: string;    // Cor mais clara para o body
+}
+
+/** Configuração de cores por seção - EDITE AQUI PARA MUDAR AS CORES */
+export const OrderSectionColors: Record<OrderSection, SectionColorConfig> = {
+  identification: {
+    name: 'Identificação do Pedido',
+    headerColor: '#e2e8f0',  // Cinza slate
+    bodyColor: '#f8fafc',
+  },
+  dates_status: {
+    name: 'Datas e Status',
+    headerColor: '#c7d2fe',  // Indigo claro
+    bodyColor: '#eef2ff',
+  },
+  product: {
+    name: 'Produto / Anúncio',
+    headerColor: '#a5f3fc',  // Cyan
+    bodyColor: '#ecfeff',
+  },
+  order_values: {
+    name: 'Valores do Pedido',
+    headerColor: '#bbf7d0',  // Verde claro
+    bodyColor: '#f0fdf4',
+  },
+  taxes_costs: {
+    name: 'Taxas, Impostos e Custos',
+    headerColor: '#fecaca',  // Vermelho claro
+    bodyColor: '#fef2f2',
+  },
+  shipping_logistics: {
+    name: 'Envio e Logística',
+    headerColor: '#fde68a',  // Amarelo
+    bodyColor: '#fefce8',
+  },
+  shipping_costs: {
+    name: 'Custos e Receitas de Envio',
+    headerColor: '#fdba74',  // Laranja
+    bodyColor: '#fff7ed',
+  },
+} as const;
+
+/** Mapeamento de cada atributo para sua seção (na ordem correta) */
+export const OrderAttributeSection: Record<keyof Order, OrderSection> = {
+  // Identificação do Pedido
+  id: 'identification',
+  order_id: 'identification',
+  marketplace_shop_id: 'identification',
+  pack_id: 'identification',
+  buyer_id: 'identification',
+  buyer_nickname: 'identification',
+  client: 'identification',
+  isRegisteredInternally: 'identification',
+  
+  // Datas e Status
+  created_at: 'dates_status',
+  updated_at: 'dates_status',
+  date_created: 'dates_status',
+  date_closed: 'dates_status',
+  expiration_date: 'dates_status',
+  status: 'dates_status',
+  
+  // Produto / Anúncio
+  sku: 'product',
+  mlb: 'product',
+  title: 'product',
+  category_id: 'product',
+  quantity: 'product',
+  unit_price: 'product',
+  ad_type: 'product',
+  listing_type_id: 'product',
+  condition: 'product',
+  thumbnail: 'product',
+  
+  // Valores do Pedido
+  total_amount: 'order_values',
+  paid_amount: 'order_values',
+  currency_id: 'order_values',
+  valor_base: 'order_values',
+  valor_liquido: 'order_values',
+  
+  // Taxas, Impostos e Custos Fixos
+  tax_percentage: 'taxes_costs',
+  tax_amount: 'taxes_costs',
+  sale_fee: 'taxes_costs',
+  price_cost: 'taxes_costs',
+  packaging_cost: 'taxes_costs',
+  extra_cost: 'taxes_costs',
+  
+  // Envio e Logística
+  shipping_id: 'shipping_logistics',
+  shipping_method_name: 'shipping_logistics',
+  shipping_mode: 'shipping_logistics',
+  shipping_paid_by: 'shipping_logistics',
+  shipping_destination_state: 'shipping_logistics',
+  shipping_details: 'shipping_logistics',
+  tracking_number: 'shipping_logistics',
+  tracking_method: 'shipping_logistics',
+  shipment_status: 'shipping_logistics',
+  shipment_substatus: 'shipping_logistics',
+  estimated_delivery: 'shipping_logistics',
+  declared_value: 'shipping_logistics',
+  
+  // Custos e Receitas de Envio
+  custo_envio_base: 'shipping_costs',
+  custo_envio_final: 'shipping_costs',
+  custo_envio_buyer: 'shipping_costs',
+  custo_envio_seller: 'shipping_costs',
+  custo_envio_desconto: 'shipping_costs',
+  custo_envio_compensacao: 'shipping_costs',
+  custo_envio_promoted_amount: 'shipping_costs',
+  frete_recebido_total: 'shipping_costs',
+  bonus_por_envio_estorno: 'shipping_costs',
+  shipment_costs: 'shipping_costs',
+  
+  // Campos extras (não categorizados - usam identification)
+  tags: 'identification',
+  payments: 'order_values',
+} as const;
+
+/** Ordem dos atributos para exibição na tabela */
+export const OrderAttributeDisplayOrder: (keyof Order)[] = [
+  // Identificação do Pedido
+  'id', 'order_id', 'marketplace_shop_id', 'pack_id', 'buyer_id', 'buyer_nickname', 'client', 'isRegisteredInternally',
+  // Datas e Status
+  'created_at', 'updated_at', 'date_created', 'date_closed', 'expiration_date', 'status',
+  // Produto / Anúncio
+  'sku', 'mlb', 'title', 'category_id', 'quantity', 'unit_price', 'ad_type', 'listing_type_id', 'condition', 'thumbnail',
+  // Valores do Pedido
+  'total_amount', 'paid_amount', 'currency_id', 'valor_base', 'valor_liquido',
+  // Taxas, Impostos e Custos Fixos
+  'tax_percentage', 'tax_amount', 'sale_fee', 'price_cost', 'packaging_cost', 'extra_cost',
+  // Envio e Logística
+  'shipping_id', 'shipping_method_name', 'shipping_mode', 'shipping_paid_by', 'shipping_destination_state', 
+  'shipping_details', 'tracking_number', 'tracking_method', 'shipment_status', 'shipment_substatus', 
+  'estimated_delivery', 'declared_value',
+  // Custos e Receitas de Envio
+  'custo_envio_base', 'custo_envio_final', 'custo_envio_buyer', 'custo_envio_seller', 'custo_envio_desconto',
+  'custo_envio_compensacao', 'custo_envio_promoted_amount', 'frete_recebido_total', 'bonus_por_envio_estorno', 
+  'shipment_costs',
+  // Extras
+  'tags', 'payments',
+];
+
+/** Helper: Obtém as cores de um atributo */
+export function getAttributeColors(key: keyof Order): { headerColor: string; bodyColor: string } {
+  const section = OrderAttributeSection[key];
+  return {
+    headerColor: OrderSectionColors[section].headerColor,
+    bodyColor: OrderSectionColors[section].bodyColor,
+  };
+}
+
+/** Helper: Obtém o nome da seção de um atributo */
+export function getAttributeSectionName(key: keyof Order): string {
+  const section = OrderAttributeSection[key];
+  return OrderSectionColors[section].name;
+}
 // Schema para filtros de pedidos
 export const OrdersFiltersSchema = z.object({
   status: z.string().optional(),

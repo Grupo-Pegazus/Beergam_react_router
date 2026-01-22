@@ -6,7 +6,19 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
+
+// Importa a extensão de tipos para meta.headerColor/bodyColor
+import './types';
+
+/** Calcula o tamanho da coluna baseado no texto do header */
+function calculateColumnWidth(headerText: string, minWidth = 80, maxWidth = 300): number {
+  // ~8px por caractere (font 12px) + 32px de padding (16px cada lado)
+  const charWidth = 8;
+  const padding = 32;
+  const calculated = headerText.length * charWidth + padding;
+  return Math.min(Math.max(calculated, minWidth), maxWidth);
+}
 
 interface TanstackTableProps<TData> {
   data: TData[];
@@ -17,6 +29,10 @@ interface TanstackTableProps<TData> {
   estimateRowHeight?: number;
   /** Quantidade de rows extras renderizadas fora da viewport (default: 5) */
   overscan?: number;
+  /** Largura mínima das colunas (default: 80px) */
+  minColumnWidth?: number;
+  /** Largura máxima das colunas (default: 300px) */
+  maxColumnWidth?: number;
 }
 
 export default function TanstackTable<TData>({
@@ -25,6 +41,8 @@ export default function TanstackTable<TData>({
   height = 400,
   estimateRowHeight = 35,
   overscan = 5,
+  minColumnWidth = 80,
+  maxColumnWidth = 300,
 }: TanstackTableProps<TData>) {
   // Debug: contador de renders
   const renderCount = useRef(0);
@@ -33,10 +51,34 @@ export default function TanstackTable<TData>({
   // Ref para o container scrollável
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
+  // Processa as colunas para calcular o tamanho baseado no header
+  const columnsWithSize = useMemo(() => {
+    return columns.map((col) => {
+      // Se já tem size definido na coluna, usa ele
+      if (col.size) return col;
+      
+      // Se tem customWidth no meta, usa ele (prioridade sobre cálculo automático)
+      const customWidth = col.meta?.customWidth;
+      if (customWidth) {
+        return { ...col, size: customWidth };
+      }
+      
+      // Extrai o texto do header para calcular automaticamente
+      const headerText = typeof col.header === 'string' 
+        ? col.header 
+        : String(col.header || col.id || '');
+      
+      return {
+        ...col,
+        size: calculateColumnWidth(headerText, minColumnWidth, maxColumnWidth),
+      };
+    });
+  }, [columns, minColumnWidth, maxColumnWidth]);
+
   // Configurar TanStack Table
   const table = useReactTable({
     data,
-    columns,
+    columns: columnsWithSize,
     getCoreRowModel: getCoreRowModel(),
     debugTable: process.env.NODE_ENV === 'development',
   });
@@ -63,9 +105,11 @@ export default function TanstackTable<TData>({
     <div className="tanstack-table-wrapper">
       {/* Debug info */}
       {process.env.NODE_ENV === 'development' && (
+        <>
         <p className="text-xs text-gray-500 mb-2">
           🔍 Render #{renderCount.current} | Total: {data.length} rows | Virtual: {virtualRows.length} rows
         </p>
+        </>
       )}
 
       {/* Container scrollável */}
@@ -77,6 +121,7 @@ export default function TanstackTable<TData>({
           position: 'relative',
           height: `${height}px`,
           borderRadius: 2,
+          padding: 0,
         }}
       >
         {/* Usamos CSS Grid para permitir alturas dinâmicas nas rows */}
@@ -99,14 +144,15 @@ export default function TanstackTable<TData>({
                 {headerGroup.headers.map((header) => (
                   <TableCell
                     key={header.id}
-                    component="th"
                     sx={{
                       display: 'flex',
                       width: header.getSize(),
                       fontWeight: 600,
                       fontSize: '12px',
                       whiteSpace: 'nowrap',
-                      bgcolor: 'grey.50',
+                      color: "var(--color-beergam-gray-blueish-dark)",
+                      bgcolor: header.column.columnDef.meta?.headerColor || 'grey.100',
+                      borderRight: '1px solid rgba(0,0,0,0.08)',
                     }}
                   >
                     {header.isPlaceholder
@@ -141,10 +187,13 @@ export default function TanstackTable<TData>({
                     position: 'absolute',
                     transform: `translateY(${virtualRow.start}px)`,
                     width: '100%',
-                    '&:hover': {
-                      bgcolor: 'grey.50',
-                    },
                     transition: 'background-color 0.15s',
+                    '&:hover': {
+                      // Faz todas as cells ficarem transparentes no hover
+                      '& td, & .MuiTableCell-root': {
+                        bgcolor: 'var(--color-beergam-white) !important',
+                      },
+                    },
                   }}
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -158,6 +207,11 @@ export default function TanstackTable<TData>({
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
+                        color: "var(--color-beergam-gray-blueish-dark)",
+                        bgcolor: cell.column.columnDef.meta?.bodyColor || 'transparent',
+                        borderRight: '1px solid rgba(0,0,0,0.04)',
+                        borderBottom: '1px solid rgba(0,0,0,0.06)',
+                        transition: 'background-color 0.15s',
                       }}
                     >
                       {flexRender(
