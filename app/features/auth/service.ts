@@ -97,24 +97,6 @@ class AuthService {
   async logout(): Promise<ApiResponse<null>> {
     return await typedApiClient.post<null>("/v1/auth/logout");
   }
-  async getSubscription(): Promise<ApiResponse<Subscription>> {
-    try {
-      const response = await typedApiClient.get<Subscription>(
-        "/v1/payments/subscription"
-      );
-      return response;
-    } catch (error) {
-      console.error("error do getSubscription", error);
-      return {
-        success: false,
-        data: {} as Subscription,
-        message:
-          "Erro ao buscar assinatura. Tente novamente em alguns instantes.",
-        error_code: 500,
-        error_fields: [],
-      };
-    }
-  }
   async createColab(
     colab: IColab,
     password: string

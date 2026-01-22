@@ -134,7 +134,7 @@ export const SubscriptionSchema = z.object({
 }) satisfies z.ZodType<Subscription>;
 
 export interface IBaseUserDetails {
-  // subscription?: Subscription | null;
+  subscription?: Subscription | null;
   allowed_views?: MenuState;
 }
 
@@ -152,6 +152,7 @@ export interface IBaseUser {
 }
 
 export const BaseUserDetailsSchema = z.object({
+  subscription: SubscriptionSchema.optional().nullable().catch(null),
   allowed_views: z
     .record(
       z.string(),
