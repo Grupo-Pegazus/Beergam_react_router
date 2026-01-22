@@ -5,6 +5,7 @@ export type ChatType = "pos_venda" | "reclamacao" | "mediacao";
 export interface ChatHeaderProps {
     activeType?: ChatType;
     onTypeChange?: (type: ChatType) => void;
+    hasClaims?: boolean;
 }
 
 const CHAT_TYPES: { value: ChatType; label: string }[] = [
@@ -16,6 +17,7 @@ const CHAT_TYPES: { value: ChatType; label: string }[] = [
 export default function ChatHeader({
     activeType = "pos_venda",
     onTypeChange,
+    hasClaims = false,
 }: ChatHeaderProps) {
     const [currentType, setCurrentType] = useState<ChatType>(activeType);
 
@@ -64,9 +66,14 @@ export default function ChatHeader({
                     },
                 }}
             >
-                {CHAT_TYPES.map((type) => (
-                    <Tab key={type.value} label={type.label} value={type.value} />
-                ))}
+                {CHAT_TYPES.map((type) => {
+                    // Desabilita reclamação e mediação se o cliente não tiver claims
+                    const isDisabled = (type.value === "reclamacao" || type.value === "mediacao") && !hasClaims;
+                    if (isDisabled) {
+                        return null;
+                    }
+                    return <Tab key={type.value} label={type.label} value={type.value} />;
+                })}
             </Tabs>
         </div>
     );
