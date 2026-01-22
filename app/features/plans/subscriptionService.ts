@@ -185,9 +185,7 @@ class SubscriptionService {
 
       // Sempre atualiza o store com a subscription (pode ser null)
       if (response.success) {
-        authStore.setState({
-          subscription: normalized,
-        });
+        authStore.getState().updateSubscription(normalized ?? null);
       }
       // Sempre retorna success: true, mesmo quando não há subscription
       // A ausência de subscription não é um erro, apenas uma condição
