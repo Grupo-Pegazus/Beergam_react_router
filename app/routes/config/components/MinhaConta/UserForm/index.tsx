@@ -21,6 +21,7 @@ import Section from "~/src/components/ui/Section";
 import { Fields } from "~/src/components/utils/_fields";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { UpdateUserDetailsSchema, UpdateUserSchema } from "../typing";
+import { useEffect } from "react";
 export default function UserForm({ user }: { user: IUser }) {
   type editUserFormData = z.infer<typeof UserSchema>;
   const canEditSecondaryPhone = !user.details?.secondary_phone;
@@ -34,6 +35,7 @@ export default function UserForm({ user }: { user: IUser }) {
   const formSchema = UpdateUserSchema.omit({ details: true }).extend({
     details: detailsSchema,
   });
+  const defaultValues = (user) as editUserFormData;
   const {
     register,
     handleSubmit,
@@ -43,10 +45,14 @@ export default function UserForm({ user }: { user: IUser }) {
     formState: { errors },
   } = useForm<editUserFormData>({
     resolver: zodResolver(formSchema) as unknown as Resolver<editUserFormData>,
-    defaultValues: UserSchema.safeParse(user).data as editUserFormData,
+    defaultValues,
     mode: "onSubmit",
     reValidateMode: "onChange",
   });
+  useEffect(() => {
+    if (!defaultValues) return;
+    reset(defaultValues);
+  }, [defaultValues, reset]);
   const editUserMutation = useMutation({
     mutationFn: (data: IUser) => userService.editUserInformation(data),
     onSuccess: (data) => {

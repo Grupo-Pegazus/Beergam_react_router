@@ -53,13 +53,28 @@ interface ChatUser {
     marketplace: MarketplaceType;
 }
 
+export interface ChatAttachment {
+    id: string;
+    original_filename: string;
+    url: string;
+}
+
 export interface ChatMessage {
     text: string;
     user: ChatUserType;
     date_created: string;
-    attachments?: string[];
+    attachments?: ChatAttachment[];
     // [key: string]: unknown;
 }
+
+// Resposta do backend para mensagens de chat
+export interface ChatMessagesResponse {
+    messages: ChatMessage[];
+    // Outros campos que o backend pode retornar
+    [key: string]: unknown;
+}
+
+export type ChatMessagesApiResponse = ApiResponse<ChatMessagesResponse>;
 
 interface ChatUserDetails extends ChatUser {
     details: {

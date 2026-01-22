@@ -1,11 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router";
 import type { ChatType } from "~/features/chat/components/ChatArea";
 import { ChatArea } from "~/features/chat/components/ChatArea";
+import ClaimSelectionModal from "~/features/chat/components/ChatArea/ClaimSelectionModal";
+import OrderSelectionModal from "~/features/chat/components/ChatArea/OrderSelectionModal";
 import { ClientsFilters } from "~/features/chat/components/ClientsFilters";
 import { ClientsList } from "~/features/chat/components/ClientsList";
-import { useClients } from "~/features/chat/hooks";
-import type { Client, ClientsFiltersState, ClientsFilters as ClientsFiltersType } from "~/features/chat/typings";
+import { useClients, usePosPurchaseMessages, useClaimMessages, useMediationMessages } from "~/features/chat/hooks";
+import type { Client, ClientsFiltersState, ClientsFilters as ClientsFiltersType, ChatMessage } from "~/features/chat/typings";
 import { transformClientToChatUserDetails } from "~/features/chat/typings";
 
 const DEFAULT_FILTERS: ClientsFiltersState = {
@@ -32,11 +35,23 @@ function mapToApiFilters(
 }
 
 export default function ChatPage() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const orderIdParam = searchParams.get("order_id");
+    const claimIdParam = searchParams.get("claim_id");
+
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
     const [chatType, setChatType] = useState<ChatType>("pos_venda");
     const [filters, setFilters] = useState<ClientsFiltersState>(DEFAULT_FILTERS);
     const [appliedFilters, setAppliedFilters] = useState<ClientsFiltersState>(DEFAULT_FILTERS);
+    const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+    const [selectedClaimId, setSelectedClaimId] = useState<string | null>(null);
+    const [showOrderSelection, setShowOrderSelection] = useState(false);
+    const [showClaimSelection, setShowClaimSelection] = useState(false);
     const queryClient = useQueryClient();
+
+    const isUpdatingFromUrlRef = useRef(false);
+    const lastProcessedClientIdRef = useRef<string | null>(null);
+    const isSelectingClientRef = useRef(false);
 
     const apiFilters = useMemo(
         () => mapToApiFilters(appliedFilters),
@@ -50,25 +65,193 @@ export default function ChatPage() {
             return [];
         }
         const responseData = clientsQuery.data.data;
-
-        // O backend retorna diretamente um array de clientes
         return Array.isArray(responseData) ? responseData : [];
     }, [clientsQuery.data]);
 
+    useEffect(() => {
+        if (isSelectingClientRef.current || isUpdatingFromUrlRef.current) {
+            return;
+        }
+
+        if (!clients.length || (!orderIdParam && !claimIdParam)) {
+            return;
+        }
+
+        isUpdatingFromUrlRef.current = true;
+
+        let clientToSelect: Client | null = null;
+        let chatTypeToSet: ChatType = "pos_venda";
+
+        if (orderIdParam) {
+            clientToSelect = clients.find((client) =>
+                client.orders.some((orderId) => orderId === orderIdParam || orderId.includes(orderIdParam))
+            ) || null;
+            chatTypeToSet = "pos_venda";
+        } else if (claimIdParam) {
+            clientToSelect = clients.find((client) =>
+                client.claims.some((claimId) => String(claimId) === String(claimIdParam))
+            ) || null;
+            chatTypeToSet = "reclamacao";
+        }
+
+        if (clientToSelect && clientToSelect.client_id !== selectedClient?.client_id) {
+            setSelectedClient(clientToSelect);
+            setChatType(chatTypeToSet);
+            if (orderIdParam) {
+                setSelectedOrderId(orderIdParam);
+            } else if (claimIdParam) {
+                setSelectedClaimId(claimIdParam);
+            }
+            lastProcessedClientIdRef.current = `${clientToSelect.client_id}-${chatTypeToSet}`;
+        }
+
+        setTimeout(() => {
+            isUpdatingFromUrlRef.current = false;
+        }, 100);
+    }, [clients, orderIdParam, claimIdParam, selectedClient?.client_id]);
+
+    useEffect(() => {
+        if (!selectedClient || isUpdatingFromUrlRef.current || isSelectingClientRef.current) {
+            return;
+        }
+
+        const clientChatKey = `${selectedClient.client_id}-${chatType}`;
+        if (lastProcessedClientIdRef.current === clientChatKey) {
+            return;
+        }
+
+        if ((chatType === "reclamacao" || chatType === "mediacao") && selectedClient.claims.length === 0) {
+            setChatType("pos_venda");
+
+            const newSearchParams = new URLSearchParams(searchParams);
+            newSearchParams.delete("claim_id");
+
+            if (selectedClient.orders.length > 0) {
+                const urlOrderId = orderIdParam && selectedClient.orders.some(id => id === orderIdParam || id.includes(orderIdParam))
+                    ? orderIdParam
+                    : selectedClient.orders[0];
+                newSearchParams.set("order_id", urlOrderId);
+            }
+
+            setSearchParams(newSearchParams, { replace: true });
+            lastProcessedClientIdRef.current = `${selectedClient.client_id}-pos_venda`;
+        } else {
+            lastProcessedClientIdRef.current = clientChatKey;
+        }
+    }, [selectedClient?.client_id, chatType, searchParams, setSearchParams, orderIdParam]);
+
     const handleClientSelect = useCallback((client: Client) => {
+        if (isUpdatingFromUrlRef.current || selectedClient?.client_id === client.client_id) {
+            return;
+        }
+
+        isSelectingClientRef.current = true;
+        isUpdatingFromUrlRef.current = true;
+
+        let newChatType: ChatType = "pos_venda";
+        let newOrderId: string | null = null;
+        let newClaimId: string | null = null;
+
+        if (client.claims.length > 0) {
+            if (chatType === "reclamacao" || chatType === "mediacao") {
+                newChatType = chatType;
+            } else {
+                newChatType = "reclamacao";
+            }
+            newClaimId = String(client.claims[0]);
+        } else {
+            newChatType = "pos_venda";
+            if (client.orders.length > 0) {
+                newOrderId = client.orders[0];
+            }
+        }
+
+        lastProcessedClientIdRef.current = null;
+
+        setSelectedOrderId(newOrderId);
+        setSelectedClaimId(newClaimId);
         setSelectedClient(client);
-    }, []);
+        setChatType(newChatType);
+
+        const newSearchParams = new URLSearchParams();
+
+        if (newChatType === "pos_venda" && newOrderId) {
+            newSearchParams.set("order_id", newOrderId);
+        } else if ((newChatType === "reclamacao" || newChatType === "mediacao") && newClaimId) {
+            newSearchParams.set("claim_id", newClaimId);
+        }
+
+        setSearchParams(newSearchParams, { replace: true });
+        lastProcessedClientIdRef.current = `${client.client_id}-${newChatType}`;
+
+        setTimeout(() => {
+            isSelectingClientRef.current = false;
+            isUpdatingFromUrlRef.current = false;
+        }, 300);
+    }, [chatType, selectedClient?.client_id, setSearchParams]);
+
+    const updateUrlForChatType = useCallback((type: ChatType, client: Client, orderId?: string | null, claimId?: string | null) => {
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.delete("order_id");
+        newSearchParams.delete("claim_id");
+
+        if (type === "pos_venda") {
+            const orderIdToUse = orderId || (orderIdParam && client.orders.some(id => id === orderIdParam || id.includes(orderIdParam))
+                ? orderIdParam
+                : client.orders[0]);
+            if (orderIdToUse) {
+                newSearchParams.set("order_id", orderIdToUse);
+            }
+        } else if (type === "reclamacao" || type === "mediacao") {
+            const claimIdToUse = claimId || (claimIdParam && client.claims.some(id => String(id) === String(claimIdParam))
+                ? claimIdParam
+                : String(client.claims[0]));
+            if (claimIdToUse) {
+                newSearchParams.set("claim_id", claimIdToUse);
+            }
+        }
+
+        setSearchParams(newSearchParams, { replace: true });
+    }, [searchParams, setSearchParams, orderIdParam, claimIdParam]);
 
     const handleChatTypeChange = useCallback((type: ChatType) => {
+        if (isUpdatingFromUrlRef.current || !selectedClient) {
+            return;
+        }
+
+        if (type === "pos_venda" && selectedClient.orders.length > 1) {
+            setShowOrderSelection(true);
+            return;
+        }
+
+        if ((type === "reclamacao" || type === "mediacao") && selectedClient.claims.length > 1) {
+            setShowClaimSelection(true);
+            return;
+        }
+
         setChatType(type);
-    }, []);
+        updateUrlForChatType(type, selectedClient);
+    }, [selectedClient, updateUrlForChatType]);
+
+    const handleOrderSelect = useCallback((orderId: string) => {
+        setSelectedOrderId(orderId);
+        setChatType("pos_venda");
+        updateUrlForChatType("pos_venda", selectedClient!, orderId, null);
+    }, [selectedClient, updateUrlForChatType]);
+
+    const handleClaimSelect = useCallback((claimId: string) => {
+        setSelectedClaimId(claimId);
+        if (chatType === "reclamacao" || chatType === "mediacao") {
+            setChatType(chatType);
+            updateUrlForChatType(chatType, selectedClient!, null, claimId);
+        }
+    }, [selectedClient, chatType, updateUrlForChatType]);
 
     const handleFiltersChange = useCallback((next: ClientsFiltersState) => {
         setFilters(next);
     }, []);
 
     const applyFilters = useCallback(() => {
-        // Só aplica se realmente mudou algo
         const hasChanges = Object.keys(filters).some(
             (key) => filters[key as keyof ClientsFiltersState] !== appliedFilters[key as keyof ClientsFiltersState]
         );
@@ -85,9 +268,88 @@ export default function ChatPage() {
         queryClient.invalidateQueries({ queryKey: ["clients"] });
     }, [queryClient]);
 
+    const activeOrderId = useMemo(() => {
+        if (selectedOrderId) {
+            return selectedOrderId;
+        }
+        if (chatType === "pos_venda" && selectedClient && orderIdParam) {
+            return orderIdParam;
+        }
+        if (chatType === "pos_venda" && selectedClient && selectedClient.orders.length > 0) {
+            return selectedClient.orders[0];
+        }
+        return null;
+    }, [chatType, selectedClient, orderIdParam, selectedOrderId]);
+
+    const activeClaimId = useMemo(() => {
+        if (selectedClaimId) {
+            return selectedClaimId;
+        }
+        if ((chatType === "reclamacao" || chatType === "mediacao") && selectedClient && claimIdParam) {
+            return claimIdParam;
+        }
+        if ((chatType === "reclamacao" || chatType === "mediacao") && selectedClient && selectedClient.claims.length > 0) {
+            return String(selectedClient.claims[0]);
+        }
+        return null;
+    }, [chatType, selectedClient, claimIdParam, selectedClaimId]);
+
+    const posPurchaseMessagesQuery = usePosPurchaseMessages(
+        activeOrderId,
+        chatType === "pos_venda" && Boolean(selectedClient)
+    );
+
+    const claimMessagesQuery = useClaimMessages(
+        activeClaimId,
+        chatType === "reclamacao" && Boolean(selectedClient)
+    );
+
+    const mediationMessagesQuery = useMediationMessages(
+        activeClaimId,
+        chatType === "mediacao" && Boolean(selectedClient)
+    );
+
+    const messages: ChatMessage[] = useMemo(() => {
+        if (!selectedClient) return [];
+
+        switch (chatType) {
+            case "pos_venda":
+                if (posPurchaseMessagesQuery.data?.success && posPurchaseMessagesQuery.data.data?.messages) {
+                    return posPurchaseMessagesQuery.data.data.messages;
+                }
+                return [];
+            case "reclamacao":
+                if (claimMessagesQuery.data?.success && claimMessagesQuery.data.data?.messages) {
+                    return claimMessagesQuery.data.data.messages;
+                }
+                return [];
+            case "mediacao":
+                if (mediationMessagesQuery.data?.success && mediationMessagesQuery.data.data?.messages) {
+                    return mediationMessagesQuery.data.data.messages;
+                }
+                return [];
+            default:
+                return [];
+        }
+    }, [chatType, posPurchaseMessagesQuery.data, claimMessagesQuery.data, mediationMessagesQuery.data, selectedClient]);
+
+    const isLoadingMessages = useMemo(() => {
+        if (!selectedClient) return false;
+
+        switch (chatType) {
+            case "pos_venda":
+                return posPurchaseMessagesQuery.isLoading;
+            case "reclamacao":
+                return claimMessagesQuery.isLoading;
+            case "mediacao":
+                return mediationMessagesQuery.isLoading;
+            default:
+                return false;
+        }
+    }, [chatType, posPurchaseMessagesQuery.isLoading, claimMessagesQuery.isLoading, mediationMessagesQuery.isLoading, selectedClient]);
+
     return (
         <div className="h-[calc(100vh-200px)] flex flex-col lg:flex-row gap-4">
-            {/* Coluna Esquerda - Lista de Clientes (20%) */}
             <div className="w-full lg:w-[40%] lg:min-w-[250px] flex flex-col gap-4">
                 <ClientsFilters
                     value={filters}
@@ -118,15 +380,40 @@ export default function ChatPage() {
                 </div>
             </div>
 
-            {/* Coluna Meio - Chat (50%) */}
             <div className="flex-1 flex flex-col min-w-0">
-                <ChatArea sender={transformClientToChatUserDetails(selectedClient)} messages={[]} chatType={chatType} isLoading={true} onChatTypeChange={handleChatTypeChange} />
+                <ChatArea
+                    sender={transformClientToChatUserDetails(selectedClient)}
+                    messages={messages}
+                    chatType={chatType}
+                    isLoading={isLoadingMessages}
+                    onChatTypeChange={handleChatTypeChange}
+                    hasClaims={selectedClient ? selectedClient.claims.length > 0 : false}
+                    client={selectedClient || undefined}
+                    activeOrderId={activeOrderId}
+                    activeClaimId={activeClaimId}
+                    onOrderChange={() => setShowOrderSelection(true)}
+                    onClaimChange={() => setShowClaimSelection(true)}
+                />
             </div>
 
-            {/* Coluna Direita - Informações do Cliente (30%) */}
-            {/* <div className="w-full lg:w-[30%] lg:min-w-[300px] flex flex-col">
-                <ClientInfo client={selectedClient || undefined} />
-            </div> */}
+            {selectedClient && (
+                <>
+                    <OrderSelectionModal
+                        isOpen={showOrderSelection}
+                        onClose={() => setShowOrderSelection(false)}
+                        orderIds={selectedClient.orders}
+                        onSelect={handleOrderSelect}
+                        currentOrderId={activeOrderId}
+                    />
+                    <ClaimSelectionModal
+                        isOpen={showClaimSelection}
+                        onClose={() => setShowClaimSelection(false)}
+                        claimIds={selectedClient.claims}
+                        onSelect={handleClaimSelect}
+                        currentClaimId={activeClaimId}
+                    />
+                </>
+            )}
         </div>
     );
 }

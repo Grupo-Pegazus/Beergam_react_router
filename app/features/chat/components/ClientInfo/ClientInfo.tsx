@@ -1,6 +1,9 @@
 import { Paper } from "@mui/material";
-import { memo } from "react";
+import { memo, useState } from "react";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 import type { Client } from "../../typings";
+import ClaimSelectionModal from "./ClaimSelectionModal";
+import OrderSelectionModal from "./OrderSelectionModal";
 
 export interface ClientInfoProps {
     client?: Client;
@@ -14,6 +17,9 @@ function formatCurrency(value: number): string {
 }
 
 function ClientInfoComponent({ client }: ClientInfoProps) {
+    const [showOrdersModal, setShowOrdersModal] = useState(false);
+    const [showClaimsModal, setShowClaimsModal] = useState(false);
+
     if (!client) {
         return (
             <Paper className="p-6 text-center bg-beergam-section-background! border border-beergam-section-border rounded-xl h-full">
@@ -72,9 +78,19 @@ function ClientInfoComponent({ client }: ClientInfoProps) {
                                 <span className="text-xs text-beergam-typography-secondary">
                                     Total de Pedidos
                                 </span>
-                                <span className="text-sm font-medium text-beergam-typography-primary">
-                                    {client.total_orders}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-beergam-typography-primary">
+                                        {client.total_orders}
+                                    </span>
+                                    {client.orders.length > 0 && (
+                                        <BeergamButton
+                                            title="Ver pedidos"
+                                            icon="chevron"
+                                            onClick={() => setShowOrdersModal(true)}
+                                            className="p-1! h-6! w-auto! min-w-auto!"
+                                        />
+                                    )}
+                                </div>
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-xs text-beergam-typography-secondary">
@@ -88,9 +104,19 @@ function ClientInfoComponent({ client }: ClientInfoProps) {
                                 <span className="text-xs text-beergam-typography-secondary">
                                     Reclamações
                                 </span>
-                                <span className="text-sm font-medium text-beergam-typography-primary">
-                                    {client.claims.length}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-beergam-typography-primary">
+                                        {client.claims.length}
+                                    </span>
+                                    {client.claims.length > 0 && (
+                                        <BeergamButton
+                                            title="Ver reclamações"
+                                            icon="chevron"
+                                            onClick={() => setShowClaimsModal(true)}
+                                            className="p-1! h-6! w-auto! min-w-auto!"
+                                        />
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -108,6 +134,18 @@ function ClientInfoComponent({ client }: ClientInfoProps) {
                     </p>
                 </div>
             </Paper>
+
+            {/* Modais de seleção e detalhes */}
+            <OrderSelectionModal
+                isOpen={showOrdersModal}
+                onClose={() => setShowOrdersModal(false)}
+                orderIds={client.orders}
+            />
+            <ClaimSelectionModal
+                isOpen={showClaimsModal}
+                onClose={() => setShowClaimsModal(false)}
+                claimIds={client.claims}
+            />
         </div>
     );
 }

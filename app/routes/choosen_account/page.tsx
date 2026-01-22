@@ -61,12 +61,30 @@ export default function ChoosenAccountPage({
   }
 
   function handleDeleteMarketplace(marketplace: BaseMarketPlace) {
+    const isProcessing =
+      marketplace.status_parse === MarketplaceStatusParse.PROCESSING;
+
+    if (isProcessing) {
+      toast.error("Não é possível excluir uma conta enquanto ela está sendo processada");
+      return;
+    }
+
     setMarketplaceToDelete(marketplace);
     setShowDeleteModal(true);
   }
 
   function handleConfirmDelete() {
     if (marketplaceToDelete) {
+      const isProcessing =
+        marketplaceToDelete.status_parse === MarketplaceStatusParse.PROCESSING;
+
+      if (isProcessing) {
+        toast.error("Não é possível excluir uma conta enquanto ela está sendo processada");
+        setShowDeleteModal(false);
+        setMarketplaceToDelete(null);
+        return;
+      }
+
       const formData = new FormData();
       formData.append("action", "delete");
       formData.append(

@@ -6,6 +6,7 @@ import { useAccountPolling } from "~/features/marketplace/hooks/useAccountPollin
 import type { IntegrationData } from "~/features/marketplace/typings";
 import {
   type BaseMarketPlace,
+  MarketplaceStatusParse,
   MarketplaceType,
 } from "~/features/marketplace/typings";
 import authStore from "~/features/store-zustand";
@@ -29,6 +30,24 @@ export async function clientAction({ request }: { request: Request }) {
 
       if (!marketplaceId || !marketplaceType) {
         throw new Error("Dados de marketplace inválidos");
+      }
+
+      // Verifica se a conta está em processamento antes de permitir exclusão
+      const accountsResponse = await marketplaceService.getMarketplacesAccounts();
+      if (accountsResponse.success && accountsResponse.data) {
+        const accountToDelete = accountsResponse.data.find(
+          (acc) => acc.marketplace_shop_id === marketplaceId
+        );
+
+        if (accountToDelete?.status_parse === MarketplaceStatusParse.PROCESSING) {
+          return Response.json({
+            success: false,
+            message: "Não é possível excluir uma conta enquanto ela está sendo processada",
+            error_code: 400,
+            error_fields: {},
+            data: null,
+          });
+        }
       }
 
       // Recupera o marketplace selecionado do localStorage
@@ -117,7 +136,7 @@ export default function ChoosenAccountRoute() {
   const accounts: BaseMarketPlace[] = Array.isArray(data?.data)
     ? (data.data as BaseMarketPlace[])
     : [];
-  
+
   useAccountPolling(accounts);
 
   if (marketplace) {

@@ -11,6 +11,7 @@ import { useNavigate } from "react-router";
 import { useMarketplaceAccounts } from "~/features/marketplace/hooks/useMarketplaceAccounts";
 import { marketplaceService } from "~/features/marketplace/service";
 import {
+  MarketplaceStatusParse,
   MarketplaceType,
   MarketplaceTypeLabel,
   type BaseMarketPlace,
@@ -56,6 +57,14 @@ export default function MobileAccountOverlay({
 
   const handleDeleteMarketplace = useCallback(
     (marketplace: BaseMarketPlace) => {
+      const isProcessing =
+        marketplace.status_parse === MarketplaceStatusParse.PROCESSING;
+
+      if (isProcessing) {
+        toast.error("Não é possível excluir uma conta enquanto ela está sendo processada");
+        return;
+      }
+
       setMarketplaceToDelete(marketplace);
       setShowDeleteModal(true);
     },
@@ -64,6 +73,16 @@ export default function MobileAccountOverlay({
 
   const handleConfirmDelete = useCallback(async () => {
     if (!marketplaceToDelete) return;
+
+    const isProcessing =
+      marketplaceToDelete.status_parse === MarketplaceStatusParse.PROCESSING;
+
+    if (isProcessing) {
+      toast.error("Não é possível excluir uma conta enquanto ela está sendo processada");
+      setShowDeleteModal(false);
+      setMarketplaceToDelete(null);
+      return;
+    }
 
     const selectedMarketplace = authStore.getState().marketplace;
     const isSelectedMarketplace =
@@ -207,19 +226,21 @@ function AccountList({
                   </p>
                 </div>
               </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(acc);
-                }}
-                disabled={isSelecting}
-                className="p-2 hover:bg-red-50 rounded-full transition-colors shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Excluir conta"
-                title="Excluir conta"
-              >
-                <Svg.trash tailWindClasses="stroke-beergam-red w-5 h-5" />
-              </button>
+              {acc.status_parse !== MarketplaceStatusParse.PROCESSING && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(acc);
+                  }}
+                  disabled={isSelecting}
+                  className="p-2 hover:bg-red-50 rounded-full transition-colors shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Excluir conta"
+                  title="Excluir conta"
+                >
+                  <Svg.trash tailWindClasses="stroke-beergam-red w-5 h-5" />
+                </button>
+              )}
             </div>
           ))}
           <button

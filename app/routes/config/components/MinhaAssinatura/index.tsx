@@ -140,7 +140,7 @@ export default function MinhaAssinatura() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [processingSession, setProcessingSession] = useState(false);
   const processedRef = useRef(false);
-  const subscription = subscriptionResponse?.data;
+  const subscription = authStore.use.subscription();
   const setSubscription = authStore.use.setSubscription();
   // Verifica se há uma subscription válida (com plan válido)
   // Considera válido se: success é true E há um plan E o plan tem display_name (não vazio) ou outros campos
