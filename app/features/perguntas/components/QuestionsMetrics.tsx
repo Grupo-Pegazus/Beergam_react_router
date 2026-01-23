@@ -45,49 +45,41 @@ export function QuestionsMetrics({ insights, loading }: QuestionsMetricsProps) {
       <Grid cols={{ base: 1, md: 2, lg: 4 }}>
         <CensorshipWrapper censorshipKey="perguntas_sla_tempo_medio">
           <StatCard
-            icon={<Svg.clock tailWindClasses="w-5 h-5 text-beergam-orange" />}
+            icon={<Svg.clock tailWindClasses="w-5 h-5" />}
             title="Tempo médio de resposta"
             value={formatMinutes(insights?.avg_response_minutes)}
             loading={loading}
-            color="orange"
-            bgColor="beergam-section-background!"
-            maintainColor={true}
+            variant="soft"
             censorshipKey="perguntas_sla_tempo_medio"
           />
         </CensorshipWrapper>
         <CensorshipWrapper censorshipKey="perguntas_sla_dentro_de_1h">
           <StatCard
-            icon={<Svg.check tailWindClasses="w-5 h-5 text-beergam-green" />}
+            icon={<Svg.check tailWindClasses="w-5 h-5" />}
             title="% dentro de 1h"
             value={formatPercent(insights?.sla_within_1h_percent)}
             loading={loading}
-            color="green"
-            bgColor="beergam-section-background!"
-            maintainColor={true}
+            variant="soft"
             censorshipKey="perguntas_sla_dentro_de_1h"
           />
         </CensorshipWrapper>
         <CensorshipWrapper censorshipKey="perguntas_sla_pendentes">
           <StatCard
-            icon={<Svg.chat tailWindClasses="w-5 h-5 text-beergam-blue" />}
+            icon={<Svg.chat tailWindClasses="w-5 h-5" />}
             title="Pendentes"
             value={insights?.pending ?? "—"}
             loading={loading}
-            color="blue"
-            bgColor="beergam-section-background!"
-            maintainColor={true}
+            variant="soft"
             censorshipKey="perguntas_sla_pendentes"
           />
         </CensorshipWrapper>
         <CensorshipWrapper censorshipKey="perguntas_sla_total_periodo">
           <StatCard
-            icon={<Svg.graph tailWindClasses="w-5 h-5 text-beergam-purple" />}
+            icon={<Svg.graph tailWindClasses="w-5 h-5" />}
             title="Total no período"
             value={insights?.total ?? "—"}
             loading={loading}
-            color="purple"
-            bgColor="beergam-section-background!"
-            maintainColor={true}
+            variant="soft"
             censorshipKey="perguntas_sla_total_periodo"
           ></StatCard>
         </CensorshipWrapper>
