@@ -1,5 +1,18 @@
-import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import type { ColumnDef, Row, SortingState } from '@tanstack/react-table';
+import {
+  Box,
+  Checkbox,
+  FormControlLabel,
+  Paper,
+  Popover,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from '@mui/material';
+import type { ColumnDef, Row, SortingState, Table as TableType, VisibilityState } from '@tanstack/react-table';
 import {
   flexRender,
   getCoreRowModel,
@@ -7,12 +20,153 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useMemo, useRef, useState } from 'react';
+import React, { memo, useMemo, useRef, useState } from 'react';
 
 // Importa a extensão de tipos para meta customizado
 import Svg from '~/src/assets/svgs/_index';
+import BeergamButton from '../utils/BeergamButton';
 import './types';
 
+/** Componente isolado para controle de visibilidade de colunas - evita re-render da tabela */
+const ColumnVisibilityControl = memo(function ColumnVisibilityControl<TData>({
+  table,
+  columnVisibility: _columnVisibility, // usado apenas para trigger de re-render
+}: {
+  table: TableType<TData>;
+  columnVisibility: VisibilityState;
+}) {
+  // _columnVisibility é usado apenas para forçar re-render quando a visibilidade muda
+  void _columnVisibility;
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const isPopoverOpen = Boolean(anchorEl);
+
+  const handleOpenPopover = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClosePopover = () => {
+    setAnchorEl(null);
+  };
+
+  // Agrupa colunas por seção
+  const columnsBySection = useMemo(() => {
+    const allColumns = table.getAllLeafColumns();
+    const sections = new Map<string, typeof allColumns>();
+
+    for (const column of allColumns) {
+      const sectionName = column.columnDef.meta?.sectionName || 'Outros';
+      if (!sections.has(sectionName)) {
+        sections.set(sectionName, []);
+      }
+      sections.get(sectionName)!.push(column);
+    }
+
+    return sections;
+  }, [table]);
+
+  return (
+    <div className="flex items-center justify-end gap-4 mb-2">
+      <BeergamButton
+        title="Visualização de Colunas"
+        icon="list_bullet"
+        onClick={handleOpenPopover}
+      />
+
+      <Popover
+        open={isPopoverOpen}
+        anchorEl={anchorEl}
+        onClose={handleClosePopover}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        slotProps={{
+          paper: {
+            sx: {
+              maxHeight: 400,
+              minWidth: 800,
+              maxWidth: 800,
+              p: 2,
+              overflow: 'auto',
+            },
+          },
+        }}
+      >
+        {/* Header do popover */}
+        <Box sx={{ flexDirection: 'column', display: 'flex', justifyContent: 'space-between', mb: 2, gap: 1 }}>
+          <Typography variant="subtitle2" fontWeight={600}>
+            Colunas Visíveis
+          </Typography>
+          <div className="max-w-48">
+            <BeergamButton
+              title="Mostrar todas"
+              icon="eye"
+              onClick={() => table.toggleAllColumnsVisible(true)}
+            />
+          </div>
+        </Box>
+
+        {/* Lista de colunas agrupadas por seção - 3 itens por linha */}
+        <div className="grid grid-cols-3 gap-4">
+          {Array.from(columnsBySection.entries()).map(([sectionName, sectionColumns]) => (
+            <Box key={sectionName} sx={{ minWidth: 0 }}>
+              <Typography
+                variant="caption"
+                fontWeight={600}
+                className="text-beergam-typography-secondary"
+                sx={{
+                  display: 'block',
+                  mb: 0.5,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                }}
+              >
+                {sectionName}
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', ml: 1 }}>
+                {sectionColumns.map((column) => {
+                  const headerText = typeof column.columnDef.header === 'string'
+                    ? column.columnDef.header
+                    : column.id;
+
+                  return (
+                    <FormControlLabel
+                      key={column.id}
+                      control={
+                        <Checkbox
+                          size="small"
+                          checked={column.getIsVisible()}
+                          checkedIcon={<Svg.check_circle tailWindClasses="text-beergam-primary" width={20} height={20} />}
+                          icon={<Svg.minus_circle tailWindClasses="text-beergam-red" width={20} height={20} />}
+                          onChange={column.getToggleVisibilityHandler()}
+                          sx={{ color: 'white', '& .MuiSvgIcon-root': { fill: 'var(--color-beergam-primary)' } }}
+                        />
+                      }
+                      label={
+                        <Typography variant="body2" fontSize={12}>
+                          {headerText}
+                        </Typography>
+                      }
+                      sx={{
+                        m: 0,
+                        py: 0.25,
+                      }}
+                      className="hover:bg-beergam-primary/10"
+                    />
+                  );
+                })}
+              </Box>
+            </Box>
+          ))}
+        </div>
+      </Popover>
+    </div>
+  );
+}) as <TData>(props: { table: TableType<TData>; columnVisibility: VisibilityState }) => React.ReactElement;
 
 /** Calcula o tamanho da coluna baseado no texto do header */
 function calculateColumnWidth(headerText: string, minWidth = 80, maxWidth = 300, canSort = false): number {
@@ -36,6 +190,8 @@ interface TanstackTableProps<TData> {
   minColumnWidth?: number;
   /** Largura máxima das colunas (default: 300px) */
   maxColumnWidth?: number;
+  /** Habilita botão para controlar visibilidade das colunas (default: false) */
+  controlColumns?: boolean;
 }
 
 export default function TanstackTable<TData>({
@@ -46,6 +202,7 @@ export default function TanstackTable<TData>({
   overscan = 5,
   minColumnWidth = 80,
   maxColumnWidth = 300,
+  controlColumns = false,
 }: TanstackTableProps<TData>) {
   // Debug: contador de renders
   const renderCount = useRef(0);
@@ -53,6 +210,9 @@ export default function TanstackTable<TData>({
 
   // Estado de sorting
   const [sorting, setSorting] = useState<SortingState>([]);
+  
+  // Estado de visibilidade das colunas
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   // Ref para o container scrollável
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -85,14 +245,16 @@ export default function TanstackTable<TData>({
     });
   }, [columns, minColumnWidth, maxColumnWidth]);
 
-  // Configurar TanStack Table com sorting
+  // Configurar TanStack Table com sorting e visibilidade
   const table = useReactTable({
     data,
     columns: columnsWithSize,
     state: {
       sorting,
+      columnVisibility,
     },
     onSortingChange: setSorting,
+    onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     debugTable: process.env.NODE_ENV === 'development',
@@ -126,7 +288,10 @@ export default function TanstackTable<TData>({
         </p>
         </>
       )}
-
+      
+      {/* Controle de visibilidade de colunas (componente isolado para evitar re-render) */}
+      {controlColumns && <ColumnVisibilityControl table={table} columnVisibility={columnVisibility} />}
+      
       {/* Container scrollável */}
       <TableContainer
         component={Paper}
@@ -160,7 +325,7 @@ export default function TanstackTable<TData>({
                   const canSort = header.column.getCanSort();
                   const isSorted = header.column.getIsSorted();
                   
-                  return (
+    return (
                     <TableCell
                       key={header.id}
                       onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
@@ -204,12 +369,12 @@ export default function TanstackTable<TData>({
                           )}
                         </Box>
                       )}
-                    </TableCell>
+            </TableCell>
                   );
                 })}
-              </TableRow>
-            ))}
-          </TableHead>
+        </TableRow>
+      ))}
+    </TableHead>
 
           {/* Body virtualizado */}
           <TableBody
@@ -262,14 +427,14 @@ export default function TanstackTable<TData>({
                         cell.column.columnDef.cell,
                         cell.getContext()
                       )}
-                    </TableCell>
-                  ))}
-                </TableRow>
+            </TableCell>
+          ))}
+        </TableRow>
               );
             })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+    </TableBody>
+  </Table>
+</TableContainer>
     </div>
   );
 }

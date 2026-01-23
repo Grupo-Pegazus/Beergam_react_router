@@ -90,6 +90,7 @@ export default function RelatorioVendasRoute() {
           <TanstackTable
             data={orders}
             columns={columns}
+            controlColumns
           />
         </AsyncBoundary>
     );
