@@ -21,7 +21,7 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React, { memo, useMemo, useRef, useState } from 'react';
-
+import type { Pagination } from '~/features/apiClient/typings';
 // Importa a extensão de tipos para meta customizado
 import Svg from '~/src/assets/svgs/_index';
 import BeergamButton from '../utils/BeergamButton';
@@ -87,6 +87,7 @@ const ColumnVisibilityControl = memo(function ColumnVisibilityControl<TData>({
         slotProps={{
           paper: {
             sx: {
+              backgroundColor: 'var(--color-beergam-section-background)',
               maxHeight: 400,
               minWidth: 800,
               maxWidth: 800,
@@ -192,6 +193,12 @@ interface TanstackTableProps<TData> {
   maxColumnWidth?: number;
   /** Habilita botão para controlar visibilidade das colunas (default: false) */
   controlColumns?: boolean;
+  /** Total de items encontrados na busca do backend (default: 0) */
+  pagination?: Pagination;
+  /** Função para carregar mais items (default: undefined) */
+  onLoadMore?: () => void;
+  /** Indica se está carregando mais items (default: false) */
+  isLoadingMore?: boolean;
 }
 
 export default function TanstackTable<TData>({
@@ -203,6 +210,16 @@ export default function TanstackTable<TData>({
   minColumnWidth = 80,
   maxColumnWidth = 300,
   controlColumns = false,
+  pagination = {
+    page: 1,
+    per_page: 100,
+    total_count: 0,
+    total_pages: 0,
+    has_next: false,
+    has_prev: false,
+  },
+  onLoadMore,
+  isLoadingMore = false,
 }: TanstackTableProps<TData>) {
   // Debug: contador de renders
   const renderCount = useRef(0);
@@ -277,7 +294,6 @@ export default function TanstackTable<TData>({
   });
 
   const virtualRows = rowVirtualizer.getVirtualItems();
-
   return (
     <div className="tanstack-table-wrapper">
       {/* Debug info */}
@@ -302,6 +318,7 @@ export default function TanstackTable<TData>({
           height: `${height}px`,
           borderRadius: 2,
           padding: 0,
+          display: 'inline-block',
         }}
       >
         {/* Usamos CSS Grid para permitir alturas dinâmicas nas rows */}
@@ -434,7 +451,23 @@ export default function TanstackTable<TData>({
             })}
     </TableBody>
   </Table>
-</TableContainer>
+  {pagination.has_next && onLoadMore && (
+    <div className='flex bg-beergam-white sticky left-0 justify-center items-center p-4 w-full'>
+      <BeergamButton 
+        className='w-[100%]! mt-0!' 
+        title={isLoadingMore ? "Carregando..." : "Carregar mais"} 
+        icon="arrow_path" 
+        onClick={onLoadMore}
+        loading={isLoadingMore}
+        disabled={isLoadingMore}
+      />
+    </div>
+  )}
+      </TableContainer>
+
+<p className="text-xs text-gray-500 mb-2">
+  {rows.length} de {pagination.total_count} items encontrados.
+</p>
     </div>
   );
 }

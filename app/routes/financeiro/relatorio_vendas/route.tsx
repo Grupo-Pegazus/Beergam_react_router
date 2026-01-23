@@ -1,7 +1,7 @@
 import { Alert } from "@mui/material";
 import type { ColumnDef } from '@tanstack/react-table';
 import { useMemo } from "react";
-import { useOrders } from "~/features/vendas/hooks";
+import { useOrdersWithLoadMore } from "~/features/vendas/hooks";
 import type { Order } from "~/features/vendas/typings";
 import {
     OrderAttributeDisplayOrder,
@@ -13,11 +13,15 @@ import TanstackTable from "~/src/components/TanstackTable";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 
 export default function RelatorioVendasRoute() {
-    const filters = useMemo(() => ({
-        page: 1,
-        per_page: 100,
-    }), []);
-    const { data, isLoading, error } = useOrders(filters);
+    const { 
+        orders, 
+        pagination, 
+        isLoading, 
+        isLoadingMore, 
+        error, 
+        loadMore, 
+        hasMore 
+    } = useOrdersWithLoadMore({ per_page: 100 });
     
     const columns: ColumnDef<Order>[] = useMemo(() => {
         // Campos que são objetos ou arrays e não podem ser renderizados diretamente
@@ -76,10 +80,7 @@ export default function RelatorioVendasRoute() {
                 };
             });
     }, []);
-    const orders = useMemo(() => {
-        if (!data?.success || !data.data?.orders) return [];
-        return data.data.orders;
-    }, [data]);
+    
     return (
         <AsyncBoundary
             isLoading={isLoading}
@@ -91,6 +92,9 @@ export default function RelatorioVendasRoute() {
             data={orders}
             columns={columns}
             controlColumns
+            pagination={pagination}
+            onLoadMore={hasMore ? loadMore : undefined}
+            isLoadingMore={isLoadingMore}
           />
         </AsyncBoundary>
     );
