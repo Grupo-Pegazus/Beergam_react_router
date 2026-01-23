@@ -22,14 +22,14 @@ const WEEK_ORDER: Array<
     >["schedule"]
   >
 > = [
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-  "sunday",
-];
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+  ];
 
 const DAY_LABEL: Record<string, string> = {
   monday: "Segunda",
@@ -40,6 +40,43 @@ const DAY_LABEL: Record<string, string> = {
   saturday: "Sábado",
   sunday: "Domingo",
 };
+
+/**
+ * Mapeia o índice do dia da semana do JavaScript (0=domingo, 1=segunda, etc.)
+ * para o nome do dia usado no código.
+ */
+function getCurrentDayName(): typeof WEEK_ORDER[number] {
+  const today = new Date().getDay();
+  // getDay() retorna: 0=Domingo, 1=Segunda, 2=Terça, 3=Quarta, 4=Quinta, 5=Sexta, 6=Sábado
+  const dayMap: Record<number, typeof WEEK_ORDER[number]> = {
+    0: "sunday",
+    1: "monday",
+    2: "tuesday",
+    3: "wednesday",
+    4: "thursday",
+    5: "friday",
+    6: "saturday",
+  };
+  return dayMap[today] ?? "monday";
+}
+
+/**
+ * Retorna uma ordem de dias começando do dia atual e continuando pela semana.
+ */
+function getWeekOrderStartingToday(): Array<typeof WEEK_ORDER[number]> {
+  const currentDay = getCurrentDayName();
+  const currentIndex = WEEK_ORDER.indexOf(currentDay);
+
+  if (currentIndex === -1) {
+    return WEEK_ORDER;
+  }
+
+  // Retorna os dias a partir do dia atual, seguidos pelos dias anteriores
+  return [
+    ...WEEK_ORDER.slice(currentIndex),
+    ...WEEK_ORDER.slice(0, currentIndex),
+  ];
+}
 
 function isMeliSchedule(
   payload: MarketplaceScheduleData<MarketplaceType> | null
@@ -97,13 +134,13 @@ export default function ScheduleTimes() {
 
   const summary = useMemo(() => {
     if (!payload || !isMeliSchedule(payload))
-      return { label: "—", cutoff: "—" };
+      return { label: "—", cutoff: "—", dayName: null };
 
     const meliSchedule = payload.schedule;
 
     // Verifica se results_by_logistic_type existe
     if (!meliSchedule.results_by_logistic_type) {
-      return { label: "Sem dados", cutoff: "—" };
+      return { label: "Sem dados", cutoff: "—", dayName: null };
     }
 
     const scheduleByType = findFirstNonEmptySchedule(
@@ -111,21 +148,26 @@ export default function ScheduleTimes() {
     );
 
     if (!scheduleByType) {
-      return { label: "Sem dados", cutoff: "—" };
+      return { label: "Sem dados", cutoff: "—", dayName: null };
     }
 
     const schedule = scheduleByType.schedule;
-    if (!schedule) return { label: "—", cutoff: "—" };
+    if (!schedule) return { label: "—", cutoff: "—", dayName: null };
 
-    // pega o primeiro dia útil com detail válido
-    for (const day of WEEK_ORDER) {
+    // Pega o primeiro dia útil com detail válido, começando do dia atual
+    const weekOrderStartingToday = getWeekOrderStartingToday();
+    for (const day of weekOrderStartingToday) {
       const info = schedule[day];
       const cutoff = info?.detail?.[0]?.cutoff;
       if (info?.work && cutoff) {
-        return { label: "Corte típico", cutoff };
+        return {
+          label: "Corte típico",
+          cutoff,
+          dayName: DAY_LABEL[day] ?? null,
+        };
       }
     }
-    return { label: "—", cutoff: "—" };
+    return { label: "—", cutoff: "—", dayName: null };
   }, [payload]);
 
   return (
@@ -147,7 +189,19 @@ export default function ScheduleTimes() {
           onClick={() => setOpen(true)}
         >
           <p className="text-sm text-beergam-typography-secondary mt-3">
-            {summary.label}. Toque para ver a semana.
+            {summary.dayName ? (
+              <>
+                <span className="font-semibold text-beergam-typography-primary">
+                  {summary.dayName}
+                </span>
+                {" - "}
+                {summary.label}. Toque para ver a semana.
+              </>
+            ) : (
+              <>
+                {summary.label}. Toque para ver a semana.
+              </>
+            )}
           </p>
         </StatCard>
       </AsyncBoundary>
