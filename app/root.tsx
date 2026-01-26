@@ -18,6 +18,7 @@ import { muiTheme } from "./src/theme/MuiTheme";
 // import { useEffect, useMemo, useState } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Toaster } from "react-hot-toast";
+import packageJson from "../package.json";
 import type { Route } from "./+types/root";
 import "./app.css";
 import GlobalLoadingSpinner from "./features/auth/components/GlobalLoadingSpinner/GlobalLoadingSpinner";
@@ -248,7 +249,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <DarkModeThemeProvider>
-          <ThemeProvider theme={muiTheme}>{children}</ThemeProvider>
+          <ThemeProvider theme={muiTheme}>
+          <p className="fixed bottom-2 left-2 z-[999999] text-[10px] text-gray-400 dark:text-gray-600 opacity-50 hover:opacity-100 transition-opacity select-none pointer-events-none">
+            v{packageJson.version}
+          </p>
+            {children}</ThemeProvider>
         </DarkModeThemeProvider>
         <ScrollRestoration />
         <Scripts />
