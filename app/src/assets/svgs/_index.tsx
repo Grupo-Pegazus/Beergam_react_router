@@ -36,6 +36,7 @@ import DocumentGlassSolid from "./DocumentGlassSolid";
 import DocumentIcon from "./DocumentIcon";
 import DollyIcon from "./DollyIcon";
 import ElipsisHorizontal from "./ElipsisHorizontal";
+import Excel from "./Excel";
 import Eye from "./Eye";
 import EyeSlash from "./EyeSlash";
 import GlobeIcon from "./GlobeIcon";
@@ -80,6 +81,7 @@ import WarningCircle from "./WarningCircle";
 import X from "./X";
 import XCircle from "./XCircle";
 const Svg = {
+  excel: Excel,
   home: HomeIcon,
   home_solid: HomeSolid,
   bag: BagIcon,
