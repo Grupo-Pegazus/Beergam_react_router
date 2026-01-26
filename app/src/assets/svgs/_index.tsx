@@ -1,3 +1,4 @@
+import AdjustmentsHorizontalSolid from "./AdjustmentsHorizontalSolid";
 import AlertIcon from "./AlertIcon";
 import ArrowLongRight from "./ArrowLongRight";
 import ArrowPathIcon from "./ArrowPathIcon";
@@ -53,6 +54,7 @@ import Logout from "./Logout";
 import LowStock from "./LowStock";
 import Megaphone from "./Megaphone";
 import Minus from "./Minus";
+import MinusCircle from "./MinusCircle";
 import Moon from "./Moon";
 import Pencil from "./Pencil";
 import PencilSolid from "./PencilSolid";
@@ -157,6 +159,8 @@ const Svg = {
   square_3_stack_solid: Square3StackSolid,
   squares_2x2_solid: Squares2x2Solid,
   chevron_up_and_down: ChevronUpAndDown,
+  minus_circle: MinusCircle,
+  adjustments_horizontal_solid: AdjustmentsHorizontalSolid,
 };
 
 export default Svg;

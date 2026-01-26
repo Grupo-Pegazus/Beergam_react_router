@@ -1,9 +1,11 @@
-import { ClickAwayListener, Fade, Grow, type FadeProps } from "@mui/material";
-import { useEffect, useState } from "react";
+import { ClickAwayListener, Fade, Grow, Paper, type FadeProps } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import Svg from "~/src/assets/svgs/_index";
 import BeergamButton from "../BeergamButton";
-
 export interface ModalProps extends Omit<FadeProps, "children"> {
   title?: string;
+  icon?: keyof typeof Svg;
+  subtitle?: string;
   isOpen: boolean;
   className?: string;
   contentClassName?: string;
@@ -14,6 +16,7 @@ export interface ModalProps extends Omit<FadeProps, "children"> {
 
 export function Modal({
   title,
+  icon,
   isOpen,
   onClose,
   className,
@@ -58,6 +61,7 @@ export function Modal({
           }
         }}
       >
+       <>
         {disableClickAway ? (
           <Grow
             in={isOpen}
@@ -71,8 +75,11 @@ export function Modal({
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex sticky top-0 z-10 items-start justify-between bg-beergam-mui-paper! py-4">
-                {title && (
-                  <h2 className="text-beergam-typography-primary">{title}</h2>
+{title && (
+                  <div className="flex items-center gap-2">
+                    {icon && <><Paper className="p-2! bg-beergam-primary/20!">{React.createElement(Svg[icon], { width: "24px", height: "24px", color: "var(--color-beergam-primary)", tailWindClasses: "text-beergam-primary!" })}</Paper></>}
+                    <h2 className="text-beergam-typography-primary">{title}</h2>
+                  </div>
                 )}
                 {/* <button
                   className="rounded-full bg-beergam-gray-100 p-2 text-beergam-gray-500 transition-colors hover:text-beergam-red"
@@ -118,8 +125,11 @@ export function Modal({
               >
                 <div className="flex sticky top-0 z-10 items-start justify-between bg-beergam-mui-paper! py-4">
                   {title && (
+                  <div className="flex items-center gap-2">
+                    {icon && <><Paper className="p-2! bg-beergam-primary/20!">{React.createElement(Svg[icon], { width: "24px", height: "24px", color: "var(--color-beergam-primary)", tailWindClasses: "text-beergam-primary!" })}</Paper></>}
                     <h2 className="text-beergam-typography-primary">{title}</h2>
-                  )}
+                  </div>
+                )}
                   <BeergamButton onClick={onClose} icon="x" />
                 </div>
                 {children && (
@@ -130,7 +140,7 @@ export function Modal({
               </div>
             </Grow>
           </ClickAwayListener>
-        )}
+        )}</>
       </div>
     </Fade>
   );
