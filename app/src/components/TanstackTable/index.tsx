@@ -21,12 +21,75 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import React, { memo, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import type { Pagination } from '~/features/apiClient/typings';
 // Importa a extensão de tipos para meta customizado
 import Svg from '~/src/assets/svgs/_index';
 import BeergamButton from '../utils/BeergamButton';
 import './types';
+
+/** Props para o componente de context menu */
+export interface ContextMenuProps<TData> {
+  /** Dados da linha selecionada (objeto original) */
+  data: TData;
+  /** Posição do clique para posicionar o menu */
+  anchorPosition: { top: number; left: number };
+  /** Callback para fechar o menu */
+  onClose: () => void;
+}
+
+/** Ref para controlar o context menu externamente */
+interface ContextMenuHandle<TData> {
+  open: (data: TData, position: { top: number; left: number }) => void;
+  close: () => void;
+}
+
+/** Componente isolado para o context menu - evita re-render da tabela */
+function ContextMenuControllerInner<TData>(
+  { contextMenuComponent, onClose: onCloseCallback }: { 
+    contextMenuComponent: (props: ContextMenuProps<TData>) => React.ReactNode;
+    onClose?: () => void;
+  },
+  ref: React.ForwardedRef<ContextMenuHandle<TData>>
+) {
+  const [contextMenu, setContextMenu] = useState<{
+    data: TData;
+    position: { top: number; left: number };
+  } | null>(null);
+
+  const handleClose = useCallback(() => {
+    setContextMenu(null);
+    onCloseCallback?.();
+  }, [onCloseCallback]);
+
+  useImperativeHandle(ref, () => ({
+    open: (data: TData, position: { top: number; left: number }) => {
+      setContextMenu({ data, position });
+    },
+    close: handleClose,
+  }), [handleClose]);
+
+  if (!contextMenu) return null;
+
+  return (
+    <>
+      {contextMenuComponent({
+        data: contextMenu.data,
+        anchorPosition: contextMenu.position,
+        onClose: handleClose,
+      })}
+    </>
+  );
+}
+
+// Forward ref com tipagem genérica
+const ContextMenuControllerWithRef = React.forwardRef(ContextMenuControllerInner) as <TData>(
+  props: { 
+    contextMenuComponent: (props: ContextMenuProps<TData>) => React.ReactNode; 
+    onClose?: () => void;
+    ref?: React.Ref<ContextMenuHandle<TData>>;
+  }
+) => React.ReactElement | null;
 
 /** Componente isolado para controle de visibilidade de colunas - evita re-render da tabela */
 const ColumnVisibilityControl = memo(function ColumnVisibilityControl<TData>({
@@ -200,6 +263,8 @@ interface TanstackTableProps<TData> {
   onLoadMore?: () => void;
   /** Indica se está carregando mais items (default: false) */
   isLoadingMore?: boolean;
+  /** Componente de context menu que aparece ao clicar com botão direito na linha */
+  contextMenuComponent?: (props: ContextMenuProps<TData>) => React.ReactNode;
 }
 
 export default function TanstackTable<TData>({
@@ -221,6 +286,7 @@ export default function TanstackTable<TData>({
   },
   onLoadMore,
   isLoadingMore = false,
+  contextMenuComponent,
 }: TanstackTableProps<TData>) {
   // Debug: contador de renders
   const renderCount = useRef(0);
@@ -231,6 +297,24 @@ export default function TanstackTable<TData>({
   
   // Estado de visibilidade das colunas
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  
+  // Ref para o context menu controller (evita re-render da tabela)
+  const contextMenuRef = useRef<ContextMenuHandle<TData>>(null);
+  
+  // ID da linha selecionada pelo context menu (para destacar visualmente)
+  const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
+  
+  // Handler do context menu usando ref - não causa re-render da tabela
+  const handleContextMenu = useCallback((event: React.MouseEvent, row: Row<TData>) => {
+    event.preventDefault();
+    setSelectedRowId(row.id);
+    contextMenuRef.current?.open(row.original, { top: event.clientY, left: event.clientX });
+  }, []);
+  
+  // Callback para quando o context menu fecha
+  const handleCloseContextMenu = useCallback(() => {
+    setSelectedRowId(null);
+  }, []);
 
   // Ref para o container scrollável
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -410,21 +494,33 @@ export default function TanstackTable<TData>({
           >
             {virtualRows.map((virtualRow) => {
               const row = rows[virtualRow.index] as Row<TData>;
+              const isSelected = selectedRowId === row.id;
               return (
                 <TableRow
                   key={row.id}
                   data-index={virtualRow.index}
+                  data-selected={isSelected}
                   ref={(node) => rowVirtualizer.measureElement(node)}
+                  onContextMenu={contextMenuComponent ? (e) => handleContextMenu(e, row) : undefined}
                   sx={{
                     display: 'flex',
                     position: 'absolute',
                     transform: `translateY(${virtualRow.start}px)`,
                     width: '100%',
-                    transition: 'background-color 0.15s',
+                    transition: 'background-color 0.15s, box-shadow 0.15s',
+                    cursor: contextMenuComponent ? 'context-menu' : 'default',
+                    // Estilo para linha selecionada pelo context menu
+                    ...(isSelected && {
+                      zIndex: 1,
+                      boxShadow: 'inset 0 0 0 2px var(--color-beergam-primary)',
+                      '& td, & .MuiTableCell-root': {
+                        bgcolor: 'var(--color-beergam-white) !important',
+                      },
+                    }),
                     '&:hover': {
                       // Faz todas as cells ficarem transparentes no hover
                       '& td, & .MuiTableCell-root': {
-                        bgcolor: 'var(--color-beergam-white) !important',
+                        bgcolor: isSelected ? 'var(--color-beergam-white) !important' : 'var(--color-beergam-white) !important',
                       },
                     },
                   }}
@@ -518,6 +614,15 @@ export default function TanstackTable<TData>({
 <p className="text-xs text-gray-500 mb-2">
   {rows.length} de {pagination.total_count} items encontrados.
 </p>
+
+      {/* Context Menu Controller (isolado para evitar re-render da tabela) */}
+      {contextMenuComponent && (
+        <ContextMenuControllerWithRef
+          ref={contextMenuRef}
+          contextMenuComponent={contextMenuComponent}
+          onClose={handleCloseContextMenu}
+        />
+      )}
     </div>
   );
 }
