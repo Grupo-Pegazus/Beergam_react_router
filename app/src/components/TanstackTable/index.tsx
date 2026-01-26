@@ -8,6 +8,7 @@ import {
   TableBody,
   TableCell,
   TableContainer,
+  TableFooter,
   TableHead,
   TableRow,
   Typography,
@@ -294,6 +295,12 @@ export default function TanstackTable<TData>({
   });
 
   const virtualRows = rowVirtualizer.getVirtualItems();
+
+  // Verifica se há alguma coluna com footerValue definido
+  const hasFooter = useMemo(() => {
+    return table.getAllLeafColumns().some(col => col.columnDef.meta?.footerValue !== undefined);
+  }, [table]);
+
   return (
     <div className="tanstack-table-wrapper">
       {/* Debug info */}
@@ -433,7 +440,7 @@ export default function TanstackTable<TData>({
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
-                        color: "var(--color-beergam-gray-blueish-dark)",
+                        color: cell.column.columnDef.meta?.textColor || "var(--color-beergam-gray-blueish-dark)",
                         bgcolor: cell.column.columnDef.meta?.bodyColor || 'transparent',
                         borderRight: '1px solid rgba(0,0,0,0.04)',
                         borderBottom: '1px solid rgba(0,0,0,0.06)',
@@ -450,6 +457,49 @@ export default function TanstackTable<TData>({
               );
             })}
     </TableBody>
+
+          {/* Footer row - linha adicional com valores customizados por coluna */}
+          {hasFooter && (
+            <TableFooter
+              sx={{
+                display: 'grid',
+                position: 'sticky',
+                bottom: 0,
+                zIndex: 1,
+                bgcolor: 'grey.200',
+              }}
+            >
+              <TableRow sx={{ display: 'flex', width: '100%' }}>
+                {table.getVisibleLeafColumns().map((column) => {
+                  const footerValue = column.columnDef.meta?.footerValue;
+                  const hasValue = footerValue !== undefined && footerValue !== null && footerValue !== '';
+                  const footerColor = column.columnDef.meta?.footerColor 
+                    ?? column.columnDef.meta?.headerColor 
+                    ?? 'grey.200';
+                  
+                  return (
+                    <TableCell
+                      key={column.id}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: column.getSize(),
+                        fontWeight: 600,
+                        fontSize: '12px',
+                        whiteSpace: 'nowrap',
+                        color: column.columnDef.meta?.textColor || "var(--color-beergam-gray-blueish-dark)",
+                        bgcolor: hasValue ? footerColor : '#e2e8f0',
+                        borderRight: hasValue ? '1px solid rgba(0,0,0,0.08)' : 'none',
+                        borderTop: hasValue ? '2px solid rgba(0,0,0,0.12)' : 'none',
+                      }}
+                    >
+                      {footerValue ?? ''}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            </TableFooter>
+          )}
   </Table>
   {pagination.has_next && onLoadMore && (
     <div className='flex bg-beergam-white sticky left-0 justify-center items-center p-4 w-full'>

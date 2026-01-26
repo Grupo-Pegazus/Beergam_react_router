@@ -1,4 +1,32 @@
+import dayjs from "dayjs";
 import { z } from "zod";
+// ============================================
+// Schemas reutilizáveis para transformações
+// ============================================
+
+/** Schema para strings de data - transforma em formato pt-BR (dd/mm/yyyy) */
+export const dateString = z.string().transform((val) => 
+  dayjs(val).format('DD/MM/YYYY, HH:mm')
+);
+
+/** Schema para strings de data nullable/optional */
+export const dateStringOptional = dateString.nullable().optional();
+
+/** Schema para strings de moeda - transforma em formato BRL (R$ x.xxx,xx) */
+export const currencyString = z.string().transform((val) => 
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(parseFloat(val))
+);
+
+/** Schema para strings de moeda nullable/optional */
+export const currencyStringOptional = currencyString.nullable().optional();
+
+export const percentageString = z.string().transform((val) => 
+  `${(parseFloat(val)).toFixed(2)}%`
+);
+
+export const percentageStringOptional = percentageString.nullable().optional();
+
+// ============================================
 
 // Schema para documento do cliente
 export const ReceiverDocumentSchema = z.object({
@@ -26,6 +54,8 @@ export const ShippingDetailsSchema = z.object({
 
 export type ShippingDetails = z.infer<typeof ShippingDetailsSchema>;
 
+
+
 // Schema para pedido (baseado no MeliOrderSchema do backend)
 export const OrderSchema = z.object({
   id: z.number().optional(),
@@ -34,12 +64,12 @@ export const OrderSchema = z.object({
   pack_id: z.string().nullable().optional(),
   buyer_id: z.string(),
   buyer_nickname: z.string(),
-  date_created: z.string(),
-  date_closed: z.string(),
-  expiration_date: z.string(),
+  date_created: dateString,
+  date_closed: dateString,
+  expiration_date: dateString,
   status: z.string(),
-  total_amount: z.string(),
-  paid_amount: z.string(),
+  total_amount: currencyString,
+  paid_amount: currencyString,
   currency_id: z.string(),
   shipping_id: z.string(),
   tags: z.array(z.string()).nullable().optional(),
@@ -49,8 +79,8 @@ export const OrderSchema = z.object({
   title: z.string(),
   category_id: z.string(),
   quantity: z.number(),
-  unit_price: z.string(),
-  sale_fee: z.string(),
+  unit_price: currencyString,
+  sale_fee: currencyString,
   listing_type_id: z.string(),
   condition: z.string(),
   shipping_mode: z.string().nullable().optional(),
@@ -58,35 +88,35 @@ export const OrderSchema = z.object({
   tracking_method: z.string().nullable().optional(),
   shipment_status: z.string().nullable().optional(),
   shipment_substatus: z.string().nullable().optional(),
-  estimated_delivery: z.string().nullable().optional(),
-  declared_value: z.string().nullable().optional(),
+  estimated_delivery: dateStringOptional,
+  declared_value: currencyStringOptional,
   shipping_method_name: z.string().nullable().optional(),
   shipping_paid_by: z.string().nullable().optional(),
   shipping_destination_state: z.string().nullable().optional(),
   shipping_details: ShippingDetailsSchema.nullable().optional(),
-  custo_envio_base: z.string().nullable().optional(),
-  custo_envio_final: z.string().nullable().optional(),
-  custo_envio_buyer: z.string().nullable().optional(),
-  custo_envio_seller: z.string().nullable().optional(),
-  custo_envio_desconto: z.number().nullable().optional(),
-  custo_envio_compensacao: z.number().nullable().optional(),
-  custo_envio_promoted_amount: z.number().nullable().optional(),
-  frete_recebido_total: z.number().nullable().optional(),
-  valor_base: z.string(),
-  valor_liquido: z.string().nullable().optional(),
+  custo_envio_base: currencyStringOptional,
+  custo_envio_final: currencyStringOptional,
+  custo_envio_buyer: currencyStringOptional,
+  custo_envio_seller: currencyStringOptional,
+  custo_envio_desconto: currencyStringOptional,
+  custo_envio_compensacao: currencyStringOptional,
+  custo_envio_promoted_amount: currencyStringOptional,
+  frete_recebido_total: currencyStringOptional,
+  valor_base: currencyStringOptional,
+  valor_liquido: currencyStringOptional,
   bonus_por_envio_estorno: z.string().nullable().optional(),
-  tax_percentage: z.string().nullable().optional(),
-  tax_amount: z.string().nullable().optional(),
-  price_cost: z.string().nullable().optional(),
-  packaging_cost: z.string().nullable().optional(),
-  extra_cost: z.string().nullable().optional(),
+  tax_percentage: percentageStringOptional,
+  tax_amount: currencyStringOptional,
+  price_cost: currencyStringOptional,
+  packaging_cost: currencyStringOptional,
+  extra_cost: currencyStringOptional,
   shipment_costs: z.record(z.string(), z.unknown()).nullable().optional(),
   thumbnail: z.string().nullable().optional(),
   ad_type: z.string().nullable().optional(),
   client: ClientSchema.nullable().optional(),
   isRegisteredInternally: z.boolean().optional(), // Presente apenas no endpoint de detalhes
-  created_at: z.string().optional(),
-  updated_at: z.string().optional(),
+  created_at: dateStringOptional,
+  updated_at: dateStringOptional,
 });
 
 export type Order = z.infer<typeof OrderSchema>;
@@ -329,6 +359,100 @@ export function getAttributeColors(key: keyof Order): { headerColor: string; bod
 export function getAttributeSectionName(key: keyof Order): string {
   const section = OrderAttributeSection[key];
   return OrderSectionColors[section].name;
+}
+
+// ============================================
+// CONFIGURAÇÃO DE COLUNAS COM VALORES NEGATIVOS
+// ============================================
+
+/** Cor padrão para valores negativos (custos, taxas, impostos) */
+export const NEGATIVE_VALUE_COLOR = 'var(--color-beergam-red-primary)'; // Vermelho
+
+/** 
+ * Lista de colunas que representam valores negativos (custos, taxas, impostos).
+ * Esses valores serão exibidos em vermelho na tabela.
+ */
+export const NegativeValueColumns: (keyof Order)[] = [
+  // Taxas e Impostos
+  'tax_percentage',
+  'tax_amount',
+  'sale_fee',
+  
+  // Custos
+  'price_cost',
+  'packaging_cost',
+  'extra_cost',
+  
+  // Custos de envio
+  'custo_envio_base',
+  'custo_envio_final',
+  'custo_envio_seller',
+];
+
+/** Helper: Verifica se uma coluna é de valor negativo */
+export function isNegativeValueColumn(key: keyof Order): boolean {
+  return NegativeValueColumns.includes(key);
+}
+
+/** Helper: Retorna a cor do texto se for coluna de valor negativo */
+export function getTextColorForColumn(key: keyof Order): string | undefined {
+  return isNegativeValueColumn(key) ? NEGATIVE_VALUE_COLOR : undefined;
+}
+
+// ============================================
+// CONFIGURAÇÃO DE FOOTER PARA COLUNAS
+// ============================================
+
+/** Configuração de footer para uma coluna individual */
+export interface ColumnFooterConfig {
+  /** Valor a ser exibido no footer (pode ser string, número ou ReactNode) */
+  value: string | number | React.ReactNode;
+  /** Cor de fundo do footer (opcional) */
+  color?: string;
+}
+
+/** 
+ * Dicionário tipado para configurar footers de colunas específicas.
+ * Não é obrigatório definir todas as keys de Order.
+ * 
+ * @example
+ * const footerConfig: OrderColumnFooters = {
+ *   unit_price: { value: 'R$ 1.234,56' },
+ *   quantity: { value: 'Total: 150', color: '#bbf7d0' },
+ *   total_amount: { value: totalAmount },
+ * };
+ */
+export type OrderColumnFooters = Partial<Record<keyof Order, ColumnFooterConfig>>;
+
+/** 
+ * Helper: Cria o objeto de footers para as colunas.
+ * Útil para ter autocomplete e validação de tipos.
+ * 
+ * @example
+ * const footers = createColumnFooters({
+ *   unit_price: { value: formatCurrency(total) },
+ *   quantity: { value: `${totalQty} unidades` },
+ * });
+ */
+export function createColumnFooters(config: OrderColumnFooters): OrderColumnFooters {
+  return config;
+}
+
+/**
+ * Helper: Obtém o footerValue e footerColor para uma coluna específica.
+ * Retorna undefined se a coluna não tiver footer configurado.
+ */
+export function getColumnFooter(
+  key: keyof Order, 
+  footers: OrderColumnFooters
+): { footerValue?: string | number | React.ReactNode; footerColor?: string } | undefined {
+  const config = footers[key];
+  if (!config) return undefined;
+  
+  return {
+    footerValue: config.value,
+    footerColor: config.color,
+  };
 }
 // Schema para filtros de pedidos
 export const OrdersFiltersSchema = z.object({
