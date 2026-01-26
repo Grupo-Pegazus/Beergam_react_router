@@ -73,7 +73,7 @@ function ContextMenuItem({
 
 /** Context menu para a tabela de vendas */
 function OrderContextMenu({ data: order, anchorPosition, onClose }: ContextMenuProps<Order>) {
-    const { order_id: orderId, buyer_nickname: buyerNickname, sku } = order;
+    const { order_id: orderId, buyer_nickname: buyerNickname, sku, thumbnail, mlb, title } = order;
     return (
         <Popover
             open
@@ -89,8 +89,8 @@ function OrderContextMenu({ data: order, anchorPosition, onClose }: ContextMenuP
                         bgcolor: 'var(--color-beergam-layout-background)',
                         borderRadius: '8px',
                         border: '1px solid rgba(0,0,0,0.08)',
-                        minWidth: 220,
-                        maxWidth: 280,
+                        minWidth: 280,
+                        maxWidth: 320,
                         p: 0.5,
                         boxShadow: '0 10px 38px -10px rgba(22,23,24,0.35), 0 10px 20px -15px rgba(22,23,24,0.2)',
                         animation: 'fadeIn 0.1s ease-out',
@@ -102,9 +102,41 @@ function OrderContextMenu({ data: order, anchorPosition, onClose }: ContextMenuP
                 },
             }}
         >
+            {/* Card do produto com thumbnail */}
+            <div className="flex gap-3 p-2 mb-1 bg-beergam-section-background rounded-md">
+                {/* Thumbnail */}
+                <div className="flex-shrink-0 w-14 h-14 rounded-md overflow-hidden bg-zinc-100 border border-zinc-200">
+                    {thumbnail ? (
+                        <img 
+                            src={thumbnail} 
+                            alt={title || 'Produto'} 
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                            <Svg.box width={24} height={24} tailWindClasses="text-zinc-400" />
+                        </div>
+                    )}
+                </div>
+                
+                {/* Info do produto */}
+                <div className="flex-1 min-w-0">
+                    <Link 
+                        to={`/interno/anuncios/${mlb}`}
+                        onClick={onClose}
+                        className="text-xs font-semibold text-beergam-primary hover:underline block truncate"
+                    >
+                        {mlb}
+                    </Link>
+                    <p className="text-[11px] text-beergam-typography-secondary line-clamp-2 mt-0.5" title={title}>
+                        {title}
+                    </p>
+                </div>
+            </div>
+
             {/* Header com info do pedido */}
-            <div className="px-2 py-1.5 border-b border-zinc-100 mb-1">
-                <p className="text-xs font-medium text-beergam-primary! truncate">
+            <div className="px-2 py-1.5 border-b border-zinc-200 mb-1">
+                <p className="text-xs font-medium text-beergam-typography-primary truncate">
                     Pedido #{orderId}
                 </p>
                 <p className="text-xs text-beergam-typography-secondary! truncate">
@@ -264,19 +296,19 @@ export default function RelatorioVendasRoute() {
         
         // Colunas que podem ser ordenadas (sorting)
         const sortableColumns: (keyof Order)[] = [
-            'order_id',
             'date_created',
             'date_closed',
-            'status',
             'total_amount',
             'paid_amount',
             'quantity',
             'unit_price',
             'valor_base',
             'valor_liquido',
-            'sku',
-            'mlb',
-            'buyer_nickname',
+            'tax_amount',
+            'sale_fee',
+            'custo_envio_seller',
+            'custo_envio_base',
+            'custo_envio_final',
         ];
         
         // Usa a ordem definida em OrderAttributeDisplayOrder

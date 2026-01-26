@@ -1,5 +1,7 @@
 import dayjs from "dayjs";
 import { z } from "zod";
+import { getStatusOrderMeliInfo } from "~/src/constants/status-order-meli";
+import { AD_TYPE_OPTIONS, DELIVERY_OPTIONS } from "../anuncios/components/Filters/AnunciosFilters";
 // ============================================
 // Schemas reutilizáveis para transformações
 // ============================================
@@ -81,12 +83,12 @@ export const OrderSchema = z.object({
   quantity: z.number(),
   unit_price: currencyString,
   sale_fee: currencyString,
-  listing_type_id: z.string(),
+  listing_type_id: z.string().transform((val) => AD_TYPE_OPTIONS.find((option) => option.value === val)?.label),
   condition: z.string(),
-  shipping_mode: z.string().nullable().optional(),
+  shipping_mode: z.string().nullable().optional().transform((val) => DELIVERY_OPTIONS.find((option) => option.value === val)?.label),
   tracking_number: z.string().nullable().optional(),
   tracking_method: z.string().nullable().optional(),
-  shipment_status: z.string().nullable().optional(),
+  shipment_status: z.string().nullable().optional().transform((val) => getStatusOrderMeliInfo(val)?.label),
   shipment_substatus: z.string().nullable().optional(),
   estimated_delivery: dateStringOptional,
   declared_value: currencyStringOptional,
