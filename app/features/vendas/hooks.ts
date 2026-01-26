@@ -1,15 +1,17 @@
-import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { ApiResponse } from "../apiClient/typings";
 import { vendasService } from "./service";
 import type {
-  OrdersFilters,
-  OrdersMetrics,
   DailyRevenue,
   GeographicDistribution,
-  TopCategories,
+  Order,
   OrderDetailsResponse,
+  OrdersFilters,
+  OrdersMetrics,
+  OrdersResponse,
+  TopCategories,
 } from "./typings";
-import type { ApiResponse } from "../apiClient/typings";
 
 export function useOrders(filters?: Partial<OrdersFilters>) {
   return useQuery<ApiResponse<import("./typings").OrdersResponse>>({
@@ -23,6 +25,128 @@ export function useOrders(filters?: Partial<OrdersFilters>) {
     },
     staleTime: 1000 * 60 * 5, // 5 minutos
   });
+}
+
+export function useOrdersWithPagination(defaultFilters?: Partial<OrdersFilters>) {
+  return useMutation<ApiResponse<OrdersResponse>, Error, Partial<OrdersFilters> | undefined>({
+    mutationFn: async (overrideFilters) => {
+      // Combina os filtros default com os passados no mutate()
+      const combinedFilters = { ...defaultFilters, ...overrideFilters };
+      const res = await vendasService.getOrders(combinedFilters);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar pedidos");
+      }
+      return res;
+    },
+  });
+}
+
+/**
+ * Hook para buscar pedidos com "Load More" (carregar mais)
+ * - useQuery carrega a página 1 automaticamente
+ * - loadMore() carrega páginas adicionais e acumula os dados
+ * - Quando os filtros mudam, reseta automaticamente
+ */
+export function useOrdersWithLoadMore(baseFilters?: Omit<Partial<OrdersFilters>, 'page'>) {
+  // Estado para acumular pedidos de todas as páginas
+  const [accumulatedOrders, setAccumulatedOrders] = useState<Order[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  // Serializa os filtros para usar como chave de referência
+  const filtersKey = useMemo(() => JSON.stringify(baseFilters ?? {}), [baseFilters]);
+  
+  // Ref para detectar mudança de filtros
+  const prevFiltersKeyRef = useRef(filtersKey);
+  
+  // Reset automático quando os filtros mudam
+  useEffect(() => {
+    if (prevFiltersKeyRef.current !== filtersKey) {
+      setAccumulatedOrders([]);
+      setCurrentPage(1);
+      prevFiltersKeyRef.current = filtersKey;
+    }
+  }, [filtersKey]);
+  
+  // Query para a primeira página (carrega automaticamente)
+  const initialQuery = useQuery<ApiResponse<OrdersResponse>>({
+    queryKey: ["orders", "loadMore", baseFilters, { page: 1 }],
+    queryFn: async () => {
+      const res = await vendasService.getOrders({ ...baseFilters, page: 1 });
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar pedidos");
+      }
+      return res;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+  
+  // Mutation para carregar páginas adicionais
+  const loadMoreMutation = useMutation<ApiResponse<OrdersResponse>, Error, number>({
+    mutationFn: async (page: number) => {
+      const res = await vendasService.getOrders({ ...baseFilters, page });
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar pedidos");
+      }
+      return res;
+    },
+    onSuccess: (data) => {
+      if (data.data?.orders) {
+        setAccumulatedOrders(prev => [...prev, ...data.data!.orders]);
+      }
+    },
+  });
+  
+  // Combina os pedidos da primeira página + acumulados
+  const allOrders = useMemo(() => {
+    const firstPageOrders = initialQuery.data?.data?.orders ?? [];
+    return [...firstPageOrders, ...accumulatedOrders];
+  }, [initialQuery.data?.data?.orders, accumulatedOrders]);
+  
+  // Paginação atual (usa a do mutation se disponível, senão a do query inicial)
+  const pagination = useMemo(() => {
+    return loadMoreMutation.data?.data?.pagination ?? initialQuery.data?.data?.pagination ?? {
+      page: 1,
+      per_page: 100,
+      total_count: 0,
+      total_pages: 0,
+      has_next: false,
+      has_prev: false,
+    };
+  }, [loadMoreMutation.data?.data?.pagination, initialQuery.data?.data?.pagination]);
+  
+  // Função para carregar mais
+  const loadMore = useCallback(() => {
+    const nextPage = currentPage + 1;
+    setCurrentPage(nextPage);
+    loadMoreMutation.mutate(nextPage);
+  }, [currentPage, loadMoreMutation]);
+  
+  // Reset para voltar à página 1
+  const reset = useCallback(() => {
+    setAccumulatedOrders([]);
+    setCurrentPage(1);
+  }, []);
+  
+  return {
+    // Dados
+    orders: allOrders,
+    pagination,
+    
+    // Estados
+    isLoading: initialQuery.isLoading,
+    isLoadingMore: loadMoreMutation.isPending,
+    isFetching: initialQuery.isFetching,
+    error: initialQuery.error || loadMoreMutation.error,
+    
+    // Ações
+    loadMore,
+    reset,
+    refetch: initialQuery.refetch,
+    
+    // Info
+    currentPage,
+    hasMore: pagination.has_next,
+  };
 }
 
 export function useOrdersMetrics(period?: 0 | 1 | 7 | 15 | 30 | 90) {

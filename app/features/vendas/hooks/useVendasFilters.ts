@@ -107,8 +107,17 @@ export function useVendasFilters(initial?: Partial<VendasFiltersState>) {
     setAppliedFilters(defaultState);
   }, [defaultState]);
 
-  const applyFilters = useCallback(() => {
-    setAppliedFilters(filters);
+  /** 
+   * Aplica os filtros. Se `newFilters` for passado, atualiza ambos os estados.
+   * Isso é útil quando os filtros vêm de um componente que gerencia estado local (ex: modal).
+   */
+  const applyFilters = useCallback((newFilters?: VendasFiltersState) => {
+    if (newFilters) {
+      setFilters(newFilters);
+      setAppliedFilters(newFilters);
+    } else {
+      setAppliedFilters(filters);
+    }
   }, [filters]);
 
   const setPage = useCallback((page: number) => {

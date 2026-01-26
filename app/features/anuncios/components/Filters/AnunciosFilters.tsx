@@ -1,6 +1,6 @@
-import { useMemo, useCallback } from "react";
 import { Stack, Typography } from "@mui/material";
-import { FilterContainer, FilterSelect, FilterSwitch, FilterActions, FilterSearchInput } from "~/src/components/filters";
+import { useCallback, useMemo } from "react";
+import { FilterActions, FilterContainer, FilterSearchInput, FilterSelect, FilterSwitch } from "~/src/components/filters";
 import { Fields } from "~/src/components/utils/_fields";
 import { ActiveTimeFilter } from "./ActiveTimeFilter";
 import type {
@@ -17,13 +17,13 @@ const STATUS_OPTIONS: Array<{ label: string; value: AnuncioStatusFilter }> = [
   { label: "Fechados", value: "closed" },
 ];
 
-const AD_TYPE_OPTIONS: Array<{ label: string; value: AnuncioTypeFilter }> = [
+export const AD_TYPE_OPTIONS: Array<{ label: string; value: AnuncioTypeFilter }> = [
   { label: "Todos", value: "all" },
   { label: "Clássico", value: "gold_special" },
   { label: "Premium", value: "gold_pro" },
 ];
 
-const DELIVERY_OPTIONS: Array<{ label: string; value: DeliveryTypeFilter }> = [
+export const DELIVERY_OPTIONS: Array<{ label: string; value: DeliveryTypeFilter }> = [
   { label: "Todas", value: "all" },
   { label: "Agência", value: "xd_drop_off" },
   { label: "FULL", value: "fulfillment" },

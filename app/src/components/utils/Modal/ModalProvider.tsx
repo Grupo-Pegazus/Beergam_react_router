@@ -37,6 +37,7 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         isOpen={isOpen}
         onClose={closeModal}
         title={modalOptions.title}
+        icon={modalOptions.icon}
         className={modalOptions.className}
         contentClassName={modalOptions.contentClassName}
       >
