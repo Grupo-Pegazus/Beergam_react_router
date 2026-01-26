@@ -84,16 +84,19 @@
 .border-theme {
   border-color: var(--color-border);
 }
+
 /* Configurações do Swiper */
 .swiper-slide {
   height: auto !important;
 }
+
 .swiper-pagination {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
 }
+
 .swiper-pagination-bullet {
   background-color: var(--color-beergam-primary) !important;
   width: 20px !important;
@@ -102,9 +105,31 @@
   align-items: center;
   justify-content: center;
 }
+
 .swiper-pagination-bullet-active {
   background-color: var(--color-beergam-primary) !important;
   transform: scale(1.2) !important;
+}
+
+/* Navegação do Swiper */
+.swiper-button-next,
+.swiper-button-prev {
+  color: rgba(255, 255, 255, 0.9) !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  font-size: 20px !important;
+  font-weight: bold !important;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background-color: rgba(0, 0, 0, 0.7) !important;
 }
 
 /* Modo Escuro - cores que mudam automaticamente */
@@ -154,8 +179,9 @@
 }
 
 h1 {
-  @apply text-4xl font-bold lg:text-4xl  xl:text-5xl 2xl:text-6xl;
+  @apply text-4xl font-bold lg:text-4xl xl:text-5xl 2xl:text-6xl;
 }
+
 h2 {
   @apply text-2xl lg:text-2xl font-bold xl:text-3xl 2xl:text-4xl;
 }
@@ -188,16 +214,19 @@ button {
 /* Ajuste automático dos botões flutuantes para mobile */
 /* Em mobile (< 768px), os botões flutuantes precisam estar acima da navegação inferior */
 @media (max-width: 767px) {
+
   /* Classe específica para ajuste em rotas internas (onde há navegação inferior) */
   .floating-action-buttons {
-    bottom: 5rem; /* 80px - altura aproximada da navegação inferior + padding */
+    bottom: 5rem;
+    /* 80px - altura aproximada da navegação inferior + padding */
   }
 }
 
 /* Em desktop, mantém posição padrão */
 @media (min-width: 768px) {
   .floating-action-buttons {
-    bottom: 1.5rem; /* 24px - bottom-6 */
+    bottom: 1.5rem;
+    /* 24px - bottom-6 */
   }
 }
 
@@ -235,6 +264,7 @@ button {
     opacity: 0;
     transform: translateY(-8px) scale(0.95);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -246,6 +276,7 @@ button {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+
   100% {
     opacity: 0;
     transform: translateY(-8px) scale(0.95);
@@ -264,11 +295,13 @@ button {
 
 /* Animação para o componente Loading */
 @keyframes pulseLoading {
+
   0%,
   100% {
     transform: scale(0);
     opacity: 0.5;
   }
+
   50% {
     transform: scale(1);
     opacity: 1;
@@ -278,6 +311,7 @@ button {
 .animate-pulse-loading {
   animation: pulseLoading 1s ease-in-out infinite;
 }
+
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
   display: none;
@@ -286,6 +320,7 @@ input[type="password"]::-ms-clear {
 .fieldsContainer {
   @apply grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-4;
 }
+
 /* body {
   @apply h-dvh;
 } */
@@ -293,6 +328,7 @@ body,
 html {
   height: 100%;
 }
+
 /* 1. Use a more-intuitive box-sizing model */
 *,
 *::before,
@@ -300,18 +336,21 @@ html {
   box-sizing: border-box;
   overflow-anchor: none;
 }
+
 /* 3. Enable keyword animations */
 @media (prefers-reduced-motion: no-preference) {
   html {
     interpolate-size: allow-keywords;
   }
 }
+
 body {
   /* 4. Add accessible line-height */
   line-height: 1.5;
   /* 5. Improve text rendering */
   -webkit-font-smoothing: antialiased;
 }
+
 /* 6. Improve media defaults */
 img,
 picture,
@@ -332,10 +371,12 @@ svg {
 
 /* Landing Page Styles */
 @keyframes gradient-shift {
+
   0%,
   100% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
@@ -358,5 +399,5 @@ html {
 }
 
 p {
-  color: var(--color-beergam-typography-secondary);
+  color: var(--color-beergam-typography-primary);
 }

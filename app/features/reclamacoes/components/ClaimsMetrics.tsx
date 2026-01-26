@@ -44,49 +44,41 @@ export function ClaimsMetrics({ insights, loading }: ClaimsMetricsProps) {
       <Grid cols={{ base: 1, sm: 2 }} gap={4}>
         <CensorshipWrapper censorshipKey="reclamacoes_tempo_medio_resolucao">
           <StatCard
-            icon={<Svg.clock tailWindClasses="w-5 h-5 text-beergam-orange" />}
+            icon={<Svg.clock tailWindClasses="w-5 h-5" />}
             title="Tempo médio de resolução"
             value={formatDays(insights?.avg_resolution_days)}
             loading={loading}
-            color="orange"
-            bgColor="beergam-section-background!"
-            maintainColor={true}
+            variant="soft"
             censorshipKey="reclamacoes_tempo_medio_resolucao"
           />
         </CensorshipWrapper>
         <CensorshipWrapper censorshipKey="reclamacoes_abertas">
           <StatCard
-            icon={<Svg.alert tailWindClasses="w-5 h-5 text-beergam-blue" />}
+            icon={<Svg.alert tailWindClasses="w-5 h-5" />}
             title="Abertas"
             value={insights?.opened ?? "—"}
             loading={loading}
-            color="blue"
-            bgColor="beergam-section-background!"
-            maintainColor={true}
+            variant="soft"
             censorshipKey="reclamacoes_abertas"
           />
         </CensorshipWrapper>
         <CensorshipWrapper censorshipKey="reclamacoes_fechadas">
           <StatCard
-            icon={<Svg.check_circle tailWindClasses="w-5 h-5 text-beergam-green" />}
+            icon={<Svg.check_circle tailWindClasses="w-5 h-5" />}
             title="Fechadas"
             value={insights?.closed ?? "—"}
             loading={loading}
-            color="green"
-            bgColor="beergam-section-background!"
-            maintainColor={true}
+            variant="soft"
             censorshipKey="reclamacoes_fechadas"
           />
         </CensorshipWrapper>
         <CensorshipWrapper censorshipKey="reclamacoes_total_periodo">
           <StatCard
-            icon={<Svg.graph tailWindClasses="w-5 h-5 text-beergam-typography-secondary" />}
+            icon={<Svg.graph tailWindClasses="w-5 h-5" />}
             title="Total no período"
             value={insights?.total ?? "—"}
             loading={loading}
-            color="slate"
-            bgColor="beergam-section-background!"
-            maintainColor={true}
+            variant="soft"
             censorshipKey="reclamacoes_total_periodo"
           />
         </CensorshipWrapper>

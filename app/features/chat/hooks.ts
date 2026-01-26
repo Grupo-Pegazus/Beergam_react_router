@@ -24,3 +24,74 @@ export function useClients(filters?: Partial<ClientsFilters>) {
         refetchOnMount: false,
     });
 }
+
+/**
+ * Hook para buscar mensagens pós-compra de um pedido específico.
+ * 
+ * @param orderId - order_id ou pack_id do pedido
+ * @param enabled - Se a query deve ser executada (default: true se orderId estiver presente)
+ */
+export function usePosPurchaseMessages(orderId?: string | null, enabled = true) {
+    const shouldFetch = enabled && Boolean(orderId);
+
+    return useQuery({
+        queryKey: ["chat", "pos-purchase", orderId],
+        queryFn: () => {
+            if (!orderId) throw new Error("orderId é obrigatório");
+            return chatService.getPosPurchaseMessages(orderId);
+        },
+        enabled: shouldFetch,
+        staleTime: 1000 * 60 * 2, // 2 minutos
+        gcTime: 1000 * 60 * 5, // 5 minutos
+        refetchOnWindowFocus: false,
+    });
+}
+
+/**
+ * Hook para buscar mensagens de uma reclamação específica.
+ * 
+ * @param claimId - ID da reclamação
+ * @param enabled - Se a query deve ser executada (default: true se claimId estiver presente)
+ */
+export function useClaimMessages(claimId?: string | null, enabled = true) {
+    const shouldFetch = enabled && Boolean(claimId);
+
+    return useQuery({
+        queryKey: ["chat", "claim", claimId],
+        queryFn: () => {
+            if (!claimId) throw new Error("claimId é obrigatório");
+            return chatService.getClaimMessages(claimId);
+        },
+        enabled: shouldFetch,
+        staleTime: 1000 * 30,
+        gcTime: 1000 * 60 * 5,
+        refetchOnWindowFocus: false,
+        refetchOnMount: true,
+    });
+}
+
+/**
+ * Hook para buscar mensagens de mediação de uma reclamação específica.
+ * 
+ * @param claimId - ID da reclamação
+ * @param enabled - Se a query deve ser executada (default: true se claimId estiver presente)
+ */
+export function useMediationMessages(claimId?: string | null, enabled = true) {
+    const shouldFetch = enabled && Boolean(claimId);
+
+    return useQuery({
+        queryKey: ["chat", "mediation", claimId],
+        queryFn: () => {
+            if (!claimId) throw new Error("claimId é obrigatório");
+            return chatService.getMediationMessages(claimId);
+        },
+        enabled: shouldFetch,
+        staleTime: 1000 * 30,
+        gcTime: 1000 * 60 * 5,
+        refetchOnWindowFocus: false,
+        refetchOnMount: true,
+    });
+}
+
+// Re-export useClaimDetails from hooks subdirectory
+export { useClaimDetails } from "./hooks/useClaimDetails";

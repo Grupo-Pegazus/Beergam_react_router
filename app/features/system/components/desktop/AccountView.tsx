@@ -73,6 +73,14 @@ export default function AccountView({
   };
 
   const handleDeleteMarketplace = (marketplace: BaseMarketPlace) => {
+    const isProcessing =
+      marketplace.status_parse === MarketplaceStatusParse.PROCESSING;
+
+    if (isProcessing) {
+      toast.error("Não é possível excluir uma conta enquanto ela está sendo processada");
+      return;
+    }
+
     setMarketplaceToDelete(marketplace);
     setShowDeleteModal(true);
     setOpen(false);
@@ -80,6 +88,16 @@ export default function AccountView({
 
   const handleConfirmDelete = async () => {
     if (!marketplaceToDelete) return;
+
+    const isProcessing =
+      marketplaceToDelete.status_parse === MarketplaceStatusParse.PROCESSING;
+
+    if (isProcessing) {
+      toast.error("Não é possível excluir uma conta enquanto ela está sendo processada");
+      setShowDeleteModal(false);
+      setMarketplaceToDelete(null);
+      return;
+    }
 
     const selectedMarketplace = authStore.getState().marketplace;
     const isSelectedMarketplace =
@@ -135,11 +153,11 @@ export default function AccountView({
   // Criar lista unificada com a conta atual no topo
   const allAccounts = current
     ? [
-        current,
-        ...accounts.filter(
-          (acc) => acc.marketplace_shop_id !== current?.marketplace_shop_id
-        ),
-      ]
+      current,
+      ...accounts.filter(
+        (acc) => acc.marketplace_shop_id !== current?.marketplace_shop_id
+      ),
+    ]
     : accounts;
 
   return (
@@ -171,7 +189,7 @@ export default function AccountView({
                     <p className="text-xs opacity-70 leading-4 text-beergam-white!">
                       {
                         MarketplaceTypeLabel[
-                          current?.marketplace_type as MarketplaceType
+                        current?.marketplace_type as MarketplaceType
                         ]
                       }
                     </p>
@@ -209,11 +227,9 @@ export default function AccountView({
 
           {showDropdown && (
             <div
-              className={`absolute right-0 mt-2 ${
-                showMarketplaces ? "w-[340px]" : "w-[280px]"
-              } rounded-lg text-beergam-typography-primary bg-beergam-mui-paper shadow-xl border border-beergam-input-border overflow-hidden z-10 ${
-                open ? "animate-slide-down" : "animate-fade-out"
-              }`}
+              className={`absolute right-0 mt-2 ${showMarketplaces ? "w-[340px]" : "w-[280px]"
+                } rounded-lg text-beergam-typography-primary bg-beergam-mui-paper shadow-xl border border-beergam-input-border overflow-hidden z-10 ${open ? "animate-slide-down" : "animate-fade-out"
+                }`}
             >
               {/* User Info Section */}
               {showMarketplaces && user && (
@@ -292,15 +308,13 @@ export default function AccountView({
                                 }
                               }}
                               aria-disabled={isProcessing || isSelected}
-                              className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-colors group ${
-                                isSelected
-                                  ? "bg-beergam-primary/10 cursor-default"
-                                  : "hover:bg-beergam-primary/10 cursor-pointer"
-                              } ${
-                                isProcessing
+                              className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-colors group ${isSelected
+                                ? "bg-beergam-primary/10 cursor-default"
+                                : "hover:bg-beergam-primary/10 cursor-pointer"
+                                } ${isProcessing
                                   ? "opacity-60 cursor-not-allowed pointer-events-none"
                                   : ""
-                              }`}
+                                }`}
                             >
                               {acc.marketplace_image ? (
                                 <img
@@ -319,11 +333,10 @@ export default function AccountView({
                               )}
                               <div className="min-w-0 flex-1">
                                 <p
-                                  className={`truncate text-sm font-medium ${
-                                    isSelected
-                                      ? "text-beergam-primary!"
-                                      : "text-beergam-typography-primary! group-hover:text-beergam-primary/80!"
-                                  }`}
+                                  className={`truncate text-sm font-medium ${isSelected
+                                    ? "text-beergam-primary!"
+                                    : "text-beergam-typography-primary! group-hover:text-beergam-primary/80!"
+                                    }`}
                                   title={acc.marketplace_name}
                                 >
                                   {acc.marketplace_name}
@@ -333,7 +346,7 @@ export default function AccountView({
                                   <p className="text-xs text-beergam-typography-secondary!">
                                     {
                                       MarketplaceTypeLabel[
-                                        acc.marketplace_type as MarketplaceType
+                                      acc.marketplace_type as MarketplaceType
                                       ]
                                     }
                                   </p>
@@ -344,20 +357,20 @@ export default function AccountView({
                                 /> */}
                                 </div>
                               </div>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (!isProcessing)
+                              {!isProcessing && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     handleDeleteMarketplace(acc);
-                                }}
-                                disabled={isProcessing}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-beergam-red/10 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
-                                aria-label="Excluir conta"
-                                title="Excluir conta"
-                              >
-                                <Svg.trash tailWindClasses="stroke-beergam-red w-4 h-4" />
-                              </button>
+                                  }}
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-beergam-red/10 rounded-full"
+                                  aria-label="Excluir conta"
+                                  title="Excluir conta"
+                                >
+                                  <Svg.trash tailWindClasses="stroke-beergam-red w-4 h-4" />
+                                </button>
+                              )}
                               <button
                                 data-tooltip-id={`${acc.marketplace_shop_id}-tooltip`}
                               >
@@ -422,11 +435,10 @@ export default function AccountView({
                         }}
                         disabled={!marketplace}
                         data-tooltip-id="acessar-sistema-tooltip"
-                        className={`w-full text-left px-3 py-2.5 flex items-center gap-3 rounded transition-colors group ${
-                          marketplace
-                            ? "hover:bg-beergam-primary/10 cursor-pointer"
-                            : "opacity-50 cursor-not-allowed"
-                        }`}
+                        className={`w-full text-left px-3 py-2.5 flex items-center gap-3 rounded transition-colors group ${marketplace
+                          ? "hover:bg-beergam-primary/10 cursor-pointer"
+                          : "opacity-50 cursor-not-allowed"
+                          }`}
                       >
                         <div className="w-10 h-10 bg-beergam-primary/10 rounded-full flex items-center justify-center group-hover:bg-beergam-primary/20 transition-colors">
                           <Svg.arrow_uturn_right

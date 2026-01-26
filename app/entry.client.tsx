@@ -7,18 +7,18 @@ import { injectSpeedInsights } from '@vercel/speed-insights';
 injectSpeedInsights();
 
 // Permite testar Sentry em desenvolvimento usando VITE_ENABLE_SENTRY=true
-const shouldInitSentry = 
-  process.env.NODE_ENV === 'production' || 
+const shouldInitSentry =
+  process.env.NODE_ENV === 'production' ||
   import.meta.env.VITE_ENABLE_SENTRY === 'true';
 
 // Inicializa o Sentry após o React estar pronto para evitar conflitos
 function initSentry() {
   if (!shouldInitSentry) return;
-  
+
   try {
     const isDev = import.meta.env.DEV;
     const shouldSendEvents = process.env.NODE_ENV === 'production' || import.meta.env.VITE_SENTRY_ENABLED === 'true';
-    
+
     Sentry.init({
       dsn: "https://d60970e1a513659438f62932021d473b@o4508965755158528.ingest.us.sentry.io/4510121563193344",
       // Adds request headers and IP for users, for more info visit:
@@ -116,7 +116,7 @@ startTransition(() => {
       <HydratedRouter />
     </StrictMode>
   );
-  
+
   // Inicializa o Sentry após o React estar pronto
   // Mas de forma mais rápida para que o feedback esteja disponível logo
   if (shouldInitSentry) {

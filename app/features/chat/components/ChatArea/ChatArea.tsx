@@ -2,9 +2,11 @@ import { Avatar, Fade, Paper, Skeleton, TextField } from "@mui/material";
 import dayjs from "dayjs";
 import { useMemo, useRef, useState } from "react";
 import BeergamButton from "~/src/components/utils/BeergamButton";
-import type { Chat, ChatMessage as ChatMessageType } from "../../typings";
+import Modal from "~/src/components/utils/Modal";
+import type { Chat, ChatMessage as ChatMessageType, Client } from "../../typings";
 import ChatMessage from "../ChatMessage";
 import ChatMessageSkeleton from "../ChatMessage/skeleton";
+import { ClientInfo } from "../ClientInfo";
 import ChatHeader, { type ChatType } from "./ChatHeader";
 
 /**
@@ -24,19 +26,54 @@ export interface ChatAreaProps extends Chat {
      * @default "pos_venda"
      */
     chatType?: ChatType;
-    
+
     /**
      * Callback chamado quando o tipo de chat é alterado pelo usuário.
      * Recebe o novo tipo de chat selecionado.
      */
     onChatTypeChange?: (type: ChatType) => void;
-    
+
     /**
      * Indica se o componente está em estado de carregamento.
      * Quando true, exibe skeletons das mensagens ao invés das mensagens reais.
      * @default false
      */
     isLoading?: boolean;
+
+    /**
+     * Indica se o cliente selecionado tem reclamações.
+     * Se false, as abas de reclamação e mediação serão desabilitadas.
+     * @default false
+     */
+    hasClaims?: boolean;
+
+    /**
+     * Cliente completo para exibir informações detalhadas no modal.
+     * Opcional, usado para abrir o modal de detalhes do cliente.
+     */
+    client?: Client;
+
+    /**
+     * Order ID atualmente ativo para exibir no chat.
+     * Usado para mostrar qual pedido está sendo visualizado e permitir troca.
+     */
+    activeOrderId?: string | null;
+
+    /**
+     * Claim ID atualmente ativo para exibir no chat.
+     * Usado para mostrar qual reclamação está sendo visualizada e permitir troca.
+     */
+    activeClaimId?: string | null;
+
+    /**
+     * Callback chamado quando o usuário quer trocar o pedido atual.
+     */
+    onOrderChange?: () => void;
+
+    /**
+     * Callback chamado quando o usuário quer trocar a reclamação atual.
+     */
+    onClaimChange?: () => void;
 }
 
 /**
@@ -77,83 +114,139 @@ export default function ChatArea({
     messages = [],
     actions = [],
     sender,
-    isLoading = false
+    isLoading = false,
+    hasClaims = false,
+    client,
+    activeOrderId,
+    activeClaimId,
+    onOrderChange,
+    onClaimChange,
 }: ChatAreaProps) {
     const [message, setMessage] = useState<string>("");
     const [showActions, setShowActions] = useState<boolean>(false);
+    const [showClientModal, setShowClientModal] = useState<boolean>(false);
     const actionRef = useRef<HTMLDivElement>(null);
     const randomSkeletonAmmount = useMemo(() => Math.floor(Math.random() * 10) + 2, [messages.length]);
     return (
         <div className="flex flex-col h-full overflow-hidden">
-            <ChatHeader activeType={chatType} onTypeChange={onChatTypeChange} />
-            <Paper className="p-0! text-center mt-2 bg-beergam-section-background! relative flex-1 flex flex-col min-h-0">
-                   <div className="sticky top-0 z-100">
+            <ChatHeader
+                activeType={chatType}
+                onTypeChange={onChatTypeChange}
+                hasClaims={hasClaims}
+            />
+            <Paper className="p-0! mt-2 bg-beergam-section-background! relative flex-1 flex flex-col min-h-0">
+                <div className="sticky top-0 z-100">
                     <div className="text-beergam-white flex items-center justify-between  rounded-t-lg bg-beergam-menu-background/80! p-2">
                         {sender && (
-                            <div className="flex items-start gap-2">
-                                <Avatar className="bg-beergam-primary!">{sender.details.nickname.charAt(0) || "C"}</Avatar>
-                                <div className="flex flex-col gap-1 items-start">
-                                    <h4 className="text-beergam-white!">{sender.details.nickname || "Cliente"}</h4>
-                                    {messages.length > 0 && !isLoading && <p className="text-beergam-white!">Criado em {dayjs(messages[0].date_created).format("DD/MM/YYYY HH:mm")}</p>}
-                                    {isLoading && <Skeleton variant="text" width={100} height={16} />}
+                            <>
+                                <div className="flex items-start gap-2 flex-1 min-w-0">
+                                    <Avatar className="bg-beergam-primary!">{sender.details.nickname.charAt(0) || "C"}</Avatar>
+                                    <div className="flex flex-col gap-1 items-start min-w-0 flex-1">
+                                        <h4 className="text-beergam-white!">{sender.details.nickname || "Cliente"}</h4>
+                                        {messages.length > 0 && !isLoading && <p className="text-beergam-white!">Criado em {dayjs(messages[0].date_created).format("DD/MM/YYYY HH:mm")}</p>}
+                                        {isLoading && <Skeleton variant="text" width={100} height={16} />}
+                                        {/* Mostra qual pedido/reclamação está ativo */}
+                                        {chatType === "pos_venda" && activeOrderId && (
+                                            <p className="text-xs text-beergam-white/70!">
+                                                Pedido: {activeOrderId}
+                                            </p>
+                                        )}
+                                        {(chatType === "reclamacao" || chatType === "mediacao") && activeClaimId && (
+                                            <p className="text-xs text-beergam-white/70!">
+                                                Reclamação: {activeClaimId}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                                <div ref={actionRef} className="flex items-center gap-2 shrink-0">
+                                    {/* Botão para trocar pedido/reclamação */}
+                                    {chatType === "pos_venda" && client && client.orders.length > 1 && onOrderChange && (
+                                        <BeergamButton
+                                            icon="arrow_path"
+                                            title="Trocar pedido"
+                                            onClick={onOrderChange}
+                                            className="!p-2"
+                                        />
+                                    )}
+                                    {(chatType === "reclamacao" || chatType === "mediacao") && client && client.claims.length > 1 && onClaimChange && (
+                                        <BeergamButton
+                                            icon="arrow_path"
+                                            title="Trocar reclamação"
+                                            onClick={onClaimChange}
+                                            className="!p-2"
+                                        />
+                                    )}
+                                    <BeergamButton icon="user_plus_solid" title="Detalhes" onClick={() => setShowClientModal(true)} />
+                                    {actions && actions.length > 0 && actions.map((action) => (
+                                        <BeergamButton
+                                            key={action.id}
+                                            icon={action.icon}
+                                            title={action.label}
+                                            onClick={() => {
+                                                action.onClick();
+                                                setShowActions(false);
+                                            }}
+                                            className="justify-start! text-left! w-full! p-2! h-auto! whitespace-normal!"
+                                            mainColor="beergam-primary"
+                                        />
+                                    ))}
+                                </div>
+                            </>
                         )}
-                        <div ref={actionRef} className="flex items-center gap-2">
-                            {/* <BeergamButton icon="user_plus_solid" title="Visualizar cliente" /> */}
-                            {actions && actions.length > 0 && actions.map((action) => (
-                                <BeergamButton
-                                    key={action.id}
-                                    icon={action.icon}
-                                    title={action.label}
-                                    onClick={() => {
-                                        action.onClick();
-                                        setShowActions(false);
-                                    }}
-                                    className="justify-start! text-left! w-full! p-2! h-auto! whitespace-normal!"
-                                    mainColor="beergam-primary"
-                                />
-                            ))}
+                    </div>
+                </div>
+                <div className="p-4 pb-4 flex-1 bg-beergam-section-background! overflow-y-auto min-h-0">
+                    <Fade in={showActions} timeout={300}>
+                        <div className="absolute rounded-lg bottom-0 top-0 right-0 left-0 bg-black/50 z-50">
                         </div>
-                    </div>
-                   </div>
-                    <div className="p-2 pb-4 flex-1 bg-beergam-section-background! overflow-y-auto min-h-0">
-                        <Fade in={showActions} timeout={300}>
-                            <div className="absolute rounded-lg bottom-0 top-0 right-0 left-0 bg-black/50 z-50">
-                            </div>
-                        </Fade>
-                        {messages.length === 0 && (
-                            <div className="flex items-center justify-center h-full">
-                                <p className="text-beergam-typography-primary!">Nenhuma mensagem encontrada</p>
-                            </div>
-                        )}
-                        {isLoading && <><ChatMessageSkeleton ammount={randomSkeletonAmmount} /></>}
-                        {!isLoading && <>{messages.map((message, index) => (
-                            <ChatMessage key={`${message.user}-${message.date_created}-${index}`} message={message as ChatMessageType} />
-                        ))}</>}
-                    </div>
-                    {sender && !isLoading && <div className="p-2 sticky bottom-0 bg-beergam-menu-background/80! rounded-lg z-25 flex items-center gap-2">
-                        <TextField
-                            fullWidth
-                            placeholder="Digite sua mensagem..."
-                            value={message}
-                            disabled={!sender}
-                            sx={{
-                                "& .MuiInputBase-root": {
-                                    backgroundColor: "var(--color-beergam-mui-paper)",
-                                    borderColor: "transparent",
-                                    outline: "none"
-                                },
-                            }}
-                            multiline
-                            onChange={(e) => setMessage(e.target.value)}
-                        />
-                        <BeergamButton
-                            icon={"arrow_uturn_right"}
-                            onClick={() => {}}
-                        />
-                    </div>}
+                    </Fade>
+                    {messages.length === 0 && !isLoading && (
+                        <div className="flex items-center justify-center h-full">
+                            <p className="text-beergam-typography-primary!">Nenhuma mensagem encontrada</p>
+                        </div>
+                    )}
+                    {isLoading && <><ChatMessageSkeleton ammount={randomSkeletonAmmount} /></>}
+                    {!isLoading && messages.length > 0 && (
+                        <>
+                            {messages.map((message, index) => (
+                                <ChatMessage key={`${message.user}-${message.date_created}-${index}`} message={message as ChatMessageType} />
+                            ))}
+                        </>
+                    )}
+                </div>
+                {sender && !isLoading && <div className="p-2 sticky bottom-0 bg-beergam-menu-background/80! rounded-lg z-25 flex items-center gap-2">
+                    <TextField
+                        fullWidth
+                        placeholder="Digite sua mensagem..."
+                        value={message}
+                        disabled={!sender}
+                        sx={{
+                            "& .MuiInputBase-root": {
+                                backgroundColor: "var(--color-beergam-mui-paper)",
+                                borderColor: "transparent",
+                                outline: "none"
+                            },
+                        }}
+                        multiline
+                        onChange={(e) => setMessage(e.target.value)}
+                    />
+                    <BeergamButton
+                        icon={"arrow_uturn_right"}
+                        onClick={() => { }}
+                    />
+                </div>}
             </Paper>
+
+            {/* Modal de detalhes do cliente */}
+            <Modal
+                isOpen={showClientModal}
+                onClose={() => setShowClientModal(false)}
+                title="Detalhes do Cliente"
+                className="z-1000"
+                contentClassName="!max-w-2xl !max-h-[90vh] overflow-y-auto"
+            >
+                <ClientInfo client={client} />
+            </Modal>
         </div>
     );
 }
