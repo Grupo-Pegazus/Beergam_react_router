@@ -414,6 +414,29 @@ export default function TanstackTable<TData>({
       </div>
       {/* Container scrollável */}
 <AsyncBoundary isLoading={isLoading} error={error as unknown} Skeleton={() => <TanstackTableSkeleton rows={15} columns={15} />} ErrorFallback={() => <p>erro ao carregar a tabela</p>}>
+        {/* Placeholder quando não há dados - renderizado fora da tabela */}
+        {rows.length === 0 ? (
+          <Paper
+          className="mb-2!"
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: `${height}px`,
+              borderRadius: 2,
+              bgcolor: 'var(--color-beergam-section-background)',
+            }}
+          >
+            <Svg.in_box_stack width={56} height={56} tailWindClasses="text-beergam-typography-primary mb-2" />
+            <Typography variant="body1" fontWeight={500} sx={{ color: 'var(--color-beergam-typography-primary)' }}>
+              Nenhum item encontrado
+            </Typography>
+            <Typography variant="caption" sx={{ mt: 0.5, opacity: 0.6, color: 'var(--color-beergam-typography-tertiary)' }}>
+              Tente ajustar os filtros ou realizar uma nova busca
+            </Typography>
+          </Paper>
+        ) : (
         <TableContainer
         component={Paper}
         ref={tableContainerRef}
@@ -624,6 +647,7 @@ export default function TanstackTable<TData>({
     </div>
   )}
       </TableContainer>
+        )}
 
 <p className="text-xs text-gray-500 mb-2">
   {rows.length} de {pagination.total_count} items encontrados.
