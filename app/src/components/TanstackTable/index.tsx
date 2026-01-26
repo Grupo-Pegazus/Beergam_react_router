@@ -25,7 +25,9 @@ import React, { memo, useCallback, useImperativeHandle, useMemo, useRef, useStat
 import type { Pagination } from '~/features/apiClient/typings';
 // Importa a extensão de tipos para meta customizado
 import Svg from '~/src/assets/svgs/_index';
+import AsyncBoundary from '../ui/AsyncBoundary';
 import BeergamButton from '../utils/BeergamButton';
+import { TanstackTableSkeleton } from './Skeleton';
 import './types';
 
 /** Props para o componente de context menu */
@@ -267,9 +269,15 @@ interface TanstackTableProps<TData> {
   contextMenuComponent?: (props: ContextMenuProps<TData>) => React.ReactNode;
   /** Componentes adicionais para serem exibidos na tabela */
   additionalControls?: React.ReactNode[];
+  /** Indica se está carregando a tabela (default: false) */
+  isLoading?: boolean;
+  /** Erro ao carregar a tabela (default: undefined) */
+  error?: unknown;
 }
 
 export default function TanstackTable<TData>({
+  isLoading = false,
+  error,
   data,
   columns,
   height = 400,
@@ -405,7 +413,8 @@ export default function TanstackTable<TData>({
       {controlColumns && <ColumnVisibilityControl table={table} columnVisibility={columnVisibility} />}
       </div>
       {/* Container scrollável */}
-      <TableContainer
+<AsyncBoundary isLoading={isLoading} error={error as unknown} Skeleton={() => <TanstackTableSkeleton rows={15} columns={15} />} ErrorFallback={() => <p>erro ao carregar a tabela</p>}>
+        <TableContainer
         component={Paper}
         ref={tableContainerRef}
         sx={{
@@ -619,6 +628,7 @@ export default function TanstackTable<TData>({
 <p className="text-xs text-gray-500 mb-2">
   {rows.length} de {pagination.total_count} items encontrados.
 </p>
+</AsyncBoundary>
 
       {/* Context Menu Controller (isolado para evitar re-render da tabela) */}
       {contextMenuComponent && (
@@ -631,3 +641,5 @@ export default function TanstackTable<TData>({
     </div>
   );
 }
+
+

@@ -1,4 +1,4 @@
-import { Alert, Popover } from "@mui/material";
+import { Popover } from "@mui/material";
 import type { ColumnDef } from '@tanstack/react-table';
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -20,7 +20,6 @@ import {
 } from "~/features/vendas/typings";
 import Svg from "~/src/assets/svgs/_index";
 import TanstackTable, { type ContextMenuProps } from "~/src/components/TanstackTable";
-import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
 
@@ -403,14 +402,42 @@ export default function RelatorioVendasRoute() {
     ), []);
 
     return (
-        <AsyncBoundary
-            isLoading={isLoading}
-            error={error as unknown}
-            Skeleton={() => <p>carregando...</p>}
-            ErrorFallback={() => <Alert severity="error">Erro ao carregar o relatorio de vendas</Alert>}
-        >
-            <p>Total de custo: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalCusto)}</p>
-          <TanstackTable
+        // <AsyncBoundary
+        //     isLoading={isLoading}
+        //     error={error as unknown}
+        //     Skeleton={() => <p>carregando...</p>}
+        //     ErrorFallback={() => <Alert severity="error">Erro ao carregar o relatorio de vendas</Alert>}
+        // >
+        //     <p>Total de custo: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalCusto)}</p>
+        //   <TanstackTable
+        //     data={transformedOrders}
+        //     columns={columns}
+        //     controlColumns
+        //     pagination={pagination}
+        //     onLoadMore={hasMore ? loadMore : undefined}
+        //     isLoadingMore={isLoadingMore}
+        //     contextMenuComponent={renderContextMenu}
+        //     additionalControls={[
+        //       <BeergamButton 
+        //         key="filters-btn"
+        //         onClick={() => {
+        //           openModal(
+        //             <FiltersModalContent
+        //               initialFilters={filters}
+        //               onApply={handleApplyFilters}
+        //               onReset={handleResetFilters}
+        //               isSubmitting={isFetching}
+        //             />, {title: "Filtros Aplicados", icon: "adjustments_horizontal_solid"}
+        //           );
+        //         }} 
+        //         title="Filtros Aplicados"
+        //         icon="adjustments_horizontal_solid"
+        //         loading={isFetching}
+        //       />
+        //     ]}
+        //   />
+        // </AsyncBoundary>
+        <TanstackTable
             data={transformedOrders}
             columns={columns}
             controlColumns
@@ -418,6 +445,8 @@ export default function RelatorioVendasRoute() {
             onLoadMore={hasMore ? loadMore : undefined}
             isLoadingMore={isLoadingMore}
             contextMenuComponent={renderContextMenu}
+            isLoading={isLoading}
+            error={error as unknown}
             additionalControls={[
               <BeergamButton 
                 key="filters-btn"
@@ -428,15 +457,14 @@ export default function RelatorioVendasRoute() {
                       onApply={handleApplyFilters}
                       onReset={handleResetFilters}
                       isSubmitting={isFetching}
-                    />
+                    />, {title: "Filtros Aplicados", icon: "adjustments_horizontal_solid"}
                   );
                 }} 
-                title="Filtros" 
+                title="Filtros Aplicados"
                 icon="adjustments_horizontal_solid"
-                loading={isFetching}
+                // loading={isFetching}
               />
             ]}
           />
-        </AsyncBoundary>
     );
 }
