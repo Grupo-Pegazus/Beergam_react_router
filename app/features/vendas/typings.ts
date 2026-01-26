@@ -9,7 +9,7 @@ import { AD_TYPE_OPTIONS, DELIVERY_OPTIONS } from "../anuncios/components/Filter
 /** Schema para strings de data - transforma em formato pt-BR (dd/mm/yyyy) */
 export const dateString = z.string().transform((val) => 
   dayjs(val).format('DD/MM/YYYY, HH:mm')
-);
+).nullable().optional();
 
 /** Schema para strings de data nullable/optional */
 export const dateStringOptional = dateString.nullable().optional();
