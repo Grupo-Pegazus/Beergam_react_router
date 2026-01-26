@@ -6,6 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
 } from "react-router";
 
 import { ThemeProvider } from "@mui/material";
@@ -182,6 +183,7 @@ export async function clientLoader() {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const pathname = useLocation().pathname;
   return (
     <html lang="pt-br">
       <head>
@@ -250,9 +252,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <DarkModeThemeProvider>
           <ThemeProvider theme={muiTheme}>
-          <p className="fixed bottom-2 left-2 z-[999999] text-[10px] text-gray-400 dark:text-gray-600 opacity-50 hover:opacity-100 transition-opacity select-none pointer-events-none">
-            v{packageJson.version}
-          </p>
+          {pathname.includes("/interno") && (
+            <p className="fixed bottom-2 left-2 z-[999999] text-[10px] text-beergam-white! opacity-50 hover:opacity-100 transition-opacity select-none pointer-events-none">
+              v{packageJson.version}
+            </p>
+          )}
             {children}</ThemeProvider>
         </DarkModeThemeProvider>
         <ScrollRestoration />
