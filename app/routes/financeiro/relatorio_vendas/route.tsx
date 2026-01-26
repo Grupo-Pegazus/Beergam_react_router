@@ -1,9 +1,12 @@
 import { Alert, Popover } from "@mui/material";
 import type { ColumnDef } from '@tanstack/react-table';
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router";
+import type { VendasFiltersState } from "~/features/vendas/components/Filters/types";
+import VendasFilters from "~/features/vendas/components/Filters/VendasFilters";
 import { useOrdersWithLoadMore } from "~/features/vendas/hooks";
+import { useVendasFilters } from "~/features/vendas/hooks/useVendasFilters";
 import type { Order } from "~/features/vendas/typings";
 import {
     OrderAttributeDisplayOrder,
@@ -18,6 +21,45 @@ import {
 import Svg from "~/src/assets/svgs/_index";
 import TanstackTable, { type ContextMenuProps } from "~/src/components/TanstackTable";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import { useModal } from "~/src/components/utils/Modal/useModal";
+
+/** Wrapper do filtro que gerencia seu próprio estado interno (necessário para funcionar dentro do Modal) */
+function FiltersModalContent({
+    initialFilters,
+    onApply,
+    onReset,
+    isSubmitting,
+}: {
+    initialFilters: VendasFiltersState;
+    onApply: (filters: VendasFiltersState) => void;
+    onReset: () => void;
+    isSubmitting: boolean;
+}) {
+    const [localFilters, setLocalFilters] = useState<VendasFiltersState>(initialFilters);
+
+    const handleChange = useCallback((next: VendasFiltersState) => {
+        setLocalFilters(next);
+    }, []);
+
+    const handleSubmit = useCallback(() => {
+        onApply(localFilters);
+    }, [localFilters, onApply]);
+
+    const handleReset = useCallback(() => {
+        onReset();
+    }, [onReset]);
+
+    return (
+        <VendasFilters
+            value={localFilters}
+            onChange={handleChange}
+            onSubmit={handleSubmit}
+            onReset={handleReset}
+            isSubmitting={isSubmitting}
+        />
+    );
+}
 
 /** Item do context menu estilo shadcn */
 function ContextMenuItem({ 
@@ -73,7 +115,7 @@ function ContextMenuItem({
 
 /** Context menu para a tabela de vendas */
 function OrderContextMenu({ data: order, anchorPosition, onClose }: ContextMenuProps<Order>) {
-    const { order_id: orderId, buyer_nickname: buyerNickname, sku, thumbnail, mlb, title } = order;
+    const { order_id: orderId, sku, thumbnail, mlb, title } = order;
     return (
         <Popover
             open
@@ -135,12 +177,15 @@ function OrderContextMenu({ data: order, anchorPosition, onClose }: ContextMenuP
             </div>
 
             {/* Header com info do pedido */}
-            <div className="px-2 py-1.5 border-b border-zinc-200 mb-1">
+            <div className="px-2 py-1.5 flex flex-col gap-2 border-b border-zinc-200 mb-1">
                 <p className="text-xs font-medium text-beergam-typography-primary truncate">
                     Pedido #{orderId}
                 </p>
                 <p className="text-xs text-beergam-typography-secondary! truncate">
-                    {buyerNickname}
+                    <span className="font-medium text-beergam-typography-primary!">Receita Bruta:</span> {order.total_amount}
+                </p>
+                <p className="text-xs text-beergam-typography-secondary! truncate">
+                    <span className="font-medium text-beergam-typography-primary!">Total Receita:</span> {order.valor_liquido}
                 </p>
             </div>
 
@@ -180,15 +225,32 @@ function OrderContextMenu({ data: order, anchorPosition, onClose }: ContextMenuP
     );
 }
 export default function RelatorioVendasRoute() {
+    const { openModal, closeModal } = useModal();
+    const { filters, resetFilters, applyFilters, apiFilters } =
+        useVendasFilters({ per_page: 100 });
+
+    const handleApplyFilters = useCallback((newFilters: VendasFiltersState) => {
+        // Aplica os filtros diretamente (atualiza ambos os estados de uma vez)
+        applyFilters(newFilters);
+        closeModal();
+    }, [applyFilters, closeModal]);
+
+    const handleResetFilters = useCallback(() => {
+        resetFilters();
+        closeModal();
+    }, [resetFilters, closeModal]);
+
+    // Passa os filtros aplicados (apiFilters) para o hook
     const { 
         orders, 
         pagination, 
         isLoading, 
-        isLoadingMore, 
+        isLoadingMore,
+        isFetching,
         error, 
         loadMore, 
         hasMore 
-    } = useOrdersWithLoadMore({ per_page: 100 });
+    } = useOrdersWithLoadMore(apiFilters);
     const transformedOrders = useMemo(() => orders.map((order) => OrderSchema.parse(order)), [orders]);
     
     const TotalCusto = useMemo(() => {
@@ -356,6 +418,24 @@ export default function RelatorioVendasRoute() {
             onLoadMore={hasMore ? loadMore : undefined}
             isLoadingMore={isLoadingMore}
             contextMenuComponent={renderContextMenu}
+            additionalControls={[
+              <BeergamButton 
+                key="filters-btn"
+                onClick={() => {
+                  openModal(
+                    <FiltersModalContent
+                      initialFilters={filters}
+                      onApply={handleApplyFilters}
+                      onReset={handleResetFilters}
+                      isSubmitting={isFetching}
+                    />
+                  );
+                }} 
+                title="Filtros" 
+                icon="adjustments_horizontal_solid"
+                loading={isFetching}
+              />
+            ]}
           />
         </AsyncBoundary>
     );

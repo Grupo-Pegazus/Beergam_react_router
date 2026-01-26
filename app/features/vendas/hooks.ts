@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ApiResponse } from "../apiClient/typings";
 import { vendasService } from "./service";
 import type {
@@ -45,15 +45,31 @@ export function useOrdersWithPagination(defaultFilters?: Partial<OrdersFilters>)
  * Hook para buscar pedidos com "Load More" (carregar mais)
  * - useQuery carrega a página 1 automaticamente
  * - loadMore() carrega páginas adicionais e acumula os dados
+ * - Quando os filtros mudam, reseta automaticamente
  */
 export function useOrdersWithLoadMore(baseFilters?: Omit<Partial<OrdersFilters>, 'page'>) {
   // Estado para acumular pedidos de todas as páginas
   const [accumulatedOrders, setAccumulatedOrders] = useState<Order[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   
+  // Serializa os filtros para usar como chave de referência
+  const filtersKey = useMemo(() => JSON.stringify(baseFilters ?? {}), [baseFilters]);
+  
+  // Ref para detectar mudança de filtros
+  const prevFiltersKeyRef = useRef(filtersKey);
+  
+  // Reset automático quando os filtros mudam
+  useEffect(() => {
+    if (prevFiltersKeyRef.current !== filtersKey) {
+      setAccumulatedOrders([]);
+      setCurrentPage(1);
+      prevFiltersKeyRef.current = filtersKey;
+    }
+  }, [filtersKey]);
+  
   // Query para a primeira página (carrega automaticamente)
   const initialQuery = useQuery<ApiResponse<OrdersResponse>>({
-    queryKey: ["orders", "loadMore", { ...baseFilters, page: 1 }],
+    queryKey: ["orders", "loadMore", baseFilters, { page: 1 }],
     queryFn: async () => {
       const res = await vendasService.getOrders({ ...baseFilters, page: 1 });
       if (!res.success) {
@@ -119,11 +135,13 @@ export function useOrdersWithLoadMore(baseFilters?: Omit<Partial<OrdersFilters>,
     // Estados
     isLoading: initialQuery.isLoading,
     isLoadingMore: loadMoreMutation.isPending,
+    isFetching: initialQuery.isFetching,
     error: initialQuery.error || loadMoreMutation.error,
     
     // Ações
     loadMore,
     reset,
+    refetch: initialQuery.refetch,
     
     // Info
     currentPage,

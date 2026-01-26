@@ -129,7 +129,7 @@ const ColumnVisibilityControl = memo(function ColumnVisibilityControl<TData>({
   }, [table]);
 
   return (
-    <div className="flex items-center justify-end gap-4 mb-2">
+    <>
       <BeergamButton
         title="Visualização de Colunas"
         icon="list_bullet"
@@ -229,7 +229,7 @@ const ColumnVisibilityControl = memo(function ColumnVisibilityControl<TData>({
           ))}
         </div>
       </Popover>
-    </div>
+    </>
   );
 }) as <TData>(props: { table: TableType<TData>; columnVisibility: VisibilityState }) => React.ReactElement;
 
@@ -265,6 +265,8 @@ interface TanstackTableProps<TData> {
   isLoadingMore?: boolean;
   /** Componente de context menu que aparece ao clicar com botão direito na linha */
   contextMenuComponent?: (props: ContextMenuProps<TData>) => React.ReactNode;
+  /** Componentes adicionais para serem exibidos na tabela */
+  additionalControls?: React.ReactNode[];
 }
 
 export default function TanstackTable<TData>({
@@ -287,6 +289,7 @@ export default function TanstackTable<TData>({
   onLoadMore,
   isLoadingMore = false,
   contextMenuComponent,
+  additionalControls,
 }: TanstackTableProps<TData>) {
   // Debug: contador de renders
   const renderCount = useRef(0);
@@ -397,8 +400,10 @@ export default function TanstackTable<TData>({
       )}
       
       {/* Controle de visibilidade de colunas (componente isolado para evitar re-render) */}
+      <div className="flex items-center justify-end gap-4 mb-2">
+      {additionalControls && Array.isArray(additionalControls) && <>{additionalControls.map((control) => control)}</>}
       {controlColumns && <ColumnVisibilityControl table={table} columnVisibility={columnVisibility} />}
-      
+      </div>
       {/* Container scrollável */}
       <TableContainer
         component={Paper}
