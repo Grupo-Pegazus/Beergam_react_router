@@ -21,7 +21,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import React, { memo, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import type { Pagination } from '~/features/apiClient/typings';
 // Importa a extensão de tipos para meta customizado
 import Svg from '~/src/assets/svgs/_index';
@@ -29,6 +29,39 @@ import AsyncBoundary from '../ui/AsyncBoundary';
 import BeergamButton from '../utils/BeergamButton';
 import { TanstackTableSkeleton } from './Skeleton';
 import './types';
+
+// Constante para a chave do localStorage
+const COLUMN_VISIBILITY_STORAGE_KEY = 'tanstack-table-column-visibility';
+
+/** Carrega visibilidade das colunas do localStorage */
+function loadColumnVisibility(storageKey: string | undefined): VisibilityState | null {
+  if (!storageKey || typeof window === 'undefined') return null;
+  
+  try {
+    const stored = localStorage.getItem(COLUMN_VISIBILITY_STORAGE_KEY);
+    if (!stored) return null;
+    
+    const parsed = JSON.parse(stored) as Record<string, VisibilityState>;
+    return parsed[storageKey] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Salva visibilidade das colunas no localStorage */
+function saveColumnVisibility(storageKey: string | undefined, visibility: VisibilityState): void {
+  if (!storageKey || typeof window === 'undefined') return;
+  
+  try {
+    const stored = localStorage.getItem(COLUMN_VISIBILITY_STORAGE_KEY);
+    const parsed = stored ? (JSON.parse(stored) as Record<string, VisibilityState>) : {};
+    
+    parsed[storageKey] = visibility;
+    localStorage.setItem(COLUMN_VISIBILITY_STORAGE_KEY, JSON.stringify(parsed));
+  } catch {
+    // Ignora erros de localStorage (quota excedida, etc)
+  }
+}
 
 /** Props para o componente de context menu */
 export interface ContextMenuProps<TData> {
@@ -273,6 +306,8 @@ interface TanstackTableProps<TData> {
   isLoading?: boolean;
   /** Erro ao carregar a tabela (default: undefined) */
   error?: unknown;
+  /** Chave única para salvar configurações de visibilidade no localStorage (ex: 'orders', 'products') */
+  storageKey?: string;
 }
 
 export default function TanstackTable<TData>({
@@ -298,6 +333,7 @@ export default function TanstackTable<TData>({
   isLoadingMore = false,
   contextMenuComponent,
   additionalControls,
+  storageKey,
 }: TanstackTableProps<TData>) {
   // Debug: contador de renders
   const renderCount = useRef(0);
@@ -306,8 +342,24 @@ export default function TanstackTable<TData>({
   // Estado de sorting
   const [sorting, setSorting] = useState<SortingState>([]);
   
+  // Carrega visibilidade inicial do localStorage ou usa padrão (todas visíveis)
+  const initialColumnVisibility = useMemo(() => {
+    const stored = loadColumnVisibility(storageKey);
+    if (stored) return stored;
+    
+    // Se não houver nada salvo, retorna objeto vazio (todas as colunas visíveis por padrão)
+    return {};
+  }, [storageKey]);
+  
   // Estado de visibilidade das colunas
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(initialColumnVisibility);
+  
+  // Salva no localStorage quando a visibilidade muda
+  useEffect(() => {
+    if (storageKey && Object.keys(columnVisibility).length > 0) {
+      saveColumnVisibility(storageKey, columnVisibility);
+    }
+  }, [storageKey, columnVisibility]);
   
   // Ref para o context menu controller (evita re-render da tabela)
   const contextMenuRef = useRef<ContextMenuHandle<TData>>(null);

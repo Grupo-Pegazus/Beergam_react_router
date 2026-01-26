@@ -522,9 +522,10 @@ export default function RelatorioVendasRoute() {
         const customWidths: Partial<Record<keyof Order, number>> = {
             sku: 150,
             mlb: 150,
-            date_created: 150,
+            date_created: 180,
             title: 200,
             pack_id: 150,
+            condition: 150,
         };
         
         // Colunas que podem ser ordenadas (sorting)
@@ -585,6 +586,7 @@ export default function RelatorioVendasRoute() {
                 data={transformedOrders}
                 columns={columns}
                 controlColumns
+                storageKey="orders"
                 pagination={pagination}
                 onLoadMore={hasMore ? loadMore : undefined}
                 isLoadingMore={isLoadingMore}
