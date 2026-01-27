@@ -1,9 +1,14 @@
 import { Avatar, Fade, Paper, Skeleton, TextField } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import toast from "~/src/utils/toast";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import Modal from "~/src/components/utils/Modal";
+import Upload from "~/src/components/utils/upload";
+import { chatService, createClaimAttachmentUploadService } from "../../service";
 import type { Chat, ChatMessage as ChatMessageType, Client } from "../../typings";
+import { ChatUserType } from "../../typings";
 import ChatMessage from "../ChatMessage";
 import ChatMessageSkeleton from "../ChatMessage/skeleton";
 import { ClientInfo } from "../ClientInfo";
@@ -125,8 +130,168 @@ export default function ChatArea({
     const [message, setMessage] = useState<string>("");
     const [showActions, setShowActions] = useState<boolean>(false);
     const [showClientModal, setShowClientModal] = useState<boolean>(false);
+    const [showUploadModal, setShowUploadModal] = useState<boolean>(false);
+    const [attachments, setAttachments] = useState<string[]>([]);
+    const [sendingMessages, setSendingMessages] = useState<Map<string, ChatMessageType>>(new Map());
+    const [isSending, setIsSending] = useState<boolean>(false);
     const actionRef = useRef<HTMLDivElement>(null);
+    const queryClient = useQueryClient();
     const randomSkeletonAmmount = useMemo(() => Math.floor(Math.random() * 10) + 2, [messages.length]);
+
+    // Cria uma chave única baseada no contexto atual (cliente, tipo de chat e pedido/reclamação)
+    const contextKey = useMemo(() => {
+        const clientId = client?.client_id || "no-client";
+        const orderOrClaimId = chatType === "pos_venda" ? activeOrderId : activeClaimId;
+        return `${clientId}-${chatType}-${orderOrClaimId || "none"}`;
+    }, [client?.client_id, chatType, activeOrderId, activeClaimId]);
+
+    // Limpa anexos e mensagem quando o contexto muda (cliente, tipo de chat ou pedido/reclamação)
+    // Também fecha o modal de upload para garantir que o componente seja resetado
+    useEffect(() => {
+        setAttachments([]);
+        setMessage("");
+        setShowUploadModal(false);
+    }, [contextKey]);
+
+    // Combina mensagens recebidas com mensagens sendo enviadas
+    const allMessages = useMemo(() => {
+        const combined: ChatMessageType[] = [...messages];
+        sendingMessages.forEach((msg) => {
+            combined.push(msg);
+        });
+        // Ordena por data de criação
+        return combined.sort((a, b) => {
+            const dateA = new Date(a.date_created).getTime();
+            const dateB = new Date(b.date_created).getTime();
+            return dateA - dateB;
+        });
+    }, [messages, sendingMessages]);
+
+    /**
+     * Envia uma mensagem para o chat atual.
+     * Cria uma mensagem temporária com status "sending", envia para o backend,
+     * e atualiza o status quando a resposta voltar.
+     */
+    const handleSendMessage = async () => {
+        if (!message.trim() || !sender || isSending) {
+            return;
+        }
+
+        const messageText = message.trim();
+        const tempId = `temp-${Date.now()}-${Math.random()}`;
+        const tempMessage: ChatMessageType = {
+            text: messageText,
+            user: ChatUserType.SENDER,
+            date_created: new Date().toISOString(),
+            status: "sending",
+            tempId,
+            attachments: attachments.length > 0 ? attachments.map((filename) => ({
+                id: filename,
+                original_filename: filename,
+                url: "",
+            })) : undefined,
+        };
+
+        // Adiciona mensagem temporária
+        setSendingMessages((prev) => {
+            const next = new Map(prev);
+            next.set(tempId, tempMessage);
+            return next;
+        });
+
+        setIsSending(true);
+        setMessage("");
+        const attachmentsToSend = [...attachments];
+        // Limpa anexos imediatamente para feedback visual
+        setAttachments([]);
+
+        try {
+            let response;
+            switch (chatType) {
+                case "pos_venda":
+                    if (!activeOrderId) {
+                        throw new Error("Order ID não encontrado");
+                    }
+                    response = await chatService.sendPosPurchaseMessage(
+                        activeOrderId,
+                        messageText,
+                        attachmentsToSend.length > 0 ? attachmentsToSend : undefined
+                    );
+                    break;
+                case "reclamacao":
+                    if (!activeClaimId) {
+                        throw new Error("Claim ID não encontrado");
+                    }
+                    response = await chatService.sendClaimMessage(
+                        activeClaimId,
+                        messageText,
+                        attachmentsToSend.length > 0 ? attachmentsToSend : undefined
+                    );
+                    break;
+                case "mediacao":
+                    if (!activeClaimId) {
+                        throw new Error("Claim ID não encontrado");
+                    }
+                    response = await chatService.sendMediationMessage(
+                        activeClaimId,
+                        messageText,
+                        attachmentsToSend.length > 0 ? attachmentsToSend : undefined
+                    );
+                    break;
+                default:
+                    throw new Error("Tipo de chat não suportado");
+            }
+
+            if (response.success) {
+                // Remove mensagem temporária
+                setSendingMessages((prev) => {
+                    const next = new Map(prev);
+                    next.delete(tempId);
+                    return next;
+                });
+
+                // Invalida queries para buscar mensagens atualizadas
+                switch (chatType) {
+                    case "pos_venda":
+                        queryClient.invalidateQueries({ queryKey: ["chat", "pos-purchase", activeOrderId] });
+                        break;
+                    case "reclamacao":
+                        queryClient.invalidateQueries({ queryKey: ["chat", "claim", activeClaimId] });
+                        break;
+                    case "mediacao":
+                        queryClient.invalidateQueries({ queryKey: ["chat", "mediation", activeClaimId] });
+                        break;
+                }
+
+                toast.success("Mensagem enviada com sucesso");
+                // Anexos já foram limpos e a mensagem foi enviada com sucesso, não precisa restaurar
+            } else {
+                throw new Error(response.message || "Erro ao enviar mensagem");
+            }
+        } catch (error) {
+            // Atualiza mensagem temporária com status de erro
+            setSendingMessages((prev) => {
+                const next = new Map(prev);
+                const errorMessage = next.get(tempId);
+                if (errorMessage) {
+                    next.set(tempId, {
+                        ...errorMessage,
+                        status: "error",
+                    });
+                }
+                return next;
+            });
+
+            // Restaura anexos em caso de erro para permitir nova tentativa
+            setAttachments(attachmentsToSend);
+
+            const errorMessage = error instanceof Error ? error.message : "Erro ao enviar mensagem";
+            toast.error(errorMessage);
+        } finally {
+            setIsSending(false);
+        }
+    };
+
     return (
         <div className="flex flex-col h-full overflow-hidden">
             <ChatHeader
@@ -200,40 +365,78 @@ export default function ChatArea({
                         <div className="absolute rounded-lg bottom-0 top-0 right-0 left-0 bg-black/50 z-50">
                         </div>
                     </Fade>
-                    {messages.length === 0 && !isLoading && (
+                    {allMessages.length === 0 && !isLoading && (
                         <div className="flex items-center justify-center h-full">
                             <p className="text-beergam-typography-primary!">Nenhuma mensagem encontrada</p>
                         </div>
                     )}
                     {isLoading && <><ChatMessageSkeleton ammount={randomSkeletonAmmount} /></>}
-                    {!isLoading && messages.length > 0 && (
+                    {!isLoading && allMessages.length > 0 && (
                         <>
-                            {messages.map((message, index) => (
-                                <ChatMessage key={`${message.user}-${message.date_created}-${index}`} message={message as ChatMessageType} />
-                            ))}
+                            {allMessages.map((message, index) => {
+                                const key = message.tempId || `${message.user}-${message.date_created}-${index}`;
+                                return <ChatMessage key={key} message={message as ChatMessageType} />;
+                            })}
                         </>
                     )}
                 </div>
-                {sender && !isLoading && <div className="p-2 sticky bottom-0 bg-beergam-menu-background/80! rounded-lg z-25 flex items-center gap-2">
-                    <TextField
-                        fullWidth
-                        placeholder="Digite sua mensagem..."
-                        value={message}
-                        disabled={!sender}
-                        sx={{
-                            "& .MuiInputBase-root": {
-                                backgroundColor: "var(--color-beergam-mui-paper)",
-                                borderColor: "transparent",
-                                outline: "none"
-                            },
-                        }}
-                        multiline
-                        onChange={(e) => setMessage(e.target.value)}
-                    />
-                    <BeergamButton
-                        icon={"arrow_uturn_right"}
-                        onClick={() => { }}
-                    />
+                {sender && !isLoading && <div className="p-2 sticky bottom-0 bg-beergam-menu-background/80! rounded-lg z-25 flex flex-col gap-2">
+                    {/* Anexos selecionados */}
+                    {attachments.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                            {attachments.map((filename, index) => (
+                                <div
+                                    key={index}
+                                    className="flex items-center gap-2 bg-beergam-section-background! px-2 py-1 rounded text-sm"
+                                >
+                                    <span className="text-beergam-typography-primary!">{filename}</span>
+                                    <BeergamButton
+                                        icon="x"
+                                        onClick={() => {
+                                            setAttachments((prev) => prev.filter((_, i) => i !== index));
+                                        }}
+                                        className="!p-1 !min-w-0"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    <div className="flex items-center gap-2">
+                        <TextField
+                            fullWidth
+                            placeholder="Digite sua mensagem..."
+                            value={message}
+                            disabled={!sender || isSending}
+                            sx={{
+                                "& .MuiInputBase-root": {
+                                    backgroundColor: "var(--color-beergam-mui-paper)",
+                                    borderColor: "transparent",
+                                    outline: "none"
+                                },
+                            }}
+                            multiline
+                            onChange={(e) => setMessage(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSendMessage();
+                                }
+                            }}
+                        />
+                        {/* Botão de anexo apenas para reclamação e mediação */}
+                        {(chatType === "reclamacao" || chatType === "mediacao") && activeClaimId && (
+                            <BeergamButton
+                                icon="clip"
+                                onClick={() => setShowUploadModal(true)}
+                                disabled={isSending}
+                            />
+                        )}
+                        <BeergamButton
+                            icon={"arrow_uturn_right"}
+                            onClick={handleSendMessage}
+                            disabled={!message.trim() || isSending || !sender}
+                        />
+                    </div>
                 </div>}
             </Paper>
 
@@ -247,6 +450,32 @@ export default function ChatArea({
             >
                 <ClientInfo client={client} />
             </Modal>
+
+            {/* Modal de upload de anexos (apenas para reclamação e mediação) */}
+            {/* Usa contextKey como key para forçar remount quando o contexto muda, resetando o estado interno do Upload */}
+            {(chatType === "reclamacao" || chatType === "mediacao") && activeClaimId && (
+                <Upload
+                    key={contextKey}
+                    title="Upload de Anexos"
+                    isOpen={showUploadModal}
+                    onClose={() => setShowUploadModal(false)}
+                    typeImport="external"
+                    service={createClaimAttachmentUploadService(activeClaimId)}
+                    marketplace="meli"
+                    maxFiles={5}
+                    accept="image/jpeg,image/jpg,image/png,application/pdf"
+                    emptyStateLabel="Arraste e solte ou clique para selecionar arquivos (JPG, PNG ou PDF)"
+                    draggingLabel="Solte para iniciar o upload"
+                    onUploadSuccess={(ids) => {
+                        setAttachments((prev) => [...prev, ...ids]);
+                        setShowUploadModal(false);
+                        toast.success(`${ids.length} arquivo(s) anexado(s) com sucesso`);
+                    }}
+                    onError={(error) => {
+                        toast.error(error.message || "Erro ao fazer upload do anexo");
+                    }}
+                />
+            )}
         </div>
     );
 }

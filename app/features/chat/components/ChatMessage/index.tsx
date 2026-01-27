@@ -48,6 +48,8 @@ export default function ChatMessage({ message }: { message: ChatMessage }) {
                     py-3
                     rounded-lg
                     border
+                    ${message.status === "sending" ? "opacity-70" : ""}
+                    ${message.status === "error" ? "border-red-500!" : ""}
                     ${isSystem
                         ? "bg-beergam-gray! border-beergam-input-border!"
                         : isSender
@@ -98,8 +100,17 @@ export default function ChatMessage({ message }: { message: ChatMessage }) {
                     </div>
                 )}
 
-                {/* Timestamp */}
-                <div className="flex justify-end mt-1">
+                {/* Timestamp e Status */}
+                <div className="flex justify-end items-center gap-2 mt-1">
+                    {message.status === "sending" && (
+                        <div className="flex items-center gap-1">
+                            <div className="w-3 h-3 border-2 border-beergam-typography-tertiary! border-t-transparent rounded-full animate-spin" />
+                            <span className="text-xs text-beergam-typography-tertiary!">Enviando...</span>
+                        </div>
+                    )}
+                    {message.status === "error" && (
+                        <span className="text-xs text-red-500!">Erro ao enviar</span>
+                    )}
                     <p
                         className={`
                             text-xs
