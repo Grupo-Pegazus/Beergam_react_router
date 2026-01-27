@@ -680,11 +680,10 @@ export default function Upload<ResponseSchema = unknown>(
     () => (
       <section className="flex w-full flex-col gap-4">
         <div
-          className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
-            isDragging
-              ? "border-beergam-blue-primary bg-beergam-blue-primary/5"
-              : "border-beergam-gray-200 hover:border-beergam-blue-primary"
-          } ${availableSlots === 0 ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
+          className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 text-center transition-colors ${isDragging
+            ? "border-beergam-blue-primary bg-beergam-blue-primary/5"
+            : "border-beergam-gray-200 hover:border-beergam-blue-primary"
+            } ${availableSlots === 0 ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}

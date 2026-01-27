@@ -215,10 +215,10 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
     const lucroFinal = allOrdersCancelled
       ? 0
       : totalsP.totalLiquido -
-        custoProduto -
-        custoEmbalagem -
-        custosExtras -
-        impostos;
+      custoProduto -
+      custoEmbalagem -
+      custosExtras -
+      impostos;
 
     return {
       precoProdutos,
@@ -312,7 +312,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
     clientDocFinal === firstOrder.buyer_id
       ? "Buyer ID"
       : firstOrder.client?.receiver_document?.id ||
-        (clientDocFinal.replace(/\D/g, "").length === 14 ? "CNPJ" : "CPF");
+      (clientDocFinal.replace(/\D/g, "").length === 14 ? "CNPJ" : "CPF");
 
   // Get logistic type status and colors
   const logisticTypeInfo = getLogisticTypeMeliInfo(
@@ -348,6 +348,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
               name={clientNameFinal}
               doc={clientDocFinal}
               docType={clientDocType}
+              orderId={firstOrder.order_id}
             />
 
             {/* Shipping Summary */}

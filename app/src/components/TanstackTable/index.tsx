@@ -170,7 +170,6 @@ const ColumnVisibilityControl = memo(function ColumnVisibilityControl<TData>({
         icon="list_bullet"
         onClick={handleOpenPopover}
       />
-
       <Popover
         open={isPopoverOpen}
         anchorEl={anchorEl}
@@ -308,6 +307,8 @@ interface TanstackTableProps<TData> {
   error?: unknown;
   /** Chave única para salvar configurações de visibilidade no localStorage (ex: 'orders', 'products') */
   storageKey?: string;
+  /** Indica se está exportando para Excel (default: false) */
+  exportToExcel?: boolean;
 }
 
 export default function TanstackTable<TData>({
@@ -315,7 +316,7 @@ export default function TanstackTable<TData>({
   error,
   data,
   columns,
-  height = 400,
+  height: heightProp,
   estimateRowHeight = 35,
   overscan = 5,
   minColumnWidth = 80,
@@ -334,7 +335,24 @@ export default function TanstackTable<TData>({
   contextMenuComponent,
   additionalControls,
   storageKey,
+  exportToExcel = false,
 }: TanstackTableProps<TData>) {
+  // Calcula altura como 60% da tela se não for passada como prop
+  const [screenHeight, setScreenHeight] = useState(() => 
+    typeof window !== 'undefined' ? Math.floor(window.innerHeight * 0.62) : 600
+  );
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenHeight(Math.floor(window.innerHeight * 0.62));
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  const height = heightProp ?? screenHeight;
+
   // Debug: contador de renders
   const renderCount = useRef(0);
   renderCount.current++;
@@ -453,7 +471,7 @@ export default function TanstackTable<TData>({
       {/* Debug info */}
       {process.env.NODE_ENV === 'development' && (
         <>
-        <p className="text-xs text-gray-500 mb-2">
+        <p className="text-xs text-gray-500 mb-2 hidden">
           🔍 Render #{renderCount.current} | Total: {data.length} rows | Virtual: {virtualRows.length} rows
         </p>
         </>
@@ -463,6 +481,13 @@ export default function TanstackTable<TData>({
       <div className="flex items-center justify-end gap-4 mb-2">
       {additionalControls && Array.isArray(additionalControls) && <>{additionalControls.map((control) => control)}</>}
       {controlColumns && <ColumnVisibilityControl table={table} columnVisibility={columnVisibility} />}
+      {exportToExcel && <BeergamButton
+      disabled
+        title="Exportar Planilha"
+        icon="excel"
+        mainColor='beergam-green'
+        // onClick={handleExportToExcel}
+      />}
       </div>
       {/* Container scrollável */}
 <AsyncBoundary isLoading={isLoading} error={error as unknown} Skeleton={() => <TanstackTableSkeleton rows={15} columns={15} />} ErrorFallback={() => <p>erro ao carregar a tabela</p>}>

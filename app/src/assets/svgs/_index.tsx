@@ -36,6 +36,7 @@ import DocumentGlassSolid from "./DocumentGlassSolid";
 import DocumentIcon from "./DocumentIcon";
 import DollyIcon from "./DollyIcon";
 import ElipsisHorizontal from "./ElipsisHorizontal";
+import Excel from "./Excel";
 import Eye from "./Eye";
 import EyeSlash from "./EyeSlash";
 import GlobeIcon from "./GlobeIcon";
@@ -79,7 +80,9 @@ import UserPlusSolid from "./UserPlusSolid";
 import WarningCircle from "./WarningCircle";
 import X from "./X";
 import XCircle from "./XCircle";
+import Clip from "./Clip";
 const Svg = {
+  excel: Excel,
   home: HomeIcon,
   home_solid: HomeSolid,
   bag: BagIcon,
@@ -161,6 +164,7 @@ const Svg = {
   chevron_up_and_down: ChevronUpAndDown,
   minus_circle: MinusCircle,
   adjustments_horizontal_solid: AdjustmentsHorizontalSolid,
+  clip: Clip,
 };
 
 export default Svg;

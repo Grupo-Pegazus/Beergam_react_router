@@ -586,6 +586,7 @@ export default function RelatorioVendasRoute() {
                 data={transformedOrders}
                 columns={columns}
                 controlColumns
+                exportToExcel
                 storageKey="orders"
                 pagination={pagination}
                 onLoadMore={hasMore ? loadMore : undefined}
