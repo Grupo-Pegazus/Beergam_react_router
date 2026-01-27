@@ -252,11 +252,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <DarkModeThemeProvider>
           <ThemeProvider theme={muiTheme}>
-          {pathname.includes("/interno") && (
-            <p className="fixed bottom-2 left-2 z-[999999] text-[10px] text-beergam-white! opacity-50 hover:opacity-100 transition-opacity select-none pointer-events-none">
-              v{packageJson.version}
-            </p>
-          )}
+            {pathname.includes("/interno") && (
+              <p className="fixed bottom-2 left-2 z-999999 text-[10px] text-beergam-white! opacity-50 hover:opacity-100 transition-opacity select-none pointer-events-none">
+                v{packageJson.version}
+              </p>
+            )}
             {children}</ThemeProvider>
         </DarkModeThemeProvider>
         <ScrollRestoration />
