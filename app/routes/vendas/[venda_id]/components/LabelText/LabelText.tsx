@@ -17,10 +17,10 @@ function LabelText({
 }: LabelTextProps) {
   return (
     <div className="flex gap-[0.3rem] mb-[5px]" style={style}>
-      <p className="font-bold text-[#11263c]" style={styleLabel}>
+      <p className="text-sm font-semibold text-beergam-typography-primary" style={styleLabel}>
         {label}:
       </p>
-      <p style={styleValue}>{text}</p>
+      <p className="text-sm font-medium text-beergam-typography-primary" style={styleValue}>{text}</p>
     </div>
   );
 }

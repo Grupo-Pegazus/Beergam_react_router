@@ -62,7 +62,7 @@ function VendaSummary({ img, name, doc, docType, orderId }: VendaSummaryProps) {
         )}
 
         <div className="border-l border-beergam-section-border! pl-[10px]">
-          <p className="font-semibold">{name}</p>
+          <p className="text-sm font-semibold text-beergam-typography-primary">{name}</p>
           <p className="text-beergam-typography-secondary!">
             {tipoDocumento}: {docFormatado}
           </p>

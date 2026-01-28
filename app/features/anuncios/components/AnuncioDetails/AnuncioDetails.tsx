@@ -1,6 +1,10 @@
 import { Alert, Box, Stack } from "@mui/material";
 import { useMemo } from "react";
-import { useAnuncioDetails } from "../../hooks";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import AlertModal from "~/src/components/utils/Alert";
+import type { ModalOptions } from "~/src/components/utils/Modal/ModalContext";
+import { useModal } from "~/src/components/utils/Modal/useModal";
+import { useAdsReprocessQuota, useAnuncioDetails, useReprocessAds } from "../../hooks";
 import AnuncioDetailsSkeleton from "./AnuncioDetailsSkeleton";
 import AnuncioInfo from "./AnuncioInfo/AnuncioInfo";
 import FinancialMetrics from "./FinancialMetrics/FinancialMetrics";
@@ -21,10 +25,15 @@ interface AnuncioDetailsProps {
  */
 export default function AnuncioDetails({ anuncioId }: AnuncioDetailsProps) {
   const { data, isLoading, error } = useAnuncioDetails(anuncioId);
+  const { data: quotaData } = useAdsReprocessQuota();
+  const reprocessMutation = useReprocessAds();
+  const { openModal, closeModal } = useModal();
 
   const anuncio = useMemo(() => {
     return data?.data;
   }, [data]);
+
+  const remainingQuota = quotaData?.success ? quotaData.data?.remaining ?? 0 : 0;
 
   if (isLoading) {
     return <AnuncioDetailsSkeleton />;
@@ -46,6 +55,69 @@ export default function AnuncioDetails({ anuncioId }: AnuncioDetailsProps) {
 
   return (
     <Stack spacing={3}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: 2,
+          alignItems: { xs: "stretch", md: "center" },
+          justifyContent: "space-between",
+          p: 2,
+          borderRadius: 2,
+          border: "1px solid rgba(148, 163, 184, 0.25)",
+          backgroundColor: "rgba(148, 163, 184, 0.08)",
+        }}
+      >
+        <div>
+          <p className="text-sm font-semibold text-beergam-typography-primary">
+            Reprocessamento
+          </p>
+          <p className="text-xs text-beergam-typography-secondary">
+            Cota disponível: {remainingQuota} (mês atual)
+          </p>
+        </div>
+
+        <BeergamButton
+          title={reprocessMutation.isPending ? "Reprocessando..." : "Reprocessar anúncio"}
+          mainColor="beergam-orange"
+          animationStyle="slider"
+          loading={reprocessMutation.isPending}
+          disabled={reprocessMutation.isPending || remainingQuota <= 0}
+          onClick={() => {
+            if (remainingQuota <= 0) {
+              return;
+            }
+            const options: ModalOptions = {
+              title: "Confirmar reprocessamento do anúncio",
+            };
+
+            openModal(
+              <AlertModal
+                type="info"
+                confirmText="Reprocessar"
+                onClose={closeModal}
+                onConfirm={() => {
+                  reprocessMutation.mutate([anuncioId]);
+                }}
+              >
+                <h3 className="text-lg font-semibold text-beergam-typography-primary mb-2">
+                  Deseja reprocessar o anúncio <span className="font-mono">#{anuncioId}</span>?
+                </h3>
+                <p className="text-sm text-beergam-typography-secondary mb-2">
+                  Isso irá buscar novamente os dados no Mercado Livre e atualizar o anúncio aqui no Beergam.
+                </p>
+                <p className="text-xs text-beergam-typography-secondary">
+                  Cota mensal: <strong>{quotaData?.data?.limit ?? 0}</strong> | Usados:{" "}
+                  <strong>{quotaData?.data?.used ?? 0}</strong> | Restantes:{" "}
+                  <strong>{remainingQuota}</strong>.
+                </p>
+              </AlertModal>,
+              options
+            );
+          }}
+        />
+      </Box>
+
       {/* Seção de Update SKU */}
       <UpdateSkuSection anuncio={anuncio} />
 
