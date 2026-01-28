@@ -2,6 +2,8 @@ import AdjustmentsHorizontalSolid from "./AdjustmentsHorizontalSolid";
 import AlertIcon from "./AlertIcon";
 import ArrowLongRight from "./ArrowLongRight";
 import ArrowPathIcon from "./ArrowPathIcon";
+import ArrowTrendingDown from "./ArrowTrendingDown";
+import ArrowTrendingUp from "./ArrowTrendingUp";
 import ArrowUturnLeft from "./ArrowUturnLeft";
 import ArrowUturnRight from "./ArrowUturnRight";
 import BagIcon from "./BagIcon";
@@ -67,6 +69,7 @@ import Profile from "./Profile";
 import ProfileSolid from "./ProfileSolid";
 import Question from "./Question";
 import QuestionMark from "./QuestionMark";
+import RocketLaunch from "./RocketLaunch";
 import Square3StackSolid from "./Square3StackSolid";
 import Squares2x2Solid from "./Squares2x2Solid";
 import Star from "./Star";
@@ -74,6 +77,7 @@ import StarSolid from "./StarSolid";
 import Sun from "./Sun";
 import Trash from "./Trash";
 import Truck from "./Truck";
+import TruckSolid from "./TruckSolid";
 import User from "./User";
 import UserPlus from "./UserPlus";
 import UserPlusSolid from "./UserPlusSolid";
@@ -163,6 +167,10 @@ const Svg = {
   chevron_up_and_down: ChevronUpAndDown,
   minus_circle: MinusCircle,
   adjustments_horizontal_solid: AdjustmentsHorizontalSolid,
+  truck_solid: TruckSolid,
+  arrow_trending_down: ArrowTrendingDown,
+  arrow_trending_up: ArrowTrendingUp,
+  rocket_launch: RocketLaunch,
 };
 
 export default Svg;
