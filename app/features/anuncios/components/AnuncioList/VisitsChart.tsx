@@ -46,7 +46,7 @@ export default function VisitsChart({ visits }: VisitsChartProps) {
   }
 
   return (
-    <div className="h-24 w-full">
+    <div className="h-24 w-full min-w-0" style={{ minHeight: 96 }}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={chartData}

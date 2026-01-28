@@ -70,8 +70,8 @@ export default function VisitsChart({ visits }: VisitsChartProps) {
           </Typography>
         </div>
       </Box>
-      <Box sx={{ height: 250, width: "100%" }}>
-        <ResponsiveContainer width="100%" height="100%">
+      <Box sx={{ height: 250, width: "100%", minWidth: 0, minHeight: 1 }}>
+        <ResponsiveContainer width="100%" height="100%" minHeight={250}>
           <LineChart
             data={chartData}
             margin={{

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ApiResponse } from "../apiClient/typings";
 import { vendasService } from "./service";
@@ -10,8 +10,11 @@ import type {
   OrdersFilters,
   OrdersMetrics,
   OrdersResponse,
+  ReprocessOrdersResponse,
+  ReprocessQuota,
   TopCategories,
 } from "./typings";
+import toast from "~/src/utils/toast";
 
 export function useOrders(filters?: Partial<OrdersFilters>) {
   return useQuery<ApiResponse<import("./typings").OrdersResponse>>({
@@ -249,6 +252,49 @@ export function useOrderDetails(orderIdOrPackId: string) {
     },
     enabled: !!orderIdOrPackId,
     staleTime: 1000 * 60 * 5, // 5 minutos
+  });
+}
+
+export function useOrdersReprocessQuota() {
+  return useQuery<ApiResponse<ReprocessQuota>>({
+    queryKey: ["orders", "reprocess", "quota"],
+    queryFn: async () => {
+      const res = await vendasService.getReprocessQuota();
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar cota de reprocessamento de pedidos");
+      }
+      return res;
+    },
+    staleTime: 1000 * 30, // 30s
+  });
+}
+
+export function useReprocessOrders() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (orderIds: string[]) => {
+      const res = await vendasService.reprocessOrders(orderIds);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao reprocessar pedidos");
+      }
+      return res as ApiResponse<ReprocessOrdersResponse>;
+    },
+    onSuccess: (res, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      // Detalhes podem ser order_id ou pack_id; invalidamos por segurança os detalhes dos ids passados.
+      variables.forEach((id) => {
+        queryClient.invalidateQueries({ queryKey: ["orders", "details", id] });
+      });
+      queryClient.invalidateQueries({ queryKey: ["orders", "reprocess", "quota"] });
+
+      const total = res.data?.total_reprocessed ?? 0;
+      toast.success(`Reprocessamento concluído (${total} reprocessado(s)).`);
+    },
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "Erro ao reprocessar pedidos";
+      toast.error(message);
+    },
   });
 }
 
