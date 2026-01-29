@@ -6,6 +6,11 @@ import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 import CopyButton from "~/src/components/ui/CopyButton";
 import MainCards from "~/src/components/ui/MainCards";
 import BeergamButton from "~/src/components/utils/BeergamButton";
+import {
+  CensorshipWrapper,
+  TextCensored,
+  useCensorship,
+} from "~/src/components/utils/Censorship";
 import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
 import { getStatusOrderMeliInfo } from "~/src/constants/status-order-meli";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
@@ -32,6 +37,8 @@ export default function OrderPackage({
   isReprocessing,
   remainingQuota,
 }: OrderPackageProps) {
+  const { isCensored } = useCensorship();
+  const censored = isCensored("vendas_orders_list");
   const [isPackageExpanded, setIsPackageExpanded] = useState(false);
 
   // Usa o primeiro pedido para informações do pacote (todos têm o mesmo pack_id)
@@ -120,7 +127,8 @@ export default function OrderPackage({
 
   return (
     <MainCards className="p-3 md:p-4 w-full min-w-0">
-      <div className="flex flex-col gap-2 w-full min-w-0">
+      <CensorshipWrapper censorshipKey="vendas_orders_list" canChange={false}>
+        <div className="flex flex-col gap-2 w-full min-w-0">
         {/* Header: Pack ID e Data */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
           <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
@@ -177,21 +185,35 @@ export default function OrderPackage({
           {firstOrder.buyer_nickname && (
             <div className="flex items-center gap-1.5 md:gap-2">
               <Svg.profile tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4 text-beergam-typography-secondary!" />
-              <Typography
-                variant="body2"
-                className="text-slate-900 text-sm md:text-base"
+              <TextCensored
+                forceCensor={censored}
+                censorshipKey="vendas_orders_list"
+                replacement="*"
               >
-                {firstOrder.buyer_nickname} - {firstOrder.client?.receiver_name}
-              </Typography>
+                <Typography
+                  variant="caption"
+                  className="text-beergam-typography-primary! text-sm md:text-base"
+                >
+                  {firstOrder.buyer_nickname}{" "}
+                  {firstOrder.client?.receiver_name &&
+                    `- ${firstOrder.client?.receiver_name}`}
+                </Typography>
+              </TextCensored>
               {firstOrder.buyer_id && (
                 <>
                   <span className="text-slate-300 hidden md:inline">|</span>
-                  <Typography
-                    variant="caption"
-                    className="text-xs md:text-sm text-beergam-typography-secondary!"
+                  <TextCensored
+                    forceCensor={censored}
+                    censorshipKey="vendas_orders_list"
+                    replacement="*"
                   >
-                    {firstOrder.buyer_id}
-                  </Typography>
+                    <Typography
+                      variant="caption"
+                      className="text-xs md:text-sm text-beergam-typography-secondary!"
+                    >
+                      {firstOrder.buyer_id}
+                    </Typography>
+                  </TextCensored>
                 </>
               )}
             </div>
@@ -226,15 +248,18 @@ export default function OrderPackage({
               />
             </div>
             {/* Informação de entrega */}
-            {deliveryInfo && (
+            {(firstOrder.shipment_status || deliveryInfo) && (
               <div className="mt-1 md:mt-2">
-                <Typography
-                  variant="caption"
-                  fontWeight={400}
-                  className="text-beergam-typography-secondary! text-xs md:text-sm"
-                >
-                  {deliveryInfo.label} {deliveryInfo.date}
-                </Typography>
+                {deliveryInfo && (
+                  <Typography
+                    variant="caption"
+                    fontWeight={400}
+                    className="text-beergam-typography-secondary! text-xs md:text-sm"
+                  >
+                    {censored ? "************" : deliveryInfo.label}{" "}
+                    {censored ? "****" : deliveryInfo.date}
+                  </Typography>
+                )}
               </div>
             )}
           </div>
@@ -356,7 +381,8 @@ export default function OrderPackage({
             ))}
           </Stack>
         )}
-      </div>
+        </div>
+      </CensorshipWrapper>
     </MainCards>
   );
 }
