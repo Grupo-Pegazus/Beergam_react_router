@@ -71,6 +71,26 @@ export const VariationsFieldsSchema = z.object({
   variations: z.array(z.any()).optional(),
 });
 
+/** Verifica se alguma variação tem atributos com o mesmo nome (ex.: duas COR). */
+export function hasDuplicateAttributeNamesInVariations(
+  variations: Array<{ attributes?: Array<{ name?: string }> }> | undefined
+): { valid: boolean; variationIndex?: number; message?: string } {
+  if (!variations?.length) return { valid: true };
+  for (let i = 0; i < variations.length; i++) {
+    const attrs = variations[i]?.attributes ?? [];
+    const names = attrs.map((a) => (a?.name ?? "").trim()).filter(Boolean);
+    const unique = new Set(names);
+    if (names.length !== unique.size) {
+      return {
+        valid: false,
+        variationIndex: i,
+        message: `A variação ${i + 1} não pode ter o mesmo atributo mais de uma vez. Ex.: não pode ter COR com azul e COR com verde na mesma variação.`,
+      };
+    }
+  }
+  return { valid: true };
+}
+
 // Schema para validação do step de Extras (apenas completo)
 export const ExtrasFieldsSchema = z.object({
   product: z.object({
@@ -121,9 +141,16 @@ export function validateStep(
     case "images":
       // Imagens não são obrigatórias, então sempre válido
       return { isValid: true, errors: {} };
-    case "variations":
-      // Variações são opcionais, então sempre válido
+    case "variations": {
+      const dup = hasDuplicateAttributeNamesInVariations(
+        (data as { variations?: Array<{ attributes?: Array<{ name?: string }> }> })
+          ?.variations
+      );
+      if (!dup.valid && dup.message) {
+        return { isValid: false, errors: { variations: dup.message } };
+      }
       return { isValid: true, errors: {} };
+    }
     default:
       return { isValid: true, errors: {} };
   }

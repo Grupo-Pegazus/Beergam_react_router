@@ -143,7 +143,7 @@ export default function OrderCard({ order, onReprocess, isReprocessing, remainin
                     variant="caption"
                     className="text-beergam-typography-primary! text-sm md:text-base"
                   >
-                    {order.buyer_nickname} - {order.client?.receiver_name}
+                    {order.buyer_nickname} {order.client?.receiver_name && `- ${order.client?.receiver_name}`}
                   </Typography>
                 </TextCensored>
 

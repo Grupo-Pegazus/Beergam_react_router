@@ -28,6 +28,7 @@ import AnuncioListSkeleton from "./AnuncioListSkeleton";
 import VariationsList from "./Variations/VariationsList";
 import VisitsChart from "./VisitsChart";
 import { formatCurrency, formatNumber } from "./utils";
+import { formatDate } from "~/features/agendamentos/utils";
 
 interface AnunciosListProps {
   filters?: Partial<AdsFilters>;
@@ -365,12 +366,34 @@ function AnuncioCard({
                   />
                 )}
               </div>
-              <Typography
-                variant="caption"
-                className="text-beergam-typography-secondary!"
-              >
-                {anuncio.stock} em estoque
-              </Typography>
+              <div className="flex flex-col items-start gap-2">
+                <div className="flex items-center gap-2">
+                  <Typography variant="caption" className="text-beergam-typography-secondary!">
+                    Data de criação: {formatDate(anuncio.date_created_ad)}
+                  </Typography>
+                  <Typography variant="caption" className="text-beergam-typography-secondary!">
+                    Dias ativo: {anuncio.active_days}
+                  </Typography>
+                </div>
+                <Typography variant="caption" className="text-beergam-typography-secondary!">
+                  {anuncio.stock} em estoque
+                </Typography>
+                <div>
+                  <Typography variant="caption" className="text-beergam-typography-secondary!">
+                    {anuncio.item_relations && anuncio.item_relations.length > 0 && (
+                      <div className="flex items-center gap-2">
+                        <Svg.clip tailWindClasses="h-4 w-4" /> Sincronizado com{" "}
+                        {anuncio.item_relations.map((rel, idx) => (
+                          <span key={rel.id} className="font-mono">
+                            {rel.id}
+                            {idx < anuncio.item_relations!.length - 1 && ", "}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </Typography>
+                </div>
+              </div>
             </div>
           </div>
           {anuncio.visits && anuncio.visits.length > 0 && (
@@ -397,12 +420,6 @@ function AnuncioCard({
         {/* Coluna do Meio: Vendas e Preço */}
         <div className="col-span-12 md:col-span-4 space-y-2">
           <div>
-            <Typography
-              variant="caption"
-              className="text-beergam-typography-secondary!"
-            >
-              Vendas e visitas
-            </Typography>
             <TextCensored censorshipKey="anuncios_list">
               <Typography
                 variant="body2"

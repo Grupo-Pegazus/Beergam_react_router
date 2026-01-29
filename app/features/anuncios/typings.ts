@@ -161,9 +161,9 @@ export const VisitSchema = z.object({
 
 const ItemRelationSchema = z.object({
   id: z.string(),
-  variation_id: z.string(),
+  variation_id: z.string().nullable().optional(),
   stock_relation: z.number(),
-})
+});
 
 // Schema principal do anúncio
 export const AnuncioSchema = z.object({
