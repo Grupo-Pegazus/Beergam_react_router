@@ -10,9 +10,12 @@ import HomeSummary from "~/features/summary/components/HomeSummary";
 import VendasResumo from "~/features/vendas/components/VendasResumo/VendasResumo";
 import Grid from "~/src/components/ui/Grid";
 import Section from "~/src/components/ui/Section";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 import { CensorshipWrapper } from "~/src/components/utils/Censorship";
+import { useNavigate } from "react-router";
 
 export default function InicioPage() {
+  const navigate = useNavigate();
   return (
     <>
       <CensorshipWrapper controlChildren censorshipKey="home_summary">
@@ -42,12 +45,34 @@ export default function InicioPage() {
         <ProdutosMetricasCards />
       </Section>
       <CensorshipWrapper controlChildren censorshipKey="perguntas_sla">
-        <Section title="Perguntas e SLA">
+        <Section
+          title="Perguntas e SLA"
+          actions={
+            <BeergamButton
+              title="Ver mais"
+              animationStyle="slider"
+              icon="arrow_uturn_right"
+              onClick={() => {
+                navigate("atendimento/mercado_livre/perguntas");
+              }}
+            />
+          }
+
+        >
           <QuestionsOverviewHome />
         </Section>
       </CensorshipWrapper>
       <CensorshipWrapper controlChildren censorshipKey="reclamacoes_resumo">
-        <Section title="Resumo de Reclamações">
+        <Section title="Resumo de Reclamações" actions={
+          <BeergamButton
+            title="Ver mais"
+            animationStyle="slider"
+            icon="arrow_uturn_right"
+            onClick={() => {
+              navigate("atendimento/mercado_livre/reclamacoes");
+            }}
+          />
+        }>
           <ClaimsOverviewHome />
         </Section>
       </CensorshipWrapper>
