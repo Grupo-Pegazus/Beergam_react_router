@@ -12,10 +12,8 @@ import Grid from "~/src/components/ui/Grid";
 import Section from "~/src/components/ui/Section";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { CensorshipWrapper } from "~/src/components/utils/Censorship";
-import { useNavigate } from "react-router";
 
 export default function InicioPage() {
-  const navigate = useNavigate();
   return (
     <>
       <CensorshipWrapper controlChildren censorshipKey="home_summary">
@@ -49,12 +47,10 @@ export default function InicioPage() {
           title="Perguntas e SLA"
           actions={
             <BeergamButton
+              link="atendimento/mercado_livre/perguntas"
               title="Ver mais"
               animationStyle="slider"
               icon="arrow_uturn_right"
-              onClick={() => {
-                navigate("atendimento/mercado_livre/perguntas");
-              }}
             />
           }
 
@@ -65,12 +61,10 @@ export default function InicioPage() {
       <CensorshipWrapper controlChildren censorshipKey="reclamacoes_resumo">
         <Section title="Resumo de Reclamações" actions={
           <BeergamButton
+            link="atendimento/mercado_livre/reclamacoes"
             title="Ver mais"
             animationStyle="slider"
             icon="arrow_uturn_right"
-            onClick={() => {
-              navigate("atendimento/mercado_livre/reclamacoes");
-            }}
           />
         }>
           <ClaimsOverviewHome />

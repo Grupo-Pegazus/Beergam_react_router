@@ -1,8 +1,10 @@
 import { Stack, Typography } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
 import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import PaginationBar from "~/src/components/ui/PaginationBar";
+import { usePageFromSearchParams } from "~/src/hooks/usePageFromSearchParams";
 import { useProducts } from "../../hooks";
 import type { Product, ProductsFilters } from "../../typings";
 import ProductListSkeleton from "./ProductListSkeleton";
@@ -10,23 +12,28 @@ import ProductTable from "./ProductTable";
 
 interface ProductListProps {
   filters?: Partial<ProductsFilters>;
+  /** Quando true, a página é lida/escrita na URL (`?page=N`). @default false */
+  syncPageWithUrl?: boolean;
 }
 
-export default function ProductList({ filters = {} }: ProductListProps) {
+export default function ProductList({ filters = {}, syncPageWithUrl = false }: ProductListProps) {
   const [page, setPage] = useState(filters.page ?? 1);
   const [perPage, setPerPage] = useState(filters.per_page ?? 20);
 
   useEffect(() => {
-    setPage(filters.page ?? 1);
-  }, [filters.page]);
+    if (!syncPageWithUrl) setPage(filters.page ?? 1);
+  }, [filters.page, syncPageWithUrl]);
 
   useEffect(() => {
     setPerPage(filters.per_page ?? 20);
   }, [filters.per_page]);
 
+  const { page: pageFromUrl } = usePageFromSearchParams();
+  const effectivePage = syncPageWithUrl ? pageFromUrl : page;
+
   const { data, isLoading, error } = useProducts({
     ...filters,
-    page,
+    page: effectivePage,
     per_page: perPage,
   });
 
@@ -39,8 +46,21 @@ export default function ProductList({ filters = {} }: ProductListProps) {
   const totalPages = pagination?.total_pages ?? 1;
   const totalCount = pagination?.total_count ?? products.length;
 
+  const [, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (!syncPageWithUrl || isLoading || totalPages < 1 || pageFromUrl <= totalPages) return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("page", String(totalPages));
+        return next;
+      },
+      { replace: true }
+    );
+  }, [syncPageWithUrl, isLoading, totalPages, pageFromUrl, setSearchParams]);
+
   const handlePageChange = (nextPage: number) => {
-    setPage(nextPage);
+    if (!syncPageWithUrl) setPage(nextPage);
   };
 
   return (
@@ -76,7 +96,7 @@ export default function ProductList({ filters = {} }: ProductListProps) {
         </AsyncBoundary>
       </div>
       <PaginationBar
-        page={page}
+        page={Math.min(effectivePage, Math.max(1, totalPages))}
         totalPages={totalPages}
         totalCount={totalCount}
         entityLabel="produtos"
@@ -84,6 +104,7 @@ export default function ProductList({ filters = {} }: ProductListProps) {
         scrollOnChange
         scrollTargetId="products-list"
         isLoading={isLoading}
+        syncWithUrl={syncPageWithUrl}
       />
     </>
   );

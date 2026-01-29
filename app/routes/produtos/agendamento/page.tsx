@@ -49,6 +49,7 @@ export default function AgendamentoPage() {
 
           <SchedulingList
             filters={filters}
+            syncPageWithUrl
             onView={(id) => setViewingSchedulingId(id)}
             onEdit={(id) => setViewingSchedulingId(id)}
             onCancel={(id) => setCancellingSchedulingId(id)}

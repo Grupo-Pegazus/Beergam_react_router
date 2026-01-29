@@ -10,10 +10,12 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
 import Loading from "~/src/assets/loading";
 import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import PaginationBar from "~/src/components/ui/PaginationBar";
+import { usePageFromSearchParams } from "~/src/hooks/usePageFromSearchParams";
 import { useSchedulings } from "../../hooks";
 import type { SchedulingFilters, SchedulingList } from "../../typings";
 import SchedulingCard from "./SchedulingCard";
@@ -21,6 +23,11 @@ import SchedulingTableRow from "./SchedulingTableRow";
 
 interface SchedulingListProps {
   filters?: Partial<SchedulingFilters>;
+  /**
+   * Quando true, a página é lida/escrita na URL (`?page=N`). Útil para links diretos e voltar/avançar.
+   * @default false
+   */
+  syncPageWithUrl?: boolean;
   onView?: (id: string) => void;
   onEdit?: (id: string) => void;
   onCancel?: (id: string) => void;
@@ -29,6 +36,7 @@ interface SchedulingListProps {
 
 export default function SchedulingList({
   filters = {},
+  syncPageWithUrl = false,
   onView,
   onEdit,
   onCancel,
@@ -38,16 +46,20 @@ export default function SchedulingList({
   const [perPage, setPerPage] = useState(filters.per_page ?? 20);
 
   useEffect(() => {
-    setPage(filters.page ?? 1);
-  }, [filters.page]);
+    if (!syncPageWithUrl) setPage(filters.page ?? 1);
+  }, [filters.page, syncPageWithUrl]);
 
   useEffect(() => {
     setPerPage(filters.per_page ?? 20);
   }, [filters.per_page]);
 
+  const { page: pageFromUrl } = usePageFromSearchParams();
+
+  const effectivePage = syncPageWithUrl ? pageFromUrl : page;
+
   const { data, isLoading, error } = useSchedulings({
     ...filters,
-    page,
+    page: effectivePage,
     per_page: perPage,
   });
 
@@ -60,8 +72,28 @@ export default function SchedulingList({
   const totalPages = pagination?.total_pages ?? 1;
   const totalCount = pagination?.total_count ?? schedulings.length;
 
+  const [, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (
+      !syncPageWithUrl ||
+      isLoading ||
+      totalPages < 1 ||
+      pageFromUrl <= totalPages
+    )
+      return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("page", String(totalPages));
+        return next;
+      },
+      { replace: true }
+    );
+  }, [syncPageWithUrl, isLoading, totalPages, pageFromUrl, setSearchParams]);
+
   const handlePageChange = (nextPage: number) => {
-    setPage(nextPage);
+    if (!syncPageWithUrl) setPage(nextPage);
   };
 
   return (
@@ -140,11 +172,12 @@ export default function SchedulingList({
         )}
 
         <PaginationBar
-          page={page}
+          page={Math.min(effectivePage, Math.max(1, totalPages))}
           totalPages={totalPages}
           totalCount={totalCount}
           entityLabel="agendamento(s)"
           onChange={handlePageChange}
+          syncWithUrl={syncPageWithUrl}
         />
       </Stack>
     </AsyncBoundary>

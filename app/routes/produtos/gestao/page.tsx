@@ -49,7 +49,7 @@ export default function ProdutosGestaoPage() {
             onReset={resetFilters}
             onSubmit={applyFilters}
           />
-          <ProductList filters={apiFilters} />
+          <ProductList filters={apiFilters} syncPageWithUrl />
         </Section>
       </CensorshipWrapper>
     </>

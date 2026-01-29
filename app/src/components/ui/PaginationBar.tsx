@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useSearchParams } from "react-router";
 import { Pagination, Stack, Typography } from "@mui/material";
 
 type PaginationBarBaseProps = {
@@ -37,6 +38,18 @@ type PaginationBarBaseProps = {
    * @default false
    */
   isLoading?: boolean;
+  /**
+   * Quando true, atualiza o parâmetro `page` (ou `pageParamKey`) na URL ao trocar de página.
+   * Requer que o consumidor leia `page` da URL (ex.: `usePageFromSearchParams`) e passe como prop.
+   * Ao abrir a rota com `?page=N`, a paginação já inicia na página N.
+   * @default false
+   */
+  syncWithUrl?: boolean;
+  /**
+   * Nome do parâmetro de busca na URL quando `syncWithUrl` é true.
+   * @default "page"
+   */
+  pageParamKey?: string;
 };
 
 type PaginationBarPropsWithoutScroll = PaginationBarBaseProps & {
@@ -69,9 +82,12 @@ export default function PaginationBar({
   renderSummaryText,
   className,
   isLoading,
+  syncWithUrl = false,
+  pageParamKey = "page",
 }: PaginationBarProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const pendingScrollPageRef = useRef<number | null>(null);
+  const [, setSearchParams] = useSearchParams();
 
   const handlePageChange = (
     _event: React.ChangeEvent<unknown>,
@@ -79,6 +95,18 @@ export default function PaginationBar({
   ) => {
     if (nextPage === page) return;
     pendingScrollPageRef.current = nextPage;
+
+    if (syncWithUrl) {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.set(pageParamKey, String(nextPage));
+          return next;
+        },
+        { replace: true }
+      );
+    }
+
     onChange(nextPage);
   };
 

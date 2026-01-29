@@ -1,7 +1,9 @@
 import { Typography } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import PaginationBar from "~/src/components/ui/PaginationBar";
+import { usePageFromSearchParams } from "~/src/hooks/usePageFromSearchParams";
 import Alert from "~/src/components/utils/Alert";
 import type { ModalOptions } from "~/src/components/utils/Modal/ModalContext";
 import { useModal } from "~/src/components/utils/Modal/useModal";
@@ -13,25 +15,30 @@ import OrderPackage from "./OrderPackage";
 
 interface OrderListProps {
   filters?: Partial<OrdersFilters>;
+  /** Quando true, a página é lida/escrita na URL (`?page=N`). @default false */
+  syncPageWithUrl?: boolean;
 }
 
-export default function OrderList({ filters = {} }: OrderListProps) {
+export default function OrderList({ filters = {}, syncPageWithUrl = false }: OrderListProps) {
   const [page, setPage] = useState(filters.page ?? 1);
   const [perPage, setPerPage] = useState(filters.per_page ?? 20);
   const [reprocessingKey, setReprocessingKey] = useState<string | null>(null);
   const { openModal, closeModal } = useModal();
 
   useEffect(() => {
-    setPage(filters.page ?? 1);
-  }, [filters.page]);
+    if (!syncPageWithUrl) setPage(filters.page ?? 1);
+  }, [filters.page, syncPageWithUrl]);
 
   useEffect(() => {
     setPerPage(filters.per_page ?? 20);
   }, [filters.per_page]);
 
+  const { page: pageFromUrl } = usePageFromSearchParams();
+  const effectivePage = syncPageWithUrl ? pageFromUrl : page;
+
   const { data, isLoading, error } = useOrders({
     ...filters,
-    page,
+    page: effectivePage,
     per_page: perPage,
   });
   const { data: quotaData } = useOrdersReprocessQuota();
@@ -115,8 +122,21 @@ export default function OrderList({ filters = {} }: OrderListProps) {
   const totalCount = pagination?.total_count ?? orders.length;
   const remainingQuota = quotaData?.success ? quotaData.data?.remaining ?? 0 : 0;
 
+  const [, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (!syncPageWithUrl || isLoading || totalPages < 1 || pageFromUrl <= totalPages) return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("page", String(totalPages));
+        return next;
+      },
+      { replace: true }
+    );
+  }, [syncPageWithUrl, isLoading, totalPages, pageFromUrl, setSearchParams]);
+
   const handlePageChange = (nextPage: number) => {
-    setPage(nextPage);
+    if (!syncPageWithUrl) setPage(nextPage);
   };
 
   return (
@@ -249,7 +269,7 @@ export default function OrderList({ filters = {} }: OrderListProps) {
       </div>
 
       <PaginationBar
-        page={page}
+        page={Math.min(effectivePage, Math.max(1, totalPages))}
         totalPages={totalPages}
         totalCount={totalCount}
         entityLabel="pedidos"
@@ -257,6 +277,7 @@ export default function OrderList({ filters = {} }: OrderListProps) {
         scrollOnChange
         scrollTargetId="order-list"
         isLoading={isLoading}
+        syncWithUrl={syncPageWithUrl}
       />
     </>
   );

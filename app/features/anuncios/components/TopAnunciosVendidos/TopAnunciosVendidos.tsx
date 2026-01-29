@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router";
 import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import MainCards from "~/src/components/ui/MainCards";
@@ -12,6 +11,7 @@ import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import { useTopSoldAds } from "../../hooks";
 import type { Anuncio } from "../../typings";
 import TopAnunciosVendidosSkeleton from "./TopAnunciosVendidosSkeleton";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 export default function TopAnunciosVendidos() {
   const { data, isLoading, error } = useTopSoldAds({
     limit: 5,
@@ -119,17 +119,17 @@ function HighlightCard({
           value={`${anuncio.stock} unidades`}
         />
       </div>
-      <div className="mt-auto flex gap-2">
-        <InternalButtonLink
-          to={`/interno/anuncios/${anuncio.mlb}`}
-          icon={
-            <span className="text-beergam-primary">
-              <Svg.eye tailWindClasses="h-5 w-5" />
-            </span>
-          }
-        >
-          Ver anúncio
-        </InternalButtonLink>
+      <div className="mt-auto flex flex-col gap-2">
+        <BeergamButton
+          link={`/interno/anuncios/${anuncio.mlb}`}
+          icon="eye"
+          title="Ver na Beergam"
+        />
+        <BeergamButton
+          link={`${anuncio.link}`}
+          icon="eye"
+          title="Ver no marketplace"
+        />
       </div>
     </MainCards>
   );
@@ -178,27 +178,6 @@ function HighlightStat({ icon, label, value }: HighlightStatProps) {
         </p>
       </div>
     </div>
-  );
-}
-
-interface ButtonBaseProps {
-  icon: ReactNode;
-  children: ReactNode;
-}
-
-function InternalButtonLink({
-  to,
-  icon,
-  children,
-}: ButtonBaseProps & { to: string }) {
-  return (
-    <Link
-      to={to}
-      className="flex flex-1 items-center justify-center gap-1.5 sm:gap-2 rounded-full border border-beergam-input-border bg-beergam-section-background px-2.5 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold text-beergam-primary transition hover:bg-beergam-primary/20"
-    >
-      {icon}
-      <span className="truncate">{children}</span>
-    </Link>
   );
 }
 

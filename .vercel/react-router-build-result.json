@@ -36,7 +36,8 @@
       "routes/produtos/estoque/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/produtos/estoque/[product_id]/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/calculadora/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/financeiro/relatorio_vendas/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
+      "routes/financeiro/relatorio_vendas/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/financeiro/lucratividade/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
     },
     "routes": {
       "root": {
@@ -300,6 +301,15 @@
         "config": {
           "runtime": "nodejs"
         }
+      },
+      "routes/financeiro/lucratividade/route": {
+        "id": "routes/financeiro/lucratividade/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/financeiro/lucratividade/route.tsx",
+        "path": "interno/financeiro/lucratividade",
+        "config": {
+          "runtime": "nodejs"
+        }
       }
     }
   },
@@ -492,6 +502,12 @@
         "parentId": "features/menu/components/layout/MenuLayout",
         "file": "routes/financeiro/relatorio_vendas/route.tsx",
         "path": "interno/financeiro/relatorio_vendas"
+      },
+      "routes/financeiro/lucratividade/route": {
+        "id": "routes/financeiro/lucratividade/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/financeiro/lucratividade/route.tsx",
+        "path": "interno/financeiro/lucratividade"
       }
     },
     "routeDiscovery": {
@@ -621,6 +637,10 @@
                   {
                     "file": "routes/financeiro/relatorio_vendas/route.tsx",
                     "path": "interno/financeiro/relatorio_vendas"
+                  },
+                  {
+                    "file": "routes/financeiro/lucratividade/route.tsx",
+                    "path": "interno/financeiro/lucratividade"
                   }
                 ]
               }
@@ -747,6 +767,10 @@
                   {
                     "file": "routes/financeiro/relatorio_vendas/route.tsx",
                     "path": "interno/financeiro/relatorio_vendas"
+                  },
+                  {
+                    "file": "routes/financeiro/lucratividade/route.tsx",
+                    "path": "interno/financeiro/lucratividade"
                   }
                 ]
               }
