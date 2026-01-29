@@ -62,6 +62,12 @@
   --color-beergam-mui-paper: var(--color-beergam-white);
   /* MENU */
   --color-beergam-menu-mobile-button: var(--color-beergam-blue-primary);
+
+  /* Scrollbar global - modo claro (track clara, thumb escura) */
+  --scrollbar-track: #f1f1f1;
+  --scrollbar-thumb: #b8c0c2;
+  --scrollbar-thumb-hover: #94a3b8;
+  --scrollbar-size: 6px;
 }
 
 /* Classes utilitárias para usar as variáveis de tema */
@@ -152,6 +158,11 @@
   --color-beergam-button-background-blue: var(--color-beergam-white);
   --color-beergam-mui-paper: var(--color-beergam-gray-blueish);
   --color-beergam-menu-mobile-button: var(--color-beergam-white);
+
+  /* Scrollbar global - modo escuro (track escura, thumb clara) */
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: #b8c0c2;
+  --scrollbar-thumb-hover: #94a3b8;
 }
 
 /* Classe para hover do texto no BeergamButton usando variável CSS dinâmica */
@@ -395,6 +406,32 @@ svg {
 html {
   scroll-behavior: smooth;
   background-color: var(--color-beergam-layout-background);
+}
+
+/* ===== Scrollbar global (Firefox + Chrome/Edge/Safari) ===== */
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* Chrome, Edge, Safari (WebKit) */
+*::-webkit-scrollbar {
+  width: var(--scrollbar-size, 6px);
+  height: var(--scrollbar-size, 6px);
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
 }
 
 /* Landing page specific styles */
