@@ -23,16 +23,10 @@ export interface WhatsAppButtonProps {
  * Usa o sistema de tamanhos padronizados do FloatingButton
  */
 export function WhatsAppButton({
-  size = "md",
-  phoneNumber = "5511936194419",
-  message = "Olá! Gostaria de saber mais sobre o Beergam.",
+  size = "md"
 }: WhatsAppButtonProps = {}) {
   const handleClick = () => {
-
-    const cleanPhoneNumber = phoneNumber.replace(/\D/g, "");
-
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${cleanPhoneNumber}?text=${encodedMessage}`;
+    const whatsappUrl = `https://chat.whatsapp.com/FkRg6rgM047C1zdTnekvSF`;
 
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
   };
