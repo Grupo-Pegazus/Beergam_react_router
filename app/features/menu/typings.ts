@@ -163,6 +163,12 @@ export const MenuConfig = {
         status: "green",
         path: "/relatorio_vendas",
         launched: true,
+      },
+      lucratividade: {
+        label: "Lucratividade",
+        status: "green",
+        path: "/lucratividade",
+        launched: true,
       }
     }
   }

@@ -199,6 +199,10 @@ span {
   @apply text-[14px] lg:text-[12px] 2xl:text-[14px];
 }
 
+p{
+  @apply text-beergam-typography-secondary;
+}
+
 button {
   cursor: pointer;
 }

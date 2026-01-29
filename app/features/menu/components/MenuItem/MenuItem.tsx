@@ -170,7 +170,7 @@ export default function MenuItem({ item, itemKey, parentKey, className = "" }: I
             open ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0",
           ].join(" ")}
         >
-          <ul className="ml-4 mt-2 pl-2 border-l border-white/70">
+          <ul className="ml-4 flex flex-col gap-2 mt-2 pl-2 border-l border-white/70">
             {Object.entries(item.dropdown)
               .filter(([, dropdownItem]) => {
                 // Filtra por launched e showMenu
