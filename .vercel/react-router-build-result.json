@@ -14,7 +14,6 @@
       "routes/login/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/registro/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/termos-de-servico/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/subscription/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/choosen_account/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/config/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/inicio/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -22,10 +21,9 @@
       "routes/vendas/[venda_id]/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/anuncios/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/anuncios/[anuncio_id]/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/atendimento/mercado_livre/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/atendimento/chat/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/atendimento/mercado_livre/perguntas/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/atendimento/mercado_livre/reclamacoes/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/produtos/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/produtos/gestao/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/produtos/gestao/[product_id]/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/produtos/cadastro/cadastro_simplificado/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -37,7 +35,8 @@
       "routes/produtos/editar/[public_id_prod]/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/produtos/estoque/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/produtos/estoque/[product_id]/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/calculadora/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
+      "routes/calculadora/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/financeiro/relatorio_vendas/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
     },
     "routes": {
       "root": {
@@ -87,15 +86,6 @@
         "parentId": "root",
         "file": "app/features/auth/components/AuthLayout/AuthLayout.tsx",
         "config": {}
-      },
-      "routes/subscription/route": {
-        "id": "routes/subscription/route",
-        "parentId": "features/auth/components/AuthLayout/AuthLayout",
-        "file": "app/routes/subscription/route.tsx",
-        "path": "interno/subscription",
-        "config": {
-          "runtime": "nodejs"
-        }
       },
       "routes/choosen_account/route": {
         "id": "routes/choosen_account/route",
@@ -167,11 +157,11 @@
           "runtime": "nodejs"
         }
       },
-      "routes/atendimento/mercado_livre/route": {
-        "id": "routes/atendimento/mercado_livre/route",
+      "routes/atendimento/chat/route": {
+        "id": "routes/atendimento/chat/route",
         "parentId": "features/menu/components/layout/MenuLayout",
-        "file": "app/routes/atendimento/mercado_livre/route.tsx",
-        "path": "interno/atendimento/mercado_livre",
+        "file": "app/routes/atendimento/chat/route.tsx",
+        "path": "interno/atendimento/chat",
         "config": {
           "runtime": "nodejs"
         }
@@ -190,15 +180,6 @@
         "parentId": "features/menu/components/layout/MenuLayout",
         "file": "app/routes/atendimento/mercado_livre/reclamacoes/route.tsx",
         "path": "interno/atendimento/mercado_livre/reclamacoes",
-        "config": {
-          "runtime": "nodejs"
-        }
-      },
-      "routes/produtos/route": {
-        "id": "routes/produtos/route",
-        "parentId": "features/menu/components/layout/MenuLayout",
-        "file": "app/routes/produtos/route.tsx",
-        "path": "interno/produtos",
         "config": {
           "runtime": "nodejs"
         }
@@ -310,6 +291,15 @@
         "config": {
           "runtime": "nodejs"
         }
+      },
+      "routes/financeiro/relatorio_vendas/route": {
+        "id": "routes/financeiro/relatorio_vendas/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/financeiro/relatorio_vendas/route.tsx",
+        "path": "interno/financeiro/relatorio_vendas",
+        "config": {
+          "runtime": "nodejs"
+        }
       }
     }
   },
@@ -359,12 +349,6 @@
         "parentId": "root",
         "file": "features/auth/components/AuthLayout/AuthLayout.tsx"
       },
-      "routes/subscription/route": {
-        "id": "routes/subscription/route",
-        "parentId": "features/auth/components/AuthLayout/AuthLayout",
-        "file": "routes/subscription/route.tsx",
-        "path": "interno/subscription"
-      },
       "routes/choosen_account/route": {
         "id": "routes/choosen_account/route",
         "parentId": "features/auth/components/AuthLayout/AuthLayout",
@@ -413,11 +397,11 @@
         "file": "routes/anuncios/[anuncio_id]/route.tsx",
         "path": "interno/anuncios/:anuncio_id"
       },
-      "routes/atendimento/mercado_livre/route": {
-        "id": "routes/atendimento/mercado_livre/route",
+      "routes/atendimento/chat/route": {
+        "id": "routes/atendimento/chat/route",
         "parentId": "features/menu/components/layout/MenuLayout",
-        "file": "routes/atendimento/mercado_livre/route.tsx",
-        "path": "interno/atendimento/mercado_livre"
+        "file": "routes/atendimento/chat/route.tsx",
+        "path": "interno/atendimento/chat"
       },
       "routes/atendimento/mercado_livre/perguntas/route": {
         "id": "routes/atendimento/mercado_livre/perguntas/route",
@@ -430,12 +414,6 @@
         "parentId": "features/menu/components/layout/MenuLayout",
         "file": "routes/atendimento/mercado_livre/reclamacoes/route.tsx",
         "path": "interno/atendimento/mercado_livre/reclamacoes"
-      },
-      "routes/produtos/route": {
-        "id": "routes/produtos/route",
-        "parentId": "features/menu/components/layout/MenuLayout",
-        "file": "routes/produtos/route.tsx",
-        "path": "interno/produtos"
       },
       "routes/produtos/gestao/route": {
         "id": "routes/produtos/gestao/route",
@@ -508,6 +486,12 @@
         "parentId": "features/menu/components/layout/MenuLayout",
         "file": "routes/calculadora/route.tsx",
         "path": "interno/calculadora"
+      },
+      "routes/financeiro/relatorio_vendas/route": {
+        "id": "routes/financeiro/relatorio_vendas/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/financeiro/relatorio_vendas/route.tsx",
+        "path": "interno/financeiro/relatorio_vendas"
       }
     },
     "routeDiscovery": {
@@ -543,10 +527,6 @@
             "file": "features/auth/components/AuthLayout/AuthLayout.tsx",
             "children": [
               {
-                "file": "routes/subscription/route.tsx",
-                "path": "interno/subscription"
-              },
-              {
                 "file": "routes/choosen_account/route.tsx",
                 "path": "interno/choosen_account"
               },
@@ -579,8 +559,8 @@
                     "path": "interno/anuncios/:anuncio_id"
                   },
                   {
-                    "file": "routes/atendimento/mercado_livre/route.tsx",
-                    "path": "interno/atendimento/mercado_livre"
+                    "file": "routes/atendimento/chat/route.tsx",
+                    "path": "interno/atendimento/chat"
                   },
                   {
                     "file": "routes/atendimento/mercado_livre/perguntas/route.tsx",
@@ -589,10 +569,6 @@
                   {
                     "file": "routes/atendimento/mercado_livre/reclamacoes/route.tsx",
                     "path": "interno/atendimento/mercado_livre/reclamacoes"
-                  },
-                  {
-                    "file": "routes/produtos/route.tsx",
-                    "path": "interno/produtos"
                   },
                   {
                     "file": "routes/produtos/gestao/route.tsx",
@@ -641,6 +617,10 @@
                   {
                     "file": "routes/calculadora/route.tsx",
                     "path": "interno/calculadora"
+                  },
+                  {
+                    "file": "routes/financeiro/relatorio_vendas/route.tsx",
+                    "path": "interno/financeiro/relatorio_vendas"
                   }
                 ]
               }
@@ -673,10 +653,6 @@
             "file": "features/auth/components/AuthLayout/AuthLayout.tsx",
             "children": [
               {
-                "file": "routes/subscription/route.tsx",
-                "path": "interno/subscription"
-              },
-              {
                 "file": "routes/choosen_account/route.tsx",
                 "path": "interno/choosen_account"
               },
@@ -709,8 +685,8 @@
                     "path": "interno/anuncios/:anuncio_id"
                   },
                   {
-                    "file": "routes/atendimento/mercado_livre/route.tsx",
-                    "path": "interno/atendimento/mercado_livre"
+                    "file": "routes/atendimento/chat/route.tsx",
+                    "path": "interno/atendimento/chat"
                   },
                   {
                     "file": "routes/atendimento/mercado_livre/perguntas/route.tsx",
@@ -719,10 +695,6 @@
                   {
                     "file": "routes/atendimento/mercado_livre/reclamacoes/route.tsx",
                     "path": "interno/atendimento/mercado_livre/reclamacoes"
-                  },
-                  {
-                    "file": "routes/produtos/route.tsx",
-                    "path": "interno/produtos"
                   },
                   {
                     "file": "routes/produtos/gestao/route.tsx",
@@ -771,6 +743,10 @@
                   {
                     "file": "routes/calculadora/route.tsx",
                     "path": "interno/calculadora"
+                  },
+                  {
+                    "file": "routes/financeiro/relatorio_vendas/route.tsx",
+                    "path": "interno/financeiro/relatorio_vendas"
                   }
                 ]
               }

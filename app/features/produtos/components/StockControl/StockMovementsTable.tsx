@@ -502,7 +502,6 @@ export default function StockMovementsTable({
                     <Typography
                       variant="caption"
                       className="text-xs text-beergam-typography-tertiary!"
-                      className="text-xs"
                     >
                       {formatDate(movement.created_at)}
                     </Typography>
