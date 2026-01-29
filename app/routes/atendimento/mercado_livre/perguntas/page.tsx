@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
+import { useSearchParams } from "react-router";
 import { QuestionsFilters as QuestionsFiltersBar } from "~/features/perguntas/components/QuestionsFilters";
 import { QuestionsList } from "~/features/perguntas/components/QuestionsList";
 import { QuestionsMetrics } from "~/features/perguntas/components/QuestionsMetrics";
@@ -12,6 +13,7 @@ import type {
 } from "~/features/perguntas/typings";
 import Grid from "~/src/components/ui/Grid";
 import Section from "~/src/components/ui/Section";
+import { usePageFromSearchParams } from "~/src/hooks/usePageFromSearchParams";
 
 const DEFAULT_FILTERS: QuestionsFiltersState = {
   status: "",
@@ -58,11 +60,13 @@ export default function PerguntasPage() {
   const [appliedFilters, setAppliedFilters] =
     useState<QuestionsFiltersState>(DEFAULT_FILTERS);
   const queryClient = useQueryClient();
+  const [, setSearchParams] = useSearchParams();
+  const { page: pageFromUrl } = usePageFromSearchParams();
 
-  const apiFilters = useMemo(
-    () => mapToApiFilters(appliedFilters),
-    [appliedFilters]
-  );
+  const apiFilters = useMemo(() => {
+    const base = mapToApiFilters(appliedFilters);
+    return { ...base, page: pageFromUrl };
+  }, [appliedFilters, pageFromUrl]);
 
   const questionsQuery = useQuery({
     queryKey: ["questions", apiFilters],
@@ -128,6 +132,14 @@ export default function PerguntasPage() {
 
   function applyFilters() {
     setAppliedFilters({ ...filters, page: 1 });
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("page", "1");
+        return next;
+      },
+      { replace: true }
+    );
     queryClient.invalidateQueries({ queryKey: ["questions"] });
   }
 
@@ -187,6 +199,7 @@ export default function PerguntasPage() {
             loading={questionsQuery.isLoading}
             onPageChange={handlePageChange}
             onAnswer={handleAnswer}
+            syncPageWithUrl
           />
         </Section>
       </Grid>

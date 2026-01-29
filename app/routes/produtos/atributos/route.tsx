@@ -9,7 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Atributos() {
-  return (
-    <AttributesList />
-  );
+  return <AttributesList syncPageWithUrl />;
 }

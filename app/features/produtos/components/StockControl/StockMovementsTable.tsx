@@ -62,6 +62,8 @@ interface StockMovementsTableProps {
   showVariationColumn?: boolean;
   showProductColumn?: boolean;
   emptyMessage?: string;
+  /** Quando true, a página é lida/escrita na URL (`?page=N`). @default false */
+  syncPageWithUrl?: boolean;
 }
 
 export default function StockMovementsTable({
@@ -70,6 +72,7 @@ export default function StockMovementsTable({
   showVariationColumn = false,
   showProductColumn = false,
   emptyMessage = "Nenhuma movimentação encontrada.",
+  syncPageWithUrl = false,
 }: StockMovementsTableProps) {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
@@ -739,6 +742,7 @@ export default function StockMovementsTable({
             totalCount={pagination.total}
             entityLabel="movimentações"
             onChange={(nextPage) => pagination.onPageChange?.(nextPage)}
+            syncWithUrl={syncPageWithUrl}
           />
         </Box>
       )}

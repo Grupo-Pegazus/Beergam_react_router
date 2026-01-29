@@ -1,12 +1,13 @@
 import { Paper, Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import MainCards from "~/src/components/ui/MainCards";
 import PaginationBar from "~/src/components/ui/PaginationBar";
 import { Fields } from "~/src/components/utils/_fields";
+import { usePageFromSearchParams } from "~/src/hooks/usePageFromSearchParams";
 import { useProducts } from "../../hooks";
 import ProductImage from "../ProductImage/ProductImage";
 import ProductListSkeleton from "../ProductList/ProductListSkeleton";
@@ -15,7 +16,14 @@ function formatNumber(value: number | null | undefined) {
   return (value ?? 0).toLocaleString("pt-BR");
 }
 
-export default function StockProductsList() {
+interface StockProductsListProps {
+  /** Quando true, a página é lida/escrita na URL. @default false */
+  syncPageWithUrl?: boolean;
+  /** Parâmetro de busca na URL quando syncPageWithUrl. @default "page" */
+  pageParamKey?: string;
+}
+
+export default function StockProductsList({ syncPageWithUrl = false, pageParamKey = "page" }: StockProductsListProps) {
   const theme = useTheme();
 
   const isXs = useMediaQuery(theme.breakpoints.down("sm"));
@@ -27,15 +35,29 @@ export default function StockProductsList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
+  const [, setSearchParams] = useSearchParams();
+  const { page: pageFromUrl } = usePageFromSearchParams({ paramKey: pageParamKey });
+  const effectivePage = syncPageWithUrl ? pageFromUrl : page;
+
   // Debounce da busca (500ms) para melhorar performance
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-      setPage(1); // Reset para primeira página ao buscar
+      if (!syncPageWithUrl) setPage(1);
+      else {
+        setSearchParams(
+          (prev) => {
+            const next = new URLSearchParams(prev);
+            next.set(pageParamKey, "1");
+            return next;
+          },
+          { replace: true }
+        );
+      }
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchTerm]);
+  }, [searchTerm, syncPageWithUrl, pageParamKey, setSearchParams]);
 
   const { data, isLoading, error } = useProducts({
     sort_by: "created_at",
@@ -61,15 +83,27 @@ export default function StockProductsList() {
   }, [isXs, isSm, isMd, isLgUp]);
 
   const paginatedProducts = useMemo(() => {
-    const startIndex = (page - 1) * cardsPerPage;
+    const startIndex = (effectivePage - 1) * cardsPerPage;
     return products.slice(startIndex, startIndex + cardsPerPage);
-  }, [page, products, cardsPerPage]);
+  }, [effectivePage, products, cardsPerPage]);
 
   const totalPages = Math.max(1, Math.ceil(products.length / cardsPerPage));
   const totalCount = products.length;
 
+  useEffect(() => {
+    if (!syncPageWithUrl || isLoading || totalPages < 1 || pageFromUrl <= totalPages) return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set(pageParamKey, String(totalPages));
+        return next;
+      },
+      { replace: true }
+    );
+  }, [syncPageWithUrl, isLoading, totalPages, pageFromUrl, pageParamKey, setSearchParams]);
+
   const handlePageChange = (nextPage: number) => {
-    setPage(nextPage);
+    if (!syncPageWithUrl) setPage(nextPage);
   };
 
   return (
@@ -166,11 +200,13 @@ export default function StockProductsList() {
             </div>
 
             <PaginationBar
-              page={page}
+              page={Math.min(effectivePage, Math.max(1, totalPages))}
               totalPages={totalPages}
               totalCount={totalCount}
               entityLabel="produtos com controle de estoque"
               onChange={handlePageChange}
+              syncWithUrl={syncPageWithUrl}
+              pageParamKey={pageParamKey}
             />
           </Stack>
         )}

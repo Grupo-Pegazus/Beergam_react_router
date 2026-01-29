@@ -14,7 +14,10 @@ import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import Grid from "~/src/components/ui/Grid";
 import Section from "~/src/components/ui/Section";
 import { Fields } from "~/src/components/utils/_fields";
+import { usePageFromSearchParams } from "~/src/hooks/usePageFromSearchParams";
 import StockControlSkeleton from "./StockControlSkeleton";
+
+const SYNC_PAGE_WITH_URL = true;
 
 interface StockControlPageProps {
   productId: string;
@@ -23,17 +26,24 @@ interface StockControlPageProps {
 export default function StockControlPage({ productId }: StockControlPageProps) {
   const { setCustomLabel } = useBreadcrumbCustomization();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { page: pageFromUrl } = usePageFromSearchParams();
   const [filters, setFilters] = useState<Partial<StockTrackingFiltersType>>({
     page: 1,
     page_size: 50,
   });
+
+  const effectiveFilters = useMemo(() => {
+    const base = { ...filters };
+    if (SYNC_PAGE_WITH_URL) base.page = pageFromUrl;
+    return base;
+  }, [filters, pageFromUrl]);
 
   const {
     data: stockData,
     isLoading: isLoadingStock,
     error: stockError,
     refetch: refetchStock,
-  } = useStockTracking(productId, filters);
+  } = useStockTracking(productId, effectiveFilters);
 
   const {
     data: productData,
@@ -44,17 +54,40 @@ export default function StockControlPage({ productId }: StockControlPageProps) {
   const handleFiltersChange = useCallback(
     (newFilters: Partial<StockTrackingFiltersType>) => {
       setFilters((prev) => ({ ...prev, ...newFilters, page: 1 }));
+      if (SYNC_PAGE_WITH_URL) {
+        setSearchParams(
+          (prev) => {
+            const next = new URLSearchParams(prev);
+            next.set("page", "1");
+            return next;
+          },
+          { replace: true }
+        );
+      }
     },
-    []
+    [setSearchParams]
   );
 
   const handlePageChange = useCallback((page: number) => {
     setFilters((prev) => ({ ...prev, page }));
   }, []);
 
-  const handlePageSizeChange = useCallback((pageSize: number) => {
-    setFilters((prev) => ({ ...prev, page_size: pageSize, page: 1 }));
-  }, []);
+  const handlePageSizeChange = useCallback(
+    (pageSize: number) => {
+      setFilters((prev) => ({ ...prev, page_size: pageSize, page: 1 }));
+      if (SYNC_PAGE_WITH_URL) {
+        setSearchParams(
+          (prev) => {
+            const next = new URLSearchParams(prev);
+            next.set("page", "1");
+            return next;
+          },
+          { replace: true }
+        );
+      }
+    },
+    [setSearchParams]
+  );
 
   const handleMovementSuccess = useCallback(() => {
     refetchStock();
@@ -109,15 +142,20 @@ export default function StockControlPage({ productId }: StockControlPageProps) {
           setFilters((prev) => ({
             ...prev,
             variation_id: variationFromUrl,
-            page: 1, // Reseta a página ao mudar variação
+            page: 1,
           }));
+          if (SYNC_PAGE_WITH_URL) {
+            const next = new URLSearchParams(searchParams);
+            next.set("variation", variationFromUrl);
+            next.set("page", "1");
+            setSearchParams(next, { replace: true });
+          }
         }
       } else {
-        // Se a variação da URL não existe, remove da URL e usa a primeira
-        const newSearchParams = new URLSearchParams(searchParams);
-        newSearchParams.delete("variation");
-        setSearchParams(newSearchParams, { replace: true });
-
+        const next = new URLSearchParams(searchParams);
+        next.delete("variation");
+        if (SYNC_PAGE_WITH_URL) next.set("page", "1");
+        setSearchParams(next, { replace: true });
         if (firstVariationId) {
           setFilters((prev) => ({
             ...prev,
@@ -127,15 +165,15 @@ export default function StockControlPage({ productId }: StockControlPageProps) {
         }
       }
     } else if (firstVariationId && filters.variation_id !== firstVariationId) {
-      // Se não há variation na URL mas há primeira variação, atualiza URL e filtro
       setFilters((prev) => ({
         ...prev,
         variation_id: firstVariationId,
         page: 1,
       }));
-      const newSearchParams = new URLSearchParams(searchParams);
-      newSearchParams.set("variation", firstVariationId);
-      setSearchParams(newSearchParams, { replace: true });
+      const next = new URLSearchParams(searchParams);
+      next.set("variation", firstVariationId);
+      if (SYNC_PAGE_WITH_URL) next.set("page", "1");
+      setSearchParams(next, { replace: true });
     }
   }, [
     searchParams,
@@ -167,14 +205,14 @@ export default function StockControlPage({ productId }: StockControlPageProps) {
         page: 1,
       }));
 
-      // Atualiza a URL com o novo variation_id
-      const newSearchParams = new URLSearchParams(searchParams);
+      const next = new URLSearchParams(searchParams);
       if (variationId) {
-        newSearchParams.set("variation", variationId);
+        next.set("variation", variationId);
       } else {
-        newSearchParams.delete("variation");
+        next.delete("variation");
       }
-      setSearchParams(newSearchParams, { replace: true });
+      if (SYNC_PAGE_WITH_URL) next.set("page", "1");
+      setSearchParams(next, { replace: true });
     },
     [searchParams, setSearchParams]
   );
@@ -296,6 +334,7 @@ export default function StockControlPage({ productId }: StockControlPageProps) {
                   onPageSizeChange={handlePageSizeChange}
                   hasVariations={hasVariations}
                   variations={variationsWithStockHandling}
+                  syncPageWithUrl={SYNC_PAGE_WITH_URL}
                 />
               </Section>
             </>

@@ -6,8 +6,8 @@ import {
 	XAxis,
 	YAxis,
 } from "recharts";
+import { useInvoicingMetrics, useInvoicingMetricsByMonths } from "~/features/invoicing/hooks";
 import authStore from "~/features/store-zustand";
-import { useOrdersMetrics } from "~/features/vendas/hooks";
 import type { Order } from "~/features/vendas/typings";
 import SkuProfitabilityList from "~/routes/financeiro/components/SkuProfitabilityList";
 import Svg from "~/src/assets/svgs/_index";
@@ -27,7 +27,7 @@ import StatCard from "~/src/components/ui/StatCard";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 interface SectionContent{
     value: string;
-    period: "7" | "15" | "30" | "60" | "90";
+    period: string;
     percentage?: string | number;
 }
 type PercentageBadgeProps = {
@@ -35,10 +35,9 @@ type PercentageBadgeProps = {
 } 
 
 export default function LucratividadePage() {
-	const { data: ordersMetrics60, isLoading: isLoadingOrdersMetrics60 } = useOrdersMetrics(60);
-
-	const {data: ordersMetrics90, isLoading: isLoadingOrdersMetrics90} = useOrdersMetrics(90);
-	const {data: ordersMetrics30, isLoading: isLoadingOrdersMetrics30} = useOrdersMetrics(30);
+	const {data: invoicingMetrics, isLoading: isLoadingInvoicingMetrics} = useInvoicingMetrics();
+	const {data: invoicingMetricsByMonths, isLoading: isLoadingInvoicingMetricsByMonths} = useInvoicingMetricsByMonths();
+	console.log(invoicingMetrics);
   const subscription = authStore.use.subscription() ?? null;
   const isBasePlan = subscription?.plan.display_name === 'Operacional';
   function PercentageBadge({ percentage }: PercentageBadgeProps) {
@@ -55,13 +54,13 @@ export default function LucratividadePage() {
       }
     </div>
   }
-    function SectionContent({ index, value, period, percentage }: SectionContent & { index: number }) {
+    function SectionContent({ index, value, period, percentage, canShowPercentage = false }: SectionContent & { index: number, canShowPercentage?: boolean }) {
         return(
             <>
             <div className={`border-r h-full grid content-end ${index != 2 ? 'border-r-beergam-primary' : 'border-r-transparent'}`}>
-                        <PercentageBadge percentage={percentage} />
+                        {canShowPercentage && <PercentageBadge percentage={percentage} />}
                         <h3 className="text-[18px]! text-beergam-primary font-bold">{value}</h3>
-                        <p className="text-[12px] text-beergam-typography-tertiary!">{period} dias</p>
+                        <p className="text-[12px] text-beergam-typography-tertiary!">{period}</p>
                     </div>
             </>
         )
@@ -83,28 +82,40 @@ export default function LucratividadePage() {
     <Section title="Faturamento">
         <div className="grid grid-cols-2 gap-4">
             <StatCard
-                  title="Total Bruto"
+                  title="Total Bruto Acumulado"
                   icon={<Svg.graph_solid tailWindClasses="h-5 w-5" />}
                 >
-                   <SectionContentCard contents={[{ value: formatCurrency(ordersMetrics30?.data?.faturamento_bruto ?? "0"), period: "30", percentage: "10.32" }, { value: formatCurrency(ordersMetrics60?.data?.faturamento_bruto ?? "0"), period: "60" }, { value: formatCurrency(ordersMetrics90?.data?.faturamento_bruto ?? "0"), period: "90", percentage: "30" }]} />
+                   <SectionContentCard contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.faturamento_bruto ?? "0"), period: "30 dias", percentage: parseFloat(invoicingMetrics?.data?.["30"]?.comparacao_periodo_anterior?.faturamento_bruto_diff ?? "0") }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.faturamento_bruto ?? "0"), period: "60 dias", percentage: parseFloat(invoicingMetrics?.data?.["60"]?.comparacao_periodo_anterior?.faturamento_bruto_diff ?? "0") }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.faturamento_bruto ?? "0"), period: "90 dias", percentage: parseFloat(invoicingMetrics?.data?.["90"]?.comparacao_periodo_anterior?.faturamento_bruto_diff ?? "0") }]} />
                 </StatCard>
                 <StatCard
-                  title="Total Líquido"
+                  title="Total Líquido Acumulado"
                   icon={<Svg.currency_dollar_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30" }, { value: "R$ 2.000,00", period: "60" }, { value: "R$ 3.000,00", period: "90" }]} />
+                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
+                </StatCard>
+            <StatCard
+                  title="Total Bruto Mensal"
+                  icon={<Svg.graph_solid tailWindClasses="h-5 w-5" />}
+                >
+                   <SectionContentCard contents={[{ value: formatCurrency(invoicingMetricsByMonths?.data?.["30"] ?? "0"), period: "Janeiro" }, { value: formatCurrency(invoicingMetricsByMonths?.data?.["60"] ?? "0"), period: "Dezembro" }, { value: formatCurrency(invoicingMetricsByMonths?.data?.["90"] ?? "0"), period: "Novembro" }]} />
+                </StatCard>
+                <StatCard
+                  title="Total Líquido Mensal"
+                  icon={<Svg.currency_dollar_solid tailWindClasses="h-5 w-5" />}
+                >
+                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
                 </StatCard>
                 <StatCard
                   title="Total Bruto + Frete Recebido"
                   icon={<Svg.currency_dollar_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30" }, { value: "R$ 2.000,00", period: "60" }, { value: "R$ 3.000,00", period: "90" }]} />
+                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
                 </StatCard>
                 <StatCard
                   title="Retorno do FLEX"
                   icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30" }, { value: "R$ 2.000,00", period: "60" }, { value: "R$ 3.000,00", period: "90" }]} />
+                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
                 </StatCard>
         </div>
     </Section>
@@ -115,25 +126,25 @@ export default function LucratividadePage() {
                   title="Custos com Comissões"
                   icon={<Svg.box_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30" }, { value: "R$ 2.000,00", period: "60" }, { value: "R$ 3.000,00", period: "90" }]} />
+                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
                 </StatCard>
                   <StatCard
                   title="Custos com Frete (Comprador)"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30" }, { value: "R$ 2.000,00", period: "60" }, { value: "R$ 3.000,00", period: "90" }]} />
+                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
                 </StatCard>
                   <StatCard
                   title="Custos com Frete (Vendedor)"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30" }, { value: "R$ 2.000,00", period: "60" }, { value: "R$ 3.000,00", period: "90" }]} />
+                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
                 </StatCard>
                   <StatCard
                   title="Custos de Produto"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30" }, { value: "R$ 2.000,00", period: "60" }, { value: "R$ 3.000,00", period: "90" }]} />
+                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
                 </StatCard>
         </div>
         <div className="grid grid-cols-3 gap-4">

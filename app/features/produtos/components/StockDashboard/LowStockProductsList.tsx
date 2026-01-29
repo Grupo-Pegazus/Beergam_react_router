@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router";
 import { Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import type { StockDashboardResponse } from "../../typings";
@@ -8,6 +8,7 @@ import ProductImage from "../ProductImage/ProductImage";
 import Svg from "~/src/assets/svgs/_index";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import PaginationBar from "~/src/components/ui/PaginationBar";
+import { usePageFromSearchParams } from "~/src/hooks/usePageFromSearchParams";
 
 function formatNumber(value: number) {
   return value.toLocaleString("pt-BR");
@@ -15,10 +16,16 @@ function formatNumber(value: number) {
 
 interface LowStockProductsListProps {
   products: StockDashboardResponse["low_stock_products"];
+  /** Quando true, a página é lida/escrita na URL. @default false */
+  syncPageWithUrl?: boolean;
+  /** Parâmetro de busca na URL quando syncPageWithUrl. @default "low_stock_page" */
+  pageParamKey?: string;
 }
 
 export default function LowStockProductsList({
   products,
+  syncPageWithUrl = false,
+  pageParamKey = "low_stock_page",
 }: LowStockProductsListProps) {
   if (products.length === 0) {
     return (
@@ -37,6 +44,9 @@ export default function LowStockProductsList({
   const isLgUp = useMediaQuery(theme.breakpoints.up("lg"));
 
   const [page, setPage] = useState(1);
+  const [, setSearchParams] = useSearchParams();
+  const { page: pageFromUrl } = usePageFromSearchParams({ paramKey: pageParamKey });
+  const effectivePage = syncPageWithUrl ? pageFromUrl : page;
 
   const cardsPerPage = useMemo(() => {
     // Mantém sempre UMA linha por página, respeitando o número de colunas da grid
@@ -130,13 +140,15 @@ export default function LowStockProductsList({
       </div>
 
       <PaginationBar
-        page={page}
+        page={Math.min(effectivePage, Math.max(1, totalPages))}
         totalPages={totalPages}
         totalCount={totalCount}
         entityLabel="produtos com estoque baixo"
         onChange={handlePageChange}
         scrollOnChange
         scrollTargetId="low-stock-products-list"
+        syncWithUrl={syncPageWithUrl}
+        pageParamKey={pageParamKey}
       />
     </Stack>
   );
