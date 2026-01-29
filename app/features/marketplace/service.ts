@@ -82,6 +82,35 @@ class MarketplaceService {
     }
   }
 
+  async changeMarketplaceAccountName(
+    marketplace_shop_id: string,
+    marketplace_type: MarketplaceType,
+    new_name: string
+  ): Promise<ApiResponse<null>> {
+    try {
+      const payload = {
+        marketplace_shop_id,
+        marketplace_type,
+        new_name: new_name.trim(),
+      };
+      const response = await typedApiClient.patch<null>(
+        "/v1/accounts/change_name",
+        payload
+      );
+      return response;
+    } catch (error) {
+      console.error("error do changeMarketplaceAccountName", error);
+      return {
+        success: false,
+        data: null,
+        message:
+          "Erro ao alterar nome da conta. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: {},
+      };
+    }
+  }
+
   async deleteMarketplaceAccount(
     Marketplace_id: string,
     Marketplace_type: MarketplaceType
