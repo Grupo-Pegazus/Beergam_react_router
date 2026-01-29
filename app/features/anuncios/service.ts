@@ -1,6 +1,15 @@
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
-import type { AdsResponse, AdsFilters, ChangeAdStatusRequest, WithoutSkuResponse, UpdateSkuRequest, AnuncioDetails } from "./typings";
+import type {
+  AdsResponse,
+  AdsFilters,
+  ChangeAdStatusRequest,
+  WithoutSkuResponse,
+  UpdateSkuRequest,
+  AnuncioDetails,
+  ReprocessAdsResponse,
+  ReprocessQuota,
+} from "./typings";
 import type { DailyRevenue } from "../vendas/typings";
 
 // Tipos para os novos endpoints
@@ -129,6 +138,18 @@ class AnuncioService {
 
     const response = await typedApiClient.get<DailyRevenue>(url);
     return response as ApiResponse<DailyRevenue>;
+  }
+
+  async getReprocessQuota(): Promise<ApiResponse<ReprocessQuota>> {
+    const response = await typedApiClient.get<ReprocessQuota>("/v1/ads/reprocess/quota");
+    return response as ApiResponse<ReprocessQuota>;
+  }
+
+  async reprocessAds(adIds: string[]): Promise<ApiResponse<ReprocessAdsResponse>> {
+    const response = await typedApiClient.post<ReprocessAdsResponse>("/v1/ads/reprocess", {
+      ad_ids: adIds,
+    });
+    return response as ApiResponse<ReprocessAdsResponse>;
   }
 }
 

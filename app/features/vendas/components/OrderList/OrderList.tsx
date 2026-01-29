@@ -2,7 +2,10 @@ import { Typography } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import PaginationBar from "~/src/components/ui/PaginationBar";
-import { useOrders } from "../../hooks";
+import Alert from "~/src/components/utils/Alert";
+import type { ModalOptions } from "~/src/components/utils/Modal/ModalContext";
+import { useModal } from "~/src/components/utils/Modal/useModal";
+import { useOrders, useOrdersReprocessQuota, useReprocessOrders } from "../../hooks";
 import type { Order, OrdersFilters } from "../../typings";
 import OrderCard from "./OrderCard";
 import OrderListSkeleton from "./OrderListSkeleton";
@@ -15,6 +18,8 @@ interface OrderListProps {
 export default function OrderList({ filters = {} }: OrderListProps) {
   const [page, setPage] = useState(filters.page ?? 1);
   const [perPage, setPerPage] = useState(filters.per_page ?? 20);
+  const [reprocessingKey, setReprocessingKey] = useState<string | null>(null);
+  const { openModal, closeModal } = useModal();
 
   useEffect(() => {
     setPage(filters.page ?? 1);
@@ -29,6 +34,8 @@ export default function OrderList({ filters = {} }: OrderListProps) {
     page,
     per_page: perPage,
   });
+  const { data: quotaData } = useOrdersReprocessQuota();
+  const reprocessMutation = useReprocessOrders();
 
   const orders = useMemo(() => {
     if (!data?.success || !data.data?.orders) return [];
@@ -106,6 +113,7 @@ export default function OrderList({ filters = {} }: OrderListProps) {
   const pagination = data?.success ? data.data?.pagination : null;
   const totalPages = pagination?.total_pages ?? 1;
   const totalCount = pagination?.total_count ?? orders.length;
+  const remainingQuota = quotaData?.success ? quotaData.data?.remaining ?? 0 : 0;
 
   const handlePageChange = (nextPage: number) => {
     setPage(nextPage);
@@ -139,11 +147,98 @@ export default function OrderList({ filters = {} }: OrderListProps) {
                       key={`pack-${item.packId}`}
                       packId={item.packId}
                       orders={item.orders}
+                      onReprocess={() => {
+                        const orderIds = item.orders
+                          .map((o) => o.order_id)
+                          .filter(Boolean);
+
+                        if (!orderIds.length) {
+                          return;
+                        }
+                        if (orderIds.length > 30) {
+                          return;
+                        }
+                        if (remainingQuota < orderIds.length) {
+                          return;
+                        }
+                        const options: ModalOptions = {
+                          title: "Confirmar reprocessamento de carrinho",
+                        };
+
+                        openModal(
+                          <Alert
+                            type="info"
+                            confirmText="Reprocessar"
+                            onClose={closeModal}
+                            onConfirm={() => {
+                              setReprocessingKey(`pack-${item.packId}`);
+                              reprocessMutation.mutate(orderIds, {
+                                onSettled: () => setReprocessingKey(null),
+                              });
+                            }}
+                          >
+                            <h3 className="text-lg font-semibold text-beergam-typography-primary mb-2">
+                              Reprocessar {orderIds.length} pedido(s) do carrinho{" "}
+                              <span className="font-mono">#{item.packId}</span>?
+                            </h3>
+                            <p className="text-sm text-beergam-typography-secondary mb-2">
+                              Isso irá buscar novamente os dados desses pedidos no Mercado Livre e atualizar os registros aqui no Beergam.
+                            </p>
+                            <p className="text-xs text-beergam-typography-secondary">
+                              Cota mensal: <strong>{quotaData?.data?.limit ?? 0}</strong> | Usados:{" "}
+                              <strong>{quotaData?.data?.used ?? 0}</strong> | Restantes:{" "}
+                              <strong>{remainingQuota}</strong>.
+                            </p>
+                          </Alert>,
+                          options
+                        );
+                      }}
+                      isReprocessing={reprocessingKey === `pack-${item.packId}`}
+                      remainingQuota={remainingQuota}
                     />
                   ) : (
                     <OrderCard
                       key={`order-${item.order.order_id}`}
                       order={item.order}
+                      onReprocess={() => {
+                        if (remainingQuota <= 0) {
+                          return;
+                        }
+                        const orderId = item.order.order_id;
+                        const options: ModalOptions = {
+                          title: "Confirmar reprocessamento do pedido",
+                        };
+
+                        openModal(
+                          <Alert
+                            type="info"
+                            confirmText="Reprocessar"
+                            onClose={closeModal}
+                            onConfirm={() => {
+                              setReprocessingKey(`order-${orderId}`);
+                              reprocessMutation.mutate([orderId], {
+                                onSettled: () => setReprocessingKey(null),
+                              });
+                            }}
+                          >
+                            <h3 className="text-lg font-semibold text-beergam-typography-primary mb-2">
+                              Deseja reprocessar o pedido{" "}
+                              <span className="font-mono">#{orderId}</span>?
+                            </h3>
+                            <p className="text-sm text-beergam-typography-secondary mb-2">
+                              Isso irá buscar novamente os dados desse pedido no Mercado Livre e atualizar o registro aqui no Beergam.
+                            </p>
+                            <p className="text-xs text-beergam-typography-secondary">
+                              Cota mensal: <strong>{quotaData?.data?.limit ?? 0}</strong> | Usados:{" "}
+                              <strong>{quotaData?.data?.used ?? 0}</strong> | Restantes:{" "}
+                              <strong>{remainingQuota}</strong>.
+                            </p>
+                          </Alert>,
+                          options
+                        );
+                      }}
+                      isReprocessing={reprocessingKey === `order-${item.order.order_id}`}
+                      remainingQuota={remainingQuota}
                     />
                   )
                 )}

@@ -15,6 +15,9 @@ import OrderItemCard from "./OrderItemCard";
 interface OrderPackageProps {
   packId: string;
   orders: Order[];
+  onReprocess: () => void;
+  isReprocessing: boolean;
+  remainingQuota: number;
 }
 
 const formatDate = (dateStr: string | null | undefined): string => {
@@ -22,7 +25,13 @@ const formatDate = (dateStr: string | null | undefined): string => {
   return dayjs(dateStr).format("DD MMM YYYY [às] HH:mm");
 };
 
-export default function OrderPackage({ packId, orders }: OrderPackageProps) {
+export default function OrderPackage({
+  packId,
+  orders,
+  onReprocess,
+  isReprocessing,
+  remainingQuota,
+}: OrderPackageProps) {
   const [isPackageExpanded, setIsPackageExpanded] = useState(false);
 
   // Usa o primeiro pedido para informações do pacote (todos têm o mesmo pack_id)
@@ -230,10 +239,19 @@ export default function OrderPackage({ packId, orders }: OrderPackageProps) {
             )}
           </div>
 
-          <BeergamButton
-            title="Ver detalhes"
-            link={`/interno/vendas/${packId}`}
-          />
+          <div className="flex items-center gap-2">
+            <BeergamButton
+              title={isReprocessing ? "Reprocessando..." : "Reprocessar"}
+              animationStyle="fade"
+              loading={isReprocessing}
+              disabled={isReprocessing || remainingQuota <= 0}
+              onClick={onReprocess}
+            />
+            <BeergamButton
+              title="Ver detalhes"
+              link={`/interno/vendas/${packId}`}
+            />
+          </div>
         </div>
 
         {/* Resumo do Pacote */}

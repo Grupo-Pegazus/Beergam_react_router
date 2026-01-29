@@ -28,6 +28,7 @@ import CheckSolid from "./CheckSolid";
 import Chevron from "./Chevron";
 import ChevronUpAndDown from "./ChevronUpAndDown";
 import CircleX from "./CircleX";
+import Clip from "./Clip";
 import ClockIcon from "./ClockIcon";
 import Cog8Tooth from "./Cog8Tooth";
 import Copy from "./Copy";
@@ -167,6 +168,7 @@ const Svg = {
   chevron_up_and_down: ChevronUpAndDown,
   minus_circle: MinusCircle,
   adjustments_horizontal_solid: AdjustmentsHorizontalSolid,
+  clip: Clip,
   truck_solid: TruckSolid,
   arrow_trending_down: ArrowTrendingDown,
   arrow_trending_up: ArrowTrendingUp,

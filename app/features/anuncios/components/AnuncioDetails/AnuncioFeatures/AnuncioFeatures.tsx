@@ -16,7 +16,7 @@ export default function AnuncioFeatures({ anuncio }: AnuncioFeaturesProps) {
       featureList.push(...anuncio.features);
     } else {
       // Features padrão baseadas nos dados do anúncio
-      if (anuncio.catalog_product_id) {
+      if (anuncio.is_catalog) {
         featureList.push("CATALOGO");
       }
       if (anuncio.variations_count > 0) {
@@ -31,7 +31,7 @@ export default function AnuncioFeatures({ anuncio }: AnuncioFeaturesProps) {
   }, [anuncio]);
 
   // Tipo de entrega usando a função existente
-  const logisticTypeInfo = anuncio.logistic_type 
+  const logisticTypeInfo = anuncio.logistic_type
     ? getLogisticTypeMeliInfo(anuncio.logistic_type)
     : null;
 

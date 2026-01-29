@@ -606,3 +606,33 @@ export const OrderDetailsResponseSchema = z.object({
 
 export type OrderDetailsResponse = z.infer<typeof OrderDetailsResponseSchema>;
 
+// ===========================
+// Reprocessamento (cota + ação)
+// ===========================
+
+export const ReprocessQuotaSchema = z.object({
+  resource_type: z.string(),
+  year_month: z.string(),
+  limit: z.number(),
+  used: z.number(),
+  remaining: z.number(),
+});
+
+export type ReprocessQuota = z.infer<typeof ReprocessQuotaSchema>;
+
+export const ReprocessOrderItemSchema = z.object({
+  order_id: z.string(),
+  success: z.boolean(),
+  message: z.string().optional(),
+});
+
+export type ReprocessOrderItem = z.infer<typeof ReprocessOrderItemSchema>;
+
+export const ReprocessOrdersResponseSchema = z.object({
+  items: z.array(ReprocessOrderItemSchema),
+  total_requested: z.number(),
+  total_reprocessed: z.number(),
+});
+
+export type ReprocessOrdersResponse = z.infer<typeof ReprocessOrdersResponseSchema>;
+

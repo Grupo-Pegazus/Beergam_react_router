@@ -101,7 +101,7 @@ export default function DailyRevenueChart({
             </Typography>
           </div>
         ) : (
-          <div className="h-64 md:h-80 w-full overflow-x-auto">
+          <div className="h-64 md:h-80 w-full overflow-x-auto min-w-0" style={{ minHeight: 256 }}>
             <ResponsiveContainer width="100%" height="100%" minHeight={256}>
               <BarChart
                 data={chartData}
