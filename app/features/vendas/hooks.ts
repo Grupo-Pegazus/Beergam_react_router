@@ -152,7 +152,7 @@ export function useOrdersWithLoadMore(baseFilters?: Omit<Partial<OrdersFilters>,
   };
 }
 
-export function useOrdersMetrics(period?: 0 | 1 | 7 | 15 | 30 | 90) {
+export function useOrdersMetrics(period?: 0 | 1 | 7 | 15 | 30 | 60 | 90) {
   const periodParam = useMemo(() => {
     // Converte o número para o formato esperado pelo backend
     if (period === 0) return "today";
@@ -161,6 +161,7 @@ export function useOrdersMetrics(period?: 0 | 1 | 7 | 15 | 30 | 90) {
     if (period === 15) return "15d";
     if (period === 30) return "30d";
     if (period === 90) return "90d";
+    if (period === 60) return "60d";
     return undefined;
   }, [period]);
 

@@ -2,6 +2,8 @@ import AdjustmentsHorizontalSolid from "./AdjustmentsHorizontalSolid";
 import AlertIcon from "./AlertIcon";
 import ArrowLongRight from "./ArrowLongRight";
 import ArrowPathIcon from "./ArrowPathIcon";
+import ArrowTrendingDown from "./ArrowTrendingDown";
+import ArrowTrendingUp from "./ArrowTrendingUp";
 import ArrowUturnLeft from "./ArrowUturnLeft";
 import ArrowUturnRight from "./ArrowUturnRight";
 import BagIcon from "./BagIcon";
@@ -26,6 +28,7 @@ import CheckSolid from "./CheckSolid";
 import Chevron from "./Chevron";
 import ChevronUpAndDown from "./ChevronUpAndDown";
 import CircleX from "./CircleX";
+import Clip from "./Clip";
 import ClockIcon from "./ClockIcon";
 import Cog8Tooth from "./Cog8Tooth";
 import Copy from "./Copy";
@@ -67,6 +70,7 @@ import Profile from "./Profile";
 import ProfileSolid from "./ProfileSolid";
 import Question from "./Question";
 import QuestionMark from "./QuestionMark";
+import RocketLaunch from "./RocketLaunch";
 import Square3StackSolid from "./Square3StackSolid";
 import Squares2x2Solid from "./Squares2x2Solid";
 import Star from "./Star";
@@ -74,13 +78,13 @@ import StarSolid from "./StarSolid";
 import Sun from "./Sun";
 import Trash from "./Trash";
 import Truck from "./Truck";
+import TruckSolid from "./TruckSolid";
 import User from "./User";
 import UserPlus from "./UserPlus";
 import UserPlusSolid from "./UserPlusSolid";
 import WarningCircle from "./WarningCircle";
 import X from "./X";
 import XCircle from "./XCircle";
-import Clip from "./Clip";
 const Svg = {
   excel: Excel,
   home: HomeIcon,
@@ -165,6 +169,10 @@ const Svg = {
   minus_circle: MinusCircle,
   adjustments_horizontal_solid: AdjustmentsHorizontalSolid,
   clip: Clip,
+  truck_solid: TruckSolid,
+  arrow_trending_down: ArrowTrendingDown,
+  arrow_trending_up: ArrowTrendingUp,
+  rocket_launch: RocketLaunch,
 };
 
 export default Svg;
