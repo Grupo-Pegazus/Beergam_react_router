@@ -81,7 +81,7 @@ export default function AnunciosPage() {
             onReset={resetFilters}
             onSubmit={applyFilters}
           />
-          <AnuncioList filters={apiFilters} />
+          <AnuncioList filters={apiFilters} syncPageWithUrl />
         </Section>
       </CensorshipWrapper>
 

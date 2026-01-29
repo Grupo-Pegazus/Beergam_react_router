@@ -25,6 +25,8 @@ interface ClaimsListProps {
     pagination?: ClaimsPagination;
     loading?: boolean;
     onPageChange?: (page: number) => void;
+    /** Quando true, a página é lida/escrita na URL (`?page=N`). @default false */
+    syncPageWithUrl?: boolean;
 }
 
 function formatDate(value?: string | null): string {
@@ -385,6 +387,7 @@ export function ClaimsList({
     pagination,
     loading,
     onPageChange,
+    syncPageWithUrl = false,
 }: ClaimsListProps) {
     const hasPagination = Boolean(
         pagination?.total_pages && pagination.total_pages > 1
@@ -429,6 +432,7 @@ export function ClaimsList({
                     scrollOnChange
                     scrollTargetId="claims-list-top"
                     isLoading={loading}
+                    syncWithUrl={syncPageWithUrl}
                 />
             ) : null}
         </div>

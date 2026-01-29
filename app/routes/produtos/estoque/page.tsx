@@ -42,7 +42,7 @@ export default function StockDashboardPage() {
     <>
       <Section title="Produtos com Controle de Estoque">
         <Grid cols={{ base: 1, lg: 1 }}>
-          <StockProductsList />
+          <StockProductsList syncPageWithUrl pageParamKey="page" />
         </Grid>
       </Section>
 
@@ -75,6 +75,8 @@ export default function StockDashboardPage() {
                     </h3>
                     <LowStockProductsList
                       products={stockDashboard.low_stock_products}
+                      syncPageWithUrl
+                      pageParamKey="low_stock_page"
                     />
                   </div>
                 </Grid>

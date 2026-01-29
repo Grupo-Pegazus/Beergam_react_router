@@ -7,9 +7,9 @@ import {
 import { Tooltip } from "react-tooltip";
 import { useGeographicDistribution } from "../../hooks";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
-import { 
-  Skeleton, 
-  Typography, 
+import {
+  Skeleton,
+  Typography,
   Stack,
   Box,
   Paper,
@@ -21,7 +21,7 @@ import { type Dayjs } from "dayjs";
 import { FilterDatePicker } from "~/src/components/filters";
 import dayjs from "dayjs";
 
-const geoUrl ="https://gist.githubusercontent.com/ruliana/1ccaaab05ea113b0dff3b22be3b4d637/raw/196c0332d38cb935cfca227d28f7cecfa70b412e/br-states.json";
+const geoUrl = "https://gist.githubusercontent.com/ruliana/1ccaaab05ea113b0dff3b22be3b4d637/raw/196c0332d38cb935cfca227d28f7cecfa70b412e/br-states.json";
 
 interface GeographyFeature {
   rsmKey?: string;
@@ -95,7 +95,7 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       const newPeriod = event.target.value as "last_day" | "last_7_days" | "last_30_days" | "custom";
       setSelectedPeriod(newPeriod);
-      
+
       // Limpa as datas quando não é período customizado
       if (newPeriod !== "custom") {
         setDateFrom(null);
@@ -186,11 +186,11 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
               {/* Ranking - Mobile primeiro, Desktop à esquerda */}
               <div className="lg:col-span-1 flex flex-col order-2 lg:order-1 w-full">
 
-                <Paper 
-                className="bg-beergam-section-background!">
-                                  <h3 className="text-xs mb-4 md:text-sm text-beergam-typography-primary!">
-                  Ranking de Estados
-                </h3>
+                <Paper
+                  className="bg-beergam-section-background!">
+                  <h3 className="text-xs mb-4 md:text-sm text-beergam-typography-primary!">
+                    Ranking de Estados
+                  </h3>
                   <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
                     {paginatedDistribution.map((item, index) => {
                       const globalIndex = (rankingPage - 1) * ITEMS_PER_PAGE + index;
@@ -199,7 +199,7 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
 
                           key={item.state}
                           className="flex items-center justify-between"
-                          // className="flex items-center justify-between p-2 md:p-3 rounded-lg bg-beergam-section-background! hover:bg-slate-100 transition-colors border border-beergam-section-border!"
+                        // className="flex items-center justify-between p-2 md:p-3 rounded-lg bg-beergam-section-background! hover:bg-slate-100 transition-colors border border-beergam-section-border!"
                         >
                           <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
                             <span className="text-xs md:text-sm font-bold text-beergam-typography-secondary! w-6 md:w-8 shrink-0">
@@ -237,7 +237,7 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
               {/* Mapa - Mobile primeiro, Desktop à direita */}
               <div className="lg:col-span-2 flex flex-col space-y-3 md:space-y-4 order-1 lg:order-2 w-full">
                 <div className="relative">
-                  <div 
+                  <div
                     className="h-[350px] md:h-[400px] lg:h-[500px] w-full relative"
                   >
                     <ComposableMap
@@ -251,10 +251,10 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
                       <Geographies geography={geoUrl}>
                         {({ geographies }: GeographiesRenderProps) => {
                           // Garante que geographies seja um array
-                          const geographiesArray = Array.isArray(geographies) 
-                            ? geographies 
+                          const geographiesArray = Array.isArray(geographies)
+                            ? geographies
                             : Object.values(geographies || {});
-                          
+
                           return geographiesArray.map((geo: GeographyFeature) => {
                             // Para TopoJSON, o ID pode estar em geo.id ou geo.properties.id
                             const stateCode = geo.id || geo.properties?.id || geo.properties?.sigla || "";
@@ -262,7 +262,7 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
                               (item) => item.state === stateCode
                             );
                             const units = distributionItem?.units || 0;
-                            
+
                             // Prepara o conteúdo do tooltip
                             const tooltipText = distributionItem
                               ? `${distributionItem.state_name || stateCode}<br/>${distributionItem.units} unidades<br/>${parseFloat(distributionItem.percentage).toFixed(2)}%`
@@ -303,7 +303,7 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
                   </h3>
                   <div className="flex items-center gap-2 md:gap-4">
                     <div className="flex-1">
-                      <div 
+                      <div
                         className="h-4 md:h-6 rounded"
                         style={{
                           background: 'linear-gradient(to right, rgba(249, 115, 22, 0.3), rgba(249, 115, 22, 1))',

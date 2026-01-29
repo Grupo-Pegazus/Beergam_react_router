@@ -7,13 +7,14 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import Svg from "~/src/assets/svgs/_index";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import CopyButton from "~/src/components/ui/CopyButton";
 import MainCards from "~/src/components/ui/MainCards";
 import PaginationBar from "~/src/components/ui/PaginationBar";
+import { usePageFromSearchParams } from "~/src/hooks/usePageFromSearchParams";
 import Alert from "~/src/components/utils/Alert";
 import { ImageCensored, TextCensored } from "~/src/components/utils/Censorship";
 import type { ModalOptions } from "~/src/components/utils/Modal/ModalContext";
@@ -32,9 +33,11 @@ import { formatDate } from "~/features/agendamentos/utils";
 
 interface AnunciosListProps {
   filters?: Partial<AdsFilters>;
+  /** Quando true, a página é lida/escrita na URL (`?page=N`). @default false */
+  syncPageWithUrl?: boolean;
 }
 
-export default function AnunciosList({ filters = {} }: AnunciosListProps) {
+export default function AnunciosList({ filters = {}, syncPageWithUrl = false }: AnunciosListProps) {
   const [page, setPage] = useState(filters.page ?? 1);
   const [perPage, setPerPage] = useState(filters.per_page ?? 20);
   const [mutatingAdId, setMutatingAdId] = useState<string | null>(null);
@@ -42,16 +45,19 @@ export default function AnunciosList({ filters = {} }: AnunciosListProps) {
   const { openModal, closeModal } = useModal();
 
   useEffect(() => {
-    setPage(filters.page ?? 1);
-  }, [filters.page]);
+    if (!syncPageWithUrl) setPage(filters.page ?? 1);
+  }, [filters.page, syncPageWithUrl]);
 
   useEffect(() => {
     setPerPage(filters.per_page ?? 20);
   }, [filters.per_page]);
 
+  const { page: pageFromUrl } = usePageFromSearchParams();
+  const effectivePage = syncPageWithUrl ? pageFromUrl : page;
+
   const { data, isLoading, error } = useAnuncios({
     ...filters,
-    page,
+    page: effectivePage,
     per_page: perPage,
   });
 
@@ -68,6 +74,19 @@ export default function AnunciosList({ filters = {} }: AnunciosListProps) {
   const totalPages = pagination?.total_pages ?? 1;
   const totalCount = pagination?.total_count ?? anuncios.length;
 
+  const [, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (!syncPageWithUrl || isLoading || totalPages < 1 || pageFromUrl <= totalPages) return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("page", String(totalPages));
+        return next;
+      },
+      { replace: true }
+    );
+  }, [syncPageWithUrl, isLoading, totalPages, pageFromUrl, setSearchParams]);
+
   const handleToggleStatus = (anuncio: Anuncio) => {
     if (anuncio.status === "closed") return;
     const nextStatus = anuncio.status === "active" ? "paused" : "active";
@@ -83,7 +102,7 @@ export default function AnunciosList({ filters = {} }: AnunciosListProps) {
   };
 
   const handlePageChange = (nextPage: number) => {
-    setPage(nextPage);
+    if (!syncPageWithUrl) setPage(nextPage);
   };
   const remainingQuota = quotaData?.success ? quotaData.data?.remaining ?? 0 : 0;
   return (
@@ -172,7 +191,7 @@ export default function AnunciosList({ filters = {} }: AnunciosListProps) {
 
       {/* Paginação fixa fora do AsyncBoundary, com scroll controlado pelo componente */}
       <PaginationBar
-        page={page}
+        page={Math.min(effectivePage, Math.max(1, totalPages))}
         totalPages={totalPages}
         totalCount={totalCount}
         entityLabel="anúncios"
@@ -180,6 +199,7 @@ export default function AnunciosList({ filters = {} }: AnunciosListProps) {
         scrollOnChange
         scrollTargetId="ads-list"
         isLoading={isLoading}
+        syncWithUrl={syncPageWithUrl}
       />
     </>
   );

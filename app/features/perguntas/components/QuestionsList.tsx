@@ -21,6 +21,8 @@ interface QuestionsListProps {
   loading?: boolean;
   onPageChange?: (page: number) => void;
   onAnswer: (questionId: string, answer: string) => Promise<void>;
+  /** Quando true, a página é lida/escrita na URL (`?page=N`). @default false */
+  syncPageWithUrl?: boolean;
 }
 
 function formatDate(value?: string | null): string {
@@ -319,6 +321,7 @@ export function QuestionsList({
           scrollOnChange
           scrollTargetId="questions-list-top"
           isLoading={loading}
+          syncWithUrl={syncPageWithUrl}
         />
       ) : null}
     </div>
