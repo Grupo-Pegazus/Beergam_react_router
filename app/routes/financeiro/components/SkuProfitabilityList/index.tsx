@@ -1,12 +1,13 @@
 import { Paper, Typography } from "@mui/material";
 import { useMemo } from "react";
+import type { IncomingsBySkuSchemaType } from "~/features/invoicing/typings";
 import type { Order } from "~/features/vendas/typings";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 import {
-    CensorshipWrapper,
-    ImageCensored,
-    TextCensored,
-    useCensorship,
+  CensorshipWrapper,
+  ImageCensored,
+  TextCensored,
+  useCensorship,
 } from "~/src/components/utils/Censorship";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 
@@ -70,7 +71,7 @@ function InfoCell({
   return (
     <div
       className={`border-r h-full grid content-end pr-2 ${
-        isLast ? "border-r-transparent" : "border-r-beergam-orange"
+        isLast ? "border-r-transparent" : "border-r-beergam-primary"
       }`}
     >
       <p className="text-[12px] text-beergam-typography-tertiary!">{label}</p>
@@ -80,7 +81,10 @@ function InfoCell({
 }
 
 export interface SkuProfitabilityListProps {
-  orders: Order[];
+  /** Lista de orders para processar (modo legado) */
+  orders?: Order[];
+  /** Lista de dados já processados do hook useIncomingsBySku */
+  incomingsBySku?: IncomingsBySkuSchemaType[];
   /** Quantidade máxima de SKUs na lista (default: 20) */
   maxItems?: number;
   /** Chave de censura (default: vendas_orders_list) */
@@ -89,6 +93,7 @@ export interface SkuProfitabilityListProps {
 
 export default function SkuProfitabilityList({
   orders,
+  incomingsBySku,
   maxItems = 20,
   censorshipKey = "vendas_orders_list",
 }: SkuProfitabilityListProps) {
@@ -96,6 +101,34 @@ export default function SkuProfitabilityList({
   const censored = isCensored(censorshipKey);
 
   const skuRows = useMemo(() => {
+    // Se temos dados já processados do hook, usamos diretamente
+    if (incomingsBySku && incomingsBySku.length > 0) {
+      const rows = incomingsBySku.map((item) => {
+        const { status, classes } = getHealthStatus(item.margin_pct);
+        return {
+          sku: item.sku,
+          title: item.title,
+          mlb: item.mlb,
+          thumbnail: item.thumbnail,
+          ordersCount: item.orders_count,
+          units: item.units,
+          avgProfitPerSale: item.avg_profit_per_unit,
+          marginPct: item.margin_pct,
+          totalProfit: item.total_profit,
+          totalRevenue: item.total_revenue,
+          status,
+          statusClasses: classes,
+        };
+      });
+
+      // Mantém a ordem do backend (já ordenado por margin_pct do maior para o menor)
+      // Não aplica maxItems quando vem do hook, pois o backend já controla a quantidade
+      return rows;
+    }
+
+    // Modo legado: processa orders
+    if (!orders || orders.length === 0) return [];
+
     type Acc = {
       sku: string;
       title?: string;
@@ -165,7 +198,7 @@ export default function SkuProfitabilityList({
     rows.sort((a, b) => b.units - a.units);
 
     return rows.slice(0, maxItems);
-  }, [orders, maxItems]);
+  }, [orders, incomingsBySku, maxItems]);
 
   if (skuRows.length === 0) return null;
 
