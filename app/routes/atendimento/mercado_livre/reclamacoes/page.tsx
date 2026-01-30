@@ -119,6 +119,8 @@ export default function ReclamacoesPage() {
     setAppliedFilters((prev) => ({ ...prev, page: nextPage }));
   }
 
+  const syncPageWithUrl = true;
+
   return (
     <>
       <Grid cols={{ base: 1 }} gap={4} className="mb-4">
