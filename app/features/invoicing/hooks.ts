@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { ApiResponse } from "../apiClient/typings";
+import type { InvoicingMetricsByMonthsSchemaType } from "./service";
 import { invoicingService } from "./service";
 import type { InvoicingMetricsSchemaType } from "./typings";
 export function useInvoicingMetrics() {
@@ -17,7 +18,7 @@ export function useInvoicingMetrics() {
 }
 
 export function useInvoicingMetricsByMonths() {
-    return useQuery<ApiResponse<{ "30": number, "60": number, "90": number }>>({
+    return useQuery<ApiResponse<InvoicingMetricsByMonthsSchemaType>>({
         queryKey: ["invoicing", "metrics", "by_months"],
         queryFn: async () => {
             const res = await invoicingService.get_metrics_by_months();
