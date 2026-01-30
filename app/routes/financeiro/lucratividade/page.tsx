@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+import "dayjs/locale/pt-br";
 import { Tooltip } from "react-tooltip";
 import {
 	Bar,
@@ -28,11 +30,24 @@ import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 interface SectionContent{
     value: string;
     period: string;
-    percentage?: string | number;
+    percentage?: string | number | null | undefined;
 }
 type PercentageBadgeProps = {
     percentage?: string | number | null | undefined;
 } 
+
+function getPercentageNumber({number, target}: {number: number | null, target: number | null}): string | null {
+	if (number == null || target == null) return null;
+	if(number == 0){
+		number = 1;
+	};
+	if(target == 0){
+		target = 1;
+	};
+	const value = number - target;
+	const percentage = value / target * 100;
+    return percentage.toFixed(2);
+}
 
 export default function LucratividadePage() {
 	const {data: invoicingMetrics, isLoading: isLoadingInvoicingMetrics} = useInvoicingMetrics();
@@ -40,6 +55,13 @@ export default function LucratividadePage() {
 	console.log(invoicingMetrics);
   const subscription = authStore.use.subscription() ?? null;
   const isBasePlan = subscription?.plan.display_name === 'Operacional';
+
+  // Calcula os nomes dos meses dinamicamente
+  const monthNames = {
+    "30": dayjs().locale("pt-br").format("MMMM"), // Mês atual
+    "60": dayjs().subtract(1, "month").locale("pt-br").format("MMMM"), // Mês anterior
+    "90": dayjs().subtract(2, "month").locale("pt-br").format("MMMM"), // 2 meses atrás
+  };
   function PercentageBadge({ percentage }: PercentageBadgeProps) {
     const isUnknown = percentage === null || percentage === undefined;
     const percentageValue = isUnknown ? 0 : parseFloat(percentage.toString());
@@ -47,7 +69,7 @@ export default function LucratividadePage() {
     const percentageColor = isUnknown ? 'bg-beergam-gray/20' : isNegative ? 'bg-beergam-red/20' : percentageValue > 20 ? 'bg-beergam-green-primary/20' : 'bg-beergam-yellow/20';
     const percentageTextColor = isUnknown ? 'text-beergam-gray' : isNegative ? 'text-beergam-red' : percentageValue > 20 ? 'text-beergam-green-primary' : 'text-beergam-yellow';
     return <div data-tooltip-id={`percentage-badge-${percentage}`} className={`p-1 px-2 rounded-lg flex items-center w-fit mb-2 gap-1 justify-center ${percentageColor}`}>
-      <p className={`${percentageTextColor}!`}>{isUnknown ? '?' : `${percentageValue}%`}</p>
+      <p className={`${percentageTextColor}!`}>{isUnknown ? '?' : `${percentage}%`}</p>
       { !isUnknown && (isNegative ? <Svg.arrow_trending_down tailWindClasses="h-4 w-4 text-beergam-red" /> : <Svg.arrow_trending_up tailWindClasses={`h-4 w-4 ${percentageTextColor}`} />)}
       {
         isUnknown && <Tooltip content={isBasePlan ? 'Informação indisponível para o plano atual.' : 'Informação indisponível.'} id={`percentage-badge-${percentage}`}></Tooltip>
@@ -60,18 +82,18 @@ export default function LucratividadePage() {
             <div className={`border-r h-full grid content-end ${index != 2 ? 'border-r-beergam-primary' : 'border-r-transparent'}`}>
                         {canShowPercentage && <PercentageBadge percentage={percentage} />}
                         <h3 className="text-[18px]! text-beergam-primary font-bold">{value}</h3>
-                        <p className="text-[12px] text-beergam-typography-tertiary!">{period}</p>
+                        <p className="text-[12px] text-beergam-typography-tertiary! capitalize">{period}</p>
                     </div>
             </>
         )
     }
 
-    function SectionContentCard({ contents }: { contents: SectionContent[] }) {
+    function SectionContentCard({ contents }: { contents: (SectionContent & { canShowPercentage?: boolean })[] }) {
         return(
             <>
             <div className="grid grid-cols-3 gap-2 items-baseline">
                 {contents.map((content, index) => (
-                    <SectionContent index={index} key={content.period} {...content} />
+                    <SectionContent index={index} key={content.period} canShowPercentage={content.canShowPercentage} {...content} />
                 ))}
             </div>
             {/* <p className="text-xl! mt-2"><span className="text-beergam-primary text-xl! font-bold">Total:</span> {total}</p> */}
@@ -85,25 +107,25 @@ export default function LucratividadePage() {
                   title="Total Bruto Acumulado"
                   icon={<Svg.graph_solid tailWindClasses="h-5 w-5" />}
                 >
-                   <SectionContentCard contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.faturamento_bruto ?? "0"), period: "30 dias", percentage: parseFloat(invoicingMetrics?.data?.["30"]?.comparacao_periodo_anterior?.faturamento_bruto_diff ?? "0") }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.faturamento_bruto ?? "0"), period: "60 dias", percentage: parseFloat(invoicingMetrics?.data?.["60"]?.comparacao_periodo_anterior?.faturamento_bruto_diff ?? "0") }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.faturamento_bruto ?? "0"), period: "90 dias", percentage: parseFloat(invoicingMetrics?.data?.["90"]?.comparacao_periodo_anterior?.faturamento_bruto_diff ?? "0") }]} />
+                   <SectionContentCard contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.faturamento_bruto ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.faturamento_bruto ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.faturamento_bruto ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                 <StatCard
                   title="Total Líquido Acumulado"
                   icon={<Svg.currency_dollar_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
+                    <SectionContentCard contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.faturamento_liquido ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.faturamento_liquido ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.faturamento_liquido ?? "0"), period: "90 dias" }]} />
                 </StatCard>
             <StatCard
                   title="Total Bruto Mensal"
                   icon={<Svg.graph_solid tailWindClasses="h-5 w-5" />}
                 >
-                   <SectionContentCard contents={[{ value: formatCurrency(invoicingMetricsByMonths?.data?.["30"] ?? "0"), period: "Janeiro" }, { value: formatCurrency(invoicingMetricsByMonths?.data?.["60"] ?? "0"), period: "Dezembro" }, { value: formatCurrency(invoicingMetricsByMonths?.data?.["90"] ?? "0"), period: "Novembro" }]} />
+                   <SectionContentCard contents={[{ canShowPercentage: true ,value: formatCurrency(invoicingMetricsByMonths?.data?.["30"]?.gross ?? "0"), period: monthNames["30"], percentage: invoicingMetricsByMonths?.data?.["30"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["30"]?.gross ?? 0, target: invoicingMetricsByMonths?.data?.["60"]?.gross ?? 0}) : null }, { canShowPercentage: true ,value: formatCurrency(invoicingMetricsByMonths?.data?.["60"]?.gross ?? "0"), period: monthNames["60"], percentage: invoicingMetricsByMonths?.data?.["60"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["60"]?.gross ?? 0, target: invoicingMetricsByMonths?.data?.["90"]?.gross ?? 0}) : null }, { canShowPercentage: true ,value: formatCurrency(invoicingMetricsByMonths?.data?.["90"]?.gross ?? "0"), period: monthNames["90"], percentage: invoicingMetricsByMonths?.data?.["90"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["90"]?.gross ?? 0, target: invoicingMetricsByMonths?.data?.["120"]?.gross ?? null}) : null }]} />
                 </StatCard>
                 <StatCard
                   title="Total Líquido Mensal"
                   icon={<Svg.currency_dollar_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
+                    <SectionContentCard contents={[{ canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["30"]?.net ?? "0"), period: monthNames["30"], percentage: invoicingMetricsByMonths?.data?.["30"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["30"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["60"]?.net ?? 0}) : null }, { canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["60"]?.net ?? "0"), period: monthNames["60"], percentage: invoicingMetricsByMonths?.data?.["60"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["60"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["90"]?.net ?? 0}) : null }, { canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["90"]?.net ?? "0"), period: monthNames["90"], percentage: invoicingMetricsByMonths?.data?.["90"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["90"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["120"]?.net ?? null}) : null }]} />
                 </StatCard>
                 <StatCard
                   title="Total Bruto + Frete Recebido"
