@@ -1,8 +1,11 @@
-import { Paper, Typography } from "@mui/material";
-import { useMemo } from "react";
+import { Button, Paper, Typography } from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
 import type { IncomingsBySkuSchemaType } from "~/features/invoicing/typings";
 import type { Order } from "~/features/vendas/typings";
+import Svg from "~/src/assets/svgs/_index";
+import { FilterSearchInput } from "~/src/components/filters/components/FilterSearchInput";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
+import PaginationBar from "~/src/components/ui/PaginationBar";
 import {
   CensorshipWrapper,
   ImageCensored,
@@ -91,6 +94,8 @@ export interface SkuProfitabilityListProps {
   censorshipKey?: "vendas_orders_list" | "vendas_orders_list_details";
 }
 
+const ITEMS_PER_PAGE = 20;
+
 export default function SkuProfitabilityList({
   orders,
   incomingsBySku,
@@ -99,11 +104,15 @@ export default function SkuProfitabilityList({
 }: SkuProfitabilityListProps) {
   const { isCensored } = useCensorship();
   const censored = isCensored(censorshipKey);
+  
+  const [page, setPage] = useState(1);
+  const [skuFilter, setSkuFilter] = useState("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const skuRows = useMemo(() => {
     // Se temos dados já processados do hook, usamos diretamente
     if (incomingsBySku && incomingsBySku.length > 0) {
-      const rows = incomingsBySku.map((item) => {
+      let rows = incomingsBySku.map((item) => {
         const { status, classes } = getHealthStatus(item.margin_pct);
         return {
           sku: item.sku,
@@ -121,8 +130,24 @@ export default function SkuProfitabilityList({
         };
       });
 
-      // Mantém a ordem do backend (já ordenado por margin_pct do maior para o menor)
-      // Não aplica maxItems quando vem do hook, pois o backend já controla a quantidade
+      // Aplica filtro por SKU
+      if (skuFilter.trim()) {
+        const filterLower = skuFilter.toLowerCase().trim();
+        rows = rows.filter(
+          (row) =>
+            row.sku.toLowerCase().includes(filterLower) ||
+            row.title?.toLowerCase().includes(filterLower)
+        );
+      }
+
+      // Aplica ordenação por margin_pct
+      rows.sort((a, b) => {
+        if (sortOrder === "asc") {
+          return a.marginPct - b.marginPct;
+        }
+        return b.marginPct - a.marginPct;
+      });
+
       return rows;
     }
 
@@ -198,13 +223,82 @@ export default function SkuProfitabilityList({
     rows.sort((a, b) => b.units - a.units);
 
     return rows.slice(0, maxItems);
-  }, [orders, incomingsBySku, maxItems]);
+  }, [orders, incomingsBySku, maxItems, skuFilter, sortOrder]);
 
-  if (skuRows.length === 0) return null;
+  // Calcula paginação
+  const totalItems = skuRows.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (page - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedRows = skuRows.slice(startIndex, endIndex);
+
+  // Reset página quando filtro ou ordenação mudar, ou quando página atual for maior que total
+  useEffect(() => {
+    if (page > totalPages && totalPages > 0) {
+      setPage(1);
+    }
+  }, [totalPages, page]);
+
+  const handleSortToggle = () => {
+    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    setPage(1); // Reset para primeira página ao mudar ordenação
+  };
+
+  if (skuRows.length === 0 && !skuFilter) return null;
 
   return (
-    <div className="grid gap-2">
-      {skuRows.map((row) => (
+    <div className="grid gap-4">
+      {/* Filtros e controles */}
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+        <div className="flex-1 w-full md:max-w-md">
+          <FilterSearchInput
+            value={skuFilter}
+            onChange={(value) => {
+              setSkuFilter(value);
+              setPage(1); // Reset para primeira página ao filtrar
+            }}
+            label="Filtrar por SKU"
+            placeholder="Digite o SKU ou nome do produto..."
+            fullWidth={true}
+            widthType="full"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outlined"
+            onClick={handleSortToggle}
+            startIcon={
+              sortOrder === "asc" ? (
+                <Svg.arrow_trending_up tailWindClasses="h-4 w-4" />
+              ) : (
+                <Svg.arrow_trending_down tailWindClasses="h-4 w-4" />
+              )
+            }
+            sx={{
+              borderColor: "var(--color-beergam-primary)",
+              color: "var(--color-beergam-primary)",
+              "&:hover": {
+                borderColor: "var(--color-beergam-primary)",
+                backgroundColor: "var(--color-beergam-primary)",
+                color: "var(--color-beergam-white)",
+              },
+            }}
+          >
+            Margem {sortOrder === "asc" ? "Crescente" : "Decrescente"}
+          </Button>
+        </div>
+      </div>
+
+      {/* Lista de itens */}
+      {paginatedRows.length === 0 ? (
+        <div className="flex items-center justify-center p-8">
+          <p className="text-beergam-typography-secondary">
+            {skuFilter ? "Nenhum SKU encontrado com o filtro aplicado." : "Nenhum item para exibir."}
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-2">
+          {paginatedRows.map((row) => (
         <Paper
           key={row.sku}
 
@@ -293,7 +387,20 @@ export default function SkuProfitabilityList({
             </div>
           </CensorshipWrapper>
         </Paper>
-      ))}
+          ))}
+        </div>
+      )}
+
+      {/* Paginação */}
+      {totalPages > 1 && (
+        <PaginationBar
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalItems}
+          entityLabel="SKUs"
+          onChange={(nextPage) => setPage(nextPage)}
+        />
+      )}
     </div>
   );
 }
