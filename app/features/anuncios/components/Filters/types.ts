@@ -28,6 +28,7 @@ export interface AnunciosFiltersState
   health_score_max?: number;
   experience_score_min?: number;
   experience_score_max?: number;
+  flex?: boolean;
 }
 
 export interface AnunciosFiltersProps {

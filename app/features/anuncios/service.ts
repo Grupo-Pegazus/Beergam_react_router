@@ -151,6 +151,11 @@ class AnuncioService {
     });
     return response as ApiResponse<ReprocessAdsResponse>;
   }
+
+  async reprocessAllAds(): Promise<ApiResponse<ReprocessAdsResponse>> {
+    const response = await typedApiClient.post<ReprocessAdsResponse>("/v1/ads/reprocess-all");
+    return response as ApiResponse<ReprocessAdsResponse>;
+  }
 }
 
 export const anuncioService = new AnuncioService();

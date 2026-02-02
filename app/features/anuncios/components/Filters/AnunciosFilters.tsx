@@ -29,8 +29,6 @@ export const DELIVERY_OPTIONS: Array<{ label: string; value: DeliveryTypeFilter 
   { label: "FULL", value: "fulfillment" },
   { label: "Coleta", value: "cross_docking" },
   { label: "Correios", value: "drop_off" },
-  { label: "Mercado Envios", value: "me2" },
-  { label: "Flex", value: "self_service" },
   { label: "Não especificado", value: "not_specified" },
 ];
 
@@ -249,6 +247,11 @@ export default function AnunciosFilters({
     [value.experience_score_max],
   );
 
+  const flexValue = useMemo(
+    () => Boolean(value.flex),
+    [value.flex],
+  );
+
   const currentSearchType = useMemo(() => {
     if (value.searchType) {
       return value.searchType;
@@ -385,6 +388,12 @@ export default function AnunciosFilters({
           value={withoutSalesValue}
           onChange={(newValue) => handleFilterChange("withoutSales", newValue)}
           label="Somente anúncios sem venda"
+          defaultValue={false}
+        />
+        <FilterSwitch
+          value={flexValue}
+          onChange={(newValue) => handleFilterChange("flex", newValue)}
+          label="Somente anúncios FLEX"
           defaultValue={false}
         />
         <FilterSwitch
