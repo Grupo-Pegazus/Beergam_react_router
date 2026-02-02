@@ -48,7 +48,10 @@ function sanitizeFilters(state: AnunciosFiltersState): Partial<AdsFilters> {
     apiFilters.ad_type = state.anuncioTypeFilter === "gold_special" ? "Classico" : "Premium";
   }
 
-  if (state.logistic_type) {
+  // Processar filtro FLEX (tem prioridade sobre deliveryTypeFilter)
+  if (state.flex) {
+    apiFilters.logistic_type = "flex";
+  } else if (state.logistic_type) {
     apiFilters.logistic_type = state.logistic_type;
   }
 

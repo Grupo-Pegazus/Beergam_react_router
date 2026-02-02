@@ -372,7 +372,7 @@ function AnuncioCard({
                     }}
                   />
                 )}
-                {anuncio.is_catalog && (
+                {anuncio.is_catalog ? (
                   <Chip
                     label="Catálogo"
                     size="small"
@@ -384,7 +384,31 @@ function AnuncioCard({
                       color: "#7c3aed",
                     }}
                   />
-                )}
+                ) : 
+                <Chip
+                    label="Tradicional"
+                    size="small"
+                    sx={{
+                      height: 20,
+                      fontSize: "0.65rem",
+                      fontWeight: 600,
+                      backgroundColor: "#dbeafe",
+                      color: "#1e40af",
+                    }}
+                  />}
+                  {anuncio.flex && (
+                    <Chip
+                      label="Flex"
+                      size="small"
+                      sx={{
+                        height: 20,
+                        fontSize: "0.65rem",
+                        fontWeight: 600,
+                        backgroundColor: "#fef3c7",
+                        color: "#92400e",
+                      }}
+                    />
+                  )}
               </div>
               <div className="flex flex-col items-start gap-2">
                 <div className="flex items-center gap-2">
