@@ -240,4 +240,31 @@ export function useReprocessAds() {
   });
 }
 
+export function useReprocessAllAds() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const res = await anuncioService.reprocessAllAds();
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao reprocessar todos os anúncios");
+      }
+      return res as ApiResponse<ReprocessAdsResponse>;
+    },
+    onSuccess: (res) => {
+      // Atualiza todas as queries relacionadas a anúncios
+      queryClient.invalidateQueries({ queryKey: ["anuncios"] });
+      queryClient.invalidateQueries({ queryKey: ["anuncios", "reprocess", "quota"] });
+
+      const total = res.data?.total_reprocessed ?? 0;
+      const requested = res.data?.total_requested ?? 0;
+      toast.success(`Reprocessamento completo concluído. ${total} de ${requested} anúncio(s) reprocessado(s).`);
+    },
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "Erro ao reprocessar todos os anúncios";
+      toast.error(message);
+    },
+  });
+}
+
 export { useAnunciosFilters } from "./hooks/useAnunciosFilters";

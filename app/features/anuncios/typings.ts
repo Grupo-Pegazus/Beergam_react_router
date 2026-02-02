@@ -199,6 +199,7 @@ export const AnuncioSchema = z.object({
   variations_count: z.number(),
   variations: z.array(VariationSchema).optional(),
   visits: z.array(VisitSchema).optional(),
+  flex: z.boolean(),
 });
 
 export type Anuncio = z.infer<typeof AnuncioSchema>;
