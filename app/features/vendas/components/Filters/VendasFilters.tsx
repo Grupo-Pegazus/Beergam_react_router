@@ -15,6 +15,7 @@ const STATUS_OPTIONS: Array<{ label: string; value: OrderStatusFilter }> = [
   { label: "Cancelado", value: "cancelled" },
   { label: "Pagamento necessário", value: "payment_required" },
   { label: "Pagamento em processo", value: "payment_in_process" },
+  { label: "Parcialmente reembolsado", value: "partially_refunded" },
 ];
 
 const SEARCH_TYPE_OPTIONS = [

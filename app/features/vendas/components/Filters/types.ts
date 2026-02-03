@@ -5,7 +5,8 @@ export type OrderStatusFilter =
   | "payment_required"
   | "payment_in_process"
   | "paid"
-  | "cancelled";
+  | "cancelled"
+  | "partially_refunded";
 
 export type DeliveryStatusFilter =
   | "all"

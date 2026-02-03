@@ -31,6 +31,12 @@ export const getStatusOrderMeliInfo = (status: string | null | undefined) => {
         color: "#1e40af",
         icon: "check_circle",
       },
+      partially_refunded: {
+        label: "Parcialmente reembolsado",
+        backgroundColor: "#fef3c7",
+        color: "#92400e",
+        icon: "currency_dollar",
+      },
       ready_to_ship: {
         label: "Pronto para enviar",
         backgroundColor: "#fef3c7",

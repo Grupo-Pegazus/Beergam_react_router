@@ -31,6 +31,7 @@ const STATUS_LABELS: Record<OrderStatusFilter, string> = {
     payment_in_process: "Em Processo",
     paid: "Pago",
     cancelled: "Cancelado",
+    partially_refunded: "Parcialmente Reembolsado",
 };
 
 const DELIVERY_STATUS_LABELS: Record<DeliveryStatusFilter, string> = {

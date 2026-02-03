@@ -17,3 +17,22 @@ export const HomeSummarySchema = z.object({
 
 export type HomeSummary = z.infer<typeof HomeSummarySchema>;
 
+export const FlexDeliveryRangeItemSchema = z.object({
+  capacity: z.number(),
+  from: z.number(),
+  to: z.number(),
+  cutoff: z.number().optional(),
+});
+
+export type FlexDeliveryRangeItem = z.infer<typeof FlexDeliveryRangeItemSchema>;
+
+export const FlexCutoffSchema = z.object({
+  has_flex: z.boolean(),
+  delivery_window: z.string().optional(),
+  week: z.array(FlexDeliveryRangeItemSchema).default([]),
+  saturday: z.array(FlexDeliveryRangeItemSchema).default([]),
+  sunday: z.array(FlexDeliveryRangeItemSchema).default([]),
+});
+
+export type FlexCutoff = z.infer<typeof FlexCutoffSchema>;
+
