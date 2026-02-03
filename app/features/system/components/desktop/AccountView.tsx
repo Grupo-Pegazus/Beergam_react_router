@@ -510,7 +510,11 @@ export default function AccountView({
         </div>
       </ClickAwayListener>
 
-      <Modal isOpen={modalOpen} onClose={handleModalClose}>
+      <Modal
+        title="Adicionar Marketplace"
+        isOpen={modalOpen}
+        onClose={handleModalClose}
+      >
         <Suspense
           fallback={
             <div className="flex items-center justify-center min-h-[200px]">

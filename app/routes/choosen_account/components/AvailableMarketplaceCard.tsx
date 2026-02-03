@@ -1,4 +1,5 @@
-import { type MarketplaceVisualInfo } from "~/features/marketplace/typings";
+import type { MarketplaceVisualInfo } from "~/features/marketplace/typings";
+import Svg from "~/src/assets/svgs/_index";
 
 interface AvailableMarketplaceCardProps {
   marketplace: MarketplaceVisualInfo;
@@ -6,19 +7,12 @@ interface AvailableMarketplaceCardProps {
   isSelected?: boolean;
 }
 
-enum MarketplaceAvailable {
-  NOT_AVAILABLE = "Esse Marketplace ainda não está disponível.",
-  LIMIT_REACHED = "Você atingiu o limite de contas disponíveis.",
-}
+const NOT_AVAILABLE_MESSAGE = "Esse Marketplace ainda não está disponível.";
 
-function isMarketplaceAvailable(marketplace: MarketplaceVisualInfo) {
-  let textToBeDisplayed = "";
-  if (!marketplace.available) {
-    textToBeDisplayed = MarketplaceAvailable.NOT_AVAILABLE;
-  }
+function getAvailability(marketplace: MarketplaceVisualInfo) {
   return {
     isAvailable: marketplace.available,
-    textToBeDisplayed,
+    message: marketplace.available ? "" : NOT_AVAILABLE_MESSAGE,
   };
 }
 
@@ -27,89 +21,75 @@ export default function AvailableMarketplaceCard({
   onCardClick,
   isSelected = false,
 }: AvailableMarketplaceCardProps) {
-  const { isAvailable, textToBeDisplayed } =
-    isMarketplaceAvailable(marketplace);
+  const { isAvailable, message } = getAvailability(marketplace);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    if (isAvailable) onCardClick?.();
+  };
 
   return (
     <div
       className={`
-        relative group transition-all duration-300 transform
-        ${isAvailable ? 'hover:scale-105' : ''}
-        ${isSelected ? 'scale-105' : ''}
+        relative group transition-all duration-200
+        ${isAvailable ? "hover:scale-[1.02]" : ""}
+        ${isSelected ? "scale-[1.02]" : ""}
       `}
       onClick={() => isAvailable && onCardClick?.()}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          if (isAvailable) {
-            onCardClick?.();
-          }
-        }
-      }}
+      onKeyDown={handleKeyDown}
+      aria-pressed={isSelected}
+      aria-disabled={!isAvailable}
     >
       <div
         className={`
-          relative w-full h-48 flex flex-col items-center justify-center p-6 rounded-2xl
-          border-2 transition-all duration-300 shadow-lg
-          ${isSelected 
-            ? 'border-orange-400 bg-gradient-to-br from-orange-50 to-orange-100 shadow-orange-200' 
-            : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-xl'
+          relative w-full min-h-44 flex flex-col items-center justify-center p-5 rounded-2xl
+          border-2 transition-all duration-200 shadow-sm
+          bg-beergam-section-background! border-beergam-section-border
+          ${isSelected
+            ? "border-beergam-orange! bg-beergam-orange/10! shadow-md"
+            : "hover:border-beergam-blue-primary/50 hover:shadow-md"
           }
-          ${!isAvailable 
-            ? 'opacity-50 cursor-not-allowed grayscale' 
-            : 'cursor-pointer hover:shadow-2xl'
+          ${!isAvailable
+            ? "opacity-60 cursor-not-allowed grayscale"
+            : "cursor-pointer"
           }
         `}
       >
-        {/* Badge de seleção */}
         {isSelected && (
-          <div className="absolute -top-2 -right-2 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
-            <span className="text-white text-sm font-bold">✓</span>
+          <div className="absolute top-2 right-2 w-7 h-7 bg-beergam-orange rounded-full flex items-center justify-center shadow-md">
+            <Svg.check tailWindClasses="stroke-beergam-white w-4 h-4" />
           </div>
         )}
 
-        {/* Ícone do marketplace */}
-        <div className="mb-4 relative">
+        <div className="mb-3 relative shrink-0">
           <img
-            className="w-16 h-16 object-contain transition-transform duration-300 group-hover:scale-110"
+            className="w-14 h-14 object-contain"
             src={marketplace.image}
             alt={marketplace.label}
           />
-          {isSelected && (
-            <div className="absolute inset-0 bg-orange-500/20 rounded-full animate-pulse"></div>
-          )}
         </div>
 
-        {/* Nome do marketplace */}
-        <h3 className={`
-          text-center font-semibold text-lg transition-colors duration-300
-          ${isSelected ? 'text-orange-700' : 'text-gray-700 group-hover:text-blue-700'}
-        `}>
+        <h3
+          className={`
+            text-center font-semibold text-base text-beergam-typography-primary
+            ${isSelected ? "text-beergam-orange-dark!" : ""}
+          `}
+        >
           {marketplace.label}
         </h3>
 
-        {/* Status de disponibilidade */}
-        {!isAvailable && (
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm rounded-2xl opacity-80 flex items-center justify-center">
-            <div className="text-center p-4">
-              <p className="text-white text-sm font-medium leading-tight">
-                {textToBeDisplayed}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Efeito de hover */}
-        {isAvailable && !isSelected && (
-          <div className="absolute inset-0 bg-linear-to-t from-blue-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:to-blue-500/10 rounded-2xl transition-all duration-300"></div>
-        )}
-
-        {/* Indicador de seleção */}
         {isSelected && (
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-            <div className="w-6 h-1 bg-orange-500 rounded-full"></div>
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-beergam-orange rounded-full" />
+        )}
+
+        {!isAvailable && (
+          <div className="absolute inset-0 bg-beergam-typography-tertiary/80 backdrop-blur-[2px] rounded-2xl flex items-center justify-center p-4">
+            <p className="text-beergam-white text-sm font-medium text-center">
+              {message}
+            </p>
           </div>
         )}
       </div>

@@ -261,6 +261,7 @@ export default function ChoosenAccountPage({
         </div>
       </div>
       <Modal
+        title="Adicionar Marketplace"
         isOpen={abrirModal}
         onClose={() => handleAbrirModal({ abrir: false })}
       >
