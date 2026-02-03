@@ -256,13 +256,14 @@ export function useReprocessAllAds() {
       queryClient.invalidateQueries({ queryKey: ["anuncios"] });
       queryClient.invalidateQueries({ queryKey: ["anuncios", "reprocess", "quota"] });
 
-      const total = res.data?.total_reprocessed ?? 0;
-      const requested = res.data?.total_requested ?? 0;
-      toast.success(`Reprocessamento completo concluído. ${total} de ${requested} anúncio(s) reprocessado(s).`);
+      const apiMessage = res?.message?.trim();
+      const fallbackMessage = `Reprocessamento iniciado.`;
+      toast.success(apiMessage || fallbackMessage);
     },
     onError: (error: unknown) => {
-      const message = error instanceof Error ? error.message : "Erro ao reprocessar todos os anúncios";
-      toast.error(message);
+      const apiMessage = error instanceof Error ? error.message?.trim() : undefined;
+      const fallbackMessage = "Erro ao reprocessar todos os anúncios";
+      toast.error(apiMessage || fallbackMessage);
     },
   });
 }
