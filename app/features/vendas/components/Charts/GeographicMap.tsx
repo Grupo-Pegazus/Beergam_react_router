@@ -83,7 +83,7 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
 
   const getFillColor = useCallback(
     (units: number): string => {
-      if (maxUnits === 0) return "#f3f4f6";
+      if (maxUnits === 0) return "rgba(249, 115, 22, 0.18)";
       const intensity = units / maxUnits;
       const opacity = 0.3 + intensity * 0.7;
       return `rgba(249, 115, 22, ${opacity})`;
