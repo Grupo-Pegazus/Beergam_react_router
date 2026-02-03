@@ -3,6 +3,7 @@ import TopAnunciosVendidos from "~/features/anuncios/components/TopAnunciosVendi
 import Reputacao from "~/features/metricsAccount/components/Reputacao/Reputacao";
 import ScheduleTimes from "~/features/metricsAccount/components/ScheduleTimes/ScheduleTimes";
 import Visitas from "~/features/metricsAccount/components/Visitas/Visitas";
+import FlexCutoffTimes from "~/features/summary/components/FlexCutoffTimes";
 import QuestionsOverviewHome from "~/features/perguntas/components/QuestionsOverviewHome";
 import ProdutosMetricasCards from "~/features/produtos/components/MetricasCards/MetricasCards";
 import ClaimsOverviewHome from "~/features/reclamacoes/components/ClaimsOverviewHome";
@@ -25,6 +26,7 @@ export default function InicioPage() {
         <Grid cols={{ base: 1, sm: 2, md: 3, lg: 4 }}>
           <Reputacao />
           <ScheduleTimes />
+          <FlexCutoffTimes />
         </Grid>
       </Section>
       <CensorshipWrapper controlChildren censorshipKey="vendas_resumo">
