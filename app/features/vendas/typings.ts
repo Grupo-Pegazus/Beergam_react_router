@@ -11,8 +11,12 @@ export const dateString = z.string().transform((val) =>
   dayjs(val).format('DD/MM/YYYY, HH:mm')
 ).nullable().optional();
 
+export const dateStringWithoutTime = z.string().transform((val) => 
+  dayjs(val).format('DD/MM/YYYY')
+).nullable().optional();
+
 /** Schema para strings de data nullable/optional */
-export const dateStringOptional = dateString.nullable().optional();
+export const dateStringOptional = dateStringWithoutTime.nullable().optional();
 
 /** Schema para strings de moeda - transforma em formato BRL (R$ x.xxx,xx) */
 export const currencyString = z.string().transform((val) => 
@@ -90,7 +94,7 @@ export const OrderSchema = z.object({
   tracking_method: z.string().nullable().optional(),
   shipment_status: z.string().nullable().optional().transform((val) => getStatusOrderMeliInfo(val)?.label),
   shipment_substatus: z.string().nullable().optional(),
-  estimated_delivery: dateStringOptional,
+  estimated_delivery: dateStringWithoutTime,
   declared_value: currencyStringOptional,
   shipping_method_name: z.string().nullable().optional(),
   shipping_paid_by: z.string().nullable().optional(),
@@ -331,13 +335,13 @@ export const OrderAttributeDisplayOrder: (keyof Order)[] = [
   // Datas e Status
   'created_at', 'updated_at', 'date_created', 'date_closed', 'expiration_date', 'status',
   // Produto / Anúncio
-  'sku', 'mlb', 'title', 'category_id', 'quantity', 'unit_price', 'ad_type', 'listing_type_id', 'condition', 'thumbnail',
+  'sku', 'mlb', 'title', 'category_id', 'quantity', 'unit_price', 'listing_type_id', 'thumbnail',
   // Valores do Pedido
   'total_amount', 'paid_amount', 'currency_id', 'valor_base', 'valor_liquido',
   // Taxas, Impostos e Custos Fixos
   'tax_percentage', 'tax_amount', 'sale_fee', 'price_cost', 'packaging_cost', 'extra_cost',
   // Envio e Logística
-  'shipping_id', 'shipping_method_name', 'shipping_mode', 'shipping_paid_by', 'shipping_destination_state', 
+  'shipping_id', 'shipping_mode', 'shipping_paid_by', 'shipping_destination_state', 
   'shipping_details', 'tracking_number', 'tracking_method', 'shipment_status', 'shipment_substatus', 
   'estimated_delivery', 'declared_value',
   // Custos e Receitas de Envio

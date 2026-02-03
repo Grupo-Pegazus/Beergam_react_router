@@ -38,15 +38,15 @@ interface GeographiesRenderProps {
 }
 
 interface GeographicMapProps {
-  period?: "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "custom";
+  period?: "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "last_90_days" | "custom";
 }
 
 const ITEMS_PER_PAGE = 10;
 
 export default function GeographicMap({ period = "last_day" }: GeographicMapProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<
-    "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "custom"
-  >(period as "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "custom");
+    "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "last_90_days" | "custom"
+  >(period as "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "last_90_days" | "custom");
 
   const [dateFrom, setDateFrom] = useState<Dayjs | null>(null);
   const [dateTo, setDateTo] = useState<Dayjs | null>(null);
@@ -93,7 +93,7 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
 
   const handlePeriodChange = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {
-      const newPeriod = event.target.value as "last_day" | "last_7_days" | "last_30_days" | "custom";
+      const newPeriod = event.target.value as "last_day" | "last_7_days" | "last_30_days" | "last_90_days" | "custom";
       setSelectedPeriod(newPeriod);
 
       // Limpa as datas quando não é período customizado
@@ -162,6 +162,7 @@ export default function GeographicMap({ period = "last_day" }: GeographicMapProp
                     { value: "last_7_days", label: "Últimos 7 dias" },
                     { value: "last_15_days", label: "Últimos 15 dias" },
                     { value: "last_30_days", label: "Últimos 30 dias" },
+                    { value: "last_90_days", label: "Últimos 90 dias" },
                     { value: "custom", label: "Período personalizado" },
                   ]}
                 />

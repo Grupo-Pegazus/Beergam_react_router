@@ -476,6 +476,19 @@ export default function RelatorioVendasRoute() {
             return acc + parseFloat(order.custo_envio_final || "0");
         }, 0);
     }, [orders]);
+
+    const CustoEnvioComprador = useMemo(() => {
+        return orders.reduce((acc, order) => {
+            return acc + parseFloat(order.custo_envio_buyer || "0");
+        }, 0);
+    }, [orders]);
+
+    const ValorDeclarado = useMemo(() => {
+        return orders.reduce((acc, order) => {
+            return acc + parseFloat(order.declared_value || "0");
+        }, 0);
+    }, [orders]);
+
     const footers = useMemo(() => createColumnFooters({
         total_amount: {
             value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalCusto),
@@ -504,7 +517,14 @@ export default function RelatorioVendasRoute() {
         custo_envio_final: {
             value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalEnvioFinal),
         },
-    }), [TotalCusto, TotalValorPago, TotalValorBase, TotalValorLiquido, TotalValorDoImposto, TotalTarifaML, TotalEnvioVendedor, TotalEnvioBase, TotalEnvioFinal]);
+        custo_envio_buyer: {
+            value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(CustoEnvioComprador),
+        },
+        declared_value: {
+            value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(ValorDeclarado),
+        },
+
+    }), [TotalCusto, TotalValorPago, TotalValorBase, TotalValorLiquido, TotalValorDoImposto, TotalTarifaML, TotalEnvioVendedor, TotalEnvioBase, TotalEnvioFinal, CustoEnvioComprador, ValorDeclarado]);
     const columns: ColumnDef<Order>[] = useMemo(() => {
         // Campos que são objetos ou arrays e não podem ser renderizados diretamente
         const excludedKeys: (keyof Order)[] = [
@@ -544,6 +564,8 @@ export default function RelatorioVendasRoute() {
             'custo_envio_seller',
             'custo_envio_base',
             'custo_envio_final',
+            'custo_envio_buyer',
+            'declared_value',
         ];
         
         // Usa a ordem definida em OrderAttributeDisplayOrder

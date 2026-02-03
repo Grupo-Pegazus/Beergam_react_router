@@ -28,11 +28,6 @@ export function getLogisticTypeMeliInfo(logisticType: string) {
         backgroundColor: "#fce7f3",
         color: "#9f1239",
       },
-      me2: {
-        label: "Mercado Envios",
-        backgroundColor: "#dcfce7",
-        color: "#166534",
-      },
       self_service: {
         label: "Flex",
         backgroundColor: "#fef3c7",
