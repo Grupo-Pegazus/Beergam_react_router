@@ -1,27 +1,29 @@
+import { Alert, Skeleton } from "@mui/material";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
 import { Tooltip } from "react-tooltip";
 import {
-	Bar,
-	BarChart,
-	CartesianGrid,
-	XAxis,
-	YAxis,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
 } from "recharts";
 import { useIncomingsBySku, useInvoicingMetrics, useInvoicingMetricsByMonths } from "~/features/invoicing/hooks";
 import authStore from "~/features/store-zustand";
 import SkuProfitabilityList from "~/routes/financeiro/components/SkuProfitabilityList";
 import Svg from "~/src/assets/svgs/_index";
+import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import {
-	ChartContainer,
-	ChartLegend,
-	ChartLegendContent,
-	ChartTooltip,
-	ChartTooltipContent,
-	chartAxisStyle,
-	chartFormatters,
-	chartGridStyle,
-	type ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+  chartAxisStyle,
+  chartFormatters,
+  chartGridStyle,
+  type ChartConfig,
 } from "~/src/components/ui/Chart";
 import Section from "~/src/components/ui/Section";
 import StatCard from "~/src/components/ui/StatCard";
@@ -87,16 +89,40 @@ export default function LucratividadePage() {
         )
     }
 
-    function SectionContentCard({ contents }: { contents: (SectionContent & { canShowPercentage?: boolean })[] }) {
-        return(
-            <>
+    function SectionContentCard({ contents, isLoading }: { contents: (SectionContent & { canShowPercentage?: boolean})[], isLoading?: boolean }) {
+        
+      return(
+            <AsyncBoundary ErrorFallback={() => (
+              <Alert severity="error">
+                Não foi possível carregar o conteúdo.
+              </Alert>
+            )} isLoading={isLoading} Skeleton={() => (
+        <div className="grid grid-cols-3 gap-2 items-baseline">
+          {[...Array(3)].map((_, i) => (
+            <div key={i}>
+              <Skeleton
+            sx={{ bgcolor: 'var(--color-beergam-gray)' }}
+              variant="text"
+              height={30}
+              className="rounded-lg"
+            />
+              <Skeleton
+            sx={{ bgcolor: 'var(--color-beergam-gray)' }}
+              variant="text"
+              height={20}
+              className="rounded-lg"
+            />
+            </div>
+          ))}
+        </div>
+      )}>
             <div className="grid grid-cols-3 gap-2 items-baseline">
                 {contents.map((content, index) => (
                     <SectionContent index={index} key={content.period} canShowPercentage={content.canShowPercentage} {...content} />
                 ))}
             </div>
             {/* <p className="text-xl! mt-2"><span className="text-beergam-primary text-xl! font-bold">Total:</span> {total}</p> */}
-            </>
+            </AsyncBoundary>
         )
     }
    return( <>
@@ -106,66 +132,66 @@ export default function LucratividadePage() {
                   title="Total Bruto Acumulado"
                   icon={<Svg.graph_solid tailWindClasses="h-5 w-5" />}
                 >
-                   <SectionContentCard contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.faturamento_bruto ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.faturamento_bruto ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.faturamento_bruto ?? "0"), period: "90 dias" }]} />
+                   <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.faturamento_bruto ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.faturamento_bruto ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.faturamento_bruto ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                 <StatCard
                   title="Total Líquido Acumulado"
                   icon={<Svg.currency_dollar_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.faturamento_liquido ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.faturamento_liquido ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.faturamento_liquido ?? "0"), period: "90 dias" }]} />
+                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.faturamento_liquido ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.faturamento_liquido ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.faturamento_liquido ?? "0"), period: "90 dias" }]} />
                 </StatCard>
             <StatCard
                   title="Total Bruto Mensal"
                   icon={<Svg.graph_solid tailWindClasses="h-5 w-5" />}
                 >
-                   <SectionContentCard contents={[{ canShowPercentage: true ,value: formatCurrency(invoicingMetricsByMonths?.data?.["30"]?.gross ?? "0"), period: monthNames["30"], percentage: invoicingMetricsByMonths?.data?.["30"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["30"]?.gross ?? 0, target: invoicingMetricsByMonths?.data?.["60"]?.gross ?? 0}) : null }, { canShowPercentage: true ,value: formatCurrency(invoicingMetricsByMonths?.data?.["60"]?.gross ?? "0"), period: monthNames["60"], percentage: invoicingMetricsByMonths?.data?.["60"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["60"]?.gross ?? 0, target: invoicingMetricsByMonths?.data?.["90"]?.gross ?? 0}) : null }, { canShowPercentage: true ,value: formatCurrency(invoicingMetricsByMonths?.data?.["90"]?.gross ?? "0"), period: monthNames["90"], percentage: invoicingMetricsByMonths?.data?.["90"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["90"]?.gross ?? 0, target: invoicingMetricsByMonths?.data?.["120"]?.gross ?? null}) : null }]} />
+                   <SectionContentCard isLoading={isLoadingInvoicingMetricsByMonths} contents={[{ canShowPercentage: true ,value: formatCurrency(invoicingMetricsByMonths?.data?.["30"]?.gross ?? "0"), period: monthNames["30"], percentage: invoicingMetricsByMonths?.data?.["30"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["30"]?.gross ?? 0, target: invoicingMetricsByMonths?.data?.["60"]?.gross ?? 0}) : null }, { canShowPercentage: true ,value: formatCurrency(invoicingMetricsByMonths?.data?.["60"]?.gross ?? "0"), period: monthNames["60"], percentage: invoicingMetricsByMonths?.data?.["60"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["60"]?.gross ?? 0, target: invoicingMetricsByMonths?.data?.["90"]?.gross ?? 0}) : null }, { canShowPercentage: true ,value: formatCurrency(invoicingMetricsByMonths?.data?.["90"]?.gross ?? "0"), period: monthNames["90"], percentage: invoicingMetricsByMonths?.data?.["90"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["90"]?.gross ?? 0, target: invoicingMetricsByMonths?.data?.["120"]?.gross ?? null}) : null }]} />
                 </StatCard>
                 <StatCard
                   title="Total Líquido Mensal"
                   icon={<Svg.currency_dollar_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["30"]?.net ?? "0"), period: monthNames["30"], percentage: invoicingMetricsByMonths?.data?.["30"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["30"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["60"]?.net ?? 0}) : null }, { canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["60"]?.net ?? "0"), period: monthNames["60"], percentage: invoicingMetricsByMonths?.data?.["60"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["60"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["90"]?.net ?? 0}) : null }, { canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["90"]?.net ?? "0"), period: monthNames["90"], percentage: invoicingMetricsByMonths?.data?.["90"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["90"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["120"]?.net ?? null}) : null }]} />
+                    <SectionContentCard isLoading={isLoadingInvoicingMetricsByMonths} contents={[{ canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["30"]?.net ?? "0"), period: monthNames["30"], percentage: invoicingMetricsByMonths?.data?.["30"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["30"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["60"]?.net ?? 0}) : null }, { canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["60"]?.net ?? "0"), period: monthNames["60"], percentage: invoicingMetricsByMonths?.data?.["60"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["60"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["90"]?.net ?? 0}) : null }, { canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["90"]?.net ?? "0"), period: monthNames["90"], percentage: invoicingMetricsByMonths?.data?.["90"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["90"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["120"]?.net ?? null}) : null }]} />
                 </StatCard>
                 <StatCard
                   title="Total Bruto + Frete Recebido"
                   icon={<Svg.currency_dollar_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
+                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
                 </StatCard>
                 <StatCard
                   title="Retorno do FLEX"
                   icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
+                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
                 </StatCard>
         </div>
     </Section>
     <Section title="Custos">
     <div className="grid gap-4">
         <div className="grid grid-cols-2 gap-4">
-            <StatCard
-                  title="Custos com Comissões"
-                  icon={<Svg.box_solid tailWindClasses="h-5 w-5" />}
-                >
-                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
-                </StatCard>
                   <StatCard
                   title="Custos com Frete (Comprador)"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
+                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.shipping?.buyer ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.shipping?.buyer ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.shipping?.buyer ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                   <StatCard
                   title="Custos com Frete (Vendedor)"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
+                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.shipping?.seller ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.shipping?.seller ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.shipping?.seller ?? "0"), period: "90 dias" }]} />
+                </StatCard>
+                            <StatCard
+                  title="Custos com Comissões"
+                  icon={<Svg.box_solid tailWindClasses="h-5 w-5" />}
+                >
+                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.comissions ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.comissions ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.comissions ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                   <StatCard
                   title="Custos de Produto"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
+                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.internal_costs ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.internal_costs ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.internal_costs ?? "0"), period: "90 dias" }]} />
                 </StatCard>
         </div>
         <div className="grid grid-cols-3 gap-4">

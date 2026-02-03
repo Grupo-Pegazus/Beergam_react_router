@@ -22,6 +22,7 @@ export const IncomingsBySkuSchema = z.object({
     total_profit: z.number(),
     total_revenue: z.number(),
     units: z.number(),
+    internal_cost: z.number(),
 });
 
 export type IncomingsBySkuSchemaType = z.infer<typeof IncomingsBySkuSchema>;

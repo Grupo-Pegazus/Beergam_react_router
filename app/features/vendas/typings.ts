@@ -525,6 +525,14 @@ export const OrdersMetricsSchema = z.object({
     media_diaria_diff: z.string(),
   }),
   period_days: z.number().optional(),
+  costs: z.object({
+    comissions: z.number(),
+    internal_costs: z.number(),
+    shipping: z.object({
+      buyer: z.number(),
+      seller: z.number(),
+    }),
+  }),
 });
 
 export type OrdersMetrics = z.infer<typeof OrdersMetricsSchema>;
