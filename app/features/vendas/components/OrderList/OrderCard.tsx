@@ -219,11 +219,16 @@ export default function OrderCard({ order, onReprocess, isReprocessing, remainin
 
             <div className="flex items-center gap-2">
               <BeergamButton
-                title={isReprocessing ? "Reprocessando..." : "Reprocessar"}
+                icon="arrow_path"
                 animationStyle="slider"
                 loading={isReprocessing}
                 disabled={isReprocessing || remainingQuota <= 0}
                 onClick={onReprocess}
+              />
+              <BeergamButton
+                title="Ver no marketplace"
+                link={`https://www.mercadolivre.com.br/vendas/${order.order_id}/detalhe`}
+                animationStyle="slider"
               />
               <BeergamButton
                 title="Ver detalhes"
