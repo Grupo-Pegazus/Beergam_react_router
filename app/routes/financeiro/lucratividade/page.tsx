@@ -1,7 +1,7 @@
 import { Alert, Skeleton } from "@mui/material";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Tooltip } from "react-tooltip";
 import {
   Bar,
@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useIncomingsBySku, useInvoicingMetrics, useInvoicingMetricsByMonths } from "~/features/invoicing/hooks";
+import { useIncomingsBySku, useInvoicingMetrics, useInvoicingMetricsByMonths, useSelfServiceReturn } from "~/features/invoicing/hooks";
 import authStore from "~/features/store-zustand";
 import SkuProfitabilityList from "~/routes/financeiro/components/SkuProfitabilityList";
 import Svg from "~/src/assets/svgs/_index";
@@ -28,14 +28,20 @@ import {
 } from "~/src/components/ui/Chart";
 import Section from "~/src/components/ui/Section";
 import StatCard from "~/src/components/ui/StatCard";
+import { Fields } from "~/src/components/utils/_fields";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 interface SectionContent{
     value: string;
     period: string;
     percentage?: string | number | null | undefined;
+    percentageText?: string | number | null | undefined;
 }
 type PercentageBadgeProps = {
     percentage?: string | number | null | undefined;
+    showPercentageSymbol?: boolean;
+    isRedCondition?: (value: number) => boolean;
+    isGreenCondition?: (value: number) => boolean;
+    percentageText?: string | number | null | undefined;
 } 
 
 function getPercentageNumber({number, target}: {number: number | null, target: number | null}): string | null {
@@ -52,11 +58,27 @@ function getPercentageNumber({number, target}: {number: number | null, target: n
 }
 
 export default function LucratividadePage() {
-	const {data: invoicingMetrics, isLoading: isLoadingInvoicingMetrics} = useInvoicingMetrics();
+	const [pricePerSelfServiceReturn, setPricePerSelfServiceReturn] = useState<number | null>(null);
+  const {data: invoicingMetrics, isLoading: isLoadingInvoicingMetrics} = useInvoicingMetrics();
 	const {data: invoicingMetricsByMonths, isLoading: isLoadingInvoicingMetricsByMonths} = useInvoicingMetricsByMonths();
 	const {data: incomingsBySku, isLoading: isLoadingIncomingsBySku} = useIncomingsBySku();
   const subscription = authStore.use.subscription() ?? null;
   const isBasePlan = subscription?.plan.display_name === 'Operacional';
+  const {data: selfServiceReturn, isLoading: isLoadingSelfServiceReturn} = useSelfServiceReturn();
+
+  // Função helper para calcular o resultado do Flex: valor_recebido_do_flex - (input * total_orders)
+  const calculateFlexResult = (period: "30" | "60" | "90"): number => {
+    const valorRecebido = selfServiceReturn?.data?.[period]?.valor_recebido_do_flex ?? 0;
+    const totalOrders = selfServiceReturn?.data?.[period]?.total_orders ?? 0;
+    const inputValue = pricePerSelfServiceReturn ?? 0;
+    return valorRecebido - (inputValue * totalOrders);
+  };
+
+  function getFlexSpent(period: "30" | "60" | "90"): number {
+    const totalOrders = selfServiceReturn?.data?.[period]?.total_orders ?? 0;
+    const inputValue = pricePerSelfServiceReturn ?? 0;
+    return inputValue * totalOrders;
+  }
 
   // Calcula os nomes dos meses dinamicamente
   const monthNames = {
@@ -64,25 +86,74 @@ export default function LucratividadePage() {
     "60": dayjs().subtract(1, "month").locale("pt-br").format("MMMM"), // Mês anterior
     "90": dayjs().subtract(2, "month").locale("pt-br").format("MMMM"), // 2 meses atrás
   };
-  function PercentageBadge({ percentage }: PercentageBadgeProps) {
+  function PercentageBadge({ 
+    percentage, 
+    showPercentageSymbol = true,
+    isRedCondition,
+    isGreenCondition,
+    percentageText
+  }: PercentageBadgeProps) {
     const isUnknown = percentage === null || percentage === undefined;
     const percentageValue = isUnknown ? 0 : parseFloat(percentage.toString());
-    const isNegative = percentageValue < 0 && !isUnknown;
-    const percentageColor = isUnknown ? 'bg-beergam-gray/20' : isNegative ? 'bg-beergam-red/20' : percentageValue > 20 ? 'bg-beergam-green-primary/20' : 'bg-beergam-yellow/20';
-    const percentageTextColor = isUnknown ? 'text-beergam-gray' : isNegative ? 'text-beergam-red' : percentageValue > 20 ? 'text-beergam-green-primary' : 'text-beergam-yellow';
+    
+    // Determina a cor baseado nas condições customizadas ou na lógica padrão
+    // A cor é sempre determinada pelo valor de percentage, não por percentageText
+    let isRed = false;
+    let isGreen = false;
+    
+    if (!isUnknown) {
+      if (isRedCondition) {
+        isRed = isRedCondition(percentageValue);
+      } else {
+        isRed = percentageValue < 0;
+      }
+      
+      if (isGreenCondition) {
+        isGreen = isGreenCondition(percentageValue);
+      } else {
+        isGreen = percentageValue > 20;
+      }
+    }
+    
+    const percentageColor = isUnknown 
+      ? 'bg-beergam-gray/20' 
+      : isRed 
+        ? 'bg-beergam-red/20' 
+        : isGreen 
+          ? 'bg-beergam-green-primary/20' 
+          : 'bg-beergam-yellow/20';
+    
+    const percentageTextColor = isUnknown 
+      ? 'text-beergam-gray' 
+      : isRed 
+        ? 'text-beergam-red' 
+        : isGreen 
+          ? 'text-beergam-green-primary' 
+          : 'text-beergam-yellow';
+    
+    // Usa percentageText se disponível, caso contrário usa percentage
+    const textToDisplay = percentageText !== null && percentageText !== undefined 
+      ? percentageText.toString()
+      : isUnknown 
+        ? '?' 
+        : showPercentageSymbol 
+          ? `${percentage}%` 
+          : percentage.toString();
+    
     return <div data-tooltip-id={`percentage-badge-${percentage}`} className={`p-1 px-2 rounded-lg flex items-center w-fit mb-2 gap-1 justify-center ${percentageColor}`}>
-      <p className={`${percentageTextColor}!`}>{isUnknown ? '?' : `${percentage}%`}</p>
-      { !isUnknown && (isNegative ? <Svg.arrow_trending_down tailWindClasses="h-4 w-4 text-beergam-red" /> : <Svg.arrow_trending_up tailWindClasses={`h-4 w-4 ${percentageTextColor}`} />)}
+      <p className={`${percentageTextColor}!`}>{textToDisplay}</p>
+      { !isUnknown && (isRed ? <Svg.arrow_trending_down tailWindClasses="h-4 w-4 text-beergam-red" /> : <Svg.arrow_trending_up tailWindClasses={`h-4 w-4 ${percentageTextColor}`} />)}
       {
         isUnknown && <Tooltip content={isBasePlan ? 'Informação indisponível para o plano atual.' : 'Informação indisponível.'} id={`percentage-badge-${percentage}`}></Tooltip>
       }
     </div>
   }
-    function SectionContent({ index, value, period, percentage, canShowPercentage = false }: SectionContent & { index: number, canShowPercentage?: boolean }) {
+    function SectionContent({ topText, index, value, period, percentage, canShowPercentage = false, showPercentageSymbol, isRedCondition, isGreenCondition, percentageText }: SectionContent & { topText?: string, index: number, canShowPercentage?: boolean, showPercentageSymbol?: boolean, isRedCondition?: (value: number) => boolean, isGreenCondition?: (value: number) => boolean, percentageText?: string | number | null | undefined }) {
         return(
             <>
             <div className={`border-r h-full grid content-end ${index != 2 ? 'border-r-beergam-primary' : 'border-r-transparent'}`}>
-                        {canShowPercentage && <PercentageBadge percentage={percentage} />}
+                        {canShowPercentage && <PercentageBadge percentage={percentage} showPercentageSymbol={showPercentageSymbol} isRedCondition={isRedCondition} isGreenCondition={isGreenCondition} percentageText={percentageText} />}
+                        {topText && <p className="text-[12px] capitalize">{topText}</p>}
                         <h3 className="text-[18px]! text-beergam-primary font-bold">{value}</h3>
                         <p className="text-[12px] text-beergam-typography-tertiary! capitalize">{period}</p>
                     </div>
@@ -90,7 +161,7 @@ export default function LucratividadePage() {
         )
     }
 
-    function SectionContentCard({ contents, isLoading }: { contents: (SectionContent & { canShowPercentage?: boolean})[], isLoading?: boolean }) {
+    function SectionContentCard({ contents, isLoading }: { contents: (SectionContent & { canShowPercentage?: boolean, topText?: string, showPercentageSymbol?: boolean, isRedCondition?: (value: number) => boolean, isGreenCondition?: (value: number) => boolean, percentageText?: string | number | null | undefined})[], isLoading?: boolean }) {
         
       return(
             <AsyncBoundary ErrorFallback={() => (
@@ -119,7 +190,7 @@ export default function LucratividadePage() {
       )}>
             <div className="grid grid-cols-3 gap-2 items-baseline">
                 {contents.map((content, index) => (
-                    <SectionContent index={index} key={content.period} canShowPercentage={content.canShowPercentage} {...content} />
+                    <SectionContent topText={content.topText} index={index} key={content.period} canShowPercentage={content.canShowPercentage} {...content} />
                 ))}
             </div>
             {/* <p className="text-xl! mt-2"><span className="text-beergam-primary text-xl! font-bold">Total:</span> {total}</p> */}
@@ -154,17 +225,73 @@ export default function LucratividadePage() {
                     <SectionContentCard isLoading={isLoadingInvoicingMetricsByMonths} contents={[{ canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["30"]?.net ?? "0"), period: monthNames["30"], percentage: invoicingMetricsByMonths?.data?.["30"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["30"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["60"]?.net ?? 0}) : null }, { canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["60"]?.net ?? "0"), period: monthNames["60"], percentage: invoicingMetricsByMonths?.data?.["60"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["60"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["90"]?.net ?? 0}) : null }, { canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["90"]?.net ?? "0"), period: monthNames["90"], percentage: invoicingMetricsByMonths?.data?.["90"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["90"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["120"]?.net ?? null}) : null }]} />
                 </StatCard>
                 <StatCard
-                  title="Total Bruto + Frete Recebido"
-                  icon={<Svg.currency_dollar_solid tailWindClasses="h-5 w-5" />}
-                >
-                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
-                </StatCard>
-                {/* <StatCard
-                  title="Retorno do FLEX"
+                  title="Faturamento do Flex"
                   icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.self_service_return ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.self_service_return ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.self_service_return ?? "0"), period: "90 dias" }]} />
-                </StatCard> */}
+                    <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(selfServiceReturn?.data?.["30"]?.valor_recebido_do_flex ?? "0"), period: "30 dias", topText: `${selfServiceReturn?.data?.["30"]?.total_orders ?? 0} pedidos` }, { value: formatCurrency(selfServiceReturn?.data?.["60"]?.valor_recebido_do_flex ?? "0"), period: "60 dias", topText: `${selfServiceReturn?.data?.["60"]?.total_orders ?? 0} pedidos` }, { value: formatCurrency(selfServiceReturn?.data?.["90"]?.valor_recebido_do_flex ?? "0"), period: "90 dias", topText: `${selfServiceReturn?.data?.["90"]?.total_orders ?? 0} pedidos` }]} />
+                </StatCard>
+                <StatCard
+                  title="Resultado do Flex"
+                  icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
+
+                  input={
+                   {component:  <Fields.input
+                      type="number"
+                      placeholder="0.00"
+                      value={pricePerSelfServiceReturn ?? ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setPricePerSelfServiceReturn(value === "" ? null : parseFloat(value));
+                      }}
+                      className="text-sm"
+                    />, label: "Valor gasto por pacote"}
+                  }
+                >
+                    <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[
+                      { 
+                        value: formatCurrency(calculateFlexResult("30").toString()), 
+                        period: "30 dias", 
+                        topText: `${selfServiceReturn?.data?.["30"]?.total_orders ?? 0} pedidos`,
+                        canShowPercentage: true,
+                        showPercentageSymbol: false,
+                        percentage: getFlexSpent("30"),
+                        percentageText: (() => {
+                          const result = getFlexSpent("30");
+                          return `-R$${result.toFixed(2).replace('.', ',')}`;	
+                        })(),
+                        isRedCondition: (value) => value > 0,
+                        isGreenCondition: (value) => value <= 0
+                      }, 
+                      { 
+                        value: formatCurrency(calculateFlexResult("60").toString()), 
+                        period: "60 dias", 
+                        topText: `${selfServiceReturn?.data?.["60"]?.total_orders ?? 0} pedidos`,
+                        canShowPercentage: true,
+                        showPercentageSymbol: false,
+                       percentage: getFlexSpent("60"),
+                        percentageText: (() => {
+                          const result = getFlexSpent("60");
+                          return `-R$${result.toFixed(2).replace('.', ',')}`;	
+                        })(),
+                        isRedCondition: (value) => value > 0,
+                        isGreenCondition: (value) => value <= 0
+                      }, 
+                      { 
+                        value: formatCurrency(calculateFlexResult("90").toString()), 
+                        period: "90 dias", 
+                        topText: `${selfServiceReturn?.data?.["90"]?.total_orders ?? 0} pedidos`,
+                        canShowPercentage: true,
+                        showPercentageSymbol: false,
+                        percentage: getFlexSpent("90"),
+                        percentageText: (() => {
+                          const result = getFlexSpent("90");
+                          return `-R$${result.toFixed(2).replace('.', ',')}`;	
+                        })(),
+                        isRedCondition: (value) => value > 0,
+                        isGreenCondition: (value) => value <= 0
+                      }
+                    ]} />
+                </StatCard>
         </div>
     </Section>
     <Section title="Custos">
