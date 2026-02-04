@@ -245,6 +245,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
             `,
           }}
         />
+
+        {/* script para rastreamento de afiliados */}
+        <script 
+          src="https://pushlapgrowth.com/affiliate-tracker.js" 
+          data-affiliate data-program-id="db5ad262-e685-422b-8994-54f4c0d42011" 
+          async>
+        </script>
       </head>
       <body>
         <DarkModeThemeProvider>
