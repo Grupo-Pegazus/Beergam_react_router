@@ -6,7 +6,7 @@ import toast from "~/src/utils/toast";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import Modal from "~/src/components/utils/Modal";
 import Upload from "~/src/components/utils/upload";
-import { chatService, createClaimAttachmentUploadService } from "../../service";
+import { chatService, createClaimAttachmentUploadService, createPosPurchaseAttachmentUploadService } from "../../service";
 import type { Chat, ChatMessage as ChatMessageType, Client } from "../../typings";
 import { ChatUserType } from "../../typings";
 import ChatMessage from "../ChatMessage";
@@ -330,7 +330,7 @@ export default function ChatArea({
                                             icon="arrow_path"
                                             title="Trocar pedido"
                                             onClick={onOrderChange}
-                                            className="!p-2"
+                                            className="p-2!"
                                         />
                                     )}
                                     {(chatType === "reclamacao" || chatType === "mediacao") && client && client.claims.length > 1 && onClaimChange && (
@@ -338,7 +338,7 @@ export default function ChatArea({
                                             icon="arrow_path"
                                             title="Trocar reclamação"
                                             onClick={onClaimChange}
-                                            className="!p-2"
+                                            className="p-2!"
                                         />
                                     )}
                                     <BeergamButton icon="user_plus_solid" title="Detalhes" onClick={() => setShowClientModal(true)} />
@@ -395,7 +395,7 @@ export default function ChatArea({
                                         onClick={() => {
                                             setAttachments((prev) => prev.filter((_, i) => i !== index));
                                         }}
-                                        className="!p-1 !min-w-0"
+                                        className="p-1! min-w-0!"
                                     />
                                 </div>
                             ))}
@@ -423,8 +423,11 @@ export default function ChatArea({
                                 }
                             }}
                         />
-                        {/* Botão de anexo apenas para reclamação e mediação */}
-                        {(chatType === "reclamacao" || chatType === "mediacao") && activeClaimId && (
+                        {/* Botão de anexo para pós-venda, reclamação e mediação */}
+                        {(
+                            ((chatType === "reclamacao" || chatType === "mediacao") && activeClaimId) ||
+                            (chatType === "pos_venda" && activeOrderId)
+                        ) && (
                             <BeergamButton
                                 icon="clip"
                                 onClick={() => setShowUploadModal(true)}
@@ -451,7 +454,7 @@ export default function ChatArea({
                 <ClientInfo client={client} />
             </Modal>
 
-            {/* Modal de upload de anexos (apenas para reclamação e mediação) */}
+            {/* Modal de upload de anexos */}
             {/* Usa contextKey como key para forçar remount quando o contexto muda, resetando o estado interno do Upload */}
             {(chatType === "reclamacao" || chatType === "mediacao") && activeClaimId && (
                 <Upload
@@ -465,6 +468,29 @@ export default function ChatArea({
                     maxFiles={5}
                     accept="image/jpeg,image/jpg,image/png,application/pdf"
                     emptyStateLabel="Arraste e solte ou clique para selecionar arquivos (JPG, PNG ou PDF)"
+                    draggingLabel="Solte para iniciar o upload"
+                    onUploadSuccess={(ids) => {
+                        setAttachments((prev) => [...prev, ...ids]);
+                        setShowUploadModal(false);
+                        toast.success(`${ids.length} arquivo(s) anexado(s) com sucesso`);
+                    }}
+                    onError={(error) => {
+                        toast.error(error.message || "Erro ao fazer upload do anexo");
+                    }}
+                />
+            )}
+            {chatType === "pos_venda" && activeOrderId && (
+                <Upload
+                    key={contextKey}
+                    title="Upload de Anexos"
+                    isOpen={showUploadModal}
+                    onClose={() => setShowUploadModal(false)}
+                    typeImport="external"
+                    service={createPosPurchaseAttachmentUploadService(activeOrderId)}
+                    marketplace="meli"
+                    maxFiles={5}
+                    accept="image/jpeg,image/jpg,image/png,application/pdf,text/plain"
+                    emptyStateLabel="Arraste e solte ou clique para selecionar arquivos (JPG, PNG, PDF ou TXT)"
                     draggingLabel="Solte para iniciar o upload"
                     onUploadSuccess={(ids) => {
                         setAttachments((prev) => [...prev, ...ids]);
