@@ -17,6 +17,9 @@ import OrderItemCard from "./OrderItemCard";
 
 interface OrderCardProps {
   order: Order;
+  onReprocess: () => void;
+  isReprocessing: boolean;
+  remainingQuota: number;
 }
 
 const formatDate = (dateStr: string | null | undefined): string => {
@@ -24,7 +27,7 @@ const formatDate = (dateStr: string | null | undefined): string => {
   return dayjs(dateStr).format("DD MMM YYYY [às] HH:mm");
 };
 
-export default function OrderCard({ order }: OrderCardProps) {
+export default function OrderCard({ order, onReprocess, isReprocessing, remainingQuota }: OrderCardProps) {
   const { isCensored } = useCensorship();
   const censored = isCensored("vendas_orders_list");
   const statusInfo = useMemo(
@@ -140,7 +143,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                     variant="caption"
                     className="text-beergam-typography-primary! text-sm md:text-base"
                   >
-                    {order.buyer_nickname} - {order.client?.receiver_name}
+                    {order.buyer_nickname} {order.client?.receiver_name && `- ${order.client?.receiver_name}`}
                   </Typography>
                 </TextCensored>
 
@@ -214,10 +217,24 @@ export default function OrderCard({ order }: OrderCardProps) {
 
             </div>
 
-            <BeergamButton
-              title="Ver detalhes"
-              link={`/interno/vendas/${order.order_id}`}
-            />
+            <div className="flex items-center gap-2">
+              <BeergamButton
+                icon="arrow_path"
+                animationStyle="slider"
+                loading={isReprocessing}
+                disabled={isReprocessing || remainingQuota <= 0}
+                onClick={onReprocess}
+              />
+              <BeergamButton
+                title="Ver no marketplace"
+                link={`https://www.mercadolivre.com.br/vendas/${order.order_id}/detalhe`}
+                animationStyle="slider"
+              />
+              <BeergamButton
+                title="Ver detalhes"
+                link={`/interno/vendas/${order.order_id}`}
+              />
+            </div>
           </div>
 
           {/* Pedido */}

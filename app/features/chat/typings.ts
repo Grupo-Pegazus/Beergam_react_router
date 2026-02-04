@@ -59,11 +59,15 @@ export interface ChatAttachment {
     url: string;
 }
 
+export type MessageStatus = "sending" | "sent" | "error";
+
 export interface ChatMessage {
     text: string;
     user: ChatUserType;
     date_created: string;
     attachments?: ChatAttachment[];
+    status?: MessageStatus; // Status de envio da mensagem (opcional, usado apenas no frontend)
+    tempId?: string; // ID temporário usado para identificar mensagens sendo enviadas
     // [key: string]: unknown;
 }
 

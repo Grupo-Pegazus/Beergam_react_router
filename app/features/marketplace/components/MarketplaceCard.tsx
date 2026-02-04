@@ -15,6 +15,7 @@ interface MarketplaceCardProps {
   marketplace?: BaseMarketPlace;
   onCardClick?: () => void;
   onDelete?: (marketplace: BaseMarketPlace) => void;
+  onEdit?: (marketplace: BaseMarketPlace) => void;
   selected?: boolean;
   className?: string;
 }
@@ -22,6 +23,7 @@ export default function MarketplaceCard({
   marketplace,
   onCardClick,
   onDelete,
+  onEdit,
   selected = false,
   className,
 }: MarketplaceCardProps) {
@@ -32,6 +34,12 @@ export default function MarketplaceCard({
     e.stopPropagation();
     if (marketplace && onDelete && !isDisabled) {
       onDelete(marketplace);
+    }
+  };
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (marketplace && onEdit && !isDisabled) {
+      onEdit(marketplace);
     }
   };
 
@@ -76,6 +84,15 @@ export default function MarketplaceCard({
           </div>
           {!isDisabled && (
             <div className="absolute top-2 left-2 flex items-start gap-2 z-20">
+              {onEdit && (
+                <button
+                  className="bg-beergam-blue-primary opacity-90 hover:opacity-100 active:opacity-100 md:opacity-0 md:group-hover:opacity-100 w-10 h-10 rounded-full flex items-center justify-center transition-opacity duration-200 shadow-lg"
+                  onClick={handleEditClick}
+                  aria-label="Editar nome da conta"
+                >
+                  <Svg.pencil tailWindClasses="stroke-beergam-white w-5 h-5" />
+                </button>
+              )}
               <button
                 className="bg-beergam-red-primary opacity-90 hover:opacity-100 active:opacity-100 md:opacity-0 md:group-hover:opacity-100 w-10 h-10 rounded-full flex items-center justify-center transition-opacity duration-200 shadow-lg"
                 onClick={handleDeleteClick}

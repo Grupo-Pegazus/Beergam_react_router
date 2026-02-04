@@ -32,6 +32,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   clipboard?: boolean;
   widthType?: "fit" | "full";
   prefix?: string;
+  className?: string;
 }
 export default function Input({
   error,
@@ -57,6 +58,7 @@ export default function Input({
   clipboard,
   widthType = "full",
   prefix,
+  className,
   ...props
 }: InputProps) {
   const isValid = value && (!error || error != "") && success;
@@ -111,7 +113,7 @@ export default function Input({
           value={value}
           placeholder={placeholder}
           required={required}
-          className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses} ${type === "password" ? "pr-10" : ""} ${tailWindClasses} ${prefix ? "pl-9" : ""}`}
+          className={`${baseClasses} ${errorClasses} ${successClasses} ${focusClasses} ${disabledClasses} ${type === "password" ? "pr-10" : ""} ${tailWindClasses} ${prefix ? "pl-9" : ""} ${className}`}
           onChange={onChange}
           onBlur={handleBlur}
           onFocus={handleFocus}

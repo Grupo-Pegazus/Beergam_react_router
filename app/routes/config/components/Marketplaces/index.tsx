@@ -13,6 +13,7 @@ import authStore from "~/features/store-zustand";
 import UserFields from "~/features/user/components/UserFields";
 import CreateMarketplaceModal from "~/routes/choosen_account/components/CreateMarketplaceModal";
 import DeleteMarketaplceAccount from "~/routes/choosen_account/components/DeleteMarketaplceAccount";
+import EditMarketplaceNameModal from "~/routes/choosen_account/components/EditMarketplaceNameModal";
 import Section from "~/src/components/ui/Section";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
@@ -41,6 +42,40 @@ export default function Marketplaces() {
   const totalMarketplaces = accounts.length;
   const [marketplaceToDelete, setMarketplaceToDelete] =
     useState<BaseMarketPlace | null>(null);
+  const changeNameAccount = useMutation({
+    mutationFn: ({
+      marketplace,
+      newName,
+    }: {
+      marketplace: BaseMarketPlace;
+      newName: string;
+    }) =>
+      marketplaceService.changeMarketplaceAccountName(
+        marketplace.marketplace_shop_id,
+        marketplace.marketplace_type,
+        newName
+      ),
+    onSuccess: (_data, variables) => {
+      const { marketplace, newName } = variables;
+      closeModal();
+      changeNameAccount.reset();
+      toast.success("Nome da conta alterado com sucesso");
+      queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
+      if (
+        marketplace.marketplace_shop_id === selectedMarketplace?.marketplace_shop_id
+      ) {
+        authStore.setState({
+          marketplace: {
+            ...selectedMarketplace,
+            marketplace_name: newName,
+          },
+        });
+      }
+    },
+    onError: () => {
+      toast.error("Erro ao alterar nome da conta");
+    },
+  });
   const deleteAccount = useMutation({
     mutationFn: (marketplaceToDelete: BaseMarketPlace) => {
       return marketplaceService.deleteMarketplaceAccount(
@@ -48,10 +83,7 @@ export default function Marketplaces() {
         marketplaceToDelete.marketplace_type
       );
     },
-    onSuccess: (data) => {
-      // if (!data.success) {
-      //   throw new Error(data.message);
-      // }
+    onSuccess: () => {
       if (
         marketplaceToDelete?.marketplace_shop_id ===
         selectedMarketplace?.marketplace_shop_id
@@ -71,6 +103,9 @@ export default function Marketplaces() {
       success: "Conta deletada com sucesso",
       error: "Erro ao deletar conta",
     });
+  }
+  function handleConfirmEditName(marketplace: BaseMarketPlace, newName: string) {
+    changeNameAccount.mutate({ marketplace, newName });
   }
   return (
     <>
@@ -132,6 +167,17 @@ export default function Marketplaces() {
               <MarketplaceCard
                 key={marketplace.marketplace_shop_id}
                 marketplace={marketplace}
+                onEdit={() => {
+                  openModal(
+                    <EditMarketplaceNameModal
+                      marketplace={marketplace}
+                      onCancel={closeModal}
+                      onConfirm={handleConfirmEditName}
+                      mutation={changeNameAccount}
+                    />,
+                    { title: "Editar nome da conta" }
+                  );
+                }}
                 onDelete={() => {
                   openModal(
                     <DeleteMarketaplceAccount

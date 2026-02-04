@@ -1,10 +1,14 @@
 import { useMemo } from "react";
 import OrderItemCard from "~/features/vendas/components/OrderList/OrderItemCard";
-import { useOrderDetails } from "~/features/vendas/hooks";
+import { useOrderDetails, useOrdersReprocessQuota, useReprocessOrders } from "~/features/vendas/hooks";
 import {
   CensorshipWrapper,
   TextCensored,
 } from "~/src/components/utils/Censorship";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import Alert from "~/src/components/utils/Alert";
+import type { ModalOptions } from "~/src/components/utils/Modal/ModalContext";
+import { useModal } from "~/src/components/utils/Modal/useModal";
 import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
 import { getShippingPaidByLabel } from "~/src/constants/shipping-paid-by-meli";
 import { getStatusOrderMeliInfo } from "~/src/constants/status-order-meli";
@@ -17,6 +21,7 @@ import ResumoEnvio from "./components/ResumoEnvio/ResumoEnvio";
 import Timeline from "./components/Timeline/Timeline";
 import VendaDetailsSkeleton from "./components/VendaDetailsSkeleton/VendaDetailsSkeleton";
 import styles from "./page.module.css";
+import { Box, Stack } from "@mui/material";
 interface VendasPageProps {
   venda_id?: string;
 }
@@ -28,6 +33,9 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
     isLoading,
     error,
   } = useOrderDetails(venda_id || "");
+  const { data: quotaData } = useOrdersReprocessQuota();
+  const reprocessMutation = useReprocessOrders();
+  const { openModal, closeModal } = useModal();
 
   // Extract data from response
   const orders = useMemo(
@@ -91,18 +99,15 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
   const firstOrder = orders[0];
 
   const totalsP = useMemo(() => {
-    const totalAmount = orders.reduce(
-      (sum, order) => sum + parseFloat(order.total_amount || "0"),
-      0
-    );
-    const totalQuantity = orders.reduce(
-      (sum, order) => sum + (order.quantity || 0),
-      0
-    );
-    let totalLiquido = orders.reduce(
-      (sum, order) => sum + parseFloat(order.valor_liquido || "0"),
-      0
-    );
+    const totalAmount = orders.reduce((sum: number, order) => {
+      return sum + parseFloat(order.total_amount || "0");
+    }, 0);
+    const totalQuantity = orders.reduce((sum: number, order) => {
+      return sum + (order.quantity || 0);
+    }, 0);
+    let totalLiquido = orders.reduce((sum: number, order) => {
+      return sum + parseFloat(order.valor_liquido || "0");
+    }, 0);
 
     if (orders.length > 1) {
       totalLiquido =
@@ -147,33 +152,29 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
     );
 
     // Preço dos produtos = soma de (unit_price * quantity) de cada pedido
-    const precoProdutos = orders.reduce((sum, order) => {
+    const precoProdutos = orders.reduce((sum: number, order) => {
       return sum + parseFloat(order.unit_price) * order.quantity;
     }, 0);
 
-    const totalPaid = orders.reduce(
-      (sum, order) => sum + parseFloat(order.paid_amount),
-      0
-    );
+    const totalPaid = orders.reduce((sum: number, order) => {
+      return sum + parseFloat(order.paid_amount);
+    }, 0);
 
     // Se todos os pedidos estão cancelled, não considerar envios e tarifas como negativos
     // Nota: Mantemos os valores de envio para exibição mesmo quando < R$ 79
     // O valor_liquido do backend já está calculado corretamente considerando a regra do R$ 79
-    const totalShippingSeller = orders.reduce(
-      (sum, order) => sum + parseFloat(order.custo_envio_seller || "0"),
-      0
-    );
-    const totalShippingBuyer = orders.reduce(
-      (sum, order) => sum + parseFloat(order.custo_envio_buyer || "0"),
-      0
-    );
-    const totalShippingFinal = orders.reduce(
-      (sum, order) => sum + parseFloat(order.custo_envio_final || "0"),
-      0
-    );
+    const totalShippingSeller = orders.reduce((sum: number, order) => {
+      return sum + parseFloat(order.custo_envio_seller || "0");
+    }, 0);
+    const totalShippingBuyer = orders.reduce((sum: number, order) => {
+      return sum + parseFloat(order.custo_envio_buyer || "0");
+    }, 0);
+    const totalShippingFinal = orders.reduce((sum: number, order) => {
+      return sum + parseFloat(order.custo_envio_final || "0");
+    }, 0);
 
     // Calcular tarifas apenas para pedidos não cancelled
-    const totalFees = orders.reduce((sum, order) => {
+    const totalFees = orders.reduce((sum: number, order) => {
       if (order.status?.toLowerCase() === "cancelled") {
         return sum; // Não adicionar tarifa de pedidos cancelled
       }
@@ -193,32 +194,28 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
     // Total final (conforme Mercado Livre): Preço dos produtos - Tarifa de venda total - Envios (custo final)
 
     // Custos - usar valores do backend
-    const custoProduto = orders.reduce(
-      (sum, order) => sum + parseFloat(order.price_cost || "0"),
-      0
-    );
-    const custoEmbalagem = orders.reduce(
-      (sum, order) => sum + parseFloat(order.packaging_cost || "0"),
-      0
-    );
-    const custosExtras = orders.reduce(
-      (sum, order) => sum + parseFloat(order.extra_cost || "0"),
-      0
-    );
-    const impostos = orders.reduce(
-      (sum, order) => sum + parseFloat(order.tax_amount || "0"),
-      0
-    );
+    const custoProduto = orders.reduce((sum: number, order) => {
+      return sum + parseFloat(order.price_cost || "0");
+    }, 0);
+    const custoEmbalagem = orders.reduce((sum: number, order) => {
+      return sum + parseFloat(order.packaging_cost || "0");
+    }, 0);
+    const custosExtras = orders.reduce((sum: number, order) => {
+      return sum + parseFloat(order.extra_cost || "0");
+    }, 0);
+    const impostos = orders.reduce((sum: number, order) => {
+      return sum + parseFloat(order.tax_amount || "0");
+    }, 0);
 
     // Lucro final = total receita - custos
     // Se todos os pedidos estão cancelled, lucro final é 0
     const lucroFinal = allOrdersCancelled
       ? 0
       : totalsP.totalLiquido -
-        custoProduto -
-        custoEmbalagem -
-        custosExtras -
-        impostos;
+      custoProduto -
+      custoEmbalagem -
+      custosExtras -
+      impostos;
 
     return {
       precoProdutos,
@@ -301,6 +298,8 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
 
   // Get the first order for pack info (after error check, so we know firstOrder exists)
   const packId = packInfo?.pack_id || firstOrder.pack_id;
+  const remainingQuota = quotaData?.success ? quotaData.data?.remaining ?? 0 : 0;
+  const orderIdsToReprocess = orders.map((o) => o.order_id).filter(Boolean);
 
   // Get client info (after error check, so we know firstOrder exists)
   const clientNameFinal =
@@ -312,7 +311,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
     clientDocFinal === firstOrder.buyer_id
       ? "Buyer ID"
       : firstOrder.client?.receiver_document?.id ||
-        (clientDocFinal.replace(/\D/g, "").length === 14 ? "CNPJ" : "CPF");
+      (clientDocFinal.replace(/\D/g, "").length === 14 ? "CNPJ" : "CPF");
 
   // Get logistic type status and colors
   const logisticTypeInfo = getLogisticTypeMeliInfo(
@@ -328,15 +327,92 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
       <div style={{ padding: "20px", margin: "0 auto", width: "100%" }}>
         {/* Header */}
         <PedidoHeader
-          packId={packId}
+          packId={packId ?? null}
           totalItems={packInfo?.total_items || totalsP.totalQuantity}
           orderId={firstOrder.order_id}
-          date={formatDate(firstOrder.date_created)}
-          status={logisticTypeStatus}
+          date={formatDate(firstOrder.date_created as string)}
+          status={logisticTypeStatus || ""}
           statusBackgroundColor={logisticTypeBackgroundColor}
           statusColor={logisticTypeColor}
         />
 
+        {/* Ações */}
+        <Stack spacing={3}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", md: "row" },
+              gap: 2,
+              alignItems: { xs: "stretch", md: "center" },
+              justifyContent: "space-between",
+              p: 2,
+              borderRadius: 2,
+              border: "1px solid rgba(148, 163, 184, 0.25)",
+              backgroundColor: "rgba(148, 163, 184, 0.08)",
+            }}
+          >
+            <div>
+              <p className="text-sm font-semibold text-beergam-typography-primary">
+                Reprocessamento
+              </p>
+              <p className="text-xs text-beergam-typography-secondary">
+                Cota disponível: {remainingQuota} (mês atual)
+              </p>
+            </div>
+            <BeergamButton
+              title={reprocessMutation.isPending ? "Reprocessando..." : "Reprocessar pedido(s)"}
+              mainColor="beergam-orange"
+              animationStyle="slider"
+              loading={reprocessMutation.isPending}
+              disabled={
+                reprocessMutation.isPending ||
+                remainingQuota <= 0 ||
+                orderIdsToReprocess.length === 0 ||
+                orderIdsToReprocess.length > 30
+              }
+              onClick={() => {
+                if (!orderIdsToReprocess.length) {
+                  return;
+                }
+                if (orderIdsToReprocess.length > 30) {
+                  return;
+                }
+                if (remainingQuota < orderIdsToReprocess.length) {
+                  return;
+                }
+                const identifier = packId || firstOrder.order_id;
+                const options: ModalOptions = {
+                  title: "Confirmar reprocessamento do pedido",
+                };
+
+                openModal(
+                  <Alert
+                    type="info"
+                    confirmText="Reprocessar"
+                    onClose={closeModal}
+                    onConfirm={() => {
+                      reprocessMutation.mutate(orderIdsToReprocess);
+                    }}
+                  >
+                    <h3 className="text-lg font-semibold text-beergam-typography-primary mb-2">
+                      Reprocessar {orderIdsToReprocess.length} pedido(s) de{" "}
+                      #{identifier}?
+                    </h3>
+                    <p className="text-sm text-beergam-typography-secondary mb-2">
+                      Isso irá buscar novamente os dados desses pedidos no Mercado Livre e atualizar os registros aqui no Beergam.
+                    </p>
+                    <p className="text-xs text-beergam-typography-secondary">
+                      Cota mensal: <strong>{quotaData?.data?.limit ?? 0}</strong> | Usados:{" "}
+                      <strong>{quotaData?.data?.used ?? 0}</strong> | Restantes:{" "}
+                      <strong>{remainingQuota}</strong>.
+                    </p>
+                  </Alert>,
+                  options
+                );
+              }}
+            />
+          </Box>
+        </Stack>
         {/* Main Layout - Two Columns */}
         <div className={styles.orderDetailsLayout}>
           {/* Left Column */}
@@ -348,6 +424,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
               name={clientNameFinal}
               doc={clientDocFinal}
               docType={clientDocType}
+              orderId={firstOrder.order_id}
             />
 
             {/* Shipping Summary */}
@@ -358,7 +435,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
                 "Desconhecido"
               }
               estimatedDelivery={formatEstimatedDelivery(
-                firstOrder.estimated_delivery || firstOrder.date_closed
+                (firstOrder.estimated_delivery || firstOrder.date_closed) as string
               )}
               trackingNumber={firstOrder.tracking_number ?? "N/A"}
             />
@@ -395,7 +472,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
               <CensorshipWrapper censorshipKey="vendas_orders_list_details_endereco">
                 <DetalhesEnvio title="Endereço">
                   <div className="flex gap-[0.3rem] mb-[5px]">
-                    <p className="font-bold text-beergam-typography-primary!">
+                    <p className="text-sm font-semibold text-beergam-typography-primary">
                       Endereço:
                     </p>
                     <TextCensored
@@ -406,7 +483,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
                     </TextCensored>
                   </div>
                   <div className="flex gap-[0.3rem] mb-[5px]">
-                    <p className="font-bold text-beergam-typography-primary!">
+                    <p className="text-sm font-semibold text-beergam-typography-primary">
                       Bairro:
                     </p>
                     <TextCensored
@@ -417,7 +494,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
                     </TextCensored>
                   </div>
                   <div className="flex gap-[0.3rem] mb-[5px]">
-                    <p className="font-bold text-beergam-typography-primary!">
+                    <p className="text-sm font-semibold text-beergam-typography-primary">
                       Estado:
                     </p>
                     <TextCensored
@@ -432,21 +509,20 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
               <DetalhesEnvio title="Entrega">
                 {/* <LabelText label="Método" text={firstOrder.tracking_method || "N/A"} /> */}
                 <div className="flex gap-[0.3rem] mb-[5px]">
-                  <p className="font-bold text-beergam-typography-primary!">
+                  <p className="text-sm font-semibold text-beergam-typography-primary">
                     Modo de Envio:
                   </p>
-                  <p>
+                  <p className="text-sm font-medium text-beergam-typography-primary">
                     {getLogisticTypeMeliInfo(firstOrder.shipping_mode ?? "")
                       ?.label || "N/A"}
                   </p>
                 </div>
                 <div className="flex gap-[0.3rem] mb-[5px]">
-                  <p className="font-bold text-beergam-typography-primary!">
+                  <p className="text-sm font-semibold text-beergam-typography-primary">
                     Frete Pago Por:
                   </p>
-                  <p>
-                    {getShippingPaidByLabel(firstOrder.shipping_paid_by) ||
-                      "N/A"}
+                  <p className="text-sm font-medium text-beergam-typography-primary">
+                    {getShippingPaidByLabel(firstOrder.shipping_paid_by)}
                   </p>
                 </div>
               </DetalhesEnvio>
@@ -491,7 +567,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
             />
           </div>
         </div>
-      </div>
+      </div >
     </>
   );
 }

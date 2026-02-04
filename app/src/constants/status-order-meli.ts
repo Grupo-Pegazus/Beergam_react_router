@@ -13,23 +13,17 @@ export const getStatusOrderMeliInfo = (status: string | null | undefined) => {
         color: "#1e40af",
         icon: "check_circle",
       },
-      payment_required: {
-        label: "Pagamento necessário",
-        backgroundColor: "#fef3c7",
-        color: "#92400e",
-        icon: "currency_dollar",
-      },
-      payment_in_process: {
-        label: "Pagamento em processo",
-        backgroundColor: "#fef3c7",
-        color: "#92400e",
-        icon: "clock",
-      },
       paid: {
         label: "Pago",
         backgroundColor: "#dbeafe",
         color: "#1e40af",
         icon: "check_circle",
+      },
+      partially_refunded: {
+        label: "Parcialmente reembolsado",
+        backgroundColor: "#fef3c7",
+        color: "#92400e",
+        icon: "currency_dollar",
       },
       ready_to_ship: {
         label: "Pronto para enviar",

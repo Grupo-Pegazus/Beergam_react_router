@@ -13,8 +13,7 @@ const STATUS_OPTIONS: Array<{ label: string; value: OrderStatusFilter }> = [
   { label: "Todos", value: "all" },
   { label: "Pago", value: "paid" },
   { label: "Cancelado", value: "cancelled" },
-  { label: "Pagamento necessário", value: "payment_required" },
-  { label: "Pagamento em processo", value: "payment_in_process" },
+  { label: "Parcialmente reembolsado", value: "partially_refunded" },
 ];
 
 const SEARCH_TYPE_OPTIONS = [
@@ -39,7 +38,6 @@ const DELIVERY_TYPE_OPTIONS: Array<{ label: string; value: DeliveryTypeFilter }>
   { label: "FULL", value: "fulfillment" },
   { label: "Coleta", value: "cross_docking" },
   { label: "Correios", value: "drop_off" },
-  { label: "Mercado Envios", value: "me2" },
   { label: "Flex", value: "self_service" },
   { label: "Não especificado", value: "not_specified" },
 ];
@@ -292,7 +290,10 @@ export default function VendasFilters({
       currentSearchType,
       handleSearchChange,
       handleSearchTypeChange,
+      onSubmit,
       statusValue,
+      deliveryStatusValue,
+      deliveryTypeValue,
       handleFilterChange,
       dateFromValue,
       dateToValue,

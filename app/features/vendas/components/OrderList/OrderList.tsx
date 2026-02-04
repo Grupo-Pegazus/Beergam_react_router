@@ -1,8 +1,13 @@
 import { Typography } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import PaginationBar from "~/src/components/ui/PaginationBar";
-import { useOrders } from "../../hooks";
+import { usePageFromSearchParams } from "~/src/hooks/usePageFromSearchParams";
+import Alert from "~/src/components/utils/Alert";
+import type { ModalOptions } from "~/src/components/utils/Modal/ModalContext";
+import { useModal } from "~/src/components/utils/Modal/useModal";
+import { useOrders, useOrdersReprocessQuota, useReprocessOrders } from "../../hooks";
 import type { Order, OrdersFilters } from "../../typings";
 import OrderCard from "./OrderCard";
 import OrderListSkeleton from "./OrderListSkeleton";
@@ -10,25 +15,34 @@ import OrderPackage from "./OrderPackage";
 
 interface OrderListProps {
   filters?: Partial<OrdersFilters>;
+  /** Quando true, a página é lida/escrita na URL (`?page=N`). @default false */
+  syncPageWithUrl?: boolean;
 }
 
-export default function OrderList({ filters = {} }: OrderListProps) {
+export default function OrderList({ filters = {}, syncPageWithUrl = false }: OrderListProps) {
   const [page, setPage] = useState(filters.page ?? 1);
   const [perPage, setPerPage] = useState(filters.per_page ?? 20);
+  const [reprocessingKey, setReprocessingKey] = useState<string | null>(null);
+  const { openModal, closeModal } = useModal();
 
   useEffect(() => {
-    setPage(filters.page ?? 1);
-  }, [filters.page]);
+    if (!syncPageWithUrl) setPage(filters.page ?? 1);
+  }, [filters.page, syncPageWithUrl]);
 
   useEffect(() => {
     setPerPage(filters.per_page ?? 20);
   }, [filters.per_page]);
 
+  const { page: pageFromUrl } = usePageFromSearchParams();
+  const effectivePage = syncPageWithUrl ? pageFromUrl : page;
+
   const { data, isLoading, error } = useOrders({
     ...filters,
-    page,
+    page: effectivePage,
     per_page: perPage,
   });
+  const { data: quotaData } = useOrdersReprocessQuota();
+  const reprocessMutation = useReprocessOrders();
 
   const orders = useMemo(() => {
     if (!data?.success || !data.data?.orders) return [];
@@ -106,9 +120,23 @@ export default function OrderList({ filters = {} }: OrderListProps) {
   const pagination = data?.success ? data.data?.pagination : null;
   const totalPages = pagination?.total_pages ?? 1;
   const totalCount = pagination?.total_count ?? orders.length;
+  const remainingQuota = quotaData?.success ? quotaData.data?.remaining ?? 0 : 0;
+
+  const [, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (!syncPageWithUrl || isLoading || totalPages < 1 || pageFromUrl <= totalPages) return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("page", String(totalPages));
+        return next;
+      },
+      { replace: true }
+    );
+  }, [syncPageWithUrl, isLoading, totalPages, pageFromUrl, setSearchParams]);
 
   const handlePageChange = (nextPage: number) => {
-    setPage(nextPage);
+    if (!syncPageWithUrl) setPage(nextPage);
   };
 
   return (
@@ -139,11 +167,98 @@ export default function OrderList({ filters = {} }: OrderListProps) {
                       key={`pack-${item.packId}`}
                       packId={item.packId}
                       orders={item.orders}
+                      onReprocess={() => {
+                        const orderIds = item.orders
+                          .map((o) => o.order_id)
+                          .filter(Boolean);
+
+                        if (!orderIds.length) {
+                          return;
+                        }
+                        if (orderIds.length > 30) {
+                          return;
+                        }
+                        if (remainingQuota < orderIds.length) {
+                          return;
+                        }
+                        const options: ModalOptions = {
+                          title: "Confirmar reprocessamento de carrinho",
+                        };
+
+                        openModal(
+                          <Alert
+                            type="info"
+                            confirmText="Reprocessar"
+                            onClose={closeModal}
+                            onConfirm={() => {
+                              setReprocessingKey(`pack-${item.packId}`);
+                              reprocessMutation.mutate(orderIds, {
+                                onSettled: () => setReprocessingKey(null),
+                              });
+                            }}
+                          >
+                            <h3 className="text-lg font-semibold text-beergam-typography-primary mb-2">
+                              Reprocessar {orderIds.length} pedido(s) do carrinho{" "}
+                              <span className="font-mono">#{item.packId}</span>?
+                            </h3>
+                            <p className="text-sm text-beergam-typography-secondary mb-2">
+                              Isso irá buscar novamente os dados desses pedidos no Mercado Livre e atualizar os registros aqui no Beergam.
+                            </p>
+                            <p className="text-xs text-beergam-typography-secondary">
+                              Cota mensal: <strong>{quotaData?.data?.limit ?? 0}</strong> | Usados:{" "}
+                              <strong>{quotaData?.data?.used ?? 0}</strong> | Restantes:{" "}
+                              <strong>{remainingQuota}</strong>.
+                            </p>
+                          </Alert>,
+                          options
+                        );
+                      }}
+                      isReprocessing={reprocessingKey === `pack-${item.packId}`}
+                      remainingQuota={remainingQuota}
                     />
                   ) : (
                     <OrderCard
                       key={`order-${item.order.order_id}`}
                       order={item.order}
+                      onReprocess={() => {
+                        if (remainingQuota <= 0) {
+                          return;
+                        }
+                        const orderId = item.order.order_id;
+                        const options: ModalOptions = {
+                          title: "Confirmar reprocessamento do pedido",
+                        };
+
+                        openModal(
+                          <Alert
+                            type="info"
+                            confirmText="Reprocessar"
+                            onClose={closeModal}
+                            onConfirm={() => {
+                              setReprocessingKey(`order-${orderId}`);
+                              reprocessMutation.mutate([orderId], {
+                                onSettled: () => setReprocessingKey(null),
+                              });
+                            }}
+                          >
+                            <h3 className="text-lg font-semibold text-beergam-typography-primary mb-2">
+                              Deseja reprocessar o pedido{" "}
+                              <span className="font-mono">#{orderId}</span>?
+                            </h3>
+                            <p className="text-sm text-beergam-typography-secondary mb-2">
+                              Isso irá buscar novamente os dados desse pedido no Mercado Livre e atualizar o registro aqui no Beergam.
+                            </p>
+                            <p className="text-xs text-beergam-typography-secondary">
+                              Cota mensal: <strong>{quotaData?.data?.limit ?? 0}</strong> | Usados:{" "}
+                              <strong>{quotaData?.data?.used ?? 0}</strong> | Restantes:{" "}
+                              <strong>{remainingQuota}</strong>.
+                            </p>
+                          </Alert>,
+                          options
+                        );
+                      }}
+                      isReprocessing={reprocessingKey === `order-${item.order.order_id}`}
+                      remainingQuota={remainingQuota}
                     />
                   )
                 )}
@@ -154,7 +269,7 @@ export default function OrderList({ filters = {} }: OrderListProps) {
       </div>
 
       <PaginationBar
-        page={page}
+        page={Math.min(effectivePage, Math.max(1, totalPages))}
         totalPages={totalPages}
         totalCount={totalCount}
         entityLabel="pedidos"
@@ -162,6 +277,7 @@ export default function OrderList({ filters = {} }: OrderListProps) {
         scrollOnChange
         scrollTargetId="order-list"
         isLoading={isLoading}
+        syncWithUrl={syncPageWithUrl}
       />
     </>
   );

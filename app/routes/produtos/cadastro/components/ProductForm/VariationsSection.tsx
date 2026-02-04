@@ -12,6 +12,7 @@ import type {
 import { Fields } from "~/src/components/utils/_fields";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import Upload from "~/src/components/utils/upload";
+import toast from "~/src/utils/toast";
 
 interface VariationsSectionProps {
   registrationType: RegistrationType;
@@ -181,8 +182,8 @@ export default function VariationsSection({
         initialFiles={
           uploadVariationIndex !== null
             ? (watch(
-                `variations.${uploadVariationIndex}.images.${uploadType}`
-              ) as string[]) || []
+              `variations.${uploadVariationIndex}.images.${uploadType}`
+            ) as string[]) || []
             : []
         }
       />
@@ -371,9 +372,9 @@ function VariationForm({
             error={
               errors?.status
                 ? {
-                    message: errors.status.message || "Campo obrigatório",
-                    error: true,
-                  }
+                  message: errors.status.message || "Campo obrigatório",
+                  error: true,
+                }
                 : undefined
             }
             hasError={!!errors?.status}
@@ -532,11 +533,11 @@ function VariationForm({
             error={
               errors?.unity_type
                 ? {
-                    message:
-                      errors.unity_type.message ||
-                      "Tipo de unidade é obrigatório",
-                    error: true,
-                  }
+                  message:
+                    errors.unity_type.message ||
+                    "Tipo de unidade é obrigatório",
+                  error: true,
+                }
                 : undefined
             }
             hasError={!!errors?.unity_type}
@@ -547,19 +548,19 @@ function VariationForm({
         {(watch(
           `variations.${index}.stock_handling` as `variations.${number}.stock_handling`
         ) as boolean) && (
-          <Fields.wrapper>
-            <Fields.label text="QUANTIDADE DISPONÍVEL" />
-            <Fields.input
-              type="number"
-              min="0"
-              placeholder="0"
-              {...register(`variations.${index}.available_quantity`, {
-                valueAsNumber: true,
-              })}
-              error={errors?.available_quantity?.message}
-            />
-          </Fields.wrapper>
-        )}
+            <Fields.wrapper>
+              <Fields.label text="QUANTIDADE DISPONÍVEL" />
+              <Fields.input
+                type="number"
+                min="0"
+                placeholder="0"
+                {...register(`variations.${index}.available_quantity`, {
+                  valueAsNumber: true,
+                })}
+                error={errors?.available_quantity?.message}
+              />
+            </Fields.wrapper>
+          )}
       </div>
 
       {/* Atributos da variação */}
@@ -614,11 +615,6 @@ function VariationAttributes({
     name: `variations.${index}.attributes`,
   });
 
-  // Estado para controlar os valores selecionados nos selects de valores
-  const [selectedValueForAttribute, setSelectedValueForAttribute] = useState<
-    Record<number, string>
-  >({});
-
   // Busca atributos do sistema
   const { data: attributesData } = useAttributes({ per_page: 100 });
 
@@ -655,6 +651,22 @@ function VariationAttributes({
       value: string[];
     }>) || [];
 
+  /** Nomes já usados por *outros* atributos da mesma variação (exclui attrIndex). */
+  const getUsedAttributeNames = (excludeAttrIndex: number): Set<string> => {
+    const used = new Set<string>();
+    currentAttributes.forEach((attr, i) => {
+      if (i !== excludeAttrIndex && attr?.name?.trim())
+        used.add(attr.name.trim());
+    });
+    return used;
+  };
+
+  /** Opções de atributo disponíveis para o attrIndex (exclui nomes já usados em outras linhas). */
+  const getAvailableAttributeOptions = (attrIndex: number) => {
+    const used = getUsedAttributeNames(attrIndex);
+    return attributeOptions.filter((opt) => !used.has(opt.value));
+  };
+
   const addAttribute = () => {
     append({ name: "", value: [] });
   };
@@ -663,21 +675,11 @@ function VariationAttributes({
     remove(attrIndex);
   };
 
-  const addValueToAttribute = (attrIndex: number, value: string) => {
-    if (!value.trim()) return;
-    const currentAttr = currentAttributes[attrIndex];
-    if (currentAttr && !currentAttr.value?.includes(value)) {
-      const newValues = [...(currentAttr.value || []), value];
-      setValue(`variations.${index}.attributes.${attrIndex}.value`, newValues);
-    }
-  };
-
-  const removeValueFromAttribute = (attrIndex: number, valueIndex: number) => {
-    const currentAttr = currentAttributes[attrIndex];
-    if (currentAttr?.value) {
-      const newValues = currentAttr.value.filter((_, i) => i !== valueIndex);
-      setValue(`variations.${index}.attributes.${attrIndex}.value`, newValues);
-    }
+  const setSingleAttributeValue = (attrIndex: number, value: string) => {
+    setValue(
+      `variations.${index}.attributes.${attrIndex}.value`,
+      value.trim() ? [value.trim()] : []
+    );
   };
 
   return (
@@ -722,35 +724,46 @@ function VariationAttributes({
                 <Fields.wrapper>
                   <Fields.label text="NOME DO ATRIBUTO" required />
                   <Fields.select
-                    options={attributeOptions}
+                    options={[
+                      {
+                        value: "",
+                        label: "Selecione o atributo",
+                      },
+                      ...getAvailableAttributeOptions(attrIndex),
+                    ]}
                     {...register(
                       `variations.${index}.attributes.${attrIndex}.name`
                     )}
                     value={attributeName}
                     onChange={(e) => {
+                      const newName = e.target.value;
+                      const used = getUsedAttributeNames(attrIndex);
+                      if (
+                        newName &&
+                        used.has(newName)
+                      ) {
+                        toast.error(
+                          "Este atributo já foi adicionado nesta variação. Cada variação não pode ter o mesmo atributo mais de uma vez."
+                        );
+                        return;
+                      }
                       setValue(
                         `variations.${index}.attributes.${attrIndex}.name`,
-                        e.target.value
+                        newName
                       );
-                      // Limpa os valores quando muda o atributo
                       setValue(
                         `variations.${index}.attributes.${attrIndex}.value`,
                         []
                       );
-                      // Reseta o estado do select de valores
-                      setSelectedValueForAttribute((prev) => ({
-                        ...prev,
-                        [attrIndex]: "",
-                      }));
                     }}
                     error={
                       errors?.attributes?.[attrIndex]?.name
                         ? {
-                            message:
-                              errors.attributes[attrIndex].name.message ||
-                              "Nome do atributo é obrigatório",
-                            error: true,
-                          }
+                          message:
+                            errors.attributes[attrIndex].name.message ||
+                            "Nome do atributo é obrigatório",
+                          error: true,
+                        }
                         : undefined
                     }
                     hasError={!!errors?.attributes?.[attrIndex]?.name}
@@ -758,7 +771,7 @@ function VariationAttributes({
                 </Fields.wrapper>
 
                 <Fields.wrapper>
-                  <Fields.label text="VALORES DO ATRIBUTO" required />
+                  <Fields.label text="VALOR DO ATRIBUTO" required />
                   {(() => {
                     if (!attributeName) {
                       return (
@@ -786,70 +799,30 @@ function VariationAttributes({
                       label: val,
                     }));
 
-                    const availableValues = allowedValues.filter(
-                      (val) => !attributeValues.includes(val)
-                    );
+                    const currentValue = attributeValues[0] ?? "";
 
                     return (
-                      <>
-                        {availableValues.length > 0 ? (
-                          <Fields.select
-                            options={[
-                              {
-                                value: "",
-                                label: "Selecione um valor para adicionar",
-                              },
-                              ...valueOptions.filter((opt) =>
-                                availableValues.includes(opt.value)
-                              ),
-                            ]}
-                            value={selectedValueForAttribute[attrIndex] || ""}
-                            onChange={(e) => {
-                              const selectedValue = e.target.value;
-                              if (selectedValue && selectedValue !== "") {
-                                addValueToAttribute(attrIndex, selectedValue);
-                                // Reseta o select
-                                setSelectedValueForAttribute((prev) => ({
-                                  ...prev,
-                                  [attrIndex]: "",
-                                }));
-                              }
-                            }}
-                          />
-                        ) : (
-                          <div className="text-sm text-beergam-gray">
-                            Todos os valores disponíveis já foram selecionados
-                          </div>
-                        )}
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {attributeValues.map(
-                            (value: string, valueIndex: number) => (
-                              <span
-                                key={valueIndex}
-                                className="inline-flex items-center gap-4 px-2 py-1 bg-beergam-typography-primary/10 text-beergam-typography-primary rounded text-sm"
-                              >
-                                {value}
-                                <BeergamButton
-                                  onClick={() =>
-                                    removeValueFromAttribute(
-                                      attrIndex,
-                                      valueIndex
-                                    )
-                                  }
-                                  icon="x"
-                                  mainColor="beergam-red"
-                                />
-                              </span>
-                            )
-                          )}
-                        </div>
-                        {errors?.attributes?.[attrIndex]?.value && (
-                          <p className="text-xs text-beergam-red mt-1">
-                            {errors.attributes[attrIndex].value.message ||
-                              "Pelo menos um valor é obrigatório"}
-                          </p>
-                        )}
-                      </>
+                      <Fields.select
+                        options={[
+                          { value: "", label: "Selecione o valor" },
+                          ...valueOptions,
+                        ]}
+                        value={currentValue}
+                        onChange={(e) =>
+                          setSingleAttributeValue(attrIndex, e.target.value)
+                        }
+                        error={
+                          errors?.attributes?.[attrIndex]?.value
+                            ? {
+                              message:
+                                errors.attributes[attrIndex].value.message ||
+                                "O valor do atributo é obrigatório",
+                              error: true,
+                            }
+                            : undefined
+                        }
+                        hasError={!!errors?.attributes?.[attrIndex]?.value}
+                      />
                     );
                   })()}
                 </Fields.wrapper>

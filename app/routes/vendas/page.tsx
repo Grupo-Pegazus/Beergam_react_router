@@ -70,9 +70,9 @@ export default function VendasPage() {
             value={filters}
             onChange={handleFiltersChange}
             onReset={resetFilters}
-            onSubmit={applyFilters}
+            onSubmit={() => applyFilters(filters)}
           />
-          <OrderList filters={apiFilters} />
+          <OrderList filters={apiFilters} syncPageWithUrl />
         </Section>
       </CensorshipWrapper>
     </>

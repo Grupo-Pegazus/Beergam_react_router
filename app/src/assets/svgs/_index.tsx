@@ -1,6 +1,9 @@
+import AdjustmentsHorizontalSolid from "./AdjustmentsHorizontalSolid";
 import AlertIcon from "./AlertIcon";
 import ArrowLongRight from "./ArrowLongRight";
 import ArrowPathIcon from "./ArrowPathIcon";
+import ArrowTrendingDown from "./ArrowTrendingDown";
+import ArrowTrendingUp from "./ArrowTrendingUp";
 import ArrowUturnLeft from "./ArrowUturnLeft";
 import ArrowUturnRight from "./ArrowUturnRight";
 import BagIcon from "./BagIcon";
@@ -25,6 +28,7 @@ import CheckSolid from "./CheckSolid";
 import Chevron from "./Chevron";
 import ChevronUpAndDown from "./ChevronUpAndDown";
 import CircleX from "./CircleX";
+import Clip from "./Clip";
 import ClockIcon from "./ClockIcon";
 import Cog8Tooth from "./Cog8Tooth";
 import Copy from "./Copy";
@@ -35,6 +39,7 @@ import DocumentGlassSolid from "./DocumentGlassSolid";
 import DocumentIcon from "./DocumentIcon";
 import DollyIcon from "./DollyIcon";
 import ElipsisHorizontal from "./ElipsisHorizontal";
+import Excel from "./Excel";
 import Eye from "./Eye";
 import EyeSlash from "./EyeSlash";
 import GlobeIcon from "./GlobeIcon";
@@ -53,6 +58,7 @@ import Logout from "./Logout";
 import LowStock from "./LowStock";
 import Megaphone from "./Megaphone";
 import Minus from "./Minus";
+import MinusCircle from "./MinusCircle";
 import Moon from "./Moon";
 import Pencil from "./Pencil";
 import PencilSolid from "./PencilSolid";
@@ -64,6 +70,7 @@ import Profile from "./Profile";
 import ProfileSolid from "./ProfileSolid";
 import Question from "./Question";
 import QuestionMark from "./QuestionMark";
+import RocketLaunch from "./RocketLaunch";
 import Square3StackSolid from "./Square3StackSolid";
 import Squares2x2Solid from "./Squares2x2Solid";
 import Star from "./Star";
@@ -71,6 +78,7 @@ import StarSolid from "./StarSolid";
 import Sun from "./Sun";
 import Trash from "./Trash";
 import Truck from "./Truck";
+import TruckSolid from "./TruckSolid";
 import User from "./User";
 import UserPlus from "./UserPlus";
 import UserPlusSolid from "./UserPlusSolid";
@@ -78,6 +86,7 @@ import WarningCircle from "./WarningCircle";
 import X from "./X";
 import XCircle from "./XCircle";
 const Svg = {
+  excel: Excel,
   home: HomeIcon,
   home_solid: HomeSolid,
   bag: BagIcon,
@@ -157,6 +166,13 @@ const Svg = {
   square_3_stack_solid: Square3StackSolid,
   squares_2x2_solid: Squares2x2Solid,
   chevron_up_and_down: ChevronUpAndDown,
+  minus_circle: MinusCircle,
+  adjustments_horizontal_solid: AdjustmentsHorizontalSolid,
+  clip: Clip,
+  truck_solid: TruckSolid,
+  arrow_trending_down: ArrowTrendingDown,
+  arrow_trending_up: ArrowTrendingUp,
+  rocket_launch: RocketLaunch,
 };
 
 export default Svg;

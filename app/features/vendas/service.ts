@@ -8,6 +8,8 @@ import type {
   GeographicDistribution,
   TopCategories,
   OrderDetailsResponse,
+  ReprocessOrdersResponse,
+  ReprocessQuota,
 } from "./typings";
 
 class VendasService {
@@ -62,7 +64,7 @@ class VendasService {
   }
 
   async getGeographicDistribution(params?: {
-    period?: "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "custom";
+    period?: "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "last_90_days" | "custom";
     date_from?: string;
     date_to?: string;
   }): Promise<ApiResponse<GeographicDistribution>> {
@@ -98,6 +100,18 @@ class VendasService {
   async getOrderDetails(orderIdOrPackId: string): Promise<ApiResponse<OrderDetailsResponse>> {
     const response = await typedApiClient.get<OrderDetailsResponse>(`/v1/orders/${orderIdOrPackId}`);
     return response as ApiResponse<OrderDetailsResponse>;
+  }
+
+  async getReprocessQuota(): Promise<ApiResponse<ReprocessQuota>> {
+    const response = await typedApiClient.get<ReprocessQuota>("/v1/orders/reprocess/quota");
+    return response as ApiResponse<ReprocessQuota>;
+  }
+
+  async reprocessOrders(orderIds: string[]): Promise<ApiResponse<ReprocessOrdersResponse>> {
+    const response = await typedApiClient.post<ReprocessOrdersResponse>("/v1/orders/reprocess", {
+      order_ids: orderIds,
+    });
+    return response as ApiResponse<ReprocessOrdersResponse>;
   }
 }
 

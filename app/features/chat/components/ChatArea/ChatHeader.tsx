@@ -19,11 +19,23 @@ export default function ChatHeader({
     onTypeChange,
     hasClaims = false,
 }: ChatHeaderProps) {
-    const [currentType, setCurrentType] = useState<ChatType>(activeType);
+    const getValidActiveType = (type: ChatType): ChatType => {
+        if (!hasClaims && (type === "reclamacao" || type === "mediacao")) {
+            return "pos_venda";
+        }
+        return type;
+    };
+
+    const [currentType, setCurrentType] = useState<ChatType>(getValidActiveType(activeType));
 
     useEffect(() => {
-        setCurrentType(activeType);
-    }, [activeType]);
+        const validType = getValidActiveType(activeType);
+        setCurrentType(validType);
+        // Se o tipo foi ajustado, notifica o componente pai
+        if (validType !== activeType) {
+            onTypeChange?.(validType);
+        }
+    }, [activeType, hasClaims, onTypeChange]);
 
     const handleChange = (_event: React.SyntheticEvent, newValue: ChatType) => {
         setCurrentType(newValue);
@@ -46,24 +58,6 @@ export default function ChatHeader({
                         backgroundColor: "var(--color-beergam-primary)",
                         height: 3,
                     },
-                    "& .MuiTab-root": {
-                        color: "var(--color-beergam-typography-secondary)",
-                        textTransform: "none",
-                        fontWeight: 500,
-                        fontSize: "0.875rem",
-                        minHeight: 48,
-                        whiteSpace: "nowrap",
-                        flex: 1,
-                        maxWidth: "none",
-                        "&.Mui-selected": {
-                            color: "var(--color-beergam-primary)",
-                            fontWeight: 600,
-                        },
-                        "&:hover": {
-                            color: "var(--color-beergam-primary)",
-                            backgroundColor: "rgba(0, 0, 0, 0.02)",
-                        },
-                    },
                 }}
             >
                 {CHAT_TYPES.map((type) => {
@@ -72,7 +66,31 @@ export default function ChatHeader({
                     if (isDisabled) {
                         return null;
                     }
-                    return <Tab key={type.value} label={type.label} value={type.value} />;
+                    return (
+                        <Tab
+                            key={type.value}
+                            label={type.label}
+                            value={type.value}
+                            sx={{
+                                color: "var(--color-beergam-typography-secondary)",
+                                textTransform: "none",
+                                fontWeight: 500,
+                                fontSize: "0.875rem",
+                                minHeight: 48,
+                                whiteSpace: "nowrap",
+                                flex: 1,
+                                maxWidth: "none",
+                                "&.Mui-selected": {
+                                    color: "var(--color-beergam-primary)",
+                                    fontWeight: 600,
+                                },
+                                "&:hover": {
+                                    color: "var(--color-beergam-primary)",
+                                    backgroundColor: "rgba(0, 0, 0, 0.02)",
+                                },
+                            }}
+                        />
+                    );
                 })}
             </Tabs>
         </div>

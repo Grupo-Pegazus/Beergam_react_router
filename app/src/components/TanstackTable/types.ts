@@ -8,11 +8,17 @@ declare module '@tanstack/react-table' {
     headerColor?: string;
     /** Cor de fundo do body (mais clara) */
     bodyColor?: string;
+    /** Cor do texto dos valores na coluna */
+    textColor?: string;
     /** Nome da seção/categoria da coluna */
     sectionName?: string;
     /** Largura customizada da coluna (sobrescreve o cálculo automático) */
     customWidth?: number;
     /** Habilita sorting para esta coluna (default: false) */
     enableSorting?: boolean;
+    /** Valor a ser exibido na linha de rodapé (footer) da coluna */
+    footerValue?: string | number | React.ReactNode;
+    /** Cor de fundo do footer (opcional, usa headerColor se não definido) */
+    footerColor?: string;
   }
 }

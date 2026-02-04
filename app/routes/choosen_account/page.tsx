@@ -175,14 +175,9 @@ export default function ChoosenAccountPage({
                 </Fields.wrapper>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 items-baseline justify-end gap-2">
+              <div className="flex items-center justify-end gap-2">
                 <BeergamButton
-                  title="Adicionar Loja"
-                  animationStyle="slider"
-                  icon="globe"
-                  onClick={() => handleAbrirModal({ abrir: true })}
-                />
-                <BeergamButton
+                  className="w-[20%]"
                   title="Limpar"
                   animationStyle="slider"
                   mainColor="beergam-gray"
@@ -191,12 +186,14 @@ export default function ChoosenAccountPage({
                     setSearchTerm("");
                     setTypeFilter("");
                   }}
-                // className="px-3 py-2 rounded-[12px] border border-black/20 text-sm text-[#1e1f21] hover:bg-gray-50 transition-colors whitespace-nowrap"
                 />
-                {/* <div className="px-3 py-2 rounded-[12px] bg-[#f6f8fb] text-[#1e1f21] text-sm border border-black/10 min-w-[60px] text-center flex items-center justify-center">
-                  {resultsCount}
-                </div> */}
-                <p>{resultsCount} contas encontradas</p>
+                <BeergamButton
+                  className="w-[80%]"
+                  title="Adicionar Loja"
+                  animationStyle="slider"
+                  icon="globe"
+                  onClick={() => handleAbrirModal({ abrir: true })}
+                />
               </div>
             </div>
           </Paper>
@@ -264,6 +261,7 @@ export default function ChoosenAccountPage({
         </div>
       </div>
       <Modal
+        title="Adicionar Marketplace"
         isOpen={abrirModal}
         onClose={() => handleAbrirModal({ abrir: false })}
       >

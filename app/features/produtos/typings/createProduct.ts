@@ -28,42 +28,76 @@ export const ProductImagesSchema = z.object({
 });
 export type ProductImages = z.infer<typeof ProductImagesSchema>;
 
-// Schema para atributos de variação
+// Schema para atributos de variação (exatamente 1 valor por atributo na variação)
 export const VariationAttributeSchema = z.object({
   name: z.string().min(1, "Nome do atributo é obrigatório"),
-  value: z.array(z.string()).min(1, "Pelo menos um valor é obrigatório"),
+  value: z
+    .array(z.string())
+    .min(1, "O valor do atributo é obrigatório")
+    .max(1, "Apenas um valor por atributo na variação"),
 });
 export type VariationAttribute = z.infer<typeof VariationAttributeSchema>;
 
+const duplicateAttributeRefine = {
+  message:
+    "Cada variação não pode ter o mesmo atributo mais de uma vez (ex.: COR azul e COR verde na mesma variação).",
+  path: ["attributes"] as PropertyKey[],
+};
+
+function noDuplicateAttributeNames(
+  v: { attributes?: Array<{ name: string }> }
+): boolean {
+  const attrs = v.attributes ?? [];
+  const names = attrs.map((a) => a.name).filter(Boolean);
+  return names.length === new Set(names).size;
+}
+
 // Schema para variação simplificada
-export const SimplifiedVariationSchema = z.object({
-  sku: z.string().min(1, "SKU é obrigatório"),
-  title: z.string().min(1, "Título da variação é obrigatório"),
-  status: StatusSchema,
-  images: ProductImagesSchema,
-  attributes: z.array(VariationAttributeSchema).optional(),
-  unity_type: UnityTypeSchema,
-  stock_handling: z.boolean(),
-  available_quantity: z.number().min(0, "Quantidade disponível deve ser maior ou igual a zero").optional(),
-});
+export const SimplifiedVariationSchema = z
+  .object({
+    sku: z.string().min(1, "SKU é obrigatório"),
+    title: z.string().min(1, "Título da variação é obrigatório"),
+    status: StatusSchema,
+    images: ProductImagesSchema,
+    attributes: z.array(VariationAttributeSchema).optional(),
+    unity_type: UnityTypeSchema,
+    stock_handling: z.boolean(),
+    available_quantity: z
+      .number()
+      .min(0, "Quantidade disponível deve ser maior ou igual a zero")
+      .optional(),
+  })
+  .refine(noDuplicateAttributeNames, duplicateAttributeRefine);
 export type SimplifiedVariation = z.infer<typeof SimplifiedVariationSchema>;
 
 // Schema para variação completa
-export const CompleteVariationSchema = SimplifiedVariationSchema.extend({
+export const CompleteVariationSchema = SimplifiedVariationSchema.safeExtend({
   description: z.string().optional(),
   price_sale: z.number().min(0, "Preço de venda deve ser maior ou igual a zero"),
   price_cost: z.number().min(0, "Preço de custo deve ser maior ou igual a zero"),
-  packaging_cost: z.number().min(0, "Custo de embalagem deve ser maior ou igual a zero").optional(),
-  extra_cost: z.number().min(0, "Custo extra deve ser maior ou igual a zero").optional(),
+  packaging_cost: z
+    .number()
+    .min(0, "Custo de embalagem deve ser maior ou igual a zero")
+    .optional(),
+  extra_cost: z
+    .number()
+    .min(0, "Custo extra deve ser maior ou igual a zero")
+    .optional(),
   stock_handling: z.boolean(),
-  available_quantity: z.number().min(0, "Quantidade disponível deve ser maior ou igual a zero"),
-  minimum_quantity: z.number().min(0, "Quantidade mínima deve ser maior ou igual a zero"),
-  maximum_quantity: z.number().min(0, "Quantidade máxima deve ser maior ou igual a zero"),
+  available_quantity: z
+    .number()
+    .min(0, "Quantidade disponível deve ser maior ou igual a zero"),
+  minimum_quantity: z
+    .number()
+    .min(0, "Quantidade mínima deve ser maior ou igual a zero"),
+  maximum_quantity: z
+    .number()
+    .min(0, "Quantidade máxima deve ser maior ou igual a zero"),
   ncm: z.string().optional(),
   ean: z.string().optional(),
   icms: z.boolean().optional(),
   cest: z.string().optional(),
-});
+}).refine(noDuplicateAttributeNames, duplicateAttributeRefine);
 export type CompleteVariation = z.infer<typeof CompleteVariationSchema>;
 
 // Schema para produto simplificado

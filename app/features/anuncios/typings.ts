@@ -159,6 +159,12 @@ export const VisitSchema = z.object({
   visits: z.number(),
 });
 
+const ItemRelationSchema = z.object({
+  id: z.string(),
+  variation_id: z.string().nullable().optional(),
+  stock_relation: z.number(),
+});
+
 // Schema principal do anúncio
 export const AnuncioSchema = z.object({
   active_days: z.number(),
@@ -179,6 +185,8 @@ export const AnuncioSchema = z.object({
   mlb: z.string(),
   mlbu: z.string().optional(),
   catalog_product_id: z.string().optional(),
+  is_catalog: z.boolean(),
+  item_relations: z.array(ItemRelationSchema).optional(),
   name: z.string(),
   price: z.string(),
   sku: z.string().nullable(),
@@ -191,6 +199,7 @@ export const AnuncioSchema = z.object({
   variations_count: z.number(),
   variations: z.array(VariationSchema).optional(),
   visits: z.array(VisitSchema).optional(),
+  flex: z.boolean(),
 });
 
 export type Anuncio = z.infer<typeof AnuncioSchema>;
@@ -306,12 +315,12 @@ export const AnuncioDetailsSchema = AnuncioSchema.extend({
   average_profit_per_sale: z.number().optional(),
   total_revenue: z.number().optional(),
   total_expenses: z.number().optional(),
-  
+
   // Métricas de performance
   visits_last_150_days: z.number().optional(),
   total_sales: z.number().optional(),
   average_weekly_sales: z.number().optional(),
-  
+
   // Melhorias
   improvements: z.object({
     opportunities: z.array(z.object({
@@ -332,16 +341,16 @@ export const AnuncioDetailsSchema = AnuncioSchema.extend({
     })).optional(),
     total_count: z.number().optional(),
   }).optional(),
-  
+
   // Métricas de qualidade
   quality_metrics: z.object({
     qa_score: z.number().nullable().optional(), // Qualidade do Anúncio
     ec_score: z.number().nullable().optional(), // Experiência de Compra
   }).optional(),
-  
+
   // Features/Badges do anúncio
   features: z.array(z.string()).optional(), // Ex: ["FULL", "CATALOGO", "FRETE GRÁTIS", "COLETAS", "FLEX"]
-  
+
   // Custos detalhados
   costs: z.object({
     purchase_price: z.number().optional(),
@@ -356,3 +365,33 @@ export const AnuncioDetailsSchema = AnuncioSchema.extend({
 });
 
 export type AnuncioDetails = z.infer<typeof AnuncioDetailsSchema>;
+
+// ===========================
+// Reprocessamento (cota + ação)
+// ===========================
+
+export const ReprocessQuotaSchema = z.object({
+  resource_type: z.string(),
+  year_month: z.string(),
+  limit: z.number(),
+  used: z.number(),
+  remaining: z.number(),
+});
+
+export type ReprocessQuota = z.infer<typeof ReprocessQuotaSchema>;
+
+export const ReprocessAdItemSchema = z.object({
+  ad_id: z.string(),
+  success: z.boolean(),
+  message: z.string().optional(),
+});
+
+export type ReprocessAdItem = z.infer<typeof ReprocessAdItemSchema>;
+
+export const ReprocessAdsResponseSchema = z.object({
+  items: z.array(ReprocessAdItemSchema),
+  total_requested: z.number(),
+  total_reprocessed: z.number(),
+});
+
+export type ReprocessAdsResponse = z.infer<typeof ReprocessAdsResponseSchema>;

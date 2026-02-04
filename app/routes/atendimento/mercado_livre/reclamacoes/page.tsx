@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
 import { ClaimsFilters as ClaimsFiltersBar } from "~/features/reclamacoes/components/ClaimsFilters";
 import { ClaimsList } from "~/features/reclamacoes/components/ClaimsList";
 import { ClaimsMetrics } from "~/features/reclamacoes/components/ClaimsMetrics";
@@ -11,6 +12,7 @@ import type {
 } from "~/features/reclamacoes/typings";
 import Grid from "~/src/components/ui/Grid";
 import Section from "~/src/components/ui/Section";
+import { usePageFromSearchParams } from "~/src/hooks/usePageFromSearchParams";
 
 const DEFAULT_FILTERS: ClaimsFiltersState = {
   status: "",
@@ -52,11 +54,13 @@ export default function ReclamacoesPage() {
   const [appliedFilters, setAppliedFilters] =
     useState<ClaimsFiltersState>(DEFAULT_FILTERS);
   const queryClient = useQueryClient();
+  const [, setSearchParams] = useSearchParams();
 
-  const apiFilters = useMemo(
-    () => mapToApiFilters(appliedFilters),
-    [appliedFilters]
-  );
+  const { page: pageFromUrl } = usePageFromSearchParams();
+  const apiFilters = useMemo(() => {
+    const base = mapToApiFilters(appliedFilters);
+    return { ...base, page: pageFromUrl };
+  }, [appliedFilters, pageFromUrl]);
 
   const claimsQuery = useQuery({
     queryKey: ["claims", apiFilters],
@@ -93,6 +97,14 @@ export default function ReclamacoesPage() {
 
   function applyFilters() {
     setAppliedFilters({ ...filters, page: 1 });
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("page", "1");
+        return next;
+      },
+      { replace: true }
+    );
     queryClient.invalidateQueries({ queryKey: ["claims"] });
   }
 
@@ -106,6 +118,8 @@ export default function ReclamacoesPage() {
     setFilters((prev) => ({ ...prev, page: nextPage }));
     setAppliedFilters((prev) => ({ ...prev, page: nextPage }));
   }
+
+  const syncPageWithUrl = true;
 
   return (
     <>
@@ -151,6 +165,7 @@ export default function ReclamacoesPage() {
             pagination={pagination}
             loading={claimsQuery.isLoading}
             onPageChange={handlePageChange}
+            syncPageWithUrl={syncPageWithUrl}
           />
         </Section>
       </Grid>

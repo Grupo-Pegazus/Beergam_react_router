@@ -15,6 +15,7 @@ export interface FilterSearchInputProps {
   fullWidth?: boolean;
   widthType?: "fit" | "full";
   onEnterPress?: () => void;
+  className?: string;
 }
 
 export function FilterSearchInput({
@@ -29,6 +30,7 @@ export function FilterSearchInput({
   fullWidth = true,
   widthType = "full",
   onEnterPress,
+  className,
 }: FilterSearchInputProps) {
   // Estado interno para evitar disparar requisição a cada tecla
   const [internalValue, setInternalValue] = useState(value ?? "");
@@ -115,6 +117,7 @@ export function FilterSearchInput({
           disabled={disabled}
           placeholder={placeholder}
           tailWindClasses="rounded-3xl"
+          className={className}
         />
         {hasSearchType && (
           <Fields.select

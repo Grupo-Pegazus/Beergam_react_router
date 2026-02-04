@@ -1,6 +1,6 @@
-import { useMemo, useCallback } from "react";
 import { Stack, Typography } from "@mui/material";
-import { FilterContainer, FilterSelect, FilterSwitch, FilterActions, FilterSearchInput } from "~/src/components/filters";
+import { useCallback, useMemo } from "react";
+import { FilterActions, FilterContainer, FilterSearchInput, FilterSelect, FilterSwitch } from "~/src/components/filters";
 import { Fields } from "~/src/components/utils/_fields";
 import { ActiveTimeFilter } from "./ActiveTimeFilter";
 import type {
@@ -17,20 +17,18 @@ const STATUS_OPTIONS: Array<{ label: string; value: AnuncioStatusFilter }> = [
   { label: "Fechados", value: "closed" },
 ];
 
-const AD_TYPE_OPTIONS: Array<{ label: string; value: AnuncioTypeFilter }> = [
+export const AD_TYPE_OPTIONS: Array<{ label: string; value: AnuncioTypeFilter }> = [
   { label: "Todos", value: "all" },
   { label: "Clássico", value: "gold_special" },
   { label: "Premium", value: "gold_pro" },
 ];
 
-const DELIVERY_OPTIONS: Array<{ label: string; value: DeliveryTypeFilter }> = [
+export const DELIVERY_OPTIONS: Array<{ label: string; value: DeliveryTypeFilter }> = [
   { label: "Todas", value: "all" },
   { label: "Agência", value: "xd_drop_off" },
   { label: "FULL", value: "fulfillment" },
   { label: "Coleta", value: "cross_docking" },
   { label: "Correios", value: "drop_off" },
-  { label: "Mercado Envios", value: "me2" },
-  { label: "Flex", value: "self_service" },
   { label: "Não especificado", value: "not_specified" },
 ];
 
@@ -249,6 +247,11 @@ export default function AnunciosFilters({
     [value.experience_score_max],
   );
 
+  const flexValue = useMemo(
+    () => Boolean(value.flex),
+    [value.flex],
+  );
+
   const currentSearchType = useMemo(() => {
     if (value.searchType) {
       return value.searchType;
@@ -385,6 +388,12 @@ export default function AnunciosFilters({
           value={withoutSalesValue}
           onChange={(newValue) => handleFilterChange("withoutSales", newValue)}
           label="Somente anúncios sem venda"
+          defaultValue={false}
+        />
+        <FilterSwitch
+          value={flexValue}
+          onChange={(newValue) => handleFilterChange("flex", newValue)}
+          label="Somente anúncios FLEX"
           defaultValue={false}
         />
         <FilterSwitch

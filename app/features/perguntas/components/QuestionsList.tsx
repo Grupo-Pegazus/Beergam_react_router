@@ -21,6 +21,8 @@ interface QuestionsListProps {
   loading?: boolean;
   onPageChange?: (page: number) => void;
   onAnswer: (questionId: string, answer: string) => Promise<void>;
+  /** Quando true, a página é lida/escrita na URL (`?page=N`). @default false */
+  syncPageWithUrl?: boolean;
 }
 
 function formatDate(value?: string | null): string {
@@ -108,12 +110,12 @@ function QuestionCard({
           <div className="flex flex-wrap gap-2 text-xs text-beergam-typography-secondary!">
             <span
               className={`px-2 py-1 rounded-full border ${questionStatus === QuestionStatus.ANSWERED
-                  ? "bg-beergam-primary/10 border-beergam-primary/30 text-beergam-primary"
-                  : questionStatus === QuestionStatus.UNANSWERED
-                    ? "bg-beergam-typography-secondary/10 border-beergam-typography-secondary/30 text-beergam-typography-secondary"
-                    : questionStatus === QuestionStatus.BANNED
-                      ? "bg-beeram-red/10 border-beeram-red/30 text-beeram-red"
-                      : "bg-slate-100 border-slate-200"
+                ? "bg-beergam-primary/10 border-beergam-primary/30 text-beergam-primary"
+                : questionStatus === QuestionStatus.UNANSWERED
+                  ? "bg-beergam-typography-secondary/10 border-beergam-typography-secondary/30 text-beergam-typography-secondary"
+                  : questionStatus === QuestionStatus.BANNED
+                    ? "bg-beeram-red/10 border-beeram-red/30 text-beeram-red"
+                    : "bg-slate-100 border-slate-200"
                 }`}
             >
               Status: {questionStatus}
@@ -274,6 +276,7 @@ export function QuestionsList({
   loading,
   onPageChange,
   onAnswer,
+  syncPageWithUrl = false,
 }: QuestionsListProps) {
   const hasPagination = Boolean(
     pagination?.total_pages && pagination.total_pages > 1
@@ -319,6 +322,7 @@ export function QuestionsList({
           scrollOnChange
           scrollTargetId="questions-list-top"
           isLoading={loading}
+          syncWithUrl={syncPageWithUrl}
         />
       ) : null}
     </div>

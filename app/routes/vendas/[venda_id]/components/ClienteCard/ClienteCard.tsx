@@ -3,9 +3,10 @@ interface VendaSummaryProps {
   name: string;
   doc: string;
   docType?: string;
+  orderId: string;
 }
 
-function VendaSummary({ img, name, doc, docType }: VendaSummaryProps) {
+function VendaSummary({ img, name, doc, docType, orderId }: VendaSummaryProps) {
   const formatDocument = (document: string): string => {
     const cleaned = document.replace(/\D/g, "");
     if (cleaned.length === 11) {
@@ -61,7 +62,7 @@ function VendaSummary({ img, name, doc, docType }: VendaSummaryProps) {
         )}
 
         <div className="border-l border-beergam-section-border! pl-[10px]">
-          <p className="font-semibold">{name}</p>
+          <p className="text-sm font-semibold text-beergam-typography-primary">{name}</p>
           <p className="text-beergam-typography-secondary!">
             {tipoDocumento}: {docFormatado}
           </p>
@@ -70,7 +71,7 @@ function VendaSummary({ img, name, doc, docType }: VendaSummaryProps) {
 
       <div className="flex max-[488px]:w-full max-[488px]:justify-start">
         <a
-          href="/"
+          href={`/interno/atendimento/chat?order_id=${orderId}`}
           className="no-underline text-beergam-typography-secondary! font-semibold select-none"
         >
           Mensagens | <i className="fa-regular fa-message"></i>

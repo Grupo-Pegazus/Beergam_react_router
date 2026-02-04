@@ -1,4 +1,38 @@
+import dayjs from "dayjs";
 import { z } from "zod";
+import { getStatusOrderMeliInfo } from "~/src/constants/status-order-meli";
+import { AD_TYPE_OPTIONS, DELIVERY_OPTIONS } from "../anuncios/components/Filters/AnunciosFilters";
+// ============================================
+// Schemas reutilizáveis para transformações
+// ============================================
+
+/** Schema para strings de data - transforma em formato pt-BR (dd/mm/yyyy) */
+export const dateString = z.string().transform((val) => 
+  dayjs(val).format('DD/MM/YYYY, HH:mm')
+).nullable().optional();
+
+export const dateStringWithoutTime = z.string().transform((val) => 
+  dayjs(val).format('DD/MM/YYYY')
+).nullable().optional();
+
+/** Schema para strings de data nullable/optional */
+export const dateStringOptional = dateStringWithoutTime.nullable().optional();
+
+/** Schema para strings de moeda - transforma em formato BRL (R$ x.xxx,xx) */
+export const currencyString = z.string().transform((val) => 
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(parseFloat(val))
+);
+
+/** Schema para strings de moeda nullable/optional */
+export const currencyStringOptional = currencyString.nullable().optional();
+
+export const percentageString = z.string().transform((val) => 
+  `${(parseFloat(val)).toFixed(2)}%`
+);
+
+export const percentageStringOptional = percentageString.nullable().optional();
+
+// ============================================
 
 // Schema para documento do cliente
 export const ReceiverDocumentSchema = z.object({
@@ -26,6 +60,8 @@ export const ShippingDetailsSchema = z.object({
 
 export type ShippingDetails = z.infer<typeof ShippingDetailsSchema>;
 
+
+
 // Schema para pedido (baseado no MeliOrderSchema do backend)
 export const OrderSchema = z.object({
   id: z.number().optional(),
@@ -34,12 +70,12 @@ export const OrderSchema = z.object({
   pack_id: z.string().nullable().optional(),
   buyer_id: z.string(),
   buyer_nickname: z.string(),
-  date_created: z.string(),
-  date_closed: z.string(),
-  expiration_date: z.string(),
+  date_created: dateString,
+  date_closed: dateString,
+  expiration_date: dateString,
   status: z.string(),
-  total_amount: z.string(),
-  paid_amount: z.string(),
+  total_amount: currencyString,
+  paid_amount: currencyString,
   currency_id: z.string(),
   shipping_id: z.string(),
   tags: z.array(z.string()).nullable().optional(),
@@ -49,44 +85,44 @@ export const OrderSchema = z.object({
   title: z.string(),
   category_id: z.string(),
   quantity: z.number(),
-  unit_price: z.string(),
-  sale_fee: z.string(),
-  listing_type_id: z.string(),
+  unit_price: currencyString,
+  sale_fee: currencyString,
+  listing_type_id: z.string().transform((val) => AD_TYPE_OPTIONS.find((option) => option.value === val)?.label),
   condition: z.string(),
-  shipping_mode: z.string().nullable().optional(),
+  shipping_mode: z.string().nullable().optional().transform((val) => DELIVERY_OPTIONS.find((option) => option.value === val)?.label),
   tracking_number: z.string().nullable().optional(),
   tracking_method: z.string().nullable().optional(),
-  shipment_status: z.string().nullable().optional(),
+  shipment_status: z.string().nullable().optional().transform((val) => getStatusOrderMeliInfo(val)?.label),
   shipment_substatus: z.string().nullable().optional(),
-  estimated_delivery: z.string().nullable().optional(),
-  declared_value: z.string().nullable().optional(),
+  estimated_delivery: dateStringWithoutTime,
+  declared_value: currencyStringOptional,
   shipping_method_name: z.string().nullable().optional(),
   shipping_paid_by: z.string().nullable().optional(),
   shipping_destination_state: z.string().nullable().optional(),
   shipping_details: ShippingDetailsSchema.nullable().optional(),
-  custo_envio_base: z.string().nullable().optional(),
-  custo_envio_final: z.string().nullable().optional(),
-  custo_envio_buyer: z.string().nullable().optional(),
-  custo_envio_seller: z.string().nullable().optional(),
-  custo_envio_desconto: z.number().nullable().optional(),
-  custo_envio_compensacao: z.number().nullable().optional(),
-  custo_envio_promoted_amount: z.number().nullable().optional(),
-  frete_recebido_total: z.number().nullable().optional(),
-  valor_base: z.string(),
-  valor_liquido: z.string().nullable().optional(),
+  custo_envio_base: currencyStringOptional,
+  custo_envio_final: currencyStringOptional,
+  custo_envio_buyer: currencyStringOptional,
+  custo_envio_seller: currencyStringOptional,
+  custo_envio_desconto: currencyStringOptional,
+  custo_envio_compensacao: currencyStringOptional,
+  custo_envio_promoted_amount: currencyStringOptional,
+  frete_recebido_total: currencyStringOptional,
+  valor_base: currencyStringOptional,
+  valor_liquido: currencyStringOptional,
   bonus_por_envio_estorno: z.string().nullable().optional(),
-  tax_percentage: z.string().nullable().optional(),
-  tax_amount: z.string().nullable().optional(),
-  price_cost: z.string().nullable().optional(),
-  packaging_cost: z.string().nullable().optional(),
-  extra_cost: z.string().nullable().optional(),
+  tax_percentage: percentageStringOptional,
+  tax_amount: currencyStringOptional,
+  price_cost: currencyStringOptional,
+  packaging_cost: currencyStringOptional,
+  extra_cost: currencyStringOptional,
   shipment_costs: z.record(z.string(), z.unknown()).nullable().optional(),
   thumbnail: z.string().nullable().optional(),
   ad_type: z.string().nullable().optional(),
   client: ClientSchema.nullable().optional(),
   isRegisteredInternally: z.boolean().optional(), // Presente apenas no endpoint de detalhes
-  created_at: z.string().optional(),
-  updated_at: z.string().optional(),
+  created_at: dateStringOptional,
+  updated_at: dateStringOptional,
 });
 
 export type Order = z.infer<typeof OrderSchema>;
@@ -299,13 +335,13 @@ export const OrderAttributeDisplayOrder: (keyof Order)[] = [
   // Datas e Status
   'created_at', 'updated_at', 'date_created', 'date_closed', 'expiration_date', 'status',
   // Produto / Anúncio
-  'sku', 'mlb', 'title', 'category_id', 'quantity', 'unit_price', 'ad_type', 'listing_type_id', 'condition', 'thumbnail',
+  'sku', 'mlb', 'title', 'category_id', 'quantity', 'unit_price', 'listing_type_id', 'thumbnail',
   // Valores do Pedido
   'total_amount', 'paid_amount', 'currency_id', 'valor_base', 'valor_liquido',
   // Taxas, Impostos e Custos Fixos
   'tax_percentage', 'tax_amount', 'sale_fee', 'price_cost', 'packaging_cost', 'extra_cost',
   // Envio e Logística
-  'shipping_id', 'shipping_method_name', 'shipping_mode', 'shipping_paid_by', 'shipping_destination_state', 
+  'shipping_id', 'shipping_mode', 'shipping_paid_by', 'shipping_destination_state', 
   'shipping_details', 'tracking_number', 'tracking_method', 'shipment_status', 'shipment_substatus', 
   'estimated_delivery', 'declared_value',
   // Custos e Receitas de Envio
@@ -329,6 +365,100 @@ export function getAttributeColors(key: keyof Order): { headerColor: string; bod
 export function getAttributeSectionName(key: keyof Order): string {
   const section = OrderAttributeSection[key];
   return OrderSectionColors[section].name;
+}
+
+// ============================================
+// CONFIGURAÇÃO DE COLUNAS COM VALORES NEGATIVOS
+// ============================================
+
+/** Cor padrão para valores negativos (custos, taxas, impostos) */
+export const NEGATIVE_VALUE_COLOR = 'var(--color-beergam-red-primary)'; // Vermelho
+
+/** 
+ * Lista de colunas que representam valores negativos (custos, taxas, impostos).
+ * Esses valores serão exibidos em vermelho na tabela.
+ */
+export const NegativeValueColumns: (keyof Order)[] = [
+  // Taxas e Impostos
+  'tax_percentage',
+  'tax_amount',
+  'sale_fee',
+  
+  // Custos
+  'price_cost',
+  'packaging_cost',
+  'extra_cost',
+  
+  // Custos de envio
+  'custo_envio_base',
+  'custo_envio_final',
+  'custo_envio_seller',
+];
+
+/** Helper: Verifica se uma coluna é de valor negativo */
+export function isNegativeValueColumn(key: keyof Order): boolean {
+  return NegativeValueColumns.includes(key);
+}
+
+/** Helper: Retorna a cor do texto se for coluna de valor negativo */
+export function getTextColorForColumn(key: keyof Order): string | undefined {
+  return isNegativeValueColumn(key) ? NEGATIVE_VALUE_COLOR : undefined;
+}
+
+// ============================================
+// CONFIGURAÇÃO DE FOOTER PARA COLUNAS
+// ============================================
+
+/** Configuração de footer para uma coluna individual */
+export interface ColumnFooterConfig {
+  /** Valor a ser exibido no footer (pode ser string, número ou ReactNode) */
+  value: string | number | React.ReactNode;
+  /** Cor de fundo do footer (opcional) */
+  color?: string;
+}
+
+/** 
+ * Dicionário tipado para configurar footers de colunas específicas.
+ * Não é obrigatório definir todas as keys de Order.
+ * 
+ * @example
+ * const footerConfig: OrderColumnFooters = {
+ *   unit_price: { value: 'R$ 1.234,56' },
+ *   quantity: { value: 'Total: 150', color: '#bbf7d0' },
+ *   total_amount: { value: totalAmount },
+ * };
+ */
+export type OrderColumnFooters = Partial<Record<keyof Order, ColumnFooterConfig>>;
+
+/** 
+ * Helper: Cria o objeto de footers para as colunas.
+ * Útil para ter autocomplete e validação de tipos.
+ * 
+ * @example
+ * const footers = createColumnFooters({
+ *   unit_price: { value: formatCurrency(total) },
+ *   quantity: { value: `${totalQty} unidades` },
+ * });
+ */
+export function createColumnFooters(config: OrderColumnFooters): OrderColumnFooters {
+  return config;
+}
+
+/**
+ * Helper: Obtém o footerValue e footerColor para uma coluna específica.
+ * Retorna undefined se a coluna não tiver footer configurado.
+ */
+export function getColumnFooter(
+  key: keyof Order, 
+  footers: OrderColumnFooters
+): { footerValue?: string | number | React.ReactNode; footerColor?: string } | undefined {
+  const config = footers[key];
+  if (!config) return undefined;
+  
+  return {
+    footerValue: config.value,
+    footerColor: config.color,
+  };
 }
 // Schema para filtros de pedidos
 export const OrdersFiltersSchema = z.object({
@@ -383,6 +513,17 @@ export const OrdersResponseSchema = z.object({
 
 export type OrdersResponse = z.infer<typeof OrdersResponseSchema>;
 
+const PriceRanges = z.enum([				"Até R$ 29,99",
+				"Mais de R$ 2.000,00",
+  "R$ 1.000,00 a R$ 1.999,99",
+  "R$ 100 a R$ 199,99",
+  "R$ 200 a R$ 499,99",
+  "R$ 30 a R$ 49,99",
+  "R$ 50 a R$ 99,99",
+  "R$ 500 a R$ 999,99"
+]);
+export type PriceRanges = z.infer<typeof PriceRanges>;
+
 // Schema para métricas de pedidos
 export const OrdersMetricsSchema = z.object({
   orders_by_status: z.object({
@@ -399,12 +540,21 @@ export const OrdersMetricsSchema = z.object({
     media_diaria_diff: z.string(),
   }),
   period_days: z.number().optional(),
+  costs: z.object({
+    comissions: z.number(),
+    internal_costs: z.number(),
+    shipping: z.object({
+      buyer: z.number(),
+      seller: z.number(),
+    }),
+  }),
+  price_ranges: z.record(PriceRanges, z.number()),
 });
 
 export type OrdersMetrics = z.infer<typeof OrdersMetricsSchema>;
 
 // Schema para faturamento diário
-export const DailyRevenueItemSchema = z.object({
+export const DailyRevenueItemSchema = z.object({ 
   date: z.string(),
   faturamento_bruto: z.string(),
   faturamento_liquido: z.string(),
@@ -479,4 +629,34 @@ export const OrderDetailsResponseSchema = z.object({
 });
 
 export type OrderDetailsResponse = z.infer<typeof OrderDetailsResponseSchema>;
+
+// ===========================
+// Reprocessamento (cota + ação)
+// ===========================
+
+export const ReprocessQuotaSchema = z.object({
+  resource_type: z.string(),
+  year_month: z.string(),
+  limit: z.number(),
+  used: z.number(),
+  remaining: z.number(),
+});
+
+export type ReprocessQuota = z.infer<typeof ReprocessQuotaSchema>;
+
+export const ReprocessOrderItemSchema = z.object({
+  order_id: z.string(),
+  success: z.boolean(),
+  message: z.string().optional(),
+});
+
+export type ReprocessOrderItem = z.infer<typeof ReprocessOrderItemSchema>;
+
+export const ReprocessOrdersResponseSchema = z.object({
+  items: z.array(ReprocessOrderItemSchema),
+  total_requested: z.number(),
+  total_reprocessed: z.number(),
+});
+
+export type ReprocessOrdersResponse = z.infer<typeof ReprocessOrdersResponseSchema>;
 

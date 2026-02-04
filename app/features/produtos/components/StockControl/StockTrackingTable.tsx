@@ -7,6 +7,8 @@ interface StockTrackingTableProps {
   onPageSizeChange: (pageSize: number) => void;
   hasVariations?: boolean;
   variations?: Array<{ product_variation_id: string; title: string; sku: string | null }>;
+  /** Quando true, a página é lida/escrita na URL (`?page=N`). @default false */
+  syncPageWithUrl?: boolean;
 }
 
 export default function StockTrackingTable({
@@ -15,6 +17,7 @@ export default function StockTrackingTable({
   onPageSizeChange,
   hasVariations = false,
   variations = [],
+  syncPageWithUrl = false,
 }: StockTrackingTableProps) {
   const { stock_tracking, product_info } = data;
 
@@ -89,6 +92,7 @@ export default function StockTrackingTable({
       showVariationColumn={false}
       showProductColumn={true}
       emptyMessage="Nenhuma movimentação registrada ainda."
+      syncPageWithUrl={syncPageWithUrl}
     />
   );
 }

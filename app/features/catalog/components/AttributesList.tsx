@@ -1,11 +1,13 @@
 import { Typography } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
 import Svg from "~/src/assets/svgs/_index";
 import { FilterSearchInput } from "~/src/components/filters/components/FilterSearchInput";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import MainCards from "~/src/components/ui/MainCards";
 import PaginationBar from "~/src/components/ui/PaginationBar";
 import BeergamButton from "~/src/components/utils/BeergamButton";
+import { usePageFromSearchParams } from "~/src/hooks/usePageFromSearchParams";
 import { useAttributes } from "../hooks";
 import type { Attribute } from "../typings";
 import AttributeCard from "./AttributeCard";
@@ -15,9 +17,11 @@ interface AttributesListProps {
   filters?: {
     name?: string;
   };
+  /** Quando true, a página é lida/escrita na URL (`?page=N`). @default false */
+  syncPageWithUrl?: boolean;
 }
 
-export default function AttributesList({ filters = {} }: AttributesListProps) {
+export default function AttributesList({ filters = {}, syncPageWithUrl = false }: AttributesListProps) {
   const [page, setPage] = useState(1);
   const [perPage] = useState(20);
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,9 +33,12 @@ export default function AttributesList({ filters = {} }: AttributesListProps) {
     null
   );
 
+  const { page: pageFromUrl } = usePageFromSearchParams();
+  const effectivePage = syncPageWithUrl ? pageFromUrl : page;
+
   const { data, isLoading, error } = useAttributes({
     ...filters,
-    page,
+    page: effectivePage,
     per_page: perPage,
     name: searchTerm || undefined,
   });
@@ -45,8 +52,21 @@ export default function AttributesList({ filters = {} }: AttributesListProps) {
   const totalPages = pagination?.total_pages ?? 1;
   const totalCount = pagination?.total_count ?? attributes.length;
 
+  const [, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (!syncPageWithUrl || isLoading || totalPages < 1 || pageFromUrl <= totalPages) return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("page", String(totalPages));
+        return next;
+      },
+      { replace: true }
+    );
+  }, [syncPageWithUrl, isLoading, totalPages, pageFromUrl, setSearchParams]);
+
   const handlePageChange = (nextPage: number) => {
-    setPage(nextPage);
+    if (!syncPageWithUrl) setPage(nextPage);
   };
 
   const handleCreateClick = () => {
@@ -95,7 +115,17 @@ export default function AttributesList({ filters = {} }: AttributesListProps) {
                 value={searchTerm}
                 onChange={(value) => {
                   setSearchTerm(value);
-                  setPage(1);
+                  if (!syncPageWithUrl) setPage(1);
+                  else {
+                    setSearchParams(
+                      (prev) => {
+                        const next = new URLSearchParams(prev);
+                        next.set("page", "1");
+                        return next;
+                      },
+                      { replace: true }
+                    );
+                  }
                 }}
                 label="Pesquisar atributo"
                 placeholder="Pesquisar atributo por nome..."
@@ -154,7 +184,7 @@ export default function AttributesList({ filters = {} }: AttributesListProps) {
         )}
 
         <PaginationBar
-          page={page}
+          page={Math.min(effectivePage, Math.max(1, totalPages))}
           totalPages={totalPages}
           totalCount={totalCount}
           entityLabel="atributos"
@@ -162,6 +192,7 @@ export default function AttributesList({ filters = {} }: AttributesListProps) {
           scrollOnChange
           scrollTargetId="attributes-list"
           isLoading={isLoading}
+          syncWithUrl={syncPageWithUrl}
         />
 
         {/* Modal de criação/edição */}

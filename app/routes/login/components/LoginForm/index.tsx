@@ -179,7 +179,7 @@ export default function LoginForm({
         <p className="text-beergam-gray font-medium">Sem conta?</p>
         <Link
           to="/registro"
-          className="text-beergam-blue-primary hover:text-beergam-orange font-medium"
+          className="text-beergam-typography-primary font-medium"
         >
           Cadastre-se
         </Link>

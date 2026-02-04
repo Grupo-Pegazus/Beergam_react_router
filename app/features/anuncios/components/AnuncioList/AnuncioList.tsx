@@ -7,17 +7,21 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import Svg from "~/src/assets/svgs/_index";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import CopyButton from "~/src/components/ui/CopyButton";
 import MainCards from "~/src/components/ui/MainCards";
 import PaginationBar from "~/src/components/ui/PaginationBar";
+import { usePageFromSearchParams } from "~/src/hooks/usePageFromSearchParams";
+import Alert from "~/src/components/utils/Alert";
 import { ImageCensored, TextCensored } from "~/src/components/utils/Censorship";
-import { useCensorship } from "~/src/components/utils/Censorship/CensorshipContext";
+import type { ModalOptions } from "~/src/components/utils/Modal/ModalContext";
+import { useModal } from "~/src/components/utils/Modal/useModal";
 import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
-import { useAnuncios, useChangeAdStatus } from "../../hooks";
+import toast from "~/src/utils/toast";
+import { useAnuncios, useChangeAdStatus, useAdsReprocessQuota, useReprocessAds } from "../../hooks";
 import type { AdsFilters, Anuncio } from "../../typings";
 import AnuncioStatusToggle from "../AnuncioStatusToggle";
 import Speedometer from "../Speedometer/Speedometer";
@@ -25,31 +29,41 @@ import AnuncioListSkeleton from "./AnuncioListSkeleton";
 import VariationsList from "./Variations/VariationsList";
 import VisitsChart from "./VisitsChart";
 import { formatCurrency, formatNumber } from "./utils";
+import { formatDate } from "~/features/agendamentos/utils";
 
 interface AnunciosListProps {
   filters?: Partial<AdsFilters>;
+  /** Quando true, a página é lida/escrita na URL (`?page=N`). @default false */
+  syncPageWithUrl?: boolean;
 }
 
-export default function AnunciosList({ filters = {} }: AnunciosListProps) {
+export default function AnunciosList({ filters = {}, syncPageWithUrl = false }: AnunciosListProps) {
   const [page, setPage] = useState(filters.page ?? 1);
   const [perPage, setPerPage] = useState(filters.per_page ?? 20);
   const [mutatingAdId, setMutatingAdId] = useState<string | null>(null);
+  const [reprocessingAdId, setReprocessingAdId] = useState<string | null>(null);
+  const { openModal, closeModal } = useModal();
 
   useEffect(() => {
-    setPage(filters.page ?? 1);
-  }, [filters.page]);
+    if (!syncPageWithUrl) setPage(filters.page ?? 1);
+  }, [filters.page, syncPageWithUrl]);
 
   useEffect(() => {
     setPerPage(filters.per_page ?? 20);
   }, [filters.per_page]);
 
+  const { page: pageFromUrl } = usePageFromSearchParams();
+  const effectivePage = syncPageWithUrl ? pageFromUrl : page;
+
   const { data, isLoading, error } = useAnuncios({
     ...filters,
-    page,
+    page: effectivePage,
     per_page: perPage,
   });
 
   const changeStatusMutation = useChangeAdStatus();
+  const reprocessMutation = useReprocessAds();
+  const { data: quotaData } = useAdsReprocessQuota();
 
   const anuncios = useMemo<Anuncio[]>(() => {
     if (!data?.success || !data.data?.ads) return [];
@@ -59,6 +73,19 @@ export default function AnunciosList({ filters = {} }: AnunciosListProps) {
   const pagination = data?.success ? data.data?.pagination : null;
   const totalPages = pagination?.total_pages ?? 1;
   const totalCount = pagination?.total_count ?? anuncios.length;
+
+  const [, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (!syncPageWithUrl || isLoading || totalPages < 1 || pageFromUrl <= totalPages) return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("page", String(totalPages));
+        return next;
+      },
+      { replace: true }
+    );
+  }, [syncPageWithUrl, isLoading, totalPages, pageFromUrl, setSearchParams]);
 
   const handleToggleStatus = (anuncio: Anuncio) => {
     if (anuncio.status === "closed") return;
@@ -75,10 +102,9 @@ export default function AnunciosList({ filters = {} }: AnunciosListProps) {
   };
 
   const handlePageChange = (nextPage: number) => {
-    setPage(nextPage);
+    if (!syncPageWithUrl) setPage(nextPage);
   };
-  const { isCensored } = useCensorship();
-  const censored = isCensored("anuncios_list");
+  const remainingQuota = quotaData?.success ? quotaData.data?.remaining ?? 0 : 0;
   return (
     <>
       {/* Container da lista de anúncios (alvo de scroll) */}
@@ -113,8 +139,48 @@ export default function AnunciosList({ filters = {} }: AnunciosListProps) {
                     key={anuncio.mlb}
                     anuncio={anuncio}
                     onToggleStatus={() => handleToggleStatus(anuncio)}
+                    onReprocess={() => {
+                      if (remainingQuota <= 0) {
+                        toast.error("Sua cota mensal de reprocessamento de anúncios acabou.");
+                        return;
+                      }
+
+                      const adId = anuncio.mlb;
+                      const options: ModalOptions = {
+                        title: "Confirmar reprocessamento do anúncio",
+                      };
+
+                      openModal(
+                        <Alert
+                          type="info"
+                          confirmText="Reprocessar"
+                          onClose={closeModal}
+                          onConfirm={() => {
+                            setReprocessingAdId(adId);
+                            reprocessMutation.mutate([adId], {
+                              onSettled: () => setReprocessingAdId(null),
+                            });
+                          }}
+                        >
+                          <h3 className="text-lg font-semibold text-beergam-typography-primary mb-2">
+                            Deseja reprocessar o anúncio #{adId}?
+                          </h3>
+                          <p className="text-sm text-beergam-typography-secondary mb-2">
+                            Essa ação irá buscar novamente os dados no Mercado Livre e atualizar o anúncio no Beergam.
+                          </p>
+                          <p className="text-xs text-beergam-typography-secondary">
+                            Cota mensal de reprocessamento:{" "}
+                            <strong>{quotaData?.data?.limit ?? 0}</strong> | Usados:{" "}
+                            <strong>{quotaData?.data?.used ?? 0}</strong> | Restantes:{" "}
+                            <strong>{remainingQuota}</strong>.
+                          </p>
+                        </Alert>,
+                        options
+                      );
+                    }}
                     isMutating={mutatingAdId === anuncio.mlb}
-                    censored={censored}
+                    isReprocessing={reprocessingAdId === anuncio.mlb}
+                    remainingQuota={remainingQuota}
                   />
                 ))}
               </Stack>
@@ -125,7 +191,7 @@ export default function AnunciosList({ filters = {} }: AnunciosListProps) {
 
       {/* Paginação fixa fora do AsyncBoundary, com scroll controlado pelo componente */}
       <PaginationBar
-        page={page}
+        page={Math.min(effectivePage, Math.max(1, totalPages))}
         totalPages={totalPages}
         totalCount={totalCount}
         entityLabel="anúncios"
@@ -133,6 +199,7 @@ export default function AnunciosList({ filters = {} }: AnunciosListProps) {
         scrollOnChange
         scrollTargetId="ads-list"
         isLoading={isLoading}
+        syncWithUrl={syncPageWithUrl}
       />
     </>
   );
@@ -141,13 +208,19 @@ export default function AnunciosList({ filters = {} }: AnunciosListProps) {
 interface AnuncioCardProps {
   anuncio: Anuncio;
   onToggleStatus: () => void;
+  onReprocess: () => void;
   isMutating: boolean;
+  isReprocessing: boolean;
+  remainingQuota: number;
 }
 
 function AnuncioCard({
   anuncio,
   onToggleStatus,
+  onReprocess,
   isMutating,
+  isReprocessing,
+  remainingQuota,
 }: AnuncioCardProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -190,9 +263,8 @@ function AnuncioCard({
                   }
                 >
                   <Svg.chevron
-                    tailWindClasses={`h-3.5 w-3.5 md:h-3 md:w-3 transition-transform duration-200 ${
-                      isExpanded ? "rotate-270" : "rotate-90"
-                    }`}
+                    tailWindClasses={`h-3.5 w-3.5 md:h-3 md:w-3 transition-transform duration-200 ${isExpanded ? "rotate-270" : "rotate-90"
+                      }`}
                   />
                 </button>
               )}
@@ -300,7 +372,7 @@ function AnuncioCard({
                     }}
                   />
                 )}
-                {anuncio.catalog_product_id && (
+                {anuncio.is_catalog ? (
                   <Chip
                     label="Catálogo"
                     size="small"
@@ -312,14 +384,60 @@ function AnuncioCard({
                       color: "#7c3aed",
                     }}
                   />
-                )}
+                ) : 
+                <Chip
+                    label="Tradicional"
+                    size="small"
+                    sx={{
+                      height: 20,
+                      fontSize: "0.65rem",
+                      fontWeight: 600,
+                      backgroundColor: "#dbeafe",
+                      color: "#1e40af",
+                    }}
+                  />}
+                  {anuncio.flex && (
+                    <Chip
+                      label="Flex"
+                      size="small"
+                      sx={{
+                        height: 20,
+                        fontSize: "0.65rem",
+                        fontWeight: 600,
+                        backgroundColor: "#fef3c7",
+                        color: "#92400e",
+                      }}
+                    />
+                  )}
               </div>
-              <Typography
-                variant="caption"
-                className="text-beergam-typography-secondary!"
-              >
-                {anuncio.stock} em estoque
-              </Typography>
+              <div className="flex flex-col items-start gap-2">
+                <div className="flex items-center gap-2">
+                  <Typography variant="caption" className="text-beergam-typography-secondary!">
+                    Data de criação: {formatDate(anuncio.date_created_ad)}
+                  </Typography>
+                  <Typography variant="caption" className="text-beergam-typography-secondary!">
+                    Dias ativo: {anuncio.active_days}
+                  </Typography>
+                </div>
+                <Typography variant="caption" className="text-beergam-typography-secondary!">
+                  {anuncio.stock} em estoque
+                </Typography>
+                <div>
+                  <Typography variant="caption" className="text-beergam-typography-secondary!">
+                    {anuncio.item_relations && anuncio.item_relations.length > 0 && (
+                      <div className="flex items-center gap-2">
+                        <Svg.clip tailWindClasses="h-4 w-4" /> Sincronizado com{" "}
+                        {anuncio.item_relations.map((rel, idx) => (
+                          <span key={rel.id} className="font-mono">
+                            {rel.id}
+                            {idx < anuncio.item_relations!.length - 1 && ", "}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </Typography>
+                </div>
+              </div>
             </div>
           </div>
           {anuncio.visits && anuncio.visits.length > 0 && (
@@ -346,12 +464,6 @@ function AnuncioCard({
         {/* Coluna do Meio: Vendas e Preço */}
         <div className="col-span-12 md:col-span-4 space-y-2">
           <div>
-            <Typography
-              variant="caption"
-              className="text-beergam-typography-secondary!"
-            >
-              Vendas e visitas
-            </Typography>
             <TextCensored censorshipKey="anuncios_list">
               <Typography
                 variant="body2"
@@ -457,31 +569,31 @@ function AnuncioCard({
             </div>
             {anuncio.health?.buckets?.[0]?.variables?.[0]?.rules?.[0]
               ?.wordings && (
-              <div className="mt-2">
-                <Typography
-                  variant="caption"
-                  className="text-beergam-typography-secondary!"
-                >
-                  {`${anuncio.health.buckets[0].variables[0].rules[0].wordings.title} `}
-                </Typography>
-                {anuncio.health.buckets[0].variables[0].rules[0].wordings
-                  .link && (
-                  <Link
-                    to={
-                      anuncio.health.buckets[0].variables[0].rules[0].wordings
-                        .link
-                    }
-                    target="_blank"
-                    className="text-xs text-beergam-primary! hover:underline"
+                <div className="mt-2">
+                  <Typography
+                    variant="caption"
+                    className="text-beergam-typography-secondary!"
                   >
-                    {
-                      anuncio.health.buckets[0].variables[0].rules[0].wordings
-                        .label
-                    }
-                  </Link>
-                )}
-              </div>
-            )}
+                    {`${anuncio.health.buckets[0].variables[0].rules[0].wordings.title} `}
+                  </Typography>
+                  {anuncio.health.buckets[0].variables[0].rules[0].wordings
+                    .link && (
+                      <Link
+                        to={
+                          anuncio.health.buckets[0].variables[0].rules[0].wordings
+                            .link
+                        }
+                        target="_blank"
+                        className="text-xs text-beergam-primary! hover:underline"
+                      >
+                        {
+                          anuncio.health.buckets[0].variables[0].rules[0].wordings
+                            .label
+                        }
+                      </Link>
+                    )}
+                </div>
+              )}
           </div>
 
           {/* Experiência de Compra */}
@@ -548,9 +660,8 @@ function AnuncioCard({
               }
             >
               <Svg.chevron
-                tailWindClasses={`h-4 w-4 transition-transform duration-200 ${
-                  isExpanded ? "rotate-270" : "rotate-90"
-                }`}
+                tailWindClasses={`h-4 w-4 transition-transform duration-200 ${isExpanded ? "rotate-270" : "rotate-90"
+                  }`}
               />
               <Typography
                 variant="caption"
@@ -586,6 +697,15 @@ function AnuncioCard({
           onClick={handleMenuClose}
         >
           Ver detalhes
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            handleMenuClose();
+            onReprocess();
+          }}
+          disabled={isReprocessing || remainingQuota <= 0}
+        >
+          {isReprocessing ? "Reprocessando..." : "Reprocessar"}
         </MenuItem>
         {anuncio.link && (
           <MenuItem

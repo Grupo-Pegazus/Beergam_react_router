@@ -1,6 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { anuncioService } from "./service";
-import type { AdsFilters, ChangeAdStatusRequest, AdsResponse, WithoutSkuResponse, UpdateSkuRequest, AnuncioDetails } from "./typings";
+import type {
+  AdsFilters,
+  ChangeAdStatusRequest,
+  AdsResponse,
+  WithoutSkuResponse,
+  UpdateSkuRequest,
+  AnuncioDetails,
+  ReprocessAdsResponse,
+  ReprocessQuota,
+} from "./typings";
 import type { ApiResponse } from "../apiClient/typings";
 import type { AdsMetrics, TopSoldAd } from "./service";
 import type { DailyRevenue } from "../vendas/typings";
@@ -185,6 +194,77 @@ export function useAdOrdersChart(
     },
     enabled: !!anuncioId,
     staleTime: 1000 * 60 * 5, // 5 minutos
+  });
+}
+
+export function useAdsReprocessQuota() {
+  return useQuery<ApiResponse<ReprocessQuota>>({
+    queryKey: ["anuncios", "reprocess", "quota"],
+    queryFn: async () => {
+      const res = await anuncioService.getReprocessQuota();
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar cota de reprocessamento de anúncios");
+      }
+      return res;
+    },
+    staleTime: 1000 * 30, // 30s (cota muda após reprocessar)
+  });
+}
+
+export function useReprocessAds() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (adIds: string[]) => {
+      const res = await anuncioService.reprocessAds(adIds);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao reprocessar anúncios");
+      }
+      return res as ApiResponse<ReprocessAdsResponse>;
+    },
+    onSuccess: (res, variables) => {
+      // Atualiza listas/detalhes
+      queryClient.invalidateQueries({ queryKey: ["anuncios"] });
+      variables.forEach((adId) => {
+        queryClient.invalidateQueries({ queryKey: ["anuncios", "details", adId] });
+      });
+      queryClient.invalidateQueries({ queryKey: ["anuncios", "reprocess", "quota"] });
+
+      const total = res.data?.total_reprocessed ?? 0;
+      toast.success(`Reprocessamento concluído (${total} reprocessado(s)).`);
+    },
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "Erro ao reprocessar anúncios";
+      toast.error(message);
+    },
+  });
+}
+
+export function useReprocessAllAds() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const res = await anuncioService.reprocessAllAds();
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao reprocessar todos os anúncios");
+      }
+      return res as ApiResponse<ReprocessAdsResponse>;
+    },
+    onSuccess: (res) => {
+      // Atualiza todas as queries relacionadas a anúncios
+      queryClient.invalidateQueries({ queryKey: ["anuncios"] });
+      queryClient.invalidateQueries({ queryKey: ["anuncios", "reprocess", "quota"] });
+
+      const apiMessage = res?.message?.trim();
+      const fallbackMessage = `Reprocessamento iniciado.`;
+      toast.success(apiMessage || fallbackMessage);
+    },
+    onError: (error: unknown) => {
+      const apiMessage = error instanceof Error ? error.message?.trim() : undefined;
+      const fallbackMessage = "Erro ao reprocessar todos os anúncios";
+      toast.error(apiMessage || fallbackMessage);
+    },
   });
 }
 
