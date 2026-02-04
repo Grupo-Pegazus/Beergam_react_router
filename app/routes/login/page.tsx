@@ -221,6 +221,7 @@ export default function LoginPage({
     <PageLayout
       tailwindClassName="flex md:items-center max-h-full! overflow-y-auto! md:justify-center"
       hideHeader={true}
+      paddingTop={false}
     >
       {isLoggedIn.success && !isRedirecting && isLoggedIn.user !== null ? (
         <FormLoggedIn />

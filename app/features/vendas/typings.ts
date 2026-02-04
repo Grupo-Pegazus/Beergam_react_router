@@ -509,6 +509,17 @@ export const OrdersResponseSchema = z.object({
 
 export type OrdersResponse = z.infer<typeof OrdersResponseSchema>;
 
+const PriceRanges = z.enum([				"Até R$ 29,99",
+				"Mais de R$ 2.000,00",
+  "R$ 1.000,00 a R$ 1.999,99",
+  "R$ 100 a R$ 199,99",
+  "R$ 200 a R$ 499,99",
+  "R$ 30 a R$ 49,99",
+  "R$ 50 a R$ 99,99",
+  "R$ 500 a R$ 999,99"
+]);
+export type PriceRanges = z.infer<typeof PriceRanges>;
+
 // Schema para métricas de pedidos
 export const OrdersMetricsSchema = z.object({
   orders_by_status: z.object({
@@ -533,12 +544,13 @@ export const OrdersMetricsSchema = z.object({
       seller: z.number(),
     }),
   }),
+  price_ranges: z.record(PriceRanges, z.number()),
 });
 
 export type OrdersMetrics = z.infer<typeof OrdersMetricsSchema>;
 
 // Schema para faturamento diário
-export const DailyRevenueItemSchema = z.object({
+export const DailyRevenueItemSchema = z.object({ 
   date: z.string(),
   faturamento_bruto: z.string(),
   faturamento_liquido: z.string(),

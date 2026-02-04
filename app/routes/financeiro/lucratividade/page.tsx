@@ -1,6 +1,7 @@
 import { Alert, Skeleton } from "@mui/material";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
+import { useMemo } from "react";
 import { Tooltip } from "react-tooltip";
 import {
   Bar,
@@ -158,12 +159,12 @@ export default function LucratividadePage() {
                 >
                     <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
                 </StatCard>
-                <StatCard
+                {/* <StatCard
                   title="Retorno do FLEX"
                   icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: "R$ 1.000,00", period: "30 dias" }, { value: "R$ 2.000,00", period: "60 dias" }, { value: "R$ 3.000,00", period: "90 dias" }]} />
-                </StatCard>
+                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.self_service_return ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.self_service_return ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.self_service_return ?? "0"), period: "90 dias" }]} />
+                </StatCard> */}
         </div>
     </Section>
     <Section title="Custos">
@@ -201,8 +202,41 @@ export default function LucratividadePage() {
     
     </Section>
     <Section title="Distribuição de Vendas por Faixa de Preço">
-      {/** Mock de distribuição de vendas por faixa de preço em 30, 60 e 90 dias */}
       {(() => {
+        // Ordem das faixas de preço (conforme definido no enum)
+        const priceRangesOrder: Array<"Até R$ 29,99" | "R$ 30 a R$ 49,99" | "R$ 50 a R$ 99,99" | "R$ 100 a R$ 199,99" | "R$ 200 a R$ 499,99" | "R$ 500 a R$ 999,99" | "R$ 1.000,00 a R$ 1.999,99" | "Mais de R$ 2.000,00"> = [
+          "Até R$ 29,99",
+          "R$ 30 a R$ 49,99",
+          "R$ 50 a R$ 99,99",
+          "R$ 100 a R$ 199,99",
+          "R$ 200 a R$ 499,99",
+          "R$ 500 a R$ 999,99",
+          "R$ 1.000,00 a R$ 1.999,99",
+          "Mais de R$ 2.000,00",
+        ];
+
+        // Transforma os dados de price_ranges em formato para o gráfico
+        const chartData = useMemo(() => {
+          const priceRanges30 = (invoicingMetrics?.data?.["30"]?.price_ranges ?? {}) as Record<string, number>;
+          const priceRanges60 = (invoicingMetrics?.data?.["60"]?.price_ranges ?? {}) as Record<string, number>;
+          const priceRanges90 = (invoicingMetrics?.data?.["90"]?.price_ranges ?? {}) as Record<string, number>;
+
+          return priceRangesOrder.map((faixa) => {
+            const vendas30 = priceRanges30[faixa] ?? 0;
+            const vendas60 = priceRanges60[faixa] ?? 0;
+            const vendas90 = priceRanges90[faixa] ?? 0;
+            const total = vendas30 + vendas60 + vendas90;
+
+            return {
+              faixa,
+              vendas30,
+              vendas60,
+              vendas90,
+              total,
+            };
+          });
+        }, [invoicingMetrics?.data]);
+
         const chartConfig: ChartConfig = {
           vendas30: {
             label: "Últimos 30 dias",
@@ -222,66 +256,7 @@ export default function LucratividadePage() {
           },
         };
 
-        const data = [
-          {
-            faixa: "Até R$ 29,99",
-            vendas30: 120,
-            vendas60: 80,
-            vendas90: 50,
-            total: 250,
-          },
-          {
-            faixa: "R$ 30 a R$ 49,99",
-            vendas30: 110,
-            vendas60: 70,
-            vendas90: 40,
-            total: 240,
-          },
-          {
-            faixa: "R$ 50 a R$ 99,99",
-            vendas30: 90,
-            vendas60: 60,
-            vendas90: 30,
-            total: 220,
-          },
-          {
-            faixa: "R$ 100 a R$ 199,99",
-            vendas30: 70,
-            vendas60: 50,
-            vendas90: 30,
-            total: 150,
-          },
-          {
-            faixa: "R$ 200 a R$ 499,99",
-            vendas30: 50,
-            vendas60: 40,
-            vendas90: 30,
-            total: 120,
-          },
-          {
-            faixa: "R$ 500 a R$ 999,99",
-            vendas30: 30,
-            vendas60: 25,
-            vendas90: 15,
-            total: 70,
-          },
-          {
-            faixa: "R$ 1.000,00 a R$ 1.999,99",
-            vendas30: 20,
-            vendas60: 10,
-            vendas90: 5,
-            total: 35,
-          },
-          {
-            faixa: "Mais de R$ 2.000,00",
-            vendas30: 10,
-            vendas60: 5,
-            vendas90: 0,
-            total: 15,
-          },
-        ];
-
-        const totalVendas = data.reduce(
+        const totalVendas = chartData.reduce(
           (acc, item) =>
             acc + item.vendas30 + item.vendas60 + item.vendas90,
           0,
@@ -290,13 +265,12 @@ export default function LucratividadePage() {
         return (
           <div className="mt-4 space-y-2">
             <p className="text-xs text-beergam-typography-secondary">
-              Distribuição simulada de{" "}
-              <span className="font-semibold">{totalVendas}</span> vendas por
-              faixa de preço.
+              Distribuição de{" "}
+              <span className="font-semibold">{totalVendas}</span> vendas.
             </p>
             <div className="h-[320px] w-full">
               <ChartContainer config={chartConfig} className="h-full w-full">
-                <BarChart data={data} accessibilityLayer>
+                <BarChart data={chartData} accessibilityLayer>
                   <CartesianGrid {...chartGridStyle} vertical={false} />
                   <XAxis
                     dataKey="faixa"
