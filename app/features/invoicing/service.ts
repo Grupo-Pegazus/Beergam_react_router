@@ -1,6 +1,6 @@
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
-import { type IncomingsBySkuSchemaType, type InvoicingMetricsSchemaType } from "./typings";
+import { type IncomingsBySkuSchemaType, type InvoicingMetricsSchemaType, type SelfServiceReturnSchemaType } from "./typings";
 
 
 
@@ -18,6 +18,10 @@ class InvoicingService {
     async get_incomings_by_sku(): Promise<ApiResponse<IncomingsBySkuSchemaType[]>> {
         const response = await typedApiClient.get<IncomingsBySkuSchemaType[]>(`/v1/invoicing/get_incomings_by_sku`);
         return response as ApiResponse<IncomingsBySkuSchemaType[]>;
+    }
+    async get_self_service_return(): Promise<ApiResponse<SelfServiceReturnSchemaType>> {
+        const response = await typedApiClient.get<SelfServiceReturnSchemaType>(`/v1/invoicing/get_self_services_incomings`);
+        return response as ApiResponse<SelfServiceReturnSchemaType>;
     }
 }
 export const invoicingService = new InvoicingService();

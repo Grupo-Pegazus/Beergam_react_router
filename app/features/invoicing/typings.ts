@@ -26,3 +26,11 @@ export const IncomingsBySkuSchema = z.object({
 });
 
 export type IncomingsBySkuSchemaType = z.infer<typeof IncomingsBySkuSchema>;
+
+export const SelfServiceReturnSchema = z.record(z.enum(AVAILABLE_PERIODS.map(String)), z.object({
+    total_orders: z.number(),
+    valor_recebido_do_flex: z.number(),
+}));
+
+export type SelfServiceReturnSchemaType = z.infer<typeof SelfServiceReturnSchema>;
+
