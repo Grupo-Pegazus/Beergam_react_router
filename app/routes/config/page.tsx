@@ -39,8 +39,7 @@ const CONFIG_SECTIONS: IConfigSection[] = [
   {
     label: "Impostos",
     icon: "building_library",
-    colabAccess: true,
-    emBreve: true,
+    colabAccess: true
   },
   { label: "Afiliados", icon: "box", emBreve: true, colabAccess: false },
 ];

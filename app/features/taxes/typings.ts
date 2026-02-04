@@ -83,7 +83,7 @@ export const UpsertTaxPayloadSchema = z
 export type UpsertTaxPayload = z.infer<typeof UpsertTaxPayloadSchema>;
 
 export const UpsertTaxResponseSchema = z.object({
-  data: z.object({ id: z.number().nullable(), tax_rate: z.number() }).strict(),
+  data: z.object({ tax_rate: z.number() }).strict(),
   message: z.string().optional(),
   success: z.boolean(),
 });
@@ -101,22 +101,9 @@ export const RecalcPeriodPayloadSchema = z
 
 export type RecalcPeriodPayload = z.infer<typeof RecalcPeriodPayloadSchema>;
 
-const TaxValueSchema = z.union([
-  z.object({
-    source: z.string(),
-    parsedValue: z.number(),
-  }),
-  z.number(),
-  z.null(),
-]);
-
 const RecalcStatusData = z.object({
-  can_recalculate: z.boolean(),
-  last_recalculation: z.string().nullable(),
-  monthly_limit: z.number().int().nonnegative(),
-  recalculation_count: z.number().int().nonnegative(),
-  remaining_recalculations: z.number().int().nonnegative(),
-  tax: TaxValueSchema,
+  scheduled_to_recalculate: z.boolean(),
+  tax: z.number().optional().nullable(),
 });
 
 export const RecalcStatusSchema = z.object({
@@ -142,6 +129,7 @@ export type TaxesMonths = z.infer<typeof TaxesMonthsSchema>;
 export const TaxesDataSchema = z
   .object({
     ano: z.number().int().gte(1900).lte(3000),
+    can_recalculate: z.boolean(),
     impostos: TaxesMonthsSchema.strict(),
     marketplace_shop_id: z
       .union([z.string(), z.number()])
@@ -155,6 +143,7 @@ export const TaxesDataSchema = z
           message: "marketplace_type inválido",
         }
       ),
+      remaining_recalculations: z.number().int().nonnegative(),
   })
   .strict();
 

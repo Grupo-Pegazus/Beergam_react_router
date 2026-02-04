@@ -125,6 +125,7 @@ export default function SkuProfitabilityList({
           marginPct: item.margin_pct,
           totalProfit: item.total_profit,
           totalRevenue: item.total_revenue,
+          internalCost: item.internal_cost,
           status,
           statusClasses: classes,
         };
@@ -163,6 +164,7 @@ export default function SkuProfitabilityList({
       units: number;
       sumProfit: number;
       sumRevenue: number;
+      internalCost: number;
     };
 
     const map = new Map<string, Acc>();
@@ -172,6 +174,7 @@ export default function SkuProfitabilityList({
       if (!sku) continue;
 
       const revenue = parsePtBrNumber(order.valor_liquido);
+      const internalCost = parsePtBrNumber(order.price_cost);
       const profit =
         revenue -
         parsePtBrNumber(order.price_cost) -
@@ -192,6 +195,7 @@ export default function SkuProfitabilityList({
           units: qty,
           sumProfit: profit,
           sumRevenue: revenue,
+          internalCost: internalCost,
         });
       } else {
         current.ordersCount += 1;
@@ -261,6 +265,7 @@ export default function SkuProfitabilityList({
             placeholder="Digite o SKU ou nome do produto..."
             fullWidth={true}
             widthType="full"
+            className="bg-beergam-mui-paper!"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -357,9 +362,10 @@ export default function SkuProfitabilityList({
               </div>
 
               {/* Infos (estilo SectionContent com bordas laranjas) */}
-              <div className="grid grid-cols-5 gap-2 w-[630px] items-end">
-                <InfoCell label="Vendas" value={censored ? "****" : row.units} />
-                <InfoCell label="Faturamento" value={censored ? "****" : formatCurrency(row.totalRevenue, { money: true })} />
+              <div className="grid grid-cols-6 gap-2 w-[800px] items-end">
+                <InfoCell label="Unidades" value={censored ? "****" : row.units} />
+                <InfoCell label="Custos Internos" value={censored ? "****" : formatCurrency(row.internalCost, { money: true })} />
+                <InfoCell label="Faturamento Total" value={censored ? "****" : formatCurrency(row.totalRevenue, { money: true })} />
                 <InfoCell
                   label="Média de lucro"
                   value={

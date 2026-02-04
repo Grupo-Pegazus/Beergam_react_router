@@ -27,7 +27,7 @@ import Alert from "~/src/components/utils/Alert";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
 import { CDN_IMAGES, getMarketplaceImageUrl } from "~/src/constants/cdn-images";
-const AVAILABLE_YEARS = [2025, 2024];
+const AVAILABLE_YEARS = [2026, 2025, 2024];
 
 // Função auxiliar para extrair o valor numérico do tax
 function getTaxValue(
@@ -327,9 +327,12 @@ export default function Impostos() {
                     label="Valor"
                     name="tax"
                     value={selectedTax ?? ""}
-                    onChange={(e) => setSelectedTax(Number(e.target.value))}
+                    onChange={(e) => {
+                      setSelectedTax(Number(e.target.value))
+                    }}
                     canAlter={true}
                     type="number"
+                    min={0}
                   />
                 </div>
                 <BeergamButton
@@ -382,6 +385,7 @@ export default function Impostos() {
                       )
                       .map(([month, tax]) => {
                         const taxValue = getTaxValue(tax?.tax ?? null) ?? null;
+                        const isScheduledToRecalc = tax?.scheduled_to_recalculate ?? false;
                         return (
                           <div
                             key={month}
@@ -419,13 +423,13 @@ export default function Impostos() {
                               ) : null}
                             </div>
                             <div className="flex items-center gap-2">
-                              {taxValue !== null && taxValue !== undefined && (
+                              {taxValue !== null && !isScheduledToRecalc && taxValue !== undefined && (
                                 <>
-                                  {tax.last_recalculation && (
+                                  {taxes?.last_recalculation && (
                                     <>
                                       <RecalcHistoryPopover
                                         last_recalculation={
-                                          tax.last_recalculation
+                                          taxes?.last_recalculation
                                         }
                                       />
                                     </>
@@ -436,23 +440,23 @@ export default function Impostos() {
                                     icon="arrow_path"
                                     tooltip={{
                                       id: `recalc-${month}`,
-                                      content: "Recalcular período",
+                                      content: "Agendar recálculo para o período",
                                     }}
                                     onClick={() => {
                                       openModal(
-                                        tax.remaining_recalculations > 0 ? (
+                                        taxes.remaining_recalculations > 0 ? (
                                           <Alert
                                             onClose={closeModal}
                                             disabledConfirm={
-                                              tax.remaining_recalculations ===
+                                              taxes.remaining_recalculations ===
                                                 0 ||
-                                              tax.remaining_recalculations < 1
+                                                taxes.remaining_recalculations < 1
                                             }
                                             onConfirm={() => {
                                               confirmRecalc(
                                                 month,
                                                 year,
-                                                tax.remaining_recalculations
+                                                taxes.remaining_recalculations
                                               );
                                             }}
                                             type="warning"
@@ -484,7 +488,7 @@ export default function Impostos() {
                                               <p>
                                                 Você tem{" "}
                                                 <u className="font-bold">
-                                                  {`${tax.remaining_recalculations}`}
+                                                  {`${taxes.remaining_recalculations}`}
                                                 </u>{" "}
                                                 recalculos restantes.
                                               </p>
@@ -501,7 +505,7 @@ export default function Impostos() {
                                           </Alert>
                                         ),
                                         {
-                                          title: "Recalcular Período",
+                                          title: "Agendar recálculo para o período",
                                         }
                                       );
                                     }}
