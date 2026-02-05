@@ -63,6 +63,14 @@ const PREDEFINED_RECLAMACOES_KEYS = [
   "reclamacoes_tendencia",
 ] as const;
 
+const PREDEFINED_LUCRATIVIDADE_KEYS = [
+  "lucratividade_faturamento",
+  "lucratividade_flex",
+  "lucratividade_custos",
+  "lucratividade_distribuicao_vendas",
+  "lucratividade_lucro_sku",
+] as const;
+
 /**
  * Lista de chaves pré-definidas para inicialização do sistema de censura.
  * Todas as chaves serão criadas com valor padrão `false` se não existirem.
@@ -73,6 +81,7 @@ export const PREDEFINED_CENSORSHIP_KEYS = [
   ...PREDEFINED_ANUNCIOS_KEYS,
   ...PREDEFINED_PRODUTOS_KEYS,
   ...PREDEFINED_RECLAMACOES_KEYS,
+  ...PREDEFINED_LUCRATIVIDADE_KEYS,
 ] as const;
 
 /**
