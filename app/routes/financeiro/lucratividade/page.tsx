@@ -58,7 +58,7 @@ function getPercentageNumber({number, target}: {number: number | null, target: n
 }
 
 export default function LucratividadePage() {
-	const [pricePerSelfServiceReturn, setPricePerSelfServiceReturn] = useState<number | null>(null);
+	const [pricePerSelfServiceReturn, setPricePerSelfServiceReturn] = useState<number | null>(12);
   const {data: invoicingMetrics, isLoading: isLoadingInvoicingMetrics} = useInvoicingMetrics();
 	const {data: invoicingMetricsByMonths, isLoading: isLoadingInvoicingMetricsByMonths} = useInvoicingMetricsByMonths();
 	const {data: incomingsBySku, isLoading: isLoadingIncomingsBySku} = useIncomingsBySku();
@@ -224,17 +224,16 @@ export default function LucratividadePage() {
                 >
                     <SectionContentCard isLoading={isLoadingInvoicingMetricsByMonths} contents={[{ canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["30"]?.net ?? "0"), period: monthNames["30"], percentage: invoicingMetricsByMonths?.data?.["30"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["30"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["60"]?.net ?? 0}) : null }, { canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["60"]?.net ?? "0"), period: monthNames["60"], percentage: invoicingMetricsByMonths?.data?.["60"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["60"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["90"]?.net ?? 0}) : null }, { canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["90"]?.net ?? "0"), period: monthNames["90"], percentage: invoicingMetricsByMonths?.data?.["90"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["90"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["120"]?.net ?? null}) : null }]} />
                 </StatCard>
-                <StatCard
-                  title="Faturamento do Flex"
-                  icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
-                >
-                    <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(selfServiceReturn?.data?.["30"]?.valor_recebido_do_flex ?? "0"), period: "30 dias", topText: `${selfServiceReturn?.data?.["30"]?.total_orders ?? 0} pedidos` }, { value: formatCurrency(selfServiceReturn?.data?.["60"]?.valor_recebido_do_flex ?? "0"), period: "60 dias", topText: `${selfServiceReturn?.data?.["60"]?.total_orders ?? 0} pedidos` }, { value: formatCurrency(selfServiceReturn?.data?.["90"]?.valor_recebido_do_flex ?? "0"), period: "90 dias", topText: `${selfServiceReturn?.data?.["90"]?.total_orders ?? 0} pedidos` }]} />
-                </StatCard>
-                <StatCard
-                  title="Resultado do Flex"
-                  icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
 
-                  input={
+        </div>
+      
+    </Section>
+    <Section title="Flex">
+        <div className="grid gap-4">
+          <div className="grid grid-cols-3 gap-4">
+                            <StatCard
+                  title="Faturamento"
+                   input={
                    {component:  <Fields.input
                       type="number"
                       placeholder="0.00"
@@ -244,56 +243,111 @@ export default function LucratividadePage() {
                         setPricePerSelfServiceReturn(value === "" ? null : parseFloat(value));
                       }}
                       className="text-sm"
-                    />, label: "Valor gasto por pacote"}
+                    />, label: "Frete Uni do Pacote"}
                   }
+                  icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[
-                      { 
-                        value: formatCurrency(calculateFlexResult("30").toString()), 
-                        period: "30 dias", 
-                        topText: `${selfServiceReturn?.data?.["30"]?.total_orders ?? 0} pedidos`,
-                        canShowPercentage: true,
-                        showPercentageSymbol: false,
-                        percentage: getFlexSpent("30"),
-                        percentageText: (() => {
-                          const result = getFlexSpent("30");
-                          return `-R$${result.toFixed(2).replace('.', ',')}`;	
-                        })(),
-                        isRedCondition: (value) => value > 0,
-                        isGreenCondition: (value) => value <= 0
-                      }, 
-                      { 
-                        value: formatCurrency(calculateFlexResult("60").toString()), 
-                        period: "60 dias", 
-                        topText: `${selfServiceReturn?.data?.["60"]?.total_orders ?? 0} pedidos`,
-                        canShowPercentage: true,
-                        showPercentageSymbol: false,
-                       percentage: getFlexSpent("60"),
-                        percentageText: (() => {
-                          const result = getFlexSpent("60");
-                          return `-R$${result.toFixed(2).replace('.', ',')}`;	
-                        })(),
-                        isRedCondition: (value) => value > 0,
-                        isGreenCondition: (value) => value <= 0
-                      }, 
-                      { 
-                        value: formatCurrency(calculateFlexResult("90").toString()), 
-                        period: "90 dias", 
-                        topText: `${selfServiceReturn?.data?.["90"]?.total_orders ?? 0} pedidos`,
-                        canShowPercentage: true,
-                        showPercentageSymbol: false,
-                        percentage: getFlexSpent("90"),
-                        percentageText: (() => {
-                          const result = getFlexSpent("90");
-                          return `-R$${result.toFixed(2).replace('.', ',')}`;	
-                        })(),
-                        isRedCondition: (value) => value > 0,
-                        isGreenCondition: (value) => value <= 0
-                      }
-                    ]} />
+                    <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(selfServiceReturn?.data?.["30"]?.valor_recebido_do_flex ?? "0"), period: "30 dias", topText: `${selfServiceReturn?.data?.["30"]?.total_orders ?? 0} pedidos` }, { value: formatCurrency(selfServiceReturn?.data?.["60"]?.valor_recebido_do_flex ?? "0"), period: "60 dias", topText: `${selfServiceReturn?.data?.["60"]?.total_orders ?? 0} pedidos` }, { value: formatCurrency(selfServiceReturn?.data?.["90"]?.valor_recebido_do_flex ?? "0"), period: "90 dias", topText: `${selfServiceReturn?.data?.["90"]?.total_orders ?? 0} pedidos` }]} />
                 </StatCard>
+                <StatCard
+                  title="Custos"
+                  icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
+
+                >
+                    {/* <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[
+                      { 
+                        value: formatCurrency(getFlexSpent("30").toString()), 
+                        period: "30 dias", 
+                        canShowPercentage: true,
+                        showPercentageSymbol: false,
+                        percentage: calculateFlexResult("30"),
+                        percentageText: (() => {
+                          const result = calculateFlexResult("30");
+                          return `R$${result.toFixed(2).replace('.', ',')}`;	
+                        })(),
+                        isRedCondition: (value) => value < 0,
+                        isGreenCondition: (value) => value >= 0
+                      }, 
+                      { 
+                        value: formatCurrency(getFlexSpent("60").toString()), 
+                        period: "60 dias", 
+                        canShowPercentage: true,
+                        showPercentageSymbol: false,
+                       percentage: calculateFlexResult("60"),
+                        percentageText: (() => {
+                          const result = calculateFlexResult("60");
+                          return `R$${result.toFixed(2).replace('.', ',')}`;	
+                        })(),
+                        isRedCondition: (value) => value < 0,
+                        isGreenCondition: (value) => value >= 0
+                      }, 
+                      { 
+                        value: formatCurrency(getFlexSpent("90").toString()), 
+                        period: "90 dias", 
+                        canShowPercentage: true,
+                        showPercentageSymbol: false,
+                        percentage: calculateFlexResult("90"),
+                        percentageText: (() => {
+                          const result = calculateFlexResult("90");
+                          return `R$${result.toFixed(2).replace('.', ',')}`;	
+                        })(),
+                        isRedCondition: (value) => value < 0,
+                        isGreenCondition: (value) => value >= 0
+                      }
+                    ]} /> */}
+                    <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(getFlexSpent("30").toString()), period: "30 dias", }, { value: formatCurrency(getFlexSpent("60").toString()), period: "60 dias", }, { value: formatCurrency(getFlexSpent("90").toString()), period: "90 dias", }]} />
+                </StatCard>
+                <StatCard
+                  title="Lucratividade"
+                  icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
+
+                >
+                    {/* <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[
+                      { 
+                        value: formatCurrency(getFlexSpent("30").toString()), 
+                        period: "30 dias", 
+                        canShowPercentage: true,
+                        showPercentageSymbol: false,
+                        percentage: calculateFlexResult("30"),
+                        percentageText: (() => {
+                          const result = calculateFlexResult("30");
+                          return `R$${result.toFixed(2).replace('.', ',')}`;	
+                        })(),
+                        isRedCondition: (value) => value < 0,
+                        isGreenCondition: (value) => value >= 0
+                      }, 
+                      { 
+                        value: formatCurrency(getFlexSpent("60").toString()), 
+                        period: "60 dias", 
+                        canShowPercentage: true,
+                        showPercentageSymbol: false,
+                       percentage: calculateFlexResult("60"),
+                        percentageText: (() => {
+                          const result = calculateFlexResult("60");
+                          return `R$${result.toFixed(2).replace('.', ',')}`;	
+                        })(),
+                        isRedCondition: (value) => value < 0,
+                        isGreenCondition: (value) => value >= 0
+                      }, 
+                      { 
+                        value: formatCurrency(getFlexSpent("90").toString()), 
+                        period: "90 dias", 
+                        canShowPercentage: true,
+                        showPercentageSymbol: false,
+                        percentage: calculateFlexResult("90"),
+                        percentageText: (() => {
+                          const result = calculateFlexResult("90");
+                          return `R$${result.toFixed(2).replace('.', ',')}`;	
+                        })(),
+                        isRedCondition: (value) => value < 0,
+                        isGreenCondition: (value) => value >= 0
+                      }
+                    ]} /> */}
+                    <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(calculateFlexResult("30").toString()), period: "30 dias", }, { value: formatCurrency(calculateFlexResult("60").toString()), period: "60 dias", }, { value: formatCurrency(calculateFlexResult("90").toString()), period: "90 dias", }]} />
+                </StatCard>
+          </div>
         </div>
-    </Section>
+      </Section>
     <Section title="Custos">
     <div className="grid gap-4">
         <div className="grid grid-cols-2 gap-4">
