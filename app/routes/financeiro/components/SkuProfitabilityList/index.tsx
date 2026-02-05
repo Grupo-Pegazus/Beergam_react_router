@@ -7,11 +7,11 @@ import { FilterSearchInput } from "~/src/components/filters/components/FilterSea
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 import PaginationBar from "~/src/components/ui/PaginationBar";
 import {
-  CensorshipWrapper,
   ImageCensored,
   TextCensored,
-  useCensorship,
+  useCensorship
 } from "~/src/components/utils/Censorship";
+import type { TPREDEFINED_CENSORSHIP_KEYS } from "~/src/components/utils/Censorship/typings";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 
 type HealthStatus = "Saudável" | "Apertado" | "Ruim";
@@ -91,7 +91,7 @@ export interface SkuProfitabilityListProps {
   /** Quantidade máxima de SKUs na lista (default: 20) */
   maxItems?: number;
   /** Chave de censura (default: vendas_orders_list) */
-  censorshipKey?: "vendas_orders_list" | "vendas_orders_list_details";
+  censorshipKey?: TPREDEFINED_CENSORSHIP_KEYS;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -100,7 +100,7 @@ export default function SkuProfitabilityList({
   orders,
   incomingsBySku,
   maxItems = 20,
-  censorshipKey = "vendas_orders_list",
+  censorshipKey = "lucratividade_lucro_sku",
 }: SkuProfitabilityListProps) {
   const { isCensored } = useCensorship();
   const censored = isCensored(censorshipKey);
@@ -302,13 +302,14 @@ export default function SkuProfitabilityList({
           </p>
         </div>
       ) : (
+        <>
         <div className="grid gap-2">
           {paginatedRows.map((row) => (
         <Paper
           key={row.sku}
 
         >
-          <CensorshipWrapper censorshipKey={censorshipKey} canChange={false}>
+          <>
             <div className="flex flex-col md:flex-row gap-3 md:items-center">
               {/* Produto (estilo OrderItemCard / OrderCard) */}
               <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -327,7 +328,7 @@ export default function SkuProfitabilityList({
                     <Typography
                       variant="body2"
                       fontWeight={700}
-                      className="text-beergam-typography-primary! text-sm md:text-base max-w-[30ch]!"
+                      className="text-beergam-typography-primary! text-sm md:text-base max-w-[90%]!"
                       noWrap
                       sx={{
                         overflow: "hidden",
@@ -362,10 +363,11 @@ export default function SkuProfitabilityList({
               </div>
 
               {/* Infos (estilo SectionContent com bordas laranjas) */}
-              <div className="grid grid-cols-6 gap-2 w-[800px] items-end">
+              <div className="flex gap-2 justify-end w-[70%] max-w-[860px] items-end">
                 <InfoCell label="Unidades" value={censored ? "****" : row.units} />
                 <InfoCell label="Custos Internos" value={censored ? "****" : formatCurrency(row.internalCost, { money: true })} />
                 <InfoCell label="Faturamento Total" value={censored ? "****" : formatCurrency(row.totalRevenue, { money: true })} />
+                <InfoCell label="Lucro Total" value={censored ? "****" : formatCurrency(row.units * row.avgProfitPerSale, { money: true })} />
                 <InfoCell
                   label="Média de lucro"
                   value={
@@ -391,10 +393,11 @@ export default function SkuProfitabilityList({
                 />
               </div>
             </div>
-          </CensorshipWrapper>
+          </>
         </Paper>
           ))}
         </div>
+        </>
       )}
 
       {/* Paginação */}

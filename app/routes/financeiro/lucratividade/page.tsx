@@ -29,6 +29,10 @@ import {
 import Section from "~/src/components/ui/Section";
 import StatCard from "~/src/components/ui/StatCard";
 import { Fields } from "~/src/components/utils/_fields";
+import { useCensorship } from "~/src/components/utils/Censorship/CensorshipContext";
+import { CensorshipWrapper } from "~/src/components/utils/Censorship/CensorshipWrapper";
+import { TextCensored } from "~/src/components/utils/Censorship/TextCensored";
+import type { TPREDEFINED_CENSORSHIP_KEYS } from "~/src/components/utils/Censorship/typings";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 interface SectionContent{
     value: string;
@@ -148,20 +152,22 @@ export default function LucratividadePage() {
       }
     </div>
   }
-    function SectionContent({ topText, index, value, period, percentage, canShowPercentage = false, showPercentageSymbol, isRedCondition, isGreenCondition, percentageText }: SectionContent & { topText?: string, index: number, canShowPercentage?: boolean, showPercentageSymbol?: boolean, isRedCondition?: (value: number) => boolean, isGreenCondition?: (value: number) => boolean, percentageText?: string | number | null | undefined }) {
+    function SectionContent({ censorshipKey, topText, index, value, period, percentage, canShowPercentage = false, showPercentageSymbol, isRedCondition, isGreenCondition, percentageText }: SectionContent & { censorshipKey: TPREDEFINED_CENSORSHIP_KEYS, topText?: string, index: number, canShowPercentage?: boolean, showPercentageSymbol?: boolean, isRedCondition?: (value: number) => boolean, isGreenCondition?: (value: number) => boolean, percentageText?: string | number | null | undefined }) {
+        const { isCensored } = useCensorship();
+        const censored = censorshipKey ? isCensored(censorshipKey) : false;
         return(
             <>
             <div className={`border-r h-full grid content-end ${index != 2 ? 'border-r-beergam-primary' : 'border-r-transparent'}`}>
                         {canShowPercentage && <PercentageBadge percentage={percentage} showPercentageSymbol={showPercentageSymbol} isRedCondition={isRedCondition} isGreenCondition={isGreenCondition} percentageText={percentageText} />}
                         {topText && <p className="text-[12px] capitalize">{topText}</p>}
-                        <h3 className="text-[18px]! text-beergam-primary font-bold">{value}</h3>
+                        <h3 className="text-[18px]! text-beergam-primary font-bold"><TextCensored forceCensor={censored} censorshipKey={censorshipKey}>{value}</TextCensored></h3>
                         <p className="text-[12px] text-beergam-typography-tertiary! capitalize">{period}</p>
                     </div>
             </>
         )
     }
 
-    function SectionContentCard({ contents, isLoading }: { contents: (SectionContent & { canShowPercentage?: boolean, topText?: string, showPercentageSymbol?: boolean, isRedCondition?: (value: number) => boolean, isGreenCondition?: (value: number) => boolean, percentageText?: string | number | null | undefined})[], isLoading?: boolean }) {
+    function SectionContentCard({ censorshipKey, contents, isLoading }: { censorshipKey: TPREDEFINED_CENSORSHIP_KEYS, contents: (SectionContent & { canShowPercentage?: boolean, topText?: string, showPercentageSymbol?: boolean, isRedCondition?: (value: number) => boolean, isGreenCondition?: (value: number) => boolean, percentageText?: string | number | null | undefined})[], isLoading?: boolean }) {
         
       return(
             <AsyncBoundary ErrorFallback={() => (
@@ -190,7 +196,7 @@ export default function LucratividadePage() {
       )}>
             <div className="grid grid-cols-3 gap-2 items-baseline">
                 {contents.map((content, index) => (
-                    <SectionContent topText={content.topText} index={index} key={content.period} canShowPercentage={content.canShowPercentage} {...content} />
+                    <SectionContent censorshipKey={censorshipKey} topText={content.topText} index={index} key={content.period} canShowPercentage={content.canShowPercentage} {...content} />
                 ))}
             </div>
             {/* <p className="text-xl! mt-2"><span className="text-beergam-primary text-xl! font-bold">Total:</span> {total}</p> */}
@@ -198,250 +204,262 @@ export default function LucratividadePage() {
         )
     }
    return( <>
+    <CensorshipWrapper censorshipKey={"lucratividade_faturamento"}>
     <Section title="Faturamento">
+       
         <div className="grid grid-cols-2 gap-4">
             <StatCard
                   title="Total Bruto Acumulado"
                   icon={<Svg.graph_solid tailWindClasses="h-5 w-5" />}
                 >
-                   <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.faturamento_bruto ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.faturamento_bruto ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.faturamento_bruto ?? "0"), period: "90 dias" }]} />
+                   <SectionContentCard censorshipKey="lucratividade_faturamento" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.faturamento_bruto ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.faturamento_bruto ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.faturamento_bruto ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                 <StatCard
                   title="Total Líquido Acumulado"
                   icon={<Svg.currency_dollar_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.faturamento_liquido ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.faturamento_liquido ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.faturamento_liquido ?? "0"), period: "90 dias" }]} />
+                    <SectionContentCard censorshipKey="lucratividade_faturamento" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.faturamento_liquido ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.faturamento_liquido ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.faturamento_liquido ?? "0"), period: "90 dias" }]} />
                 </StatCard>
             <StatCard
                   title="Total Bruto Mensal"
                   icon={<Svg.graph_solid tailWindClasses="h-5 w-5" />}
                 >
-                   <SectionContentCard isLoading={isLoadingInvoicingMetricsByMonths} contents={[{ canShowPercentage: true ,value: formatCurrency(invoicingMetricsByMonths?.data?.["30"]?.gross ?? "0"), period: monthNames["30"], percentage: invoicingMetricsByMonths?.data?.["30"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["30"]?.gross ?? 0, target: invoicingMetricsByMonths?.data?.["60"]?.gross ?? 0}) : null }, { canShowPercentage: true ,value: formatCurrency(invoicingMetricsByMonths?.data?.["60"]?.gross ?? "0"), period: monthNames["60"], percentage: invoicingMetricsByMonths?.data?.["60"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["60"]?.gross ?? 0, target: invoicingMetricsByMonths?.data?.["90"]?.gross ?? 0}) : null }, { canShowPercentage: true ,value: formatCurrency(invoicingMetricsByMonths?.data?.["90"]?.gross ?? "0"), period: monthNames["90"], percentage: invoicingMetricsByMonths?.data?.["90"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["90"]?.gross ?? 0, target: invoicingMetricsByMonths?.data?.["120"]?.gross ?? null}) : null }]} />
+                   <SectionContentCard censorshipKey="lucratividade_faturamento" isLoading={isLoadingInvoicingMetricsByMonths} contents={[{ canShowPercentage: true ,value: formatCurrency(invoicingMetricsByMonths?.data?.["30"]?.gross ?? "0"), period: monthNames["30"], percentage: invoicingMetricsByMonths?.data?.["30"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["30"]?.gross ?? 0, target: invoicingMetricsByMonths?.data?.["60"]?.gross ?? 0}) : null }, { canShowPercentage: true ,value: formatCurrency(invoicingMetricsByMonths?.data?.["60"]?.gross ?? "0"), period: monthNames["60"], percentage: invoicingMetricsByMonths?.data?.["60"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["60"]?.gross ?? 0, target: invoicingMetricsByMonths?.data?.["90"]?.gross ?? 0}) : null }, { canShowPercentage: true ,value: formatCurrency(invoicingMetricsByMonths?.data?.["90"]?.gross ?? "0"), period: monthNames["90"], percentage: invoicingMetricsByMonths?.data?.["90"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["90"]?.gross ?? 0, target: invoicingMetricsByMonths?.data?.["120"]?.gross ?? null}) : null }]} />
                 </StatCard>
                 <StatCard
                   title="Total Líquido Mensal"
                   icon={<Svg.currency_dollar_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard isLoading={isLoadingInvoicingMetricsByMonths} contents={[{ canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["30"]?.net ?? "0"), period: monthNames["30"], percentage: invoicingMetricsByMonths?.data?.["30"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["30"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["60"]?.net ?? 0}) : null }, { canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["60"]?.net ?? "0"), period: monthNames["60"], percentage: invoicingMetricsByMonths?.data?.["60"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["60"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["90"]?.net ?? 0}) : null }, { canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["90"]?.net ?? "0"), period: monthNames["90"], percentage: invoicingMetricsByMonths?.data?.["90"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["90"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["120"]?.net ?? null}) : null }]} />
+                    <SectionContentCard censorshipKey="lucratividade_faturamento" isLoading={isLoadingInvoicingMetricsByMonths} contents={[{ canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["30"]?.net ?? "0"), period: monthNames["30"], percentage: invoicingMetricsByMonths?.data?.["30"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["30"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["60"]?.net ?? 0}) : null }, { canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["60"]?.net ?? "0"), period: monthNames["60"], percentage: invoicingMetricsByMonths?.data?.["60"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["60"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["90"]?.net ?? 0}) : null }, { canShowPercentage: true,value: formatCurrency(invoicingMetricsByMonths?.data?.["90"]?.net ?? "0"), period: monthNames["90"], percentage: invoicingMetricsByMonths?.data?.["90"] ? getPercentageNumber({number: invoicingMetricsByMonths?.data?.["90"]?.net ?? 0, target: invoicingMetricsByMonths?.data?.["120"]?.net ?? null}) : null }]} />
                 </StatCard>
 
         </div>
-      
+        
     </Section>
-    <Section title="Flex">
-        <div className="grid gap-4">
-          <div className="grid grid-cols-3 gap-4">
-                            <StatCard
-                  title="Faturamento"
-                   input={
-                   {component:  <Fields.input
-                      type="number"
-                      placeholder="0.00"
-                      value={pricePerSelfServiceReturn ?? ""}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setPricePerSelfServiceReturn(value === "" ? null : parseFloat(value));
-                      }}
-                      className="text-sm"
-                    />, label: "Frete Uni do Pacote"}
-                  }
-                  icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
-                >
-                    <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(selfServiceReturn?.data?.["30"]?.valor_recebido_do_flex ?? "0"), period: "30 dias", topText: `${selfServiceReturn?.data?.["30"]?.total_orders ?? 0} pedidos` }, { value: formatCurrency(selfServiceReturn?.data?.["60"]?.valor_recebido_do_flex ?? "0"), period: "60 dias", topText: `${selfServiceReturn?.data?.["60"]?.total_orders ?? 0} pedidos` }, { value: formatCurrency(selfServiceReturn?.data?.["90"]?.valor_recebido_do_flex ?? "0"), period: "90 dias", topText: `${selfServiceReturn?.data?.["90"]?.total_orders ?? 0} pedidos` }]} />
-                </StatCard>
-                <StatCard
-                  title="Custos"
-                  icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
+    </CensorshipWrapper>
+    <CensorshipWrapper censorshipKey={"lucratividade_flex" as TPREDEFINED_CENSORSHIP_KEYS}>
+      <Section title="Flex"> 
+          <div className="grid gap-4">
+            <div className="grid grid-cols-3 gap-4">
+                              <StatCard
+                    title="Faturamento"
+                    input={
+                    {component:  <Fields.input
+                        type="number"
+                        placeholder="0.00"
+                        value={pricePerSelfServiceReturn ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setPricePerSelfServiceReturn(value === "" ? null : parseFloat(value));
+                        }}
+                        className="text-sm"
+                      />, label: "Frete Uni do Pacote"}
+                    }
+                    icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
+                  >
+                      <SectionContentCard censorshipKey="lucratividade_flex" isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(selfServiceReturn?.data?.["30"]?.valor_recebido_do_flex ?? "0"), period: "30 dias", topText: `${selfServiceReturn?.data?.["30"]?.total_orders ?? 0} pedidos` }, { value: formatCurrency(selfServiceReturn?.data?.["60"]?.valor_recebido_do_flex ?? "0"), period: "60 dias", topText: `${selfServiceReturn?.data?.["60"]?.total_orders ?? 0} pedidos` }, { value: formatCurrency(selfServiceReturn?.data?.["90"]?.valor_recebido_do_flex ?? "0"), period: "90 dias", topText: `${selfServiceReturn?.data?.["90"]?.total_orders ?? 0} pedidos` }]} />
+                  </StatCard>
+                  <StatCard
+                    title="Custos"
+                    icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
 
-                >
-                    <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(getFlexSpent("30").toString()), period: "30 dias", }, { value: formatCurrency(getFlexSpent("60").toString()), period: "60 dias", }, { value: formatCurrency(getFlexSpent("90").toString()), period: "90 dias", }]} />
-                </StatCard>
-                <StatCard
-                  title="Lucratividade"
-                  icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
-                >
-                    <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(calculateFlexResult("30").toString()), period: "30 dias", canShowPercentage: true, percentage: calculateFlexResult("30"), percentageText: (() => {
-                      return ``;
-                    })(), }, { value: formatCurrency(calculateFlexResult("60").toString()), period: "60 dias", canShowPercentage: true, percentage: calculateFlexResult("60"), percentageText: (() => {
-                      return ``;
-                    })(), }, { value: formatCurrency(calculateFlexResult("90").toString()), period: "90 dias", canShowPercentage: true, percentage: calculateFlexResult("90"), percentageText: (() => {
-                      return ``;
-                    })(), }]} />
-                </StatCard>
+                  >
+                      <SectionContentCard censorshipKey="lucratividade_flex" isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(getFlexSpent("30").toString()), period: "30 dias", }, { value: formatCurrency(getFlexSpent("60").toString()), period: "60 dias", }, { value: formatCurrency(getFlexSpent("90").toString()), period: "90 dias", }]} />
+                  </StatCard>
+                  <StatCard
+                    title="Lucratividade"
+                    icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
+                  >
+                      <SectionContentCard censorshipKey="lucratividade_flex" isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(calculateFlexResult("30").toString()), period: "30 dias", canShowPercentage: true, percentage: calculateFlexResult("30"), percentageText: (() => {
+                        return ``;
+                      })(), }, { value: formatCurrency(calculateFlexResult("60").toString()), period: "60 dias", canShowPercentage: true, percentage: calculateFlexResult("60"), percentageText: (() => {
+                        return ``;
+                      })(), }, { value: formatCurrency(calculateFlexResult("90").toString()), period: "90 dias", canShowPercentage: true, percentage: calculateFlexResult("90"), percentageText: (() => {
+                        return ``;
+                      })(), }]} />
+                  </StatCard>
+            </div>
           </div>
-        </div>
       </Section>
+       </CensorshipWrapper>
     <Section title="Custos">
+        <CensorshipWrapper censorshipKey={"lucratividade_custos" as TPREDEFINED_CENSORSHIP_KEYS}>
     <div className="grid gap-4">
         <div className="grid grid-cols-2 gap-4">
                   <StatCard
                   title="Custos com Frete (Comprador)"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.shipping?.buyer ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.shipping?.buyer ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.shipping?.buyer ?? "0"), period: "90 dias" }]} />
+                    <SectionContentCard censorshipKey="lucratividade_custos" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.shipping?.buyer ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.shipping?.buyer ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.shipping?.buyer ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                   <StatCard
                   title="Custos com Frete (Vendedor)"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.shipping?.seller ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.shipping?.seller ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.shipping?.seller ?? "0"), period: "90 dias" }]} />
+                    <SectionContentCard censorshipKey="lucratividade_custos" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.shipping?.seller ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.shipping?.seller ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.shipping?.seller ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                             <StatCard
                   title="Custos com Comissões"
                   icon={<Svg.box_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.comissions ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.comissions ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.comissions ?? "0"), period: "90 dias" }]} />
+                    <SectionContentCard censorshipKey="lucratividade_custos" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.comissions ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.comissions ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.comissions ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                   <StatCard
                   title="Custos de Produto"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.internal_costs ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.internal_costs ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.internal_costs ?? "0"), period: "90 dias" }]} />
+                    <SectionContentCard censorshipKey="lucratividade_custos" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.internal_costs ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.internal_costs ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.internal_costs ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                   <StatCard
                   title="Custos com Embalagem"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.packaging_costs ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.packaging_costs ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.packaging_costs ?? "0"), period: "90 dias" }]} />
+                    <SectionContentCard censorshipKey="lucratividade_custos" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.packaging_costs ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.packaging_costs ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.packaging_costs ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                   <StatCard
                   title="Custos Extra"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.extra_costs ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.extra_costs ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.extra_costs ?? "0"), period: "90 dias" }]} />
+                    <SectionContentCard censorshipKey="lucratividade_custos" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.extra_costs ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.extra_costs ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.extra_costs ?? "0"), period: "90 dias" }]} />
                 </StatCard>
         </div>
         <div className="grid grid-cols-3 gap-4">
       
     </div>
     </div>
-    
+        </CensorshipWrapper>
     </Section>
-    <Section title="Distribuição de Vendas por Faixa de Preço">
-      {(() => {
-        // Ordem das faixas de preço (conforme definido no enum)
-        const priceRangesOrder: Array<"Até R$ 29,99" | "R$ 30 a R$ 49,99" | "R$ 50 a R$ 99,99" | "R$ 100 a R$ 199,99" | "R$ 200 a R$ 499,99" | "R$ 500 a R$ 999,99" | "R$ 1.000,00 a R$ 1.999,99" | "Mais de R$ 2.000,00"> = [
-          "Até R$ 29,99",
-          "R$ 30 a R$ 49,99",
-          "R$ 50 a R$ 99,99",
-          "R$ 100 a R$ 199,99",
-          "R$ 200 a R$ 499,99",
-          "R$ 500 a R$ 999,99",
-          "R$ 1.000,00 a R$ 1.999,99",
-          "Mais de R$ 2.000,00",
-        ];
+    <CensorshipWrapper censorshipKey={"lucratividade_distribuicao_vendas" as TPREDEFINED_CENSORSHIP_KEYS}>
+      <Section title="Distribuição de Vendas por Faixa de Preço">
+          
+        {(() => {
+          // Ordem das faixas de preço (conforme definido no enum)
+          const priceRangesOrder: Array<"Até R$ 29,99" | "R$ 30 a R$ 49,99" | "R$ 50 a R$ 99,99" | "R$ 100 a R$ 199,99" | "R$ 200 a R$ 499,99" | "R$ 500 a R$ 999,99" | "R$ 1.000,00 a R$ 1.999,99" | "Mais de R$ 2.000,00"> = [
+            "Até R$ 29,99",
+            "R$ 30 a R$ 49,99",
+            "R$ 50 a R$ 99,99",
+            "R$ 100 a R$ 199,99",
+            "R$ 200 a R$ 499,99",
+            "R$ 500 a R$ 999,99",
+            "R$ 1.000,00 a R$ 1.999,99",
+            "Mais de R$ 2.000,00",
+          ];
 
-        // Transforma os dados de price_ranges em formato para o gráfico
-        const chartData = useMemo(() => {
-          const priceRanges30 = (invoicingMetrics?.data?.["30"]?.price_ranges ?? {}) as Record<string, number>;
-          const priceRanges60 = (invoicingMetrics?.data?.["60"]?.price_ranges ?? {}) as Record<string, number>;
-          const priceRanges90 = (invoicingMetrics?.data?.["90"]?.price_ranges ?? {}) as Record<string, number>;
+          // Transforma os dados de price_ranges em formato para o gráfico
+          const chartData = useMemo(() => {
+            const priceRanges30 = (invoicingMetrics?.data?.["30"]?.price_ranges ?? {}) as Record<string, number>;
+            const priceRanges60 = (invoicingMetrics?.data?.["60"]?.price_ranges ?? {}) as Record<string, number>;
+            const priceRanges90 = (invoicingMetrics?.data?.["90"]?.price_ranges ?? {}) as Record<string, number>;
 
-          return priceRangesOrder.map((faixa) => {
-            const vendas30 = priceRanges30[faixa] ?? 0;
-            const vendas60 = priceRanges60[faixa] ?? 0;
-            const vendas90 = priceRanges90[faixa] ?? 0;
-            const total = vendas30 + vendas60 + vendas90;
+            return priceRangesOrder.map((faixa) => {
+              const vendas30 = priceRanges30[faixa] ?? 0;
+              const vendas60 = priceRanges60[faixa] ?? 0;
+              const vendas90 = priceRanges90[faixa] ?? 0;
+              const total = vendas30 + vendas60 + vendas90;
 
-            return {
-              faixa,
-              vendas30,
-              vendas60,
-              vendas90,
-              total,
-            };
-          });
-        }, [invoicingMetrics?.data]);
+              return {
+                faixa,
+                vendas30,
+                vendas60,
+                vendas90,
+                total,
+              };
+            });
+          }, [invoicingMetrics?.data]);
 
-        const chartConfig: ChartConfig = {
-          vendas30: {
-            label: "Últimos 30 dias",
-            color: "var(--color-beergam-orange)",
-          },
-          vendas60: {
-            label: "Últimos 60 dias",
-            color: "var(--color-beergam-blue)",
-          },
-          vendas90: {
-            label: "Últimos 90 dias",
-            color: "var(--color-beergam-green)",
-          },
-          total: {
-            label: "Total",
-            color: "var(--color-beergam-gray)",
-          },
-        };
+          const chartConfig: ChartConfig = {
+            vendas30: {
+              label: "Últimos 30 dias",
+              color: "var(--color-beergam-orange)",
+            },
+            vendas60: {
+              label: "Últimos 60 dias",
+              color: "var(--color-beergam-blue)",
+            },
+            vendas90: {
+              label: "Últimos 90 dias",
+              color: "var(--color-beergam-green)",
+            },
+            total: {
+              label: "Total",
+              color: "var(--color-beergam-gray)",
+            },
+          };
 
-        const totalVendas = chartData.reduce(
-          (acc, item) =>
-            acc + item.vendas30 + item.vendas60 + item.vendas90,
-          0,
-        );
+          const totalVendas = chartData.reduce(
+            (acc, item) =>
+              acc + item.vendas30 + item.vendas60 + item.vendas90,
+            0,
+          );
 
-        return (
-          <div className="mt-4 space-y-2">
-            <p className="text-xs text-beergam-typography-secondary">
-              Distribuição de{" "}
-              <span className="font-semibold">{totalVendas}</span> vendas.
-            </p>
-            <div className="h-[320px] w-full">
-              <ChartContainer config={chartConfig} className="h-full w-full">
-                <BarChart data={chartData} accessibilityLayer>
-                  <CartesianGrid {...chartGridStyle} vertical={false} />
-                  <XAxis
-                    dataKey="faixa"
-                    {...chartAxisStyle}
-                    angle={-20}
-                    textAnchor="end"
-                    height={70}
-                  />
-                  <YAxis
-                    {...chartAxisStyle}
-                    tickFormatter={chartFormatters.number}
-                  />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                      title="AAaa"
-                        valueFormatter={(value) =>
-                          `${chartFormatters.number(Number(value))} vendas`
-                        }
-                      />
-                    }
-                  />
-                  <ChartLegend content={<ChartLegendContent />} />
+          return (
+            <div className="mt-4 space-y-2">
+              <p className="text-xs text-beergam-typography-secondary">
+                Distribuição de{" "}
+                <span className="font-semibold">{totalVendas}</span> vendas.
+              </p>
+              <div className="h-[320px] w-full">
+                <ChartContainer config={chartConfig} className="h-full w-full">
+                  <BarChart data={chartData} accessibilityLayer>
+                    <CartesianGrid {...chartGridStyle} vertical={false} />
+                    <XAxis
+                      dataKey="faixa"
+                      {...chartAxisStyle}
+                      angle={-20}
+                      textAnchor="end"
+                      height={70}
+                    />
+                    <YAxis
+                      {...chartAxisStyle}
+                      tickFormatter={chartFormatters.number}
+                    />
+                    <ChartTooltip
+                      content={
+                        <ChartTooltipContent
+                        title="AAaa"
+                          valueFormatter={(value) =>
+                            `${chartFormatters.number(Number(value))} vendas`
+                          }
+                        />
+                      }
+                    />
+                    <ChartLegend content={<ChartLegendContent />} />
+                      <Bar
+                      dataKey="total"
+                      fill="var(--color-total)"
+                      radius={[4, 4, 0, 0]}
+                      minPointSize={1}
+                    />
                     <Bar
-                    dataKey="total"
-                    fill="var(--color-total)"
-                    radius={[4, 4, 0, 0]}
-                    minPointSize={1}
-                  />
-                  <Bar
-                    dataKey="vendas30"
-                    fill="var(--color-vendas30)"
-                    radius={[4, 4, 0, 0]}
-                    minPointSize={1}
-                  />
-                  <Bar
-                    dataKey="vendas60"
-                    fill="var(--color-vendas60)"
-                    radius={[4, 4, 0, 0]}
-                    minPointSize={1}
-                  />
-                  <Bar
-                    dataKey="vendas90"
-                    fill="var(--color-vendas90)"
-                    radius={[4, 4, 0, 0]}
-                    minPointSize={1}
-                  />
-                </BarChart>
-              </ChartContainer>
+                      dataKey="vendas30"
+                      fill="var(--color-vendas30)"
+                      radius={[4, 4, 0, 0]}
+                      minPointSize={1}
+                    />
+                    <Bar
+                      dataKey="vendas60"
+                      fill="var(--color-vendas60)"
+                      radius={[4, 4, 0, 0]}
+                      minPointSize={1}
+                    />
+                    <Bar
+                      dataKey="vendas90"
+                      fill="var(--color-vendas90)"
+                      radius={[4, 4, 0, 0]}
+                      minPointSize={1}
+                    />
+                  </BarChart>
+                </ChartContainer>
+              </div>
             </div>
-          </div>
-        );
-      })()}
-    </Section>
+          );
+        })()}
+        
+      </Section>
+     </CensorshipWrapper>
+     <CensorshipWrapper censorshipKey={"lucratividade_lucro_sku" as TPREDEFINED_CENSORSHIP_KEYS}>
     <Section title="Lucro por SKU">
+        
       {isLoadingIncomingsBySku ? (
         <div className="flex items-center justify-center p-8">
           <p className="text-beergam-typography-secondary">Carregando...</p>
@@ -449,7 +467,9 @@ export default function LucratividadePage() {
       ) : (
         <SkuProfitabilityList incomingsBySku={incomingsBySku?.data} />
       )}
+        
     </Section>
+    </CensorshipWrapper>
     </>
    )
 }
