@@ -6,6 +6,7 @@ import Svg from "~/src/assets/svgs/_index";
 import { FilterSearchInput } from "~/src/components/filters/components/FilterSearchInput";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 import PaginationBar from "~/src/components/ui/PaginationBar";
+import { Fields } from "~/src/components/utils/_fields";
 import {
   ImageCensored,
   TextCensored,
@@ -13,6 +14,8 @@ import {
 } from "~/src/components/utils/Censorship";
 import type { TPREDEFINED_CENSORSHIP_KEYS } from "~/src/components/utils/Censorship/typings";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+
+type SortField = "margin" | "units" | "costs" | "revenue" | "average";
 
 type HealthStatus = "Saudável" | "Apertado" | "Ruim";
 
@@ -107,6 +110,7 @@ export default function SkuProfitabilityList({
   
   const [page, setPage] = useState(1);
   const [skuFilter, setSkuFilter] = useState("");
+  const [sortField, setSortField] = useState<SortField>("margin");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const skuRows = useMemo(() => {
@@ -141,12 +145,41 @@ export default function SkuProfitabilityList({
         );
       }
 
-      // Aplica ordenação por margin_pct
+      // Aplica ordenação pelo campo selecionado
       rows.sort((a, b) => {
-        if (sortOrder === "asc") {
-          return a.marginPct - b.marginPct;
+        let valueA: number;
+        let valueB: number;
+        
+        switch (sortField) {
+          case "margin":
+            valueA = a.marginPct;
+            valueB = b.marginPct;
+            break;
+          case "units":
+            valueA = a.units;
+            valueB = b.units;
+            break;
+          case "costs":
+            valueA = a.internalCost;
+            valueB = b.internalCost;
+            break;
+          case "revenue":
+            valueA = a.totalRevenue;
+            valueB = b.totalRevenue;
+            break;
+          case "average":
+            valueA = a.avgProfitPerSale;
+            valueB = b.avgProfitPerSale;
+            break;
+          default:
+            valueA = a.marginPct;
+            valueB = b.marginPct;
         }
-        return b.marginPct - a.marginPct;
+        
+        if (sortOrder === "asc") {
+          return valueA - valueB;
+        }
+        return valueB - valueA;
       });
 
       return rows;
@@ -223,11 +256,45 @@ export default function SkuProfitabilityList({
       };
     });
 
-    // Ordena por quantidade de unidades (mais vendidos primeiro)
-    rows.sort((a, b) => b.units - a.units);
+    // Aplica ordenação pelo campo selecionado
+    rows.sort((a, b) => {
+      let valueA: number;
+      let valueB: number;
+      
+      switch (sortField) {
+        case "margin":
+          valueA = a.marginPct;
+          valueB = b.marginPct;
+          break;
+        case "units":
+          valueA = a.units;
+          valueB = b.units;
+          break;
+        case "costs":
+          valueA = a.internalCost;
+          valueB = b.internalCost;
+          break;
+        case "revenue":
+          valueA = a.totalRevenue;
+          valueB = b.totalRevenue;
+          break;
+        case "average":
+          valueA = a.avgProfitPerSale;
+          valueB = b.avgProfitPerSale;
+          break;
+        default:
+          valueA = a.marginPct;
+          valueB = b.marginPct;
+      }
+      
+      if (sortOrder === "asc") {
+        return valueA - valueB;
+      }
+      return valueB - valueA;
+    });
 
     return rows.slice(0, maxItems);
-  }, [orders, incomingsBySku, maxItems, skuFilter, sortOrder]);
+  }, [orders, incomingsBySku, maxItems, skuFilter, sortField, sortOrder]);
 
   // Calcula paginação
   const totalItems = skuRows.length;
@@ -246,6 +313,28 @@ export default function SkuProfitabilityList({
   const handleSortToggle = () => {
     setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
     setPage(1); // Reset para primeira página ao mudar ordenação
+  };
+
+  const handleSortFieldChange = (field: SortField) => {
+    setSortField(field);
+    setPage(1); // Reset para primeira página ao mudar campo de ordenação
+  };
+
+  const getSortFieldLabel = (field: SortField): string => {
+    switch (field) {
+      case "margin":
+        return "Margem";
+      case "units":
+        return "Unidades";
+      case "costs":
+        return "Custos";
+      case "revenue":
+        return "Faturamento";
+      case "average":
+        return "Média";
+      default:
+        return "Margem";
+    }
   };
 
   if (skuRows.length === 0 && !skuFilter) return null;
@@ -269,6 +358,19 @@ export default function SkuProfitabilityList({
           />
         </div>
         <div className="flex items-center gap-2">
+          <Fields.select
+            tailWindClasses="bg-beergam-mui-paper!"
+            value={sortField}
+            onChange={(e) => handleSortFieldChange(e.target.value as SortField)}
+            options={[
+              { value: "margin", label: "Margem" },
+              { value: "units", label: "Unidades" },
+              { value: "costs", label: "Custos" },
+              { value: "revenue", label: "Faturamento" },
+              { value: "average", label: "Média" },
+            ]}
+            widthType="fit"
+          />
           <Button
             variant="outlined"
             onClick={handleSortToggle}
@@ -289,7 +391,7 @@ export default function SkuProfitabilityList({
               },
             }}
           >
-            Margem {sortOrder === "asc" ? "Crescente" : "Decrescente"}
+            {getSortFieldLabel(sortField)} {sortOrder === "asc" ? "Crescente" : "Decrescente"}
           </Button>
         </div>
       </div>
