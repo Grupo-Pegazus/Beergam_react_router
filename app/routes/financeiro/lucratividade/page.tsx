@@ -329,7 +329,7 @@ export default function LucratividadePage() {
     </div>
         </CensorshipWrapper>
     </Section>
-    <CensorshipWrapper censorshipKey={"lucratividade_distribuicao_vendas" as TPREDEFINED_CENSORSHIP_KEYS}>
+    <CensorshipWrapper canChange={false} censorshipKey={"lucratividade_distribuicao_vendas" as TPREDEFINED_CENSORSHIP_KEYS}>
       <Section title="Distribuição de Vendas por Faixa de Preço">
           
         {(() => {
