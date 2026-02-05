@@ -76,12 +76,12 @@ function InfoCell({
 }) {
   return (
     <div
-      className={`border-r h-full grid content-end pr-2 ${
-        isLast ? "border-r-transparent" : "border-r-beergam-primary"
+      className={`h-full grid content-end border-b border-b-beergam-primary pb-2 md:border-b-0 md:border-r md:pr-2 ${
+        isLast ? "md:border-r-transparent" : "md:border-r-beergam-primary"
       }`}
     >
-      <p className="text-[12px] text-beergam-typography-tertiary!">{label}</p>
-      <h3 className="text-[18px]! text-beergam-primary font-bold">{value}</h3>
+      <p className="text-[11px] md:text-[12px] text-beergam-typography-tertiary!">{label}</p>
+      <h3 className="text-[14px]! md:text-[18px]! text-beergam-primary font-bold break-words">{value}</h3>
     </div>
   );
 }
@@ -340,7 +340,7 @@ export default function SkuProfitabilityList({
   if (skuRows.length === 0 && !skuFilter) return null;
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-4 w-full min-w-0 overflow-hidden">
       {/* Filtros e controles */}
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
         <div className="flex-1 w-full md:max-w-md">
@@ -357,7 +357,7 @@ export default function SkuProfitabilityList({
             className="bg-beergam-mui-paper!"
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col md:row md:items-center gap-2">
           <Fields.select
             tailWindClasses="bg-beergam-mui-paper!"
             value={sortField}
@@ -405,14 +405,14 @@ export default function SkuProfitabilityList({
         </div>
       ) : (
         <>
-        <div className="grid gap-2">
+        <div className="grid gap-2 w-full min-w-0">
           {paginatedRows.map((row) => (
         <Paper
           key={row.sku}
-
+          className="p-3 md:p-4 w-full min-w-0 overflow-hidden"
         >
           <>
-            <div className="flex flex-col md:flex-row gap-3 md:items-center">
+            <div className="flex flex-col md:flex-row gap-3 md:items-center w-full min-w-0">
               {/* Produto (estilo OrderItemCard / OrderCard) */}
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <ImageCensored
@@ -425,12 +425,12 @@ export default function SkuProfitabilityList({
                   />
                 </ImageCensored>
 
-                <div className="min-w-0 flex-1 overflow-hidden w-0">
+                <div className="min-w-0 flex-1 overflow-hidden">
                   <TextCensored forceCensor={censored} censorshipKey={censorshipKey}>
                     <Typography
                       variant="body2"
                       fontWeight={700}
-                      className="text-beergam-typography-primary! text-sm md:text-base max-w-[90%]!"
+                      className="text-beergam-typography-primary! text-xs md:text-sm lg:text-base"
                       noWrap
                       sx={{
                         overflow: "hidden",
@@ -447,7 +447,7 @@ export default function SkuProfitabilityList({
                     <Typography
                       variant="body2"
                       fontWeight={700}
-                      className="text-beergam-typography-primary! text-sm md:text-base"
+                      className="text-beergam-typography-primary! text-xs md:text-sm"
                       noWrap
                       sx={{
                         overflow: "hidden",
@@ -465,7 +465,7 @@ export default function SkuProfitabilityList({
               </div>
 
               {/* Infos (estilo SectionContent com bordas laranjas) */}
-              <div className="flex gap-2 justify-end w-[70%] max-w-[860px] items-end">
+              <div className="grid grid-cols-2 md:flex gap-2 md:justify-end md:flex-1 md:min-w-0 md:items-end overflow-hidden">
                 <InfoCell label="Unidades" value={censored ? "****" : row.units} />
                 <InfoCell label="Custos Internos" value={censored ? "****" : formatCurrency(row.internalCost, { money: true })} />
                 <InfoCell label="Faturamento Total" value={censored ? "****" : formatCurrency(row.totalRevenue, { money: true })} />
@@ -487,7 +487,7 @@ export default function SkuProfitabilityList({
                   isLast
                   value={
                     <span
-                      className={`inline-flex items-center justify-center rounded-lg px-2 py-1 text-[12px] font-semibold ${row.statusClasses}`}
+                      className={`inline-flex items-center justify-center rounded-lg px-2 py-1 text-[10px] md:text-[12px] font-semibold ${row.statusClasses}`}
                     >
                       {row.status}
                     </span>

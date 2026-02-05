@@ -144,9 +144,9 @@ export default function LucratividadePage() {
           ? `${percentage}%` 
           : percentage.toString();
     
-    return <div data-tooltip-id={`percentage-badge-${percentage}`} className={`p-1 px-2 rounded-lg flex items-center w-fit mb-2 gap-1 justify-center ${percentageColor}`}>
+    return <div data-tooltip-id={`percentage-badge-${percentage}`} className={`p-1 px-2 rounded-lg flex items-center w-fit mb-2 gap-1 justify-center text-xs md:text-sm ${percentageColor}`}>
       <p className={`${percentageTextColor}!`}>{textToDisplay}</p>
-      { !isUnknown && (isRed ? <Svg.arrow_trending_down tailWindClasses="h-4 w-4 text-beergam-red" /> : <Svg.arrow_trending_up tailWindClasses={`h-4 w-4 ${percentageTextColor}`} />)}
+      { !isUnknown && (isRed ? <Svg.arrow_trending_down tailWindClasses="h-3 w-3 md:h-4 md:w-4 text-beergam-red" /> : <Svg.arrow_trending_up tailWindClasses={`h-3 w-3 md:h-4 md:w-4 ${percentageTextColor}`} />)}
       {
         isUnknown && <Tooltip content={isBasePlan ? 'Informação indisponível para o plano atual.' : 'Informação indisponível.'} id={`percentage-badge-${percentage}`}></Tooltip>
       }
@@ -157,11 +157,11 @@ export default function LucratividadePage() {
         const censored = censorshipKey ? isCensored(censorshipKey) : false;
         return(
             <>
-            <div className={`border-r h-full grid content-end ${index != 2 ? 'border-r-beergam-primary' : 'border-r-transparent'}`}>
+            <div className={`h-full grid content-end border-b border-b-beergam-primary pb-2 md:border-b-0 md:border-r md:pr-2 ${index != 2 ? 'md:border-r-beergam-primary' : 'md:border-r-transparent'}`}>
                         {canShowPercentage && <PercentageBadge percentage={percentage} showPercentageSymbol={showPercentageSymbol} isRedCondition={isRedCondition} isGreenCondition={isGreenCondition} percentageText={percentageText} />}
-                        {topText && <p className="text-[12px] capitalize">{topText}</p>}
-                        <h3 className="text-[18px]! text-beergam-primary font-bold"><TextCensored forceCensor={censored} censorshipKey={censorshipKey}>{value}</TextCensored></h3>
-                        <p className="text-[12px] text-beergam-typography-tertiary! capitalize">{period}</p>
+                        {topText && <p className="text-[11px] md:text-[12px] capitalize">{topText}</p>}
+                        <h3 className="text-[14px]! md:text-[18px]! text-beergam-primary font-bold break-words"><TextCensored forceCensor={censored} censorshipKey={censorshipKey}>{value}</TextCensored></h3>
+                        <p className="text-[11px] md:text-[12px] text-beergam-typography-tertiary! capitalize">{period}</p>
                     </div>
             </>
         )
@@ -175,7 +175,7 @@ export default function LucratividadePage() {
                 Não foi possível carregar o conteúdo.
               </Alert>
             )} isLoading={isLoading} Skeleton={() => (
-        <div className="grid grid-cols-3 gap-2 items-baseline">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:items-baseline">
           {[...Array(3)].map((_, i) => (
             <div key={i}>
               <Skeleton
@@ -194,7 +194,7 @@ export default function LucratividadePage() {
           ))}
         </div>
       )}>
-            <div className="grid grid-cols-3 gap-2 items-baseline">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:items-baseline">
                 {contents.map((content, index) => (
                     <SectionContent censorshipKey={censorshipKey} topText={content.topText} index={index} key={content.period} canShowPercentage={content.canShowPercentage} {...content} />
                 ))}
@@ -203,11 +203,11 @@ export default function LucratividadePage() {
             </AsyncBoundary>
         )
     }
-   return( <>
+   return( <div className="w-full min-w-0 overflow-x-hidden">
     <CensorshipWrapper censorshipKey={"lucratividade_faturamento"}>
     <Section title="Faturamento">
        
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <StatCard
                   title="Total Bruto Acumulado"
                   icon={<Svg.graph_solid tailWindClasses="h-5 w-5" />}
@@ -240,7 +240,7 @@ export default function LucratividadePage() {
     <CensorshipWrapper censorshipKey={"lucratividade_flex" as TPREDEFINED_CENSORSHIP_KEYS}>
       <Section title="Flex"> 
           <div className="grid gap-4">
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <StatCard
                     title="Faturamento"
                     input={
@@ -285,7 +285,7 @@ export default function LucratividadePage() {
     <Section title="Custos">
         <CensorshipWrapper censorshipKey={"lucratividade_custos" as TPREDEFINED_CENSORSHIP_KEYS}>
     <div className="grid gap-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <StatCard
                   title="Custos com Frete (Comprador)"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
@@ -398,7 +398,7 @@ export default function LucratividadePage() {
                 Distribuição de{" "}
                 <span className="font-semibold">{totalVendas}</span> vendas.
               </p>
-              <div className="h-[320px] w-full">
+              <div className="h-[250px] md:h-[320px] w-full overflow-hidden">
                 <ChartContainer config={chartConfig} className="h-full w-full">
                   <BarChart data={chartData} accessibilityLayer>
                     <CartesianGrid {...chartGridStyle} vertical={false} />
@@ -470,6 +470,6 @@ export default function LucratividadePage() {
         
     </Section>
     </CensorshipWrapper>
-    </>
+    </div>
    )
 }
