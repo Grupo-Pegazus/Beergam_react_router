@@ -130,7 +130,7 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
                   key={key}
                   onClick={() => handleItemClick(menuItem, key)}
                   className={[
-                    "relative aspect-square rounded-xl border border-black/10 bg-white shadow-sm p-3 flex flex-col items-center justify-center gap-2 transition-all duration-200",
+                    "relative aspect-square rounded-xl border border-black/10 bg-beergam-menu-background! shadow-sm p-3 flex flex-col items-center justify-center gap-2 transition-all duration-200",
                     "hover:bg-beergam-blue-light hover:border-beergam-blue/20 active:scale-95 cursor-pointer",
                     isActive ? "border-beergam-orange!" : "",
                   ].join(" ")}
