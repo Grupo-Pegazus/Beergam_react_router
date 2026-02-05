@@ -254,96 +254,19 @@ export default function LucratividadePage() {
                   icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
 
                 >
-                    {/* <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[
-                      { 
-                        value: formatCurrency(getFlexSpent("30").toString()), 
-                        period: "30 dias", 
-                        canShowPercentage: true,
-                        showPercentageSymbol: false,
-                        percentage: calculateFlexResult("30"),
-                        percentageText: (() => {
-                          const result = calculateFlexResult("30");
-                          return `R$${result.toFixed(2).replace('.', ',')}`;	
-                        })(),
-                        isRedCondition: (value) => value < 0,
-                        isGreenCondition: (value) => value >= 0
-                      }, 
-                      { 
-                        value: formatCurrency(getFlexSpent("60").toString()), 
-                        period: "60 dias", 
-                        canShowPercentage: true,
-                        showPercentageSymbol: false,
-                       percentage: calculateFlexResult("60"),
-                        percentageText: (() => {
-                          const result = calculateFlexResult("60");
-                          return `R$${result.toFixed(2).replace('.', ',')}`;	
-                        })(),
-                        isRedCondition: (value) => value < 0,
-                        isGreenCondition: (value) => value >= 0
-                      }, 
-                      { 
-                        value: formatCurrency(getFlexSpent("90").toString()), 
-                        period: "90 dias", 
-                        canShowPercentage: true,
-                        showPercentageSymbol: false,
-                        percentage: calculateFlexResult("90"),
-                        percentageText: (() => {
-                          const result = calculateFlexResult("90");
-                          return `R$${result.toFixed(2).replace('.', ',')}`;	
-                        })(),
-                        isRedCondition: (value) => value < 0,
-                        isGreenCondition: (value) => value >= 0
-                      }
-                    ]} /> */}
                     <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(getFlexSpent("30").toString()), period: "30 dias", }, { value: formatCurrency(getFlexSpent("60").toString()), period: "60 dias", }, { value: formatCurrency(getFlexSpent("90").toString()), period: "90 dias", }]} />
                 </StatCard>
                 <StatCard
                   title="Lucratividade"
                   icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
-
                 >
-                    {/* <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[
-                      { 
-                        value: formatCurrency(getFlexSpent("30").toString()), 
-                        period: "30 dias", 
-                        canShowPercentage: true,
-                        showPercentageSymbol: false,
-                        percentage: calculateFlexResult("30"),
-                        percentageText: (() => {
-                          const result = calculateFlexResult("30");
-                          return `R$${result.toFixed(2).replace('.', ',')}`;	
-                        })(),
-                        isRedCondition: (value) => value < 0,
-                        isGreenCondition: (value) => value >= 0
-                      }, 
-                      { 
-                        value: formatCurrency(getFlexSpent("60").toString()), 
-                        period: "60 dias", 
-                        canShowPercentage: true,
-                        showPercentageSymbol: false,
-                       percentage: calculateFlexResult("60"),
-                        percentageText: (() => {
-                          const result = calculateFlexResult("60");
-                          return `R$${result.toFixed(2).replace('.', ',')}`;	
-                        })(),
-                        isRedCondition: (value) => value < 0,
-                        isGreenCondition: (value) => value >= 0
-                      }, 
-                      { 
-                        value: formatCurrency(getFlexSpent("90").toString()), 
-                        period: "90 dias", 
-                        canShowPercentage: true,
-                        showPercentageSymbol: false,
-                        percentage: calculateFlexResult("90"),
-                        percentageText: (() => {
-                          const result = calculateFlexResult("90");
-                          return `R$${result.toFixed(2).replace('.', ',')}`;	
-                        })(),
-                        isRedCondition: (value) => value < 0,
-                        isGreenCondition: (value) => value >= 0
-                      }
-                    ]} /> */}
-                    <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(calculateFlexResult("30").toString()), period: "30 dias", }, { value: formatCurrency(calculateFlexResult("60").toString()), period: "60 dias", }, { value: formatCurrency(calculateFlexResult("90").toString()), period: "90 dias", }]} />
+                    <SectionContentCard isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(calculateFlexResult("30").toString()), period: "30 dias", canShowPercentage: true, percentage: calculateFlexResult("30"), percentageText: (() => {
+                      return ``;
+                    })(), }, { value: formatCurrency(calculateFlexResult("60").toString()), period: "60 dias", canShowPercentage: true, percentage: calculateFlexResult("60"), percentageText: (() => {
+                      return ``;
+                    })(), }, { value: formatCurrency(calculateFlexResult("90").toString()), period: "90 dias", canShowPercentage: true, percentage: calculateFlexResult("90"), percentageText: (() => {
+                      return ``;
+                    })(), }]} />
                 </StatCard>
           </div>
         </div>
@@ -374,6 +297,18 @@ export default function LucratividadePage() {
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
                     <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.internal_costs ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.internal_costs ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.internal_costs ?? "0"), period: "90 dias" }]} />
+                </StatCard>
+                  <StatCard
+                  title="Custos com Embalagem"
+                  icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
+                >
+                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.packaging_costs ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.packaging_costs ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.packaging_costs ?? "0"), period: "90 dias" }]} />
+                </StatCard>
+                  <StatCard
+                  title="Custos Extra"
+                  icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
+                >
+                    <SectionContentCard isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.extra_costs ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.extra_costs ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.extra_costs ?? "0"), period: "90 dias" }]} />
                 </StatCard>
         </div>
         <div className="grid grid-cols-3 gap-4">

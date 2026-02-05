@@ -539,6 +539,8 @@ export const OrdersMetricsSchema = z.object({
   costs: z.object({
     comissions: z.number(),
     internal_costs: z.number(),
+    packaging_costs: z.number(),
+    extra_costs: z.number(),
     shipping: z.object({
       buyer: z.number(),
       seller: z.number(),
