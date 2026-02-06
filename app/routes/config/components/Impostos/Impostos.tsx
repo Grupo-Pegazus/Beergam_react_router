@@ -1,6 +1,6 @@
 import Paper from "@mui/material/Paper";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { useAuthUser } from "~/features/auth/context/AuthStoreContext";
@@ -9,6 +9,7 @@ import type {
   BaseMarketPlace,
   MarketplaceType,
 } from "~/features/marketplace/typings";
+import authStore from "~/features/store-zustand";
 import { useUpsertTax, useUserTaxes } from "~/features/taxes/hooks";
 import { taxesService } from "~/features/taxes/service";
 import {
@@ -17,6 +18,9 @@ import {
   type MonthKey,
 } from "~/features/taxes/typings";
 import UserFields from "~/features/user/components/UserFields";
+import { userService } from "~/features/user/service";
+import type { IUser } from "~/features/user/typings/User";
+import { CalcTax } from "~/features/user/typings/User";
 import { FormatCalcTax, isMaster } from "~/features/user/utils";
 import { default as Loading, default as Spining } from "~/src/assets/loading";
 import Svg from "~/src/assets/svgs/_index";
@@ -87,6 +91,60 @@ export default function Impostos() {
     year,
   });
   const upsert = useUpsertTax();
+  const [calcTax, setCalcTax] = useState<string | null>(
+    (user && isMaster(user) && user.details?.calc_tax) ? user.details.calc_tax : null
+  );
+  const [taxPercentFixed, setTaxPercentFixed] = useState<string | null>(
+    (user && isMaster(user) && user.details?.tax_percent_fixed) ? user.details.tax_percent_fixed : null
+  );
+
+  // Sincroniza tax_percent_fixed com o valor do usuário quando o user muda
+  useEffect(() => {
+    if (user && isMaster(user) && user.details?.tax_percent_fixed) {
+      setTaxPercentFixed(user.details.tax_percent_fixed);
+    }
+  }, [user]);
+
+  // Verifica se os valores foram alterados em relação ao usuário
+  const hasChanges = useMemo(() => {
+    if (!user || !isMaster(user)) return false;
+    
+    const userCalcTax = user.details?.calc_tax ?? null;
+    const userTaxPercentFixed = user.details?.tax_percent_fixed ?? null;
+    
+    const calcTaxChanged = calcTax !== userCalcTax;
+    const taxPercentFixedChanged = taxPercentFixed !== userTaxPercentFixed;
+    
+    return calcTaxChanged || taxPercentFixedChanged;
+  }, [user, calcTax, taxPercentFixed]);
+
+  const updateUserTaxSettings = useMutation({
+    mutationFn: async (data: { calc_tax: string | null; tax_percent_fixed: string | null }) => {
+      if (!user || !isMaster(user)) throw new Error("Usuário não encontrado ou não é master");
+      // Envia apenas os campos de imposto para evitar erro de validação
+      const payload = {
+        details: {
+          calc_tax: data.calc_tax as CalcTax | null,
+          tax_percent_fixed: data.tax_percent_fixed,
+        },
+      };
+      const response = await userService.editUserInformation(payload as unknown as IUser);
+      if (!response.success) {
+        throw new Error(response.message || "Erro ao atualizar configurações de imposto");
+      }
+      return response;
+    },
+    onSuccess: (data) => {
+      if (data.data) {
+        authStore.getState().updateUserDetails(data.data);
+        toast.success("Configurações de imposto atualizadas com sucesso");
+      }
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Erro ao atualizar configurações de imposto");
+    },
+  });
+
   const filteredAccounts =
     accounts?.data && accounts?.data.length > 0
       ? accounts?.data?.filter((account) =>
@@ -351,12 +409,12 @@ export default function Impostos() {
                     />
                     {/* <p>{MarketplaceTypeLabel[account.marketplace_type]}</p> */}
                   </div>
-                  <p className={`${selectedAccount?.marketplace_shop_id === account.marketplace_shop_id ? "text-beergam-white!" : "text-beergam-primary!"}`}>{account.marketplace_name}</p>
+                  <p className={`${selectedAccount?.marketplace_shop_id === account.marketplace_shop_id ? "text-beergam-white!" : "text-beergam-typography-tertiary!"}`}>{account.marketplace_name}</p>
                   {/* <div>{MarketplaceTypeLabel[account.marketplace_type]}</div> */}
                 </button>
               ))
             ) : (
-              <div>Nenhuma conta encontrada</div>
+              <div><p>Nenhuma conta encontrada</p></div>
             )}
           </div>
         </Section>
@@ -364,6 +422,60 @@ export default function Impostos() {
           title="Alíquotas"
           className="bg-beergam-mui-paper! md:max-w-[70%] w-full"
         >
+          {/* Seção de Configurações de Imposto */}
+          <div
+          className="flex flex-col gap-4 mb-4"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <UserFields
+                label="Cálculo de Imposto"
+                name="calc_tax"
+                value={calcTax ?? ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value) {
+                    setCalcTax(value);
+                  }
+                }}
+                canAlter={true}
+                options={Object.keys(CalcTax).map((key) => ({
+                  value: key,
+                  label: CalcTax[key as keyof typeof CalcTax],
+                }))}
+              />
+              <UserFields
+                label="Cálculo Fixo de Imposto (%)"
+                name="tax_percent_fixed"
+                value={taxPercentFixed ?? ""}
+                onChange={(e) => setTaxPercentFixed(e.target.value || null)}
+                canAlter={calcTax === "VALOR_PORCENTAGEM_FIXA"}
+                type="number"
+                min={0}
+                max={100}
+              />
+            </div>
+            <div>
+              <BeergamButton
+                title="Salvar Informações de Imposto"
+                mainColor="beergam-primary"
+                animationStyle="slider"
+                disabled={!hasChanges}
+                fetcher={{
+                  fecthing: updateUserTaxSettings.isPending,
+                  completed: updateUserTaxSettings.isSuccess,
+                  error: updateUserTaxSettings.isError,
+                  mutation: updateUserTaxSettings,
+                }}
+                onClick={() => {
+                  updateUserTaxSettings.mutate({
+                    calc_tax: calcTax,
+                    tax_percent_fixed: taxPercentFixed,
+                  });
+                }}
+              />
+            </div>
+          </div>
+          
           {selectedAccount ? (
             <>
               <div className="flex flex-col md:flex-row items-center gap-2 bg-beergam-yellow/10 rounded-md p-2 mb-4">
@@ -548,7 +660,7 @@ export default function Impostos() {
               </div>
             </>
           ) : (
-            <div><p>Seleciona uma conta para ver as alíquotas</p></div>
+            <div><h3 className="font-bold! text-beergam-typography-tertiary">Seleciona uma conta para ver as alíquotas</h3></div>
           )}
         </Section>
       </div>
