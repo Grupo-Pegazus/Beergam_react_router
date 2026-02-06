@@ -24,7 +24,10 @@ import {
   type RegistrationType,
 } from "~/features/produtos/typings/createProduct";
 import { transformProductDetailsToCreateProduct } from "~/features/produtos/utils/productTransform";
+import ReprocessOrdersBySkuModal from "~/features/vendas/components/ReprocessOrdersBySkuModal/ReprocessOrdersBySkuModal";
+import { useSyncCostsBySku } from "~/features/vendas/hooks";
 import BeergamButton from "~/src/components/utils/BeergamButton";
+import { useModal } from "~/src/components/utils/Modal/useModal";
 import toast from "~/src/utils/toast";
 import ExtrasFields from "./ExtrasFields";
 import ImageUploadSection from "./ImageUploadSection";
@@ -56,6 +59,20 @@ interface Tab {
   visible: boolean;
 }
 
+function extractSkusFromFormData(
+  data: CreateSimplifiedProduct | CreateCompleteProduct
+): string[] {
+  const skus: string[] = [];
+  if (data.variations && data.variations.length > 0) {
+    data.variations.forEach((v) => {
+      if (v.sku?.trim()) skus.push(v.sku.trim());
+    });
+  } else if (data.product.sku?.trim()) {
+    skus.push(data.product.sku.trim());
+  }
+  return [...new Set(skus)];
+}
+
 export default function ProductForm({
   registrationType: initialRegistrationType,
   productId,
@@ -63,6 +80,8 @@ export default function ProductForm({
 }: ProductFormProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { openModal, closeModal } = useModal();
+  const syncCostsBySkuMutation = useSyncCostsBySku();
   const [showVariationsTab, setShowVariationsTab] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [hasVariations, setHasVariations] = useState(false);
@@ -217,7 +236,7 @@ export default function ProductForm({
         return response;
       }
     },
-    onSuccess: (response) => {
+    onSuccess: (response, formData) => {
       // Invalida o cache de produtos para atualizar a lista
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["products-metrics"] });
@@ -232,7 +251,33 @@ export default function ProductForm({
             ? "Produto atualizado com sucesso!"
             : "Produto criado com sucesso!")
       );
-      navigate("/interno/produtos/gestao");
+
+      const skus = extractSkusFromFormData(formData);
+      const navigateToGestao = () => navigate("/interno/produtos/gestao");
+
+      if (skus.length > 0) {
+        openModal(
+          <ReprocessOrdersBySkuModal
+            skus={skus}
+            onClose={() => {
+              closeModal();
+              navigateToGestao();
+            }}
+            onConfirm={() => {
+              syncCostsBySkuMutation.mutate(skus, {
+                onSettled: () => {
+                  closeModal();
+                  navigateToGestao();
+                },
+              });
+            }}
+            isLoading={syncCostsBySkuMutation.isPending}
+          />,
+          { title: "Produto salvo com sucesso!" }
+        );
+      } else {
+        navigateToGestao();
+      }
     },
     onError: (error: Error) => {
       toast.error(

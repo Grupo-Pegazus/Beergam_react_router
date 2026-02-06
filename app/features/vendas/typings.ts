@@ -701,6 +701,23 @@ export const CreateExportResponseSchema = z.object({
 
 export type CreateExportResponse = z.infer<typeof CreateExportResponseSchema>;
 
+// Resposta do sync-costs-by-sku (202 Accepted)
+export const SyncCostsBySkuTaskSchema = z.object({
+  sku: z.string(),
+  task_id: z.string().nullable().optional(),
+  error: z.string().optional(),
+});
+
+export const SyncCostsBySkuResponseSchema = z.object({
+  tasks: z.array(SyncCostsBySkuTaskSchema),
+  total_skus: z.number(),
+  tasks_enqueued: z.number(),
+  status: z.string(),
+  message: z.string().optional(),
+});
+
+export type SyncCostsBySkuResponse = z.infer<typeof SyncCostsBySkuResponseSchema>;
+
 export const ExportHistoryResponseSchema = z.object({
   total: z.number(),
   jobs: z.array(ExportJobSchema),

@@ -17,6 +17,7 @@ import type {
   CreateExportResponse,
   ExportHistoryResponse,
   ExportJob,
+  SyncCostsBySkuResponse,
 } from "./typings";
 import toast from "~/src/utils/toast";
 
@@ -327,6 +328,36 @@ export function useReprocessOrdersByPeriod() {
         error instanceof Error
           ? error.message
           : "Erro ao reprocessar pedidos pelo período";
+      toast.error(message);
+    },
+  });
+}
+
+export function useSyncCostsBySku() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (skus: string[]) => {
+      const res = await vendasService.syncCostsBySku(skus);
+      if (!res.success) {
+        throw new Error(
+          res.message || "Erro ao sincronizar custos por SKU",
+        );
+      }
+      return res as ApiResponse<SyncCostsBySkuResponse>;
+    },
+    onSuccess: (res, skus) => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      const tasksEnqueued = res.data?.tasks_enqueued ?? skus.length;
+      toast.success(
+        `Sincronização de custos para ${tasksEnqueued} SKU(s) iniciada. Os pedidos serão atualizados em background.`,
+      );
+    },
+    onError: (error: unknown) => {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Erro ao sincronizar custos por SKU";
       toast.error(message);
     },
   });

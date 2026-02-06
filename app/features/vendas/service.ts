@@ -14,6 +14,7 @@ import type {
   CreateExportResponse,
   ExportHistoryResponse,
   ExportJob,
+  SyncCostsBySkuResponse,
 } from "./typings";
 
 class VendasService {
@@ -127,6 +128,14 @@ class VendasService {
       params,
     );
     return response as ApiResponse<ReprocessOrdersInternalResponse>;
+  }
+
+  async syncCostsBySku(skus: string[]): Promise<ApiResponse<SyncCostsBySkuResponse>> {
+    const response = await typedApiClient.post<SyncCostsBySkuResponse>(
+      "/v1/orders/sync-costs-by-sku",
+      { skus },
+    );
+    return response as ApiResponse<SyncCostsBySkuResponse>;
   }
 
   async createExport(filters?: Partial<OrdersFilters>): Promise<ApiResponse<CreateExportResponse>> {
