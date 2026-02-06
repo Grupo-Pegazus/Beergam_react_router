@@ -41,7 +41,7 @@ function ClientInfoComponent({ client }: ClientInfoProps) {
                     {/* Informações básicas */}
                     <div className="grid grid-cols-3 space-y-2">
                         <div>
-                            <p className="text-xs text-beergam-typography-secondary mb-1">
+                            <p className="text-xs text-beergam-typography-secondary mb-1 truncate">
                                 Apelido
                             </p>
                             <p className="text-sm font-medium text-beergam-typography-tertiary!">
