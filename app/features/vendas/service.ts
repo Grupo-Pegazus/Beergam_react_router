@@ -10,6 +10,7 @@ import type {
   OrderDetailsResponse,
   ReprocessOrdersResponse,
   ReprocessQuota,
+  ReprocessOrdersInternalResponse,
 } from "./typings";
 
 class VendasService {
@@ -112,6 +113,17 @@ class VendasService {
       order_ids: orderIds,
     });
     return response as ApiResponse<ReprocessOrdersResponse>;
+  }
+
+  async reprocessOrdersByPeriod(params: {
+    date_from: string;
+    date_to: string;
+  }): Promise<ApiResponse<ReprocessOrdersInternalResponse>> {
+    const response = await typedApiClient.post<ReprocessOrdersInternalResponse>(
+      "/v1/orders/reprocess-internal",
+      params,
+    );
+    return response as ApiResponse<ReprocessOrdersInternalResponse>;
   }
 }
 

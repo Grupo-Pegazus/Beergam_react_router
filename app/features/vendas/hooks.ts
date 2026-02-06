@@ -13,6 +13,7 @@ import type {
   ReprocessOrdersResponse,
   ReprocessQuota,
   TopCategories,
+  ReprocessOrdersInternalResponse,
 } from "./typings";
 import toast from "~/src/utils/toast";
 
@@ -294,6 +295,35 @@ export function useReprocessOrders() {
     },
     onError: (error: unknown) => {
       const message = error instanceof Error ? error.message : "Erro ao reprocessar pedidos";
+      toast.error(message);
+    },
+  });
+}
+
+export function useReprocessOrdersByPeriod() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: { date_from: string; date_to: string }) => {
+      const res = await vendasService.reprocessOrdersByPeriod(params);
+      if (!res.success) {
+        throw new Error(
+          res.message || "Erro ao reprocessar pedidos pelo período",
+        );
+      }
+      return res as ApiResponse<ReprocessOrdersInternalResponse>;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      toast.success(
+        `Reprocessamento interno iniciado.`,
+      );
+    },
+    onError: (error: unknown) => {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Erro ao reprocessar pedidos pelo período";
       toast.error(message);
     },
   });

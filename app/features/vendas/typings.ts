@@ -635,7 +635,7 @@ export const OrderDetailsResponseSchema = z.object({
 export type OrderDetailsResponse = z.infer<typeof OrderDetailsResponseSchema>;
 
 // ===========================
-// Reprocessamento (cota + ação)
+// Reprocessamento (cota + ações)
 // ===========================
 
 export const ReprocessQuotaSchema = z.object({
@@ -663,4 +663,13 @@ export const ReprocessOrdersResponseSchema = z.object({
 });
 
 export type ReprocessOrdersResponse = z.infer<typeof ReprocessOrdersResponseSchema>;
+
+// Resposta do reprocessamento interno por período
+export const ReprocessOrdersInternalResponseSchema = z.object({
+  total_orders: z.number(),
+  costs_updated: z.number(),
+  taxes_updated: z.number(),
+});
+
+export type ReprocessOrdersInternalResponse = z.infer<typeof ReprocessOrdersInternalResponseSchema>;
 
