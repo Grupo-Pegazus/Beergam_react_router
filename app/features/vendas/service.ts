@@ -11,6 +11,9 @@ import type {
   ReprocessOrdersResponse,
   ReprocessQuota,
   ReprocessOrdersInternalResponse,
+  CreateExportResponse,
+  ExportHistoryResponse,
+  ExportJob,
 } from "./typings";
 
 class VendasService {
@@ -124,6 +127,29 @@ class VendasService {
       params,
     );
     return response as ApiResponse<ReprocessOrdersInternalResponse>;
+  }
+
+  async createExport(filters?: Partial<OrdersFilters>): Promise<ApiResponse<CreateExportResponse>> {
+    const response = await typedApiClient.post<CreateExportResponse>("/v1/orders/export", {
+      filters: filters || {},
+    });
+    return response as ApiResponse<CreateExportResponse>;
+  }
+
+  async getExportHistory(limit?: number): Promise<ApiResponse<ExportHistoryResponse>> {
+    const params = new URLSearchParams();
+    if (limit) params.append("limit", String(limit));
+
+    const queryString = params.toString();
+    const url = `/v1/orders/export/history${queryString ? `?${queryString}` : ""}`;
+
+    const response = await typedApiClient.get<ExportHistoryResponse>(url);
+    return response as ApiResponse<ExportHistoryResponse>;
+  }
+
+  async getExportStatus(jobId: string): Promise<ApiResponse<ExportJob>> {
+    const response = await typedApiClient.get<ExportJob>(`/v1/orders/export/${jobId}`);
+    return response as ApiResponse<ExportJob>;
   }
 }
 

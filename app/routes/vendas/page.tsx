@@ -8,7 +8,7 @@ import Section from "~/src/components/ui/Section";
 import type { VendasFiltersState } from "~/features/vendas/components/Filters";
 import { VendasFilters } from "~/features/vendas/components/Filters";
 import OrderList from "~/features/vendas/components/OrderList/OrderList";
-import { useReprocessOrdersByPeriod, useVendasFilters } from "~/features/vendas/hooks";
+import { useReprocessOrdersByPeriod, useVendasFilters, useCreateExport } from "~/features/vendas/hooks";
 import {
   CensorshipWrapper,
   ImageCensored,
@@ -18,6 +18,7 @@ import BeergamButton from "~/src/components/utils/BeergamButton";
 import AlertComponent from "~/src/components/utils/Alert";
 import { useModal } from "~/src/components/utils/Modal/useModal";
 import toast from "~/src/utils/toast";
+import ExportHistoryModal from "~/features/vendas/components/ExportHistoryModal/ExportHistoryModal";
 
 type ReprocessOrdersByPeriodModalProps = {
   onConfirm: (params: { date_from: string; date_to: string }) => void;
@@ -83,6 +84,7 @@ export default function VendasPage() {
   const { filters, setFilters, resetFilters, apiFilters, applyFilters } =
     useVendasFilters();
   const reprocessByPeriodMutation = useReprocessOrdersByPeriod();
+  const createExportMutation = useCreateExport();
   const { openModal, closeModal } = useModal();
 
   const handleFiltersChange = useCallback(
@@ -110,6 +112,22 @@ export default function VendasPage() {
       { title: "Confirmar reprocessamento" },
     );
   }, [openModal, closeModal, reprocessByPeriodMutation]);
+
+  const handleExportClick = useCallback(() => {
+    // Remove paginação dos filtros para exportar todos os resultados
+    const exportFilters = { ...apiFilters };
+    delete exportFilters.page;
+    delete exportFilters.per_page;
+
+    createExportMutation.mutate(exportFilters);
+  }, [apiFilters, createExportMutation]);
+
+  const handleExportHistoryClick = useCallback(() => {
+    openModal(<ExportHistoryModal onClose={closeModal} />, {
+      title: "Histórico de Exportações",
+      icon: "clock",
+    });
+  }, [openModal, closeModal]);
 
   return (
     <>
@@ -151,7 +169,21 @@ export default function VendasPage() {
       </CensorshipWrapper>
       <CensorshipWrapper censorshipKey="vendas_orders_list" controlChildren>
         <Section title="Pedidos">
-          <div className="flex justify-end mb-4">
+          <div className="flex justify-end gap-2 mb-4">
+            <BeergamButton
+              title="Histórico de Exportações"
+              mainColor="beergam-blue"
+              icon="clock"
+              onClick={handleExportHistoryClick}
+            />
+            <BeergamButton
+              title="Exportar Planilha"
+              mainColor="beergam-green"
+              icon="excel"
+              onClick={handleExportClick}
+              disabled={createExportMutation.isPending}
+              loading={createExportMutation.isPending}
+            />
             <BeergamButton
               title="Reprocessar pedidos pelo período"
               mainColor="beergam-orange"
