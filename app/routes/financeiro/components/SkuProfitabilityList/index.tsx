@@ -6,13 +6,16 @@ import Svg from "~/src/assets/svgs/_index";
 import { FilterSearchInput } from "~/src/components/filters/components/FilterSearchInput";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 import PaginationBar from "~/src/components/ui/PaginationBar";
+import { Fields } from "~/src/components/utils/_fields";
 import {
-  CensorshipWrapper,
   ImageCensored,
   TextCensored,
-  useCensorship,
+  useCensorship
 } from "~/src/components/utils/Censorship";
+import type { TPREDEFINED_CENSORSHIP_KEYS } from "~/src/components/utils/Censorship/typings";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+
+type SortField = "margin" | "units" | "costs" | "revenue" | "average";
 
 type HealthStatus = "Saudável" | "Apertado" | "Ruim";
 
@@ -73,12 +76,12 @@ function InfoCell({
 }) {
   return (
     <div
-      className={`border-r h-full grid content-end pr-2 ${
-        isLast ? "border-r-transparent" : "border-r-beergam-primary"
+      className={`h-full grid content-end border-b border-b-beergam-primary pb-2 md:border-b-0 md:border-r md:pr-2 ${
+        isLast ? "md:border-r-transparent" : "md:border-r-beergam-primary"
       }`}
     >
-      <p className="text-[12px] text-beergam-typography-tertiary!">{label}</p>
-      <h3 className="text-[18px]! text-beergam-primary font-bold">{value}</h3>
+      <p className="text-[11px] md:text-[12px] text-beergam-typography-tertiary!">{label}</p>
+      <h3 className="text-[14px]! md:text-[18px]! text-beergam-primary font-bold break-words">{value}</h3>
     </div>
   );
 }
@@ -91,7 +94,7 @@ export interface SkuProfitabilityListProps {
   /** Quantidade máxima de SKUs na lista (default: 20) */
   maxItems?: number;
   /** Chave de censura (default: vendas_orders_list) */
-  censorshipKey?: "vendas_orders_list" | "vendas_orders_list_details";
+  censorshipKey?: TPREDEFINED_CENSORSHIP_KEYS;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -100,13 +103,14 @@ export default function SkuProfitabilityList({
   orders,
   incomingsBySku,
   maxItems = 20,
-  censorshipKey = "vendas_orders_list",
+  censorshipKey = "lucratividade_lucro_sku",
 }: SkuProfitabilityListProps) {
   const { isCensored } = useCensorship();
   const censored = isCensored(censorshipKey);
   
   const [page, setPage] = useState(1);
   const [skuFilter, setSkuFilter] = useState("");
+  const [sortField, setSortField] = useState<SortField>("margin");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const skuRows = useMemo(() => {
@@ -125,6 +129,7 @@ export default function SkuProfitabilityList({
           marginPct: item.margin_pct,
           totalProfit: item.total_profit,
           totalRevenue: item.total_revenue,
+          internalCost: item.internal_cost,
           status,
           statusClasses: classes,
         };
@@ -140,12 +145,41 @@ export default function SkuProfitabilityList({
         );
       }
 
-      // Aplica ordenação por margin_pct
+      // Aplica ordenação pelo campo selecionado
       rows.sort((a, b) => {
-        if (sortOrder === "asc") {
-          return a.marginPct - b.marginPct;
+        let valueA: number;
+        let valueB: number;
+        
+        switch (sortField) {
+          case "margin":
+            valueA = a.marginPct;
+            valueB = b.marginPct;
+            break;
+          case "units":
+            valueA = a.units;
+            valueB = b.units;
+            break;
+          case "costs":
+            valueA = a.internalCost;
+            valueB = b.internalCost;
+            break;
+          case "revenue":
+            valueA = a.totalRevenue;
+            valueB = b.totalRevenue;
+            break;
+          case "average":
+            valueA = a.avgProfitPerSale;
+            valueB = b.avgProfitPerSale;
+            break;
+          default:
+            valueA = a.marginPct;
+            valueB = b.marginPct;
         }
-        return b.marginPct - a.marginPct;
+        
+        if (sortOrder === "asc") {
+          return valueA - valueB;
+        }
+        return valueB - valueA;
       });
 
       return rows;
@@ -163,6 +197,7 @@ export default function SkuProfitabilityList({
       units: number;
       sumProfit: number;
       sumRevenue: number;
+      internalCost: number;
     };
 
     const map = new Map<string, Acc>();
@@ -172,6 +207,7 @@ export default function SkuProfitabilityList({
       if (!sku) continue;
 
       const revenue = parsePtBrNumber(order.valor_liquido);
+      const internalCost = parsePtBrNumber(order.price_cost);
       const profit =
         revenue -
         parsePtBrNumber(order.price_cost) -
@@ -192,6 +228,7 @@ export default function SkuProfitabilityList({
           units: qty,
           sumProfit: profit,
           sumRevenue: revenue,
+          internalCost: internalCost,
         });
       } else {
         current.ordersCount += 1;
@@ -219,11 +256,45 @@ export default function SkuProfitabilityList({
       };
     });
 
-    // Ordena por quantidade de unidades (mais vendidos primeiro)
-    rows.sort((a, b) => b.units - a.units);
+    // Aplica ordenação pelo campo selecionado
+    rows.sort((a, b) => {
+      let valueA: number;
+      let valueB: number;
+      
+      switch (sortField) {
+        case "margin":
+          valueA = a.marginPct;
+          valueB = b.marginPct;
+          break;
+        case "units":
+          valueA = a.units;
+          valueB = b.units;
+          break;
+        case "costs":
+          valueA = a.internalCost;
+          valueB = b.internalCost;
+          break;
+        case "revenue":
+          valueA = a.totalRevenue;
+          valueB = b.totalRevenue;
+          break;
+        case "average":
+          valueA = a.avgProfitPerSale;
+          valueB = b.avgProfitPerSale;
+          break;
+        default:
+          valueA = a.marginPct;
+          valueB = b.marginPct;
+      }
+      
+      if (sortOrder === "asc") {
+        return valueA - valueB;
+      }
+      return valueB - valueA;
+    });
 
     return rows.slice(0, maxItems);
-  }, [orders, incomingsBySku, maxItems, skuFilter, sortOrder]);
+  }, [orders, incomingsBySku, maxItems, skuFilter, sortField, sortOrder]);
 
   // Calcula paginação
   const totalItems = skuRows.length;
@@ -244,10 +315,32 @@ export default function SkuProfitabilityList({
     setPage(1); // Reset para primeira página ao mudar ordenação
   };
 
+  const handleSortFieldChange = (field: SortField) => {
+    setSortField(field);
+    setPage(1); // Reset para primeira página ao mudar campo de ordenação
+  };
+
+  const getSortFieldLabel = (field: SortField): string => {
+    switch (field) {
+      case "margin":
+        return "Margem";
+      case "units":
+        return "Unidades";
+      case "costs":
+        return "Custos";
+      case "revenue":
+        return "Faturamento";
+      case "average":
+        return "Média";
+      default:
+        return "Margem";
+    }
+  };
+
   if (skuRows.length === 0 && !skuFilter) return null;
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-4 w-full min-w-0 overflow-hidden">
       {/* Filtros e controles */}
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
         <div className="flex-1 w-full md:max-w-md">
@@ -261,9 +354,23 @@ export default function SkuProfitabilityList({
             placeholder="Digite o SKU ou nome do produto..."
             fullWidth={true}
             widthType="full"
+            className="bg-beergam-mui-paper!"
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col md:row md:items-center gap-2">
+          <Fields.select
+            tailWindClasses="bg-beergam-mui-paper!"
+            value={sortField}
+            onChange={(e) => handleSortFieldChange(e.target.value as SortField)}
+            options={[
+              { value: "margin", label: "Margem" },
+              { value: "units", label: "Unidades" },
+              { value: "costs", label: "Custos" },
+              { value: "revenue", label: "Faturamento" },
+              { value: "average", label: "Média" },
+            ]}
+            widthType="fit"
+          />
           <Button
             variant="outlined"
             onClick={handleSortToggle}
@@ -284,7 +391,7 @@ export default function SkuProfitabilityList({
               },
             }}
           >
-            Margem {sortOrder === "asc" ? "Crescente" : "Decrescente"}
+            {getSortFieldLabel(sortField)} {sortOrder === "asc" ? "Crescente" : "Decrescente"}
           </Button>
         </div>
       </div>
@@ -297,14 +404,15 @@ export default function SkuProfitabilityList({
           </p>
         </div>
       ) : (
-        <div className="grid gap-2">
+        <>
+        <div className="grid gap-2 w-full min-w-0">
           {paginatedRows.map((row) => (
         <Paper
           key={row.sku}
-
+          className="p-3 md:p-4 w-full min-w-0 overflow-hidden"
         >
-          <CensorshipWrapper censorshipKey={censorshipKey} canChange={false}>
-            <div className="flex flex-col md:flex-row gap-3 md:items-center">
+          <>
+            <div className="flex flex-col md:flex-row gap-3 md:items-center w-full min-w-0">
               {/* Produto (estilo OrderItemCard / OrderCard) */}
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <ImageCensored
@@ -317,12 +425,12 @@ export default function SkuProfitabilityList({
                   />
                 </ImageCensored>
 
-                <div className="min-w-0 flex-1 overflow-hidden w-0">
+                <div className="min-w-0 flex-1 overflow-hidden">
                   <TextCensored forceCensor={censored} censorshipKey={censorshipKey}>
                     <Typography
                       variant="body2"
                       fontWeight={700}
-                      className="text-beergam-typography-primary! text-sm md:text-base max-w-[30ch]!"
+                      className="text-beergam-typography-primary! text-xs md:text-sm lg:text-base"
                       noWrap
                       sx={{
                         overflow: "hidden",
@@ -339,7 +447,7 @@ export default function SkuProfitabilityList({
                     <Typography
                       variant="body2"
                       fontWeight={700}
-                      className="text-beergam-typography-primary! text-sm md:text-base"
+                      className="text-beergam-typography-primary! text-xs md:text-sm"
                       noWrap
                       sx={{
                         overflow: "hidden",
@@ -357,9 +465,11 @@ export default function SkuProfitabilityList({
               </div>
 
               {/* Infos (estilo SectionContent com bordas laranjas) */}
-              <div className="grid grid-cols-5 gap-2 w-[630px] items-end">
-                <InfoCell label="Vendas" value={censored ? "****" : row.units} />
-                <InfoCell label="Faturamento" value={censored ? "****" : formatCurrency(row.totalRevenue, { money: true })} />
+              <div className="grid grid-cols-2 md:flex gap-2 md:justify-end md:flex-1 md:min-w-0 md:items-end overflow-hidden">
+                <InfoCell label="Unidades" value={censored ? "****" : row.units} />
+                <InfoCell label="Custos Internos" value={censored ? "****" : formatCurrency(row.internalCost, { money: true })} />
+                <InfoCell label="Faturamento Total" value={censored ? "****" : formatCurrency(row.totalRevenue, { money: true })} />
+                <InfoCell label="Lucro Total" value={censored ? "****" : formatCurrency(row.units * row.avgProfitPerSale, { money: true })} />
                 <InfoCell
                   label="Média de lucro"
                   value={
@@ -377,7 +487,7 @@ export default function SkuProfitabilityList({
                   isLast
                   value={
                     <span
-                      className={`inline-flex items-center justify-center rounded-lg px-2 py-1 text-[12px] font-semibold ${row.statusClasses}`}
+                      className={`inline-flex items-center justify-center rounded-lg px-2 py-1 text-[10px] md:text-[12px] font-semibold ${row.statusClasses}`}
                     >
                       {row.status}
                     </span>
@@ -385,10 +495,11 @@ export default function SkuProfitabilityList({
                 />
               </div>
             </div>
-          </CensorshipWrapper>
+          </>
         </Paper>
           ))}
         </div>
+        </>
       )}
 
       {/* Paginação */}

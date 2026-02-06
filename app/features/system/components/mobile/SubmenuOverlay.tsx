@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState, useCallback } from "react";
-import type { IMenuItem, IMenuConfig } from "~/features/menu/typings";
-import Svg from "~/src/assets/svgs/_index";
-import { PrefetchPageLinks, useNavigate } from "react-router";
-import MobilePortal from "./Portal";
-import { getRelativePath, DEFAULT_INTERNAL_PATH } from "~/features/menu/utils";
-import { useOverlay } from "../../hooks/useOverlay";
 import { Paper } from "@mui/material";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { PrefetchPageLinks, useNavigate } from "react-router";
+import type { IMenuConfig, IMenuItem } from "~/features/menu/typings";
+import { DEFAULT_INTERNAL_PATH, getRelativePath } from "~/features/menu/utils";
+import Svg from "~/src/assets/svgs/_index";
+import { useOverlay } from "../../hooks/useOverlay";
+import MobilePortal from "./Portal";
 
 type SubmenuState = {
   items: IMenuConfig;
@@ -101,12 +101,12 @@ export default function SubmenuOverlay({
         />
         <section
           className={[
-            "absolute inset-x-0 bottom-0 bg-white flex flex-col transition-transform duration-300 ease-out will-change-transform rounded-t-2xl",
+            "absolute inset-x-0 bottom-0 bg-beergam-mui-paper flex flex-col transition-transform duration-300 ease-out will-change-transform rounded-t-2xl",
             isOpen ? "translate-y-0" : "translate-y-full",
           ].join(" ")}
           style={{ height: "50vh", maxHeight: "50vh" }}
         >
-          <header className="p-4 border-b border-black/10 flex items-center justify-between shrink-0 bg-beergam-blue-primary text-white">
+          <header className="p-4 border-b border-black/10 flex items-center justify-between shrink-0 bg-beergam-menu-background text-white">
             <div className="flex items-center gap-2">
               {canGoBack && (
                 <button
@@ -137,7 +137,7 @@ export default function SubmenuOverlay({
                   <Paper
                     key={key}
                     onClick={() => handleItemClick(item, key)}
-                    className="w-full flex items-center gap-3 p-3 rounded-lg border border-black/10 bg-white shadow-sm hover:bg-gray-50 transition-colors text-left"
+                    className="w-full flex items-center gap-3 p-3 rounded-lg border text-white border-black/10 bg-beergam-menu-background! shadow-sm transition-colors text-left"
                     elevation={1}
                   >
                     {Icon && (
@@ -145,7 +145,7 @@ export default function SubmenuOverlay({
                         <Icon />
                       </span>
                     )}
-                    <span className="flex-1 text-sm font-medium text-black/80">{item.label}</span>
+                    <span className="flex-1 text-sm font-medium">{item.label}</span>
                     {hasDropdown && (
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 text-black/40">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />

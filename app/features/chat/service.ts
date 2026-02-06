@@ -12,12 +12,13 @@ import type {
   ChatMessagesApiResponse,
 } from "./typings";
 
-/**
- * Resposta do backend para upload de anexo de reclamação
- */
 interface ClaimAttachmentUploadResponse {
   filename: string;
   user_id: string;
+}
+
+interface PosPurchaseAttachmentUploadResponse {
+  id: string;
 }
 
 class ChatService {
@@ -231,6 +232,97 @@ class ChatService {
       };
     }
   }
+
+  /**
+   * Faz upload de um anexo para ser usado em mensagens pós-venda.
+   *
+   * @param orderId - order_id ou pack_id do pedido
+   * @param file - Arquivo para upload
+   * @returns Resposta com ID do attachment gerado pelo MELI
+   */
+  async uploadPosPurchaseAttachment(
+    orderId: string,
+    file: File
+  ): Promise<ApiResponse<PosPurchaseAttachmentUploadResponse>> {
+    // Valida tipo de arquivo (JPG, PNG, PDF ou TXT)
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "application/pdf",
+      "text/plain",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      return {
+        success: false,
+        data: {} as PosPurchaseAttachmentUploadResponse,
+        message: "Tipo de arquivo não permitido. Use JPG, PNG, PDF ou TXT",
+        error_code: 400,
+        error_fields: [],
+      };
+    }
+
+    const maxSize = 25 * 1024 * 1024;
+    if (file.size > maxSize) {
+      return {
+        success: false,
+        data: {} as PosPurchaseAttachmentUploadResponse,
+        message: "Arquivo muito grande. Tamanho máximo: 25 MB",
+        error_code: 400,
+        error_fields: [],
+      };
+    }
+
+    const filename = file.name;
+    if (filename.length > 125) {
+      return {
+        success: false,
+        data: {} as PosPurchaseAttachmentUploadResponse,
+        message: "Nome do arquivo deve ter no máximo 125 caracteres",
+        error_code: 400,
+        error_fields: [],
+      };
+    }
+
+    if (!/^[a-zA-Z0-9_\-.]+$/.test(filename)) {
+      return {
+        success: false,
+        data: {} as PosPurchaseAttachmentUploadResponse,
+        message:
+          "Nome do arquivo contém caracteres inválidos. Use apenas letras, números, pontos, hífens e sublinhados",
+        error_code: 400,
+        error_fields: [],
+      };
+    }
+
+    try {
+      const cleanOrderId = orderId.replace(/\D/g, "");
+      const formData = this.buildAttachmentFormData(file);
+
+      const response =
+        await typedApiClient.post<PosPurchaseAttachmentUploadResponse>(
+          `/v1/chat/pos-purchase/${cleanOrderId}/attachments`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+      return response;
+    } catch (error) {
+      console.error("error do uploadPosPurchaseAttachment", error);
+      return {
+        success: false,
+        data: {} as PosPurchaseAttachmentUploadResponse,
+        message:
+          "Erro ao fazer upload do anexo. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: [],
+      };
+    }
+  }
 }
 
 export const chatService = new ChatService();
@@ -271,6 +363,51 @@ export function createClaimAttachmentUploadService(
     },
     extractIds(response: ClaimAttachmentUploadResponse): string[] {
       return [response.filename];
+    },
+  };
+}
+
+function assertSuccessfulPosPurchaseAttachmentResponse(
+  response: ApiResponse<PosPurchaseAttachmentUploadResponse>
+): PosPurchaseAttachmentUploadResponse {
+  if (!response.success || !response.data) {
+    throw new Error(
+      response.message ?? "Falha ao fazer upload do anexo de pós-venda."
+    );
+  }
+  return response.data;
+}
+
+/**
+ * Factory function para criar uma instância do serviço de upload de anexos de pós-venda.
+ *
+ * @param orderId - ID do pedido (order_id ou pack_id)
+ * @returns Instância do serviço de upload
+ */
+export function createPosPurchaseAttachmentUploadService(
+  orderId: string
+): ExternalUploadService<PosPurchaseAttachmentUploadResponse> {
+  return {
+    async upload(
+      files: File[],
+      // Parâmetro necessário para a interface ExternalUploadService, mas não utilizado neste serviço
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      context: ExternalUploadContext
+    ): Promise<PosPurchaseAttachmentUploadResponse> {
+      if (files.length === 0) {
+        throw new Error("Nenhum arquivo fornecido para upload");
+      }
+
+      // O backend aceita apenas um arquivo por vez
+      const file = files[0];
+      const response = await chatService.uploadPosPurchaseAttachment(
+        orderId,
+        file
+      );
+      return assertSuccessfulPosPurchaseAttachmentResponse(response);
+    },
+    extractIds(response: PosPurchaseAttachmentUploadResponse): string[] {
+      return [response.id];
     },
   };
 }

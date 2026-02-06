@@ -2,6 +2,7 @@ import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
 import { MarketplaceType } from "../marketplace/typings";
 import {
+  type TaxesResponse,
   TaxesResponseSchema,
   type TaxesData,
   UpsertTaxPayloadSchema,
@@ -21,8 +22,8 @@ class TaxesService {
     year: number;
   }): Promise<ApiResponse<TaxesData>> {
     try {
-      const response = await typedApiClient.get<unknown>(
-        `/v1/user_taxes/marketplace?marketplace_shop_id=${params.marketplace_shop_id}&marketplace_type=${params.marketplace_type}&ano=${params.year}`
+      const response = await typedApiClient.get<TaxesResponse>(
+        `/v1/user_taxes/get_taxes_by_marketplace?marketplace_shop_id=${params.marketplace_shop_id}&marketplace_type=${params.marketplace_type}&ano=${params.year}`
       );
       const parsed = TaxesResponseSchema.safeParse(response);
       if (!parsed.success) {
@@ -57,7 +58,7 @@ class TaxesService {
     try {
       const valid = UpsertTaxPayloadSchema.parse(payload);
       const response = await typedApiClient.post<unknown>(
-        "/v1/user_taxes/new",
+        "/v1/user_taxes/upsert",
         valid
       );
       const parsed = UpsertTaxResponseSchema.safeParse(response);

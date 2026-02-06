@@ -2,6 +2,7 @@ import { Paper } from "@mui/material";
 import type { PropsWithChildren, ReactNode } from "react";
 import { TextCensored } from "../utils/Censorship";
 import { type TPREDEFINED_CENSORSHIP_KEYS } from "../utils/Censorship/typings";
+import { Fields } from "../utils/_fields";
 
 type StatVariant = "soft" | "solid";
 
@@ -28,6 +29,11 @@ interface StatCardProps extends PropsWithChildren {
     | "light_green"
     | "green";
   bgColor?: string;
+  topText?: ReactNode;
+  input?: {
+    component: ReactNode;
+    label?: string;
+  };
 }
 
 function colorTokens(
@@ -154,6 +160,7 @@ export default function StatCard({
   children,
   censorshipKey,
   bgColor = "beergam-mui-paper",
+  input,
 }: StatCardProps) {
   const tokens = colorTokens(color, variant);
 
@@ -231,26 +238,37 @@ export default function StatCard({
             {title}
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          {censorshipKey ? (
-            <TextCensored
-              className={[
-                "text-lg! md:text-xl! lg:text-2xl! font-extrabold! shrink-0",
-                tokens.valueColor,
-              ].join(" ")}
-              censorshipKey={censorshipKey}
-            >
-              {loading ? "—" : value}
-            </TextCensored>
+        <div className="flex flex-col items-end gap-1">
+          {input?.component ? (
+            <Fields.wrapper className="w-full">
+              {input.label && (
+                <Fields.label text={input.label} />
+              )}
+              {input.component}
+            </Fields.wrapper>
           ) : (
-            <div
-              className={[
-                "text-lg md:text-xl lg:text-2xl font-extrabold shrink-0",
-                tokens.valueColor,
-              ].join(" ")}
-            >
-              {loading ? "—" : value}
-            </div>
+            <>
+              {censorshipKey ? (
+                <TextCensored
+                  className={[
+                    "text-lg! md:text-xl! lg:text-2xl! font-extrabold! shrink-0",
+                    tokens.valueColor,
+                  ].join(" ")}
+                  censorshipKey={censorshipKey}
+                >
+                  {loading ? "—" : value}
+                </TextCensored>
+              ) : (
+                <div
+                  className={[
+                    "text-lg md:text-xl lg:text-2xl font-extrabold shrink-0",
+                    tokens.valueColor,
+                  ].join(" ")}
+                >
+                  {loading ? "—" : value}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

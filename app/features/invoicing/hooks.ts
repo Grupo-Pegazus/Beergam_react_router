@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { ApiResponse } from "../apiClient/typings";
 import type { InvoicingMetricsByMonthsSchemaType } from "./service";
 import { invoicingService } from "./service";
-import type { IncomingsBySkuSchemaType, InvoicingMetricsSchemaType } from "./typings";
+import type { IncomingsBySkuSchemaType, InvoicingMetricsSchemaType, SelfServiceReturnSchemaType } from "./typings";
 export function useInvoicingMetrics() {
     return useQuery<ApiResponse<InvoicingMetricsSchemaType>>({
         queryKey: ["invoicing", "metrics"],
@@ -38,6 +38,20 @@ export function useIncomingsBySku() {
             const res = await invoicingService.get_incomings_by_sku();
             if (!res.success) {
                 throw new Error(res.message || "Erro ao buscar incomings por SKU");
+            }
+            return res;
+        },
+        staleTime: 1000 * 60 * 5, // 5 minutos
+    });
+}
+
+export function useSelfServiceReturn() {
+    return useQuery<ApiResponse<SelfServiceReturnSchemaType>>({
+        queryKey: ["invoicing", "self_service_return"],
+        queryFn: async () => {
+            const res = await invoicingService.get_self_service_return();
+            if (!res.success) {
+                throw new Error(res.message || "Erro ao buscar retorno do flex");
             }
             return res;
         },
