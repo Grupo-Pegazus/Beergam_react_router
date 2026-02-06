@@ -30,7 +30,7 @@ export function ImageCensored({
         style={style}
       >
         {children}
-        <div className="absolute inset-0 flex items-center justify-center bg-beergam-typography-secondary! rounded-lg">
+        <div className="absolute inset-0 flex items-center justify-center max-w-screen bg-beergam-typography-secondary! rounded-lg">
           <Svg.eye_slash
             width={24}
             height={24}

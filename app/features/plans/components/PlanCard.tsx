@@ -162,6 +162,8 @@ function BenefitLabel({ benefitKey }: { benefitKey: keyof PlanBenefits }) {
       return <>Ligação Quinzenal</>;
     case "novidades_beta":
       return <>Novidades Beta</>;
+    case "recalculo_imposto_por_mes":
+      return <>Recálculos de Impostos por Mês</>;
   }
 }
 

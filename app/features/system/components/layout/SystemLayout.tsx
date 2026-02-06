@@ -7,7 +7,7 @@ interface SystemLayoutProps {
 
 export default function SystemLayout({ children }: SystemLayoutProps) {
   return (
-    <main className="w-full md:pt-0 pt-8  h-full max-h-screen pb-5">
+    <main className="w-full md:pt-0 pt-8 max-w-screen h-full max-h-screen pb-5">
       <SystemHeader />
       <section
         id="system-scroll-container"
