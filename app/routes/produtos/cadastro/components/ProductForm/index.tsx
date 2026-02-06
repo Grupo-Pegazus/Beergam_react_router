@@ -263,8 +263,8 @@ export default function ProductForm({
               closeModal();
               navigateToGestao();
             }}
-            onConfirm={() => {
-              syncCostsBySkuMutation.mutate(skus, {
+            onConfirm={(selectedSkus) => {
+              syncCostsBySkuMutation.mutate(selectedSkus, {
                 onSettled: () => {
                   closeModal();
                   navigateToGestao();

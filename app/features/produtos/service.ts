@@ -158,6 +158,49 @@ class ProdutosService {
     );
     return response as ApiResponse<{ product_id: string; message: string }>;
   }
+
+  async getSpreadsheetTemplate(): Promise<
+    ApiResponse<{ file_url: string; filename: string }>
+  > {
+    const response = await typedApiClient.get<{ file_url: string; filename: string }>(
+      "/v1/products/spreadsheet/template"
+    );
+    return response as ApiResponse<{ file_url: string; filename: string }>;
+  }
+
+  async exportSpreadsheet(): Promise<
+    ApiResponse<{ file_url: string; filename: string }>
+  > {
+    const response = await typedApiClient.get<{ file_url: string; filename: string }>(
+      "/v1/products/spreadsheet/export"
+    );
+    return response as ApiResponse<{ file_url: string; filename: string }>;
+  }
+
+  async importSpreadsheet(file: File): Promise<
+    ApiResponse<{
+      created: number;
+      updated: number;
+      skus: string[];
+      errors: Array<{ row: number; sku: string; message: string }>;
+    }>
+  > {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await typedApiClient.axiosInstance.post<
+      ApiResponse<{
+        created: number;
+        updated: number;
+        skus: string[];
+        errors: Array<{ row: number; sku: string; message: string }>;
+      }>
+    >("/v1/products/spreadsheet/import", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  }
 }
 
 export const produtosService = new ProdutosService();
