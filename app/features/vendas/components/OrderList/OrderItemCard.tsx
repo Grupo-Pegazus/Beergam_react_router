@@ -60,15 +60,24 @@ export default function OrderItemCard({
   const { isCensored } = useCensorship();
   const censored = isCensored(censorshipKey);
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Calcula o custo total convertendo todos os valores para número
+  const totalCost =
+    Number(order.extra_cost || 0) +
+    Number(order.price_cost || 0) +
+    Number(order.packaging_cost || 0) +
+    Number(order.stock_cost || 0);
+  
   const profit =
-    Number(order.valor_liquido) -
-    Number(order.price_cost) -
-    Number(order.packaging_cost) -
-    Number(order.extra_cost) -
-    Number(order.tax_amount);
+    Number(order.valor_liquido || 0) -
+    Number(order.price_cost || 0) -
+    Number(order.packaging_cost || 0) -
+    Number(order.extra_cost || 0) -
+    Number(order.stock_cost || 0) - 
+    Number(order.tax_amount || 0);
   const margin =
-    Number(order.valor_liquido) > 0
-      ? (profit / Number(order.valor_liquido)) * 100
+    Number(order.valor_liquido || 0) > 0
+      ? (profit / Number(order.valor_liquido || 0)) * 100
       : 0;
 
   return (
@@ -189,7 +198,7 @@ export default function OrderItemCard({
             <div className="grid grid-cols-2 gap-1.5">
               <CardInfo
                 label="Custo:"
-                value={censored ? "****" : formatCurrency(order.extra_cost)}
+                value={censored ? "****" : formatCurrency(totalCost)}
               />
               <ProfitCardInfo
                 censored={censored}
@@ -209,7 +218,7 @@ export default function OrderItemCard({
         )}
 
         {/* Desktop: Detalhes financeiros - Sempre visíveis */}
-        <div className="hidden md:flex flex-col items-center gap-2 w-[max-content] bg-beergam-section-background! p-2 rounded-lg shrink-0">
+        <div className="hidden md:flex flex-col items-center gap-2 w-max bg-beergam-section-background! p-2 rounded-lg shrink-0">
           <div className="flex items-center gap-2 w-full">
             <CardInfo
               label="Qtd:"
@@ -225,7 +234,7 @@ export default function OrderItemCard({
             />
             <CardInfo
               label="Custo:"
-              value={censored ? "*" : formatCurrency(order.extra_cost)}
+              value={censored ? "*" : formatCurrency(totalCost)}
             />
           </div>
           <div className="flex items-center gap-2 w-full">

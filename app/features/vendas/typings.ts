@@ -116,6 +116,7 @@ export const OrderSchema = z.object({
   price_cost: currencyStringOptional,
   packaging_cost: currencyStringOptional,
   extra_cost: currencyStringOptional,
+  stock_cost: currencyStringOptional,
   shipment_costs: z.record(z.string(), z.unknown()).nullable().optional(),
   thumbnail: z.string().nullable().optional(),
   ad_type: z.string().nullable().optional(),
@@ -182,6 +183,7 @@ export const OrderTranslatedAttributes: OrderTranslatedAttributes = {
   price_cost: "Custo do Produto",
   packaging_cost: "Custo de Embalagem",
   extra_cost: "Custo Extra",
+  stock_cost: "Custo de Estoque",
   shipment_costs: "Custos de Envio",
   thumbnail: "Miniatura",
   ad_type: "Tipo de Anúncio",
@@ -296,7 +298,7 @@ export const OrderAttributeSection: Record<keyof Order, OrderSection> = {
   price_cost: 'taxes_costs',
   packaging_cost: 'taxes_costs',
   extra_cost: 'taxes_costs',
-  
+  stock_cost: 'taxes_costs',
   // Envio e Logística
   shipping_id: 'shipping_logistics',
   shipping_method_name: 'shipping_logistics',
@@ -339,7 +341,7 @@ export const OrderAttributeDisplayOrder: (keyof Order)[] = [
   // Valores do Pedido
   'total_amount', 'paid_amount', 'currency_id', 'valor_base', 'valor_liquido',
   // Taxas, Impostos e Custos Fixos
-  'tax_percentage', 'tax_amount', 'sale_fee', 'price_cost', 'packaging_cost', 'extra_cost',
+  'tax_percentage', 'tax_amount', 'sale_fee', 'price_cost', 'packaging_cost', 'extra_cost', 'stock_cost',
   // Envio e Logística
   'shipping_id', 'shipping_mode', 'shipping_paid_by', 'shipping_destination_state', 
   'shipping_details', 'tracking_number', 'tracking_method', 'shipment_status', 'shipment_substatus', 
@@ -388,7 +390,7 @@ export const NegativeValueColumns: (keyof Order)[] = [
   'price_cost',
   'packaging_cost',
   'extra_cost',
-  
+  'stock_cost',
   // Custos de envio
   'custo_envio_base',
   'custo_envio_final',
