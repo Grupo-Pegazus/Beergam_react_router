@@ -1,13 +1,13 @@
 import { useCallback } from "react";
 import MetricasCards from "~/features/produtos/components/MetricasCards/MetricasCards";
-import Grid from "~/src/components/ui/Grid";
-import Section from "~/src/components/ui/Section";
-// import LowStockProducts from "~/features/produtos/components/LowStockProducts/LowStockProducts";
 import ProdutosFilters from "~/features/produtos/components/Filters/ProdutosFilters";
 import type { ProdutosFiltersState } from "~/features/produtos/components/Filters/types";
 import ProductList from "~/features/produtos/components/ProductList/ProductList";
+import ProductsSpreadsheetSection from "~/features/produtos/components/ProductsSpreadsheetSection";
 import QuickAccess from "~/features/produtos/components/QuickAccess/QuickAccess";
 import { useProdutosFilters } from "~/features/produtos/hooks";
+import Grid from "~/src/components/ui/Grid";
+import Section from "~/src/components/ui/Section";
 import { CensorshipWrapper } from "~/src/components/utils/Censorship";
 
 export default function ProdutosGestaoPage() {
@@ -32,6 +32,12 @@ export default function ProdutosGestaoPage() {
       <Section title="Acesso Rápido">
         <Grid cols={{ base: 1, lg: 1 }}>
           <QuickAccess />
+        </Grid>
+      </Section>
+
+      <Section title="Planilhas">
+        <Grid cols={{ base: 1, lg: 1 }}>
+          <ProductsSpreadsheetSection />
         </Grid>
       </Section>
 
