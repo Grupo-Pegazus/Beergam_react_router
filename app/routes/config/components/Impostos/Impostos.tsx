@@ -110,6 +110,24 @@ export default function Impostos() {
     );
   }, [selectedMonth, taxes]);
 
+  // Função para verificar se o período está no futuro
+  const isPeriodInFuture = (month: MonthKey, year: number): boolean => {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1; // getMonth() retorna 0-11, então +1 para 1-12
+    
+    // Se o ano for maior que o atual, está no futuro
+    if (year > currentYear) return true;
+    
+    // Se o ano for igual ao atual, verifica o mês
+    if (year === currentYear) {
+      return Number(month) > currentMonth;
+    }
+    
+    // Se o ano for menor que o atual, não está no futuro
+    return false;
+  };
+
   // Função reutilizável para criar o modal de agendar reprocessamento
   const createRecalcModalContent = (
     month: MonthKey,
@@ -213,9 +231,10 @@ export default function Impostos() {
     
     const currentTax = updatedTaxes?.impostos?.[selectedMonth];
     const isScheduledToRecalc = currentTax?.scheduled_to_recalculate ?? false;
+    const isFuturePeriod = isPeriodInFuture(selectedMonth, year);
     
-    // Só abre o modal de agendar reprocessamento se não houver reprocessamento agendado
-    if (!isScheduledToRecalc && updatedTaxes && selectedTax !== null) {
+    // Só abre o modal de agendar reprocessamento se não houver reprocessamento agendado e não for período futuro
+    if (!isScheduledToRecalc && !isFuturePeriod && updatedTaxes && selectedTax !== null) {
       openModal(
         createRecalcModalContent(
           selectedMonth,
@@ -485,10 +504,15 @@ export default function Impostos() {
                                     icon="arrow_path"
                                     tooltip={{
                                       id: `recalc-${month}`,
-                                      content: "Agendar recálculo para o período",
+                                      content: isPeriodInFuture(month as MonthKey, year) 
+                                        ? "Não é possível agendar recálculo para períodos futuros"
+                                        : "Agendar recálculo para o período",
                                     }}
+                                    disabled={isPeriodInFuture(month as MonthKey, year)}
                                     onClick={() => {
                                       if (taxValue === null || !taxes) return;
+                                      const isFuturePeriod = isPeriodInFuture(month as MonthKey, year);
+                                      if (isFuturePeriod) return;
                                       openModal(
                                         createRecalcModalContent(
                                           month as MonthKey,
