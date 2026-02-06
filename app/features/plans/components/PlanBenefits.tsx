@@ -82,6 +82,8 @@ function BenefitText({
       return <p>Ligação Quinzenal</p>;
     case "novidades_beta":
       return <p>Novidades Beta</p>;
+    case "recalculo_imposto_por_mes":
+      return <p><BenefitSpan text={value} /> Recálculos de Impostos por Mês</p>;
   }
 }
 export default function PlanBenefitsCard({
@@ -94,6 +96,7 @@ export default function PlanBenefitsCard({
   if (loading) {
     return (
       <div className="grid grid-cols-2 gap-4">
+        <Skeleton variant="text" width={100} height={24} />
         <Skeleton variant="text" width={100} height={24} />
         <Skeleton variant="text" width={100} height={24} />
         <Skeleton variant="text" width={100} height={24} />
