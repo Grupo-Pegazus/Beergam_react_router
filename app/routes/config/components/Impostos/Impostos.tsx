@@ -1,6 +1,6 @@
 import Paper from "@mui/material/Paper";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { useAuthUser } from "~/features/auth/context/AuthStoreContext";
@@ -104,6 +104,19 @@ export default function Impostos() {
       setTaxPercentFixed(user.details.tax_percent_fixed);
     }
   }, [user]);
+
+  // Verifica se os valores foram alterados em relação ao usuário
+  const hasChanges = useMemo(() => {
+    if (!user || !isMaster(user)) return false;
+    
+    const userCalcTax = user.details?.calc_tax ?? null;
+    const userTaxPercentFixed = user.details?.tax_percent_fixed ?? null;
+    
+    const calcTaxChanged = calcTax !== userCalcTax;
+    const taxPercentFixedChanged = taxPercentFixed !== userTaxPercentFixed;
+    
+    return calcTaxChanged || taxPercentFixedChanged;
+  }, [user, calcTax, taxPercentFixed]);
 
   const updateUserTaxSettings = useMutation({
     mutationFn: async (data: { calc_tax: string | null; tax_percent_fixed: string | null }) => {
@@ -446,6 +459,7 @@ export default function Impostos() {
                 title="Salvar Informações de Imposto"
                 mainColor="beergam-primary"
                 animationStyle="slider"
+                disabled={!hasChanges}
                 fetcher={{
                   fecthing: updateUserTaxSettings.isPending,
                   completed: updateUserTaxSettings.isSuccess,
