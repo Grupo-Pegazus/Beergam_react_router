@@ -26,7 +26,6 @@ export function useUserTaxes(params: {
         marketplace_type: params.marketplace_type as MarketplaceType,
         year: params.year as number,
       });
-      window.alert(JSON.stringify(res));
       if (!res.success) {
         throw new Error(res.message || "Erro ao buscar impostos");
       }

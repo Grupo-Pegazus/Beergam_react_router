@@ -72,7 +72,7 @@ function BeergamButtonWrapper({
   const dynamicTextColor = isDark ? "var(--color-beergam-white)" : mainColorVar;
 
   const sliderClasses = disabled
-    ? "cursor-not-allowed! opacity-50!"
+    ? "cursor-not-allowed! opacity-50! hover:opacity-50!"
     : isSlider
       ? `bg-[linear-gradient(90deg,var(--bg-slider-color)_0%,var(--bg-slider-color)_100%)] bg-[length:0%_100%] bg-no-repeat bg-left transition-[background-size,color] duration-300 ease-out ${fetcher?.fecthing ? "opacity-50!" : "hover:bg-[length:100%_100%]"}`
       : "hover:opacity-80";
@@ -115,7 +115,7 @@ function BeergamButtonWrapper({
         >
           {icon && (
             <span
-              className={`beergam-button-hover-text ${iconClassName ?? ""}`}
+              className={`${disabled ? "" : "beergam-button-hover-text"} ${iconClassName ?? ""}`}
             >
               {React.createElement(getIcon(icon as keyof typeof Svg), {
                 width: "22px",
@@ -141,7 +141,7 @@ function BeergamButtonWrapper({
         >
           {icon && (
             <span
-              className={`beergam-button-hover-text ${iconClassName ?? ""}`}
+              className={`${disabled ? "" : "beergam-button-hover-text"} ${iconClassName ?? ""}`}
             >
               {React.createElement(getIcon(icon as keyof typeof Svg), {
                 width: "22px",
@@ -199,7 +199,7 @@ export default function BeergamButton({
       <>
         {title && (
           <span
-            className={`relative beergam-button-hover-text ${fetcher?.completed || fetcher?.error || isLoading ? "opacity-0" : "opacity-100"} z-10 ${disabled ? "" : animationStyle == "fade" ? "" : ""}`}
+            className={`relative ${disabled ? "" : "beergam-button-hover-text"} ${fetcher?.completed || fetcher?.error || isLoading ? "opacity-0" : "opacity-100"} z-10 ${disabled ? "" : animationStyle == "fade" ? "" : ""}`}
           >
             {title}
           </span>
