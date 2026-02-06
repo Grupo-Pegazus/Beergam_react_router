@@ -673,3 +673,55 @@ export const ReprocessOrdersInternalResponseSchema = z.object({
 
 export type ReprocessOrdersInternalResponse = z.infer<typeof ReprocessOrdersInternalResponseSchema>;
 
+export const ExportJobStatusSchema = z.enum([
+  "pending",
+  "processing",
+  "completed",
+  "failed",
+]);
+
+export type ExportJobStatus = z.infer<typeof ExportJobStatusSchema>;
+
+export const ExportJobSchema = z.object({
+  job_id: z.string(),
+  status: ExportJobStatusSchema,
+  created_at: z.string(),
+  completed_at: z.string().nullable().optional(),
+  file_url: z.string().nullable().optional(),
+  filename: z.string().nullable().optional(),
+  rows_written: z.number().optional(),
+  error_message: z.string().nullable().optional(),
+});
+
+export type ExportJob = z.infer<typeof ExportJobSchema>;
+
+export const CreateExportResponseSchema = z.object({
+  job_id: z.string(),
+});
+
+export type CreateExportResponse = z.infer<typeof CreateExportResponseSchema>;
+
+// Resposta do sync-costs-by-sku (202 Accepted)
+export const SyncCostsBySkuTaskSchema = z.object({
+  sku: z.string(),
+  task_id: z.string().nullable().optional(),
+  error: z.string().optional(),
+});
+
+export const SyncCostsBySkuResponseSchema = z.object({
+  tasks: z.array(SyncCostsBySkuTaskSchema),
+  total_skus: z.number(),
+  tasks_enqueued: z.number(),
+  status: z.string(),
+  message: z.string().optional(),
+});
+
+export type SyncCostsBySkuResponse = z.infer<typeof SyncCostsBySkuResponseSchema>;
+
+export const ExportHistoryResponseSchema = z.object({
+  total: z.number(),
+  jobs: z.array(ExportJobSchema),
+});
+
+export type ExportHistoryResponse = z.infer<typeof ExportHistoryResponseSchema>;
+

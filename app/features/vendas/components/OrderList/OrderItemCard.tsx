@@ -64,13 +64,13 @@ export default function OrderItemCard({
   // Calcula o custo total convertendo todos os valores para número
   const totalCost =
     Number(order.extra_cost || 0) +
-    Number(order.price_cost || 0) +
+    // Number(order.price_cost || 0) +
     Number(order.packaging_cost || 0) +
     Number(order.stock_cost || 0);
   
   const profit =
     Number(order.valor_liquido || 0) -
-    Number(order.price_cost || 0) -
+    // Number(order.price_cost || 0) -
     Number(order.packaging_cost || 0) -
     Number(order.extra_cost || 0) -
     Number(order.stock_cost || 0) - 

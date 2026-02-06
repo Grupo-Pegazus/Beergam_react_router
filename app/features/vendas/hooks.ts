@@ -14,6 +14,10 @@ import type {
   ReprocessQuota,
   TopCategories,
   ReprocessOrdersInternalResponse,
+  CreateExportResponse,
+  ExportHistoryResponse,
+  ExportJob,
+  SyncCostsBySkuResponse,
 } from "./typings";
 import toast from "~/src/utils/toast";
 
@@ -329,5 +333,94 @@ export function useReprocessOrdersByPeriod() {
   });
 }
 
+export function useSyncCostsBySku() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (skus: string[]) => {
+      const res = await vendasService.syncCostsBySku(skus);
+      if (!res.success) {
+        throw new Error(
+          res.message || "Erro ao sincronizar custos por SKU",
+        );
+      }
+      return res as ApiResponse<SyncCostsBySkuResponse>;
+    },
+    onSuccess: (res, skus) => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      const tasksEnqueued = res.data?.tasks_enqueued ?? skus.length;
+      toast.success(
+        `Sincronização de custos para ${tasksEnqueued} SKU(s) iniciada. Os pedidos serão atualizados em background.`,
+      );
+    },
+    onError: (error: unknown) => {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Erro ao sincronizar custos por SKU";
+      toast.error(message);
+    },
+  });
+}
+
 export { useVendasFilters } from "./hooks/useVendasFilters";
+
+export function useCreateExport() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (filters?: Partial<OrdersFilters>) => {
+      const res = await vendasService.createExport(filters);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao criar exportação");
+      }
+      return res as ApiResponse<CreateExportResponse>;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orders", "export", "history"] });
+      toast.success("Exportação iniciada. Você será notificado quando estiver pronta.");
+    },
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "Erro ao criar exportação";
+      toast.error(message);
+    },
+  });
+}
+
+export function useExportHistory(limit?: number) {
+  return useQuery<ApiResponse<ExportHistoryResponse>>({
+    queryKey: ["orders", "export", "history", limit],
+    queryFn: async () => {
+      const res = await vendasService.getExportHistory(limit);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar histórico de exportações");
+      }
+      return res;
+    },
+    staleTime: 1000 * 30, // 30 segundos
+  });
+}
+
+export function useExportStatus(jobId: string | null) {
+  return useQuery<ApiResponse<ExportJob>>({
+    queryKey: ["orders", "export", "status", jobId],
+    queryFn: async () => {
+      if (!jobId) throw new Error("Job ID é obrigatório");
+      const res = await vendasService.getExportStatus(jobId);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar status da exportação");
+      }
+      return res;
+    },
+    enabled: !!jobId,
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      if (!data?.success) return false;
+      const status = data.data.status;
+      // Polling enquanto está pendente ou processando
+      return status === "pending" || status === "processing" ? 2000 : false;
+    },
+    staleTime: 0, // Sempre buscar do servidor
+  });
+}
 

@@ -6,8 +6,9 @@ import { toast } from "react-hot-toast";
 import { Link } from "react-router";
 import type { DeliveryStatusFilter, DeliveryTypeFilter, OrderStatusFilter, VendasFiltersState } from "~/features/vendas/components/Filters/types";
 import VendasFilters from "~/features/vendas/components/Filters/VendasFilters";
-import { useOrdersWithLoadMore } from "~/features/vendas/hooks";
+import { useOrdersWithLoadMore, useCreateExport } from "~/features/vendas/hooks";
 import { useVendasFilters } from "~/features/vendas/hooks/useVendasFilters";
+import ExportHistoryModal from "~/features/vendas/components/ExportHistoryModal/ExportHistoryModal";
 import type { Order } from "~/features/vendas/typings";
 import {
     OrderAttributeDisplayOrder,
@@ -395,6 +396,7 @@ export default function RelatorioVendasRoute() {
     const { openModal, closeModal } = useModal();
     const { filters, resetFilters, applyFilters, apiFilters } =
         useVendasFilters({ per_page: 100 });
+    const createExportMutation = useCreateExport();
 
     const handleApplyFilters = useCallback((newFilters: VendasFiltersState) => {
         // Aplica os filtros diretamente (atualiza ambos os estados de uma vez)
@@ -411,6 +413,24 @@ export default function RelatorioVendasRoute() {
     const handleClearAllFilters = useCallback(() => {
         resetFilters();
     }, [resetFilters]);
+
+    // Handler para exportar planilha
+    const handleExportClick = useCallback(() => {
+        // Remove paginação dos filtros para exportar todos os resultados
+        const exportFilters = { ...apiFilters };
+        delete exportFilters.page;
+        delete exportFilters.per_page;
+
+        createExportMutation.mutate(exportFilters);
+    }, [apiFilters, createExportMutation]);
+
+    // Handler para abrir histórico de exportações
+    const handleExportHistoryClick = useCallback(() => {
+        openModal(<ExportHistoryModal onClose={closeModal} />, {
+            title: "Histórico de Exportações",
+            icon: "clock",
+        });
+    }, [openModal, closeModal]);
 
     // Passa os filtros aplicados (apiFilters) para o hook
     const { 
@@ -632,6 +652,22 @@ export default function RelatorioVendasRoute() {
                     }} 
                     title="Filtros Aplicados"
                     icon="adjustments_horizontal_solid"
+                  />,
+                  <BeergamButton
+                    key="export-history-btn"
+                    title="Histórico de Exportações"
+                    mainColor="beergam-blue"
+                    icon="clock"
+                    onClick={handleExportHistoryClick}
+                  />,
+                  <BeergamButton
+                    key="export-btn"
+                    title="Exportar Planilha"
+                    mainColor="beergam-green"
+                    icon="excel"
+                    onClick={handleExportClick}
+                    disabled={createExportMutation.isPending}
+                    loading={createExportMutation.isPending}
                   />
                 ]}
               />

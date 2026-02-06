@@ -481,13 +481,6 @@ export default function TanstackTable<TData>({
       <div className="flex items-center justify-end gap-4 mb-2">
       {additionalControls && Array.isArray(additionalControls) && <>{additionalControls.map((control) => control)}</>}
       {controlColumns && <ColumnVisibilityControl table={table} columnVisibility={columnVisibility} />}
-      {exportToExcel && <BeergamButton
-      disabled
-        title="Exportar Planilha"
-        icon="excel"
-        mainColor='beergam-green'
-        // onClick={handleExportToExcel}
-      />}
       </div>
       {/* Container scrollável */}
 <AsyncBoundary isLoading={isLoading} error={error as unknown} Skeleton={() => <TanstackTableSkeleton rows={15} columns={15} />} ErrorFallback={() => <p>erro ao carregar a tabela</p>}>
