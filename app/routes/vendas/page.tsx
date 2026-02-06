@@ -5,17 +5,17 @@ import MetricasCards from "~/features/vendas/components/MetricasCards/MetricasCa
 import Grid from "~/src/components/ui/Grid";
 import Section from "~/src/components/ui/Section";
 
+import { Paper } from "@mui/material";
 import type { VendasFiltersState } from "~/features/vendas/components/Filters";
 import { VendasFilters } from "~/features/vendas/components/Filters";
 import OrderList from "~/features/vendas/components/OrderList/OrderList";
 import { useReprocessOrdersByPeriod, useVendasFilters } from "~/features/vendas/hooks";
+import AlertComponent from "~/src/components/utils/Alert";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 import {
   CensorshipWrapper,
   ImageCensored,
 } from "~/src/components/utils/Censorship";
-import { Paper } from "@mui/material";
-import BeergamButton from "~/src/components/utils/BeergamButton";
-import AlertComponent from "~/src/components/utils/Alert";
 import { useModal } from "~/src/components/utils/Modal/useModal";
 import toast from "~/src/utils/toast";
 
@@ -141,7 +141,7 @@ export default function VendasPage() {
         <Section title="Distribuição Geográfica">
           <Paper className="grid gap-4">
             <ImageCensored
-              className="w-full h-full min-h-56"
+              className="w-max-w-screen h-full min-h-56"
               censorshipKey="vendas_distribuicao_geografica"
             >
               <GeographicMap period="last_day" />

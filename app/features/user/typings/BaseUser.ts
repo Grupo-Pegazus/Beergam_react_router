@@ -44,6 +44,7 @@ export interface PlanBenefits {
   comunidade_beergam?: boolean;
   ligacao_quinzenal?: boolean;
   novidades_beta?: boolean;
+  recalculo_imposto_por_mes: number;
 }
 
 export interface Plan {
@@ -93,6 +94,7 @@ export const PlanBenefitsSchema = z.object({
   comunidade_beergam: z.boolean().optional(),
   ligacao_quinzenal: z.boolean().optional(),
   novidades_beta: z.boolean().optional(),
+  recalculo_imposto_por_mes: z.number(),
 }) satisfies z.ZodType<PlanBenefits>;
 
 export const PlanSchema = z.object({
