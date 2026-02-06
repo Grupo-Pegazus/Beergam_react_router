@@ -5,6 +5,7 @@ import MetricasCards from "~/features/vendas/components/MetricasCards/MetricasCa
 import Grid from "~/src/components/ui/Grid";
 import Section from "~/src/components/ui/Section";
 
+import { Paper } from "@mui/material";
 import type { VendasFiltersState } from "~/features/vendas/components/Filters";
 import { VendasFilters } from "~/features/vendas/components/Filters";
 import OrderList from "~/features/vendas/components/OrderList/OrderList";
@@ -13,7 +14,6 @@ import {
   CensorshipWrapper,
   ImageCensored,
 } from "~/src/components/utils/Censorship";
-import { Paper } from "@mui/material";
 
 export default function VendasPage() {
   const { filters, setFilters, resetFilters, apiFilters, applyFilters } =
@@ -56,7 +56,7 @@ export default function VendasPage() {
         <Section title="Distribuição Geográfica">
           <Paper className="grid gap-4">
             <ImageCensored
-              className="w-full h-full min-h-56"
+              className="w-max-w-screen h-full min-h-56"
               censorshipKey="vendas_distribuicao_geografica"
             >
               <GeographicMap period="last_day" />
