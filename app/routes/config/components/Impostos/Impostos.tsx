@@ -334,7 +334,35 @@ export default function Impostos() {
       error: (err: ApiResponse<unknown>) =>
         err?.message || "Erro ao iniciar recálculo",
     });
-    await p;
+    const result = await p;
+    
+    // Se o recálculo foi bem-sucedido (status 200), atualiza o cache manualmente
+    if (result.success && selectedAccount?.marketplace_shop_id) {
+      queryClient.setQueryData(
+        [
+          "taxes",
+          selectedAccount.marketplace_shop_id,
+          selectedAccount.marketplace_type,
+          year,
+        ],
+        (oldData: typeof taxes | undefined) => {
+          if (!oldData) return oldData;
+          
+          return {
+            ...oldData,
+            impostos: {
+              ...oldData.impostos,
+              [month]: {
+                ...oldData.impostos[month as MonthKey],
+                scheduled_to_recalculate: true,
+              },
+            },
+            remaining_recalculations: Math.max(0, (oldData.remaining_recalculations ?? 0) - 1),
+          };
+        }
+      );
+    }
+    
     closeModal();
   };
   function ErrorContent({
