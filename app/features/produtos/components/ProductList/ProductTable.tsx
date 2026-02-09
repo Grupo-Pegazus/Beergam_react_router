@@ -36,6 +36,7 @@ export default function ProductTable({ products }: ProductTableProps) {
               <TableCell align="right">Variações</TableCell>
             )}
             <TableCell align="right">Preço</TableCell>
+            <TableCell align="right">Custo</TableCell>
             <TableCell align="right">SKU</TableCell>
             {!isVariation(products[0]) && (
               <TableCell align="right">Anúncios</TableCell>

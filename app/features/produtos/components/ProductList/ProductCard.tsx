@@ -161,6 +161,15 @@ export default function ProductCard({
         />
       </TableCell>
       <TableCell align="right">
+        <PriceCell
+          price={
+            (Number(product.price_cost) || 0) +
+            (Number(product.packaging_cost) || 0) +
+            (Number(product.extra_cost) || 0)
+          }
+        />
+      </TableCell>
+      <TableCell align="right">
         <SkuCell sku={product.sku} />
       </TableCell>
       {!isVariation && (
@@ -200,6 +209,14 @@ export default function ProductCard({
         />
         <PriceCell
           price={product.price_sale as number | string | null | undefined}
+        />
+        <PriceCell
+          label="Custo:"
+          price={
+            (Number(product.price_cost) || 0) +
+            (Number(product.packaging_cost) || 0) +
+            (Number(product.extra_cost) || 0)
+          }
         />
         <SkuCell sku={product.sku} />
         <RelatedAdsCell count={relatedAdsCount} />

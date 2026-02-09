@@ -181,13 +181,18 @@ export function VariationsCountCell({
 
 interface PriceCellProps extends BaseProductCellProps {
   price?: number | string | null;
+  label?: string;
 }
 
-export function PriceCell({ price, isVariation = false }: PriceCellProps) {
+export function PriceCell({
+  price,
+  isVariation = false,
+  label = "Preço de venda:",
+}: PriceCellProps) {
   const numericPrice = typeof price === "string" ? parseFloat(price) : price;
 
   return (
-    <StatusCellWrapper label="Preço de venda:" isVariation={isVariation}>
+    <StatusCellWrapper label={label} isVariation={isVariation}>
       <TextCensored
         maxCharacters={1}
         className="flex! justify-end"
