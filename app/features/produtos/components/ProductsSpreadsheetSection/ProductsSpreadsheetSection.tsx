@@ -1,6 +1,7 @@
 import Typography from "@mui/material/Typography";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
+import ActivateStockModal from "~/features/produtos/components/ActivateStockModal";
 import { produtosService } from "~/features/produtos/service";
 import ReprocessOrdersBySkuModal from "~/features/vendas/components/ReprocessOrdersBySkuModal/ReprocessOrdersBySkuModal";
 import { useSyncCostsBySku } from "~/features/vendas/hooks";
@@ -123,6 +124,29 @@ export default function ProductsSpreadsheetSection() {
     },
   });
 
+  const activateStockMutation = useMutation({
+    mutationFn: (skus: Array<{ sku: string; available_quantity: number }>) =>
+      produtosService.activateStockHandling(skus),
+    onSuccess: (res) => {
+      if (res.success && res.data) {
+        const { activated, skus_not_found, errors } = res.data;
+        if (activated > 0) {
+          toast.success(`Controle de estoque ativado para ${activated} produto(s).`);
+        }
+        if (skus_not_found.length > 0 || errors.length > 0) {
+          const total = skus_not_found.length + errors.length;
+          toast.warning(`${total} SKU(s) não puderam ser processados.`);
+        }
+        queryClient.invalidateQueries({ queryKey: ["products"] });
+        queryClient.invalidateQueries({ queryKey: ["products-metrics"] });
+        queryClient.invalidateQueries({ queryKey: ["stock-dashboard"] });
+      }
+    },
+    onError: (err: Error) => {
+      toast.error(err.message ?? "Falha ao ativar controle de estoque.");
+    },
+  });
+
   const importMutation = useMutation({
     mutationFn: (file: File) => produtosService.importSpreadsheet(file),
     onSuccess: (res) => {
@@ -133,7 +157,7 @@ export default function ProductsSpreadsheetSection() {
       const data = res.data;
       if (!data) return;
 
-      const { created, updated, skus, errors } = data;
+      const { created, updated, skus, created_skus = [], errors } = data;
       const totalProcessed = created + updated;
       if (errors.length > 0) {
         toast.warning(
@@ -148,23 +172,52 @@ export default function ProductsSpreadsheetSection() {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["products-metrics"] });
 
-      if (skus.length > 0) {
+      const showReprocessModal = () => {
+        if (skus.length > 0) {
+          openModal(
+            <ReprocessOrdersBySkuModal
+              skus={skus}
+              title="Importação concluída!"
+              description="Deseja atualizar os custos dos pedidos para os SKUs da planilha?"
+              cancelText="Não, fechar"
+              onClose={() => closeModal()}
+              onConfirm={(selectedSkus) => {
+                syncCostsBySkuMutation.mutate(selectedSkus, {
+                  onSettled: () => closeModal(),
+                });
+              }}
+              isLoading={syncCostsBySkuMutation.isPending}
+            />,
+            { title: "Importação concluída!" }
+          );
+        }
+      };
+
+      if (created_skus.length > 0) {
         openModal(
-          <ReprocessOrdersBySkuModal
-            skus={skus}
-            title="Importação concluída!"
-            description="Deseja atualizar os custos dos pedidos para os SKUs da planilha?"
+          <ActivateStockModal
+            createdSkus={created_skus}
+            title="Produtos criados na importação"
+            description="Deseja ativar o controle de estoque para os produtos criados? Selecione os SKUs desejados."
             cancelText="Não, fechar"
-            onClose={() => closeModal()}
-            onConfirm={(selectedSkus) => {
-              syncCostsBySkuMutation.mutate(selectedSkus, {
-                onSettled: () => closeModal(),
+            onClose={() => {
+              closeModal();
+              showReprocessModal();
+            }}
+            onConfirm={(selected) => {
+              activateStockMutation.mutate(selected, {
+                onSettled: () => {
+                  closeModal();
+                  showReprocessModal();
+                },
               });
             }}
-            isLoading={syncCostsBySkuMutation.isPending}
+            isLoading={activateStockMutation.isPending}
           />,
-          { title: "Importação concluída!" }
+          { title: "Ativar controle de estoque?" }
         );
+      } else {
+        showReprocessModal();
       }
     },
     onError: (err: Error) => {
@@ -203,7 +256,7 @@ export default function ProductsSpreadsheetSection() {
           className="text-beergam-typography-secondary text-xs sm:text-sm"
         >
           Baixe o modelo, exporte ou importe produtos em massa (SKU e custos).
-          Após importar, você pode atualizar os custos nos pedidos.
+          Após importar, você pode ativar o controle de estoque nos produtos criados e atualizar os custos nos pedidos.
         </Typography>
       </div>
 

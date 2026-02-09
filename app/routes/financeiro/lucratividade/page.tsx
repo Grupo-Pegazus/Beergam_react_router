@@ -160,7 +160,7 @@ export default function LucratividadePage() {
             <div className={`h-full grid content-end border-b border-b-beergam-primary pb-2 md:border-b-0 md:border-r md:pr-2 ${index != 2 ? 'md:border-r-beergam-primary' : 'md:border-r-transparent'}`}>
                         {canShowPercentage && <PercentageBadge percentage={percentage} showPercentageSymbol={showPercentageSymbol} isRedCondition={isRedCondition} isGreenCondition={isGreenCondition} percentageText={percentageText} />}
                         {topText && <p className="text-[11px] md:text-[12px] capitalize">{topText}</p>}
-                        <h3 className="text-[14px]! md:text-[18px]! text-beergam-primary font-bold break-words"><TextCensored forceCensor={censored} censorshipKey={censorshipKey}>{value}</TextCensored></h3>
+                        <h3 className="text-[14px]! md:text-[18px]! text-beergam-primary font-bold wrap-break-word"><TextCensored forceCensor={censored} censorshipKey={censorshipKey}>{value}</TextCensored></h3>
                         <p className="text-[11px] md:text-[12px] text-beergam-typography-tertiary! capitalize">{period}</p>
                     </div>
             </>

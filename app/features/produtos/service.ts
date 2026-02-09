@@ -182,6 +182,7 @@ class ProdutosService {
       created: number;
       updated: number;
       skus: string[];
+      created_skus: Array<{ sku: string; available_quantity: number }>;
       errors: Array<{ row: number; sku: string; message: string }>;
     }>
   > {
@@ -192,6 +193,7 @@ class ProdutosService {
         created: number;
         updated: number;
         skus: string[];
+        created_skus: Array<{ sku: string; available_quantity: number }>;
         errors: Array<{ row: number; sku: string; message: string }>;
       }>
     >("/v1/products/spreadsheet/import", formData, {
@@ -200,6 +202,29 @@ class ProdutosService {
       },
     });
     return response.data;
+  }
+
+  async activateStockHandling(
+    skus: Array<{ sku: string; available_quantity: number }>
+  ): Promise<
+    ApiResponse<{
+      activated: number;
+      skus_not_found: string[];
+      errors: Array<{ sku: string; message: string }>;
+    }>
+  > {
+    const response = await typedApiClient.post<
+      {
+        activated: number;
+        skus_not_found: string[];
+        errors: Array<{ sku: string; message: string }>;
+      }
+    >("/v1/products/spreadsheet/activate-stock", { skus });
+    return response as ApiResponse<{
+      activated: number;
+      skus_not_found: string[];
+      errors: Array<{ sku: string; message: string }>;
+    }>;
   }
 }
 
