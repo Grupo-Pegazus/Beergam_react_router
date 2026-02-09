@@ -41,28 +41,12 @@ export const MarketplaceStatusParseLabel: Record<
   [MarketplaceStatusParse.ERROR]: "Erro",
 };
 
-export enum MarketplaceOrderParseStatus {
-  NONE = "NONE",
-  FIFTEEN_DAYS = "FIFTEEN_DAYS",
-  COMPLETED = "COMPLETED",
-}
-
-export const MarketplaceOrderParseStatusLabel: Record<
-  MarketplaceOrderParseStatus,
-  string
-> = {
-  [MarketplaceOrderParseStatus.NONE]: "Nenhum",
-  [MarketplaceOrderParseStatus.FIFTEEN_DAYS]: "15 dias",
-  [MarketplaceOrderParseStatus.COMPLETED]: "Completo",
-};
-
 export interface BaseMarketPlace {
   marketplace_shop_id: string;
   marketplace_name: string;
   marketplace_image: string;
   marketplace_type: MarketplaceType;
   status_parse: MarketplaceStatusParse;
-  orders_parse_status: MarketplaceOrderParseStatus;
 }
 export const BaseMarketPlaceSchema = z.object({
   marketplace_shop_id: z.string(),
@@ -75,12 +59,6 @@ export const BaseMarketPlaceSchema = z.object({
     Object.keys(MarketplaceStatusParse) as [
       MarketplaceStatusParse,
       ...MarketplaceStatusParse[],
-    ]
-  ),
-  orders_parse_status: z.enum(
-    Object.keys(MarketplaceOrderParseStatus) as [
-      MarketplaceOrderParseStatus,
-      ...MarketplaceOrderParseStatus[],
     ]
   ),
 }) satisfies z.ZodType<BaseMarketPlace>;

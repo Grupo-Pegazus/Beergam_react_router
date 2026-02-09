@@ -6,7 +6,6 @@ import {
   MarketplaceStatusParse,
   MarketplaceType,
 } from "../typings";
-import StatusTag from "./StatusTag";
 
 function MarketplaceTypeBadge(marketplace_type: MarketplaceType) {
   return getMarketplaceImageUrl(marketplace_type);
@@ -111,20 +110,6 @@ export default function MarketplaceCard({
           <h3 className="text-center font-semibold truncate max-w-80 text-beergam-typography-primary">
             {marketplace.marketplace_name}
           </h3>
-
-          {/* Tags de Status */}
-          <div className="flex flex-col gap-1 items-center">
-            <StatusTag
-              status={marketplace.status_parse}
-              type="parse"
-              className="text-xs"
-            />
-            <StatusTag
-              status={marketplace.orders_parse_status}
-              type="orders"
-              className="text-xs"
-            />
-          </div>
 
           {/* Overlay de processamento */}
           {isProcessing && (

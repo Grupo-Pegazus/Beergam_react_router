@@ -4,7 +4,6 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Tooltip } from "react-tooltip";
 import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
-import StatusTag from "~/features/marketplace/components/StatusTag";
 import { useMarketplaceAccounts } from "~/features/marketplace/hooks/useMarketplaceAccounts";
 import { marketplaceService } from "~/features/marketplace/service";
 import {
@@ -277,7 +276,6 @@ export default function AccountView({
                         current?.marketplace_shop_id ===
                         acc.marketplace_shop_id;
                       return (
-                        <>
                           <div
                             key={acc.marketplace_shop_id}
                             className="relative"
@@ -341,7 +339,7 @@ export default function AccountView({
                                 >
                                   {acc.marketplace_name}
                                 </p>
-                                {/* Marketplace Type e Status de Pedidos na mesma linha */}
+                                {/* Marketplace Type */}
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <p className="text-xs text-beergam-typography-secondary!">
                                     {
@@ -350,11 +348,6 @@ export default function AccountView({
                                       ]
                                     }
                                   </p>
-                                  {/* <StatusTag
-                                  status={acc.orders_parse_status}
-                                  type="orders"
-                                  className="text-[10px] py-0.5 px-2"
-                                /> */}
                                 </div>
                               </div>
                               {!isProcessing && (
@@ -371,27 +364,9 @@ export default function AccountView({
                                   <Svg.trash tailWindClasses="stroke-beergam-red w-4 h-4" />
                                 </button>
                               )}
-                              <button
-                                data-tooltip-id={`${acc.marketplace_shop_id}-tooltip`}
-                              >
-                                <Svg.information_circle tailWindClasses="w-4 h-4 stroke-beergam-typography-tertiary" />
-                              </button>
                             </div>
                           </div>
-                          <Tooltip
-                            // float
-                            place="left"
-                            positionStrategy="fixed"
-                            id={`${acc.marketplace_shop_id}-tooltip`}
-                          >
-                            <StatusTag
-                              status={acc.orders_parse_status}
-                              type="orders"
-                              className="text-[10px] py-0.5 px-2"
-                            />
-                          </Tooltip>
-                        </>
-                      );
+                        );
                     })}
                   </div>
                 </div>
