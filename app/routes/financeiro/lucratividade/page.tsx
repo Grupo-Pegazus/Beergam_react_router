@@ -314,7 +314,7 @@ export default function LucratividadePage() {
                   title="Custos com Embalagem"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
-                    <SectionContentCard censorshipKey="lucratividade_custos" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.packaging_costs ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.packaging_costs ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.packaging_costs ?? "0"), period: "90 dias" }]} />
+                    <SectionContentCard censorshipKey="lucratividade_custos" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.package_costs ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.package_costs ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.package_costs ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                   <StatCard
                   title="Custos Extra"
