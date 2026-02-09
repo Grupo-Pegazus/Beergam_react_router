@@ -3,7 +3,7 @@ import Speedometer from "~/features/anuncios/components/Speedometer/Speedometer"
 import { anuncioService } from "~/features/anuncios/service";
 import { marketplaceService } from "~/features/marketplace/service";
 import {
-  MarketplaceOrderParseStatusLabel,
+  MarketplaceStatusParseLabel,
   MarketplaceType,
   MarketplaceTypeLabel,
 } from "~/features/marketplace/typings";
@@ -168,9 +168,7 @@ export default function VisaoGeral({ user }: { user: IUser | IColab }) {
                   label="Status de Parse"
                   name="marketplace_status_parse"
                   value={
-                    MarketplaceOrderParseStatusLabel[
-                      marketplace.orders_parse_status
-                    ]
+                    MarketplaceStatusParseLabel[marketplace.status_parse]
                   }
                   canAlter={false}
                 />

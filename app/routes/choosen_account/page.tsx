@@ -9,7 +9,6 @@ import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import MarketplaceCard from "~/features/marketplace/components/MarketplaceCard";
 import { marketplaceService } from "~/features/marketplace/service";
 import {
-  MarketplaceOrderParseStatus,
   MarketplaceStatusParse,
   MarketplaceType,
   MarketplaceTypeLabel,
@@ -131,7 +130,6 @@ export default function ChoosenAccountPage({
       return matchText && matchType;
     });
   }, [marketplacesAccounts, searchTerm, typeFilter]);
-  const resultsCount = filteredAccounts.length;
   return (
     <PageLayout>
       <div className="flex flex-col items-center w-full p-4">
@@ -222,8 +220,6 @@ export default function ChoosenAccountPage({
                     marketplace_image: item.marketplace_image,
                     marketplace_type: item.marketplace_type as MarketplaceType,
                     status_parse: item.status_parse as MarketplaceStatusParse,
-                    orders_parse_status:
-                      item.orders_parse_status as MarketplaceOrderParseStatus,
                   };
                   return (
                     <MarketplaceCard
