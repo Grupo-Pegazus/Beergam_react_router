@@ -35,6 +35,9 @@ const VariationBasicSchema = z.object({
   categories: z.array(CategorySchema).optional(),
   available_quantity: z.number().optional(),
   price_sale: z.string().optional(),
+  price_cost: z.union([z.string(), z.number()]).optional(),
+  packaging_cost: z.union([z.string(), z.number()]).optional(),
+  extra_cost: z.union([z.string(), z.number()]).optional(),
   sales_quantity: z.number().optional(),
   attributes: z
     .array(
@@ -60,6 +63,9 @@ export const ProductSchema = z.object({
   related_ads: z.array(RelatedAdSchema),
   available_quantity: z.number().optional(),
   price_sale: z.string().optional(),
+  price_cost: z.union([z.string(), z.number()]).optional(),
+  packaging_cost: z.union([z.string(), z.number()]).optional(),
+  extra_cost: z.union([z.string(), z.number()]).optional(),
   sales_quantity: z.number().optional(),
 });
 
