@@ -150,7 +150,7 @@ export default function OrderPackage({
               variant="caption"
               className="text-xs md:text-sm text-beergam-typography-secondary!"
             >
-              {formatDate(firstOrder.date_created)}
+              {formatDate(firstOrder.date_closed)}
             </Typography>
             <span className="text-slate-300 hidden md:inline">|</span>
             <Chip

@@ -676,7 +676,7 @@ export default function Impostos() {
                                   />
                                   ) :<div className="flex items-center gap-2">
                                   <Loading size="16px" />
-                                  <Hint message="O recálculo foi agendado e os pedidos serão reprocessados de madrugada." anchorSelect={`recalc-scheduled-${month}`} /> </div>}
+                                  <Hint message="O recálculo foi agendado e os pedidos terão seus impostos processados em breve." anchorSelect={`recalc-scheduled-${month}`} /> </div>}
                                 </>
                               )}
                             </div>
