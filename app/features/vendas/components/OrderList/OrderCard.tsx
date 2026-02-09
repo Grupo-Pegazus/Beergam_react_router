@@ -99,7 +99,7 @@ export default function OrderCard({ order, onReprocess, isReprocessing, remainin
                 variant="caption"
                 className="text-xs md:text-sm text-beergam-typography-secondary!"
               >
-                {formatDate(order.date_created)}
+                {formatDate(order.date_closed)}
               </Typography>
               <span className="text-slate-300 hidden md:inline">|</span>
               <Chip
