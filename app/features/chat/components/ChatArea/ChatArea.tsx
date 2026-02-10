@@ -145,6 +145,140 @@ export default function ChatArea({
     const queryClient = useQueryClient();
     const randomSkeletonAmmount = useMemo(() => Math.floor(Math.random() * 10) + 2, [messages.length]);
 
+    const isPosVenda = chatType === "pos_venda";
+    const isPosVendaComEnvioBloqueado =
+        isPosVenda && posPurchaseStatus !== undefined && !posPurchaseStatus.can_message;
+    const isPosVendaApenasPorMotivos =
+        isPosVenda &&
+        posPurchaseStatus !== undefined &&
+        !posPurchaseStatus.direct_message.allowed &&
+        posPurchaseStatus.can_message;
+
+    type PosPurchaseGuideOption = {
+        id: string;
+        label: string;
+        type: string;
+        capAvailable: number;
+        charLimit?: number | null;
+        templateId?: string | null;
+        templatePreview?: string;
+    };
+
+    const posPurchaseActionOptions: PosPurchaseGuideOption[] = useMemo(() => {
+        if (!isPosVendaApenasPorMotivos || !posPurchaseStatus) {
+            return [];
+        }
+
+        const actionGuide = posPurchaseStatus.action_guide;
+        if (!actionGuide || typeof actionGuide !== "object") {
+            return [];
+        }
+
+        const capsRaw = (actionGuide as any).caps;
+        const optionsRoot = (actionGuide as any).options;
+
+        // Mapeia caps por option_id
+        const capsById: Record<string, number> = {};
+        if (Array.isArray(capsRaw)) {
+            for (const item of capsRaw) {
+                if (item && typeof item === "object" && typeof item.option_id === "string") {
+                    capsById[item.option_id] = Number(item.cap_available ?? 0);
+                }
+            }
+        } else if (capsRaw && typeof capsRaw === "object") {
+            const inner = (capsRaw as any).caps_available || capsRaw;
+            if (inner && typeof inner === "object") {
+                for (const [key, value] of Object.entries(inner)) {
+                    if (value && typeof value === "object") {
+                        capsById[key] = Number((value as any).cap_available ?? 0);
+                    }
+                }
+            }
+        }
+
+        const labelMap: Record<string, string> = {
+            REQUEST_VARIANTS: "Solicitar variações do produto",
+            REQUEST_BILLING_INFO: "Solicitar dados de faturamento",
+            SEND_INVOICE_LINK: "Enviar link para faturamento",
+            OTHER: "Mensagem personalizada",
+            DELIVERY_PROMISE: "Informar promessa de entrega",
+        };
+
+        const optionsContainer = optionsRoot && typeof optionsRoot === "object" ? (optionsRoot as any).options : undefined;
+        const rawOptions: any[] = Array.isArray(optionsContainer) ? optionsContainer : [];
+
+        const stripHtml = (html: string): string =>
+            html.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+
+        const siteId = "mlb"; // usamos MLB como padrão para textos de template
+
+        const result: PosPurchaseGuideOption[] = [];
+        for (const opt of rawOptions) {
+            if (!opt || typeof opt !== "object") continue;
+            if (opt.enabled === false || opt.actionable === false) continue;
+
+            const id: string = opt.id;
+            if (!id) continue;
+
+            const type: string = opt.type || "FREE_TEXT";
+            const charLimit: number | null = opt.char_limit ?? null;
+            const capAvailable: number = Number(opt.cap_available ?? capsById[id] ?? 0);
+
+            let templateId: string | null = null;
+            let templatePreview: string | null = null;
+            if (type === "TEMPLATE" && Array.isArray(opt.templates) && opt.templates.length > 0) {
+                const tpl = opt.templates[0];
+                templateId = tpl.id ?? null;
+                const texts = tpl.texts || {};
+                const siteTexts = texts[siteId] || texts["mlb"] || texts["mla"] || texts["mlm"] || {};
+                const html = siteTexts.html || "";
+                if (typeof html === "string" && html.trim()) {
+                    templatePreview = stripHtml(html);
+                }
+            }
+
+            result.push({
+                id,
+                label: labelMap[id] || id,
+                type,
+                capAvailable,
+                charLimit,
+                templateId,
+                templatePreview,
+            });
+        }
+
+        return result;
+    }, [isPosVendaApenasPorMotivos, posPurchaseStatus]);
+
+    const [selectedGuideOptionId, setSelectedGuideOptionId] = useState<string | null>(null);
+    const [selectedGuideOptionTemplateId, setSelectedGuideOptionTemplateId] = useState<string | null>(null);
+    const [selectedGuideOptionPreview, setSelectedGuideOptionPreview] = useState<string | null>(null);
+
+    useEffect(() => {
+        // Sempre que o contexto mudar, reseta seleção
+        setSelectedGuideOptionId(null);
+        setSelectedGuideOptionTemplateId(null);
+        setSelectedGuideOptionPreview(null);
+    }, [contextKey]);
+
+    useEffect(() => {
+        if (!isPosVendaApenasPorMotivos || posPurchaseActionOptions.length === 0) {
+            return;
+        }
+        // Define opção padrão: primeira com capAvailable > 0, senão a primeira
+        const defaultOption =
+            posPurchaseActionOptions.find((opt) => opt.capAvailable > 0) || posPurchaseActionOptions[0];
+        setSelectedGuideOptionId(defaultOption.id);
+        setSelectedGuideOptionTemplateId(defaultOption.templateId ?? null);
+        setSelectedGuideOptionPreview(defaultOption.templatePreview ?? null);
+
+        // Se for template, preenche a mensagem com o texto padrão
+        if (defaultOption.type === "TEMPLATE" && defaultOption.templatePreview) {
+            setMessage(defaultOption.templatePreview);
+        }
+    }, [isPosVendaApenasPorMotivos, posPurchaseActionOptions]);
+
     // Cria uma chave única baseada no contexto atual (cliente, tipo de chat e pedido/reclamação)
     const contextKey = useMemo(() => {
         const clientId = client?.client_id || "no-client";
@@ -214,6 +348,9 @@ export default function ChatArea({
 
         try {
             let response;
+            const selectedGuideOption = posPurchaseActionOptions.find(
+                (opt) => opt.id === selectedGuideOptionId
+            );
             switch (chatType) {
                 case "pos_venda":
                     if (!activeOrderId) {
@@ -221,7 +358,8 @@ export default function ChatArea({
                     }
                     // Decide o canal de envio conforme status de mensageria:
                     // - Se direct_message.allowed === true, usa fluxo direto (/messages).
-                    // - Caso contrário, se can_message === true, tenta enviar via motivos (action_guide) usando OTHER.
+                    // - Caso contrário, se can_message === true, envia via motivos (action_guide)
+                    //   usando a opção selecionada (TEMPLATE ou FREE_TEXT).
                     if (posPurchaseStatus?.direct_message.allowed) {
                         response = await chatService.sendPosPurchaseMessage(
                             activeOrderId,
@@ -229,13 +367,27 @@ export default function ChatArea({
                             attachmentsToSend.length > 0 ? attachmentsToSend : undefined
                         );
                     } else if (posPurchaseStatus?.can_message) {
-                        // Fluxo de primeira mensagem via motivos.
-                        response = await chatService.sendPosPurchaseOptionMessage(
-                            activeOrderId,
-                            "OTHER",
-                            undefined,
-                            messageText
-                        );
+                        if (!selectedGuideOption || !selectedGuideOptionId) {
+                            throw new Error("Nenhuma opção de mensagem está selecionada.");
+                        }
+
+                        if (selectedGuideOption.type === "TEMPLATE") {
+                            // Para templates, enviamos apenas option_id + template_id,
+                            // o texto é definido pelo próprio Mercado Livre.
+                            response = await chatService.sendPosPurchaseOptionMessage(
+                                activeOrderId,
+                                selectedGuideOptionId,
+                                selectedGuideOption.templateId ?? selectedGuideOptionTemplateId ?? undefined
+                            );
+                        } else {
+                            // FREE_TEXT: envia texto livre respeitando limites no backend
+                            response = await chatService.sendPosPurchaseOptionMessage(
+                                activeOrderId,
+                                selectedGuideOptionId,
+                                undefined,
+                                messageText
+                            );
+                        }
                     } else {
                         throw new Error("Você não pode enviar mensagens para este pedido no momento.");
                     }
@@ -383,6 +535,54 @@ export default function ChatArea({
                     </div>
                 </div>
                 <div className="p-4 pb-4 flex-1 bg-beergam-section-background! overflow-y-auto min-h-0">
+                    {isPosVendaComEnvioBloqueado && (
+                        <div className="mb-3 p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-800">
+                            <p className="font-semibold">Conversa desabilitada</p>
+                            <p>
+                                Você não pode enviar mensagens para esta venda agora. O Mercado Livre
+                                permite que você responda somente quando o comprador iniciar ou reabrir a conversa.
+                            </p>
+                        </div>
+                    )}
+                    {isPosVendaApenasPorMotivos && (
+                        <div className="mb-3 p-3 rounded-md bg-amber-50 border border-amber-200 text-sm text-amber-800 space-y-2">
+                            <p className="font-semibold">Envio limitado por motivos do Mercado Livre</p>
+                            <p>
+                                Para esta venda, o Mercado Livre só permite mensagens usando os motivos de pós-venda.
+                                Escolha abaixo o tipo de mensagem que deseja enviar.
+                            </p>
+                            {posPurchaseActionOptions.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                    {posPurchaseActionOptions.map((opt) => (
+                                        <button
+                                            key={opt.id}
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedGuideOptionId(opt.id);
+                                                setSelectedGuideOptionTemplateId(opt.templateId ?? null);
+                                                setSelectedGuideOptionPreview(opt.templatePreview ?? null);
+                                                if (opt.type === "TEMPLATE" && opt.templatePreview) {
+                                                    setMessage(opt.templatePreview);
+                                                } else if (opt.type !== "TEMPLATE") {
+                                                    setMessage("");
+                                                }
+                                            }}
+                                            className={`px-3 py-1 rounded-full border text-xs ${
+                                                selectedGuideOptionId === opt.id
+                                                    ? "bg-amber-600 text-white border-amber-700"
+                                                    : "bg-white text-amber-800 border-amber-300 hover:bg-amber-100"
+                                            }`}
+                                        >
+                                            <span className="font-medium">{opt.label}</span>
+                                            <span className="ml-1 opacity-80">
+                                                ({opt.capAvailable} restante{opt.capAvailable === 1 ? "" : "s"})
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
                     <Fade in={showActions} timeout={300}>
                         <div className="absolute rounded-lg bottom-0 top-0 right-0 left-0 bg-black/50 z-50">
                         </div>
