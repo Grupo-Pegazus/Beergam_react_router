@@ -104,6 +104,67 @@ export interface Chat {
     actions?: ChatAction[];
 }
 
+// ---------------------------
+// Pós-venda - status de envio
+// ---------------------------
+
+export interface PosPurchaseDirectMessageStatus {
+    /**
+     * Indica se o vendedor pode enviar mensagem diretamente via /messages.
+     */
+    allowed: boolean;
+    /**
+     * Limite de caracteres que o vendedor pode enviar (seller_max_message_length).
+     */
+    seller_max_message_length: number;
+    /**
+     * Limite de caracteres que o comprador pode enviar (buyer_max_message_length), quando disponível.
+     */
+    buyer_max_message_length?: number | null;
+}
+
+export interface PosPurchaseMessagingStatus {
+    /**
+     * Objeto raw de status da conversa retornado pelo MELI.
+     * Exemplo:
+     * {
+     *   path: "/packs/{pack_id}/sellers/{seller_id}",
+     *   status: "active" | "blocked",
+     *   substatus: "blocked_by_buyer" | "blocked_by_time" | ...
+     * }
+     */
+    conversation_status?: {
+        path?: string;
+        status?: string;
+        substatus?: string | null;
+        [key: string]: unknown;
+    } | null;
+    /**
+     * Informações específicas sobre o canal direto (/messages).
+     */
+    direct_message: PosPurchaseDirectMessageStatus;
+    /**
+     * Agregado indicando se existe QUALQUER forma de enviar mensagem
+     * (direto ou via motivos / action_guide).
+     */
+    can_message: boolean;
+    /**
+     * Substatus de bloqueio, quando existir (espelha conversation_status.substatus).
+     */
+    blocked_substatus?: string | null;
+    /**
+     * Dados brutos das opções de motivos e caps retornados pelo MELI.
+     * Mantemos tipagem aberta para acompanhar mudanças da API sem quebrar o frontend.
+     */
+    action_guide: {
+        options?: unknown;
+        caps?: unknown;
+        error?: unknown;
+    };
+}
+
+export type PosPurchaseMessagingStatusApiResponse = ApiResponse<PosPurchaseMessagingStatus>;
+
 export function transformClientToChatUserDetails(client: Client | null): ChatUserDetails | null {
     if (!client) {
         return null;

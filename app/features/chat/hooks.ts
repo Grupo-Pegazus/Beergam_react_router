@@ -48,6 +48,28 @@ export function usePosPurchaseMessages(orderId?: string | null, enabled = true) 
 }
 
 /**
+ * Hook para buscar o status de mensageria pós-venda de um pedido específico.
+ *
+ * @param orderId - order_id ou pack_id do pedido
+ * @param enabled - Se a query deve ser executada (default: true se orderId estiver presente)
+ */
+export function usePosPurchaseMessagingStatus(orderId?: string | null, enabled = true) {
+    const shouldFetch = enabled && Boolean(orderId);
+
+    return useQuery({
+        queryKey: ["chat", "pos-purchase-status", orderId],
+        queryFn: () => {
+            if (!orderId) throw new Error("orderId é obrigatório");
+            return chatService.getPosPurchaseMessagingStatus(orderId);
+        },
+        enabled: shouldFetch,
+        staleTime: 1000 * 60 * 2,
+        gcTime: 1000 * 60 * 5,
+        refetchOnWindowFocus: false,
+    });
+}
+
+/**
  * Hook para buscar mensagens de uma reclamação específica.
  * 
  * @param claimId - ID da reclamação

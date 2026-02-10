@@ -1,4 +1,4 @@
-import { Avatar, Fade, Paper, Skeleton, TextField } from "@mui/material";
+import { Avatar, Fade, Paper, Skeleton, TextField, Tooltip } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -7,7 +7,7 @@ import BeergamButton from "~/src/components/utils/BeergamButton";
 import Modal from "~/src/components/utils/Modal";
 import Upload from "~/src/components/utils/upload";
 import { chatService, createClaimAttachmentUploadService, createPosPurchaseAttachmentUploadService } from "../../service";
-import type { Chat, ChatMessage as ChatMessageType, Client } from "../../typings";
+import type { Chat, ChatMessage as ChatMessageType, Client, PosPurchaseMessagingStatus } from "../../typings";
 import { ChatUserType } from "../../typings";
 import ChatMessage from "../ChatMessage";
 import ChatMessageSkeleton from "../ChatMessage/skeleton";
@@ -79,6 +79,12 @@ export interface ChatAreaProps extends Chat {
      * Callback chamado quando o usuário quer trocar a reclamação atual.
      */
     onClaimChange?: () => void;
+
+    /**
+     * Status de mensageria pós-venda do pedido ativo.
+     * Usado para validar se o usuário pode enviar mensagens e qual canal utilizar.
+     */
+    posPurchaseStatus?: PosPurchaseMessagingStatus;
 }
 
 /**
@@ -126,6 +132,7 @@ export default function ChatArea({
     activeClaimId,
     onOrderChange,
     onClaimChange,
+    posPurchaseStatus,
 }: ChatAreaProps) {
     const [message, setMessage] = useState<string>("");
     const [showActions, setShowActions] = useState<boolean>(false);
@@ -212,11 +219,26 @@ export default function ChatArea({
                     if (!activeOrderId) {
                         throw new Error("Order ID não encontrado");
                     }
-                    response = await chatService.sendPosPurchaseMessage(
-                        activeOrderId,
-                        messageText,
-                        attachmentsToSend.length > 0 ? attachmentsToSend : undefined
-                    );
+                    // Decide o canal de envio conforme status de mensageria:
+                    // - Se direct_message.allowed === true, usa fluxo direto (/messages).
+                    // - Caso contrário, se can_message === true, tenta enviar via motivos (action_guide) usando OTHER.
+                    if (posPurchaseStatus?.direct_message.allowed) {
+                        response = await chatService.sendPosPurchaseMessage(
+                            activeOrderId,
+                            messageText,
+                            attachmentsToSend.length > 0 ? attachmentsToSend : undefined
+                        );
+                    } else if (posPurchaseStatus?.can_message) {
+                        // Fluxo de primeira mensagem via motivos.
+                        response = await chatService.sendPosPurchaseOptionMessage(
+                            activeOrderId,
+                            "OTHER",
+                            undefined,
+                            messageText
+                        );
+                    } else {
+                        throw new Error("Você não pode enviar mensagens para este pedido no momento.");
+                    }
                     break;
                 case "reclamacao":
                     if (!activeClaimId) {
@@ -402,27 +424,43 @@ export default function ChatArea({
                         </div>
                     )}
                     <div className="flex items-center gap-2">
-                        <TextField
-                            fullWidth
-                            placeholder="Digite sua mensagem..."
-                            value={message}
-                            disabled={!sender || isSending}
-                            sx={{
-                                "& .MuiInputBase-root": {
-                                    backgroundColor: "var(--color-beergam-mui-paper)",
-                                    borderColor: "transparent",
-                                    outline: "none"
-                                },
-                            }}
-                            multiline
-                            onChange={(e) => setMessage(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter" && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSendMessage();
+                        <Tooltip
+                            title={
+                                chatType === "pos_venda" &&
+                                posPurchaseStatus &&
+                                !posPurchaseStatus.can_message
+                                    ? "Você não pode enviar mensagens para este pedido. Verifique o status da conversa no Mercado Livre."
+                                    : ""
+                            }
+                        >
+                            <TextField
+                                fullWidth
+                                placeholder="Digite sua mensagem..."
+                                value={message}
+                                disabled={
+                                    !sender ||
+                                    isSending ||
+                                    (chatType === "pos_venda" &&
+                                        posPurchaseStatus !== undefined &&
+                                        !posPurchaseStatus.can_message)
                                 }
-                            }}
-                        />
+                                sx={{
+                                    "& .MuiInputBase-root": {
+                                        backgroundColor: "var(--color-beergam-mui-paper)",
+                                        borderColor: "transparent",
+                                        outline: "none"
+                                    },
+                                }}
+                                multiline
+                                onChange={(e) => setMessage(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSendMessage();
+                                    }
+                                }}
+                            />
+                        </Tooltip>
                         {/* Botão de anexo para pós-venda, reclamação e mediação */}
                         {(
                             ((chatType === "reclamacao" || chatType === "mediacao") && activeClaimId) ||
@@ -437,7 +475,14 @@ export default function ChatArea({
                         <BeergamButton
                             icon={"arrow_uturn_right"}
                             onClick={handleSendMessage}
-                            disabled={!message.trim() || isSending || !sender}
+                            disabled={
+                                !message.trim() ||
+                                isSending ||
+                                !sender ||
+                                (chatType === "pos_venda" &&
+                                    posPurchaseStatus !== undefined &&
+                                    !posPurchaseStatus.can_message)
+                            }
                         />
                     </div>
                 </div>}

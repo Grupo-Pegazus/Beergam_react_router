@@ -10,6 +10,8 @@ import type {
   ClientsResponse,
   ChatMessagesResponse,
   ChatMessagesApiResponse,
+  PosPurchaseMessagingStatus,
+  PosPurchaseMessagingStatusApiResponse,
 } from "./typings";
 
 interface ClaimAttachmentUploadResponse {
@@ -32,6 +34,19 @@ class ChatService {
     });
 
     return params.toString();
+  }
+
+  /**
+   * Busca o status de mensageria pós-venda de um pedido.
+   * Usa o endpoint /v1/chat/pos-purchase/:orderId/status.
+   */
+  async getPosPurchaseMessagingStatus(
+    orderId: string
+  ): Promise<PosPurchaseMessagingStatusApiResponse> {
+    const cleanOrderId = orderId.replace(/\D/g, "");
+    const url = `/v1/chat/pos-purchase/${cleanOrderId}/status`;
+    const response = await typedApiClient.get<PosPurchaseMessagingStatus>(url);
+    return response as PosPurchaseMessagingStatusApiResponse;
   }
 
   async getClients(filters?: Partial<ClientsFilters>): Promise<ClientsApiResponse> {
@@ -101,6 +116,33 @@ class ChatService {
       attachments,
     });
     return response as ChatMessagesApiResponse;
+  }
+
+  /**
+   * Envia mensagem pós-venda usando motivos (action_guide).
+   *
+   * @param orderId - order_id ou pack_id do pedido
+   * @param optionId - Identificador do motivo (ex: REQUEST_VARIANTS, OTHER, SEND_INVOICE_LINK)
+   * @param templateId - ID do template quando a opção for do tipo template
+   * @param text - Texto livre quando a opção aceitar campo livre
+   */
+  async sendPosPurchaseOptionMessage(
+    orderId: string,
+    optionId: string,
+    templateId?: string,
+    text?: string
+  ): Promise<ApiResponse<Record<string, unknown>>> {
+    const cleanOrderId = orderId.replace(/\D/g, "");
+    const url = `/v1/chat/pos-purchase/${cleanOrderId}/option`;
+    const payload: Record<string, unknown> = { option_id: optionId };
+    if (templateId) {
+      payload.template_id = templateId;
+    }
+    if (typeof text === "string") {
+      payload.text = text;
+    }
+    const response = await typedApiClient.post<Record<string, unknown>>(url, payload);
+    return response as ApiResponse<Record<string, unknown>>;
   }
 
   /**

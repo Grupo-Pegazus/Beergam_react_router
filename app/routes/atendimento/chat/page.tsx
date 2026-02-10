@@ -7,7 +7,7 @@ import ClaimSelectionModal from "~/features/chat/components/ChatArea/ClaimSelect
 import OrderSelectionModal from "~/features/chat/components/ChatArea/OrderSelectionModal";
 import { ClientsFilters } from "~/features/chat/components/ClientsFilters";
 import { ClientsList } from "~/features/chat/components/ClientsList";
-import { useClients, usePosPurchaseMessages, useClaimMessages, useMediationMessages } from "~/features/chat/hooks";
+import { useClients, usePosPurchaseMessages, useClaimMessages, useMediationMessages, usePosPurchaseMessagingStatus } from "~/features/chat/hooks";
 import type { Client, ClientsFiltersState, ClientsFilters as ClientsFiltersType, ChatMessage } from "~/features/chat/typings";
 import { transformClientToChatUserDetails } from "~/features/chat/typings";
 
@@ -309,6 +309,11 @@ export default function ChatPage() {
         chatType === "mediacao" && Boolean(selectedClient)
     );
 
+    const posPurchaseMessagingStatusQuery = usePosPurchaseMessagingStatus(
+        activeOrderId,
+        chatType === "pos_venda" && Boolean(selectedClient)
+    );
+
     const messages: ChatMessage[] = useMemo(() => {
         if (!selectedClient) return [];
 
@@ -347,6 +352,13 @@ export default function ChatPage() {
                 return false;
         }
     }, [chatType, posPurchaseMessagesQuery.isLoading, claimMessagesQuery.isLoading, mediationMessagesQuery.isLoading, selectedClient]);
+
+    const posPurchaseStatus = useMemo(() => {
+        if (!selectedClient || chatType !== "pos_venda") return undefined;
+        const data = posPurchaseMessagingStatusQuery.data;
+        if (!data?.success || !data.data) return undefined;
+        return data.data;
+    }, [chatType, posPurchaseMessagingStatusQuery.data, selectedClient]);
 
     return (
         <div className="h-[calc(100vh-200px)] flex flex-col lg:flex-row gap-4">
@@ -393,6 +405,7 @@ export default function ChatPage() {
                     activeClaimId={activeClaimId}
                     onOrderChange={() => setShowOrderSelection(true)}
                     onClaimChange={() => setShowClaimSelection(true)}
+                    posPurchaseStatus={posPurchaseStatus}
                 />
             </div>
 
