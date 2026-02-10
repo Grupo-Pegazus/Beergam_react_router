@@ -239,6 +239,8 @@ export default function ScheduleTimes() {
                     const work: boolean = info?.work ?? false;
                     const cutoff: string | undefined =
                       info?.detail?.[0]?.cutoff;
+                    const from: string | undefined =
+                      info?.detail?.[0]?.from;
                     return (
                       <div
                         key={day}
@@ -263,6 +265,12 @@ export default function ScheduleTimes() {
                           Corte:{" "}
                           <span className="font-semibold text-beergam-typography-primary!">
                             {cutoff ?? (work ? "—" : "N/A")}
+                          </span>
+                        </div>
+                        <div className="mt-2 text-sm text-beergam-typography-secondary!">
+                          Máximo:{" "}
+                          <span className="font-semibold text-beergam-typography-primary!">
+                            {from ?? (work ? "—" : "N/A")}
                           </span>
                         </div>
                       </div>

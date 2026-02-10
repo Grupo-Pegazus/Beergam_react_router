@@ -162,7 +162,7 @@ export default function VendasPage() {
               className="w-max-w-screen h-full min-h-56"
               censorshipKey="vendas_distribuicao_geografica"
             >
-              <GeographicMap period="last_day" />
+              <GeographicMap period="last_90_days" />
             </ImageCensored>
           </Paper>
         </Section>

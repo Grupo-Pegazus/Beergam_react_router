@@ -41,6 +41,8 @@ export default function StockProductsList({ syncPageWithUrl = false, pageParamKe
 
   // Debounce da busca (500ms) para melhorar performance
   useEffect(() => {
+    if (searchTerm === debouncedSearchTerm) return;
+
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
       if (!syncPageWithUrl) setPage(1);
@@ -57,7 +59,7 @@ export default function StockProductsList({ syncPageWithUrl = false, pageParamKe
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchTerm, syncPageWithUrl, pageParamKey, setSearchParams]);
+  }, [searchTerm, debouncedSearchTerm, syncPageWithUrl, pageParamKey, setSearchParams]);
 
   const { data, isLoading, error } = useProducts({
     sort_by: "created_at",
