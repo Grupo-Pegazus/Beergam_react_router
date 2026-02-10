@@ -251,6 +251,21 @@ export default function ChatArea({
         return result;
     }, [isPosVendaApenasPorMotivos, posPurchaseStatus]);
 
+    // Cria uma chave única baseada no contexto atual (cliente, tipo de chat e pedido/reclamação)
+    const contextKey = useMemo(() => {
+        const clientId = client?.client_id || "no-client";
+        const orderOrClaimId = chatType === "pos_venda" ? activeOrderId : activeClaimId;
+        return `${clientId}-${chatType}-${orderOrClaimId || "none"}`;
+    }, [client?.client_id, chatType, activeOrderId, activeClaimId]);
+
+    // Limpa anexos e mensagem quando o contexto muda (cliente, tipo de chat ou pedido/reclamação)
+    // Também fecha o modal de upload para garantir que o componente seja resetado
+    useEffect(() => {
+        setAttachments([]);
+        setMessage("");
+        setShowUploadModal(false);
+    }, [contextKey]);
+
     const [selectedGuideOptionId, setSelectedGuideOptionId] = useState<string | null>(null);
     const [selectedGuideOptionTemplateId, setSelectedGuideOptionTemplateId] = useState<string | null>(null);
     const [selectedGuideOptionPreview, setSelectedGuideOptionPreview] = useState<string | null>(null);
@@ -278,21 +293,6 @@ export default function ChatArea({
             setMessage(defaultOption.templatePreview);
         }
     }, [isPosVendaApenasPorMotivos, posPurchaseActionOptions]);
-
-    // Cria uma chave única baseada no contexto atual (cliente, tipo de chat e pedido/reclamação)
-    const contextKey = useMemo(() => {
-        const clientId = client?.client_id || "no-client";
-        const orderOrClaimId = chatType === "pos_venda" ? activeOrderId : activeClaimId;
-        return `${clientId}-${chatType}-${orderOrClaimId || "none"}`;
-    }, [client?.client_id, chatType, activeOrderId, activeClaimId]);
-
-    // Limpa anexos e mensagem quando o contexto muda (cliente, tipo de chat ou pedido/reclamação)
-    // Também fecha o modal de upload para garantir que o componente seja resetado
-    useEffect(() => {
-        setAttachments([]);
-        setMessage("");
-        setShowUploadModal(false);
-    }, [contextKey]);
 
     // Combina mensagens recebidas com mensagens sendo enviadas
     const allMessages = useMemo(() => {
