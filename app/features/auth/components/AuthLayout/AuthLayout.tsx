@@ -51,6 +51,15 @@ export default function AuthLayout() {
     }
   }, [data, queryClient, authError]);
 
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const response = await authService.ping();
+      if (!response.success) {
+        clearInterval(interval);
+      }
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
   const subscriptionErrors = useMemo(
     () => [
       "SUBSCRIPTION_NOT_FOUND",
