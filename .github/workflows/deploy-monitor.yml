@@ -1,5 +1,9 @@
 name: Frontend Deploy Monitor
 
+concurrency:
+  group: frontend-vercel-monitor
+  cancel-in-progress: true
+
 on:
     push:
         branches: [ main ]
