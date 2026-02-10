@@ -11,7 +11,7 @@ export default function QuickAccess() {
           fontWeight={600}
           className="text-beergam-typography-primary mb-1 text-base sm:text-lg"
         >
-          Gestão de Catálogo
+          Gestão de Produtos
         </Typography>
         <Typography
           variant="body2"

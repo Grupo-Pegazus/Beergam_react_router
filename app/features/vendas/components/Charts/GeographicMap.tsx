@@ -43,7 +43,7 @@ interface GeographicMapProps {
 
 const ITEMS_PER_PAGE = 10;
 
-export default function GeographicMap({ period = "last_day" }: GeographicMapProps) {
+export default function GeographicMap({ period = "last_90_days" }: GeographicMapProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<
     "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "last_90_days" | "custom"
   >(period as "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "last_90_days" | "custom");
