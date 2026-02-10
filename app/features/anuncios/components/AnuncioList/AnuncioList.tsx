@@ -245,8 +245,8 @@ function AnuncioCard({
   };
 
   return (
-    <MainCards>
-      <div className="grid grid-cols-12 gap-4">
+    <MainCards className="rounded-2xl! overflow-hidden">
+      <div className="grid grid-cols-12 gap-5 md:gap-6 p-4 md:p-5">
         {/* Coluna Esquerda: Produto */}
         <div className="col-span-12 md:col-span-5 flex flex-col gap-3">
           <div className="flex items-center gap-2">
@@ -462,8 +462,8 @@ function AnuncioCard({
         </div>
 
         {/* Coluna do Meio: Vendas e Preço */}
-        <div className="col-span-12 md:col-span-4 space-y-2">
-          <div>
+        <div className="col-span-12 md:col-span-4 flex flex-col gap-4">
+          <div className="rounded-xl bg-beergam-typography-secondary!/10 p-3">
             <TextCensored censorshipKey="anuncios_list">
               <Typography
                 variant="body2"
@@ -477,7 +477,7 @@ function AnuncioCard({
             {conversionRate !== null && (
               <Typography
                 variant="caption"
-                className="text-beergam-typography-tertiary!"
+                className="text-beergam-typography-tertiary! mt-0.5 block"
               >
                 Taxa de conversão:{" "}
                 <span className="font-semibold">
@@ -487,30 +487,28 @@ function AnuncioCard({
             )}
           </div>
 
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <TextCensored censorshipKey="anuncios_list">
-                <Typography
-                  variant="h6"
-                  fontWeight={700}
-                  className="text-beergam-primary!"
-                >
-                  {formatCurrency(anuncio.price)}
-                </Typography>
-              </TextCensored>
-            </div>
+          <div className="rounded-xl bg-beergam-typography-secondary!/10 p-3 flex flex-col gap-2">
+            <TextCensored censorshipKey="anuncios_list">
+              <Typography
+                variant="h6"
+                fontWeight={700}
+                className="text-beergam-primary! text-xl"
+              >
+                {formatCurrency(anuncio.price)}
+              </Typography>
+            </TextCensored>
 
             {anuncio.commission && (
               <div
-                className={` ${anuncio.ad_type === "Premium" ? "bg-beergam-orange/20" : "bg-beergam-menu-background/20"} rounded-lg p-2 mt-2`}
+                className={`rounded-lg p-2.5 ${anuncio.ad_type === "Premium" ? "bg-beergam-orange/20" : "bg-beergam-menu-background/25"}`}
               >
                 <Typography
                   variant="caption"
-                  className={`${anuncio.ad_type === "Premium" ? "text-beergam-orange" : "text-beergam-secondary!"}`}
+                  className={`font-semibold ${anuncio.ad_type === "Premium" ? "text-beergam-orange" : "text-beergam-secondary!"}`}
                 >
-                  {anuncio.ad_type || "Premium"}
+                  {anuncio.ad_type || "Clássico"}
                 </Typography>
-                <div className="space-y-0.5">
+                <div className="space-y-0.5 mt-1">
                   <Typography
                     variant="caption"
                     className="text-beergam-typography-tertiary!"
@@ -529,7 +527,7 @@ function AnuncioCard({
                   <Typography
                     variant="caption"
                     fontWeight={600}
-                    className="text-beergam-typography-tertiary! block"
+                    className="text-beergam-typography-primary! block"
                   >
                     A pagar {formatCurrency(anuncio.commission.value)}
                   </Typography>
@@ -540,9 +538,9 @@ function AnuncioCard({
         </div>
 
         {/* Coluna Direita: Qualidade e Status */}
-        <div className="col-span-12 md:col-span-3 space-y-3">
+        <div className="col-span-12 md:col-span-3 flex flex-col gap-4">
           {/* Qualidade do Anúncio */}
-          <div>
+          <div className="rounded-xl bg-beergam-typography-secondary!/10 p-3">
             <div className="flex items-center gap-2 mb-2">
               <Speedometer value={healthScore} size={40} />
               <div className="flex items-center gap-2">
@@ -597,7 +595,7 @@ function AnuncioCard({
           </div>
 
           {/* Experiência de Compra */}
-          <div>
+          <div className="rounded-xl bg-beergam-typography-secondary!/10 p-3">
             <div className="flex items-center gap-2 mb-2">
               <Speedometer value={reputation?.value ?? null} size={40} />
               <div className="flex items-center gap-2">
@@ -627,8 +625,8 @@ function AnuncioCard({
           </div>
 
           {/* Status e Ações */}
-          <div className="space-y-2 pt-2 border-t border-beergam-typography-secondary!/20">
-            <div className="flex items-center justify-between">
+          <div className="space-y-2 pt-3 pb-1 border-t border-beergam-typography-secondary!/30 rounded-b-lg bg-beergam-typography-secondary!/5 -mx-1 px-3 -mb-1">
+            <div className="flex items-center justify-between gap-2">
               <AnuncioStatusToggle
                 status={anuncio.status}
                 subStatus={anuncio.sub_status}
@@ -637,8 +635,13 @@ function AnuncioCard({
                 onToggle={onToggleStatus}
                 showStatusMessage={false}
               />
-              <IconButton size="small" onClick={handleMenuOpen}>
-                <Svg.elipsis_horizontal tailWindClasses="h-5 w-5" />
+              <IconButton
+                size="medium"
+                onClick={handleMenuOpen}
+                aria-label="Abrir menu de opções do anúncio (ver detalhes, reprocessar, ver no ML)"
+                className="min-w-11! min-h-11! rounded-full! bg-beergam-primary/25! text-beergam-primary! border border-beergam-primary/50! hover:bg-beergam-primary/40! hover:border-beergam-primary! focus:bg-beergam-primary/40! focus:border-beergam-primary! transition-colors shadow-sm"
+              >
+                <Svg.elipsis_horizontal tailWindClasses="h-6 w-6" />
               </IconButton>
             </div>
             <AnuncioStatusToggle
