@@ -1,4 +1,4 @@
-import { Avatar, Fade, Paper, Skeleton, TextField, Tooltip } from "@mui/material";
+import { Avatar, CircularProgress, Fade, Paper, Skeleton, TextField, Tooltip } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -10,7 +10,6 @@ import { chatService, createClaimAttachmentUploadService, createPosPurchaseAttac
 import type { Chat, ChatMessage as ChatMessageType, Client, PosPurchaseMessagingStatus } from "../../typings";
 import { ChatUserType } from "../../typings";
 import ChatMessage from "../ChatMessage";
-import ChatMessageSkeleton from "../ChatMessage/skeleton";
 import { ClientInfo } from "../ClientInfo";
 import ChatHeader, { type ChatType } from "./ChatHeader";
 
@@ -143,7 +142,6 @@ export default function ChatArea({
     const [isSending, setIsSending] = useState<boolean>(false);
     const actionRef = useRef<HTMLDivElement>(null);
     const queryClient = useQueryClient();
-    const randomSkeletonAmmount = useMemo(() => Math.floor(Math.random() * 10) + 2, [messages.length]);
 
     const isPosVenda = chatType === "pos_venda";
     const isPosVendaComEnvioBloqueado =
@@ -592,7 +590,11 @@ export default function ChatArea({
                             <p className="text-beergam-typography-primary!">Nenhuma mensagem encontrada</p>
                         </div>
                     )}
-                    {isLoading && <><ChatMessageSkeleton ammount={randomSkeletonAmmount} /></>}
+                    {isLoading && (
+                        <div className="flex items-center justify-center h-full">
+                            <CircularProgress size={32} />
+                        </div>
+                    )}
                     {!isLoading && allMessages.length > 0 && (
                         <>
                             {allMessages.map((message, index) => {
