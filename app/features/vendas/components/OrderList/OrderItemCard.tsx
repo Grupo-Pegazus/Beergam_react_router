@@ -76,8 +76,8 @@ export default function OrderItemCard({
     // Number(order.stock_cost || 0) - 
     Number(order.tax_amount || 0);
   const margin =
-    Number(order.valor_liquido || 0) > 0
-      ? (profit / Number(order.valor_liquido || 0)) * 100
+    Number(order.total_amount || 0) > 0
+      ? (profit / Number(order.total_amount || 0)) * 100
       : 0;
 
   return (
