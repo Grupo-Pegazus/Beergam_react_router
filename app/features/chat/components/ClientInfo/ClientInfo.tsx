@@ -41,10 +41,10 @@ function ClientInfoComponent({ client }: ClientInfoProps) {
                     {/* Informações básicas */}
                     <div className="grid grid-cols-3 space-y-2">
                         <div>
-                            <p className="text-xs text-beergam-typography-secondary mb-1 truncate">
+                            <p className="text-xs text-beergam-typography-secondary mb-1">
                                 Apelido
                             </p>
-                            <p className="text-sm font-medium text-beergam-typography-tertiary!">
+                            <p className="text-sm font-medium text-beergam-typography-tertiary! truncate" style={{ width: "160px" }}>
                                 {client.nickname}
                             </p>
                         </div>
