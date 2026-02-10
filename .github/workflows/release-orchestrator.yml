@@ -136,7 +136,6 @@ jobs:
             
             if [ $MERGE_EXIT -eq 0 ]; then
               echo "✅ Merge realizado com sucesso"
-              git push origin main
               echo "skip_merge=false" >> $GITHUB_OUTPUT
             else
               echo "❌ Erro ao fazer merge. Possíveis conflitos."
