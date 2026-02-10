@@ -145,6 +145,21 @@ class AuthService {
       };
     }
   }
+  async ping(): Promise<ApiResponse<null>> {
+    try {
+      const response = await typedApiClient.post<null>("/v1/auth/ping");
+      return response;
+    } catch (error) {
+      console.error("error do ping", error);
+      return {
+        success: false,
+        data: null,
+        message: "Erro ao pingar servidor. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: [],
+      };
+    }
+  }
 }
 
 export const authService = new AuthService();
