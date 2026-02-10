@@ -30,9 +30,16 @@ function isMeliVisits(
 }
 
 const formatDateForChart = (dateStr: string): string => {
+  const isoMatch = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateStr);
+  if (isoMatch) {
+    const day = Number(isoMatch[3]);
+    const month = Number(isoMatch[2]);
+    return `${day}/${month}`;
+  }
+
   const date = new Date(dateStr);
-  const day = date.getDate();
-  const month = date.getMonth() + 1;
+  const day = date.getUTCDate();
+  const month = date.getUTCMonth() + 1;
   return `${day}/${month}`;
 };
 
@@ -314,10 +321,12 @@ export default function Visitas() {
 
     if (!periodData) return [];
 
-    return Object.entries(periodData).map(([date, value]) => ({
-      date: formatDateForChart(date),
-      visitas: value,
-    }));
+    return Object.keys(periodData)
+      .sort()
+      .map((date) => ({
+        date: formatDateForChart(date),
+        visitas: periodData[date] ?? 0,
+      }));
   }, [payload, selectedPeriod]);
 
   const handlePeriodChange = useCallback((period: PeriodFilter) => {
