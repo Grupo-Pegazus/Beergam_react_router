@@ -500,11 +500,11 @@ function AnuncioCard({
 
             {anuncio.commission && (
               <div
-                className={`rounded-lg p-2.5 ${anuncio.ad_type === "Premium" ? "bg-beergam-orange/20" : "bg-beergam-menu-background/25"}`}
+                className={`rounded-lg p-2.5 bg-beergam-orange/20`}
               >
                 <Typography
                   variant="caption"
-                  className={`font-semibold ${anuncio.ad_type === "Premium" ? "text-beergam-orange" : "text-beergam-secondary!"}`}
+                  className={`font-semibold text-beergam-orange`}
                 >
                   {anuncio.ad_type || "Clássico"}
                 </Typography>
