@@ -90,21 +90,11 @@ function QuestionCard({
                     iconSize="h-3.5 w-3.5"
                     ariaLabel="Copiar MLB"
                   />
-                  <span className="hidden sm:inline">•</span>
-                  <span className="break-all">
-                    Usuário {String(question.from?.id)}
-                  </span>
-                  <CopyButton
-                    textToCopy={String(question.from?.id)}
-                    successMessage="ID do usuário copiado para a área de transferência"
-                    iconSize="h-3.5 w-3.5"
-                    ariaLabel="Copiar ID do usuário"
-                  />
                 </>
               )}
             </div>
           )}
-          <p className="text-sm sm:text-base font-semibold text-beergam-typography-primary! wrap-break-word">
+          <p className="text-md! md:text-xl! font-semibold text-beergam-typography-primary! wrap-break-word">
             {String(question.text ?? "")}
           </p>
           <div className="flex flex-wrap gap-2 text-xs text-beergam-typography-secondary!">
