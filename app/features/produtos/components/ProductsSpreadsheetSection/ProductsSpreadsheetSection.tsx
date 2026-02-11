@@ -1,6 +1,7 @@
 import Typography from "@mui/material/Typography";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
+import DeleteAllProductsCard from "~/features/produtos/components/DeleteAllProductsCard";
 import { produtosService } from "~/features/produtos/service";
 import { useSyncCostsBySku } from "~/features/vendas/hooks";
 import SkuSelectionModal from "~/src/components/utils/SkuSelectionModal";
@@ -282,7 +283,7 @@ export default function ProductsSpreadsheetSection() {
         onChange={handleFileChange}
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <ActionCard
           title="Baixar modelo"
           description="Planilha em branco com as colunas SKU e custos para preenchimento"
@@ -307,6 +308,7 @@ export default function ProductsSpreadsheetSection() {
           onClick={handleImportClick}
           loading={importMutation.isPending}
         />
+        <DeleteAllProductsCard />
       </div>
     </MainCards>
   );
