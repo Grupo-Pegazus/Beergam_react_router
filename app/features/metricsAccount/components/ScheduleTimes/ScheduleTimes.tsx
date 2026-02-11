@@ -134,13 +134,12 @@ export default function ScheduleTimes() {
 
   const summary = useMemo(() => {
     if (!payload || !isMeliSchedule(payload))
-      return { label: "—", cutoff: "—", dayName: null };
+      return { label: "—", cutoff: "—", max: "—", dayName: null };
 
     const meliSchedule = payload.schedule;
 
-    // Verifica se results_by_logistic_type existe
     if (!meliSchedule.results_by_logistic_type) {
-      return { label: "Sem dados", cutoff: "—", dayName: null };
+      return { label: "Sem dados", cutoff: "—", max: "—", dayName: null };
     }
 
     const scheduleByType = findFirstNonEmptySchedule(
@@ -148,26 +147,27 @@ export default function ScheduleTimes() {
     );
 
     if (!scheduleByType) {
-      return { label: "Sem dados", cutoff: "—", dayName: null };
+      return { label: "Sem dados", cutoff: "—", max: "—", dayName: null };
     }
 
     const schedule = scheduleByType.schedule;
-    if (!schedule) return { label: "—", cutoff: "—", dayName: null };
+    if (!schedule) return { label: "—", cutoff: "—", max: "—", dayName: null };
 
-    // Pega o primeiro dia útil com detail válido, começando do dia atual
     const weekOrderStartingToday = getWeekOrderStartingToday();
     for (const day of weekOrderStartingToday) {
       const info = schedule[day];
       const cutoff = info?.detail?.[0]?.cutoff;
+      const max = info?.detail?.[0]?.from;
       if (info?.work && cutoff) {
         return {
           label: "Corte típico",
           cutoff,
+          max: max ?? "—",
           dayName: DAY_LABEL[day] ?? null,
         };
       }
     }
-    return { label: "—", cutoff: "—", dayName: null };
+    return { label: "—", cutoff: "—", max: "—", dayName: null };
   }, [payload]);
 
   return (
@@ -185,7 +185,16 @@ export default function ScheduleTimes() {
         <StatCard
           icon={<Svg.clock tailWindClasses="w-5 h-5" />}
           title="Horário de Corte"
-          value={summary.cutoff}
+          value={
+            summary.cutoff !== "—" || summary.max !== "—" ? (
+                <>
+                Corte: <strong>{summary.cutoff}</strong> <br></br> Máx:{" "}
+                <strong>{summary.max}</strong>
+                </>
+            ) : (
+              "—"
+            )
+          }
           onClick={() => setOpen(true)}
         >
           <p className="text-sm text-beergam-typography-secondary mt-3">
@@ -238,9 +247,9 @@ export default function ScheduleTimes() {
                     const info = schedule[day];
                     const work: boolean = info?.work ?? false;
                     const cutoff: string | undefined =
-                      info?.detail?.[0]?.cutoff;
+                      info?.detail?.[0]?.cutoff ?? undefined;
                     const from: string | undefined =
-                      info?.detail?.[0]?.from;
+                      info?.detail?.[0]?.from ?? undefined;
                     return (
                       <div
                         key={day}
