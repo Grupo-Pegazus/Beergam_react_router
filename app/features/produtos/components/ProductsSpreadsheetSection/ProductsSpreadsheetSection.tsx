@@ -1,10 +1,9 @@
 import Typography from "@mui/material/Typography";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
-import ActivateStockModal from "~/features/produtos/components/ActivateStockModal";
 import { produtosService } from "~/features/produtos/service";
-import ReprocessOrdersBySkuModal from "~/features/vendas/components/ReprocessOrdersBySkuModal/ReprocessOrdersBySkuModal";
 import { useSyncCostsBySku } from "~/features/vendas/hooks";
+import SkuSelectionModal from "~/src/components/utils/SkuSelectionModal";
 import Svg from "~/src/assets/svgs/_index";
 import MainCards from "~/src/components/ui/MainCards";
 import { useModal } from "~/src/components/utils/Modal/useModal";
@@ -175,14 +174,18 @@ export default function ProductsSpreadsheetSection() {
       const showReprocessModal = () => {
         if (skus.length > 0) {
           openModal(
-            <ReprocessOrdersBySkuModal
-              skus={skus}
+            <SkuSelectionModal
+              items={skus.map((s) => ({ sku: s }))}
               title="Importação concluída!"
               description="Deseja atualizar os custos dos pedidos para os SKUs da planilha?"
               cancelText="Não, fechar"
+              getConfirmText={(n) =>
+                n > 0 ? `Reprocessar ${n} SKU(s)` : "Sim, reprocessar"
+              }
+              listAriaLabel="SKUs para reprocessar"
               onClose={() => closeModal()}
-              onConfirm={(selectedSkus) => {
-                syncCostsBySkuMutation.mutate(selectedSkus, {
+              onConfirm={(selected) => {
+                syncCostsBySkuMutation.mutate(selected.map((s) => s.sku), {
                   onSettled: () => closeModal(),
                 });
               }}
@@ -195,22 +198,32 @@ export default function ProductsSpreadsheetSection() {
 
       if (created_skus.length > 0) {
         openModal(
-          <ActivateStockModal
-            createdSkus={created_skus}
+          <SkuSelectionModal
+            items={created_skus}
             title="Produtos criados na importação"
             description="Deseja ativar o controle de estoque para os produtos criados? Selecione os SKUs desejados."
             cancelText="Não, fechar"
+            getConfirmText={(n) =>
+              n > 0 ? `Ativar para ${n} SKU(s)` : "Ativar estoque"
+            }
+            listAriaLabel="SKUs para ativar controle de estoque"
             onClose={() => {
               closeModal();
               showReprocessModal();
             }}
             onConfirm={(selected) => {
-              activateStockMutation.mutate(selected, {
-                onSettled: () => {
-                  closeModal();
-                  showReprocessModal();
-                },
-              });
+              activateStockMutation.mutate(
+                selected.map((s) => ({
+                  sku: s.sku,
+                  available_quantity: s.available_quantity ?? 0,
+                })),
+                {
+                  onSettled: () => {
+                    closeModal();
+                    showReprocessModal();
+                  },
+                }
+              );
             }}
             isLoading={activateStockMutation.isPending}
           />,
