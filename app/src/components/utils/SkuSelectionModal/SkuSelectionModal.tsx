@@ -95,7 +95,7 @@ export default function SkuSelectionModal({
       disabledConfirm={isLoading || selectedList.length === 0}
     >
       <h3 className="font-semibold text-lg! md:text-2xl! mb-2">{title}</h3>
-      <p className="text-md! md:text-lg! text-beergam-typography-secondary! mb-3">{description}</p>
+      <p className="text-md! md:text-xl! text-beergam-typography-secondary! mb-3">{description}</p>
 
       {items.length > 0 && (
         <div className="w-full text-left">
