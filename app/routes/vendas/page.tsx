@@ -81,7 +81,7 @@ function ReprocessOrdersByPeriodModal({
 }
 
 export default function VendasPage() {
-  const { filters, setFilters, resetFilters, apiFilters, applyFilters } =
+  const { filters, setFilters, resetFilters, apiFilters, filtersForExport, applyFilters } =
     useVendasFilters();
   const reprocessByPeriodMutation = useReprocessOrdersByPeriod();
   const createExportMutation = useCreateExport();
@@ -114,13 +114,8 @@ export default function VendasPage() {
   }, [openModal, closeModal, reprocessByPeriodMutation]);
 
   const handleExportClick = useCallback(() => {
-    // Remove paginação dos filtros para exportar todos os resultados
-    const exportFilters = { ...apiFilters };
-    delete exportFilters.page;
-    delete exportFilters.per_page;
-
-    createExportMutation.mutate(exportFilters);
-  }, [apiFilters, createExportMutation]);
+    createExportMutation.mutate(filtersForExport);
+  }, [filtersForExport, createExportMutation]);
 
   const handleExportHistoryClick = useCallback(() => {
     openModal(<ExportHistoryModal onClose={closeModal} />, {

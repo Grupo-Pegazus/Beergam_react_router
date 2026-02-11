@@ -98,6 +98,16 @@ export function useVendasFilters(initial?: Partial<VendasFiltersState>) {
 
   const apiFilters = useMemo(() => sanitizeFilters(appliedFilters), [appliedFilters]);
 
+  /** Filtros para exportação: sempre usa o estado atual do formulário (filters),
+   * sem paginação. Assim a exportação considera os filtros que o usuário está vendo,
+   * mesmo antes de clicar em "Aplicar". */
+  const filtersForExport = useMemo(() => {
+    const sanitized = sanitizeFilters(filters);
+    delete sanitized.page;
+    delete sanitized.per_page;
+    return sanitized;
+  }, [filters]);
+
   const updateFilters = useCallback((next: VendasFiltersState) => {
     setFilters(next);
   }, []);
@@ -136,6 +146,7 @@ export function useVendasFilters(initial?: Partial<VendasFiltersState>) {
     setFilters: updateFilters,
     resetFilters,
     apiFilters,
+    filtersForExport,
     setPage,
     applyFilters,
   };

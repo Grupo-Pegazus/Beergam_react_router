@@ -394,7 +394,7 @@ function OrderContextMenu({ data: order, anchorPosition, onClose }: ContextMenuP
 }
 export default function RelatorioVendasRoute() {
     const { openModal, closeModal } = useModal();
-    const { filters, resetFilters, applyFilters, apiFilters } =
+    const { filters, resetFilters, applyFilters, apiFilters, filtersForExport } =
         useVendasFilters({ per_page: 100 });
     const createExportMutation = useCreateExport();
 
@@ -416,13 +416,8 @@ export default function RelatorioVendasRoute() {
 
     // Handler para exportar planilha
     const handleExportClick = useCallback(() => {
-        // Remove paginação dos filtros para exportar todos os resultados
-        const exportFilters = { ...apiFilters };
-        delete exportFilters.page;
-        delete exportFilters.per_page;
-
-        createExportMutation.mutate(exportFilters);
-    }, [apiFilters, createExportMutation]);
+        createExportMutation.mutate(filtersForExport);
+    }, [filtersForExport, createExportMutation]);
 
     // Handler para abrir histórico de exportações
     const handleExportHistoryClick = useCallback(() => {
