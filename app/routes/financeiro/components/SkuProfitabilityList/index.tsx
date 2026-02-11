@@ -17,7 +17,7 @@ import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 
 type SortField = "margin" | "units" | "costs" | "revenue" | "average";
 
-type HealthStatus = "Saudável" | "Apertado" | "Ruim";
+type HealthStatus = "Saudável" | "Apertado" | "Ruim" | "Crítico";
 
 function parsePtBrNumber(value: string | number | null | undefined): number {
   if (value == null) return 0;
@@ -47,21 +47,27 @@ function parsePtBrNumber(value: string | number | null | undefined): number {
 }
 
 function getHealthStatus(marginPct: number): { status: HealthStatus; classes: string } {
-  if (marginPct > 20) {
+  if (marginPct > 10) {
     return {
       status: "Saudável",
       classes: "bg-beergam-green-primary/20 text-beergam-green-primary",
     };
   }
-  if (marginPct >= 0) {
+  if (marginPct > 5 && marginPct <= 10) {
     return {
       status: "Apertado",
       classes: "bg-beergam-yellow/20 text-beergam-yellow",
     };
   }
+  if (marginPct <= 5 && marginPct > 0) {
+    return {
+      status: "Ruim",
+      classes: "bg-beergam-red/20 text-beergam-red",
+    };
+  }
   return {
-    status: "Ruim",
-    classes: "bg-beergam-red/20 text-beergam-red",
+    status: "Crítico",
+    classes: "bg-beergam-orange/20 text-beergam-orange",
   };
 }
 
@@ -76,12 +82,12 @@ function InfoCell({
 }) {
   return (
     <div
-      className={`h-full grid content-end border-b border-b-beergam-primary pb-2 md:border-b-0 md:border-r md:pr-2 ${
+      className={`h-full min-w-0 grid content-end border-b border-b-beergam-primary pb-2 md:border-b-0 md:border-r md:pr-2 ${
         isLast ? "md:border-r-transparent" : "md:border-r-beergam-primary"
       }`}
     >
       <p className="text-[11px] md:text-[12px] text-beergam-typography-tertiary!">{label}</p>
-      <h3 className="text-[14px]! md:text-[18px]! text-beergam-primary font-bold break-words">{value}</h3>
+      <h3 className="text-[14px]! md:text-[18px]! text-beergam-primary font-bold wrap-break-word">{value}</h3>
     </div>
   );
 }
@@ -404,17 +410,25 @@ export default function SkuProfitabilityList({
           </p>
         </div>
       ) : (
-        <>
-        <div className="grid gap-2 w-full min-w-0">
-          {paginatedRows.map((row) => (
-        <Paper
-          key={row.sku}
-          className="p-3 md:p-4 w-full min-w-0 overflow-hidden"
+        <div
+          className="grid w-full min-w-0 overflow-x-auto gap-x-2 gap-y-2"
+          style={{
+            gridTemplateColumns:
+              "minmax(140px, 2fr) repeat(8, minmax(85px, 1fr))",
+          }}
         >
-          <>
-            <div className="flex flex-col md:flex-row gap-3 md:items-center w-full min-w-0">
-              {/* Produto (estilo OrderItemCard / OrderCard) */}
-              <div className="flex items-center gap-2 flex-1 min-w-0">
+          {paginatedRows.map((row) => (
+            <Paper
+              key={row.sku}
+              component="div"
+              className="col-span-9 grid w-full min-w-0 overflow-hidden p-3 md:p-2"
+              sx={{
+                gridTemplateColumns: "subgrid",
+                gridColumn: "1 / -1",
+              }}
+            >
+              {/* Produto */}
+              <div className="flex min-w-0 items-center gap-2 pr-4 md:pr-6">
                 <ImageCensored
                   className="w-12! h-12! md:w-16! md:h-16! shrink-0"
                   censorshipKey={censorshipKey}
@@ -430,7 +444,7 @@ export default function SkuProfitabilityList({
                     <Typography
                       variant="body2"
                       fontWeight={700}
-                      className="text-beergam-typography-primary! text-xs md:text-sm lg:text-base"
+                      className="text-beergam-typography-primary! max-w-100 truncate text-xs md:text-sm lg:text-base"
                       noWrap
                       sx={{
                         overflow: "hidden",
@@ -441,7 +455,6 @@ export default function SkuProfitabilityList({
                     >
                       {censored ? "****" : row.title ?? "—"}
                     </Typography>
-                    
                   </TextCensored>
                   <TextCensored forceCensor={censored} censorshipKey={censorshipKey}>
                     <Typography
@@ -464,42 +477,62 @@ export default function SkuProfitabilityList({
                 </div>
               </div>
 
-              {/* Infos (estilo SectionContent com bordas laranjas) */}
-              <div className="grid grid-cols-2 md:flex gap-2 md:justify-end md:flex-1 md:min-w-0 md:items-end overflow-hidden">
-                <InfoCell label="Unidades" value={censored ? "****" : row.units} />
-                <InfoCell label="Custos Internos" value={censored ? "****" : formatCurrency(row.internalCost, { money: true })} />
-                <InfoCell label="Faturamento Total" value={censored ? "****" : formatCurrency(row.totalRevenue, { money: true })} />
-                <InfoCell label="Lucro Total" value={censored ? "****" : formatCurrency(row.units * row.avgProfitPerSale, { money: true })} />
-                <InfoCell
-                  label="Média de lucro"
-                  value={
-                    censored
-                      ? "****"
-                      : formatCurrency(row.avgProfitPerSale, { money: true })
-                  }
-                />
-                <InfoCell
-                  label="Média %"
-                  value={censored ? "*" : `${row.marginPct.toFixed(2)}%`}
-                />
-                <InfoCell
-                  label="Saúde"
-                  isLast
-                  value={
-                    <span
-                      className={`inline-flex items-center justify-center rounded-lg px-2 py-1 text-[10px] md:text-[12px] font-semibold ${row.statusClasses}`}
-                    >
-                      {row.status}
-                    </span>
-                  }
-                />
-              </div>
-            </div>
-          </>
-        </Paper>
+              {/* Só pra nn deixar colado dos produtos, deixa mais bonito inclusive */}
+              <div aria-hidden />
+
+              {/* InfoCells - colunas alinhadas entre todas as linhas */}
+              <InfoCell
+                label="Unidades"
+                value={censored ? "****" : row.units}
+              />
+              <InfoCell
+                label="Custos Internos"
+                value={
+                  censored ? "****" : formatCurrency(row.internalCost, { money: true })
+                }
+              />
+              <InfoCell
+                label="Faturamento Total"
+                value={
+                  censored ? "****" : formatCurrency(row.totalRevenue, { money: true })
+                }
+              />
+              <InfoCell
+                label="Lucro Total"
+                value={
+                  censored
+                    ? "****"
+                    : formatCurrency(row.units * row.avgProfitPerSale, {
+                        money: true,
+                      })
+                }
+              />
+              <InfoCell
+                label="Média de lucro"
+                value={
+                  censored
+                    ? "****"
+                    : formatCurrency(row.avgProfitPerSale, { money: true })
+                }
+              />
+              <InfoCell
+                label="Média %"
+                value={censored ? "*" : `${row.marginPct.toFixed(2)}%`}
+              />
+              <InfoCell
+                label="Saúde"
+                isLast
+                value={
+                  <span
+                    className={`inline-flex items-center justify-center rounded-lg px-2 py-1 text-[10px] font-semibold md:text-[12px] ${row.statusClasses}`}
+                  >
+                    {row.status}
+                  </span>
+                }
+              />
+            </Paper>
           ))}
         </div>
-        </>
       )}
 
       {/* Paginação */}
