@@ -243,7 +243,7 @@ export default function OrderList({ filters = {}, syncPageWithUrl = false }: Ord
                           >
                             <h3 className="text-lg font-semibold text-beergam-typography-primary mb-2">
                               Deseja reprocessar o pedido{" "}
-                              <span className="font-mono">#{orderId}</span>?
+                              <span className="font-mono" style={{ fontSize: "20px" }}>#{orderId}</span>?
                             </h3>
                             <p className="text-sm text-beergam-typography-secondary mb-2">
                               Isso irá buscar novamente os dados desse pedido no Mercado Livre e atualizar o registro aqui no Beergam.
