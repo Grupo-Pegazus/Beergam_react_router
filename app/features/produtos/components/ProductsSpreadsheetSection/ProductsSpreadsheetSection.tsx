@@ -6,10 +6,10 @@ import { produtosService } from "~/features/produtos/service";
 import ReprocessOrdersBySkuModal from "~/features/vendas/components/ReprocessOrdersBySkuModal/ReprocessOrdersBySkuModal";
 import { useSyncCostsBySku } from "~/features/vendas/hooks";
 import Svg from "~/src/assets/svgs/_index";
-import BeergamButton from "~/src/components/utils/BeergamButton";
 import MainCards from "~/src/components/ui/MainCards";
 import { useModal } from "~/src/components/utils/Modal/useModal";
 import toast from "~/src/utils/toast";
+import Loading from "~/src/assets/loading";
 
 const colorClasses = {
   "beergam-orange": {
@@ -66,9 +66,9 @@ function ActionCard({
           />
         </div>
         {loading && (
-          <span className="text-xs text-beergam-typography-secondary">
-            ...
-          </span>
+          <div className="absolute flex items-center justify-center w-full h-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <Loading color="var(--color-beergam-primary)" size="32px" />
+          </div>
         )}
       </div>
       <Typography
