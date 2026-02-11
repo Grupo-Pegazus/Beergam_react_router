@@ -181,14 +181,14 @@ export default function HomeSummary() {
               {/* Vendas */}
               <CensorshipWrapper censorshipKey="home_summary_vendas">
                 <StatCard
-                  title="Vendas"
+                  title="Vendas e Unidades"
                   icon={<Svg.bag tailWindClasses="h-5 w-5" />}
                 >
                   <TextCensored
                     censorshipKey="home_summary_vendas"
                     className="text-lg! md:text-xl! lg:text-2xl! font-bold!"
                   >
-                    {summaryData.unidades} unidades
+                    {summaryData.vendas} vendas | {summaryData.unidades} unidades
                   </TextCensored>
                 </StatCard>
               </CensorshipWrapper>
@@ -196,7 +196,7 @@ export default function HomeSummary() {
               {/* Ticket médio */}
               <CensorshipWrapper censorshipKey="home_summary_ticket_medio">
                 <StatCard
-                  title="Ticket médio"
+                  title="Ticket Médio"
                   icon={<Svg.currency_dollar tailWindClasses="h-5 w-5" />}
                 >
                   <TextCensored
