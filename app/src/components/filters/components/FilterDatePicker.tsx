@@ -6,6 +6,21 @@ import { MonthYearPicker } from "~/src/components/ui/MonthYearPicker";
 
 function convertToDayjs(value?: string): Dayjs | null {
   if (!value) return null;
+
+  const dateOnlyMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (dateOnlyMatch) {
+    const [, y, m, d] = dateOnlyMatch.map(Number);
+    const parsed = dayjs().year(y).month(m - 1).date(d).startOf("day");
+    if (!parsed.isValid()) return null;
+
+    const timePart = value.split("T")[1];
+    if (timePart) {
+      const [h, min, sec] = timePart.split(/[:\s.]/).map((n) => parseInt(n, 10) || 0);
+      return parsed.hour(h).minute(min).second(sec);
+    }
+    return parsed;
+  }
+
   const dayjsValue = dayjs(value);
   return dayjsValue.isValid() ? dayjsValue : null;
 }

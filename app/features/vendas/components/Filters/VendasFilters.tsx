@@ -7,6 +7,7 @@ import {
   FilterSearchInput,
   FilterDatePicker,
 } from "~/src/components/filters";
+import { dateStringToISO } from "~/src/utils/date";
 import type { VendasFiltersProps, VendasFiltersState, OrderStatusFilter, DeliveryStatusFilter, DeliveryTypeFilter } from "./types";
 
 const STATUS_OPTIONS: Array<{ label: string; value: OrderStatusFilter }> = [
@@ -41,6 +42,7 @@ const DELIVERY_TYPE_OPTIONS: Array<{ label: string; value: DeliveryTypeFilter }>
   { label: "Flex", value: "self_service" },
   { label: "Não especificado", value: "not_specified" },
 ];
+
 export default function VendasFilters({
   value,
   onChange,
@@ -175,7 +177,7 @@ export default function VendasFilters({
 
   const handleDateFromChange = useCallback(
     (date: string | undefined) => {
-      const iso = date ? new Date(date).toISOString() : undefined;
+      const iso = date ? dateStringToISO(date) : undefined;
       onChange({
         ...value,
         dateCreatedFrom: iso,
@@ -187,7 +189,7 @@ export default function VendasFilters({
 
   const handleDateToChange = useCallback(
     (date: string | undefined) => {
-      const iso = date ? new Date(date).toISOString() : undefined;
+      const iso = date ? dateStringToISO(date) : undefined;
       onChange({
         ...value,
         dateCreatedTo: iso,
