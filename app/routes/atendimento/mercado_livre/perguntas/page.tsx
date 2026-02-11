@@ -14,6 +14,7 @@ import type {
 import Grid from "~/src/components/ui/Grid";
 import Section from "~/src/components/ui/Section";
 import { usePageFromSearchParams } from "~/src/hooks/usePageFromSearchParams";
+import { dateStringToISO } from "~/src/utils/date";
 
 const DEFAULT_FILTERS: QuestionsFiltersState = {
   status: "",
@@ -41,12 +42,8 @@ function mapToApiFilters(
         : filters.answered === "answered"
           ? true
           : false,
-    date_from: filters.date_from
-      ? new Date(filters.date_from).toISOString()
-      : undefined,
-    date_to: filters.date_to
-      ? new Date(filters.date_to).toISOString()
-      : undefined,
+    date_from: filters.date_from ? dateStringToISO(filters.date_from) : undefined,
+    date_to: filters.date_to ? dateStringToISO(filters.date_to) : undefined,
     page: filters.page,
     per_page: filters.per_page,
     sort_by: filters.sort_by,

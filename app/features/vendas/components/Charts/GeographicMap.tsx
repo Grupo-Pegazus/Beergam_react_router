@@ -19,7 +19,7 @@ import MainCards from "~/src/components/ui/MainCards";
 import { Fields } from "~/src/components/utils/_fields";
 import { type Dayjs } from "dayjs";
 import { FilterDatePicker } from "~/src/components/filters";
-import dayjs from "dayjs";
+import { dateStringToDayjs } from "~/src/utils/date";
 
 const geoUrl = "https://gist.githubusercontent.com/ruliana/1ccaaab05ea113b0dff3b22be3b4d637/raw/196c0332d38cb935cfca227d28f7cecfa70b412e/br-states.json";
 
@@ -142,12 +142,12 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
                     <FilterDatePicker
                       label="Data de início"
                       value={dateFrom?.toISOString() ?? undefined}
-                      onChange={(value) => handleDateFromChange(value ? dayjs(value) : null)}
+                      onChange={(value) => handleDateFromChange(value ? dateStringToDayjs(value) : null)}
                     />
                     <FilterDatePicker
                       label="Data de fim"
                       value={dateTo?.toISOString() ?? undefined}
-                      onChange={(value) => handleDateToChange(value ? dayjs(value) : null)}
+                      onChange={(value) => handleDateToChange(value ? dateStringToDayjs(value) : null)}
                     />
                   </Stack>
                 )}
