@@ -29,7 +29,7 @@ const SUMMARY_CARDS: SummaryCardDefinition[] = [
   },
   {
     key: "totalAtivos",
-    label: "Estoque positivo",
+    label: "Produtos ativos",
     icon: "check_circle",
     gradient: "from-green-100 via-emerald-50 to-white",
     accent: "text-emerald-600",
