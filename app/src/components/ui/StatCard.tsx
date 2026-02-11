@@ -231,7 +231,7 @@ export default function StatCard({
           ) : null}
           <span
             className={[
-              "text-xs md:text-sm font-medium truncate text-beergam-typography-secondary",
+              "text-xs md:text-sm font-medium truncate text-beergam-typography-secondary capitalize",
               tokens.titleColor,
             ].join(" ")}
           >
