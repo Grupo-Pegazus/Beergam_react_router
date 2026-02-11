@@ -296,6 +296,31 @@ export function useDeleteProduct() {
   });
 }
 
+export function useDeleteAllProducts() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => produtosService.deleteAllProducts(),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["products-metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["stock-dashboard"] });
+      queryClient.refetchQueries({ queryKey: ["products"] });
+      const count = res.data?.deleted_count ?? 0;
+      toast.success(
+        res.data?.message ?? `${count} produto(s) excluído(s) com sucesso.`
+      );
+    },
+    onError: (error: unknown) => {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Erro ao excluir produtos. Tente novamente.";
+      toast.error(message);
+    },
+  });
+}
+
 export function useStockDashboard(limit: number = 20) {
   return useQuery<ApiResponse<StockDashboardResponse>>({
     queryKey: ["stock-dashboard", limit],

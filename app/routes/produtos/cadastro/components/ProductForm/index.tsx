@@ -24,8 +24,8 @@ import {
   type RegistrationType,
 } from "~/features/produtos/typings/createProduct";
 import { transformProductDetailsToCreateProduct } from "~/features/produtos/utils/productTransform";
-import ReprocessOrdersBySkuModal from "~/features/vendas/components/ReprocessOrdersBySkuModal/ReprocessOrdersBySkuModal";
 import { useSyncCostsBySku } from "~/features/vendas/hooks";
+import SkuSelectionModal from "~/src/components/utils/SkuSelectionModal";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
 import toast from "~/src/utils/toast";
@@ -257,14 +257,21 @@ export default function ProductForm({
 
       if (skus.length > 0) {
         openModal(
-          <ReprocessOrdersBySkuModal
-            skus={skus}
+          <SkuSelectionModal
+            items={skus.map((s) => ({ sku: s }))}
+            title="Produto salvo com sucesso!"
+            description="Deseja reprocessar os pedidos relacionados a este(s) SKU(s) para atualizar os custos nos pedidos já existentes?"
+            cancelText="Não, ir para gestão"
+            getConfirmText={(n) =>
+              n > 0 ? `Reprocessar ${n} SKU(s)` : "Sim, reprocessar"
+            }
+            listAriaLabel="SKUs para reprocessar"
             onClose={() => {
               closeModal();
               navigateToGestao();
             }}
-            onConfirm={(selectedSkus) => {
-              syncCostsBySkuMutation.mutate(selectedSkus, {
+            onConfirm={(selected) => {
+              syncCostsBySkuMutation.mutate(selected.map((s) => s.sku), {
                 onSettled: () => {
                   closeModal();
                   navigateToGestao();

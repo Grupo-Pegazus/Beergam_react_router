@@ -59,6 +59,27 @@ class ProdutosService {
     return response as ApiResponse<{ message: string }>;
   }
 
+  async deleteAllProducts(): Promise<
+    ApiResponse<{
+      deleted_count: number;
+      deleted_general_products_count: number;
+      message: string;
+    }>
+  > {
+    const response = await typedApiClient.post<
+      {
+        deleted_count: number;
+        deleted_general_products_count: number;
+        message: string;
+      }
+    >("/v1/products/delete-all", { confirm: true });
+    return response as ApiResponse<{
+      deleted_count: number;
+      deleted_general_products_count: number;
+      message: string;
+    }>;
+  }
+
   async changeProductStatus(
     productId: string,
     status: "Ativo" | "Inativo"
