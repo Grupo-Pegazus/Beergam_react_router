@@ -31,11 +31,14 @@ export function useInvoicingMetricsByMonths() {
     });
 }
 
-export function useIncomingsBySku() {
+export function useIncomingsBySku(params?: {
+    start_date?: string;
+    end_date?: string;
+}) {
     return useQuery<ApiResponse<IncomingsBySkuSchemaType[]>>({
-        queryKey: ["invoicing", "incomings", "by_sku"],
+        queryKey: ["invoicing", "incomings", "by_sku", params?.start_date, params?.end_date],
         queryFn: async () => {
-            const res = await invoicingService.get_incomings_by_sku();
+            const res = await invoicingService.get_incomings_by_sku(params);
             if (!res.success) {
                 throw new Error(res.message || "Erro ao buscar incomings por SKU");
             }

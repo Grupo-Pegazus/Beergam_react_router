@@ -53,7 +53,7 @@ export default function ChatMessage({ message }: { message: ChatMessage }) {
                     ${isSystem
                         ? "bg-beergam-gray! border-beergam-input-border!"
                         : isSender
-                            ? "bg-beergam-section-background! border-beergam-input-border! rounded-tl-none!"
+                            ? "bg-beergam-primary-light! dark:bg-beergam-gray-blueish/70! border-beergam-gray-light! dark:border-beergam-gray-blueish! rounded-tl-none!"
                             : "bg-beergam-primary/80! border-beergam-primary! rounded-br-none!"
                     }
                 `}

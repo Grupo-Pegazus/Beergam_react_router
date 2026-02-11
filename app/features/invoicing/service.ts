@@ -15,8 +15,22 @@ class InvoicingService {
         const response = await typedApiClient.get<InvoicingMetricsByMonthsSchemaType>(`/v1/invoicing/get_metrics_by_month`);
         return response as ApiResponse<InvoicingMetricsByMonthsSchemaType>;
     }
-    async get_incomings_by_sku(): Promise<ApiResponse<IncomingsBySkuSchemaType[]>> {
-        const response = await typedApiClient.get<IncomingsBySkuSchemaType[]>(`/v1/invoicing/get_incomings_by_sku`);
+    async get_incomings_by_sku(params?: {
+        start_date?: string;
+        end_date?: string;
+    }): Promise<ApiResponse<IncomingsBySkuSchemaType[]>> {
+        const effectiveParams =
+            params && (params.start_date || params.end_date)
+                ? {
+                      ...(params.start_date && { start_date: params.start_date }),
+                      ...(params.end_date && { end_date: params.end_date }),
+                  }
+                : undefined;
+
+        const response = await typedApiClient.get<IncomingsBySkuSchemaType[]>(
+            `/v1/invoicing/get_incomings_by_sku`,
+            { params: effectiveParams }
+        );
         return response as ApiResponse<IncomingsBySkuSchemaType[]>;
     }
     async get_self_service_return(): Promise<ApiResponse<SelfServiceReturnSchemaType>> {
