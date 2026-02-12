@@ -33,7 +33,7 @@ export default function AdWithoutSkuCard({
                 label={ad.mlb}
                 size="small"
                 variant="outlined"
-                className="shrink-0"
+                className="shrink-0 bg-beergam-typography-secondary! text-beergam-white! border-beergam-border-secondary!"
               />
             </div>
             <Typography
@@ -80,7 +80,6 @@ export default function AdWithoutSkuCard({
           variations={ad.variations_without_sku}
           skuValues={skuValues}
           onSkuChange={onSkuChange}
-          mlb={ad.mlb}
           onUseMlbAsSku={(variationId) => onSkuChange(variationId, ad.mlb)}
         />
       )}
