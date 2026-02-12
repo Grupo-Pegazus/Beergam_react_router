@@ -7,10 +7,12 @@ import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 import { authService } from "~/features/auth/service";
 import { useSocketContext } from "~/features/socket/context/SocketContext";
+import { setLastActivity } from "~/features/auth/utils/sessionActivityStorage";
 import authStore from "~/features/store-zustand";
 import UserFields from "~/features/user/components/UserFields";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import BeergamButton from "~/src/components/utils/BeergamButton";
+import { SubscriptionStatus } from "~/features/user/typings/BaseUser";
 import {
   BeergamTurnstile,
   type BeergamTurnstileRef,
@@ -47,6 +49,8 @@ export default function LoginForm({
         throw new Error(data.message);
       }
       storeLogin(data.data.subscription, data.data.user);
+      authService.checkLogin();
+      setLastActivity();
       // Remove todas as queries do cache e invalida para forçar refetch
       queryClient.removeQueries();
       queryClient.invalidateQueries();
@@ -61,7 +65,7 @@ export default function LoginForm({
         navigate("/interno/config?session=Minha Assinatura", {
           viewTransition: true,
         });
-      } else if (data.data.subscription?.status === "CANCELED") {
+      } else if (data.data.subscription?.status === SubscriptionStatus.CANCELED) {
         navigate("/interno/config?session=Minha Assinatura", {
           viewTransition: true,
         });

@@ -43,6 +43,13 @@ const DELIVERY_TYPE_OPTIONS: Array<{ label: string; value: DeliveryTypeFilter }>
   { label: "Não especificado", value: "not_specified" },
 ];
 
+/** Cor principal de cada situação - usada em ambos os estados */
+const ORDERS_SITUATIONS_COLOR: Record<string, string> = {
+  negative_margin: "var(--color-beergam-blue)",
+  missing_costs: "var(--color-beergam-orange)",
+  missing_taxes: "var(--color-beergam-red)",
+};
+
 export default function VendasFilters({
   value,
   onChange,
@@ -264,6 +271,38 @@ export default function VendasFilters({
           />
         </div>
       </Stack>,
+      <div key="extra-filters-section" className="flex flex-col gap-2">
+        <span className="text-sm font-semibold text-beergam-typography-secondary">
+          Situação do pedido
+        </span>
+        <div className="flex flex-wrap gap-1.5">
+            {[
+              { key: "negative_margin", label: "Margem negativa" },
+              { key: "missing_costs", label: "Sem custos" },
+              { key: "missing_taxes", label: "Sem impostos" },
+            ].map(({ key, label }) => {
+              const isActive = value[key as keyof VendasFiltersState] as boolean;
+              const color = ORDERS_SITUATIONS_COLOR[key];
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => handleFilterChange(key, !isActive)}
+                  className="px-4 py-2 rounded-xl font-medium text-sm border-2 transition-all duration-200 cursor-pointer select-none hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    backgroundColor: isActive
+                      ? color
+                      : `color-mix(in srgb, ${color} 35%, transparent)`,
+                    color: isActive ? "white" : "var(--color-beergam-typography-primary)",
+                    borderColor: color,
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
+        </div>
+      </div>,
       <Stack
         key="date-section"
         direction={{ xs: "column", md: "row" }}
@@ -297,6 +336,9 @@ export default function VendasFilters({
       deliveryStatusValue,
       deliveryTypeValue,
       handleFilterChange,
+      value.negative_margin,
+      value.missing_costs,
+      value.missing_taxes,
       dateFromValue,
       dateToValue,
       handleDateFromChange,

@@ -160,6 +160,21 @@ class AuthService {
       };
     }
   }
+  async checkLogin(): Promise<ApiResponse<null>> {
+    try {
+      const response = await typedApiClient.post<null>("/v1/auth/check_login");
+      return response;
+    } catch (error) {
+      console.error("error do checkLogin", error);
+      return {
+        success: false,
+        data: null,
+        message: "Erro ao verificar login. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: [],
+      };
+    }
+  }
 }
 
 export const authService = new AuthService();

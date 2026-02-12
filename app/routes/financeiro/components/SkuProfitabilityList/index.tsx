@@ -214,12 +214,7 @@ export default function SkuProfitabilityList({
 
       const revenue = parsePtBrNumber(order.valor_liquido);
       const internalCost = parsePtBrNumber(order.price_cost);
-      const profit =
-        revenue -
-        parsePtBrNumber(order.price_cost) -
-        parsePtBrNumber(order.packaging_cost) -
-        parsePtBrNumber(order.extra_cost) -
-        parsePtBrNumber(order.tax_amount);
+      const profit = order.profit ?? 0;
 
       const qty = Number(order.quantity ?? 1) || 1;
 

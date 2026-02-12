@@ -252,7 +252,7 @@ export default function LucratividadePage() {
           <div className="grid gap-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <StatCard
-                    title="Faturamento"
+                    title="Faturamento Acumulado"
                     input={
                     {component:  <Fields.input
                         type="number"
@@ -270,14 +270,14 @@ export default function LucratividadePage() {
                       <SectionContentCard censorshipKey="lucratividade_flex" isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(selfServiceReturn?.data?.["30"]?.valor_recebido_do_flex ?? "0"), period: "30 dias", topText: `${selfServiceReturn?.data?.["30"]?.total_orders ?? 0} pedidos` }, { value: formatCurrency(selfServiceReturn?.data?.["60"]?.valor_recebido_do_flex ?? "0"), period: "60 dias", topText: `${selfServiceReturn?.data?.["60"]?.total_orders ?? 0} pedidos` }, { value: formatCurrency(selfServiceReturn?.data?.["90"]?.valor_recebido_do_flex ?? "0"), period: "90 dias", topText: `${selfServiceReturn?.data?.["90"]?.total_orders ?? 0} pedidos` }]} />
                   </StatCard>
                   <StatCard
-                    title="Custos"
+                    title="Custos Acumulado"
                     icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
 
                   >
                       <SectionContentCard censorshipKey="lucratividade_flex" isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(getFlexSpent("30").toString()), period: "30 dias", }, { value: formatCurrency(getFlexSpent("60").toString()), period: "60 dias", }, { value: formatCurrency(getFlexSpent("90").toString()), period: "90 dias", }]} />
                   </StatCard>
                   <StatCard
-                    title="Lucratividade"
+                    title="Lucratividade Acumulada"
                     icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
                   >
                       <SectionContentCard censorshipKey="lucratividade_flex" isLoading={isLoadingSelfServiceReturn} contents={[{ value: formatCurrency(calculateFlexResult("30").toString()), period: "30 dias", canShowPercentage: true, percentage: calculateFlexResult("30"), percentageText: (() => {
@@ -297,37 +297,37 @@ export default function LucratividadePage() {
     <div className="grid gap-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <StatCard
-                  title="Custos com Frete (Comprador)"
+                  title="Custos com Frete Acumulado (Comprador)"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
                     <SectionContentCard censorshipKey="lucratividade_custos" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.shipping?.buyer ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.shipping?.buyer ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.shipping?.buyer ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                   <StatCard
-                  title="Custos com Frete (Vendedor)"
+                  title="Custos com Frete Acumulado (Vendedor)"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
                     <SectionContentCard censorshipKey="lucratividade_custos" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.shipping?.seller ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.shipping?.seller ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.shipping?.seller ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                             <StatCard
-                  title="Custos com Comissões"
+                  title="Custos com Comissões Acumulado"
                   icon={<Svg.box_solid tailWindClasses="h-5 w-5" />}
                 >
                     <SectionContentCard censorshipKey="lucratividade_custos" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.comissions ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.comissions ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.comissions ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                   <StatCard
-                  title="Custos de Produto"
+                  title="Custos de Produto Acumulado"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
                     <SectionContentCard censorshipKey="lucratividade_custos" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.internal_costs ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.internal_costs ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.internal_costs ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                   <StatCard
-                  title="Custos com Embalagem"
+                  title="Custos com Embalagem Acumulado"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
                     <SectionContentCard censorshipKey="lucratividade_custos" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.package_costs ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.package_costs ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.package_costs ?? "0"), period: "90 dias" }]} />
                 </StatCard>
                   <StatCard
-                  title="Custos Extra"
+                  title="Custos Extra Acumulado"
                   icon={<Svg.truck_solid tailWindClasses="h-5 w-5" />}
                 >
                     <SectionContentCard censorshipKey="lucratividade_custos" isLoading={isLoadingInvoicingMetrics} contents={[{ value: formatCurrency(invoicingMetrics?.data?.["30"]?.costs?.extra_costs ?? "0"), period: "30 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["60"]?.costs?.extra_costs ?? "0"), period: "60 dias" }, { value: formatCurrency(invoicingMetrics?.data?.["90"]?.costs?.extra_costs ?? "0"), period: "90 dias" }]} />

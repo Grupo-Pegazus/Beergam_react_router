@@ -164,6 +164,16 @@ function AppliedFiltersBadges({
             });
         }
 
+        if (filters.negative_margin === true) {
+            result.push({ key: "negative_margin", label: "Margem negativa", value: "Sim" });
+        }
+        if (filters.missing_costs === true) {
+            result.push({ key: "missing_costs", label: "Sem custos", value: "Sim" });
+        }
+        if (filters.missing_taxes === true) {
+            result.push({ key: "missing_taxes", label: "Sem impostos", value: "Sim" });
+        }
+
         return result;
     }, [filters]);
 
@@ -315,7 +325,7 @@ function OrderContextMenu({ data: order, anchorPosition, onClose }: ContextMenuP
             {/* Card do produto com thumbnail */}
             <div className="flex gap-3 p-2 mb-1 bg-beergam-section-background rounded-md">
                 {/* Thumbnail */}
-                <div className="flex-shrink-0 w-14 h-14 rounded-md overflow-hidden bg-zinc-100 border border-zinc-200">
+                <div className="shrink-0 w-14 h-14 rounded-md overflow-hidden bg-zinc-100 border border-zinc-200">
                     {thumbnail ? (
                         <img 
                             src={thumbnail} 
@@ -438,7 +448,10 @@ export default function RelatorioVendasRoute() {
         loadMore, 
         hasMore 
     } = useOrdersWithLoadMore(apiFilters);
-    const transformedOrders = useMemo(() => orders.map((order) => OrderSchema.parse(order)), [orders]);
+    const transformedOrders = useMemo(
+        () => orders.map((order) => OrderSchema.parse(order) as Order),
+        [orders]
+    );
     
     const TotalCusto = useMemo(() => {
         return orders.reduce((acc, order) => {
@@ -522,6 +535,10 @@ export default function RelatorioVendasRoute() {
         }, 0);
     }, [orders]);
 
+    const TotalCost = useMemo(() => {
+        return orders.reduce((acc, order) => acc + (parseFloat(order.total_cost ?? "0") ?? 0), 0);
+    }, [orders]);
+
     const TotalStockCost = useMemo(() => {
         return orders.reduce((acc, order) => {
             return acc + parseFloat(order.stock_cost || "0");
@@ -538,6 +555,10 @@ export default function RelatorioVendasRoute() {
         return orders.reduce((acc, order) => {
             return acc + parseFloat(order.bonus_por_envio_estorno || "0");
         }, 0);
+    }, [orders]);
+
+    const TotalLucro = useMemo(() => {
+        return orders.reduce((acc, order) => acc + (parseFloat(order.profit ?? "0") ?? 0), 0);
     }, [orders]);
 
     const footers = useMemo(() => createColumnFooters({
@@ -583,6 +604,9 @@ export default function RelatorioVendasRoute() {
         extra_cost: {
             value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalExtraCost),
         },
+        total_cost: {
+            value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalCost),
+        },
         stock_cost: {
             value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalStockCost),
         },
@@ -591,8 +615,13 @@ export default function RelatorioVendasRoute() {
         },
         bonus_por_envio_estorno: {
             value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalBonusPorEnvioEstorno),
-        }
-    }), [TotalCusto, TotalValorPago, TotalValorBase, TotalValorLiquido, TotalValorDoImposto, TotalTarifaML, TotalEnvioVendedor, TotalEnvioBase, TotalEnvioFinal, CustoEnvioComprador, ValorDeclarado]);
+        },
+        profit: {
+            value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalLucro),
+        },
+
+    }), [TotalCusto, TotalValorPago, TotalValorBase, TotalValorLiquido, TotalValorDoImposto, TotalTarifaML, TotalEnvioVendedor, TotalEnvioBase, TotalEnvioFinal, CustoEnvioComprador, ValorDeclarado, TotalPriceCost, TotalPackagingCost, TotalExtraCost, TotalCost, TotalStockCost, TotalUnitPrice, TotalBonusPorEnvioEstorno, TotalLucro]);
+
     const columns: ColumnDef<Order>[] = useMemo(() => {
         // Campos que são objetos ou arrays e não podem ser renderizados diretamente
         const excludedKeys: (keyof Order)[] = [
@@ -629,22 +658,26 @@ export default function RelatorioVendasRoute() {
             'valor_liquido',
             'tax_amount',
             'sale_fee',
+            'total_cost',
+            'profit',
+            'profit_margin',
             'custo_envio_seller',
             'custo_envio_base',
             'custo_envio_final',
             'custo_envio_buyer',
             'declared_value',
         ];
+
         
-        // Usa a ordem definida em OrderAttributeDisplayOrder
-        return OrderAttributeDisplayOrder
+        // Usa a ordem definida em OrderAttributeDisplayOrder e insere Lucro após extra_cost
+        const baseColumns = OrderAttributeDisplayOrder
             .filter((key) => !excludedKeys.includes(key))
-            .map((key) => {
+            .flatMap((key) => {
                 const colors = getAttributeColors(key);
                 const footer = getColumnFooter(key, footers); // Obtém footer específico da coluna
                 const textColor = getTextColorForColumn(key); // Cor vermelha para valores negativos
                 
-                return {
+                const col: ColumnDef<Order> = {
                     header: OrderTranslatedAttributes[key],
                     accessorKey: key,
                     meta: {
@@ -657,8 +690,11 @@ export default function RelatorioVendasRoute() {
                         ...footer, // Aplica footerValue e footerColor se existir
                     },
                 };
+                return [col];
             });
-    }, [footers]);
+
+        return baseColumns;
+    }, [footers, TotalLucro]);
 
     // Context menu callback
     const renderContextMenu = useCallback((props: ContextMenuProps<Order>) => (
