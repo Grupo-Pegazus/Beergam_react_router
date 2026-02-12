@@ -8,7 +8,6 @@ interface VariationSkuInputProps {
   value: string;
   onChange: (value: string) => void;
   varyingAttributeIds: string[];
-  mlb: string;
   onUseMlbAsSku: () => void;
 }
 
@@ -17,7 +16,6 @@ export default function VariationSkuInput({
   value,
   onChange,
   varyingAttributeIds,
-  mlb,
   onUseMlbAsSku,
 }: VariationSkuInputProps) {
   // Pega todos os atributos que variam
@@ -29,7 +27,7 @@ export default function VariationSkuInput({
       : variation.attributes;
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-lg border border-slate-100 bg-slate-50 p-3">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-lg border border-beergam-border-secondary! bg-beergam-section-background p-3">
       <div className="flex-1 min-w-0">
         {varyingAttributes.length > 0 ? (
           <>
@@ -38,14 +36,14 @@ export default function VariationSkuInput({
                 <Typography
                   key={attr.id}
                   variant="body2"
-                  className="text-slate-700 font-medium wrap-break-word"
+                  className="text-beergam-typography-secondary! font-medium wrap-break-word"
                 >
                   {attr.name}:{" "}
-                  <span className="text-slate-900 font-semibold">
+                  <span className="text-beergam-typography-primary! font-semibold">
                     {attr.value_name || "-"}
                   </span>
                   {idx < varyingAttributes.length - 1 && (
-                    <span className="text-slate-300 mx-1 hidden sm:inline">
+                    <span className="text-beergam-typography-secondary! mx-1 hidden sm:inline">
                       |
                     </span>
                   )}
@@ -54,7 +52,6 @@ export default function VariationSkuInput({
             </div>
             <Typography
               variant="caption"
-              color="text.secondary"
               className="block"
             >
               Preço: {formatCurrency(variation.price)} | Estoque:{" "}
@@ -65,12 +62,11 @@ export default function VariationSkuInput({
           <>
             <Typography
               variant="caption"
-              color="text.secondary"
               className="block mb-1 break-all"
             >
               Variação ID: {variation.variation_id}
             </Typography>
-            <Typography variant="body2" className="text-slate-700">
+            <Typography variant="body2" className="text-beergam-typography-secondary!">
               Preço: {formatCurrency(variation.price)} | Estoque:{" "}
               {variation.stock}
             </Typography>

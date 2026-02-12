@@ -348,6 +348,7 @@ export function useSyncCostsBySku() {
     },
     onSuccess: (res, skus) => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["anuncios"] });
       const tasksEnqueued = res.data?.tasks_enqueued ?? skus.length;
       toast.success(
         `Sincronização de custos para ${tasksEnqueued} SKU(s) iniciada. Os pedidos serão atualizados em background.`,

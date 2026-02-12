@@ -668,11 +668,26 @@ export default function ChatArea({
                             ((chatType === "reclamacao" || chatType === "mediacao") && activeClaimId) ||
                             (chatType === "pos_venda" && activeOrderId)
                         ) && (
-                            <BeergamButton
-                                icon="clip"
-                                onClick={() => setShowUploadModal(true)}
-                                disabled={isSending}
-                            />
+                            <Tooltip
+                                title={
+                                    isPosVendaComEnvioBloqueado
+                                        ? "Você não pode enviar anexos enquanto a conversa estiver desabilitada."
+                                        : ""
+                                }
+                            >
+                                <span>
+                                    <BeergamButton
+                                        icon="clip"
+                                        onClick={() => setShowUploadModal(true)}
+                                        disabled={
+                                            isSending ||
+                                            (chatType === "pos_venda" &&
+                                                posPurchaseStatus !== undefined &&
+                                                !posPurchaseStatus.can_message)
+                                        }
+                                    />
+                                </span>
+                            </Tooltip>
                         )}
                         <BeergamButton
                             icon={"arrow_uturn_right"}
