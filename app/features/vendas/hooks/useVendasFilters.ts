@@ -88,6 +88,16 @@ function sanitizeFilters(state: VendasFiltersState): Partial<OrdersFilters> {
     apiFilters.sort_order = state.sort_order;
   }
 
+  if (state.negative_margin === true) {
+    apiFilters.negative_margin = true;
+  }
+  if (state.missing_costs === true) {
+    apiFilters.missing_costs = true;
+  }
+  if (state.missing_taxes === true) {
+    apiFilters.missing_taxes = true;
+  }
+
   return apiFilters;
 }
 

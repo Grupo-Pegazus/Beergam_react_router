@@ -207,15 +207,10 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
       return sum + parseFloat(order.tax_amount || "0");
     }, 0);
 
-    // Lucro final = total receita - custos
-    // Se todos os pedidos estão cancelled, lucro final é 0
+    // Lucro final: soma dos profits retornados pelo backend
     const lucroFinal = allOrdersCancelled
       ? 0
-      : totalsP.totalLiquido -
-      custoProduto -
-      custoEmbalagem -
-      custosExtras -
-      impostos;
+      : orders.reduce((sum, order) => sum + (order.profit ?? 0), 0);
 
     return {
       precoProdutos,
