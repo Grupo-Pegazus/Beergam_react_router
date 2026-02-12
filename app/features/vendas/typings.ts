@@ -23,14 +23,26 @@ export const currencyString = z.string().transform((val) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(parseFloat(val))
 );
 
+export const currencyNumber = z.number().transform((val) => 
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val)
+);
+
 /** Schema para strings de moeda nullable/optional */
 export const currencyStringOptional = currencyString.nullable().optional();
+
+export const currencyNumberOptional = currencyNumber.nullable().optional();
 
 export const percentageString = z.string().transform((val) => 
   `${(parseFloat(val)).toFixed(2)}%`
 );
 
+export const percentageNumber = z.number().transform((val) => 
+  `${(parseFloat(String(val))).toFixed(2)}%`
+);
+
 export const percentageStringOptional = percentageString.nullable().optional();
+
+export const percentageNumberOptional = percentageNumber.nullable().optional();
 
 // ============================================
 
@@ -124,6 +136,11 @@ export const OrderSchema = z.object({
   isRegisteredInternally: z.boolean().optional(), // Presente apenas no endpoint de detalhes
   created_at: dateStringOptional,
   updated_at: dateStringOptional,
+  // Lucro e margem calculados pelo backend
+  profit: currencyNumberOptional,
+  profit_margin: percentageNumberOptional,
+  // Custo total (soma price_cost + packaging_cost + extra_cost)
+  total_cost: currencyNumberOptional,
 });
 
 export type Order = z.infer<typeof OrderSchema>;
@@ -191,6 +208,9 @@ export const OrderTranslatedAttributes: OrderTranslatedAttributes = {
   isRegisteredInternally: "Registrado Internamente",
   created_at: "Criado Em",
   updated_at: "Atualizado Em",
+  profit: "Lucro",
+  profit_margin: "Margem de Lucro",
+  total_cost: "Custo Total",
 } as const;
 // ============================================
 // SISTEMA DE SEÇÕES E CORES PARA TABELA
@@ -290,7 +310,9 @@ export const OrderAttributeSection: Record<keyof Order, OrderSection> = {
   currency_id: 'order_values',
   valor_base: 'order_values',
   valor_liquido: 'order_values',
-  
+  profit: 'order_values',
+  profit_margin: 'order_values',
+
   // Taxas, Impostos e Custos Fixos
   tax_percentage: 'taxes_costs',
   tax_amount: 'taxes_costs',
@@ -298,6 +320,7 @@ export const OrderAttributeSection: Record<keyof Order, OrderSection> = {
   price_cost: 'taxes_costs',
   packaging_cost: 'taxes_costs',
   extra_cost: 'taxes_costs',
+  total_cost: 'taxes_costs',
   stock_cost: 'taxes_costs',
   // Envio e Logística
   shipping_id: 'shipping_logistics',
@@ -339,9 +362,9 @@ export const OrderAttributeDisplayOrder: (keyof Order)[] = [
   // Produto / Anúncio
   'sku', 'mlb', 'title', 'category_id', 'quantity', 'unit_price', 'listing_type_id', 'thumbnail',
   // Valores do Pedido
-  'total_amount', 'paid_amount', 'currency_id', 'valor_base', 'valor_liquido',
+  'total_amount', 'paid_amount', 'currency_id', 'valor_base', 'valor_liquido', 'profit', 'profit_margin',
   // Taxas, Impostos e Custos Fixos
-  'tax_percentage', 'tax_amount', 'sale_fee', 'price_cost', 'packaging_cost', 'extra_cost', 'stock_cost',
+  'tax_percentage', 'tax_amount', 'sale_fee', 'price_cost', 'packaging_cost', 'extra_cost', 'total_cost', 'stock_cost',
   // Envio e Logística
   'shipping_id', 'shipping_mode', 'shipping_paid_by', 'shipping_destination_state', 
   'shipping_details', 'tracking_number', 'tracking_method', 'shipment_status', 'shipment_substatus', 
@@ -390,6 +413,7 @@ export const NegativeValueColumns: (keyof Order)[] = [
   'price_cost',
   'packaging_cost',
   'extra_cost',
+  'total_cost',
   'stock_cost',
   // Custos de envio
   'custo_envio_base',
@@ -485,6 +509,9 @@ export const OrdersFiltersSchema = z.object({
   quantity_min: z.number().optional(),
   quantity_max: z.number().optional(),
   tags: z.array(z.string()).optional(),
+  negative_margin: z.boolean().optional(),
+  missing_costs: z.boolean().optional(),
+  missing_taxes: z.boolean().optional(),
   page: z.number().default(1),
   per_page: z.number().default(20).refine((val) => val <= 100, {
     message: "per_page deve ser no máximo 100",

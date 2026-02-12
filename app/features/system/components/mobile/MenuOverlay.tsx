@@ -183,7 +183,10 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
           items={submenuState.items}
           parentLabel={submenuState.parentLabel}
           parentKey={submenuState.parentKey}
-          onClose={() => setSubmenuState(null)}
+          onClose={() => {
+            setSubmenuState(null);
+            handleClose();
+          }}
           onBack={
             submenuState.parentKey ? () => setSubmenuState(null) : undefined
           }

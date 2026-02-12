@@ -51,7 +51,7 @@ function DetalhesPedido({
       </div>
 
       <p
-        className={`font-bold text-nowrap ${
+        className={`font-bold text-nowrap mr-4 ${
           isNegative ? "text-beergam-red!" : "text-beergam-green!"
         } ${isHighlight ? "text-xl font-extrabold" : ""}`}
       >

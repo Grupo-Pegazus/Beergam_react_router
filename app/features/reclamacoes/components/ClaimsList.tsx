@@ -120,10 +120,11 @@ export function ClaimCard({
                         {/* Badge de reputação */}
                         {reputationStatus !== "unknown" && (
                             <span
-                                className={`px-2 py-1 rounded-full border ${reputationStatus === "affected"
-                                    ? "bg-beergam-red-light border-beergam-red/30 text-beergam-red-primary"
-                                    : "bg-beergam-green/10 border-beergam-green/30 text-beergam-green"
-                                    }`}
+                                className={`px-2 py-1 rounded-full border text-xs w-fit ${
+                                    reputationStatus === "affected"
+                                        ? "bg-red-500/30 border-red-500/50 text-red-300"
+                                        : "bg-green-500/20 border-green-500/40 text-green-300"
+                                }`}
                             >
                                 {reputationLabel}
                             </span>
@@ -313,8 +314,8 @@ export function ClaimCard({
                                         <span className="text-beergam-typography-secondary">Reputação: </span>
                                         <span
                                             className={`px-2 py-0.5 rounded-full text-xs font-medium inline-block ${reputationStatus === "affected"
-                                                ? "bg-beergam-red-light border border-beergam-red/30 text-beergam-red-primary"
-                                                : "bg-beergam-green/10 border border-beergam-green/30 text-beergam-green"
+                                                ? "bg-red-500/30 border border-red-500/50 text-red-300"
+                                                : "bg-green-500/20 border border-green-500/40 text-green-300"
                                                 }`}
                                         >
                                             {reputationLabel}
