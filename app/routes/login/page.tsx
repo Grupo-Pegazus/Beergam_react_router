@@ -6,6 +6,7 @@ import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 import { setLastActivity } from "~/features/auth/utils/sessionActivityStorage";
 import { isSubscriptionError } from "~/features/auth/utils";
 import { subscriptionService } from "~/features/plans/subscriptionService";
+import { authService } from "~/features/auth/service";
 import authStore from "~/features/store-zustand";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import type { IColab } from "~/features/user/typings/Colab";
@@ -68,10 +69,8 @@ export default function LoginPage({
     setIsLoadingSubscription(true);
     try {
       await subscriptionService.getSubscription();
-      
       // Verifica se o componente ainda está montado antes de atualizar estado
       if (!isMountedRef.current) return;
-      
       // Verifica se o usuário ainda está logado após a requisição
       // Se o refresh token expirar durante a requisição, o interceptor chama logout() automaticamente
       // e limpa o user. Nesse caso, não navega (o AuthLayout já vai redirecionar para /login)
@@ -80,6 +79,8 @@ export default function LoginPage({
         setIsLoadingSubscription(false);
         return;
       }
+
+      await authService.checkLogin();
       
       // Verifica se há erro de subscription (ex: CANCELED)
       // Se houver, navega para a página de configuração de assinatura

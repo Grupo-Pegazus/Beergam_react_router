@@ -49,6 +49,7 @@ export default function LoginForm({
         throw new Error(data.message);
       }
       storeLogin(data.data.subscription, data.data.user);
+      authService.checkLogin();
       setLastActivity();
       // Remove todas as queries do cache e invalida para forçar refetch
       queryClient.removeQueries();
