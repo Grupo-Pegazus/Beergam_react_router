@@ -504,6 +504,42 @@ export default function RelatorioVendasRoute() {
         }, 0);
     }, [orders]);
 
+    const TotalPriceCost = useMemo(() => {
+        return orders.reduce((acc, order) => {
+            return acc + parseFloat(order.price_cost || "0");
+        }, 0);
+    }, [orders]);
+
+    const TotalPackagingCost = useMemo(() => {
+        return orders.reduce((acc, order) => {
+            return acc + parseFloat(order.packaging_cost || "0");
+        }, 0);
+    }, [orders]);
+
+    const TotalExtraCost = useMemo(() => {
+        return orders.reduce((acc, order) => {
+            return acc + parseFloat(order.extra_cost || "0");
+        }, 0);
+    }, [orders]);
+
+    const TotalStockCost = useMemo(() => {
+        return orders.reduce((acc, order) => {
+            return acc + parseFloat(order.stock_cost || "0");
+        }, 0);
+    }, [orders]);
+
+    const TotalUnitPrice = useMemo(() => {
+        return orders.reduce((acc, order) => {
+            return acc + parseFloat(order.unit_price || "0");
+        }, 0);
+    }, [orders]);
+
+    const TotalBonusPorEnvioEstorno = useMemo(() => {
+        return orders.reduce((acc, order) => {
+            return acc + parseFloat(order.bonus_por_envio_estorno || "0");
+        }, 0);
+    }, [orders]);
+
     const footers = useMemo(() => createColumnFooters({
         total_amount: {
             value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalCusto),
@@ -538,7 +574,24 @@ export default function RelatorioVendasRoute() {
         declared_value: {
             value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(ValorDeclarado),
         },
-
+        price_cost: {
+            value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalPriceCost),
+        },
+        packaging_cost: {
+            value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalPackagingCost),
+        },
+        extra_cost: {
+            value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalExtraCost),
+        },
+        stock_cost: {
+            value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalStockCost),
+        },
+        unit_price: {
+            value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalUnitPrice),
+        },
+        bonus_por_envio_estorno: {
+            value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalBonusPorEnvioEstorno),
+        }
     }), [TotalCusto, TotalValorPago, TotalValorBase, TotalValorLiquido, TotalValorDoImposto, TotalTarifaML, TotalEnvioVendedor, TotalEnvioBase, TotalEnvioFinal, CustoEnvioComprador, ValorDeclarado]);
     const columns: ColumnDef<Order>[] = useMemo(() => {
         // Campos que são objetos ou arrays e não podem ser renderizados diretamente
