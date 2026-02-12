@@ -152,21 +152,6 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
                   </Stack>
                 )}
               </div>
-              <Fields.wrapper className="min-w-[150px] w-full sm:w-auto">
-                <Fields.label text="Período" />
-                <Fields.select
-                  value={selectedPeriod}
-                  onChange={handlePeriodChange}
-                  options={[
-                    { value: "last_day", label: "Hoje" },
-                    { value: "last_7_days", label: "Últimos 7 dias" },
-                    { value: "last_15_days", label: "Últimos 15 dias" },
-                    { value: "last_30_days", label: "Últimos 30 dias" },
-                    { value: "last_90_days", label: "Últimos 90 dias" },
-                    { value: "custom", label: "Período personalizado" },
-                  ]}
-                />
-              </Fields.wrapper>
             </div>
           </div>
 
@@ -238,6 +223,21 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
               {/* Mapa - Mobile primeiro, Desktop à direita */}
               <div className="lg:col-span-2 flex flex-col space-y-3 md:space-y-4 order-1 lg:order-2 w-full">
                 <div className="relative">
+                  <Fields.wrapper className="w-full sm:w-auto mb-4">
+                    <Fields.label text="Período" />
+                    <Fields.select
+                      value={selectedPeriod}
+                      onChange={handlePeriodChange}
+                      options={[
+                        { value: "last_day", label: "Hoje" },
+                        { value: "last_7_days", label: "Últimos 7 dias" },
+                        { value: "last_15_days", label: "Últimos 15 dias" },
+                        { value: "last_30_days", label: "Últimos 30 dias" },
+                        { value: "last_90_days", label: "Últimos 90 dias" },
+                        { value: "custom", label: "Período personalizado" },
+                      ]}
+                    />
+                  </Fields.wrapper>
                   <div
                     className="h-[350px] md:h-[400px] lg:h-[500px] w-full relative"
                   >
