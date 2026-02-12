@@ -9,6 +9,7 @@ import {
   useCensorship,
 } from "~/src/components/utils/Censorship";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
+import { calculateOrderProfit } from "../../utils/orderProfit";
 import type { Order } from "../../typings";
 
 interface OrderItemCardProps {
@@ -68,13 +69,7 @@ export default function OrderItemCard({
     Number(order.packaging_cost || 0);
     // Number(order.stock_cost || 0);
   
-  const profit =
-    Number(order.valor_liquido || 0) -
-    Number(order.price_cost || 0) -
-    Number(order.packaging_cost || 0) -
-    Number(order.extra_cost || 0) -
-    // Number(order.stock_cost || 0) - 
-    Number(order.tax_amount || 0);
+  const profit = calculateOrderProfit(order);
   const margin =
     Number(order.total_amount || 0) > 0
       ? (profit / Number(order.total_amount || 0)) * 100

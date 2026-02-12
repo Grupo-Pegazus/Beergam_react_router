@@ -10,6 +10,7 @@ import { useOrdersWithLoadMore, useCreateExport } from "~/features/vendas/hooks"
 import { useVendasFilters } from "~/features/vendas/hooks/useVendasFilters";
 import ExportHistoryModal from "~/features/vendas/components/ExportHistoryModal/ExportHistoryModal";
 import type { Order } from "~/features/vendas/typings";
+import { calculateOrderProfit } from "~/features/vendas/utils/orderProfit";
 import {
     OrderAttributeDisplayOrder,
     OrderSchema,
@@ -19,8 +20,10 @@ import {
     getAttributeSectionName,
     getColumnFooter,
     getTextColorForColumn,
+    OrderSectionColors,
 } from "~/features/vendas/typings";
 import Svg from "~/src/assets/svgs/_index";
+import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import TanstackTable, { type ContextMenuProps } from "~/src/components/TanstackTable";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
@@ -438,7 +441,15 @@ export default function RelatorioVendasRoute() {
         loadMore, 
         hasMore 
     } = useOrdersWithLoadMore(apiFilters);
-    const transformedOrders = useMemo(() => orders.map((order) => OrderSchema.parse(order)), [orders]);
+    const transformedOrders = useMemo(
+        () =>
+            orders.map((order) => {
+                const parsed = OrderSchema.parse(order) as Order & { profit: number };
+                parsed.profit = calculateOrderProfit(order);
+                return parsed;
+            }),
+        [orders]
+    );
     
     const TotalCusto = useMemo(() => {
         return orders.reduce((acc, order) => {
@@ -540,6 +551,10 @@ export default function RelatorioVendasRoute() {
         }, 0);
     }, [orders]);
 
+    const TotalLucro = useMemo(() => {
+        return orders.reduce((acc, order) => acc + calculateOrderProfit(order), 0);
+    }, [orders]);
+
     const footers = useMemo(() => createColumnFooters({
         total_amount: {
             value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalCusto),
@@ -593,7 +608,8 @@ export default function RelatorioVendasRoute() {
             value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalBonusPorEnvioEstorno),
         }
     }), [TotalCusto, TotalValorPago, TotalValorBase, TotalValorLiquido, TotalValorDoImposto, TotalTarifaML, TotalEnvioVendedor, TotalEnvioBase, TotalEnvioFinal, CustoEnvioComprador, ValorDeclarado]);
-    const columns: ColumnDef<Order>[] = useMemo(() => {
+    type OrderWithProfit = Order & { profit: number };
+    const columns: ColumnDef<OrderWithProfit>[] = useMemo(() => {
         // Campos que são objetos ou arrays e não podem ser renderizados diretamente
         const excludedKeys: (keyof Order)[] = [
             'tags',
@@ -635,16 +651,40 @@ export default function RelatorioVendasRoute() {
             'custo_envio_buyer',
             'declared_value',
         ];
+
+        const profitColumnColors = OrderSectionColors.order_values;
+
+        const profitColumn: ColumnDef<OrderWithProfit> = {
+            id: 'profit',
+            header: 'Lucro',
+            accessorKey: 'profit',
+            meta: {
+                headerColor: profitColumnColors.headerColor,
+                bodyColor: profitColumnColors.bodyColor,
+                sectionName: profitColumnColors.name,
+                enableSorting: true,
+                footerValue: formatCurrency(TotalLucro),
+            },
+            cell: ({ getValue }) => {
+                const value = getValue() as number;
+                const isNegative = value < 0;
+                return (
+                    <span style={{ color: isNegative ? 'var(--color-beergam-red-primary)' : undefined }}>
+                        {formatCurrency(value)}
+                    </span>
+                );
+            },
+        };
         
-        // Usa a ordem definida em OrderAttributeDisplayOrder
-        return OrderAttributeDisplayOrder
+        // Usa a ordem definida em OrderAttributeDisplayOrder e insere Lucro após extra_cost
+        const baseColumns = OrderAttributeDisplayOrder
             .filter((key) => !excludedKeys.includes(key))
-            .map((key) => {
+            .flatMap((key) => {
                 const colors = getAttributeColors(key);
                 const footer = getColumnFooter(key, footers); // Obtém footer específico da coluna
                 const textColor = getTextColorForColumn(key); // Cor vermelha para valores negativos
                 
-                return {
+                const col: ColumnDef<OrderWithProfit> = {
                     header: OrderTranslatedAttributes[key],
                     accessorKey: key,
                     meta: {
@@ -657,8 +697,14 @@ export default function RelatorioVendasRoute() {
                         ...footer, // Aplica footerValue e footerColor se existir
                     },
                 };
+                if (key === 'valor_liquido') {
+                    return [col, profitColumn];
+                }
+                return [col];
             });
-    }, [footers]);
+
+        return baseColumns;
+    }, [footers, TotalLucro]);
 
     // Context menu callback
     const renderContextMenu = useCallback((props: ContextMenuProps<Order>) => (
