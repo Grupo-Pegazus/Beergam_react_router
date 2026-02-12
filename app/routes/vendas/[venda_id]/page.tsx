@@ -109,17 +109,47 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
       return sum + parseFloat(order.valor_liquido || "0");
     }, 0);
 
-    if (orders.length > 1) {
+    if (orders.length > 1 && firstOrder) {
       totalLiquido =
         totalLiquido - parseFloat(firstOrder.custo_envio_final || "0");
     }
+
+    // Cálculo do bônus flex de acordo com a regra de R$ 79
+    // Regra (para pedidos SELF_SERVICE):
+    // - Pedidos com valor total >= 79: usar apenas bonus_por_envio_estorno
+    // - Pedidos com valor total < 79: usar custo_envio_base
+    // Para outros modos de envio, usamos bonus_por_envio_estorno normalmente
+    const bonusFlex =
+      (() => {
+        if (!firstOrder) return 0;
+
+        const isSelfService = firstOrder.shipping_mode === "self_service";
+        const totalPedido = parseFloat(firstOrder.total_amount || "0");
+        const bonusPorEnvioEstorno = parseFloat(
+          firstOrder.bonus_por_envio_estorno || "0"
+        );
+        const custoEnvioBase = parseFloat(
+          firstOrder.custo_envio_base || "0"
+        );
+
+        if (!isSelfService) {
+          return bonusPorEnvioEstorno;
+        }
+
+        if (totalPedido >= 79) {
+          return bonusPorEnvioEstorno;
+        }
+
+        return custoEnvioBase;
+      })();
 
     return {
       totalAmount,
       totalQuantity,
       totalLiquido,
+      bonusFlex,
     };
-  }, [orders]);
+  }, [orders, firstOrder]);
 
   // Calculate totals for the pack
   const totals = useMemo(() => {
@@ -143,6 +173,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
         impostos: 0,
         lucroFinal: 0,
         totalLiquido: 0,
+        bonusFlex: 0,
       };
     }
 
@@ -303,7 +334,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
 
   // Get client info (after error check, so we know firstOrder exists)
   const clientNameFinal =
-    firstOrder.client?.receiver_name || firstOrder.buyer_nickname;
+    firstOrder.client?.receiver_name || firstOrder.buyer_nickname || "Desconhecido";
   const clientDocFinal =
     firstOrder.client?.receiver_document?.value || firstOrder.buyer_id;
   // If clientDocFinal is buyer_id, set type to "Buyer ID", otherwise determine if it's CPF or CNPJ
@@ -550,10 +581,10 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
 
             {/* Financial Analysis */}
             <AnaliseFinanceira
-              valorTotalVenda={totals.totalPaid}
               receitaBruta={totalsP.totalAmount}
               envioVendedor={totals.totalShippingSeller}
               envioComprador={totals.totalShippingBuyer}
+              bonusFlex={totalsP.bonusFlex ?? 0}
               envioFinalVendedor={totals.totalShippingFinal}
               tarifaML={totals.tarifaML}
               totalReceita={totalsP.totalLiquido}

@@ -3,10 +3,10 @@ import AvisoProdutosNaoCadastrados from "../AvisoProdutosNaoCadastrados/AvisoPro
 import DetalhesPedido from "../DetalhesPedido/DetalhesPedido";
 
 interface AnaliseFinanceiraProps {
-  valorTotalVenda: number;
   receitaBruta: number;
   envioVendedor: number;
   envioComprador: number;
+  bonusFlex: number;
   envioFinalVendedor: number;
   tarifaML: number;
   totalReceita: number;
@@ -20,10 +20,10 @@ interface AnaliseFinanceiraProps {
 }
 
 function AnaliseFinanceira({
-  valorTotalVenda,
   receitaBruta,
   envioVendedor,
   envioComprador,
+  bonusFlex,
   envioFinalVendedor,
   tarifaML,
   totalReceita,
@@ -45,12 +45,6 @@ function AnaliseFinanceira({
         {/* Receita */}
         <div className="mb-6">
           <DetalhesPedido
-            titulo="Valor total da Venda"
-            hint=""
-            value={valorTotalVenda}
-            canBeCensored={true}
-          />
-          <DetalhesPedido
             canBeCensored={true}
             titulo="Receita Bruta"
             hint=""
@@ -67,6 +61,11 @@ function AnaliseFinanceira({
             titulo="Envios - Comprador"
             hint="Valor de envio pago pelo comprador"
             value={envioComprador > 0 ? envioComprador : 0}
+          />
+          <DetalhesPedido
+            titulo="Envios - Bonus Flex"
+            hint="Valor de bonus flex pago pelo comprador"
+            value={bonusFlex > 0 ? bonusFlex : 0}
           />
           <DetalhesPedido
             titulo="Valor de envio final para o vendedor"
