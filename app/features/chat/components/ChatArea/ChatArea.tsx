@@ -12,6 +12,7 @@ import { ChatUserType } from "../../typings";
 import ChatMessage from "../ChatMessage";
 import { ClientInfo } from "../ClientInfo";
 import ChatHeader, { type ChatType } from "./ChatHeader";
+import { useClaimDetails } from "../../hooks/useClaimDetails";
 
 /**
  * Props do componente ChatArea
@@ -143,6 +144,18 @@ export default function ChatArea({
     const actionRef = useRef<HTMLDivElement>(null);
     const queryClient = useQueryClient();
 
+    // Busca detalhes da reclamação ativa para mostrar se afeta reputação (apenas em reclamacao, não em mediacao)
+    const { data: claimResponse, isLoading: isLoadingClaim } = useClaimDetails(
+        activeClaimId,
+        chatType === "reclamacao" && Boolean(activeClaimId)
+    );
+    const activeClaim = claimResponse?.success ? claimResponse.data : null;
+    const reputationStatus = activeClaim?.affects_reputation?.affects_reputation || "unknown";
+    const reputationLabel =
+        reputationStatus === "affected" ? "Afetou Reputação" :
+        reputationStatus === "not_affected" ? "Não Afetou Reputação" :
+        null;
+
     const isPosVenda = chatType === "pos_venda";
     const isPosVendaComEnvioBloqueado =
         isPosVenda && posPurchaseStatus !== undefined && !posPurchaseStatus.can_message;
@@ -159,7 +172,7 @@ export default function ChatArea({
         capAvailable: number;
         charLimit?: number | null;
         templateId?: string | null;
-        templatePreview?: string;
+        templatePreview?: string | null;
     };
 
     const posPurchaseActionOptions: PosPurchaseGuideOption[] = useMemo(() => {
@@ -489,9 +502,28 @@ export default function ChatArea({
                                             </p>
                                         )}
                                         {(chatType === "reclamacao" || chatType === "mediacao") && activeClaimId && (
-                                            <p className="text-xs text-beergam-white/70!">
-                                                Reclamação: {activeClaimId}
-                                            </p>
+                                            <div className="flex flex-col gap-1">
+                                                <p className="text-xs text-beergam-white/70!">
+                                                    Reclamação: {activeClaimId}
+                                                </p>
+                                                {chatType === "reclamacao" && (
+                                                    <>
+                                                        {isLoadingClaim ? (
+                                                            <Skeleton variant="text" width={120} height={20} />
+                                                        ) : reputationStatus !== "unknown" && reputationLabel && (
+                                                            <span
+                                                                className={`px-2 py-0.5 rounded-full border text-xs w-fit ${
+                                                                    reputationStatus === "affected"
+                                                                        ? "bg-red-500/30 border-red-500/50 text-red-300"
+                                                                        : "bg-green-500/20 border-green-500/40 text-green-300"
+                                                                }`}
+                                                            >
+                                                                {reputationLabel}
+                                                            </span>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </div>
                                         )}
                                     </div>
                                 </div>
