@@ -9,6 +9,7 @@ import { isColab } from "~/features/user/utils";
 import { queryClient } from "~/lib/queryClient";
 import Alert from "~/src/components/utils/Alert";
 import { useModal } from "~/src/components/utils/Modal/useModal";
+import { useSessionInactivityGuard } from "../../hooks/useSessionInactivityGuard";
 import {
   useAuthError,
   useAuthMarketplace,
@@ -22,6 +23,7 @@ const ROUTES_WITHOUT_MARKETPLACE = [
   "/interno/config",
 ];
 export default function AuthLayout() {
+  useSessionInactivityGuard();
   const { logout, isLoggingOut } = useLogoutFlow({
     redirectTo: "/login",
   });

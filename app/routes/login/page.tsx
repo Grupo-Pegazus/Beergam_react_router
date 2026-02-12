@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
+import { setLastActivity } from "~/features/auth/utils/sessionActivityStorage";
 import { isSubscriptionError } from "~/features/auth/utils";
 import { subscriptionService } from "~/features/plans/subscriptionService";
 import authStore from "~/features/store-zustand";
@@ -88,6 +89,7 @@ export default function LoginPage({
       
       if (authError && isSubscriptionError(authError)) {
         // Se há erro de subscription, navega para a página de assinatura
+        setLastActivity();
         navigate("/interno/config?session=Minha Assinatura", { replace: true });
         setIsLoadingSubscription(false);
         return;
@@ -101,6 +103,7 @@ export default function LoginPage({
       // Se não for válida, navega para a página de configuração de assinatura
       if (!subscription || !subscription.start_date) {
         // Subscription não existe ou não tem start_date
+        setLastActivity();
         navigate("/interno/config?session=Minha Assinatura", { replace: true });
         setIsLoadingSubscription(false);
         return;
@@ -110,12 +113,14 @@ export default function LoginPage({
       // (caso o erro não tenha sido setado ainda)
       // O status vem da API como string "CANCELED", precisa fazer cast para comparar
       if ((subscription.status as string) === "CANCELED") {
+        setLastActivity();
         navigate("/interno/config?session=Minha Assinatura", { replace: true });
         setIsLoadingSubscription(false);
         return;
       }
       
       // Só navega para /interno/choosen_account se a subscription for válida
+      setLastActivity();
       navigate("/interno/choosen_account");
     } catch (error) {
       // Este catch nunca será executado pois getSubscription não lança exceções
@@ -124,6 +129,7 @@ export default function LoginPage({
       if (isMountedRef.current) {
         const currentUser = authStore.getState().user;
         if (currentUser) {
+          setLastActivity();
           navigate("/interno/choosen_account");
         }
       }
