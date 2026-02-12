@@ -10,7 +10,6 @@ import { useOrdersWithLoadMore, useCreateExport } from "~/features/vendas/hooks"
 import { useVendasFilters } from "~/features/vendas/hooks/useVendasFilters";
 import ExportHistoryModal from "~/features/vendas/components/ExportHistoryModal/ExportHistoryModal";
 import type { Order } from "~/features/vendas/typings";
-import { calculateOrderProfit } from "~/features/vendas/utils/orderProfit";
 import {
     OrderAttributeDisplayOrder,
     OrderSchema,
@@ -20,10 +19,8 @@ import {
     getAttributeSectionName,
     getColumnFooter,
     getTextColorForColumn,
-    OrderSectionColors,
 } from "~/features/vendas/typings";
 import Svg from "~/src/assets/svgs/_index";
-import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import TanstackTable, { type ContextMenuProps } from "~/src/components/TanstackTable";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
@@ -165,6 +162,16 @@ function AppliedFiltersBadges({
                 label: "Até",
                 value: dayjs(filters.dateCreatedTo).format("DD/MM/YYYY"),
             });
+        }
+
+        if (filters.negative_margin === true) {
+            result.push({ key: "negative_margin", label: "Margem negativa", value: "Sim" });
+        }
+        if (filters.missing_costs === true) {
+            result.push({ key: "missing_costs", label: "Sem custos", value: "Sim" });
+        }
+        if (filters.missing_taxes === true) {
+            result.push({ key: "missing_taxes", label: "Sem impostos", value: "Sim" });
         }
 
         return result;
@@ -318,7 +325,7 @@ function OrderContextMenu({ data: order, anchorPosition, onClose }: ContextMenuP
             {/* Card do produto com thumbnail */}
             <div className="flex gap-3 p-2 mb-1 bg-beergam-section-background rounded-md">
                 {/* Thumbnail */}
-                <div className="flex-shrink-0 w-14 h-14 rounded-md overflow-hidden bg-zinc-100 border border-zinc-200">
+                <div className="shrink-0 w-14 h-14 rounded-md overflow-hidden bg-zinc-100 border border-zinc-200">
                     {thumbnail ? (
                         <img 
                             src={thumbnail} 
@@ -442,12 +449,7 @@ export default function RelatorioVendasRoute() {
         hasMore 
     } = useOrdersWithLoadMore(apiFilters);
     const transformedOrders = useMemo(
-        () =>
-            orders.map((order) => {
-                const parsed = OrderSchema.parse(order) as Order & { profit: number };
-                parsed.profit = calculateOrderProfit(order);
-                return parsed;
-            }),
+        () => orders.map((order) => OrderSchema.parse(order) as Order),
         [orders]
     );
     
@@ -533,6 +535,10 @@ export default function RelatorioVendasRoute() {
         }, 0);
     }, [orders]);
 
+    const TotalCost = useMemo(() => {
+        return orders.reduce((acc, order) => acc + (parseFloat(order.total_cost ?? "0") ?? 0), 0);
+    }, [orders]);
+
     const TotalStockCost = useMemo(() => {
         return orders.reduce((acc, order) => {
             return acc + parseFloat(order.stock_cost || "0");
@@ -552,7 +558,7 @@ export default function RelatorioVendasRoute() {
     }, [orders]);
 
     const TotalLucro = useMemo(() => {
-        return orders.reduce((acc, order) => acc + calculateOrderProfit(order), 0);
+        return orders.reduce((acc, order) => acc + (parseFloat(order.profit ?? "0") ?? 0), 0);
     }, [orders]);
 
     const footers = useMemo(() => createColumnFooters({
@@ -598,6 +604,9 @@ export default function RelatorioVendasRoute() {
         extra_cost: {
             value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalExtraCost),
         },
+        total_cost: {
+            value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalCost),
+        },
         stock_cost: {
             value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalStockCost),
         },
@@ -606,10 +615,14 @@ export default function RelatorioVendasRoute() {
         },
         bonus_por_envio_estorno: {
             value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalBonusPorEnvioEstorno),
-        }
-    }), [TotalCusto, TotalValorPago, TotalValorBase, TotalValorLiquido, TotalValorDoImposto, TotalTarifaML, TotalEnvioVendedor, TotalEnvioBase, TotalEnvioFinal, CustoEnvioComprador, ValorDeclarado]);
-    type OrderWithProfit = Order & { profit: number };
-    const columns: ColumnDef<OrderWithProfit>[] = useMemo(() => {
+        },
+        profit: {
+            value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalLucro),
+        },
+
+    }), [TotalCusto, TotalValorPago, TotalValorBase, TotalValorLiquido, TotalValorDoImposto, TotalTarifaML, TotalEnvioVendedor, TotalEnvioBase, TotalEnvioFinal, CustoEnvioComprador, ValorDeclarado, TotalPriceCost, TotalPackagingCost, TotalExtraCost, TotalCost, TotalStockCost, TotalUnitPrice, TotalBonusPorEnvioEstorno, TotalLucro]);
+
+    const columns: ColumnDef<Order>[] = useMemo(() => {
         // Campos que são objetos ou arrays e não podem ser renderizados diretamente
         const excludedKeys: (keyof Order)[] = [
             'tags',
@@ -645,6 +658,9 @@ export default function RelatorioVendasRoute() {
             'valor_liquido',
             'tax_amount',
             'sale_fee',
+            'total_cost',
+            'profit',
+            'profit_margin',
             'custo_envio_seller',
             'custo_envio_base',
             'custo_envio_final',
@@ -652,29 +668,6 @@ export default function RelatorioVendasRoute() {
             'declared_value',
         ];
 
-        const profitColumnColors = OrderSectionColors.order_values;
-
-        const profitColumn: ColumnDef<OrderWithProfit> = {
-            id: 'profit',
-            header: 'Lucro',
-            accessorKey: 'profit',
-            meta: {
-                headerColor: profitColumnColors.headerColor,
-                bodyColor: profitColumnColors.bodyColor,
-                sectionName: profitColumnColors.name,
-                enableSorting: true,
-                footerValue: formatCurrency(TotalLucro),
-            },
-            cell: ({ getValue }) => {
-                const value = getValue() as number;
-                const isNegative = value < 0;
-                return (
-                    <span style={{ color: isNegative ? 'var(--color-beergam-red-primary)' : undefined }}>
-                        {formatCurrency(value)}
-                    </span>
-                );
-            },
-        };
         
         // Usa a ordem definida em OrderAttributeDisplayOrder e insere Lucro após extra_cost
         const baseColumns = OrderAttributeDisplayOrder
@@ -684,7 +677,7 @@ export default function RelatorioVendasRoute() {
                 const footer = getColumnFooter(key, footers); // Obtém footer específico da coluna
                 const textColor = getTextColorForColumn(key); // Cor vermelha para valores negativos
                 
-                const col: ColumnDef<OrderWithProfit> = {
+                const col: ColumnDef<Order> = {
                     header: OrderTranslatedAttributes[key],
                     accessorKey: key,
                     meta: {
@@ -697,9 +690,6 @@ export default function RelatorioVendasRoute() {
                         ...footer, // Aplica footerValue e footerColor se existir
                     },
                 };
-                if (key === 'valor_liquido') {
-                    return [col, profitColumn];
-                }
                 return [col];
             });
 

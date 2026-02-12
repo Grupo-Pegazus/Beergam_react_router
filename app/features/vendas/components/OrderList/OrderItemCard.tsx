@@ -9,7 +9,6 @@ import {
   useCensorship,
 } from "~/src/components/utils/Censorship";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
-import { calculateOrderProfit } from "../../utils/orderProfit";
 import type { Order } from "../../typings";
 
 interface OrderItemCardProps {
@@ -62,18 +61,11 @@ export default function OrderItemCard({
   const censored = isCensored(censorshipKey);
   const [isExpanded, setIsExpanded] = useState(false);
   
-  // Calcula o custo total convertendo todos os valores para número
-  const totalCost =
-    Number(order.extra_cost || 0) +
-    Number(order.price_cost || 0) +
-    Number(order.packaging_cost || 0);
-    // Number(order.stock_cost || 0);
-  
-  const profit = calculateOrderProfit(order);
-  const margin =
-    Number(order.total_amount || 0) > 0
-      ? (profit / Number(order.total_amount || 0)) * 100
-      : 0;
+  // Custo total e lucro/margem vindos do backend
+  const totalCost = order.total_cost ?? 0;
+
+  const profit = order.profit ?? 0;
+  const margin = order.profit_margin ?? 0;
 
   return (
     <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-2 bg-beergam-section-background! rounded-lg p-2 md:p-2 w-full min-w-0">

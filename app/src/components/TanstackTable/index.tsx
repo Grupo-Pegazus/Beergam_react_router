@@ -163,6 +163,16 @@ const ColumnVisibilityControl = memo(function ColumnVisibilityControl<TData>({
     return sections;
   }, [table]);
 
+  /** Paleta de cores para distinguir cada grupo de colunas */
+  const sectionColors = [
+    'var(--color-beergam-orange)',
+    'var(--color-beergam-blue)',
+    'var(--color-beergam-green)',
+    'var(--color-beergam-purple)',
+    'var(--color-beergam-red)',
+    'var(--color-beergam-yellow)',
+  ] as const;
+
   return (
     <>
       <BeergamButton
@@ -186,7 +196,7 @@ const ColumnVisibilityControl = memo(function ColumnVisibilityControl<TData>({
           paper: {
             sx: {
               backgroundColor: 'var(--color-beergam-section-background)',
-              maxHeight: 400,
+              maxHeight: 480,
               minWidth: 800,
               maxWidth: 800,
               p: 2,
@@ -195,10 +205,13 @@ const ColumnVisibilityControl = memo(function ColumnVisibilityControl<TData>({
           },
         }}
       >
-        {/* Header do popover */}
-        <Box sx={{ flexDirection: 'column', display: 'flex', justifyContent: 'space-between', mb: 2, gap: 1 }}>
+        {/* Header do popover - estilo similar ao modal "Todos filtros" */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
           <Typography variant="subtitle2" fontWeight={600}>
             Colunas Visíveis
+          </Typography>
+          <Typography variant="caption" sx={{ opacity: 0.8 }}>
+            Selecione as colunas para exibir na tabela
           </Typography>
           <div className="max-w-48">
             <BeergamButton
@@ -209,24 +222,34 @@ const ColumnVisibilityControl = memo(function ColumnVisibilityControl<TData>({
           </div>
         </Box>
 
-        {/* Lista de colunas agrupadas por seção - 3 itens por linha */}
-        <div className="grid grid-cols-3 gap-4">
-          {Array.from(columnsBySection.entries()).map(([sectionName, sectionColumns]) => (
-            <Box key={sectionName} sx={{ minWidth: 0 }}>
+        {/* Seções empilhadas verticalmente - cada grupo com cor própria (estilo "Todos filtros") */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {Array.from(columnsBySection.entries()).map(([sectionName, sectionColumns], sectionIndex) => {
+            const accentColor = sectionColors[sectionIndex % sectionColors.length];
+            return (
+            <Box
+              key={sectionName}
+              sx={{
+                p: 1.5,
+                borderLeft: `3px solid ${accentColor}`,
+                borderRadius: '0 4px 4px 0',
+                backgroundColor: 'var(--color-beergam-section-background)',
+              }}
+            >
               <Typography
                 variant="caption"
                 fontWeight={600}
-                className="text-beergam-typography-secondary"
                 sx={{
                   display: 'block',
-                  mb: 0.5,
+                  mb: 1,
                   textTransform: 'uppercase',
                   letterSpacing: 0.5,
+                  color: accentColor,
                 }}
               >
                 {sectionName}
               </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', ml: 1 }}>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-0">
                 {sectionColumns.map((column) => {
                   const headerText = typeof column.columnDef.header === 'string'
                     ? column.columnDef.header
@@ -239,7 +262,7 @@ const ColumnVisibilityControl = memo(function ColumnVisibilityControl<TData>({
                         <Checkbox
                           size="small"
                           checked={column.getIsVisible()}
-                          checkedIcon={<Svg.check_circle tailWindClasses="text-beergam-primary" width={20} height={20} />}
+                          checkedIcon={<Svg.check_circle tailWindClasses="text-beergam-green" width={20} height={20} />}
                           icon={<Svg.minus_circle tailWindClasses="text-beergam-red" width={20} height={20} />}
                           onChange={column.getToggleVisibilityHandler()}
                           sx={{ color: 'white', '& .MuiSvgIcon-root': { fill: 'var(--color-beergam-primary)' } }}
@@ -258,10 +281,11 @@ const ColumnVisibilityControl = memo(function ColumnVisibilityControl<TData>({
                     />
                   );
                 })}
-              </Box>
+              </div>
             </Box>
-          ))}
-        </div>
+            );
+          })}
+        </Box>
       </Popover>
     </>
   );
