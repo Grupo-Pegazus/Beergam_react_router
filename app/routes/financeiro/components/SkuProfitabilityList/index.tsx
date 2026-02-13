@@ -227,14 +227,14 @@ export default function SkuProfitabilityList({
           thumbnail: order.thumbnail,
           ordersCount: 1,
           units: qty,
-          sumProfit: profit,
+          sumProfit: Number(profit),
           sumRevenue: revenue,
           internalCost: internalCost,
         });
       } else {
         current.ordersCount += 1;
         current.units += qty;
-        current.sumProfit += profit;
+        current.sumProfit += Number(profit);
         current.sumRevenue += revenue;
       }
     }
