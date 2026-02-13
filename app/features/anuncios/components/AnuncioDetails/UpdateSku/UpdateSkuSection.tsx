@@ -3,7 +3,7 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
-import Alert from "@mui/material/Alert";
+import { BeergamAlert } from "~/src/components/ui/BeergamAlert";
 import { useUpdateSku } from "../../../hooks";
 import type { AnuncioDetails, UpdateSkuRequest } from "../../../typings";
 import toast from "~/src/utils/toast";
@@ -74,16 +74,12 @@ export default function UpdateSkuSection({ anuncio }: UpdateSkuSectionProps) {
       }}
     >
       <Stack spacing={2}>
-        <Alert severity="warning" sx={{ mb: 1 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
-            {hasVariations ? "Variações sem SKU cadastrado" : "SKU não cadastrado"}
-          </Typography>
-          <Typography variant="body2">
-            {hasVariations
-              ? `Este anúncio possui ${variationsWithoutSku.length} de ${anuncio.variations!.length} variação(ões) sem SKU cadastrado. Cadastre os SKUs individualmente para cada variação na seção abaixo.`
-              : "Este anúncio não possui SKU cadastrado. Cadastre um SKU para facilitar o gerenciamento do estoque."}
-          </Typography>
-        </Alert>
+        <BeergamAlert severity="warning" className="mb-1">
+          <strong className="block mb-0.5">{hasVariations ? "Variações sem SKU cadastrado" : "SKU não cadastrado"}</strong>
+          {hasVariations
+            ? `Este anúncio possui ${variationsWithoutSku.length} de ${anuncio.variations!.length} variação(ões) sem SKU cadastrado. Cadastre os SKUs individualmente para cada variação na seção abaixo.`
+            : "Este anúncio não possui SKU cadastrado. Cadastre um SKU para facilitar o gerenciamento do estoque."}
+        </BeergamAlert>
 
         {!hasVariations && (
           <Box>
@@ -122,12 +118,10 @@ export default function UpdateSkuSection({ anuncio }: UpdateSkuSectionProps) {
         )}
 
         {hasVariations && (
-          <Alert severity="info">
-            <Typography variant="body2">
-              <strong>Importante:</strong> Cada variação precisa de seu próprio SKU. 
-              Role até a seção &quot;Variações do Produto&quot; abaixo para cadastrar os SKUs individualmente para cada variação.
-            </Typography>
-          </Alert>
+          <BeergamAlert severity="info">
+            <strong>Importante:</strong> Cada variação precisa de seu próprio SKU. 
+            Role até a seção &quot;Variações do Produto&quot; abaixo para cadastrar os SKUs individualmente para cada variação.
+          </BeergamAlert>
         )}
       </Stack>
     </Paper>

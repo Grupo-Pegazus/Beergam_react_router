@@ -1,4 +1,4 @@
-import { Alert, Skeleton, Stack } from "@mui/material";
+import { Skeleton, Stack } from "@mui/material";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
 import { useMemo, useState } from "react";
@@ -14,6 +14,7 @@ import { useIncomingsBySku, useInvoicingMetrics, useInvoicingMetricsByMonths, us
 import authStore from "~/features/store-zustand";
 import SkuProfitabilityList from "~/routes/financeiro/components/SkuProfitabilityList";
 import Svg from "~/src/assets/svgs/_index";
+import { BeergamAlert } from "~/src/components/ui/BeergamAlert";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import {
   ChartContainer,
@@ -183,9 +184,9 @@ export default function LucratividadePage() {
         
       return(
             <AsyncBoundary ErrorFallback={() => (
-              <Alert severity="error">
+              <BeergamAlert severity="error">
                 Não foi possível carregar o conteúdo.
-              </Alert>
+              </BeergamAlert>
             )} isLoading={isLoading} Skeleton={() => (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:items-baseline">
           {[...Array(3)].map((_, i) => (

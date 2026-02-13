@@ -1,5 +1,6 @@
-import { Alert, Box, Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { useMemo } from "react";
+import { BeergamAlert } from "~/src/components/ui/BeergamAlert";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import AlertModal from "~/src/components/utils/Alert";
 import type { ModalOptions } from "~/src/components/utils/Modal/ModalContext";
@@ -41,16 +42,16 @@ export default function AnuncioDetails({ anuncioId }: AnuncioDetailsProps) {
 
   if (error) {
     return (
-      <Alert severity="error">
+      <BeergamAlert severity="error">
         {error instanceof Error
           ? error.message
           : "Erro ao carregar detalhes do anúncio"}
-      </Alert>
+      </BeergamAlert>
     );
   }
 
   if (!anuncio) {
-    return <Alert severity="warning">Anúncio não encontrado</Alert>;
+    return <BeergamAlert severity="warning">Anúncio não encontrado</BeergamAlert>;
   }
 
   return (

@@ -434,7 +434,7 @@ export default function SkuProfitabilityList({
                   />
                 </ImageCensored>
 
-                <div className="min-w-0 flex-1 overflow-hidden">
+                <div className="min-w-[150px] md:min-w-0 flex-1 overflow-hidden">
                   <TextCensored forceCensor={censored} censorshipKey={censorshipKey}>
                     <Typography
                       variant="body2"

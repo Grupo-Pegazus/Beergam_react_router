@@ -1,5 +1,4 @@
 import {
-  Alert,
   Box,
   Card,
   CardContent,
@@ -9,6 +8,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { z } from "zod";
+import { BeergamAlert } from "~/src/components/ui/BeergamAlert";
 import { Fields } from "~/src/components/utils/_fields";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
@@ -273,12 +273,12 @@ export default function StockMovementForm({
             )}
 
             {isEntry && formData.quantity && formData.unity_cost && (
-              <Alert severity="info">
+              <BeergamAlert severity="info">
                 Valor total:{" "}
                 {formatCurrency(
                   (formData.quantity * formData.unity_cost).toString()
                 )}
-              </Alert>
+              </BeergamAlert>
             )}
 
             <Fields.wrapper>
@@ -309,11 +309,11 @@ export default function StockMovementForm({
             </Fields.wrapper>
 
             {createMutation.isError && (
-              <Alert severity="error">
+              <BeergamAlert severity="error">
                 {createMutation.error instanceof Error
                   ? createMutation.error.message
                   : "Erro ao criar movimentação"}
-              </Alert>
+              </BeergamAlert>
             )}
 
             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>

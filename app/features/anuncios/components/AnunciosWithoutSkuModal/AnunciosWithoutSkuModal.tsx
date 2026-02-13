@@ -1,5 +1,6 @@
-import { Alert, Divider, Stack, Typography } from "@mui/material";
+import { Divider, Stack, Typography } from "@mui/material";
 import { useMemo, useState } from "react";
+import { BeergamAlert } from "~/src/components/ui/BeergamAlert";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import { Modal } from "~/src/components/utils/Modal";
 import { useAdsWithoutSku, useUpdateSku } from "../../hooks";
@@ -95,9 +96,9 @@ export default function AnunciosWithoutSkuModal({
           isLoading={isLoading}
           error={error as unknown}
           ErrorFallback={() => (
-            <Alert severity="error">
+            <BeergamAlert severity="error">
               Não foi possível carregar os anúncios sem SKU.
-            </Alert>
+            </BeergamAlert>
           )}
         >
           {totalPendencies === 0 ? (
@@ -146,13 +147,13 @@ export default function AnunciosWithoutSkuModal({
                   >
                     Anúncios sem variações ({adsData.withoutVariations.length})
                   </Typography>
-                  <Alert
+                  <BeergamAlert
                     severity="warning"
-                    className="mb-3 text-beergam-typography-secondary!"
+                    className="mb-3"
                   >
                     ATENÇÃO: Anúncios sem variações devem ter o SKU cadastrado
                     diretamente no Mercado Livre.
-                  </Alert>
+                  </BeergamAlert>
                   <Stack spacing={3}>
                     {adsData.withoutVariations.map((ad) => (
                       <AdWithoutVariationsCard key={ad.mlb} ad={ad} />
