@@ -1,4 +1,3 @@
-import { Paper } from "@mui/material";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
@@ -193,17 +192,19 @@ export default function LoginPage({
   }, [currentUserType, handleLoginSuccess, handleUserTypeChange]);
   function FormLoggedIn() {
     return (
-      <Paper className="flex flex-col gap-4! text-center">
-        <h2 className="text-beergam-typography-primary">
+      <div
+        className={`flex shadow-lg/55 relative z-10 flex-col gap-4 bg-beergam-mui-paper! h-auto w-full mx-auto my-auto p-4 sm:p-6 md:p-8 md:w-2/3 md:max-w-lg md:rounded-4xl`}
+      >
+        <h2 className="text-lg sm:text-xl font-semibold text-beergam-typography-primary text-center">
           Continuar Conectado?
         </h2>
-        <p className="">
+        <p className="text-sm sm:text-base text-beergam-typography-secondary text-center px-2">
           Você já possui uma sessão ativa como:{" "}
           <span className="font-bold text-beergam-orange">
             {isLoggedIn.user.name}
           </span>
         </p>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 w-full">
           <BeergamButton
             title="Continuar"
             icon="arrow_uturn_right"
@@ -221,12 +222,12 @@ export default function LoginPage({
             mainColor="beergam-red"
           />
         </div>
-      </Paper>
+      </div>
     );
   }
   return (
     <PageLayout
-      tailwindClassName="flex md:items-center max-h-full! overflow-y-auto! md:justify-center"
+      tailwindClassName="flex md:items-center max-h-full! overflow-y-auto! md:justify-center px-4 sm:px-6"
       hideHeader={true}
       paddingTop={false}
     >

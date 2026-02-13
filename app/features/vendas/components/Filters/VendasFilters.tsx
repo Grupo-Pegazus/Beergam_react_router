@@ -5,7 +5,7 @@ import {
   FilterSelect,
   FilterActions,
   FilterSearchInput,
-  FilterDatePicker,
+  FilterDateRangePicker,
 } from "~/src/components/filters";
 import { dateStringToISO } from "~/src/utils/date";
 import type { VendasFiltersProps, VendasFiltersState, OrderStatusFilter, DeliveryStatusFilter, DeliveryTypeFilter } from "./types";
@@ -182,37 +182,27 @@ export default function VendasFilters({
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   }, []);
 
-  const handleDateFromChange = useCallback(
-    (date: string | undefined) => {
-      const iso = date ? dateStringToISO(date) : undefined;
+  const handleDateRangeChange = useCallback(
+    (range: { start: string; end: string }) => {
+      const fromIso = dateStringToISO(range.start);
+      const toIso = dateStringToISO(range.end);
       onChange({
         ...value,
-        dateCreatedFrom: iso,
-        date_created_from: iso,
+        dateCreatedFrom: fromIso,
+        date_created_from: fromIso,
+        dateCreatedTo: toIso,
+        date_created_to: toIso,
       });
     },
     [value, onChange]
   );
 
-  const handleDateToChange = useCallback(
-    (date: string | undefined) => {
-      const iso = date ? dateStringToISO(date) : undefined;
-      onChange({
-        ...value,
-        dateCreatedTo: iso,
-        date_created_to: iso,
-      });
-    },
-    [value, onChange]
-  );
-
-  const dateFromValue = useMemo(() => {
-    return isoToDateInput(value.dateCreatedFrom || value.date_created_from);
-  }, [isoToDateInput, value.dateCreatedFrom, value.date_created_from]);
-
-  const dateToValue = useMemo(() => {
-    return isoToDateInput(value.dateCreatedTo || value.date_created_to);
-  }, [isoToDateInput, value.dateCreatedTo, value.date_created_to]);
+  const dateRangeValue = useMemo((): { start: string; end: string } | null => {
+    const from = isoToDateInput(value.dateCreatedFrom || value.date_created_from);
+    const to = isoToDateInput(value.dateCreatedTo || value.date_created_to);
+    if (!from || !to) return null;
+    return { start: from, end: to };
+  }, [isoToDateInput, value.dateCreatedFrom, value.date_created_from, value.dateCreatedTo, value.date_created_to]);
 
   const sections = useMemo(
     () => [
@@ -303,28 +293,14 @@ export default function VendasFilters({
             })}
         </div>
       </div>,
-      <Stack
-        key="date-section"
-        direction={{ xs: "column", md: "row" }}
-        spacing={3}
-      >
-        <div style={{ flex: 1 }} className="md:w-auto w-full">
-          <FilterDatePicker
-            label="Data de criação (de)"
-            value={dateFromValue}
-            onChange={handleDateFromChange}
-            widthType="full"
-          />
-        </div>
-        <div style={{ flex: 1 }} className="md:w-auto w-full">
-          <FilterDatePicker
-            label="Data de criação (até)"
-            value={dateToValue}
-            onChange={handleDateToChange}
-            widthType="full"
-          />
-        </div>
-      </Stack>,
+      <div key="date-section" className="w-full max-w-sm">
+        <FilterDateRangePicker
+          label="Data de criação"
+          value={dateRangeValue}
+          onChange={handleDateRangeChange}
+          widthType="full"
+        />
+      </div>,
     ],
     [
       searchValue,
@@ -339,10 +315,8 @@ export default function VendasFilters({
       value.negative_margin,
       value.missing_costs,
       value.missing_taxes,
-      dateFromValue,
-      dateToValue,
-      handleDateFromChange,
-      handleDateToChange,
+      dateRangeValue,
+      handleDateRangeChange,
     ]
   );
 

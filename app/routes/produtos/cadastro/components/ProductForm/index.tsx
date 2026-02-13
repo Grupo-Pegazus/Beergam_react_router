@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Alert,
   Box,
   Button,
   Paper,
@@ -25,6 +24,7 @@ import {
 } from "~/features/produtos/typings/createProduct";
 import { transformProductDetailsToCreateProduct } from "~/features/produtos/utils/productTransform";
 import { useSyncCostsBySku } from "~/features/vendas/hooks";
+import { BeergamAlert } from "~/src/components/ui/BeergamAlert";
 import SkuSelectionModal from "~/src/components/utils/SkuSelectionModal";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
@@ -713,8 +713,9 @@ export default function ProductForm({
           <div className="flex flex-col gap-4">
             {/* Alerta de upgrade para cadastro completo */}
             {showUpgradeAlert && (
-              <Alert
+              <BeergamAlert
                 severity="info"
+                className="mb-2"
                 action={
                   <div className="flex gap-2">
                     <Button
@@ -733,12 +734,11 @@ export default function ProductForm({
                     </Button>
                   </div>
                 }
-                sx={{ mb: 2 }}
               >
                 Este produto está cadastrado como simplificado. Você pode
                 atualizá-lo para cadastro completo para ter acesso a mais campos
                 e funcionalidades.
-              </Alert>
+              </BeergamAlert>
             )}
 
             {/* Stepper do MUI */}

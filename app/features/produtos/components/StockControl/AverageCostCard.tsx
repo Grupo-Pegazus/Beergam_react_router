@@ -2,10 +2,10 @@ import {
   Box,
   Card,
   CardContent,
-  Alert as MuiAlert,
   Paper,
   Typography,
 } from "@mui/material";
+import { BeergamAlert } from "~/src/components/ui/BeergamAlert";
 import Alert from "~/src/components/utils/Alert";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
@@ -133,16 +133,16 @@ export default function AverageCostCard({
             </Paper>
 
             {!isSynced && (
-              <MuiAlert severity="warning" sx={{ mt: 1 }}>
+              <BeergamAlert severity="warning" className="mt-1">
                 Os valores não estão sincronizados. Considere recalcular o custo
                 médio.
-              </MuiAlert>
+              </BeergamAlert>
             )}
 
             {isSynced && (
-              <MuiAlert severity="success" sx={{ mt: 1 }}>
+              <BeergamAlert severity="success" className="mt-1">
                 Os valores estão sincronizados.
-              </MuiAlert>
+              </BeergamAlert>
             )}
           </Box>
         </CardContent>

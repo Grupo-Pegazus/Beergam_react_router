@@ -27,6 +27,8 @@
   --color-beergam-red-light: #ffe5e5;
   --color-beergam-red-dark: #ff0000;
   --color-beergam-green: #87de72;
+  --color-beergam-green-dark: #66a84f;
+  --color-beergam-green-light: #d1fae5;
   --color-beergam-green-primary: #8dc572;
   --color-beergam-white: #fff;
   --color-beergam-black: #000;
@@ -41,6 +43,7 @@
   --shadow-layout-primary: 0px 0px 10px 0px rgba(0, 0, 0, 0.8);
 
   /* Cores que são alteradas dependendo do tema */
+  --color-beergam-gray: var(--color-beergam-gray-light);
   --color-beergam-primary: var(--color-beergam-blue-primary);
   --color-beergam-primary-light: var(--color-beergam-blue-light);
   --color-beergam-secundary: var(--color-beergam-orange);
@@ -62,6 +65,23 @@
   --color-beergam-mui-paper: var(--color-beergam-white);
   /* MENU */
   --color-beergam-menu-mobile-button: var(--color-beergam-blue-primary);
+  /* Alert (warning) - modo claro */
+  --color-beergam-alert-warning-bg: var(--color-beergam-orange-light);
+  --color-beergam-alert-warning-border: var(--color-beergam-orange-dark);
+  --color-beergam-alert-warning-text: var(--color-beergam-typography-primary);
+  --color-beergam-alert-warning-icon: var(--color-beergam-orange);
+  --color-beergam-alert-error-bg: var(--color-beergam-red-light);
+  --color-beergam-alert-error-border: var(--color-beergam-red);
+  --color-beergam-alert-error-text: var(--color-beergam-typography-primary);
+  --color-beergam-alert-error-icon: var(--color-beergam-red);
+  --color-beergam-alert-info-bg: var(--color-beergam-blue-light);
+  --color-beergam-alert-info-border: var(--color-beergam-blue);
+  --color-beergam-alert-info-text: var(--color-beergam-typography-primary);
+  --color-beergam-alert-info-icon: var(--color-beergam-blue);
+  --color-beergam-alert-success-bg: var(--color-beergam-primary-light);
+  --color-beergam-alert-success-border: var(--color-beergam-primary);
+  --color-beergam-alert-success-text: var(--color-beergam-typography-primary);
+  --color-beergam-alert-success-icon: var(--color-beergam-primary);
 
   /* Scrollbar global - modo claro (track clara, thumb escura) */
   --scrollbar-track: #f1f1f1;
@@ -140,6 +160,7 @@
 
 /* Modo Escuro - cores que mudam automaticamente */
 .dark {
+  --color-beergam-gray: var(--color-beergam-gray-light);
   --color-beergam-primary: var(--color-beergam-orange);
   --color-beergam-primary-light: var(--color-beergam-orange-light);
   --color-beergam-secundary: var(--color-beergam-gray-blueish-dark);
@@ -158,6 +179,23 @@
   --color-beergam-button-background-blue: var(--color-beergam-white);
   --color-beergam-mui-paper: var(--color-beergam-gray-blueish);
   --color-beergam-menu-mobile-button: var(--color-beergam-white);
+  /* Alert (warning) - modo escuro (tom suave) */
+  --color-beergam-alert-warning-bg: color-mix(in srgb, var(--color-beergam-orange) 12%, var(--color-beergam-section-background));
+  --color-beergam-alert-warning-border: color-mix(in srgb, var(--color-beergam-orange) 35%, transparent);
+  --color-beergam-alert-warning-text: var(--color-beergam-typography-primary);
+  --color-beergam-alert-warning-icon: color-mix(in srgb, var(--color-beergam-orange) 75%, var(--color-beergam-gray-light));
+  --color-beergam-alert-error-bg: color-mix(in srgb, var(--color-beergam-red) 14%, var(--color-beergam-section-background));
+  --color-beergam-alert-error-border: color-mix(in srgb, var(--color-beergam-red) 40%, transparent);
+  --color-beergam-alert-error-text: var(--color-beergam-typography-primary);
+  --color-beergam-alert-error-icon: color-mix(in srgb, var(--color-beergam-red) 85%, var(--color-beergam-gray-light));
+  --color-beergam-alert-info-bg: color-mix(in srgb, var(--color-beergam-blue) 12%, var(--color-beergam-section-background));
+  --color-beergam-alert-info-border: color-mix(in srgb, var(--color-beergam-blue) 35%, transparent);
+  --color-beergam-alert-info-text: var(--color-beergam-typography-primary);
+  --color-beergam-alert-info-icon: color-mix(in srgb, var(--color-beergam-blue) 75%, var(--color-beergam-gray-light));
+  --color-beergam-alert-success-bg: color-mix(in srgb, var(--color-beergam-primary) 12%, var(--color-beergam-section-background));
+  --color-beergam-alert-success-border: color-mix(in srgb, var(--color-beergam-primary) 35%, transparent);
+  --color-beergam-alert-success-text: var(--color-beergam-typography-primary);
+  --color-beergam-alert-success-icon: color-mix(in srgb, var(--color-beergam-primary) 75%, var(--color-beergam-gray-light));
 
   /* Scrollbar global - modo escuro (track escura, thumb clara) */
   --scrollbar-track: transparent;

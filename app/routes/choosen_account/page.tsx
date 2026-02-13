@@ -173,9 +173,9 @@ export default function ChoosenAccountPage({
                 </Fields.wrapper>
               </div>
 
-              <div className="flex items-center justify-end gap-2">
+              <div className="flex items-center flex-col md:flex-row justify-end gap-2">
                 <BeergamButton
-                  className="w-[20%]"
+                  className="w-full md:w-[20%]"
                   title="Limpar"
                   animationStyle="slider"
                   mainColor="beergam-gray"
@@ -186,7 +186,7 @@ export default function ChoosenAccountPage({
                   }}
                 />
                 <BeergamButton
-                  className="w-[80%]"
+                  className="w-full md:w-[80%]"
                   title="Adicionar Loja"
                   animationStyle="slider"
                   icon="globe"

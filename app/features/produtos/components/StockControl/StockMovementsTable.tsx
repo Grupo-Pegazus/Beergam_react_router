@@ -106,8 +106,8 @@ export default function StockMovementsTable({
 
   const getModificationTypeColor = (type: string) => {
     return type === "Entrada"
-      ? { bg: "#d1fae5", color: "#065f46" }
-      : { bg: "#fee2e2", color: "#991b1b" };
+      ? { bg: "var(--color-beergam-green)", color: "var(--color-beergam-green-dark)" }
+      : { bg: "var(--color-beergam-red)", color: "var(--color-beergam-red-dark)" };
   };
 
   const getUnityCostValue = (
@@ -158,7 +158,7 @@ export default function StockMovementsTable({
   if (movements.length === 0) {
     return (
       <Paper variant="outlined" sx={{ p: 4, textAlign: "center" }}>
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" className="text-beergam-typography-secondary!">
           {emptyMessage}
         </Typography>
       </Paper>
@@ -480,7 +480,7 @@ export default function StockMovementsTable({
       </TableContainer>
 
       {/* Layout Mobile - Cards */}
-      <div className="md:hidden space-y-3">
+      <div className="md:hidden flex flex-col gap-2 w-full min-w-0">
         {movements.map((movement) => {
           const isExpanded = expandedRows.has(movement.id);
           const typeColor = getModificationTypeColor(
@@ -491,23 +491,48 @@ export default function StockMovementsTable({
           const productLink = getProductLink(movement);
 
           return (
-            <Paper key={movement.id} variant="outlined" sx={{ p: 2 }}>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-                {/* Header com Data e Tipo */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <Box sx={{ flex: 1 }}>
-                    <Typography
-                      variant="caption"
-                      className="text-xs text-beergam-typography-tertiary!"
-                    >
-                      {formatDate(movement.created_at)}
-                    </Typography>
+            <Paper
+              key={movement.id}
+              variant="outlined"
+              className="overflow-hidden w-full min-w-0"
+              sx={{
+                p: 1.5,
+                borderRadius: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1.25,
+                  minWidth: 0,
+                }}
+              >
+                {/* Linha 1: Chip + Data */}
+                <div className="flex items-center justify-between gap-2 min-w-0">
+                  <Chip
+                    label={movement.modification_type}
+                    size="small"
+                    sx={{
+                      backgroundColor: typeColor.bg,
+                      color: typeColor.color,
+                      fontWeight: 600,
+                      fontSize: "0.7rem",
+                      height: 22,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    className="text-beergam-typography-tertiary! shrink-0 text-[11px]"
+                  >
+                    {formatDate(movement.created_at)}
+                  </Typography>
+                </div>
+
+                {/* Produto/Variação - com truncate */}
+                {(showProductColumn || showVariationColumn) && (
+                  <div className="min-w-0 overflow-hidden">
                     {showVariationColumn &&
                       (() => {
                         const meta = movement.meta as {
@@ -521,210 +546,157 @@ export default function StockMovementsTable({
                           : meta?.variation_id
                             ? String(meta.variation_id)
                             : null;
-
                         return variationId ? (
-                          <Box sx={{ mt: 0.5 }}>
-                            <Typography
-                              variant="body2"
-                              sx={{ fontWeight: 500, fontSize: "0.75rem" }}
-                            >
-                              Variação #{variationId}
-                            </Typography>
+                          <Typography
+                            variant="body2"
+                            title={`Variação #${variationId}${meta?.variation_sku || meta?.sku ? ` • SKU: ${meta?.variation_sku || meta?.sku}` : ""}`}
+                            sx={{
+                              fontWeight: 500,
+                              fontSize: "0.8rem",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                              display: "block",
+                            }}
+                          >
+                            Variação #{variationId}
                             {(meta?.variation_sku || meta?.sku) && (
-                              <Typography
-                                variant="caption"
-                                className="text-xs text-beergam-typography-tertiary!"
-                              >
-                                SKU: {meta?.variation_sku || meta?.sku}
-                              </Typography>
+                              <span className="text-beergam-typography-tertiary!">
+                                {" "}
+                                · {meta?.variation_sku || meta?.sku}
+                              </span>
                             )}
-                          </Box>
+                          </Typography>
                         ) : null;
                       })()}
                     {showProductColumn && (
-                      <Box sx={{ mt: 0.5 }}>
-                        {movement.variation ? (
-                          <>
-                            <Typography
-                              variant="body2"
-                              sx={{ fontWeight: 500, fontSize: "0.75rem" }}
-                            >
-                              {movement.variation.title}
-                            </Typography>
-                            {movement.variation.sku && (
-                              <Typography
-                                variant="caption"
-                                className="text-xs text-beergam-typography-tertiary!"
-                              >
-                                SKU: {movement.variation.sku}
-                              </Typography>
-                            )}
-                            {movement.product && (
-                              <Typography
-                                variant="caption"
-                                className="text-xs text-beergam-typography-tertiary!"
-                              >
-                                Produto: {movement.product.title}
-                              </Typography>
-                            )}
-                          </>
-                        ) : movement.product ? (
-                          <>
-                            <Typography
-                              className="text-beergam-typography-tertiary!"
-                              variant="body2"
-                              sx={{ fontWeight: 500, fontSize: "0.75rem" }}
-                            >
-                              {movement.product.title}
-                            </Typography>
-                            {movement.product.sku && (
-                              <Typography
-                                variant="caption"
-                                className="text-xs text-beergam-typography-tertiary!"
-                              >
-                                SKU: {movement.product.sku}
-                              </Typography>
-                            )}
-                          </>
-                        ) : null}
-                      </Box>
-                    )}
-                  </Box>
-                  <Chip
-                    label={movement.modification_type}
-                    size="small"
-                    sx={{
-                      backgroundColor: typeColor.bg,
-                      color: typeColor.color,
-                      fontWeight: 600,
-                      fontSize: "0.7rem",
-                      height: 22,
-                    }}
-                  />
-                </Box>
-
-                {/* Informações principais */}
-                <Box
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: 1.5,
-                  }}
-                >
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      className="text-xs text-beergam-typography-tertiary!"
-                    >
-                      Quantidade:
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      fontWeight={600}
-                      className="text-sm"
-                    >
-                      {formatNumber(movement.quantity)}
-                    </Typography>
-                  </Box>
-                  {unityCostValue !== null && (
-                    <Box>
-                      <Typography
-                        variant="caption"
-                        className="text-xs text-beergam-typography-tertiary!"
-                      >
-                        Custo Unitário:
-                      </Typography>
                       <Typography
                         variant="body2"
-                        fontWeight={600}
-                        className="text-sm"
-                      >
-                        {formatCurrency(unityCostValue.toString())}
-                      </Typography>
-                    </Box>
-                  )}
-                  {totalValueValue !== null && (
-                    <Box>
-                      <Typography
-                        variant="caption"
-                        className="text-xs text-beergam-typography-tertiary!"
-                      >
-                        Valor Total:
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        fontWeight={600}
-                        className="text-sm"
-                      >
-                        {formatCurrency(totalValueValue.toString())}
-                      </Typography>
-                    </Box>
-                  )}
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      className="text-xs text-beergam-typography-tertiary!"
-                    >
-                      Motivo:
-                    </Typography>
-                    <Typography variant="body2" className="text-xs truncate">
-                      {movement.reason}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                {/* Descrição expandível ou link */}
-                {(movement.description || productLink) && (
-                  <Box>
-                    {movement.description && (
-                      <IconButton
-                        size="small"
-                        onClick={() => handleToggleRow(movement.id)}
-                        sx={{ p: 0.5 }}
-                      >
-                        <Svg.chevron
-                          tailWindClasses={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
-                        />
-                        <Typography
-                          variant="caption"
-                          className="text-xs text-beergam-typography-tertiary!"
-                        >
-                          {isExpanded ? "Ocultar" : "Ver"} descrição
-                        </Typography>
-                      </IconButton>
-                    )}
-                    {isExpanded && movement.description && (
-                      <Box
+                        title={
+                          movement.variation?.title || movement.product?.title || ""
+                        }
                         sx={{
-                          mt: 1,
-                          p: 1.5,
-                          bg: "beergam-section-background!",
-                          rounded: "md",
+                          fontWeight: 500,
+                          fontSize: "0.8rem",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          display: "block",
+                          mt: showVariationColumn ? 0.25 : 0,
                         }}
                       >
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ mb: 0.5, fontSize: "0.75rem" }}
-                        >
-                          Descrição:
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          className="text-xs text-beergam-typography-tertiary!"
-                        >
-                          {movement.description}
-                        </Typography>
-                      </Box>
+                        {movement.variation?.title ?? movement.product?.title ?? "—"}
+                      </Typography>
+                    )}
+                  </div>
+                )}
+
+                {/* Métricas: Qtd | Custo | Valor */}
+                <div className="flex flex-wrap gap-x-4 gap-y-1 min-w-0">
+                  <div>
+                    <span className="text-[11px] text-beergam-typography-tertiary!">
+                      Qtd:{" "}
+                    </span>
+                    <span className="text-sm font-semibold text-beergam-typography-primary!">
+                      {formatNumber(movement.quantity)}
+                    </span>
+                  </div>
+                  {unityCostValue !== null && (
+                    <div>
+                      <span className="text-[11px] text-beergam-typography-tertiary!">
+                        Unit:{" "}
+                      </span>
+                      <span className="text-sm font-semibold text-beergam-typography-primary!">
+                        {formatCurrency(unityCostValue.toString())}
+                      </span>
+                    </div>
+                  )}
+                  {totalValueValue !== null && (
+                    <div>
+                      <span className="text-[11px] text-beergam-typography-tertiary!">
+                        Total:{" "}
+                      </span>
+                      <span className="text-sm font-semibold text-beergam-typography-primary!">
+                        {formatCurrency(totalValueValue.toString())}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Motivo - truncate com title para ver completo */}
+                <div className="min-w-0 overflow-hidden">
+                  <Typography
+                    variant="body2"
+                    title={movement.reason}
+                    sx={{
+                      fontSize: "0.75rem",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      display: "block",
+                      color: "var(--color-beergam-typography-secondary)",
+                    }}
+                  >
+                    <span className="text-beergam-typography-tertiary!">
+                      Motivo:{" "}
+                    </span>
+                    {movement.reason}
+                  </Typography>
+                </div>
+
+                {/* Ações: expandir descrição + link produto */}
+                {(movement.description || productLink) && (
+                  <div className="flex flex-wrap items-center gap-2 pt-0.5 border-t border-beergam-input-border/30">
+                    {movement.description && (
+                      <button
+                        type="button"
+                        onClick={() => handleToggleRow(movement.id)}
+                        className="flex items-center gap-1 text-[11px] text-beergam-typography-tertiary! hover:text-beergam-primary active:opacity-80"
+                      >
+                        <Svg.chevron
+                          tailWindClasses={`h-3.5 w-3.5 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                        />
+                        {isExpanded ? "Ocultar" : "Ver"} descrição
+                      </button>
                     )}
                     {productLink && (
                       <Link
                         to={productLink}
-                        className="flex items-center gap-1 mt-1 text-xs text-beergam-blue-primary hover:underline"
+                        className="flex items-center gap-1 text-[11px] text-beergam-typography-secondary! hover:underline active:opacity-80 min-w-0"
                       >
-                        <Svg.chevron tailWindClasses="h-3 w-3 rotate-270" />
-                        <span>Ver detalhes do produto</span>
+                        <Svg.chevron tailWindClasses="h-3 w-3 rotate-270 shrink-0" />
+                        <span className="truncate">Ver produto</span>
                       </Link>
                     )}
+                  </div>
+                )}
+
+                {/* Descrição expandida */}
+                {isExpanded && movement.description && (
+                  <Box
+                    sx={{
+                      mt: 0.5,
+                      p: 1.5,
+                      backgroundColor: "var(--color-beergam-section-background)",
+                      borderRadius: 1,
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ mb: 0.5, fontSize: "0.75rem" }}
+                    >
+                      Descrição:
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: "0.8rem",
+                        color: "var(--color-beergam-typography-secondary)",
+                        wordBreak: "break-word",
+                      }}
+                    >
+                      {movement.description}
+                    </Typography>
                   </Box>
                 )}
               </Box>

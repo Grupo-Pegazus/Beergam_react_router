@@ -132,6 +132,8 @@ export interface IUserDetails extends IBaseUserDetails {
   sells_shein?: MarketplaceSells;
   sells_own_site?: MarketplaceSells;
   invoice_in_flex?: boolean | null;
+  meli_flex_shipping_fee?: number | null;
+  shopee_flex_shipping_fee?: number | null;
 }
 export interface IUser extends IBaseUser {
   details: IUserDetails;
@@ -245,6 +247,8 @@ export const UserDetailsSchema = BaseUserDetailsSchema.extend({
   social_media: z.string().optional().nullable(),
   foundation_date: z.string().optional().nullable(),
   invoice_in_flex: z.boolean().optional().nullable(),
+  meli_flex_shipping_fee: NumberCoerced,
+  shopee_flex_shipping_fee: NumberCoerced,
 }) satisfies z.ZodType<IUserDetails>;
 
 export const UserSchema = BaseUserSchema.extend({

@@ -4,7 +4,10 @@ export { FilterSwitch } from "./components/FilterSwitch";
 export { FilterSearchInput } from "./components/FilterSearchInput";
 export { FilterActions } from "./components/FilterActions";
 export { FilterDatePicker } from "./components/FilterDatePicker";
+export { FilterDateRangePicker } from "./components/FilterDateRangePicker";
 export { useFilters } from "./hooks/useFilters";
+
+export type { DateRangeValue } from "./components/FilterDateRangePicker";
 
 export type {
   FilterOption,

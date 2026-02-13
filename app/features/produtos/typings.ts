@@ -214,6 +214,8 @@ export const ProductsMetricsSchema = z.object({
   total_cadastrados: z.number(),
   total_ativos: z.number(),
   estoque_baixo: z.number(),
+  total_desativados: z.number(),
+  estoque_alto: z.number(),
 });
 
 export type ProductsMetrics = z.infer<typeof ProductsMetricsSchema>;

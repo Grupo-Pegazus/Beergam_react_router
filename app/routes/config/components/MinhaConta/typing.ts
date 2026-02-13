@@ -16,6 +16,8 @@ export const UpdateUserDetailsSchema = UserDetailsSchema.partial().pick({
   sells_shein: true,
   sells_own_site: true,
   invoice_in_flex: true,
+  meli_flex_shipping_fee: true,
+  shopee_flex_shipping_fee: true,
 });
 export const UpdateUserSchema = UserSchema.partial()
   .pick({ details: true })

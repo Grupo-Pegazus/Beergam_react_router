@@ -1,4 +1,5 @@
 import { Chip, Switch, Typography } from "@mui/material";
+import { useThemeContext } from "~/src/components/utils/ThemeProvider/ThemeProvider";
 
 interface AnuncioStatusToggleProps {
   status: string;
@@ -23,6 +24,7 @@ export default function AnuncioStatusToggle({
   showStatusMessage = true,
   showControl = true,
 }: AnuncioStatusToggleProps) {
+  const { isDark } = useThemeContext();
   const normalizedStatus = status.toLowerCase().replace(/\s+/g, "_");
   const normalizedSubStatus = subStatus.map((s) => s.toLowerCase());
   const isClosed = normalizedStatus === "closed";
@@ -40,7 +42,7 @@ export default function AnuncioStatusToggle({
       return (
         <Typography
           variant="caption"
-          className="text-beergam-typography-secondary!"
+          className="text-beergam-typography-secondary! text-xs!"
           sx={{ lineHeight: 1.4 }}
         >
           {statusMessage}
@@ -50,64 +52,56 @@ export default function AnuncioStatusToggle({
     return null;
   }
 
+  // Cores dos chips adaptadas ao dark mode
+  const closedChipSx = isDark
+    ? {
+        height: 24,
+        fontSize: "0.7rem",
+        fontWeight: 600,
+        backgroundColor: "rgba(220, 38, 38, 0.25)",
+        color: "var(--color-beergam-red)",
+        "& .MuiChip-label": { px: 1.5 },
+      }
+    : {
+        height: 24,
+        fontSize: "0.7rem",
+        fontWeight: 600,
+        backgroundColor: "#fee2e2",
+        color: "#991b1b",
+        "& .MuiChip-label": { px: 1.5 },
+      };
+
+  const pausedChipSx = isDark
+    ? {
+        height: 24,
+        fontSize: "0.7rem",
+        fontWeight: 600,
+        backgroundColor: "rgba(255, 138, 0, 0.2)",
+        color: "var(--color-beergam-orange)",
+        "& .MuiChip-label": { px: 1.5 },
+      }
+    : {
+        height: 24,
+        fontSize: "0.7rem",
+        fontWeight: 600,
+        backgroundColor: "#fef3c7",
+        color: "#92400e",
+        "& .MuiChip-label": { px: 1.5 },
+      };
+
   // Renderiza o controle (chip ou switch)
   const renderControl = () => {
     if (isClosed) {
-      return (
-        <Chip
-          label="Fechado"
-          size="small"
-          sx={{
-            height: 24,
-            fontSize: "0.7rem",
-            fontWeight: 600,
-            backgroundColor: "#fee2e2",
-            color: "#991b1b",
-            "& .MuiChip-label": {
-              px: 1.5,
-            },
-          }}
-        />
-      );
+      return <Chip label="Fechado" size="small" sx={closedChipSx} />;
     }
 
     if (isUnderReview) {
-      return (
-        <Chip
-          label="Em revisão"
-          size="small"
-          sx={{
-            height: 24,
-            fontSize: "0.7rem",
-            fontWeight: 600,
-            backgroundColor: "#fef3c7",
-            color: "#92400e",
-            "& .MuiChip-label": {
-              px: 1.5,
-            },
-          }}
-        />
-      );
+      return <Chip label="Em revisão" size="small" sx={pausedChipSx} />;
     }
 
     // Se estiver sem estoque, mostra apenas Chip "Pausado" (sem Switch)
     if (isOutOfStock) {
-      return (
-        <Chip
-          label="Pausado"
-          size="small"
-          sx={{
-            height: 24,
-            fontSize: "0.7rem",
-            fontWeight: 600,
-            backgroundColor: "#fef3c7",
-            color: "#92400e",
-            "& .MuiChip-label": {
-              px: 1.5,
-            },
-          }}
-        />
-      );
+      return <Chip label="Pausado" size="small" sx={pausedChipSx} />;
     }
 
     return (
@@ -147,13 +141,12 @@ export default function AnuncioStatusToggle({
 
   // Mostra controle e mensagem juntos
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 flex flex-col items-end">
       <div className="flex items-center gap-2">{renderControl()}</div>
       {statusMessage && (
         <Typography
           variant="caption"
-          color="text.secondary"
-          className="block text-xs"
+          className="block text-xs text-beergam-typography-secondary!"
           sx={{ lineHeight: 1.4 }}
         >
           {statusMessage}

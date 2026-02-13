@@ -4,7 +4,7 @@ import {
   FilterContainer,
   FilterSearchInput,
   FilterSelect,
-  FilterDatePicker,
+  FilterDateRangePicker,
 } from "~/src/components/filters";
 import type { QuestionsFiltersState } from "../typings";
 
@@ -82,28 +82,25 @@ export function QuestionsFilters({
         />
       </div>
     </Stack>,
-    <Stack
-      key="date-section"
-      direction={{ xs: "column", md: "row" }}
-      spacing={3}
-    >
-      <div style={{ flex: 1 }} className="md:w-auto w-full">
-        <FilterDatePicker
-          label="Data inicial"
-          value={value.date_from ?? ""}
-          onChange={(date) => handleChange("date_from", date ?? undefined)}
-          widthType="full"
-        />
-      </div>
-      <div style={{ flex: 1 }} className="md:w-auto w-full">
-        <FilterDatePicker
-          label="Data final"
-          value={value.date_to ?? ""}
-          onChange={(date) => handleChange("date_to", date ?? undefined)}
-          widthType="full"
-        />
-      </div>
-    </Stack>,
+    <div key="date-section" className="w-full max-w-sm">
+      <FilterDateRangePicker
+        label="Período"
+        value={
+          value.date_from && value.date_to
+            ? { start: value.date_from, end: value.date_to }
+            : null
+        }
+        onChange={(range) => {
+          onChange({
+            ...value,
+            date_from: range.start,
+            date_to: range.end,
+            page: 1,
+          });
+        }}
+        widthType="full"
+      />
+    </div>,
   ];
 
   return (

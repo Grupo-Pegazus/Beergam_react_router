@@ -65,8 +65,8 @@ export default function SchedulingCard({
                 fontSize: "0.65rem",
                 fontWeight: 600,
                 backgroundColor:
-                  scheduling.type === "ENTRY" ? "#e0f2fe" : "#fef3c7",
-                color: scheduling.type === "ENTRY" ? "#0369a1" : "#92400e",
+                  scheduling.type === "ENTRY" ? "var(--color-beergam-blue-light)" : "var(--color-beergam-yellow-light)",
+                color: scheduling.type === "ENTRY" ? "var(--color-beergam-blue-dark)" : "var(--color-beergam-yellow-dark)",
                 "& .MuiChip-label": {
                   px: 0.75,
                 },
@@ -81,16 +81,16 @@ export default function SchedulingCard({
                 fontWeight: 600,
                 backgroundColor:
                   statusColor === "warning"
-                    ? "#fef3c7"
+                    ? "var(--color-beergam-yellow-light)"
                     : statusColor === "success"
-                      ? "#d1fae5"
-                      : "#fee2e2",
+                      ? "var(--color-beergam-green-light)"
+                      : "var(--color-beergam-red-light)",
                 color:
                   statusColor === "warning"
-                    ? "#92400e"
+                    ? "var(--color-beergam-yellow-dark)"
                     : statusColor === "success"
-                      ? "#065f46"
-                      : "#991b1b",
+                      ? "var(--color-beergam-green-dark)"
+                      : "var(--color-beergam-red-dark)",
                 "& .MuiChip-label": {
                   px: 0.75,
                 },
@@ -149,7 +149,7 @@ export default function SchedulingCard({
           {onView && (
             <button
               onClick={() => onView(scheduling.id)}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-beergam-blue-primary hover:bg-beergam-blue-primary/90 text-white text-sm font-medium transition-colors min-w-[120px]"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-beergam-blue-primary hover:bg-beergam-blue-primary/90 text-beergam-typography-primary text-sm font-medium transition-colors min-w-[120px]"
             >
               <Svg.eye width={18} height={18} />
               <span>Visualizar</span>
@@ -158,7 +158,7 @@ export default function SchedulingCard({
           {scheduling.status === "PENDING" && onEdit && (
             <button
               onClick={() => onEdit(scheduling.id)}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-beergam-orange hover:bg-beergam-orange/90 text-white text-sm font-medium transition-colors min-w-[120px]"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-beergam-orange hover:bg-beergam-orange/90 text-beergam-typography-primary text-sm font-medium transition-colors min-w-[120px]"
             >
               <Svg.pencil width={18} height={18} />
               <span>Editar</span>
@@ -167,7 +167,7 @@ export default function SchedulingCard({
           {scheduling.status !== "CANCELLED" && onCancel && (
             <button
               onClick={() => onCancel(scheduling.id)}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-beergam-red hover:bg-beergam-red/90 text-white text-sm font-medium transition-colors min-w-[120px]"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-beergam-red hover:bg-beergam-red/90 text-beergam-typography-primary text-sm font-medium transition-colors min-w-[120px]"
             >
               <Svg.circle_x width={18} height={18} />
               <span>Cancelar</span>
@@ -176,7 +176,7 @@ export default function SchedulingCard({
           {scheduling.status === "PENDING" && onReceive && (
             <button
               onClick={() => onReceive(scheduling.id)}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-beergam-green-primary hover:bg-beergam-green-primary/90 text-white text-sm font-medium transition-colors min-w-[120px]"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-beergam-green-primary hover:bg-beergam-green-primary/90 text-beergam-typography-primary text-sm font-medium transition-colors min-w-[120px]"
             >
               <Svg.check width={18} height={18} />
               <span>Dar Baixa</span>

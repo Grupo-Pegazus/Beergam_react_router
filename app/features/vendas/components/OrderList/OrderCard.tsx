@@ -49,6 +49,7 @@ export default function OrderCard({ order, onReprocess, isReprocessing, remainin
         return {
           type: "estimated" as const,
           date: estimatedDate.format("dddd[, dia] D [de] MMMM"),
+          shortDate: estimatedDate.format("DD/MM"),
           label: "Chega",
           isPast: false,
         };
@@ -63,6 +64,7 @@ export default function OrderCard({ order, onReprocess, isReprocessing, remainin
         return {
           type: "expiration" as const,
           date: expirationDate.format("dddd[, dia] D [de] MMMM"),
+          shortDate: expirationDate.format("DD/MM"),
           label: "Prazo limite para qualificar",
           isPast: false,
         };
@@ -74,167 +76,173 @@ export default function OrderCard({ order, onReprocess, isReprocessing, remainin
     return null;
   }, [order.estimated_delivery, order.expiration_date]);
 
+  const customerLabel = order.buyer_nickname
+    ? `${order.buyer_nickname}${order.client?.receiver_name ? ` - ${order.client.receiver_name}` : ""}`
+    : null;
+
   return (
-    <MainCards className="p-3 md:p-4 w-full min-w-0">
+    <MainCards className="p-4 md:p-4 w-full min-w-0 rounded-xl md:rounded-2xl overflow-hidden">
       <CensorshipWrapper censorshipKey="vendas_orders_list" canChange={false}>
-        <div className="flex flex-col gap-2 w-full min-w-0">
-          {/* Header: ID e Data */}
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-            <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
-              <div className="flex items-center gap-1">
+        <div className="flex flex-col gap-4 md:gap-2 w-full min-w-0">
+          {/* Mobile: Layout compacto e respirado */}
+          {/* Header: ID, data, chips e status */}
+          <div className="flex flex-col gap-3 md:gap-2">
+            <div className="flex flex-col gap-1.5 md:flex-row md:justify-between md:items-center md:gap-2">
+              <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
+                <div className="flex items-center gap-1">
+                  <Typography
+                    variant="caption"
+                    className="font-mono text-xs md:text-sm text-beergam-typography-secondary!"
+                  >
+                    #{order.order_id}
+                  </Typography>
+                  <CopyButton
+                    textToCopy={order.order_id}
+                    successMessage="Order ID copiado para a área de transferência"
+                    ariaLabel="Copiar Order ID"
+                  />
+                </div>
+                <span className="text-slate-300 hidden md:inline">|</span>
                 <Typography
                   variant="caption"
-                  className="font-mono text-xs md:text-sm text-beergam-typography-secondary!"
+                  className="text-xs md:text-sm text-beergam-typography-secondary!"
                 >
-                  #{order.order_id}
-                </Typography>
-                <CopyButton
-                  textToCopy={order.order_id}
-                  successMessage="Order ID copiado para a área de transferência"
-                  ariaLabel="Copiar Order ID"
-                />
-              </div>
-              <span className="text-slate-300 hidden md:inline">|</span>
-              <Typography
-                variant="caption"
-                className="text-xs md:text-sm text-beergam-typography-secondary!"
-                >
-                  {/* date closed é usado pois é mesmo que mostra no painel do meli */}
                   {formatDate(order.date_closed)}
-              </Typography>
-              <span className="text-slate-300 hidden md:inline">|</span>
-              <Chip
-                label={logisticTypeInfo.label}
-                size="small"
-                sx={{
-                  height: 22,
-                  fontSize: "0.65rem",
-                  fontWeight: 600,
-                  backgroundColor: logisticTypeInfo.backgroundColor,
-                  color: logisticTypeInfo.color,
-                  "& .MuiChip-label": {
-                    px: 0.75,
-                  },
-                }}
-              />
-              {/* Status do envio */}
-              {order.shipment_status && (
-                <>
-                  <span className="text-slate-300 hidden md:inline">|</span>
-                  <Typography
-                    variant="caption"
-                    fontWeight={600}
-                    className="text-beergam-typography-primary! text-sm md:text-base"
-                  >
-                    {getStatusOrderMeliInfo(order.shipment_status)
-                      ?.label || order.shipment_status}
-                  </Typography>
-                </>
-              )}
-            </div>
-            {order.buyer_nickname && (
-              <div className="flex items-center gap-1.5 md:gap-2">
-                <Svg.profile tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4 text-beergam-typography-secondary!" />
-                <TextCensored
-                  forceCensor={censored}
-                  censorshipKey="vendas_orders_list"
-                  replacement="*"
-                >
-                  <Typography
-                    variant="caption"
-                    className="text-beergam-typography-primary! text-sm md:text-base"
-                  >
-                    {order.buyer_nickname} {order.client?.receiver_name && `- ${order.client?.receiver_name}`}
-                  </Typography>
-                </TextCensored>
-
-                {order.buyer_id && (
-                  <>
-                    <span className="text-slate-300 hidden md:inline">|</span>
-                    <TextCensored
-                      forceCensor={censored}
-                      censorshipKey="vendas_orders_list"
-                      replacement="*"
-                    >
-                      <Typography
-                        variant="caption"
-                        className="text-xs md:text-sm text-beergam-typography-secondary!"
-                      >
-                        {order.buyer_id}
-                      </Typography>
-                    </TextCensored>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-
-          <Divider sx={{ my: 0.5 }} />
-
-          {/* Status Chips e Botão de Expandir */}
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
-            <div>
-              <div className="flex flex-wrap items-center justify-between gap-1.5 md:gap-2">
+                </Typography>
+                <span className="text-slate-300 hidden md:inline">|</span>
                 <Chip
-                  label={statusInfo.label}
+                  label={logisticTypeInfo.label}
                   size="small"
-                  icon={(() => {
-                    const IconComponent = Svg[statusInfo.icon];
-                    return (
-                      <IconComponent tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />
-                    );
-                  })()}
                   sx={{
                     height: 22,
                     fontSize: "0.65rem",
                     fontWeight: 600,
-                    backgroundColor: statusInfo.backgroundColor,
-                    color: statusInfo.color,
-                    "& .MuiChip-label": {
-                      px: 0.75,
-                    },
+                    backgroundColor: logisticTypeInfo.backgroundColor,
+                    color: logisticTypeInfo.color,
+                    "& .MuiChip-label": { px: 0.75 },
                   }}
                 />
+                {order.shipment_status && (
+                  <>
+                    <span className="text-slate-300 hidden md:inline">|</span>
+                    <Typography
+                      variant="caption"
+                      fontWeight={600}
+                      className="text-beergam-typography-primary! text-sm md:text-base"
+                    >
+                      {getStatusOrderMeliInfo(order.shipment_status)
+                        ?.label || order.shipment_status}
+                    </Typography>
+                  </>
+                )}
               </div>
-              {/* Status do envio */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  {(order.shipment_status || deliveryInfo) && (
-                    <div className="mt-1 md:mt-2">
-                      {deliveryInfo && (
+              {customerLabel && (
+                <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
+                  <Svg.profile
+                    tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4 text-beergam-typography-secondary! shrink-0"
+                  />
+                  <TextCensored
+                    forceCensor={censored}
+                    censorshipKey="vendas_orders_list"
+                    replacement="*"
+                  >
+                    <Typography
+                      variant="caption"
+                      className="text-beergam-typography-primary! text-sm md:text-base truncate"
+                      title={customerLabel}
+                    >
+                      {customerLabel}
+                    </Typography>
+                  </TextCensored>
+                  {order.buyer_id && (
+                    <>
+                      <span className="text-slate-300 hidden md:inline">|</span>
+                      <TextCensored
+                        forceCensor={censored}
+                        censorshipKey="vendas_orders_list"
+                        replacement="*"
+                      >
                         <Typography
                           variant="caption"
-                          fontWeight={400}
-                          className="text-beergam-typography-secondary! text-xs md:text-sm"
+                          className="text-xs text-beergam-typography-secondary! hidden md:inline"
                         >
-                          {censored ? "************" : deliveryInfo.label}{" "}
-                          {censored ? "****" : deliveryInfo.date}
+                          {order.buyer_id}
                         </Typography>
-                      )}
-                    </div>
+                      </TextCensored>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <Divider sx={{ my: 0 }} className="md:my-0.5" />
+
+            {/* Chips + prazo: mobile compacto */}
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0">
+              <div className="flex flex-col gap-1">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <Chip
+                    label={statusInfo.label}
+                    size="small"
+                    icon={(() => {
+                      const IconComponent = Svg[statusInfo.icon];
+                      return (
+                        <IconComponent tailWindClasses="h-3.5 w-3.5 md:h-4 md:w-4" />
+                      );
+                    })()}
+                    sx={{
+                      height: 22,
+                      fontSize: "0.65rem",
+                      fontWeight: 600,
+                      backgroundColor: statusInfo.backgroundColor,
+                      color: statusInfo.color,
+                      "& .MuiChip-label": { px: 0.75 },
+                    }}
+                  />
+                  {deliveryInfo && !censored && (
+                    <>
+                      <Typography
+                        variant="caption"
+                        fontWeight={400}
+                        className="text-beergam-typography-secondary! text-xs md:hidden"
+                      >
+                        {deliveryInfo.type === "expiration"
+                          ? `Qualificar até ${deliveryInfo.shortDate}`
+                          : `Chega ${deliveryInfo.shortDate}`}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        fontWeight={400}
+                        className="text-beergam-typography-secondary! text-xs hidden md:block"
+                      >
+                        {deliveryInfo.label} {deliveryInfo.date}
+                      </Typography>
+                    </>
                   )}
                 </div>
               </div>
 
-            </div>
-
-            <div className="flex items-center gap-2">
-              <BeergamButton
-                icon="arrow_path"
-                animationStyle="slider"
-                loading={isReprocessing}
-                disabled={isReprocessing || remainingQuota <= 0}
-                onClick={onReprocess}
-              />
-              <BeergamButton
-                title="Ver no marketplace"
-                link={`https://www.mercadolivre.com.br/vendas/${order.order_id}/detalhe`}
-                animationStyle="slider"
-              />
-              <BeergamButton
-                title="Ver detalhes"
-                link={`/interno/vendas/${order.order_id}`}
-              />
+              {/* Botões: mobile em linha, quebra se necessário */}
+              <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
+                <BeergamButton
+                  icon="arrow_path"
+                  animationStyle="slider"
+                  loading={isReprocessing}
+                  disabled={isReprocessing || remainingQuota <= 0}
+                  onClick={onReprocess}
+                />
+                <BeergamButton
+                  title="Marketplace"
+                  link={`https://www.mercadolivre.com.br/vendas/${order.order_id}/detalhe`}
+                  animationStyle="slider"
+                  className="flex-1 min-w-0 text-sm"
+                />
+                <BeergamButton
+                  title="Detalhes"
+                  link={`/interno/vendas/${order.order_id}`}
+                  className="flex-1 min-w-0 text-sm"
+                />
+              </div>
             </div>
           </div>
 

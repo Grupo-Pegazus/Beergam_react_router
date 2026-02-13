@@ -171,6 +171,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
         custoEmbalagem: 0,
         custosExtras: 0,
         impostos: 0,
+        meli_flex_shipping_fee: 0,
         lucroFinal: 0,
         totalLiquido: 0,
         bonusFlex: 0,
@@ -241,7 +242,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
     // Lucro final: soma dos profits retornados pelo backend
     const lucroFinal = allOrdersCancelled
       ? 0
-      : orders.reduce((sum, order) => sum + (order.profit ?? 0), 0);
+      : orders.reduce((sum: number, order) => sum + (parseFloat(String(order.profit || 0))), 0);
 
     return {
       precoProdutos,
@@ -588,6 +589,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
               custosExtras={totals.custosExtras}
               impostos={totals.impostos}
               lucroFinal={totals.lucroFinal}
+              meli_flex_shipping_fee={parseFloat(String(firstOrder.meli_flex_shipping_fee || 0))}
               produtosNaoCadastrados={produtosNaoCadastrados}
               orderId={firstOrder.order_id}
             />

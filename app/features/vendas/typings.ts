@@ -142,6 +142,8 @@ export const OrderSchema = z.object({
   // Custo total (soma price_cost + packaging_cost + extra_cost)
   total_cost: currencyNumberOptional,
   margin_cost: percentageNumberOptional,
+  // falta colocar tax_type aqui
+  meli_flex_shipping_fee: z.number().optional(),
 });
 
 export type Order = z.infer<typeof OrderSchema>;
@@ -213,6 +215,7 @@ export const OrderTranslatedAttributes: OrderTranslatedAttributes = {
   profit_margin: "Margem de Lucro",
   margin_cost: "Margem sobre o Custo",
   total_cost: "Custo Total",
+  meli_flex_shipping_fee: "Valor pago no flex por pedido no Mercado Livre",
 } as const;
 // ============================================
 // SISTEMA DE SEÇÕES E CORES PARA TABELA
@@ -350,6 +353,7 @@ export const OrderAttributeSection: Record<keyof Order, OrderSection> = {
   frete_recebido_total: 'shipping_costs',
   bonus_por_envio_estorno: 'shipping_costs',
   shipment_costs: 'shipping_costs',
+  meli_flex_shipping_fee: 'shipping_costs',
   
   // Campos extras (não categorizados - usam identification)
   tags: 'identification',

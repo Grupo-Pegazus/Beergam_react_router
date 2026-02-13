@@ -1,8 +1,8 @@
 import { Link } from "react-router";
-import Svg from "~/src/assets/svgs/_index";
 import MainCards from "~/src/components/ui/MainCards";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import type { StockDashboardResponse } from "../../typings";
+import { BeergamAlert } from "~/src/components/ui/BeergamAlert";
 
 interface LowStockVariationsListProps {
   variations: StockDashboardResponse["low_stock_variations"];
@@ -17,12 +17,11 @@ export default function LowStockVariationsList({
 }: LowStockVariationsListProps) {
   if (variations.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-amber-200 bg-white p-10 text-center">
-        <Svg.check_circle tailWindClasses="mx-auto h-8 w-8 text-emerald-500" />
-        <p className="mt-2 text-sm text-slate-500">
-          Nenhuma variação com estoque baixo encontrada.
-        </p>
-      </div>
+      <BeergamAlert
+        severity="info"
+      >
+        <p className="text-beergam-typography-primary!">Nenhuma variação com estoque baixo encontrada.</p>
+      </BeergamAlert>
     );
   }
 
@@ -42,14 +41,14 @@ export default function LowStockVariationsList({
             }
             className="block"
           >
-            <MainCards className="hover:bg-beergam-primary/20! h-full">
+            <MainCards className="hover:bg-beergam-primary-light/50 transition-colors h-full">
               <div className="p-4 space-y-2">
                 <div>
                   <p className="text-sm font-semibold text-beergam-typography-primary!">
                     {variation.title}
                   </p>
                   {variation.product_title && (
-                    <p className="text-xs mt-1">
+                    <p className="text-xs mt-1 text-beergam-typography-secondary!">
                       Produto:{" "}
                       <span className="text-beergam-typography-tertiary!">
                         {variation.product_title}
@@ -73,7 +72,7 @@ export default function LowStockVariationsList({
                     <span
                       className={`text-sm font-semibold text-beergam-typography-tertiary! ${
                         isLowStock
-                          ? "text-beergam-red"
+                          ? "text-beergam-primary"
                           : "text-beergam-typography-primary!"
                       }`}
                     >
@@ -91,12 +90,11 @@ export default function LowStockVariationsList({
                   </div>
                 </div>
                 {isLowStock && (
-                  <div className="rounded-lg border border-beergam-red bg-beergam-red/10 p-2 mt-2">
-                    <p className="text-xs text-beergam-red! flex items-center gap-1">
-                      <Svg.warning_circle tailWindClasses="h-4 w-4 shrink-0" />
-                      Estoque abaixo do mínimo
-                    </p>
-                  </div>
+                    <BeergamAlert
+                      severity="warning"
+                    >
+                      <p className="text-beergam-typography-primary!">Estoque abaixo do mínimo</p>
+                    </BeergamAlert>
                 )}
               </div>
             </MainCards>
