@@ -18,7 +18,7 @@ import type {
 } from "./typings";
 
 class VendasService {
-  async getOrders(filters?: Partial<OrdersFilters>): Promise<ApiResponse<OrdersResponse>> {
+  async getOrders(filters?: Partial<OrdersFilters>, get_client_name: boolean = true): Promise<ApiResponse<OrdersResponse>> {
     const params = new URLSearchParams();
 
     if (filters) {
@@ -34,8 +34,7 @@ class VendasService {
     }
 
     const queryString = params.toString();
-    const url = `/v1/orders${queryString ? `?${queryString}` : ""}`;
-
+    const url = `/v1/orders${queryString ? `?${queryString}` : ""}&get_client_name=${get_client_name}`;
     const response = await typedApiClient.get<OrdersResponse>(url);
     return response as ApiResponse<OrdersResponse>;
   }

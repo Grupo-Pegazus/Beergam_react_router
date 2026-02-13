@@ -666,6 +666,7 @@ export default function RelatorioVendasRoute() {
             'custo_envio_final',
             'custo_envio_buyer',
             'declared_value',
+            'margin_cost',
         ];
 
         
