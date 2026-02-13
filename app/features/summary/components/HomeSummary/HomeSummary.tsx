@@ -1,6 +1,7 @@
-import { Skeleton } from "@mui/material";
+import { Skeleton, Stack, Typography } from "@mui/material";
 import { memo, useCallback, useMemo, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
+import { FilterDatePicker } from "~/src/components/filters";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import SecondaryButton from "~/src/components/ui/SecondaryButton";
 import StatCard from "~/src/components/ui/StatCard";
@@ -8,10 +9,11 @@ import {
   CensorshipWrapper,
   TextCensored,
 } from "~/src/components/utils/Censorship";
+import { dateStringToISO } from "~/src/utils/date";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import { useHomeSummary } from "../../hooks";
 
-type PeriodFilter = 0 | 1 | 7 | 15 | 30 | 90;
+type PeriodFilter = 0 | 1 | 7 | 15 | 30 | 90 | "custom";
 
 const PERIOD_OPTIONS: { value: PeriodFilter; label: string }[] = [
   { value: 0, label: "Hoje" },
@@ -20,6 +22,7 @@ const PERIOD_OPTIONS: { value: PeriodFilter; label: string }[] = [
   { value: 15, label: "15 dias" },
   { value: 30, label: "30 dias" },
   { value: 90, label: "90 dias" },
+  { value: "custom", label: "Personalizado" },
 ];
 
 type PeriodButtonProps = {
@@ -92,8 +95,23 @@ ErrorFallback.displayName = "ErrorFallback";
 
 export default function HomeSummary() {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>(1);
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
 
-  const { data, isLoading, error } = useHomeSummary(selectedPeriod);
+  const filters = useMemo(
+    () => ({
+      period: selectedPeriod,
+      date_from:
+        selectedPeriod === "custom" && dateFrom
+          ? dateStringToISO(dateFrom)
+          : undefined,
+      date_to:
+        selectedPeriod === "custom" && dateTo ? dateStringToISO(dateTo) : undefined,
+    }),
+    [selectedPeriod, dateFrom, dateTo]
+  );
+
+  const { data, isLoading, error } = useHomeSummary(filters);
 
   const summaryData = useMemo(() => {
     if (!data?.success || !data.data) {
@@ -104,6 +122,18 @@ export default function HomeSummary() {
 
   const handlePeriodChange = useCallback((period: PeriodFilter) => {
     setSelectedPeriod(period);
+    if (period !== "custom") {
+      setDateFrom("");
+      setDateTo("");
+    }
+  }, []);
+
+  const handleDateFromChange = useCallback((value: string | undefined) => {
+    setDateFrom(value ?? "");
+  }, []);
+
+  const handleDateToChange = useCallback((value: string | undefined) => {
+    setDateTo(value ?? "");
   }, []);
 
   const marginPercentual = useMemo(() => {
@@ -120,18 +150,52 @@ export default function HomeSummary() {
     >
       <div className="space-y-4 md:space-y-6">
         {/* Filtros de período */}
-        <div className="flex flex-wrap gap-2">
-          {PERIOD_OPTIONS.map((option) => (
-            <PeriodButton
-              key={option.value}
-              option={option}
-              isSelected={selectedPeriod === option.value}
-              onSelect={handlePeriodChange}
-            />
-          ))}
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap gap-2">
+            {PERIOD_OPTIONS.map((option) => (
+              <PeriodButton
+                key={option.value}
+                option={option}
+                isSelected={selectedPeriod === option.value}
+                onSelect={handlePeriodChange}
+              />
+            ))}
+          </div>
+
+          {selectedPeriod === "custom" && (
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2}
+              sx={{ mt: 1 }}
+            >
+              <FilterDatePicker
+                label="Data de início"
+                value={dateFrom || undefined}
+                onChange={handleDateFromChange}
+                widthType="full"
+              />
+              <FilterDatePicker
+                label="Data de fim"
+                value={dateTo || undefined}
+                onChange={handleDateToChange}
+                widthType="full"
+              />
+            </Stack>
+          )}
         </div>
 
-        {summaryData && (
+        {selectedPeriod === "custom" && (!dateFrom || !dateTo) ? (
+          <div className="flex flex-col items-center justify-center min-h-[200px] rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              className="text-center text-sm md:text-base"
+            >
+              Selecione o intervalo de datas para visualizar o resumo.
+            </Typography>
+          </div>
+        ) : (
+          summaryData && (
           <>
             {/* Métricas principais - Mobile: empilhadas, Desktop: lado a lado */}
             <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
@@ -245,6 +309,7 @@ export default function HomeSummary() {
               </CensorshipWrapper>
             </div>
           </>
+        )
         )}
       </div>
     </AsyncBoundary>

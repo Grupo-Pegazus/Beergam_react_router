@@ -4,9 +4,25 @@ import type { FlexCutoff } from "./typings";
 import { FlexCutoffSchema } from "./typings";
 import type { HomeSummary } from "./typings";
 
+export interface HomeSummaryFilters {
+  period: number | "custom";
+  date_from?: string;
+  date_to?: string;
+}
+
 class SummaryService {
-  async getHomeSummary(period: number = 1): Promise<ApiResponse<HomeSummary>> {
-    const url = `/v1/summary/home?period=${period}`;
+  async getHomeSummary(
+    filters: HomeSummaryFilters
+  ): Promise<ApiResponse<HomeSummary>> {
+    const params = new URLSearchParams();
+    params.set("period", String(filters.period));
+
+    if (filters.period === "custom" && filters.date_from && filters.date_to) {
+      params.set("date_from", filters.date_from);
+      params.set("date_to", filters.date_to);
+    }
+
+    const url = `/v1/summary/home?${params.toString()}`;
     const response = await typedApiClient.get<HomeSummary>(url);
     return response as ApiResponse<HomeSummary>;
   }
