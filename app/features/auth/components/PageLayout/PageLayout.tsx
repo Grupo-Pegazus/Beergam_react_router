@@ -37,7 +37,7 @@ export default function PageLayout({
   return (
     <>
       <main
-        className={`relative h-screen flex flex-col justify-center items-center overflow-hidden ${paddingTop ? "pt-[90px]" : "pt-0"}`}
+        className={`relative h-screen flex flex-col justify-center items-center overflow-hidden ${paddingTop ? "pt-[20px]" : "pt-0"}`}
       >
         {!hideHeader && (
           <header className="w-full fixed top-0 p-4 px-4 md:px-8 flex z-99 items-center justify-between">

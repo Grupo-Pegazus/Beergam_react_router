@@ -10,9 +10,10 @@ import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import {
   Skeleton,
   Typography,
-  Stack,
   Box,
   Paper,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import PaginationBar from "~/src/components/ui/PaginationBar";
 import MainCards from "~/src/components/ui/MainCards";
@@ -41,8 +42,14 @@ interface GeographicMapProps {
 }
 
 const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE_MOBILE = 5;
 
 export default function GeographicMap({ period = "last_90_days" }: GeographicMapProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const itemsPerPage = isMobile ? ITEMS_PER_PAGE_MOBILE : ITEMS_PER_PAGE;
+  const mapScale = isMobile ? 1000 : 800;
   const [selectedPeriod, setSelectedPeriod] = useState<
     "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "last_90_days" | "custom"
   >(period as "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "last_90_days" | "custom");
@@ -73,13 +80,13 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
   }, [distribution]);
 
   const paginatedDistribution = useMemo(() => {
-    const startIndex = (rankingPage - 1) * ITEMS_PER_PAGE;
-    return sortedDistribution.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [sortedDistribution, rankingPage]);
+    const startIndex = (rankingPage - 1) * itemsPerPage;
+    return sortedDistribution.slice(startIndex, startIndex + itemsPerPage);
+  }, [sortedDistribution, rankingPage, itemsPerPage]);
 
   const totalPages = useMemo(() => {
-    return Math.ceil(sortedDistribution.length / ITEMS_PER_PAGE);
-  }, [sortedDistribution.length]);
+    return Math.ceil(sortedDistribution.length / itemsPerPage);
+  }, [sortedDistribution.length, itemsPerPage]);
 
   const maxUnits = useMemo(() => {
     if (distribution.length === 0) return 1;
@@ -135,7 +142,7 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
         </div>
       )}
     >
-      <MainCards className="p-3 md:p-4 bg-transparent!">
+      <MainCards className="p-4 md:p-4 bg-transparent!">
         <div className="space-y-3 md:space-y-4">
           <div className="flex flex-col gap-3 md:gap-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-4">
@@ -172,37 +179,35 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
               <div className="lg:col-span-1 flex flex-col order-2 lg:order-1 w-full">
 
                 <Paper
-                  className="bg-beergam-section-background!">
-                  <h3 className="text-xs mb-4 md:text-sm text-beergam-typography-primary!">
+                  className="bg-beergam-section-background! p-4 md:p-3">
+                  <h3 className="text-sm md:text-sm font-semibold mb-4 text-beergam-typography-primary!">
                     Ranking de Estados
                   </h3>
                   <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
                     {paginatedDistribution.map((item, index) => {
-                      const globalIndex = (rankingPage - 1) * ITEMS_PER_PAGE + index;
+                      const globalIndex = (rankingPage - 1) * itemsPerPage + index;
                       return (
-                        <Paper
-
+                        <div
                           key={item.state}
-                          className="flex items-center justify-between"
-                        // className="flex items-center justify-between p-2 md:p-3 rounded-lg bg-beergam-section-background! hover:bg-slate-100 transition-colors border border-beergam-section-border!"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 py-3 px-3 rounded-lg border border-beergam-input-border/30 bg-beergam-mui-paper"
                         >
-                          <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-                            <span className="text-xs md:text-sm font-bold text-beergam-typography-secondary! w-6 md:w-8 shrink-0">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="text-base font-bold text-beergam-typography-secondary shrink-0 w-8">
                               {globalIndex + 1}°
                             </span>
-                            <span className="text-xs md:text-sm font-medium text-beergam-typography-primary! truncate">
+                            <span className="text-base font-medium text-beergam-typography-primary break-words">
                               {item.state_name}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 md:gap-3 shrink-0 ml-2">
-                            <span className="text-xs md:text-sm text-beergam-typography-secondary! whitespace-nowrap">
+                          <div className="flex items-center gap-3 pl-11 sm:pl-0 shrink-0">
+                            <span className="text-base text-beergam-typography-secondary">
                               {item.units} unid.
                             </span>
-                            <span className="text-xs md:text-sm font-semibold text-beergam-typography-primary! whitespace-nowrap min-w-[50px] md:min-w-[60px] text-right">
+                            <span className="text-base font-semibold text-beergam-typography-primary">
                               {parseFloat(item.percentage).toFixed(2)}%
                             </span>
                           </div>
-                        </Paper>
+                        </div>
                       );
                     })}
                   </div>
@@ -222,11 +227,12 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
               {/* Mapa - Mobile primeiro, Desktop à direita */}
               <div className="lg:col-span-2 flex flex-col space-y-3 md:space-y-4 order-1 lg:order-2 w-full">
                 <div className="relative">
-                  <Fields.wrapper className="w-full sm:w-auto mb-4">
+                  <Fields.wrapper className="w-full mb-4">
                     <Fields.label text="Período" />
                     <Fields.select
                       value={selectedPeriod}
                       onChange={handlePeriodChange}
+                      widthType="full"
                       options={[
                         { value: "last_day", label: "Hoje" },
                         { value: "last_7_days", label: "Últimos 7 dias" },
@@ -238,13 +244,13 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
                     />
                   </Fields.wrapper>
                   <div
-                    className="h-[350px] md:h-[400px] lg:h-[500px] w-full relative"
+                    className="h-[380px] sm:h-[420px] md:h-[450px] lg:h-[500px] w-full relative overflow-hidden rounded-lg"
                   >
                     <ComposableMap
                       projection="geoMercator"
                       projectionConfig={{
                         center: [-55, -15],
-                        scale: 800,
+                        scale: mapScale,
                       }}
                       style={{ width: "100%", height: "100%" }}
                     >
@@ -274,7 +280,7 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
                                 geography={geo}
                                 fill={getFillColor(units)}
                                 stroke="#fff"
-                                strokeWidth={0.5}
+                                strokeWidth={isMobile ? 1 : 0.5}
                                 data-tooltip-id="map-tooltip"
                                 data-tooltip-html={tooltipText}
                                 style={{
@@ -297,21 +303,21 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
                 </div>
 
                 {/* Legenda de cores */}
-                <Paper className="flex flex-col gap-2 bg-beergam-section-background!">
-                  <h3 className="text-xs mb-4 md:text-sm text-beergam-typography-primary!">
+                <Paper className="flex flex-col gap-2 bg-beergam-section-background! p-4 md:p-3">
+                  <h3 className="text-sm font-semibold mb-2 text-beergam-typography-primary!">
                     Escala de Cores
                   </h3>
-                  <div className="flex items-center gap-2 md:gap-4">
+                  <div className="flex items-center gap-2">
                     <div className="flex-1">
                       <div
-                        className="h-4 md:h-6 rounded"
+                        className="h-5 md:h-6 rounded"
                         style={{
                           background: 'linear-gradient(to right, rgba(249, 115, 22, 0.3), rgba(249, 115, 22, 1))',
                         }}
                       />
                     </div>
                   </div>
-                  <div className="mt-2 flex justify-between text-xs md:text-sm text-beergam-typography-secondary!">
+                  <div className="mt-2 flex justify-between text-sm text-beergam-typography-secondary!">
                     <span>0 unidades</span>
                     <span>{maxUnits} unidades</span>
                   </div>
