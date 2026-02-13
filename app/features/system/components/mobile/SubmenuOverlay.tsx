@@ -137,7 +137,7 @@ export default function SubmenuOverlay({
                   <Paper
                     key={key}
                     onClick={() => handleItemClick(item, key)}
-                    className="w-full flex items-center gap-3 p-3 rounded-lg border text-white border-black/10 bg-beergam-menu-background! shadow-sm transition-colors text-left"
+                    className="w-full flex items-center gap-3 p-3 rounded-lg border text-beergam-typography-primary border-beergam-section-border bg-beergam-section-background! shadow-sm transition-colors text-left"
                     elevation={1}
                   >
                     {Icon && (
@@ -147,7 +147,7 @@ export default function SubmenuOverlay({
                     )}
                     <span className="flex-1 text-sm font-medium">{item.label}</span>
                     {hasDropdown && (
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 text-black/40">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4 text-beergam-typography-secondary">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                       </svg>
                     )}
