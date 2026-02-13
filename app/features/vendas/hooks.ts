@@ -79,7 +79,7 @@ export function useOrdersWithLoadMore(baseFilters?: Omit<Partial<OrdersFilters>,
   const initialQuery = useQuery<ApiResponse<OrdersResponse>>({
     queryKey: ["orders", "loadMore", baseFilters, { page: 1 }],
     queryFn: async () => {
-      const res = await vendasService.getOrders({ ...baseFilters, page: 1 });
+      const res = await vendasService.getOrders({ ...baseFilters, page: 1 }, false);
       if (!res.success) {
         throw new Error(res.message || "Erro ao buscar pedidos");
       }
@@ -91,7 +91,7 @@ export function useOrdersWithLoadMore(baseFilters?: Omit<Partial<OrdersFilters>,
   // Mutation para carregar páginas adicionais
   const loadMoreMutation = useMutation<ApiResponse<OrdersResponse>, Error, number>({
     mutationFn: async (page: number) => {
-      const res = await vendasService.getOrders({ ...baseFilters, page });
+      const res = await vendasService.getOrders({ ...baseFilters, page }, false);
       if (!res.success) {
         throw new Error(res.message || "Erro ao buscar pedidos");
       }
