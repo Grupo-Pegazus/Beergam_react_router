@@ -1,4 +1,4 @@
-import { Alert } from "@mui/material";
+import { BeergamAlert } from "~/src/components/ui/BeergamAlert";
 import { useCallback, useState } from "react";
 import AnuncioList from "~/features/anuncios/components/AnuncioList/AnuncioList";
 import AnunciosWithoutSkuModal from "~/features/anuncios/components/AnunciosWithoutSkuModal";
@@ -79,19 +79,21 @@ export default function AnunciosPage() {
       {totalWithoutSku > 0 && (
         <Section title="Pendências">
           <Grid cols={{ base: 1, lg: 1 }}>
-            <Alert
+            <BeergamAlert
               severity="warning"
               action={
                 <BeergamButton
                   title="Ver pendências"
-                  animationStyle="fade"
+                  mainColor="beergam-orange"
+                  animationStyle="slider"
                   onClick={() => setIsModalOpen(true)}
+                  className="shrink-0 w-full sm:w-auto"
                 />
               }
             >
               Você possui {totalWithoutSku} anúncio(s) sem SKU cadastrado.
               Clique para gerenciar.
-            </Alert>
+            </BeergamAlert>
           </Grid>
         </Section>
       )}

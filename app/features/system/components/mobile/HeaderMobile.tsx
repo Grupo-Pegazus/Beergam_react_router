@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router";
 import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
+import packageJson from "../../../../../package.json";
 import authStore from "~/features/store-zustand";
 import type { IUser } from "~/features/user/typings/User";
 import { isMaster } from "~/features/user/utils";
@@ -79,19 +80,25 @@ export default function HeaderMobile() {
               </div>
             </div>
           )}
+          <p className="mt-4 pt-4 border-t border-gray-100 text-center text-xs text-beergam-typography-secondary">
+            v{packageJson.version}
+          </p>
         </div>
       </OverlayFrame>
       <div className="fixed top-0 left-0 right-0 md:hidden z-1000 bg-beergam-menu-background text-white border-b border-black/10 py-2 px-4 flex items-center justify-between">
         <button
           type="button"
-          aria-label="Perfil"
-          className="flex items-center gap-2"
+          aria-label="Abrir menu do usuário"
+          className="flex items-center gap-2.5 rounded-xl bg-white/15 px-3 py-2 active:bg-white/25 border border-white/20 transition-colors min-w-0"
           onClick={open}
         >
-          <Svg.profile tailWindClasses="size-5" />
-          <span className="text-[18px] font-bold text-beergam-white">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-beergam-primary text-beergam-white text-sm font-bold">
+            {userInitial}
+          </div>
+          <span className="text-[15px] font-semibold text-beergam-white truncate max-w-[120px]">
             {user?.name}
           </span>
+          <Svg.chevron tailWindClasses="size-4 shrink-0 text-white/80 rotate-90" />
         </button>
         <div className="flex items-center justify-center gap-5">
           {/* <button

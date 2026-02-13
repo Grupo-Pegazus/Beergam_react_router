@@ -164,7 +164,7 @@ export default function VendasPage() {
       </CensorshipWrapper>
       <CensorshipWrapper censorshipKey="vendas_orders_list" controlChildren>
         <Section title="Pedidos">
-          <div className="flex justify-end gap-2 mb-4">
+          <div className="flex flex-col md:flex-row justify-end gap-2 mb-4">
             <BeergamButton
               title="Histórico de Exportações"
               mainColor="beergam-blue"

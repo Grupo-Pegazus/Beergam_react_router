@@ -227,14 +227,14 @@ export default function SkuProfitabilityList({
           thumbnail: order.thumbnail,
           ordersCount: 1,
           units: qty,
-          sumProfit: profit,
+          sumProfit: Number(profit),
           sumRevenue: revenue,
           internalCost: internalCost,
         });
       } else {
         current.ordersCount += 1;
         current.units += qty;
-        current.sumProfit += profit;
+        current.sumProfit += Number(profit);
         current.sumRevenue += revenue;
       }
     }
@@ -434,7 +434,7 @@ export default function SkuProfitabilityList({
                   />
                 </ImageCensored>
 
-                <div className="min-w-0 flex-1 overflow-hidden">
+                <div className="min-w-[150px] md:min-w-0 flex-1 overflow-hidden">
                   <TextCensored forceCensor={censored} censorshipKey={censorshipKey}>
                     <Typography
                       variant="body2"

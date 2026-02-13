@@ -1,4 +1,4 @@
-import { Popover } from "@mui/material";
+import { Popover, useMediaQuery, useTheme } from "@mui/material";
 import type { ColumnDef } from '@tanstack/react-table';
 import dayjs from "dayjs";
 import { useCallback, useMemo, useState } from "react";
@@ -24,6 +24,8 @@ import Svg from "~/src/assets/svgs/_index";
 import TanstackTable, { type ContextMenuProps } from "~/src/components/TanstackTable";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useModal } from "~/src/components/utils/Modal/useModal";
+import RelatorioVendasOrderCard from "./components/RelatorioVendasOrderCard";
+import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 
 // Labels amigáveis para os filtros
 const STATUS_LABELS: Record<OrderStatusFilter, string> = {
@@ -180,7 +182,7 @@ function AppliedFiltersBadges({
     if (badges.length === 0) return null;
 
     return (
-        <div className="flex flex-wrap items-center gap-2 mb-3 p-2 bg-beergam-section-background rounded-lg">
+        <div className="flex flex-wrap items-center gap-2 mb-3 p-3 md:p-2 bg-beergam-section-background rounded-lg">
             <span className="text-xs font-medium text-beergam-typography-secondary mr-1">
                 Filtros:
             </span>
@@ -403,6 +405,8 @@ function OrderContextMenu({ data: order, anchorPosition, onClose }: ContextMenuP
     );
 }
 export default function RelatorioVendasRoute() {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const { openModal, closeModal } = useModal();
     const { filters, resetFilters, applyFilters, apiFilters, filtersForExport } =
         useVendasFilters({ per_page: 100 });
@@ -702,60 +706,119 @@ export default function RelatorioVendasRoute() {
         <OrderContextMenu {...props} />
     ), []);
 
+    const controlsComponent = (
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-end gap-2 mb-4 w-full">
+            <BeergamButton
+                key="filters-btn"
+                onClick={() => {
+                    openModal(
+                        <FiltersModalContent
+                            initialFilters={filters}
+                            onApply={handleApplyFilters}
+                            onReset={handleResetFilters}
+                            isSubmitting={isFetching}
+                        />,
+                        { title: "Filtros Aplicados", icon: "adjustments_horizontal_solid" }
+                    );
+                }}
+                title="Filtros Aplicados"
+                icon="adjustments_horizontal_solid"
+            />
+            <BeergamButton
+                key="export-history-btn"
+                title="Histórico de Exportações"
+                mainColor="beergam-blue"
+                icon="clock"
+                onClick={handleExportHistoryClick}
+            />
+            <BeergamButton
+                key="export-btn"
+                title="Exportar Planilha"
+                mainColor="beergam-green"
+                icon="excel"
+                onClick={handleExportClick}
+                disabled={createExportMutation.isPending}
+                loading={createExportMutation.isPending}
+            />
+        </div>
+    );
+
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col w-full min-w-0">
             {/* Badges de filtros aplicados */}
             <AppliedFiltersBadges
                 filters={filters}
                 onClearAll={handleClearAllFilters}
             />
 
-            <TanstackTable
-                data={transformedOrders}
-                columns={columns}
-                controlColumns
-                exportToExcel
-                storageKey="orders"
-                pagination={pagination}
-                onLoadMore={hasMore ? loadMore : undefined}
-                isLoadingMore={isLoadingMore}
-                contextMenuComponent={renderContextMenu}
-                isLoading={isLoading}
-                error={error as unknown}
-                additionalControls={[
-                  <BeergamButton 
-                    key="filters-btn"
-                    onClick={() => {
-                      openModal(
-                        <FiltersModalContent
-                          initialFilters={filters}
-                          onApply={handleApplyFilters}
-                          onReset={handleResetFilters}
-                          isSubmitting={isFetching}
-                        />, {title: "Filtros Aplicados", icon: "adjustments_horizontal_solid"}
-                      );
-                    }} 
-                    title="Filtros Aplicados"
-                    icon="adjustments_horizontal_solid"
-                  />,
-                  <BeergamButton
-                    key="export-history-btn"
-                    title="Histórico de Exportações"
-                    mainColor="beergam-blue"
-                    icon="clock"
-                    onClick={handleExportHistoryClick}
-                  />,
-                  <BeergamButton
-                    key="export-btn"
-                    title="Exportar Planilha"
-                    mainColor="beergam-green"
-                    icon="excel"
-                    onClick={handleExportClick}
-                    disabled={createExportMutation.isPending}
-                    loading={createExportMutation.isPending}
-                  />
-                ]}
-              />
+            {isMobile ? (
+                <>
+                {controlsComponent}
+                <AsyncBoundary
+                    isLoading={isLoading}
+                    error={error as unknown}
+                    Skeleton={() => (
+                        <div className="flex flex-col gap-2 p-4">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="h-24 rounded-xl bg-beergam-section-background animate-pulse"
+                                />
+                            ))}
+                        </div>
+                    )}
+                    ErrorFallback={() => (
+                        <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4">
+                            Não foi possível carregar os pedidos.
+                        </div>
+                    )}
+                >
+                    <div className="flex flex-col gap-2 w-full min-w-0">
+                        {transformedOrders.length === 0 ? (
+                            <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-beergam-section-background p-8 text-center">
+                                <p className="text-beergam-typography-secondary">
+                                    Nenhum pedido encontrado com os filtros atuais.
+                                </p>
+                            </div>
+                        ) : (
+                            <>
+                                {transformedOrders.map((order) => (
+                                    <RelatorioVendasOrderCard key={order.order_id} order={order} />
+                                ))}
+                                {hasMore && (
+                                    <BeergamButton
+                                        className="w-full mt-2"
+                                        title={isLoadingMore ? "Carregando..." : "Carregar mais"}
+                                        icon="arrow_path"
+                                        onClick={loadMore}
+                                        loading={isLoadingMore}
+                                        disabled={isLoadingMore}
+                                    />
+                                )}
+                            </>
+                        )}
+                    </div>
+                    <p className="text-xs text-beergam-typography-tertiary mt-2">
+                        {transformedOrders.length} de {pagination.total_count} pedidos.
+                    </p>
+                </AsyncBoundary>
+                </>
+            ) : (
+                <TanstackTable
+                    data={transformedOrders}
+                    columns={columns}
+                    controlColumns
+                    exportToExcel
+                    storageKey="orders"
+                    pagination={pagination}
+                    onLoadMore={hasMore ? loadMore : undefined}
+                    isLoadingMore={isLoadingMore}
+                    contextMenuComponent={renderContextMenu}
+                    isLoading={isLoading}
+                    error={error as unknown}
+                    additionalControls={[controlsComponent]}
+                />
+            )}
         </div>
     );
 }

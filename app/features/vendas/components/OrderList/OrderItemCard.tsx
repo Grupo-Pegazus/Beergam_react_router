@@ -19,11 +19,11 @@ interface OrderItemCardProps {
 
 function CardInfo({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="flex flex-col gap-0.5 md:gap-1 w-max text-nowrap text-center flex-1 bg-beergam-mui-paper! rounded-lg py-1 px-1.5 md:px-2 border border-beergam-input-border!">
+    <div className="flex flex-col gap-0.5 md:gap-1 min-w-[5.5rem] text-center flex-1 bg-beergam-mui-paper! rounded-lg py-1 px-1.5 md:px-2 border border-beergam-input-border!">
       <p className="text-beergam-typography-secondary! text-xs! md:text-sm! font-medium">
         {label}
       </p>
-      <h3 className="text-beergam-primary! text-xs! md:text-sm! font-bold">
+      <h3 className="text-beergam-primary! text-xs! md:text-sm! font-bold whitespace-nowrap overflow-hidden text-ellipsis" title={String(value)}>
         {value}
       </h3>
     </div>
@@ -41,13 +41,14 @@ function ProfitCardInfo({
   value: string | number;
   options?: { money?: boolean; percentage?: boolean };
 }) {
+  const displayValue = censored ? "****" : formatCurrency(value, options);
   return (
-    <div className="flex flex-col gap-0.5 md:gap-1 w-full md:w-[50%] text-center flex-1 bg-beergam-mui-paper! rounded-lg py-1 px-1.5 md:px-2 border border-beergam-input-border!">
+    <div className="flex flex-col gap-0.5 md:gap-1 min-w-[5.5rem] w-full md:w-[50%] text-center flex-1 bg-beergam-mui-paper! rounded-lg py-1 px-1.5 md:px-2 border border-beergam-input-border!">
       <p className="text-beergam-typography-secondary! text-xs! md:text-sm! font-medium">
         {label}
       </p>
-      <h3 className="text-xs! md:text-sm! font-bold text-beergam-primary!">
-        {censored ? "****" : formatCurrency(value, options)}
+      <h3 className="text-xs! md:text-sm! font-bold text-beergam-primary! whitespace-nowrap overflow-hidden text-ellipsis" title={String(displayValue)}>
+        {displayValue}
       </h3>
     </div>
   );
@@ -68,139 +69,100 @@ export default function OrderItemCard({
   const margin = order.profit_margin ?? 0;
 
   return (
-    <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-2 bg-beergam-section-background! rounded-lg p-2 md:p-2 w-full min-w-0">
+    <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-2 bg-beergam-section-background! rounded-xl p-3 md:p-2 w-full min-w-0 border border-beergam-input-border/20">
       <CensorshipWrapper
         canChange={censorshipKey === "vendas_orders_list_details"}
         censorshipKey={censorshipKey}
-        className="w-full flex"
+        className="w-full flex flex-col md:flex-row gap-3 md:gap-2"
       >
-        <div className="flex items-center gap-2 flex-1 min-w-0 w-full md:w-auto">
-          <ImageCensored className="w-12! h-12! md:w-16! md:h-16! shrink-0" censorshipKey={censorshipKey}>
+        {/* Produto: thumb + info + preço (mobile tudo em linha, compacto) */}
+        <div className="flex items-center gap-3 flex-1 min-w-0 w-full md:w-auto">
+          <ImageCensored className="w-12! h-12! md:w-16! md:h-16! shrink-0 rounded-lg overflow-hidden" censorshipKey={censorshipKey}>
             <Thumbnail
               thumbnail={order.thumbnail ?? ""}
-              tailWindClasses="w-12! h-12! md:w-16! md:h-16! shrink-0"
+              tailWindClasses="w-12! h-12! md:w-16! md:h-16! shrink-0 object-cover"
             />
           </ImageCensored>
-          <div className="flex flex-col gap-0.5 md:gap-1 min-w-0 flex-1 overflow-hidden w-0">
+          <div className="flex flex-col gap-0.5 min-w-0 flex-1 overflow-hidden">
             <TextCensored forceCensor={censored} censorshipKey={censorshipKey}>
               <Typography
                 variant="body2"
                 fontWeight={600}
-                className="text-beergam-typography-primary! text-sm md:text-base"
-                noWrap
+                className="text-beergam-typography-primary! text-sm md:text-base line-clamp-2"
                 sx={{
                   overflow: "hidden",
                   textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  width: "100%",
-                  maxWidth: "100%",
-                  display: "block",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
                 }}
               >
                 {order.title}
               </Typography>
             </TextCensored>
-
             <Typography
               variant="caption"
-              className="text-xs md:text-sm text-beergam-typography-secondary!"
+              className="text-xs md:text-sm text-beergam-typography-secondary! truncate hidden md:block"
             >
-              {censored ? "****" : order.mlb || "—"} |{" "}
-              {censored ? "****" : order.sku || "—"}
+              {censored ? "****" : order.mlb || "—"} | {censored ? "****" : order.sku || "—"}
             </Typography>
             {order.ad_type && (
               <Typography
                 variant="caption"
-                className="text-xs md:text-sm text-beergam-typography-secondary!"
+                className="text-xs text-beergam-typography-secondary! hidden md:block"
               >
                 {order.ad_type}
               </Typography>
             )}
           </div>
-        </div>
-
-        {/* Mobile: Resumo básico com botão de expandir */}
-        <div className="flex md:hidden items-center justify-between gap-2">
-          <div className="flex items-center gap-2 bg-beergam-section-background! border border-beergam-input-border! px-2 py-1 rounded-lg">
+          {/* Mobile: preço + expandir em linha com o produto */}
+          <div className="flex md:hidden items-center gap-2 shrink-0">
             <Typography
-              variant="caption"
-              className="text-xs text-beergam-typography-secondary!"
-            >
-              Qtd:
-            </Typography>
-            <Typography
-              variant="caption"
-              fontWeight={600}
-              className="text-beergam-typography-primary! text-sm"
-            >
-              {censored ? "****" : order.quantity || 0}
-            </Typography>
-            <span className="text-slate-300">|</span>
-            <Typography
-              variant="caption"
-              className="text-xs text-beergam-typography-secondary!"
-            >
-              Total Bruto:
-            </Typography>
-            <Typography
-              variant="caption"
+              variant="body2"
               fontWeight={700}
-              className="text-beergam-typography-primary! text-sm"
+              className="text-beergam-primary! text-sm"
             >
               {censored ? "****" : formatCurrency(order.total_amount)}
             </Typography>
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="flex items-center justify-center w-8 h-8 rounded-lg border border-beergam-blue-primary! bg-beergam-blue-primary/10 hover:bg-beergam-blue-primary/20 transition-colors touch-manipulation shrink-0"
+              aria-label={
+                isExpanded ? "Recolher detalhes" : "Ver detalhes financeiros"
+              }
+            >
+              <Svg.chevron
+                tailWindClasses={`h-4 w-4 text-beergam-blue-primary! transition-transform duration-200 ${
+                  isExpanded ? "rotate-270" : "rotate-90"
+                }`}
+              />
+            </button>
           </div>
-
-          {/* Botão de expandir - Apenas mobile */}
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center justify-center w-8 h-8 rounded-lg border border-beergam-blue-primary! bg-beergam-blue-primary! hover:bg-beergam-blue-primary-dark! active:bg-beergam-blue-primary-dark! transition-colors touch-manipulation shrink-0"
-            aria-label={
-              isExpanded
-                ? "Recolher detalhes financeiros"
-                : "Ver detalhes financeiros"
-            }
-          >
-            <Svg.chevron
-              tailWindClasses={`h-4 w-4 transition-transform duration-200 ${
-                isExpanded ? "rotate-270" : "rotate-90"
-              }`}
-            />
-          </button>
         </div>
 
-        {/* Mobile: Detalhes financeiros - Expandido */}
+        {/* Mobile: Detalhes financeiros - Expandido, layout em lista com mais espaço */}
         {isExpanded && (
-          <div className="flex flex-col md:hidden gap-1.5 bg-beergam-section-background! p-2 rounded-lg w-full">
-            <div className="grid grid-cols-2 gap-1.5">
-              <CardInfo
-                label="Bruto:"
-                value={censored ? "****" : formatCurrency(order.total_amount)}
-              />
-              <CardInfo
-                label="Imposto:"
-                value={censored ? "****" : formatCurrency(order.tax_amount)}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-1.5">
-              <CardInfo
-                label="Custo:"
-                value={censored ? "****" : formatCurrency(totalCost)}
-              />
-              <ProfitCardInfo
-                censored={censored}
-                label="Lucro:"
-                value={censored ? "****" : profit}
-              />
-            </div>
-            <div className="grid grid-cols-1 gap-1.5">
-              <ProfitCardInfo
-                label="Margem:"
-                censored={censored}
-                value={censored ? "*" : margin}
-                options={{ percentage: true }}
-              />
-            </div>
+          <div className="flex flex-col md:hidden gap-3 w-full py-2">
+            {[
+              { label: "Qtd", value: censored ? "****" : order.quantity ?? 0 },
+              { label: "Bruto", value: censored ? "****" : formatCurrency(order.total_amount) },
+              { label: "Imposto", value: censored ? "****" : formatCurrency(order.tax_amount) },
+              { label: "Custo", value: censored ? "****" : formatCurrency(totalCost) },
+              { label: "Lucro", value: censored ? "****" : formatCurrency(profit) },
+              { label: "Margem", value: censored ? "****" : `${margin}%`, highlight: true },
+            ].map(({ label, value, highlight }) => (
+              <div
+                key={label}
+                className="flex justify-between items-center py-1.5 border-b border-beergam-input-border/30 last:border-0"
+              >
+                <span className="text-xs text-beergam-typography-secondary!">{label}</span>
+                <span
+                  className={`text-sm font-semibold ${highlight ? "text-beergam-primary!" : "text-beergam-typography-primary!"}`}
+                >
+                  {value}
+                </span>
+              </div>
+            ))}
           </div>
         )}
 

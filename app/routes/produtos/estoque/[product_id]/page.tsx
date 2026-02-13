@@ -1,4 +1,3 @@
-import { Alert } from "@mui/material";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 import AverageCostCard from "~/features/produtos/components/StockControl/AverageCostCard";
@@ -10,6 +9,7 @@ import { useProductDetails, useStockTracking } from "~/features/produtos/hooks";
 import type { StockTrackingFilters as StockTrackingFiltersType } from "~/features/produtos/typings";
 import { useBreadcrumbCustomization } from "~/features/system/context/BreadcrumbContext";
 import Loading from "~/src/assets/loading";
+import { BeergamAlert } from "~/src/components/ui/BeergamAlert";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import Grid from "~/src/components/ui/Grid";
 import Section from "~/src/components/ui/Section";
@@ -229,21 +229,21 @@ export default function StockControlPage({ productId }: StockControlPageProps) {
 
   if (productError || !product) {
     return (
-      <Alert severity="error" sx={{ m: 3 }}>
+      <BeergamAlert severity="error" className="m-3">
         {productError instanceof Error
           ? productError.message
           : "Erro ao carregar informações do produto"}
-      </Alert>
+      </BeergamAlert>
     );
   }
 
   if (!hasStockHandling) {
     return (
-      <Alert severity="warning" sx={{ m: 3 }}>
+      <BeergamAlert severity="warning" className="m-3">
         Este produto não possui controle de estoque ativo. Ative o controle de
         estoque nas configurações do produto ou de suas variações para acessar
         esta funcionalidade.
-      </Alert>
+      </BeergamAlert>
     );
   }
 
@@ -291,11 +291,11 @@ export default function StockControlPage({ productId }: StockControlPageProps) {
           error={stockError as unknown}
           Skeleton={StockControlSkeleton}
           ErrorFallback={() => (
-            <Alert severity="error" sx={{ mb: 3 }}>
+            <BeergamAlert severity="error" className="mb-3">
               {stockError instanceof Error
                 ? stockError.message
                 : "Erro ao carregar histórico de estoque"}
-            </Alert>
+            </BeergamAlert>
           )}
         >
           {stockTracking && (

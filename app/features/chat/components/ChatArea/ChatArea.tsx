@@ -85,6 +85,12 @@ export interface ChatAreaProps extends Chat {
      * Usado para validar se o usuário pode enviar mensagens e qual canal utilizar.
      */
     posPurchaseStatus?: PosPurchaseMessagingStatus;
+
+    /**
+     * Caminho para voltar (ex: /interno/atendimento/chat).
+     * Usa Link para responder no 1º toque no mobile.
+     */
+    backToPath?: string;
 }
 
 /**
@@ -133,6 +139,7 @@ export default function ChatArea({
     onOrderChange,
     onClaimChange,
     posPurchaseStatus,
+    backToPath,
 }: ChatAreaProps) {
     const [message, setMessage] = useState<string>("");
     const [showActions, setShowActions] = useState<boolean>(false);
@@ -483,17 +490,20 @@ export default function ChatArea({
                 activeType={chatType}
                 onTypeChange={onChatTypeChange}
                 hasClaims={hasClaims}
+                backToPath={backToPath}
             />
             <Paper className="p-0! mt-2 bg-beergam-section-background! relative flex-1 flex flex-col min-h-0">
                 <div className="sticky top-0 z-100">
-                    <div className="text-beergam-white flex items-center justify-between  rounded-t-lg bg-beergam-menu-background/80! p-2">
+                    <div className="text-beergam-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-t-lg bg-beergam-menu-background/80! p-2 sm:p-2">
                         {sender && (
                             <>
                                 <div className="flex items-start gap-2 flex-1 min-w-0">
-                                    <Avatar className="bg-beergam-primary!">{sender.details.nickname.charAt(0) || "C"}</Avatar>
-                                    <div className="flex flex-col gap-1 items-start min-w-0 flex-1">
-                                        <h4 className="text-beergam-white!">{sender.details.nickname || "Cliente"}</h4>
-                                        {messages.length > 0 && !isLoading && <p className="text-beergam-white!">Criado em {dayjs(messages[0].date_created).format("DD/MM/YYYY HH:mm")}</p>}
+                                    <Avatar className="bg-beergam-primary! shrink-0">{sender.details.nickname.charAt(0) || "C"}</Avatar>
+                                    <div className="flex flex-col gap-0.5 sm:gap-1 items-start min-w-0 flex-1 overflow-hidden">
+                                        <h4 className="text-beergam-white! truncate max-w-full">{sender.details.nickname || "Cliente"}</h4>
+                                        {messages.length > 0 && !isLoading && (
+                                            <p className="text-beergam-white/90! text-xs sm:text-sm">Criado em {dayjs(messages[0].date_created).format("DD/MM/YYYY HH:mm")}</p>
+                                        )}
                                         {isLoading && <Skeleton variant="text" width={100} height={16} />}
                                         {/* Mostra qual pedido/reclamação está ativo */}
                                         {chatType === "pos_venda" && activeOrderId && (
@@ -527,7 +537,7 @@ export default function ChatArea({
                                         )}
                                     </div>
                                 </div>
-                                <div ref={actionRef} className="flex items-center gap-2 shrink-0">
+                                <div ref={actionRef} className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap">
                                     {/* Botão para trocar pedido/reclamação */}
                                     {chatType === "pos_venda" && client && client.orders.length > 1 && onOrderChange && (
                                         <BeergamButton
@@ -564,7 +574,7 @@ export default function ChatArea({
                         )}
                     </div>
                 </div>
-                <div className="p-4 pb-4 flex-1 bg-beergam-section-background! overflow-y-auto min-h-0">
+                <div className="p-3 sm:p-4 pb-4 flex-1 bg-beergam-section-background! overflow-y-auto min-h-0 overscroll-contain">
                     {isPosVendaComEnvioBloqueado && (
                         <div className="mb-3 p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-800">
                             <p className="font-semibold">Conversa desabilitada</p>
@@ -636,7 +646,7 @@ export default function ChatArea({
                         </>
                     )}
                 </div>
-                {sender && !isLoading && <div className="p-2 sticky bottom-0 bg-beergam-menu-background/80! rounded-lg z-25 flex flex-col gap-2">
+                {sender && !isLoading && <div className="p-2 sm:p-2 sticky bottom-0 bg-beergam-menu-background/80! rounded-lg z-25 flex flex-col gap-2">
                     {/* Anexos selecionados */}
                     {attachments.length > 0 && (
                         <div className="flex flex-wrap gap-2">
@@ -670,6 +680,8 @@ export default function ChatArea({
                             <TextField
                                 fullWidth
                                 placeholder="Digite sua mensagem..."
+                                minRows={1}
+                                maxRows={4}
                                 value={message}
                                 disabled={
                                     !sender ||

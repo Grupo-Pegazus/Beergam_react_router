@@ -43,9 +43,12 @@ export default function ChatMessage({ message }: { message: ChatMessage }) {
             <Paper
                 className={`
                     relative
-                    max-w-[75%]
-                    px-4
-                    py-3
+                    max-w-[90%]
+                    sm:max-w-[75%]
+                    px-3
+                    sm:px-4
+                    py-2.5
+                    sm:py-3
                     rounded-lg
                     border
                     ${message.status === "sending" ? "opacity-70" : ""}

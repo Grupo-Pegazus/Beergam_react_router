@@ -1,4 +1,5 @@
-import { Alert, Box, Paper, Stack } from "@mui/material";
+import { Box, Paper, Stack } from "@mui/material";
+import { BeergamAlert } from "~/src/components/ui/BeergamAlert";
 import { useEffect, useMemo } from "react";
 import { useBreadcrumbCustomization } from "~/features/system/context/BreadcrumbContext";
 import { useProductDetails } from "../../hooks";
@@ -37,16 +38,16 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
 
   if (error) {
     return (
-      <Alert severity="error">
+      <BeergamAlert severity="error">
         {error instanceof Error
           ? error.message
           : "Erro ao carregar detalhes do produto"}
-      </Alert>
+      </BeergamAlert>
     );
   }
 
   if (!product) {
-    return <Alert severity="warning">Produto não encontrado</Alert>;
+    return <BeergamAlert severity="warning">Produto não encontrado</BeergamAlert>;
   }
 
   return (
