@@ -27,14 +27,14 @@ const getActionLabel = (action: string): string => {
 const getActionColor = (action: string): { bg: string; color: string } => {
   switch (action) {
     case "CREATED":
-      return { bg: "#d1fae5", color: "#065f46" };
+      return { bg: "var(--color-beergam-green)", color: "var(--color-beergam-green-dark)" };
     case "UPDATED":
-      return { bg: "#e0f2fe", color: "#0369a1" };
+      return { bg: "var(--color-beergam-primary-light)", color: "var(--color-beergam-primary)" };
     case "DELETED":
     case "CANCELLED":
-      return { bg: "#fee2e2", color: "#991b1b" };
+      return { bg: "var(--color-beergam-red)", color: "var(--color-beergam-red-dark)" };
     default:
-      return { bg: "#f3f4f6", color: "#374151" };
+      return { bg: "var(--color-beergam-gray)", color: "var(--color-beergam-gray-dark)" };
   }
 };
 
@@ -58,15 +58,15 @@ export default function SchedulingLogsModal({
         error={error as unknown}
         Skeleton={Loading}
         ErrorFallback={() => (
-          <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4">
+          <div className="rounded-2xl border border-beergam-red bg-beergam-red/10 text-beergam-red p-4">
             Não foi possível carregar os logs do agendamento.
           </div>
         )}
       >
         {logs.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <Svg.information_circle tailWindClasses="h-10 w-10 mx-auto mb-2 text-gray-400" />
-            <Typography variant="body1" color="text.secondary">
+          <div className="text-center py-8 text-beergam-typography-secondary">
+            <Svg.information_circle tailWindClasses="h-10 w-10 mx-auto mb-2 text-beergam-typography-secondary" />
+            <Typography variant="body1" className="text-beergam-typography-secondary">
               Nenhum log encontrado para este agendamento.
             </Typography>
           </div>
@@ -75,7 +75,7 @@ export default function SchedulingLogsModal({
             {logs.map((log) => {
               const actionColor = getActionColor(log.action);
               return (
-                <MainCards key={log.id} className="p-4">
+                <MainCards key={log.id} className="p-4 bg-beergam-section-background border border-beergam-section-border rounded-lg">
                   <div className="flex flex-col gap-2">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
@@ -91,15 +91,15 @@ export default function SchedulingLogsModal({
                               color: actionColor.color,
                             }}
                           />
-                          <Typography variant="caption" color="text.secondary" className="text-xs">
+                          <Typography variant="caption" className="text-beergam-typography-secondary text-xs">
                             {formatDateTime(log.created_at)}
                           </Typography>
                         </div>
-                        <Typography variant="body2" className="text-slate-700">
+                        <Typography variant="body2" className="text-beergam-typography-primary">
                           {log.description}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary" className="text-xs mt-1">
-                          Ator: <b>{log.actor_name}</b> - {log.is_master ? "Master" : `Colaborador (${log.actor_pin})`}
+                        <Typography variant="caption" className="text-beergam-typography-secondary text-xs mt-1">
+                          Ator: <b className="text-beergam-typography-primary">{log.actor_name}</b> - {log.is_master ? "Master" : `Colaborador (${log.actor_pin})`}
                         </Typography>
                       </div>
                     </div>
