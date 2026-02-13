@@ -77,11 +77,11 @@ export default function StockProductsList({ syncPageWithUrl = false, pageParamKe
 
   const cardsPerPage = useMemo(() => {
     // Mantém sempre UMA linha por página, respeitando o número de colunas da grid
-    if (isXs) return 2; // grid-cols-2
-    if (isSm) return 3; // sm:grid-cols-3
-    if (isMd) return 4; // md:grid-cols-4
-    if (isLgUp) return 6; // lg:grid-cols-5 (xl terá uma "vaga" sobrando, mas sem quebra de linha)
-    return 4;
+    if (isXs) return 1;
+    if (isSm) return 2;
+    if (isMd) return 4;
+    if (isLgUp) return 5; // lg:grid-cols-5 (xl terá uma "vaga" sobrando, mas sem quebra de linha)
+    return 5;
   }, [isXs, isSm, isMd, isLgUp]);
 
   const paginatedProducts = useMemo(() => {
@@ -140,7 +140,7 @@ export default function StockProductsList({ syncPageWithUrl = false, pageParamKe
           </MainCards>
         ) : (
           <Stack spacing={2}>
-            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
               {paginatedProducts.map((product) => {
                 const mainImageUrl =
                   product.images?.product?.[0] ||
