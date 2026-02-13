@@ -222,6 +222,13 @@ export default function UserForm({ user }: { user: IUser }) {
               />
             )}
             <UserFields
+              label="Valor pago no flex por pedido no Mercado Livre"
+              {...register("details.meli_flex_shipping_fee")}
+              value={watch("details.meli_flex_shipping_fee") ?? ""}
+              error={errors.details?.meli_flex_shipping_fee?.message}
+              canAlter={true}
+            />
+            <UserFields
               label="Faturador Atual"
               {...register("details.current_billing")}
               value={watch("details.current_billing") ?? ""}
