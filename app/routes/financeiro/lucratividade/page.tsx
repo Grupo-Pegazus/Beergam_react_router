@@ -33,7 +33,7 @@ import { useCensorship } from "~/src/components/utils/Censorship/CensorshipConte
 import { CensorshipWrapper } from "~/src/components/utils/Censorship/CensorshipWrapper";
 import { TextCensored } from "~/src/components/utils/Censorship/TextCensored";
 import type { TPREDEFINED_CENSORSHIP_KEYS } from "~/src/components/utils/Censorship/typings";
-import { FilterDatePicker } from "~/src/components/filters";
+import { FilterDateRangePicker } from "~/src/components/filters";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 interface SectionContent{
     value: string;
@@ -67,14 +67,16 @@ const DEFAULT_SKU_DATE_TO = dayjs().format("YYYY-MM-DD");
 
 export default function LucratividadePage() {
 	const [pricePerSelfServiceReturn, setPricePerSelfServiceReturn] = useState<number | null>(12);
-	const [skuDateFrom, setSkuDateFrom] = useState<string>(DEFAULT_SKU_DATE_FROM);
-	const [skuDateTo, setSkuDateTo] = useState<string>(DEFAULT_SKU_DATE_TO);
+	const [skuDateRange, setSkuDateRange] = useState<{ start: string; end: string }>({
+		start: DEFAULT_SKU_DATE_FROM,
+		end: DEFAULT_SKU_DATE_TO,
+	});
 
   const {data: invoicingMetrics, isLoading: isLoadingInvoicingMetrics} = useInvoicingMetrics();
 	const {data: invoicingMetricsByMonths, isLoading: isLoadingInvoicingMetricsByMonths} = useInvoicingMetricsByMonths();
 	const {data: incomingsBySku, isLoading: isLoadingIncomingsBySku} = useIncomingsBySku({
-		start_date: skuDateFrom,
-		end_date: skuDateTo,
+		start_date: skuDateRange.start,
+		end_date: skuDateRange.end,
 	});
   const subscription = authStore.use.subscription() ?? null;
   const isBasePlan = subscription?.plan.display_name === 'Operacional';
@@ -469,28 +471,14 @@ export default function LucratividadePage() {
      </CensorshipWrapper>
      <CensorshipWrapper censorshipKey={"lucratividade_lucro_sku" as TPREDEFINED_CENSORSHIP_KEYS}>
     <Section title="Lucro por SKU">
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          spacing={2}
-          sx={{ mb: 3 }}
-        >
-          <div style={{ flex: 1 }} className="md:w-auto w-full">
-            <FilterDatePicker
-              label="Data inicial"
-              value={skuDateFrom}
-              onChange={(value) => setSkuDateFrom(value ?? DEFAULT_SKU_DATE_FROM)}
-              widthType="full"
-            />
-          </div>
-          <div style={{ flex: 1 }} className="md:w-auto w-full">
-            <FilterDatePicker
-              label="Data final"
-              value={skuDateTo}
-              onChange={(value) => setSkuDateTo(value ?? DEFAULT_SKU_DATE_TO)}
-              widthType="full"
-            />
-          </div>
-        </Stack>
+        <div className="mb-3 w-full max-w-sm">
+          <FilterDateRangePicker
+            label="Período"
+            value={skuDateRange}
+            onChange={setSkuDateRange}
+            widthType="full"
+          />
+        </div>
 
       {isLoadingIncomingsBySku ? (
         <div className="flex items-center justify-center p-8">

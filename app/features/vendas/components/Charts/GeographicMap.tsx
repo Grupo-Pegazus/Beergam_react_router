@@ -17,8 +17,7 @@ import {
 import PaginationBar from "~/src/components/ui/PaginationBar";
 import MainCards from "~/src/components/ui/MainCards";
 import { Fields } from "~/src/components/utils/_fields";
-import { type Dayjs } from "dayjs";
-import { FilterDatePicker } from "~/src/components/filters";
+import { FilterDateRangePicker } from "~/src/components/filters";
 import { dateStringToDayjs } from "~/src/utils/date";
 
 const geoUrl = "https://gist.githubusercontent.com/ruliana/1ccaaab05ea113b0dff3b22be3b4d637/raw/196c0332d38cb935cfca227d28f7cecfa70b412e/br-states.json";
@@ -48,14 +47,20 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
     "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "last_90_days" | "custom"
   >(period as "last_day" | "last_7_days" | "last_15_days" | "last_30_days" | "last_90_days" | "custom");
 
-  const [dateFrom, setDateFrom] = useState<Dayjs | null>(null);
-  const [dateTo, setDateTo] = useState<Dayjs | null>(null);
+  const [dateRange, setDateRange] = useState<{
+    start: string;
+    end: string;
+  } | null>(null);
   const [rankingPage, setRankingPage] = useState(1);
 
   const { data, isLoading, error } = useGeographicDistribution({
     period: selectedPeriod,
-    date_from: dateFrom?.toISOString() || undefined,
-    date_to: dateTo?.toISOString() || undefined,
+    date_from: dateRange?.start
+      ? dateStringToDayjs(dateRange.start).toISOString()
+      : undefined,
+    date_to: dateRange?.end
+      ? dateStringToDayjs(dateRange.end).toISOString()
+      : undefined,
   });
 
   const distribution = useMemo(() => {
@@ -98,20 +103,18 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
 
       // Limpa as datas quando não é período customizado
       if (newPeriod !== "custom") {
-        setDateFrom(null);
-        setDateTo(null);
+        setDateRange(null);
       }
     },
     []
   );
 
-  const handleDateFromChange = useCallback((newValue: Dayjs | null) => {
-    setDateFrom(newValue);
-  }, []);
-
-  const handleDateToChange = useCallback((newValue: Dayjs | null) => {
-    setDateTo(newValue);
-  }, []);
+  const handleDateRangeChange = useCallback(
+    (range: { start: string; end: string }) => {
+      setDateRange(range);
+    },
+    []
+  );
 
   const handleRankingPageChange = useCallback((page: number) => {
     setRankingPage(page);
@@ -138,24 +141,20 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-4">
               <div className="flex-1 w-full sm:w-auto">
                 {selectedPeriod === "custom" && (
-                  <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 2 }}>
-                    <FilterDatePicker
-                      label="Data de início"
-                      value={dateFrom?.toISOString() ?? undefined}
-                      onChange={(value) => handleDateFromChange(value ? dateStringToDayjs(value) : null)}
+                  <div className="mt-2 w-full max-w-sm">
+                    <FilterDateRangePicker
+                      label="Período"
+                      value={dateRange}
+                      onChange={handleDateRangeChange}
+                      widthType="full"
                     />
-                    <FilterDatePicker
-                      label="Data de fim"
-                      value={dateTo?.toISOString() ?? undefined}
-                      onChange={(value) => handleDateToChange(value ? dateStringToDayjs(value) : null)}
-                    />
-                  </Stack>
+                  </div>
                 )}
               </div>
             </div>
           </div>
 
-          {selectedPeriod === "custom" && (!dateFrom || !dateTo) ? (
+          {selectedPeriod === "custom" && (!dateRange?.start || !dateRange?.end) ? (
             <div className="flex flex-col items-center justify-center h-64 md:h-96 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
               <Typography variant="body2" color="text.secondary" className="text-center text-sm md:text-base">
                 Selecione as datas de início e fim para visualizar a distribuição geográfica.

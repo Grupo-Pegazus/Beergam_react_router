@@ -1,7 +1,7 @@
 import { Skeleton, Stack, Typography } from "@mui/material";
 import { memo, useCallback, useMemo, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
-import { FilterDatePicker } from "~/src/components/filters";
+import { FilterDateRangePicker } from "~/src/components/filters";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import SecondaryButton from "~/src/components/ui/SecondaryButton";
 import StatCard from "~/src/components/ui/StatCard";
@@ -95,20 +95,21 @@ ErrorFallback.displayName = "ErrorFallback";
 
 export default function HomeSummary() {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>(1);
-  const [dateFrom, setDateFrom] = useState<string>("");
-  const [dateTo, setDateTo] = useState<string>("");
+  const [dateRange, setDateRange] = useState<{ start: string; end: string } | null>(null);
 
   const filters = useMemo(
     () => ({
       period: selectedPeriod,
       date_from:
-        selectedPeriod === "custom" && dateFrom
-          ? dateStringToISO(dateFrom)
+        selectedPeriod === "custom" && dateRange?.start
+          ? dateStringToISO(dateRange.start)
           : undefined,
       date_to:
-        selectedPeriod === "custom" && dateTo ? dateStringToISO(dateTo) : undefined,
+        selectedPeriod === "custom" && dateRange?.end
+          ? dateStringToISO(dateRange.end)
+          : undefined,
     }),
-    [selectedPeriod, dateFrom, dateTo]
+    [selectedPeriod, dateRange]
   );
 
   const { data, isLoading, error } = useHomeSummary(filters);
@@ -123,17 +124,12 @@ export default function HomeSummary() {
   const handlePeriodChange = useCallback((period: PeriodFilter) => {
     setSelectedPeriod(period);
     if (period !== "custom") {
-      setDateFrom("");
-      setDateTo("");
+      setDateRange(null);
     }
   }, []);
 
-  const handleDateFromChange = useCallback((value: string | undefined) => {
-    setDateFrom(value ?? "");
-  }, []);
-
-  const handleDateToChange = useCallback((value: string | undefined) => {
-    setDateTo(value ?? "");
+  const handleDateRangeChange = useCallback((value: { start: string; end: string }) => {
+    setDateRange(value);
   }, []);
 
   const marginPercentual = useMemo(() => {
@@ -163,28 +159,18 @@ export default function HomeSummary() {
           </div>
 
           {selectedPeriod === "custom" && (
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={2}
-              sx={{ mt: 1 }}
-            >
-              <FilterDatePicker
-                label="Data de início"
-                value={dateFrom || undefined}
-                onChange={handleDateFromChange}
+            <div className="mt-2 w-full max-w-sm">
+              <FilterDateRangePicker
+                label="Período"
+                value={dateRange}
+                onChange={handleDateRangeChange}
                 widthType="full"
               />
-              <FilterDatePicker
-                label="Data de fim"
-                value={dateTo || undefined}
-                onChange={handleDateToChange}
-                widthType="full"
-              />
-            </Stack>
+            </div>
           )}
         </div>
 
-        {selectedPeriod === "custom" && (!dateFrom || !dateTo) ? (
+        {selectedPeriod === "custom" && (!dateRange?.start || !dateRange?.end) ? (
           <div className="flex flex-col items-center justify-center min-h-[200px] rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
             <Typography
               variant="body2"

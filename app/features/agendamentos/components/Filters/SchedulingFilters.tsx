@@ -4,7 +4,7 @@ import {
   FilterContainer,
   FilterSelect,
   FilterSearchInput,
-  FilterDatePicker,
+  FilterDateRangePicker,
 } from "~/src/components/filters";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import type {
@@ -87,8 +87,12 @@ export default function SchedulingFilters({
 
   const titleValue = useMemo(() => value.title || "", [value.title]);
 
-  const dateFromValue = useMemo(() => value.date_from || "", [value.date_from]);
-  const dateToValue = useMemo(() => value.date_to || "", [value.date_to]);
+  const dateRangeValue = useMemo(() => {
+    if (value.date_from && value.date_to) {
+      return { start: value.date_from, end: value.date_to };
+    }
+    return null;
+  }, [value.date_from, value.date_to]);
 
   const handleSearchChange = useCallback(
     (searchTerm: string) => {
@@ -105,11 +109,15 @@ export default function SchedulingFilters({
     [value, onChange]
   );
 
-  const handleDateChange = useCallback(
-    (key: "date_from" | "date_to", dateValue: string) => {
-      handleFilterChange(key, dateValue || null);
+  const handleDateRangeChange = useCallback(
+    (range: { start: string; end: string }) => {
+      onChange({
+        ...value,
+        date_from: range.start,
+        date_to: range.end,
+      });
     },
-    [handleFilterChange]
+    [value, onChange]
   );
 
   const handleReset = useCallback(() => {
@@ -169,19 +177,13 @@ export default function SchedulingFilters({
             }))}
             disabled={isSubmitting}
           />
-          <FilterDatePicker
-            label="Data inicial"
-            value={dateFromValue}
-            onChange={(value) => handleDateChange("date_from", value ?? "")}
+          <FilterDateRangePicker
+            label="Período"
+            value={dateRangeValue}
+            onChange={handleDateRangeChange}
             disabled={isSubmitting}
+            widthType="full"
           />
-
-        <FilterDatePicker
-          label="Data final"
-          value={dateToValue}
-          onChange={(value) => handleDateChange("date_to", value ?? "")}
-          disabled={isSubmitting}
-        />
         </Stack>
 
 
