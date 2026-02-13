@@ -17,6 +17,8 @@ const defaultMetrics = {
   totalCadastrados: 0,
   totalAtivos: 0,
   estoqueBaixo: 0,
+  totalDesativados: 0,
+  estoqueAlto: 0,
 };
 
 const SUMMARY_CARDS: SummaryCardDefinition[] = [
@@ -41,6 +43,20 @@ const SUMMARY_CARDS: SummaryCardDefinition[] = [
     gradient: "from-rose-100 via-rose-50 to-white",
     accent: "text-rose-600",
   },
+  {
+    key: "totalDesativados",
+    label: "Produtos desativados",
+    icon: "x_circle",
+    gradient: "from-gray-100 via-gray-50 to-white",
+    accent: "text-gray-600",
+  },
+  {
+    key: "estoqueAlto",
+    label: "Estoque alto",
+    icon: "in_box_stack",
+    gradient: "from-green-100 via-emerald-50 to-white",
+    accent: "text-emerald-600",
+  },
 ];
 
 export default function MetricasCards() {
@@ -52,6 +68,8 @@ export default function MetricasCards() {
           totalCadastrados: data.data.total_cadastrados,
           totalAtivos: data.data.total_ativos,
           estoqueBaixo: data.data.estoque_baixo,
+          totalDesativados: data.data.total_desativados,
+          estoqueAlto: data.data.estoque_alto,
         }
       : defaultMetrics;
 
@@ -66,7 +84,7 @@ export default function MetricasCards() {
         </div>
       )}
     >
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {SUMMARY_CARDS.map((card) => (
           <StatCard
             key={card.key}

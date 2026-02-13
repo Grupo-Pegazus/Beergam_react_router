@@ -170,7 +170,7 @@ export default function MetricasCards() {
           <h4 className="text-xs md:text-sm font-semibold text-beergam-typography-secondary mb-2 md:mb-3">
             Suas vendas
           </h4>
-          <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
             {SUMMARY_CARDS.map((card) => {
               const value =
                 ordersByStatus[card.key as keyof typeof ordersByStatus];
