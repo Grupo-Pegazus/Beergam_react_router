@@ -43,9 +43,7 @@
   --shadow-layout-primary: 0px 0px 10px 0px rgba(0, 0, 0, 0.8);
 
   /* Cores que são alteradas dependendo do tema */
-  --color-beergam-green: var(--color-beergam-green-light);
   --color-beergam-gray: var(--color-beergam-gray-light);
-  --color-beergam-yellow: var(--color-beergam-yellow-light);
   --color-beergam-primary: var(--color-beergam-blue-primary);
   --color-beergam-primary-light: var(--color-beergam-blue-light);
   --color-beergam-secundary: var(--color-beergam-orange);
@@ -162,9 +160,7 @@
 
 /* Modo Escuro - cores que mudam automaticamente */
 .dark {
-  --color-beergam-green: var(--color-beergam-green-light);
   --color-beergam-gray: var(--color-beergam-gray-light);
-  --color-beergam-yellow: var(--color-beergam-yellow-light);
   --color-beergam-primary: var(--color-beergam-orange);
   --color-beergam-primary-light: var(--color-beergam-orange-light);
   --color-beergam-secundary: var(--color-beergam-gray-blueish-dark);

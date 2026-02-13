@@ -1,3 +1,4 @@
+import { useMediaQuery, useTheme } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
@@ -8,6 +9,7 @@ import OrderSelectionModal from "~/features/chat/components/ChatArea/OrderSelect
 import { ClientsFilters } from "~/features/chat/components/ClientsFilters";
 import { ClientsList } from "~/features/chat/components/ClientsList";
 import { useClients, usePosPurchaseMessages, useClaimMessages, useMediationMessages, usePosPurchaseMessagingStatus } from "~/features/chat/hooks";
+import { MOCK_CLIENTS, USE_MOCK_CLIENTS } from "~/features/chat/mocks/mockClients";
 import type { Client, ClientsFiltersState, ClientsFilters as ClientsFiltersType, ChatMessage } from "~/features/chat/typings";
 import { transformClientToChatUserDetails } from "~/features/chat/typings";
 
@@ -35,6 +37,8 @@ function mapToApiFilters(
 }
 
 export default function ChatPage() {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const [searchParams, setSearchParams] = useSearchParams();
     const orderIdParam = searchParams.get("order_id");
     const claimIdParam = searchParams.get("claim_id");
@@ -62,10 +66,15 @@ export default function ChatPage() {
 
     const clients: Client[] = useMemo(() => {
         if (!clientsQuery.data?.success || !clientsQuery.data.data) {
-            return [];
+            return USE_MOCK_CLIENTS ? MOCK_CLIENTS : [];
         }
         const responseData = clientsQuery.data.data;
-        return Array.isArray(responseData) ? responseData : [];
+        const realClients = Array.isArray(responseData) ? responseData : [];
+        // Usa mocks quando a API retorna vazio (ex: backend de teste sem dados)
+        if (realClients.length === 0 && USE_MOCK_CLIENTS) {
+            return MOCK_CLIENTS;
+        }
+        return realClients;
     }, [clientsQuery.data]);
 
     useEffect(() => {
@@ -109,6 +118,15 @@ export default function ChatPage() {
             isUpdatingFromUrlRef.current = false;
         }, 100);
     }, [clients, orderIdParam, claimIdParam, selectedClient?.client_id]);
+
+    // Quando a URL não tem order_id nem claim_id, limpa o cliente selecionado (ex: após clicar em Voltar)
+    useEffect(() => {
+        if (!orderIdParam && !claimIdParam) {
+            setSelectedClient(null);
+            setSelectedOrderId(null);
+            setSelectedClaimId(null);
+        }
+    }, [orderIdParam, claimIdParam]);
 
     useEffect(() => {
         if (!selectedClient || isUpdatingFromUrlRef.current || isSelectingClientRef.current) {
@@ -247,6 +265,7 @@ export default function ChatPage() {
         }
     }, [selectedClient, chatType, updateUrlForChatType]);
 
+
     const handleFiltersChange = useCallback((next: ClientsFiltersState) => {
         setFilters(next);
     }, []);
@@ -360,40 +379,48 @@ export default function ChatPage() {
         return data.data;
     }, [chatType, posPurchaseMessagingStatusQuery.data, selectedClient]);
 
-    return (
-        <div className="h-[calc(100vh-200px)] flex flex-col lg:flex-row gap-4">
-            <div className="w-full lg:w-[40%] lg:min-w-[250px] flex flex-col gap-4">
-                <ClientsFilters
-                    value={filters}
-                    onChange={handleFiltersChange}
-                    onReset={resetFilters}
-                    onSubmit={applyFilters}
-                    isSubmitting={clientsQuery.isLoading}
-                />
+    const showClientsList = !isMobile || !selectedClient;
+    const showChatArea = !isMobile || !!selectedClient;
 
-                <div className="flex flex-col flex-1 overflow-hidden">
-                    <div className="mb-2">
-                        <h2 className="text-xl font-semibold text-beergam-typography-primary">
-                            Clientes
-                        </h2>
-                        <p className="text-xs text-beergam-typography-secondary">
-                            {clients.length} cliente{clients.length !== 1 ? "s" : ""} encontrado
-                            {clients.length !== 1 ? "s" : ""}
-                        </p>
-                    </div>
-                    <div className="flex-1 overflow-hidden">
-                        <ClientsList
-                            clients={clients}
-                            selectedClientId={selectedClient?.client_id}
-                            loading={clientsQuery.isLoading}
-                            onClientSelect={handleClientSelect}
-                        />
+    return (
+        <div className="h-[calc(100dvh-180px)] md:h-[calc(100dvh-180px)] lg:h-[calc(100vh-200px)] flex flex-col lg:flex-row gap-4 min-h-0">
+            {/* Lista de clientes - no mobile só aparece quando nenhum chat está selecionado */}
+            {showClientsList && (
+                <div className={`w-full flex flex-col gap-4 ${isMobile ? "flex-1 min-h-0" : "lg:w-[40%] lg:min-w-[250px]"}`}>
+                    <ClientsFilters
+                        value={filters}
+                        onChange={handleFiltersChange}
+                        onReset={resetFilters}
+                        onSubmit={applyFilters}
+                        isSubmitting={clientsQuery.isLoading}
+                    />
+
+                    <div className="flex flex-col flex-1 overflow-hidden min-h-0">
+                        <div className="mb-2 shrink-0">
+                            <h2 className="text-xl font-semibold text-beergam-typography-primary">
+                                Clientes
+                            </h2>
+                            <p className="text-xs text-beergam-typography-secondary">
+                                {clients.length} cliente{clients.length !== 1 ? "s" : ""} encontrado
+                                {clients.length !== 1 ? "s" : ""}
+                            </p>
+                        </div>
+                        <div className="flex-1 overflow-hidden min-h-0">
+                            <ClientsList
+                                clients={clients}
+                                selectedClientId={selectedClient?.client_id}
+                                loading={clientsQuery.isLoading}
+                                onClientSelect={handleClientSelect}
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
-            <div className="flex-1 flex flex-col min-w-0">
-                <ChatArea
+            {/* Área do chat - no mobile só aparece quando um cliente está selecionado */}
+            {showChatArea && (
+                <div className="flex-1 flex flex-col min-w-0 min-h-0">
+                    <ChatArea
                     sender={transformClientToChatUserDetails(selectedClient)}
                     messages={messages}
                     chatType={chatType}
@@ -406,8 +433,10 @@ export default function ChatPage() {
                     onOrderChange={() => setShowOrderSelection(true)}
                     onClaimChange={() => setShowClaimSelection(true)}
                     posPurchaseStatus={posPurchaseStatus}
+                    backToPath={isMobile ? "/interno/atendimento/chat" : undefined}
                 />
-            </div>
+                </div>
+            )}
 
             {selectedClient && (
                 <>

@@ -1,14 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router";
+import { useMemo, useState } from "react";
+import { Link } from "react-router";
 import { Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import type { StockDashboardResponse } from "../../typings";
 import MainCards from "~/src/components/ui/MainCards";
 import ProductImage from "../ProductImage/ProductImage";
-import Svg from "~/src/assets/svgs/_index";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import PaginationBar from "~/src/components/ui/PaginationBar";
 import { usePageFromSearchParams } from "~/src/hooks/usePageFromSearchParams";
+import { BeergamAlert } from "~/src/components/ui/BeergamAlert";
 
 function formatNumber(value: number) {
   return value.toLocaleString("pt-BR");
@@ -29,12 +29,11 @@ export default function LowStockProductsList({
 }: LowStockProductsListProps) {
   if (products.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-amber-200 bg-white p-10 text-center">
-        <Svg.check_circle tailWindClasses="mx-auto h-8 w-8 text-emerald-500" />
-        <p className="mt-2 text-sm text-slate-500">
-          Nenhum produto com estoque baixo encontrado.
-        </p>
-      </div>
+        <BeergamAlert
+          severity="info"
+        >
+          <p className="text-beergam-typography-primary!">Nenhum produto com estoque baixo encontrado.</p>
+        </BeergamAlert>
     );
   }
 
@@ -44,7 +43,6 @@ export default function LowStockProductsList({
   const isLgUp = useMediaQuery(theme.breakpoints.up("lg"));
 
   const [page, setPage] = useState(1);
-  const [, setSearchParams] = useSearchParams();
   const { page: pageFromUrl } = usePageFromSearchParams({ paramKey: pageParamKey });
   const effectivePage = syncPageWithUrl ? pageFromUrl : page;
 
@@ -84,7 +82,7 @@ export default function LowStockProductsList({
               to={`/interno/produtos/estoque/${product.product_id}`}
               className="block"
             >
-              <MainCards className="hover:bg-slate-50/50 transition-colors h-full">
+              <MainCards className="hover:bg-beergam-primary-light/50 transition-colors h-full">
                 <div className="flex items-start gap-3 p-4">
                   <ProductImage
                     imageUrl={mainImageUrl}
@@ -92,22 +90,22 @@ export default function LowStockProductsList({
                     size="medium"
                   />
                   <div className="min-w-0 flex-1 space-y-2">
-                    <p className="truncate text-sm font-semibold text-slate-900">
+                    <p className="truncate text-sm font-semibold text-beergam-typography-primary!">
                       {product.title}
                     </p>
                     {product.sku && (
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-beergam-typography-secondary!">
                         SKU: {product.sku}
                       </p>
                     )}
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-slate-600">
+                        <span className="text-xs text-beergam-typography-secondary!">
                           Estoque:
                         </span>
                         <span
                           className={`text-sm font-semibold ${
-                            isLowStock ? "text-amber-600" : "text-slate-900"
+                            isLowStock ? "text-beergam-primary" : "text-beergam-typography-primary!"
                           }`}
                         >
                           {formatNumber(stockInfo.available_quantity)} /{" "}
@@ -115,21 +113,20 @@ export default function LowStockProductsList({
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-slate-600">
+                        <span className="text-xs text-beergam-typography-secondary!">
                           Valor em estoque:
                         </span>
-                        <span className="text-sm font-semibold text-slate-900">
+                        <span className="text-sm font-semibold text-beergam-typography-primary!">
                           {formatCurrency(stockInfo.stock_value.toString())}
                         </span>
                       </div>
                     </div>
                     {isLowStock && (
-                      <div className="rounded-lg border border-amber-200 bg-amber-50 p-2 mt-2">
-                        <p className="text-xs text-amber-700 flex items-center gap-1">
-                          <Svg.warning_circle tailWindClasses="h-4 w-4 shrink-0" />
-                          <span>Estoque abaixo do mínimo</span>
-                        </p>
-                      </div>
+                      <BeergamAlert
+                        severity="warning"
+                      >
+                        <p className="text-beergam-typography-primary!">Estoque abaixo do mínimo</p>
+                      </BeergamAlert>
                     )}
                   </div>
                 </div>

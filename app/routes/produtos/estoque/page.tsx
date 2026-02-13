@@ -70,7 +70,7 @@ export default function StockDashboardPage() {
               {stockDashboard.low_stock_products.length > 0 && (
                 <Grid cols={{ base: 1, lg: 1 }} className="mt-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                    <h3 className="text-lg font-semibold text-beergam-typography-primary! mb-4">
                       Produtos com Estoque Baixo
                     </h3>
                     <LowStockProductsList
