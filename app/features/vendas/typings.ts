@@ -141,6 +141,7 @@ export const OrderSchema = z.object({
   profit_margin: percentageNumberOptional,
   // Custo total (soma price_cost + packaging_cost + extra_cost)
   total_cost: currencyNumberOptional,
+  margin_cost: percentageNumberOptional,
 });
 
 export type Order = z.infer<typeof OrderSchema>;
@@ -210,6 +211,7 @@ export const OrderTranslatedAttributes: OrderTranslatedAttributes = {
   updated_at: "Atualizado Em",
   profit: "Lucro",
   profit_margin: "Margem de Lucro",
+  margin_cost: "Margem sobre o Custo",
   total_cost: "Custo Total",
 } as const;
 // ============================================
@@ -312,6 +314,7 @@ export const OrderAttributeSection: Record<keyof Order, OrderSection> = {
   valor_liquido: 'order_values',
   profit: 'order_values',
   profit_margin: 'order_values',
+  margin_cost: 'order_values',
 
   // Taxas, Impostos e Custos Fixos
   tax_percentage: 'taxes_costs',
@@ -362,7 +365,7 @@ export const OrderAttributeDisplayOrder: (keyof Order)[] = [
   // Produto / Anúncio
   'sku', 'mlb', 'title', 'category_id', 'quantity', 'unit_price', 'listing_type_id', 'thumbnail',
   // Valores do Pedido
-  'total_amount', 'paid_amount', 'currency_id', 'valor_base', 'valor_liquido', 'profit', 'profit_margin',
+  'total_amount', 'paid_amount', 'currency_id', 'valor_base', 'valor_liquido', 'profit', 'profit_margin', 'margin_cost',
   // Taxas, Impostos e Custos Fixos
   'tax_percentage', 'tax_amount', 'sale_fee', 'price_cost', 'packaging_cost', 'extra_cost', 'total_cost', 'stock_cost',
   // Envio e Logística
