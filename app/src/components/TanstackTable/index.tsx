@@ -176,7 +176,7 @@ const ColumnVisibilityControl = memo(function ColumnVisibilityControl<TData>({
   return (
     <>
       <BeergamButton
-        title="Visualização de Colunas"
+        title="Colunas"
         icon="list_bullet"
         onClick={handleOpenPopover}
       />
