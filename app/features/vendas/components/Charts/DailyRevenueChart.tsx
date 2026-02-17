@@ -101,7 +101,7 @@ export default function DailyRevenueChart({
             </Typography>
           </div>
         ) : (
-          <div className="h-64 md:h-80 w-full overflow-x-auto min-w-0" style={{ minHeight: 256 }}>
+          <div className="h-64 md:h-80 w-full overflow-x-auto min-w-0" style={{ minHeight: 256, overflow: "hidden" }}>
             <ResponsiveContainer width="100%" height="100%" minHeight={256}>
               <BarChart
                 data={chartData}
@@ -131,19 +131,42 @@ export default function DailyRevenueChart({
                   width={60}
                 />
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#fff",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: "8px",
-                    padding: "8px",
-                    fontSize: "12px",
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null;
+                    return (
+                      <div
+                        style={{
+                          backgroundColor:
+                            "var(--color-beergam-section-background)",
+                          border: "1px solid var(--color-beergam-border)",
+                          borderRadius: "8px",
+                          padding: "8px",
+                          fontSize: "12px",
+                        }}
+                      >
+                        <p
+                          style={{
+                            color: "var(--color-beergam-typography-primary)",
+                            fontWeight: "bold",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          {label}
+                        </p>
+                        {payload.map((entry) => (
+                          <p
+                            key={entry.name}
+                            style={{
+                              color: entry.color,
+                              margin: "2px 0",
+                            }}
+                          >
+                            {entry.name}: {formatCurrency(entry.value as number)}
+                          </p>
+                        ))}
+                      </div>
+                    );
                   }}
-                  labelStyle={{
-                    color: "#0f172a",
-                    fontWeight: "bold",
-                    fontSize: "12px",
-                  }}
-                  formatter={(value: number) => formatCurrency(value)}
                 />
                 <Legend wrapperStyle={{ fontSize: "12px" }} iconSize={12} />
                 <Bar
