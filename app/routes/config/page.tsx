@@ -137,7 +137,7 @@ export default function ConfigPage() {
   }
   return (
     <PageLayout tailwindClassName="flex justify-center">
-      <div className="grid w-full relative px-4 md:w-[80%] md:px-0 grid-cols-1 md:grid-cols-[300px_1fr] gap-4">
+      <div className="grid w-full relative px-4 md:w-[80%] md:px-0 grid-cols-1 md:grid-cols-[300px_1fr] gap-4 md:mt-[4rem]">
         <div className="flex flex-col w-full gap-4">
           <div className="w-full flex justify-start items-center mt-2 md:hidden">
             <button
