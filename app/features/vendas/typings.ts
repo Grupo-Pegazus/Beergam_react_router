@@ -143,7 +143,7 @@ export const OrderSchema = z.object({
   total_cost: currencyNumberOptional,
   margin_cost: percentageNumberOptional,
   // falta colocar tax_type aqui
-  meli_flex_shipping_fee: z.number().optional(),
+  meli_flex_shipping_fee: currencyStringOptional,
 });
 
 export type Order = z.infer<typeof OrderSchema>;

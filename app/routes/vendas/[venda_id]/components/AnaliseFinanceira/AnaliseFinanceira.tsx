@@ -17,7 +17,7 @@ interface AnaliseFinanceiraProps {
   custosExtras: number;
   impostos: number;
   lucroFinal: number;
-  meli_flex_shipping_fee: number;
+  meli_flex_shipping_fee?: number | null | string;
   produtosNaoCadastrados?: Array<{ nome: string; sku: string | null }>;
   orderId?: string;
 }
@@ -180,7 +180,7 @@ function AnaliseFinanceira({
           <DetalhesPedido
             titulo="Valor que você paga no flex por pedido no Mercado Livre"
             hint="Informação interna da loja"
-            value={meli_flex_shipping_fee}
+            value={meli_flex_shipping_fee ?? 0}
             isCusto={true}
             canBeCensored={true}
           />
