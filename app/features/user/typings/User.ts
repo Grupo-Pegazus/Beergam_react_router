@@ -247,7 +247,7 @@ export const UserDetailsSchema = BaseUserDetailsSchema.extend({
   social_media: z.string().optional().nullable(),
   foundation_date: z.string().optional().nullable(),
   invoice_in_flex: z.boolean().optional().nullable(),
-  meli_flex_shipping_fee: z.number().optional().nullable(),
+  meli_flex_shipping_fee: NumberCoerced,
   shopee_flex_shipping_fee: NumberCoerced,
 }) satisfies z.ZodType<IUserDetails>;
 
