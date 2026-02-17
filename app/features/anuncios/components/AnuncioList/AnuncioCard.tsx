@@ -231,12 +231,7 @@ export default function AnuncioCard({
             />
           )}
         </div>
-
-        {/* Desktop: grid 2 colunas balanceadas — esquerda | direita */}
-        <div className="hidden md:grid md:grid-cols-2 md:gap-6 md:items-start">
-          {/* Col esquerda: Métricas + gráfico */}
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-wrap items-center gap-4 rounded-xl border border-beergam-input-border/30 bg-beergam-section-background/80 px-4 py-3">
+        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-beergam-input-border/30 bg-beergam-section-background/80 px-4 py-3">
               <div className="flex items-center gap-2">
                 <Svg.eye tailWindClasses="h-4 w-4 text-beergam-typography-secondary!" />
                 <TextCensored censorshipKey="anuncios_list">
@@ -265,8 +260,13 @@ export default function AnuncioCard({
                 {anuncio.stock} estoque · {anuncio.active_days}d ativo
               </span>
             </div>
+
+        {/* Desktop: grid 2 colunas balanceadas — esquerda | direita */}
+        <div className="hidden md:flex md:flex-col md:gap-4">
+          <div className="grid grid-cols-2 gap-6 items-stretch">
+            {/* Col esquerda: Métricas + gráfico */}
             {anuncio.visits && anuncio.visits.length > 0 && (
-              <div className="rounded-xl border border-beergam-input-border/30 bg-beergam-section-background/80 overflow-hidden">
+              <div className="rounded-xl border border-beergam-input-border/30 bg-beergam-section-background/80 overflow-hidden flex flex-col">
                 <div className="flex items-center justify-between px-4 py-2.5">
                   <span className="text-sm font-medium text-beergam-typography-primary!">
                     Evolução de visitas
@@ -275,57 +275,60 @@ export default function AnuncioCard({
                     Últimos 5 meses
                   </span>
                 </div>
-                <div className="border-t border-beergam-input-border/30 p-3">
+                <div className="border-t border-beergam-input-border/30 p-3 flex-1 flex items-center">
                   <VisitsChart visits={anuncio.visits} />
                 </div>
               </div>
             )}
-            {anuncio.item_relations && anuncio.item_relations.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 text-xs text-beergam-typography-secondary!">
-                <Svg.clip tailWindClasses="h-3.5 w-3.5" />
-                Sincronizado com{" "}
-                {anuncio.item_relations.map((r) => (
-                  <span key={r.id} className="font-mono">{r.id}</span>
-                ))}
-              </div>
-            )}
-          </div>
-          {/* Col direita: Qualidade + Experiência em card único preenchido */}
-          <div className="rounded-xl border border-beergam-input-border/30 bg-beergam-section-background/80 p-4 flex flex-col gap-4 min-h-0 shadow-sm">
-            <p className="text-sm font-medium text-beergam-typography-primary! shrink-0">
-              Desempenho do anúncio
-            </p>
-            <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-beergam-mui-paper border border-beergam-input-border/30 min-h-[100px]">
-                <Speedometer value={healthScore} size={44} />
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-beergam-typography-primary!">
-                    Qualidade do anúncio
-                  </p>
-                  <p className="text-sm font-medium text-beergam-typography-secondary!">
-                    {healthScore != null
-                      ? healthScore >= 80
-                        ? "Profissional"
-                        : healthScore >= 60
-                          ? "Mediano"
-                          : "Crítico"
-                      : "—"}
-                  </p>
+
+            {/* Col direita: Qualidade + Experiência em card único preenchido */}
+            <div className="rounded-xl border border-beergam-input-border/30 bg-beergam-section-background/80 p-4 flex flex-col gap-4 shadow-sm">
+              <p className="text-sm font-medium text-beergam-typography-primary! shrink-0">
+                Desempenho do anúncio
+              </p>
+              <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-beergam-mui-paper border border-beergam-input-border/30 min-h-[100px]">
+                  <Speedometer value={healthScore} size={44} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-beergam-typography-primary!">
+                      Qualidade do anúncio
+                    </p>
+                    <p className="text-sm font-medium text-beergam-typography-secondary!">
+                      {healthScore != null
+                        ? healthScore >= 80
+                          ? "Profissional"
+                          : healthScore >= 60
+                            ? "Mediano"
+                            : "Crítico"
+                        : "—"}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-beergam-mui-paper border border-beergam-input-border/30 min-h-[100px]">
-                <Speedometer value={reputation?.value ?? null} size={44} className="shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-beergam-typography-primary! mb-1">
-                    Experiência de compra
-                  </p>
-                  <p className="text-sm font-medium text-beergam-typography-secondary! leading-relaxed">
-                    {reputation?.text ?? anuncio.experience?.subtitles?.[0]?.text ?? "—"}
-                  </p>
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-beergam-mui-paper border border-beergam-input-border/30 min-h-[100px]">
+                  <Speedometer value={reputation?.value ?? null} size={44} className="shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-beergam-typography-primary! mb-1">
+                      Experiência de compra
+                    </p>
+                    <p className="text-sm font-medium text-beergam-typography-secondary! leading-relaxed">
+                      {reputation?.text ?? anuncio.experience?.subtitles?.[0]?.text ?? "—"}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Sincronizado - abaixo das 2 colunas */}
+          {anuncio.item_relations && anuncio.item_relations.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 text-xs text-beergam-typography-secondary!">
+              <Svg.clip tailWindClasses="h-3.5 w-3.5" />
+              Sincronizado com{" "}
+              {anuncio.item_relations.map((r) => (
+                <span key={r.id} className="font-mono">{r.id}</span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Mobile: métricas + seções colapsáveis */}
