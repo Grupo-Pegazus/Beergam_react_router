@@ -17,7 +17,7 @@ type PeriodFilter = 0 | 1 | 7 | 15 | 30 | 90 | "custom";
 
 const PERIOD_OPTIONS: { value: PeriodFilter; label: string }[] = [
   { value: 0, label: "Hoje" },
-  { value: 1, label: "1 dia" },
+  { value: 1, label: "Ontem" },
   { value: 7, label: "7 dias" },
   { value: 15, label: "15 dias" },
   { value: 30, label: "30 dias" },

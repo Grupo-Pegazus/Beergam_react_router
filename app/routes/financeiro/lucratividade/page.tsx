@@ -67,7 +67,6 @@ const DEFAULT_SKU_DATE_FROM = dayjs().subtract(30, "day").format("YYYY-MM-DD");
 const DEFAULT_SKU_DATE_TO = dayjs().format("YYYY-MM-DD");
 
 export default function LucratividadePage() {
-	const [pricePerSelfServiceReturn, setPricePerSelfServiceReturn] = useState<number | null>(12);
 	const [skuDateRange, setSkuDateRange] = useState<{ start: string; end: string }>({
 		start: DEFAULT_SKU_DATE_FROM,
 		end: DEFAULT_SKU_DATE_TO,
@@ -80,15 +79,21 @@ export default function LucratividadePage() {
 		end_date: skuDateRange.end,
 	});
   const subscription = authStore.use.subscription() ?? null;
+  const user = authStore.use.user();
   const isBasePlan = subscription?.plan.display_name === 'Operacional';
   const {data: selfServiceReturn, isLoading: isLoadingSelfServiceReturn} = useSelfServiceReturn();
+
+  // Pega o valor do flex do usuário (apenas IUser tem esse campo, IColab não)
+  const pricePerSelfServiceReturn =
+    (user?.details && "meli_flex_shipping_fee" in user.details
+      ? user.details.meli_flex_shipping_fee
+      : null) ?? 0;
 
   // Função helper para calcular o resultado do Flex: valor_recebido_do_flex - (input * total_orders)
   const calculateFlexResult = (period: "30" | "60" | "90"): number => {
     const valorRecebido = selfServiceReturn?.data?.[period]?.valor_recebido_do_flex ?? 0;
     const totalOrders = selfServiceReturn?.data?.[period]?.total_orders ?? 0;
-    const inputValue = pricePerSelfServiceReturn ?? 0;
-    return valorRecebido - (inputValue * totalOrders);
+    return valorRecebido - (pricePerSelfServiceReturn * totalOrders);
   };
 
   function getFlexSpent(period: "30" | "60" | "90"): number {
@@ -257,16 +262,11 @@ export default function LucratividadePage() {
                               <StatCard
                     title="Faturamento Acumulado"
                     input={
-                    {component:  <Fields.input
-                        type="number"
-                        placeholder="0.00"
-                        value={pricePerSelfServiceReturn ?? ""}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setPricePerSelfServiceReturn(value === "" ? null : parseFloat(value));
-                        }}
-                        className="text-sm"
-                      />, label: "Frete Uni do Pacote"}
+                    {component: (
+                      <span className="text-sm font-medium text-beergam-typography-primary">
+                        {formatCurrency(pricePerSelfServiceReturn)}
+                      </span>
+                    ), label: "Valor pago no flex por pedido"}
                     }
                     icon={<Svg.star_solid tailWindClasses="h-5 w-5" />}
                   >
