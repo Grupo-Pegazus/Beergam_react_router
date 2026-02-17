@@ -376,6 +376,7 @@ export default function VendasPage({ venda_id }: VendasPageProps) {
               borderRadius: 2,
               border: "1px solid rgba(148, 163, 184, 0.25)",
               backgroundColor: "rgba(148, 163, 184, 0.08)",
+              mb: "1rem !important",
             }}
           >
             <div>
