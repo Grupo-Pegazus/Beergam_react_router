@@ -1,9 +1,19 @@
-import { Paper } from "@mui/material";
+import { Chip, Paper } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material";
 import { memo, useState } from "react";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import type { Client } from "../../typings";
 import ClaimSelectionModal from "./ClaimSelectionModal";
 import OrderSelectionModal from "./OrderSelectionModal";
+
+function getTagChipSx(tag: string): SxProps<Theme> {
+    const base = { height: 22, fontSize: "0.6875rem", fontWeight: 500, "& .MuiChip-label": { px: 1.5 } };
+    if (tag === "Reclamação aberta") return { ...base, backgroundColor: "var(--color-beergam-alert-warning-bg)", color: "var(--color-beergam-alert-warning-icon)" };
+    if (tag === "Reclamação fechada") return { ...base, backgroundColor: "var(--color-beergam-alert-error-bg)", color: "var(--color-beergam-alert-error-icon)" };
+    if (tag === "Pós-venda aberta") return { ...base, backgroundColor: "var(--color-beergam-alert-warning-bg)", color: "var(--color-beergam-alert-warning-icon)" };
+    if (tag === "Pós-venda bloqueada") return { ...base, backgroundColor: "var(--color-beergam-alert-error-bg)", color: "var(--color-beergam-alert-error-icon)" };
+    return { ...base, backgroundColor: "var(--color-beergam-gray-light)", color: "var(--color-beergam-typography-primary!)" };
+}
 
 export interface ClientInfoProps {
     client?: Client;
@@ -67,6 +77,24 @@ function ClientInfoComponent({ client }: ClientInfoProps) {
                             </p>
                         </div>
                     </div>
+
+                    {/* Tags de status (reclamação / pós-venda) */}
+                    {(() => {
+                        const validTags = (client.tags ?? []).filter((t) => typeof t === "string" && t.trim().length > 0);
+                        if (validTags.length === 0) return null;
+                        return (
+                            <div className="pt-2">
+                                <p className="text-xs text-beergam-typography-secondary mb-2">
+                                    Status
+                                </p>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {validTags.map((tag) => (
+                                        <Chip key={tag} label={tag} size="small" sx={getTagChipSx(tag)} />
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })()}
 
                     {/* Estatísticas */}
                     <div className="pt-4 border-t border-beergam-section-border">

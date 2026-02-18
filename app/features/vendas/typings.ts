@@ -369,15 +369,15 @@ export const OrderAttributeDisplayOrder: (keyof Order)[] = [
   // Produto / Anúncio
   'sku', 'mlb', 'title', 'category_id', 'quantity', 'unit_price', 'listing_type_id', 'thumbnail',
   // Valores do Pedido
-  'total_amount', 'paid_amount', 'currency_id', 'valor_base', 'valor_liquido', 'profit', 'profit_margin', 'margin_cost',
+  'total_amount', 'paid_amount', 'valor_liquido', 'profit', 'profit_margin', 'margin_cost',
   // Taxas, Impostos e Custos Fixos
-  'tax_percentage', 'tax_amount', 'sale_fee', 'price_cost', 'packaging_cost', 'extra_cost', 'total_cost', 'stock_cost',
+  'tax_percentage', 'tax_amount', 'sale_fee', 'price_cost', 'packaging_cost', 'extra_cost', 'total_cost',
   // Envio e Logística
   'shipping_id', 'shipping_mode', 'shipping_paid_by', 'shipping_destination_state', 
   'shipping_details', 'tracking_number', 'tracking_method', 'shipment_status', 'shipment_substatus', 
   'estimated_delivery', 'declared_value',
   // Custos e Receitas de Envio
-  'custo_envio_base', 'custo_envio_final', 'custo_envio_buyer', 'custo_envio_seller', 'custo_envio_desconto',
+  'custo_envio_final', 'custo_envio_buyer', 'custo_envio_seller', 'custo_envio_desconto',
   'custo_envio_compensacao', 'custo_envio_promoted_amount', 'frete_recebido_total', 'bonus_por_envio_estorno', 
   'shipment_costs',
   // Extras
