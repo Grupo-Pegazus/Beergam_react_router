@@ -1,4 +1,4 @@
-import { Divider, Stack, Typography } from "@mui/material";
+import { Stack, Typography, Divider } from "@mui/material";
 import { useMemo, useState } from "react";
 import { BeergamAlert } from "~/src/components/ui/BeergamAlert";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
@@ -26,7 +26,7 @@ export default function AnunciosWithoutSkuModal({
 
   const adsData = useMemo(() => {
     if (!data?.success || !data.data)
-      return { withVariations: [], withoutVariations: [] };
+      return { withVariations: [], withoutVariations: [], total: 0 };
     return {
       withVariations: data.data.with_variations || [],
       withoutVariations: data.data.without_variations || [],
@@ -91,7 +91,7 @@ export default function AnunciosWithoutSkuModal({
       title={`Anúncios sem SKU (${totalPendencies})`}
       contentClassName="max-w-5xl w-full"
     >
-      <div className="space-y-6 bg-transparent p-0 text-beergam-typography-primary!">
+      <div className="space-y-6">
         <AsyncBoundary
           isLoading={isLoading}
           error={error as unknown}
@@ -102,10 +102,10 @@ export default function AnunciosWithoutSkuModal({
           )}
         >
           {totalPendencies === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="flex flex-col items-center justify-center py-12 text-center">
               <Typography
                 variant="h6"
-                className="mb-2 text-beergam-typography-secondary!"
+                className="mb-2 text-beergam-typography-primary!"
               >
                 Nenhum anúncio sem SKU encontrado
               </Typography>
@@ -118,8 +118,15 @@ export default function AnunciosWithoutSkuModal({
             </div>
           ) : (
             <Stack spacing={4}>
+              {/* Anúncios com Variações */}
               {adsData.withVariations.length > 0 && (
                 <div>
+                  <Typography
+                    variant="h6"
+                    className="mb-4 text-beergam-typography-primary! font-semibold"
+                  >
+                    Anúncios com variações ({adsData.withVariations.length})
+                  </Typography>
                   <Stack spacing={3}>
                     {adsData.withVariations.map((ad) => (
                       <AdWithoutSkuCard
@@ -138,22 +145,23 @@ export default function AnunciosWithoutSkuModal({
                 </div>
               )}
 
+              {/* Anúncios sem Variações */}
               {adsData.withoutVariations.length > 0 && (
                 <div>
-                  <Divider className="my-4" />
-                  <Typography
-                    variant="h6"
-                    className="mb-3 text-beergam-typography-primary!"
-                  >
-                    Anúncios sem variações ({adsData.withoutVariations.length})
-                  </Typography>
-                  <BeergamAlert
-                    severity="warning"
-                    className="mb-3"
-                  >
-                    ATENÇÃO: Anúncios sem variações devem ter o SKU cadastrado
-                    diretamente no Mercado Livre.
-                  </BeergamAlert>
+                  {adsData.withVariations.length > 0 && (
+                    <Divider className="my-2" />
+                  )}
+                  <div className="mb-4">
+                    <Typography
+                      variant="h6"
+                      className="mb-3 text-beergam-typography-primary! font-semibold"
+                    >
+                      Anúncios sem variações ({adsData.withoutVariations.length})
+                    </Typography>
+                    <BeergamAlert severity="warning" className="mb-0">
+                      ATENÇÃO: Anúncios sem variações devem ter o SKU cadastrado diretamente no Mercado Livre.
+                    </BeergamAlert>
+                  </div>
                   <Stack spacing={3}>
                     {adsData.withoutVariations.map((ad) => (
                       <AdWithoutVariationsCard key={ad.mlb} ad={ad} />
