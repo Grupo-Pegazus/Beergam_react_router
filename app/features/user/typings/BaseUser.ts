@@ -184,14 +184,14 @@ export const BaseUserDetailsSchema = z.object({
 export const BaseUserName = z
   .string()
   .regex(
-    /^[a-zA-Z0-9-\s]{3,20}$/,
-    "O nome deve ter entre 3 e 20 caracteres e conter apenas letras, números, espaços ou -."
+    /^[a-zA-Z0-9-\s]{3,255}$/,
+    "O nome deve ter entre 3 e 255 caracteres e conter apenas letras, números, espaços ou -."
   )
   .refine((value) => !/^\d+$/.test(value), {
     message: "O nome não pode ser apenas números.",
   })
   .min(3, "Nome precisa ter 3 caracteres")
-  .max(20, "Nome não pode ter mais de 20 caracteres");
+  .max(255, "Nome não pode ter mais de 255 caracteres");
 export const BaseUserRole = z.enum(
   Object.keys(UserRoles) as [UserRoles, ...UserRoles[]]
 ) satisfies z.ZodType<UserRoles>;
