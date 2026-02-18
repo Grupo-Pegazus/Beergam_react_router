@@ -31,6 +31,53 @@ function formatDate(value?: string | null): string {
   return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 }
 
+/** Dados mínimos do anúncio para exibir SKU / variações e link de cadastro */
+interface AnuncioSkuInfo {
+  variations?: Array<{ variation_id: string; sku?: string | null }>;
+  sku?: string | null;
+  mlb?: string | null;
+}
+
+function SkuBlock({ anuncio, itemId }: { anuncio: AnuncioSkuInfo; itemId?: string | null }) {
+  const hasVariations = Boolean(anuncio.variations && anuncio.variations.length > 0);
+  const hasSku = Boolean(anuncio.sku && anuncio.sku.trim() !== "");
+  const mlbOuItemId = anuncio.mlb ?? itemId ?? null;
+  const detalheUrl = mlbOuItemId ? `/interno/anuncios/${mlbOuItemId}` : null;
+
+  if (hasVariations) {
+    return (
+      <p className="text-xs text-beergam-typography-secondary!">
+        SKU: — <span className="text-beergam-typography-tertiary!">(anúncio com variações)</span>
+      </p>
+    );
+  }
+
+  if (hasSku) {
+    return (
+      <p className="text-xs text-beergam-typography-secondary!">
+        SKU: {anuncio.sku}
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs text-beergam-typography-secondary!">
+        SKU não cadastrado.
+      </p>
+      {detalheUrl && (
+        <BeergamButton
+          link={detalheUrl}
+          title="Cadastrar SKU"
+          mainColor="beergam-orange"
+          animationStyle="slider"
+          className="w-fit"
+        />
+      )}
+    </div>
+  );
+}
+
 function QuestionCard({
   question,
   onAnswer,
@@ -221,9 +268,7 @@ function QuestionCard({
                       </div>
                     </div>
                   </div>
-                  <p className="text-xs text-beergam-typography-secondary!">
-                    SKU: {anuncio.sku ?? "—"}
-                  </p>
+                  <SkuBlock anuncio={anuncio} itemId={question.item_id} />
                   <p className="text-xs text-beergam-typography-secondary!">
                     Preço: {anuncio.price ? `R$ ${anuncio.price}` : "—"}
                   </p>
