@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Table, TableBody, TableCell, TableHead, TableRow, Checkbox } from "@mui/material";
+import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import Modal from "~/src/components/utils/Modal";
 import { Fields } from "~/src/components/utils/_fields";
 import BeergamButton from "~/src/components/utils/BeergamButton";
@@ -179,13 +179,12 @@ export default function SchedulingReceiptModal({
                             <span className="font-semibold">{pendingQuantity}</span>
                           </TableCell>
                           <TableCell align="right">
-                            <Fields.input
-                              type="number"
+                            <Fields.numericInput
+                              format="integer"
                               min={1}
-                              step={1}
                               value={receiptItem?.received_quantity ?? pendingQuantity}
-                              onChange={(e) =>
-                                handleQuantityChange(item.id, parseInt(e.target.value) || 0)
+                              onChange={(v) =>
+                                handleQuantityChange(item.id, typeof v === "number" ? v : 0)
                               }
                               error={receiptItem?.error}
                               disabled={isLoading}
@@ -198,19 +197,12 @@ export default function SchedulingReceiptModal({
                   </TableBody>
                 </Table>
               </div>
-
-              <div className="mt-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <Checkbox
-                    checked={forceWithoutSync}
-                    onChange={(e) => setForceWithoutSync(e.target.checked)}
-                    disabled={isLoading}
-                  />
-                  <span className="text-sm text-gray-700">
-                    Forçar baixa sem sincronização de estoque
-                  </span>
-                </label>
-              </div>
+                <Fields.checkbox
+                  checked={forceWithoutSync}
+                  onChange={(e) => setForceWithoutSync(e.target.checked)}
+                  disabled={isLoading}
+                  label="Forçar baixa sem sincronização de estoque"
+                />
             </>
           )}
         </AsyncBoundary>

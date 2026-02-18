@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 import { useAttributes } from "~/features/catalog/hooks";
 import { productUploadService } from "~/features/produtos/services/uploadService";
 import type {
@@ -218,7 +218,7 @@ function VariationForm({
   setValue,
   onCreateAttributeClick,
 }: VariationFormProps) {
-  const { register } = useFormContext<
+  const { control, register } = useFormContext<
     CreateSimplifiedProduct | CreateCompleteProduct
   >();
 
@@ -395,83 +395,113 @@ function VariationForm({
 
             <Fields.wrapper>
               <Fields.label text="PREÇO DE VENDA" />
-              <Fields.input
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                {...register(`variations.${index}.price_sale`, {
-                  valueAsNumber: true,
-                })}
-                error={errors?.price_sale?.message}
+              <Controller
+                name={`variations.${index}.price_sale`}
+                control={control}
+                render={({ field }) => (
+                  <Fields.numericInput
+                    prefix="R$"
+                    format="currency"
+                    value={field.value}
+                    onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                    error={errors?.price_sale?.message}
+                    min={0}
+                    placeholder="0,00"
+                  />
+                )}
               />
             </Fields.wrapper>
 
             <Fields.wrapper>
               <Fields.label text="PREÇO DE CUSTO" />
-              <Fields.input
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                {...register(`variations.${index}.price_cost`, {
-                  valueAsNumber: true,
-                })}
-                error={errors?.price_cost?.message}
+              <Controller
+                name={`variations.${index}.price_cost`}
+                control={control}
+                render={({ field }) => (
+                  <Fields.numericInput
+                    prefix="R$"
+                    format="currency"
+                    value={field.value}
+                    onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                    error={errors?.price_cost?.message}
+                    min={0}
+                    placeholder="0,00"
+                  />
+                )}
               />
             </Fields.wrapper>
 
             <Fields.wrapper>
               <Fields.label text="CUSTO DE EMBALAGEM" />
-              <Fields.input
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                {...register(`variations.${index}.packaging_cost`, {
-                  valueAsNumber: true,
-                })}
-                error={errors?.packaging_cost?.message}
+              <Controller
+                name={`variations.${index}.packaging_cost`}
+                control={control}
+                render={({ field }) => (
+                  <Fields.numericInput
+                    prefix="R$"
+                    format="currency"
+                    value={field.value}
+                    onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                    error={errors?.packaging_cost?.message}
+                    min={0}
+                    placeholder="0,00"
+                  />
+                )}
               />
             </Fields.wrapper>
 
             <Fields.wrapper>
               <Fields.label text="CUSTO EXTRA" />
-              <Fields.input
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                {...register(`variations.${index}.extra_cost`, {
-                  valueAsNumber: true,
-                })}
-                error={errors?.extra_cost?.message}
+              <Controller
+                name={`variations.${index}.extra_cost`}
+                control={control}
+                render={({ field }) => (
+                  <Fields.numericInput
+                    prefix="R$"
+                    format="currency"
+                    value={field.value}
+                    onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                    error={errors?.extra_cost?.message}
+                    min={0}
+                    placeholder="0,00"
+                  />
+                )}
               />
             </Fields.wrapper>
 
             <Fields.wrapper>
               <Fields.label text="QUANTIDADE MÍNIMA" />
-              <Fields.input
-                type="number"
-                min="0"
-                placeholder="0"
-                {...register(`variations.${index}.minimum_quantity`, {
-                  valueAsNumber: true,
-                })}
-                error={errors?.minimum_quantity?.message}
+              <Controller
+                name={`variations.${index}.minimum_quantity`}
+                control={control}
+                render={({ field }) => (
+                  <Fields.numericInput
+                    format="integer"
+                    value={field.value}
+                    onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                    error={errors?.minimum_quantity?.message}
+                    min={0}
+                    placeholder="0"
+                  />
+                )}
               />
             </Fields.wrapper>
 
             <Fields.wrapper>
               <Fields.label text="QUANTIDADE MÁXIMA" />
-              <Fields.input
-                type="number"
-                min="0"
-                placeholder="0"
-                {...register(`variations.${index}.maximum_quantity`, {
-                  valueAsNumber: true,
-                })}
-                error={errors?.maximum_quantity?.message}
+              <Controller
+                name={`variations.${index}.maximum_quantity`}
+                control={control}
+                render={({ field }) => (
+                  <Fields.numericInput
+                    format="integer"
+                    value={field.value}
+                    onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                    error={errors?.maximum_quantity?.message}
+                    min={0}
+                    placeholder="0"
+                  />
+                )}
               />
             </Fields.wrapper>
 
@@ -550,14 +580,19 @@ function VariationForm({
         ) as boolean) && (
             <Fields.wrapper>
               <Fields.label text="QUANTIDADE DISPONÍVEL" />
-              <Fields.input
-                type="number"
-                min="0"
-                placeholder="0"
-                {...register(`variations.${index}.available_quantity`, {
-                  valueAsNumber: true,
-                })}
-                error={errors?.available_quantity?.message}
+              <Controller
+                name={`variations.${index}.available_quantity`}
+                control={control}
+                render={({ field }) => (
+                  <Fields.numericInput
+                    format="integer"
+                    value={field.value}
+                    onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                    error={errors?.available_quantity?.message}
+                    min={0}
+                    placeholder="0"
+                  />
+                )}
               />
             </Fields.wrapper>
           )}

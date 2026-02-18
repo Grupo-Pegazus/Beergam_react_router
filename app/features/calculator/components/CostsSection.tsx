@@ -193,13 +193,13 @@ export default function CostsSection({
                 }
                 text={getCommissionLabel()}
               />
-              <Fields.input
-                type="number"
-                value={commissionPercentage}
-                onChange={(e) => onCommissionPercentageChange(e.target.value)}
-                placeholder="0"
+              <Fields.numericInput
                 prefix="%"
-                step={0.01}
+                format="decimal"
+                decimalScale={2}
+                value={commissionPercentage === "" ? undefined : Number(commissionPercentage)}
+                onChange={(v) => onCommissionPercentageChange(v === undefined ? "" : String(v))}
+                placeholder="0,00"
                 min={0}
               />
             </Fields.wrapper>

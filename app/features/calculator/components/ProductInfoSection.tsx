@@ -30,13 +30,12 @@ export default function ProductInfoSection({
             text="Preço de venda"
             hint="Preço de venda do produto no marketplace"
           />
-          <Fields.input
-            type="number"
-            value={salePrice}
-            onChange={(e) => onSalePriceChange(e.target.value)}
-            placeholder="0,00"
+          <Fields.numericInput
             prefix="R$"
-            step={0.01}
+            format="currency"
+            value={salePrice === "" ? undefined : Number(salePrice)}
+            onChange={(v) => onSalePriceChange(v === undefined ? "" : String(v))}
+            placeholder="0,00"
             min={0}
           />
         </Fields.wrapper>
@@ -46,13 +45,12 @@ export default function ProductInfoSection({
             text="Preço de compra"
             hint="Preço de compra do produto"
           />
-          <Fields.input
-            type="number"
-            value={costPrice}
-            onChange={(e) => onCostPriceChange(e.target.value)}
-            placeholder="0,00"
+          <Fields.numericInput
             prefix="R$"
-            step={0.01}
+            format="currency"
+            value={costPrice === "" ? undefined : Number(costPrice)}
+            onChange={(v) => onCostPriceChange(v === undefined ? "" : String(v))}
+            placeholder="0,00"
             min={0}
           />
         </Fields.wrapper>
@@ -62,12 +60,11 @@ export default function ProductInfoSection({
             text="Média semanal de vendas"
             hint="Número médio de vendas por semana"
           />
-          <Fields.input
-            type="number"
-            value={weeklySales}
-            onChange={(e) => onWeeklySalesChange(e.target.value)}
+          <Fields.numericInput
+            format="integer"
+            value={weeklySales === "" ? undefined : Number(weeklySales)}
+            onChange={(v) => onWeeklySalesChange(v === undefined ? "" : String(v))}
             placeholder="0"
-            step={1}
             min={0}
           />
           <p className="text-xs text-beergam-gray mt-2">Opcional</p>

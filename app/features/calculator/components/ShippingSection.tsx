@@ -43,13 +43,12 @@ export default function ShippingSection({
             text="Custo de envio"
             hint="Custo do envio do produto"
           />
-          <Fields.input
-            type="number"
-            value={shippingCost}
-            onChange={(e) => onShippingCostChange(e.target.value)}
-            placeholder="0,00"
+          <Fields.numericInput
             prefix="R$"
-            step={0.01}
+            format="currency"
+            value={shippingCost === "" ? undefined : Number(shippingCost)}
+            onChange={(v) => onShippingCostChange(v === undefined ? "" : String(v))}
+            placeholder="0,00"
             min={0}
           />
           <p className="text-xs text-beergam-typography-secondary mt-1.5">
