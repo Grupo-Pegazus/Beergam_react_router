@@ -9,7 +9,7 @@ export default function VisitasSkeleton() {
       value="—"
       loading={true}
     >
-      <div className="mt-4 h-48 bg-slate-100 rounded-lg animate-pulse" />
+      <div className="mt-4 h-48 bg-beergam-mui-paper rounded-lg animate-pulse" />
     </StatCard>
   );
 }

@@ -1,4 +1,4 @@
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import type {
   CreateCompleteProduct,
   CreateSimplifiedProduct,
@@ -12,6 +12,7 @@ interface StockFieldsProps {
 
 export default function StockFields({ registrationType }: StockFieldsProps) {
   const {
+    control,
     register,
     formState: { errors },
     watch,
@@ -44,26 +45,40 @@ export default function StockFields({ registrationType }: StockFieldsProps) {
         {/* Quantidade Inicial */}
         <Fields.wrapper>
           <Fields.label text="QUANTIDADE INICIAL" required />
-          <Fields.input
-            type="number"
-            min="0"
-            placeholder="0"
-            {...register("product.initial_quantity", { valueAsNumber: true })}
-            error={errors.product?.initial_quantity?.message}
-            dataTooltipId="product-initial-quantity-input"
+          <Controller
+            name="product.initial_quantity"
+            control={control}
+            render={({ field }) => (
+              <Fields.numericInput
+                format="integer"
+                value={field.value}
+                onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                error={errors.product?.initial_quantity?.message}
+                dataTooltipId="product-initial-quantity-input"
+                min={0}
+                placeholder="0"
+              />
+            )}
           />
         </Fields.wrapper>
 
         {/* Quantidade Disponível */}
         <Fields.wrapper>
           <Fields.label text="QUANTIDADE DISPONÍVEL" />
-          <Fields.input
-            type="number"
-            min="0"
-            placeholder="0"
-            {...register("product.available_quantity", { valueAsNumber: true })}
-            error={errors.product?.available_quantity?.message}
-            dataTooltipId="product-available-quantity-input"
+          <Controller
+            name="product.available_quantity"
+            control={control}
+            render={({ field }) => (
+              <Fields.numericInput
+                format="integer"
+                value={field.value}
+                onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                error={errors.product?.available_quantity?.message}
+                dataTooltipId="product-available-quantity-input"
+                min={0}
+                placeholder="0"
+              />
+            )}
           />
         </Fields.wrapper>
 
@@ -95,16 +110,23 @@ export default function StockFields({ registrationType }: StockFieldsProps) {
         {isComplete && (
           <Fields.wrapper>
             <Fields.label text="QUANTIDADE MÁXIMA" />
-            <Fields.input
-              type="number"
-              min="0"
-              placeholder="0"
-              {...register("product.maximum_quantity", { valueAsNumber: true })}
-              error={
-                (errors.product as CreateCompleteProduct["product"])
-                  ?.maximum_quantity?.message
-              }
-              dataTooltipId="product-maximum-quantity-input"
+            <Controller
+              name="product.maximum_quantity"
+              control={control}
+              render={({ field }) => (
+                <Fields.numericInput
+                  format="integer"
+                  value={field.value}
+                  onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                  error={
+                    (errors.product as CreateCompleteProduct["product"])
+                      ?.maximum_quantity?.message
+                  }
+                  dataTooltipId="product-maximum-quantity-input"
+                  min={0}
+                  placeholder="0"
+                />
+              )}
             />
           </Fields.wrapper>
         )}
@@ -113,16 +135,23 @@ export default function StockFields({ registrationType }: StockFieldsProps) {
         {isComplete && (
           <Fields.wrapper>
             <Fields.label text="QUANTIDADE MÍNIMA" />
-            <Fields.input
-              type="number"
-              min="0"
-              placeholder="0"
-              {...register("product.minimum_quantity", { valueAsNumber: true })}
-              error={
-                (errors.product as CreateCompleteProduct["product"])
-                  ?.minimum_quantity?.message
-              }
-              dataTooltipId="product-minimum-quantity-input"
+            <Controller
+              name="product.minimum_quantity"
+              control={control}
+              render={({ field }) => (
+                <Fields.numericInput
+                  format="integer"
+                  value={field.value}
+                  onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                  error={
+                    (errors.product as CreateCompleteProduct["product"])
+                      ?.minimum_quantity?.message
+                  }
+                  dataTooltipId="product-minimum-quantity-input"
+                  min={0}
+                  placeholder="0"
+                />
+              )}
             />
           </Fields.wrapper>
         )}

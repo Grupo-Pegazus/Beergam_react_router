@@ -65,7 +65,7 @@ export default function Input({
 
   const baseClasses =
     type != "checkbox"
-      ? "w-full px-3 py-2.5 border border-beergam-input-border rounded text-sm bg-beergam-input-background text-beergam-typography-tertiary transition-colors duration-200 outline-none"
+      ? `w-full px-3 py-2.5 border border-beergam-input-border rounded text-sm bg-beergam-input-background text-beergam-typography-tertiary transition-colors duration-200 outline-none ${type === "number" ? "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" : ""}`
       : "appearance-none w-5 h-5 cursor-pointer border border-beergam-input-border rounded bg-beergam-input-background! relative outline-none checked:bg-beergam-orange checked:border-beergam-orange hover:border-beergam-orange after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:scale-0 after:w-1.5 after:h-2.5 after:border-r-[2.5px] after:border-b-[2.5px] after:border-white after:origin-center after:transition-transform after:duration-200 after:ease-in-out after:opacity-0 checked:after:scale-100 checked:after:rotate-45 checked:after:opacity-100";
   const errorClasses =
     error && error != ""

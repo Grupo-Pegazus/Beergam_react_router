@@ -209,10 +209,10 @@ export default function Impostos() {
 
         <Fields.wrapper>
           <Fields.label text="Ano" />
-          <Fields.input
-            type="number"
+          <Fields.numericInput
+            format="integer"
             value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
+            onChange={(v) => setYear(typeof v === "number" ? v : new Date().getFullYear())}
             min={1900}
             max={3000}
           />

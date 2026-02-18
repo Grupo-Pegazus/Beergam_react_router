@@ -144,58 +144,35 @@ function renderNumberInput(
   onChange: (value: unknown) => void,
   onBlur?: () => void
 ) {
+  // Determina o formato baseado no prefixo ou tipo de campo
+  const format = field.prefix === "R$" || field.prefix === "$" 
+    ? "currency" 
+    : field.prefix === "%" 
+      ? "decimal" 
+      : field.validation?.step && field.validation.step < 1
+        ? "decimal"
+        : "integer";
+  
+  const decimalScale = format === "decimal" ? 2 : undefined;
+
   return (
     <Fields.wrapper>
       <Fields.label text={field.label} required={field.required} hint={field.hint} />
-      <Box sx={{ position: "relative" }}>
-        {field.prefix && (
-          <Typography
-            sx={{
-              position: "absolute",
-              left: 12,
-              top: "50%",
-              transform: "translateY(-50%)",
-              color: "text.secondary",
-              zIndex: 1,
-              pointerEvents: "none",
-            }}
-          >
-            {field.prefix}
-          </Typography>
-        )}
-        <Fields.input
-          type="number"
-          value={(value as number) || ""}
-          onChange={(e) => handleTextInputChange(field, e, onChange)}
-          onBlur={onBlur}
-          placeholder={field.placeholder}
-          required={field.required}
-          disabled={field.disabled}
-          error={error}
-          name={field.name}
-          min={field.validation?.min}
-          max={field.validation?.max}
-          style={{
-            paddingLeft: field.prefix ? "40px" : undefined,
-            paddingRight: field.suffix ? "60px" : undefined,
-          }}
-        />
-        {field.suffix && (
-          <Typography
-            sx={{
-              position: "absolute",
-              right: 12,
-              top: "50%",
-              transform: "translateY(-50%)",
-              color: "text.secondary",
-              zIndex: 1,
-              pointerEvents: "none",
-            }}
-          >
-            {field.suffix}
-          </Typography>
-        )}
-      </Box>
+      <Fields.numericInput
+        format={format}
+        decimalScale={decimalScale}
+        prefix={field.prefix}
+        value={typeof value === "number" ? value : undefined}
+        onChange={(v) => onChange(typeof v === "number" ? v : undefined)}
+        onBlur={onBlur}
+        placeholder={field.placeholder}
+        required={field.required}
+        disabled={field.disabled}
+        error={error}
+        name={field.name}
+        min={field.validation?.min}
+        max={field.validation?.max}
+      />
       {renderRequiredIndicator(field.required)}
     </Fields.wrapper>
   );

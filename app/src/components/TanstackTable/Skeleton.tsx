@@ -42,7 +42,6 @@ export function TanstackTableSkeleton({
             variant="rounded" 
             width={180} 
             height={36} 
-            sx={{ bgcolor: 'grey.200' }}
           />
         </div>
       )}
@@ -66,7 +65,7 @@ export function TanstackTableSkeleton({
               position: 'sticky',
               top: 0,
               zIndex: 1,
-              bgcolor: 'grey.100',
+              bgcolor: 'var(--color-beergam-section-background)',
             }}
           >
             <TableRow sx={{ display: 'flex', width: '100%' }}>
@@ -79,15 +78,14 @@ export function TanstackTableSkeleton({
                     width: width,
                     fontWeight: 600,
                     fontSize: '12px',
-                    bgcolor: 'grey.100',
-                    borderRight: '1px solid rgba(0,0,0,0.08)',
+                    bgcolor: 'var(--color-beergam-section-background)',
+                    borderRight: '1px solid color-mix(in srgb, currentColor 8%, transparent)',
                   }}
                 >
                   <Skeleton 
                     variant="text" 
                     width={width - 32} 
                     height={20}
-                    sx={{ bgcolor: 'grey.300' }}
                   />
                 </TableCell>
               ))}
@@ -125,16 +123,17 @@ export function TanstackTableSkeleton({
                       alignItems: 'center',
                       width: width,
                       fontSize: '12px',
-                      bgcolor: rowIndex % 2 === 0 ? 'grey.50' : 'white',
-                      borderRight: '1px solid rgba(0,0,0,0.04)',
-                      borderBottom: '1px solid rgba(0,0,0,0.06)',
+                      bgcolor: rowIndex % 2 === 0 
+                        ? 'var(--color-beergam-section-background)' 
+                        : 'var(--color-beergam-mui-paper)',
+                      borderRight: '1px solid color-mix(in srgb, currentColor 4%, transparent)',
+                      borderBottom: '1px solid color-mix(in srgb, currentColor 6%, transparent)',
                     }}
                   >
                     <Skeleton 
                       variant="text" 
                       width={`${60 + Math.random() * 30}%`}
                       height={16}
-                      sx={{ bgcolor: 'grey.200' }}
                     />
                   </TableCell>
                 ))}
@@ -150,7 +149,6 @@ export function TanstackTableSkeleton({
           variant="text" 
           width={200} 
           height={16}
-          sx={{ bgcolor: 'grey.200' }}
         />
       </div>
     </div>

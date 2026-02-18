@@ -204,13 +204,14 @@ export default function StockMovementForm({
 
             <Fields.wrapper>
               <Fields.label text="Quantidade" required />
-              <Fields.input
-                type="number"
-                value={String(formData.quantity || "")}
-                onChange={(e) =>
+              <Fields.numericInput
+                format="decimal"
+                decimalScale={2}
+                value={formData.quantity}
+                onChange={(v) =>
                   handleFieldChange(
                     "quantity",
-                    parseFloat(e.target.value) || undefined
+                    typeof v === "number" ? v : undefined
                   )
                 }
                 onBlur={() =>
@@ -223,7 +224,6 @@ export default function StockMovementForm({
                 }
                 required
                 min={0.01}
-                step={0.01}
                 placeholder="Digite a quantidade"
               />
             </Fields.wrapper>
@@ -231,44 +231,28 @@ export default function StockMovementForm({
             {isEntry && (
               <Fields.wrapper>
                 <Fields.label text="Custo Unitário" required />
-                <Box sx={{ position: "relative", width: "100%" }}>
-                  <Typography
-                    sx={{
-                      position: "absolute",
-                      left: 12,
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      color: "var(--color-beergam-typography-secondary)",
-                      zIndex: 1,
-                      pointerEvents: "none",
-                    }}
-                  >
-                    R$
-                  </Typography>
-                  <Fields.input
-                    type="number"
-                    value={String(formData.unity_cost || "")}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        "unity_cost",
-                        parseFloat(e.target.value) || undefined
-                      )
-                    }
-                    onBlur={() =>
-                      setTouched((prev) => ({ ...prev, unity_cost: true }))
-                    }
-                    error={
-                      touched.unity_cost && errors.unity_cost
-                        ? errors.unity_cost
-                        : undefined
-                    }
-                    required
-                    min={0}
-                    step={0.01}
-                    placeholder="0.00"
-                    style={{ paddingLeft: "40px" }}
-                  />
-                </Box>
+                <Fields.numericInput
+                  prefix="R$"
+                  format="currency"
+                  value={formData.unity_cost}
+                  onChange={(v) =>
+                    handleFieldChange(
+                      "unity_cost",
+                      typeof v === "number" ? v : undefined
+                    )
+                  }
+                  onBlur={() =>
+                    setTouched((prev) => ({ ...prev, unity_cost: true }))
+                  }
+                  error={
+                    touched.unity_cost && errors.unity_cost
+                      ? errors.unity_cost
+                      : undefined
+                  }
+                  required
+                  min={0}
+                  placeholder="0,00"
+                />
               </Fields.wrapper>
             )}
 

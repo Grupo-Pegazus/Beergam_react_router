@@ -1,4 +1,4 @@
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import type {
   CreateCompleteProduct,
   RegistrationType,
@@ -13,7 +13,7 @@ export default function MeasuresFields({
   registrationType,
 }: MeasuresFieldsProps) {
   const {
-    register,
+    control,
     formState: { errors },
   } = useFormContext<CreateCompleteProduct>();
 
@@ -30,70 +30,105 @@ export default function MeasuresFields({
         {/* Peso Líquido */}
         <Fields.wrapper>
           <Fields.label text="PESO LÍQUIDO (kg)" />
-          <Fields.input
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0.00"
-            {...register("product.net_weight", { valueAsNumber: true })}
-            error={errors.product?.net_weight?.message}
-            dataTooltipId="product-net-weight-input"
+          <Controller
+            name="product.net_weight"
+            control={control}
+            render={({ field }) => (
+              <Fields.numericInput
+                format="decimal"
+                decimalScale={2}
+                value={field.value}
+                onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                error={errors.product?.net_weight?.message}
+                dataTooltipId="product-net-weight-input"
+                min={0}
+                placeholder="0,00"
+              />
+            )}
           />
         </Fields.wrapper>
 
         {/* Peso Bruto */}
         <Fields.wrapper>
           <Fields.label text="PESO BRUTO (kg)" />
-          <Fields.input
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0.00"
-            {...register("product.brute_weight", { valueAsNumber: true })}
-            error={errors.product?.brute_weight?.message}
-            dataTooltipId="product-brute-weight-input"
+          <Controller
+            name="product.brute_weight"
+            control={control}
+            render={({ field }) => (
+              <Fields.numericInput
+                format="decimal"
+                decimalScale={2}
+                value={field.value}
+                onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                error={errors.product?.brute_weight?.message}
+                dataTooltipId="product-brute-weight-input"
+                min={0}
+                placeholder="0,00"
+              />
+            )}
           />
         </Fields.wrapper>
 
         {/* Altura */}
         <Fields.wrapper>
           <Fields.label text="ALTURA (cm)" />
-          <Fields.input
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0.00"
-            {...register("product.height", { valueAsNumber: true })}
-            error={errors.product?.height?.message}
-            dataTooltipId="product-height-input"
+          <Controller
+            name="product.height"
+            control={control}
+            render={({ field }) => (
+              <Fields.numericInput
+                format="decimal"
+                decimalScale={2}
+                value={field.value}
+                onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                error={errors.product?.height?.message}
+                dataTooltipId="product-height-input"
+                min={0}
+                placeholder="0,00"
+              />
+            )}
           />
         </Fields.wrapper>
 
         {/* Largura */}
         <Fields.wrapper>
           <Fields.label text="LARGURA (cm)" />
-          <Fields.input
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0.00"
-            {...register("product.width", { valueAsNumber: true })}
-            error={errors.product?.width?.message}
-            dataTooltipId="product-width-input"
+          <Controller
+            name="product.width"
+            control={control}
+            render={({ field }) => (
+              <Fields.numericInput
+                format="decimal"
+                decimalScale={2}
+                value={field.value}
+                onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                error={errors.product?.width?.message}
+                dataTooltipId="product-width-input"
+                min={0}
+                placeholder="0,00"
+              />
+            )}
           />
         </Fields.wrapper>
 
         {/* Profundidade */}
         <Fields.wrapper>
           <Fields.label text="PROFUNDIDADE (cm)" />
-          <Fields.input
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0.00"
-            {...register("product.depth", { valueAsNumber: true })}
-            error={errors.product?.depth?.message}
-            dataTooltipId="product-depth-input"
+          <Controller
+            name="product.depth"
+            control={control}
+            render={({ field }) => (
+              <Fields.numericInput
+                format="decimal"
+                decimalScale={2}
+                value={field.value}
+                onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                error={errors.product?.depth?.message}
+                dataTooltipId="product-depth-input"
+                min={0}
+                placeholder="0,00"
+              />
+            )}
           />
         </Fields.wrapper>
       </div>

@@ -95,23 +95,25 @@ export default function AdditionalCostsSection({
         />
         <div className="flex gap-4">
           <div className="flex-1">
-            <Fields.input
+            <Fields.numericInput
               value={additionalCostsAmount}
-              onChange={(e) => handleAmountChange(e.target.value)}
+              onChange={(v) => handleAmountChange(v === undefined ? "" : String(v))}
               placeholder="0,00"
               prefix="R$"
-              step={0.01}
+              format="currency"
               min={0}
             />
           </div>
           <div className="flex-1">
-            <Fields.input
+            <Fields.numericInput
               value={additionalCostsPercentage}
-              onChange={(e) => handlePercentageChange(e.target.value)}
+              onChange={(v) => handlePercentageChange(v === undefined ? "" : String(v))}
               placeholder="0"
               prefix="%"
-              step={0.01}
+              format="decimal"
+              decimalScale={2}
               min={0}
+              max={100}
             />
           </div>
         </div>

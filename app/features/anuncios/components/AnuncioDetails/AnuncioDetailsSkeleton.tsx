@@ -13,7 +13,7 @@ export default function AnuncioDetailsSkeleton() {
           p: 3,
           borderRadius: 2,
           border: "2px dashed var(--color-beergam-orange)",
-          bgcolor: "rgba(255, 138, 0, 0.05)",
+          bgcolor: "color-mix(in srgb, var(--color-beergam-orange) 5%, var(--color-beergam-section-background))",
         }}
       >
         <Stack spacing={2}>
@@ -48,7 +48,7 @@ export default function AnuncioDetailsSkeleton() {
             sx={{
               p: { xs: 1.5, sm: 2 },
               borderRadius: 2,
-              border: "1px solid rgba(15, 23, 42, 0.08)",
+              border: "1px solid color-mix(in srgb, currentColor 8%, transparent)",
               height: "100%",
             }}
           >
@@ -103,7 +103,7 @@ export default function AnuncioDetailsSkeleton() {
               sx={{
                 p: 3,
                 borderRadius: 2,
-                border: "1px solid rgba(15, 23, 42, 0.08)",
+                border: "1px solid color-mix(in srgb, currentColor 8%, transparent)",
               }}
             >
               <Stack spacing={2}>
@@ -179,7 +179,7 @@ export default function AnuncioDetailsSkeleton() {
         sx={{
           p: 3,
           borderRadius: 2,
-          border: "1px solid rgba(15, 23, 42, 0.08)",
+          border: "1px solid color-mix(in srgb, currentColor 8%, transparent)",
         }}
       >
         <Stack spacing={3}>
@@ -191,7 +191,7 @@ export default function AnuncioDetailsSkeleton() {
                 sx={{
                   p: 2,
                   borderRadius: 1,
-                  border: "1px solid rgba(0, 0, 0, 0.1)",
+                  border: "1px solid color-mix(in srgb, currentColor 10%, transparent)",
                 }}
               >
                 <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
@@ -236,7 +236,7 @@ export default function AnuncioDetailsSkeleton() {
               sx={{
                 p: 3,
                 borderRadius: 2,
-                border: "1px solid rgba(15, 23, 42, 0.08)",
+                border: "1px solid color-mix(in srgb, currentColor 8%, transparent)",
                 height: "100%",
               }}
             >
@@ -279,7 +279,7 @@ export default function AnuncioDetailsSkeleton() {
               sx={{
                 p: 3,
                 borderRadius: 2,
-                border: "1px solid rgba(15, 23, 42, 0.08)",
+                border: "1px solid color-mix(in srgb, currentColor 8%, transparent)",
                 height: "100%",
                 maxHeight: "350px",
                 overflowY: "auto",
@@ -374,7 +374,7 @@ export default function AnuncioDetailsSkeleton() {
             sx={{
               p: 3,
               borderRadius: 2,
-              border: "1px solid rgba(15, 23, 42, 0.08)",
+              border: "1px solid color-mix(in srgb, currentColor 8%, transparent)",
             }}
           >
             <Stack spacing={3}>
@@ -416,7 +416,7 @@ export default function AnuncioDetailsSkeleton() {
         sx={{
           p: 3,
           borderRadius: 2,
-          border: "1px solid rgba(15, 23, 42, 0.08)",
+          border: "1px solid color-mix(in srgb, currentColor 8%, transparent)",
         }}
       >
         <Box sx={{ mb: 2 }}>
@@ -432,7 +432,7 @@ export default function AnuncioDetailsSkeleton() {
         sx={{
           p: 3,
           borderRadius: 2,
-          border: "1px solid rgba(15, 23, 42, 0.08)",
+          border: "1px solid color-mix(in srgb, currentColor 8%, transparent)",
         }}
       >
         <Box sx={{ mb: 2 }}>

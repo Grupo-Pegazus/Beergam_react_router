@@ -17,25 +17,23 @@ export default function ClaimsListSkeleton() {
                   variant="text"
                   width={120}
                   height={14}
-                  sx={{ bgcolor: 'rgba(0, 0, 0, 0.08)', borderRadius: '4px' }}
+                  sx={{ borderRadius: '4px' }}
                 />
                 <Skeleton
                   variant="circular"
                   width={14}
                   height={14}
-                  sx={{ bgcolor: 'rgba(0, 0, 0, 0.08)' }}
                 />
                 <Skeleton
                   variant="text"
                   width={100}
                   height={14}
-                  sx={{ bgcolor: 'rgba(0, 0, 0, 0.08)', borderRadius: '4px' }}
+                  sx={{ borderRadius: '4px' }}
                 />
                 <Skeleton
                   variant="circular"
                   width={14}
                   height={14}
-                  sx={{ bgcolor: 'rgba(0, 0, 0, 0.08)' }}
                 />
               </div>
               {/* Reason ou título */}
@@ -43,13 +41,13 @@ export default function ClaimsListSkeleton() {
                 variant="text"
                 width="90%"
                 height={20}
-                sx={{ bgcolor: 'rgba(0, 0, 0, 0.1)', borderRadius: '4px' }}
+                sx={{ borderRadius: '4px' }}
               />
               <Skeleton
                 variant="text"
                 width="70%"
                 height={20}
-                sx={{ bgcolor: 'rgba(0, 0, 0, 0.1)', borderRadius: '4px' }}
+                sx={{ borderRadius: '4px' }}
               />
               {/* Tags de status e data */}
               <div className="flex flex-wrap gap-2 mt-1">
@@ -58,21 +56,18 @@ export default function ClaimsListSkeleton() {
                   width={100}
                   height={24}
                   className="rounded-full"
-                  sx={{ bgcolor: 'rgba(0, 0, 0, 0.08)' }}
                 />
                 <Skeleton
                   variant="rectangular"
                   width={140}
                   height={24}
                   className="rounded-full"
-                  sx={{ bgcolor: 'rgba(0, 0, 0, 0.08)' }}
                 />
                 <Skeleton
                   variant="rectangular"
                   width={160}
                   height={24}
                   className="rounded-full"
-                  sx={{ bgcolor: 'rgba(0, 0, 0, 0.08)' }}
                 />
               </div>
             </div>
@@ -82,7 +77,6 @@ export default function ClaimsListSkeleton() {
               width={100}
               height={36}
               className="rounded-lg shrink-0"
-              sx={{ bgcolor: 'rgba(0, 0, 0, 0.08)' }}
             />
           </div>
 
@@ -95,13 +89,13 @@ export default function ClaimsListSkeleton() {
                     variant="text"
                     width={60}
                     height={14}
-                    sx={{ bgcolor: 'rgba(0, 0, 0, 0.06)', borderRadius: '4px' }}
+                    sx={{ borderRadius: '4px' }}
                   />
                   <Skeleton
                     variant="text"
                     width="70%"
                     height={14}
-                    sx={{ bgcolor: 'rgba(0, 0, 0, 0.06)', borderRadius: '4px' }}
+                    sx={{ borderRadius: '4px' }}
                   />
                 </div>
                 <div className="flex items-start gap-2">
@@ -109,13 +103,13 @@ export default function ClaimsListSkeleton() {
                     variant="text"
                     width={60}
                     height={14}
-                    sx={{ bgcolor: 'rgba(0, 0, 0, 0.06)', borderRadius: '4px' }}
+                    sx={{ borderRadius: '4px' }}
                   />
                   <Skeleton
                     variant="text"
                     width="80%"
                     height={14}
-                    sx={{ bgcolor: 'rgba(0, 0, 0, 0.06)', borderRadius: '4px' }}
+                    sx={{ borderRadius: '4px' }}
                   />
                 </div>
               </div>
@@ -123,7 +117,7 @@ export default function ClaimsListSkeleton() {
                 variant="text"
                 width={200}
                 height={14}
-                sx={{ bgcolor: 'rgba(0, 0, 0, 0.06)', borderRadius: '4px' }}
+                sx={{ borderRadius: '4px' }}
               />
             </div>
           )}
@@ -134,7 +128,6 @@ export default function ClaimsListSkeleton() {
             width="100%"
             height={40}
             className="rounded-lg"
-            sx={{ bgcolor: 'rgba(0, 0, 0, 0.08)' }}
           />
         </div>
       ))}
