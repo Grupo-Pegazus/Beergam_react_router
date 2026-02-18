@@ -13,7 +13,7 @@ export default function ChoosenAccountSkeleton({ count = 8 }: ChoosenAccountSkel
       {items.map((_, idx) => (
         <div
           key={idx}
-          className="group flex justify-center items-center relative mb-4 p-8 shadow-lg/55 rounded-2xl flex-col gap-2 border-2 bg-beergam-white border-transparent"
+          className="group flex justify-center items-center relative mb-4 p-8 shadow-lg/55 rounded-2xl flex-col gap-2 border-2 bg-beergam-section-background border-transparent"
         >
           {/* Badge no topo direito (skeleton) */}
           <div className="absolute top-2 right-2">

@@ -6,7 +6,7 @@ export default function QuestionsListSkeleton() {
       {[1, 2, 3, 4].map((index) => (
         <div
           key={index}
-          className="rounded-2xl p-4 shadow-sm flex flex-col gap-3 bg-white border border-black/5"
+          className="rounded-2xl p-4 shadow-sm flex flex-col gap-3 bg-beergam-section-background border border-black/5 dark:border-white/10"
         >
           {/* Cabeçalho */}
           <div className="flex items-start justify-between gap-2">
@@ -34,7 +34,7 @@ export default function QuestionsListSkeleton() {
 
           {/* Resposta (opcional) */}
           {index % 2 === 0 && (
-            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+            <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/30 rounded-xl p-3">
               <Skeleton variant="text" width={80} height={14} className="mb-2" />
               <Skeleton variant="text" width="100%" height={16} />
               <Skeleton variant="text" width="80%" height={16} />

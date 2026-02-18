@@ -6,7 +6,7 @@ export default function TopAnunciosVendidosSkeleton() {
       {[1, 2, 3, 4, 5].map((index) => (
         <div
           key={index}
-          className="relative flex h-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-md shadow-slate-200/40"
+          className="relative flex h-full flex-col gap-4 rounded-2xl border border-black/5 dark:border-white/10 bg-beergam-section-background p-4 sm:p-5 shadow-md shadow-slate-200/40 dark:shadow-black/20"
         >
           {/* Badge de posição */}
           <div className="absolute left-0 top-0">
@@ -16,7 +16,6 @@ export default function TopAnunciosVendidosSkeleton() {
               height={32}
               sx={{
                 borderRadius: "16px 0 16px 0",
-                bgcolor: "#fef3c7",
               }}
             />
           </div>
@@ -29,7 +28,6 @@ export default function TopAnunciosVendidosSkeleton() {
               height={56}
               sx={{
                 borderRadius: "16px",
-                bgcolor: "#f1f5f9",
                 "@media (min-width: 640px)": {
                   width: 64,
                   height: 64,
@@ -42,7 +40,6 @@ export default function TopAnunciosVendidosSkeleton() {
                 width="100%"
                 height={16}
                 sx={{
-                  bgcolor: "#e2e8f0",
                   "@media (min-width: 640px)": {
                     height: 20,
                   },
@@ -54,20 +51,18 @@ export default function TopAnunciosVendidosSkeleton() {
                   width={50}
                   height={12}
                   sx={{
-                    bgcolor: "#cbd5e1",
                     "@media (min-width: 640px)": {
                       width: 60,
                       height: 16,
                     },
                   }}
                 />
-                <span className="text-slate-300 text-[10px] sm:text-xs">•</span>
+                <span className="text-beergam-typography-secondary text-[10px] sm:text-xs">•</span>
                 <Skeleton
                   variant="text"
                   width={60}
                   height={12}
                   sx={{
-                    bgcolor: "#cbd5e1",
                     "@media (min-width: 640px)": {
                       width: 70,
                       height: 16,
@@ -81,14 +76,13 @@ export default function TopAnunciosVendidosSkeleton() {
           {/* Stats */}
           <div className="flex flex-col gap-2">
             {/* Stat Visitas */}
-            <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-2 sm:px-3 py-1.5 sm:py-2">
+            <div className="flex items-center gap-2 rounded-xl border border-black/5 dark:border-white/10 bg-beergam-mui-paper px-2 sm:px-3 py-1.5 sm:py-2">
               <Skeleton
                 variant="rectangular"
                 width={24}
                 height={24}
                 sx={{
                   borderRadius: "8px",
-                  bgcolor: "#ffffff",
                   "@media (min-width: 640px)": {
                     width: 28,
                     height: 28,
@@ -101,7 +95,6 @@ export default function TopAnunciosVendidosSkeleton() {
                   width={45}
                   height={10}
                   sx={{
-                    bgcolor: "#cbd5e1",
                     "@media (min-width: 640px)": {
                       width: 50,
                       height: 11,
@@ -113,7 +106,6 @@ export default function TopAnunciosVendidosSkeleton() {
                   width={55}
                   height={14}
                   sx={{
-                    bgcolor: "#e2e8f0",
                     mt: 0.5,
                     "@media (min-width: 640px)": {
                       width: 60,
@@ -125,14 +117,13 @@ export default function TopAnunciosVendidosSkeleton() {
             </div>
 
             {/* Stat Estoque */}
-            <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-2 sm:px-3 py-1.5 sm:py-2">
+            <div className="flex items-center gap-2 rounded-xl border border-black/5 dark:border-white/10 bg-beergam-mui-paper px-2 sm:px-3 py-1.5 sm:py-2">
               <Skeleton
                 variant="rectangular"
                 width={24}
                 height={24}
                 sx={{
                   borderRadius: "8px",
-                  bgcolor: "#ffffff",
                   "@media (min-width: 640px)": {
                     width: 28,
                     height: 28,
@@ -145,7 +136,6 @@ export default function TopAnunciosVendidosSkeleton() {
                   width={45}
                   height={10}
                   sx={{
-                    bgcolor: "#cbd5e1",
                     "@media (min-width: 640px)": {
                       width: 50,
                       height: 11,
@@ -157,7 +147,6 @@ export default function TopAnunciosVendidosSkeleton() {
                   width={70}
                   height={14}
                   sx={{
-                    bgcolor: "#e2e8f0",
                     mt: 0.5,
                     "@media (min-width: 640px)": {
                       width: 80,
@@ -177,7 +166,6 @@ export default function TopAnunciosVendidosSkeleton() {
               height={32}
               sx={{
                 borderRadius: "9999px",
-                bgcolor: "#fef3c7",
                 "@media (min-width: 640px)": {
                   height: 36,
                 },

@@ -27,7 +27,7 @@ export default function MinhaAssinaturaSkeleton() {
       </div>
 
       {/* Benefícios do plano */}
-      <div className="bg-beergam-white p-6 rounded-2xl shadow-lg">
+      <div className="bg-beergam-section-background p-6 rounded-2xl shadow-lg">
         <Skeleton variant="text" width={220} height={22} animation="wave" sx={{ borderRadius: 6, mb: 2 }} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {Array.from({ length: 6 }).map((_, idx) => (
@@ -40,7 +40,7 @@ export default function MinhaAssinaturaSkeleton() {
       </div>
 
       {/* Botão de gerenciar billing */}
-      <div className="bg-beergam-white p-6 rounded-2xl shadow-lg">
+      <div className="bg-beergam-section-background p-6 rounded-2xl shadow-lg">
         <Skeleton variant="text" width={200} height={20} animation="wave" sx={{ borderRadius: 6, mb: 2 }} />
         <Skeleton variant="text" width="70%" height={16} animation="wave" sx={{ borderRadius: 6, mb: 2, maxWidth: 520 }} />
         <Skeleton variant="text" width="60%" height={16} animation="wave" sx={{ borderRadius: 6, mb: 4, maxWidth: 420 }} />

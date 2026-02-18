@@ -24,7 +24,7 @@ export default function VendaDetailsSkeleton() {
               background: "var(--white)",
               borderRadius: "15px",
               padding: "20px",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+              boxShadow: "0 2px 8px color-mix(in srgb, currentColor 10%, transparent)",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "16px" }}>
@@ -43,7 +43,7 @@ export default function VendaDetailsSkeleton() {
               background: "var(--white)",
               borderRadius: "15px",
               padding: "20px",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+              boxShadow: "0 2px 8px color-mix(in srgb, currentColor 10%, transparent)",
             }}
           >
             <Skeleton variant="text" width="40%" height={24} sx={{ mb: 2 }} />
@@ -60,7 +60,7 @@ export default function VendaDetailsSkeleton() {
               background: "var(--white)",
               borderRadius: "15px",
               padding: "20px",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+              boxShadow: "0 2px 8px color-mix(in srgb, currentColor 10%, transparent)",
             }}
           >
             {[1, 2, 3].map((i) => (
@@ -134,7 +134,7 @@ export default function VendaDetailsSkeleton() {
                   background: "var(--white)",
                   borderRadius: "15px",
                   padding: "20px",
-                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                  boxShadow: "0 2px 8px color-mix(in srgb, currentColor 10%, transparent)",
                 }}
               >
                 <Skeleton variant="text" width="40%" height={24} sx={{ mb: 2 }} />
@@ -165,7 +165,7 @@ export default function VendaDetailsSkeleton() {
               background: "var(--white)",
               borderRadius: "15px",
               padding: "20px",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+              boxShadow: "0 2px 8px color-mix(in srgb, currentColor 10%, transparent)",
             }}
           >
             <Skeleton variant="text" width="60%" height={28} sx={{ mb: 3 }} />
