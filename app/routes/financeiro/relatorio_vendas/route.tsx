@@ -565,6 +565,24 @@ export default function RelatorioVendasRoute() {
         return orders.reduce((acc, order) => acc + (parseFloat(order.profit ?? "0") ?? 0), 0);
     }, [orders]);
 
+    const MediaMargemLucro = useMemo(() => {
+        if (!orders.length) return 0;
+        const totalMargem = orders.reduce((acc, order) => {
+            const valor = Number(order.profit_margin) || 0;
+            return acc + valor;
+        }, 0);
+        return totalMargem / orders.length;
+    }, [orders]);
+
+    const MediaMargemSobreCusto = useMemo(() => {
+        if (!orders.length) return 0;
+        const totalMargem = orders.reduce((acc, order) => {
+            const valor = Number(order.margin_cost) || 0;
+            return acc + valor;
+        }, 0);
+        return totalMargem / orders.length;
+    }, [orders]);
+
     const footers = useMemo(() => createColumnFooters({
         total_amount: {
             value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalCusto),
@@ -623,8 +641,36 @@ export default function RelatorioVendasRoute() {
         profit: {
             value: new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(TotalLucro),
         },
+        profit_margin: {
+            value: `${MediaMargemLucro.toFixed(2)}%`,
+        },
+        margin_cost: {
+            value: `${MediaMargemSobreCusto.toFixed(2)}%`,
+        },
 
-    }), [TotalCusto, TotalValorPago, TotalValorBase, TotalValorLiquido, TotalValorDoImposto, TotalTarifaML, TotalEnvioVendedor, TotalEnvioBase, TotalEnvioFinal, CustoEnvioComprador, ValorDeclarado, TotalPriceCost, TotalPackagingCost, TotalExtraCost, TotalCost, TotalStockCost, TotalUnitPrice, TotalBonusPorEnvioEstorno, TotalLucro]);
+    }), [
+        TotalCusto,
+        TotalValorPago,
+        TotalValorBase,
+        TotalValorLiquido,
+        TotalValorDoImposto,
+        TotalTarifaML,
+        TotalEnvioVendedor,
+        TotalEnvioBase,
+        TotalEnvioFinal,
+        CustoEnvioComprador,
+        ValorDeclarado,
+        TotalPriceCost,
+        TotalPackagingCost,
+        TotalExtraCost,
+        TotalCost,
+        TotalStockCost,
+        TotalUnitPrice,
+        TotalBonusPorEnvioEstorno,
+        TotalLucro,
+        MediaMargemLucro,
+        MediaMargemSobreCusto,
+    ]);
 
     const columns: ColumnDef<Order>[] = useMemo(() => {
         // Campos que são objetos ou arrays e não podem ser renderizados diretamente
@@ -707,7 +753,7 @@ export default function RelatorioVendasRoute() {
     ), []);
 
     const controlsComponent = (
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-end gap-2 mb-4 w-full">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-end gap-2 w-full">
             <BeergamButton
                 key="filters-btn"
                 onClick={() => {

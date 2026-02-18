@@ -45,7 +45,7 @@ export default function AnuncioCard({
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [variationsExpanded, setVariationsExpanded] = useState(false);
   const isActive = anuncio.status === "active";
-  const healthScore = anuncio.health?.score ?? null;
+  const healthScore = anuncio.health?.score ?? 0;
   const reputation = anuncio.experience?.reputation;
   const conversionRate = anuncio.conversion_rate
     ? parseFloat(anuncio.conversion_rate)
@@ -259,6 +259,10 @@ export default function AnuncioCard({
               <span className="text-xs text-beergam-typography-secondary!">
                 {anuncio.stock} estoque · {anuncio.active_days}d ativo
               </span>
+              <span className="text-beergam-typography-tertiary!">·</span>
+              <span className="text-xs text-beergam-typography-secondary!">
+                Criado em {formatDate(anuncio.date_created_ad)}
+              </span>
             </div>
 
         {/* Desktop: grid 2 colunas balanceadas — esquerda | direita */}
@@ -294,24 +298,24 @@ export default function AnuncioCard({
                       Qualidade do anúncio
                     </p>
                     <p className="text-sm font-medium text-beergam-typography-secondary!">
-                      {healthScore != null
+                      {healthScore > 0
                         ? healthScore >= 80
                           ? "Profissional"
                           : healthScore >= 60
                             ? "Mediano"
                             : "Crítico"
-                        : "—"}
+                        : "Não disponível"}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg bg-beergam-mui-paper border border-beergam-input-border/30 min-h-[100px]">
-                  <Speedometer value={reputation?.value ?? null} size={44} className="shrink-0" />
+                  <Speedometer value={reputation?.value ?? 0} size={44} className="shrink-0" />
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-medium text-beergam-typography-primary! mb-1">
                       Experiência de compra
                     </p>
                     <p className="text-sm font-medium text-beergam-typography-secondary! leading-relaxed">
-                      {reputation?.text ?? anuncio.experience?.subtitles?.[0]?.text ?? "—"}
+                      {reputation?.text ?? anuncio.experience?.subtitles?.[0]?.text ?? (reputation?.value ?? 0 > 0 ? "Não disponível" : "Não disponível")}
                     </p>
                   </div>
                 </div>
@@ -377,18 +381,18 @@ export default function AnuncioCard({
                   Qualidade do anúncio
                 </p>
                 <p className="text-xs text-beergam-typography-secondary!">
-                  {healthScore != null ? (healthScore >= 80 ? "Profissional" : healthScore >= 60 ? "Mediano" : "Crítico") : "—"}
+                  {healthScore != null ? (healthScore >= 80 ? "Profissional" : healthScore >= 60 ? "Mediano" : (healthScore > 0 ? "Crítico" : "Não disponível")) : "Não disponível"}
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3 rounded-xl border border-beergam-input-border/30 bg-beergam-section-background/80 p-3 min-h-[72px]">
-              <Speedometer value={reputation?.value ?? null} size={36} className="shrink-0" />
+              <Speedometer value={reputation?.value ?? 0} size={36} className="shrink-0" />
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium text-beergam-typography-primary! mb-1">
                   Experiência de compra
                 </p>
                 <p className="text-xs text-beergam-typography-secondary! leading-relaxed">
-                  {reputation?.text ?? anuncio.experience?.subtitles?.[0]?.text ?? "—"}
+                  {reputation?.text ?? anuncio.experience?.subtitles?.[0]?.text ?? (reputation?.value ?? 0 > 0 ? "Não disponível" : "Não disponível")}
                 </p>
               </div>
             </div>
