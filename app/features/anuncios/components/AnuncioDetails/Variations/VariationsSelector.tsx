@@ -225,7 +225,7 @@ export default function VariationsSelector({ anuncio }: VariationsSelectorProps)
               </Typography>
               <Stack direction="row" spacing={2} flexWrap="wrap" gap={1}>
                 <Box>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" color="var(--color-beergam-typography-secondary)">
                     Preço
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 700 }}>
@@ -233,7 +233,7 @@ export default function VariationsSelector({ anuncio }: VariationsSelectorProps)
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" color="var(--color-beergam-typography-secondary)">
                     Estoque
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 700 }}>
@@ -241,7 +241,7 @@ export default function VariationsSelector({ anuncio }: VariationsSelectorProps)
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" color="var(--color-beergam-typography-secondary)">
                     Vendas
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 700 }}>
@@ -250,7 +250,7 @@ export default function VariationsSelector({ anuncio }: VariationsSelectorProps)
                 </Box>
                 {selectedVariation.sku && (
                   <Box>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography variant="caption" color="var(--color-beergam-typography-secondary)">
                       SKU
                     </Typography>
                     <Chip
@@ -309,7 +309,7 @@ export default function VariationsSelector({ anuncio }: VariationsSelectorProps)
                           ))}
                         </Stack>
                       ) : (
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body2" color="var(--color-beergam-typography-secondary)">
                           Variação ID: {variation.variation_id}
                         </Typography>
                       )}
@@ -318,7 +318,7 @@ export default function VariationsSelector({ anuncio }: VariationsSelectorProps)
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
                         R$ {parseFloat(variation.price).toFixed(2).replace(".", ",")}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="var(--color-beergam-typography-secondary)">
                         Estoque: {variation.stock}
                       </Typography>
                       {variation.sku ? (
