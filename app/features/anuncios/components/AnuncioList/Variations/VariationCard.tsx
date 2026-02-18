@@ -26,7 +26,7 @@ export default function VariationCard({
       className={`
         flex flex-col sm:flex-row sm:items-center sm:justify-between 
         py-3 px-3 sm:py-2.5 sm:px-3 
-        ${!isLast ? "border-b border-beergam-border" : ""} 
+        ${!isLast ? "border-b border-beergam-input-border/30" : ""} 
         hover:bg-beergam-hover transition-colors 
         gap-2 sm:gap-3
       `}
@@ -58,7 +58,7 @@ export default function VariationCard({
               {formatNumber(variation.stock)} un.
             </span>
             {variation.sku && (
-              <div className="flex items-center gap-1.5 bg-beergam-mui-paper px-2 py-0.5 rounded-full border border-beergam-border">
+              <div className="flex items-center gap-1.5 bg-beergam-section-background px-2 py-0.5 rounded-full border border-beergam-input-border/30">
                 <span className="font-mono text-beergam-typography-secondary break-all sm:break-normal">
                   {variation.sku}
                 </span>
@@ -79,7 +79,7 @@ export default function VariationCard({
             {formatNumber(variation.stock)} un.
           </span>
           {variation.sku && (
-            <div className="flex items-center gap-1.5 bg-beergam-mui-paper px-2 py-0.5 rounded-full border border-beergam-border">
+            <div className="flex items-center gap-1.5 bg-beergam-section-background px-2 py-0.5 rounded-full border border-beergam-input-border/30">
               <span className="font-mono text-beergam-typography-secondary break-all sm:break-normal">
                 {variation.sku}
               </span>

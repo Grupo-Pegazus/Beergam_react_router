@@ -26,12 +26,12 @@ export default function VariationsList({
             <img
               src={anuncio.thumbnail}
               alt={anuncio.name}
-              className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg object-cover shrink-0 hidden sm:block border border-beergam-border"
+              className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg object-cover shrink-0 hidden sm:block border border-beergam-input-border/30"
             />
           )}
           <div className="flex-1 min-w-0 w-full">
             {/* Lista de variações */}
-            <div className="rounded-lg overflow-hidden border border-beergam-border bg-beergam-section-background">
+            <div className="rounded-lg overflow-hidden border border-beergam-input-border/30 bg-beergam-mui-paper">
               {group.variations.map((variation, index) => (
                 <VariationCard
                   key={variation.variation_id}
