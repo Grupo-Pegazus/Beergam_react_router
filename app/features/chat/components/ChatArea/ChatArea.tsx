@@ -535,6 +535,23 @@ export default function ChatArea({
                                                 )}
                                             </div>
                                         )}
+                                        {/* Tags de status do cliente (reclamação / pós-venda) */}
+                                        {(() => {
+                                            const validTags = (client?.tags ?? []).filter((t) => typeof t === "string" && t.trim().length > 0);
+                                            if (validTags.length === 0) return null;
+                                            return (
+                                                <div className="flex flex-wrap gap-1 mt-1">
+                                                    {validTags.map((tag) => (
+                                                        <span
+                                                            key={tag}
+                                                            className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-beergam-white/15 text-beergam-white/90 border border-beergam-white/20"
+                                                        >
+                                                            {tag}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
                                 <div ref={actionRef} className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap">

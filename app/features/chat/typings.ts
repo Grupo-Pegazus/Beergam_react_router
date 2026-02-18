@@ -7,6 +7,16 @@ export interface ClientReceiverDocument {
     value: string;
 }
 
+/**
+ * Tags de status do cliente vindas do backend (reclamações e pós-venda).
+ * Valores exatos: "Reclamação aberta" | "Reclamação fechada" | "Pós-venda aberta" | "Pós-venda bloqueada"
+ */
+export type ClientTagLabel =
+    | "Reclamação aberta"
+    | "Reclamação fechada"
+    | "Pós-venda aberta"
+    | "Pós-venda bloqueada";
+
 export interface Client {
     client_id: string;
     nickname: string;
@@ -18,6 +28,8 @@ export interface Client {
     marketplace_shop_id: string;
     receiver_name: string;
     receiver_document: ClientReceiverDocument;
+    /** Tags de status (reclamação/pós-venda) calculadas no backend. */
+    tags?: string[];
 }
 
 // O backend retorna diretamente um array de clientes em 'data'

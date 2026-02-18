@@ -25,6 +25,7 @@ export const MOCK_CLIENTS: Client[] = [
         total_spent: 45990,
         marketplace_type: MarketplaceType.MELI,
         marketplace_shop_id: "mock-shop-1",
+        tags: ["Reclamação aberta", "Pós-venda aberta"],
     },
     {
         client_id: "mock-client-002",
@@ -40,6 +41,7 @@ export const MOCK_CLIENTS: Client[] = [
         total_spent: 12990,
         marketplace_type: MarketplaceType.MELI,
         marketplace_shop_id: "mock-shop-1",
+        tags: ["Pós-venda bloqueada"],
     },
     {
         client_id: "mock-client-003",
@@ -55,5 +57,6 @@ export const MOCK_CLIENTS: Client[] = [
         total_spent: 89900,
         marketplace_type: MarketplaceType.MELI,
         marketplace_shop_id: "mock-shop-1",
+        tags: ["Reclamação fechada", "Pós-venda aberta"],
     },
 ];
