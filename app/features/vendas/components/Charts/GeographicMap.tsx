@@ -162,24 +162,24 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
           </div>
 
           {selectedPeriod === "custom" && (!dateRange?.start || !dateRange?.end) ? (
-            <div className="flex flex-col items-center justify-center h-64 md:h-96 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
-              <Typography variant="body2" color="text.secondary" className="text-center text-sm md:text-base">
+            <div className="flex flex-col items-center justify-center h-64 md:h-96 rounded-lg border border-dashed border-beergam-typography-secondary! bg-beergam-section-background! p-4">
+              <Typography variant="body2" className="text-center text-sm md:text-base text-beergam-typography-secondary!">
                 Selecione as datas de início e fim para visualizar a distribuição geográfica.
               </Typography>
             </div>
           ) : distribution.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 md:h-96 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
-              <Typography variant="body2" color="text.secondary" className="text-center text-sm md:text-base">
+            <div className="flex flex-col items-center justify-center h-64 md:h-96 rounded-lg border border-dashed border-beergam-typography-secondary! bg-beergam-section-background! p-4">
+              <Typography variant="body2" className="text-center text-sm md:text-base text-beergam-typography-secondary!">
                 Nenhum dado disponível para o período selecionado.
               </Typography>
             </div>
           ) : (
             <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 md:gap-6 lg:items-start">
               {/* Ranking - Mobile primeiro, Desktop à esquerda */}
-              <div className="lg:col-span-1 flex flex-col order-2 lg:order-1 w-full">
+              <div className="lg:col-span-1 flex flex-col order-2 lg:order-1 w-full h-full">
 
                 <Paper
-                  className="bg-beergam-section-background! p-4 md:p-3">
+                  className="bg-beergam-section-background! p-4 md:p-3 h-full">
                   <h3 className="text-sm md:text-sm font-semibold mb-4 text-beergam-typography-primary!">
                     Ranking de Estados
                   </h3>
@@ -189,13 +189,13 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
                       return (
                         <div
                           key={item.state}
-                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 py-3 px-3 rounded-lg border border-beergam-input-border/30 bg-beergam-mui-paper"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 py-3 px-3 rounded-lg border border-beergam-input-border/30 bg-beergam-section-background!"
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             <span className="text-base font-bold text-beergam-typography-secondary shrink-0 w-8">
                               {globalIndex + 1}°
                             </span>
-                            <span className="text-base font-medium text-beergam-typography-primary break-words">
+                            <span className="text-base font-medium text-beergam-typography-primary! wrap-break-word">
                               {item.state_name}
                             </span>
                           </div>

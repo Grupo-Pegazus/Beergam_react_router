@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { Typography, Chip } from "@mui/material";
 import MainCards from "~/src/components/ui/MainCards";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { useUpdateSkuWithMlb } from "../../../hooks";
@@ -18,46 +18,48 @@ export default function AdWithoutVariationsCard({
   };
 
   return (
-    <MainCards className="bg-beergam-section-background!">
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+    <MainCards className="p-5 shadow-lg bg-white dark:bg-[#252a35]!">
+      <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+        {/* Informações do Anúncio */}
         <div className="flex-1 min-w-0">
-          <div className="mb-2 flex flex-col sm:flex-row sm:items-center gap-2">
-            <Typography
-              variant="subtitle1"
-              fontWeight={600}
-              className="text-beergam-typography-primary! wrap-break-word"
-            >
-              {ad.name}
-            </Typography>
-            {/* <Chip
+          <Typography
+            variant="h6"
+            fontWeight={600}
+            className="text-beergam-typography-primary! mb-3 line-clamp-2"
+          >
+            {ad.name}
+          </Typography>
+          
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            <Chip
               label={ad.mlb}
               size="small"
-              variant="outlined"
-              className="shrink-0"
-            /> */}
-            <p className="bg-beergam-typography-secondary! text-beergam-white! p-2 rounded-md">
-              {ad.mlb}
-            </p>
+              className="bg-beergam-mui-paper! text-beergam-typography-secondary! border border-beergam-section-border!"
+            />
           </div>
+
           <Typography
             variant="body2"
-            className="text-beergam-typography-secondary! mb-2"
+            className="text-beergam-typography-secondary! mb-3"
           >
-            Este anúncio não possui variações. O SKU deve ser cadastrado
-            diretamente no Mercado Livre.
+            Este anúncio não possui variações. O SKU deve ser cadastrado diretamente no Mercado Livre.
           </Typography>
+
           {ad.link && (
             <a
               href={ad.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-beergam-primary! hover:underline"
+              className="inline-flex items-center gap-1 text-sm text-beergam-primary! hover:underline font-medium"
             >
-              Abrir no Mercado Livre →
+              Abrir no Mercado Livre
+              <span>→</span>
             </a>
           )}
         </div>
-        <div className="shrink-0">
+
+        {/* Botão de Ação */}
+        <div className="shrink-0 lg:min-w-[180px]">
           <BeergamButton
             title={
               updateSkuWithMlbMutation.isPending
@@ -67,7 +69,9 @@ export default function AdWithoutVariationsCard({
             icon="arrow_path"
             onClick={handleUpdateSkuWithMlb}
             disabled={updateSkuWithMlbMutation.isPending}
-            className="text-sm w-full md:w-auto"
+            mainColor="beergam-primary"
+            animationStyle="slider"
+            className="w-full"
             fetcher={{
               fecthing: updateSkuWithMlbMutation.isPending,
               completed: false,

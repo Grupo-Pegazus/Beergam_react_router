@@ -22,66 +22,81 @@ export default function AdWithoutSkuCard({
   isSaving,
   hasPendingChanges,
 }: AdWithoutSkuCardProps) {
+  const variationsCount = ad?.variations_without_sku?.length ?? 0;
+
   return (
-    <MainCards>
-      <div className="mb-4 flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="mb-2 flex flex-col sm:flex-row sm:items-center gap-2">
-            <div className="flex items-center gap-2 shrink-0">
-              <Thumbnail thumbnail={ad.thumbnail ?? ""} />
-              <Chip
-                label={ad.mlb}
-                size="small"
-                variant="outlined"
-                className="shrink-0 bg-beergam-typography-secondary! text-beergam-white! border-beergam-border-secondary!"
-              />
-            </div>
-            <Typography
-              variant="subtitle1"
-              fontWeight={600}
-              className="text-beergam-typography-primary!"
-            >
-              {ad.name}
-            </Typography>
-          </div>
-          <Typography
-            variant="body2"
-            className="text-beergam-typography-secondary!"
-          >
-            {ad?.variations_without_sku?.length ?? 0} variação(ões) sem SKU
-          </Typography>
+    <MainCards className="p-5 shadow-lg bg-white dark:bg-[#252a35]!">
+      {/* Header do Card */}
+      <div className="flex items-start gap-4 mb-4">
+        {/* Thumbnail */}
+        <div className="shrink-0">
+          <Thumbnail 
+            thumbnail={ad.thumbnail ?? ""} 
+            tailWindClasses="w-20 h-20"
+          />
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-          {hasPendingChanges && (
-            <BeergamButton
-              title={isSaving ? "Salvando..." : "Salvar SKUs"}
-              animationStyle="slider"
-              onClick={onSave}
-              disabled={isSaving}
-              className="text-sm w-full md:w-auto"
-              fetcher={{
-                fecthing: isSaving,
-                completed: false,
-                error: false,
-                mutation: {
-                  reset: () => {},
-                  isPending: isSaving,
-                  isSuccess: false,
-                  isError: false,
-                },
-              }}
-            />
-          )}
+
+        {/* Informações do Anúncio */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <div className="flex-1 min-w-0">
+              <Typography
+                variant="h6"
+                fontWeight={600}
+                className="text-beergam-typography-primary! mb-2 line-clamp-2"
+              >
+                {ad.name}
+              </Typography>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Chip
+                  label={ad.mlb}
+                  size="small"
+                  className="bg-beergam-mui-paper! text-beergam-typography-secondary! border border-beergam-section-border!"
+                />
+                <span className="text-sm text-beergam-typography-secondary!">
+                  {variationsCount} {variationsCount === 1 ? 'variação sem SKU' : 'variações sem SKU'}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
+      {/* Variações sem SKU */}
       {ad.variations_without_sku && ad.variations_without_sku.length > 0 && (
-        <VariationsGroup
-          variations={ad.variations_without_sku}
-          skuValues={skuValues}
-          onSkuChange={onSkuChange}
-          onUseMlbAsSku={(variationId) => onSkuChange(variationId, ad.mlb)}
-        />
+        <div className="space-y-3 pt-4 border-t border-beergam-section-border!">
+          <VariationsGroup
+            variations={ad.variations_without_sku}
+            skuValues={skuValues}
+            onSkuChange={onSkuChange}
+            onUseMlbAsSku={(variationId) => onSkuChange(variationId, ad.mlb)}
+          />
+        </div>
+      )}
+
+      {/* Botão de Salvar */}
+      {hasPendingChanges && (
+        <div className="flex justify-end mt-4 pt-4 border-t border-beergam-section-border!">
+          <BeergamButton
+            title={isSaving ? "Salvando..." : "Salvar SKUs"}
+            animationStyle="slider"
+            onClick={onSave}
+            disabled={isSaving}
+            mainColor="beergam-green"
+            className="min-w-[140px]"
+            fetcher={{
+              fecthing: isSaving,
+              completed: false,
+              error: false,
+              mutation: {
+                reset: () => {},
+                isPending: isSaving,
+                isSuccess: false,
+                isError: false,
+              },
+            }}
+          />
+        </div>
       )}
     </MainCards>
   );

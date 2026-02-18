@@ -22,20 +22,17 @@ export default function VariationsGroup({
   return (
     <div className="space-y-3">
       {groupedVariations.map((group, groupIndex) => (
-        <div key={groupIndex} className="space-y-2">
-          {/* Lista de variações */}
-          <div className="space-y-2 border-t border-beergam-border-secondary! pt-2">
-            {group.variations.map((variation) => (
-              <VariationSkuInput
-                key={variation.variation_id}
-                variation={variation}
-                value={skuValues[variation.variation_id] || ""}
-                onChange={(value) => onSkuChange(variation.variation_id, value)}
-                varyingAttributeIds={group.varyingAttributeIds}
-                onUseMlbAsSku={() => onUseMlbAsSku(variation.variation_id)}
-              />
-            ))}
-          </div>
+        <div key={groupIndex} className="space-y-3">
+          {group.variations.map((variation) => (
+            <VariationSkuInput
+              key={variation.variation_id}
+              variation={variation}
+              value={skuValues[variation.variation_id] || ""}
+              onChange={(value) => onSkuChange(variation.variation_id, value)}
+              varyingAttributeIds={group.varyingAttributeIds}
+              onUseMlbAsSku={() => onUseMlbAsSku(variation.variation_id)}
+            />
+          ))}
         </div>
       ))}
     </div>

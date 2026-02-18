@@ -41,7 +41,7 @@ export default function OrderListSkeleton() {
             </div>
 
             {/* OrderItemCard Skeleton */}
-            <div className="flex justify-between items-center gap-2 bg-slate-200 rounded-lg p-2 w-full">
+            <div className="flex justify-between items-center gap-2 bg-beergam-mui-paper rounded-lg p-2 w-full">
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <Skeleton variant="rectangular" width={60} height={60} className="rounded-lg" />
                 <div className="flex flex-col gap-1 min-w-0 flex-1">
@@ -50,7 +50,7 @@ export default function OrderListSkeleton() {
                   <Skeleton variant="text" width={80} height={16} />
                 </div>
               </div>
-              <div className="flex flex-col items-center gap-2 w-[30%] bg-slate-100 p-2 rounded-lg shrink-0">
+              <div className="flex flex-col items-center gap-2 w-[30%] bg-beergam-section-background p-2 rounded-lg shrink-0">
                 <div className="flex items-center gap-2 w-full">
                   <Skeleton variant="rectangular" width="25%" height={50} className="rounded-lg" />
                   <Skeleton variant="rectangular" width="25%" height={50} className="rounded-lg" />

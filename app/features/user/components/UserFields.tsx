@@ -71,6 +71,31 @@ export default function UserFields({
             widthType="full"
           />
         </>
+      ) : props.type === "number" ? (
+        <Fields.numericInput
+          name={name}
+          disabled={canAlter ? false : true}
+          onChange={(v) => {
+            if (onChange) {
+              const syntheticEvent = {
+                target: {
+                  value: v === undefined ? "" : String(v),
+                  name: name,
+                },
+              } as unknown as React.ChangeEvent<HTMLInputElement>;
+              onChange(syntheticEvent);
+            }
+          }}
+          error={error}
+          dataTooltipId={`${name}-input`}
+          value={typeof value === "string" ? (value === "" ? undefined : Number(value)) : value}
+          format={props.prefix === "%" ? "decimal" : props.step && props.step < 1 ? "decimal" : "integer"}
+          decimalScale={props.step && props.step < 1 ? 2 : undefined}
+          prefix={props.prefix}
+          min={props.min}
+          max={props.max}
+          placeholder={props.placeholder}
+        />
       ) : (
         <Fields.input
           name={name}

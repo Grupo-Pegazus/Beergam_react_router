@@ -61,19 +61,20 @@ export default function NumberInput({
       )}
 
       <input
-        type="number"
+        type="text"
+        inputMode="decimal"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          const raw = e.target.value.replace(/[^\d,.-]/g, "");
+          onChange(raw);
+        }}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         placeholder={placeholder}
-        step={step}
-        min={min}
-        max={max}
         disabled={disabled}
         className={`w-full ${
           prefix ? "pl-12" : "pl-4"
-        } ${suffix ? "pr-20" : "pr-12"} py-3.5 text-base font-semibold text-gray-900 bg-transparent outline-none border-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
+        } ${suffix ? "pr-20" : "pr-12"} py-3.5 text-base font-semibold text-gray-900 bg-transparent outline-none border-none`}
       />
 
       {suffix && (

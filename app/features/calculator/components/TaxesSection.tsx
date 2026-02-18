@@ -123,14 +123,15 @@ export default function TaxesSection({
             text="Impostos"
             hint="Porcentagem de impostos sobre a venda"
           />
-          <Fields.input
-            type="number"
-            value={taxesPercentage}
-            onChange={(e) => onTaxesPercentageChange(e.target.value)}
-            placeholder="0"
+          <Fields.numericInput
             prefix="%"
-            step={0.01}
+            format="decimal"
+            decimalScale={2}
+            value={taxesPercentage === "" ? undefined : Number(taxesPercentage)}
+            onChange={(v) => onTaxesPercentageChange(v === undefined ? "" : String(v))}
+            placeholder="0,00"
             min={0}
+            max={100}
           />
           <p className="text-xs text-beergam-gray mt-1.5">
             {isSimplesNacional ? "Preenchido automaticamente" : "Opcional"}

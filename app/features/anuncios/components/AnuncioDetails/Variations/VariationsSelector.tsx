@@ -259,6 +259,8 @@ export default function VariationsSelector({ anuncio }: VariationsSelectorProps)
                       sx={{
                         fontFamily: "monospace",
                         fontWeight: 600,
+                        backgroundColor: "var(--color-beergam-alert-warning-bg)",
+                        color: "var(--color-beergam-alert-warning-icon)",
                       }}
                     />
                   </Box>
@@ -328,6 +330,8 @@ export default function VariationsSelector({ anuncio }: VariationsSelectorProps)
                           sx={{
                             fontFamily: "monospace",
                             fontSize: "0.7rem",
+                            backgroundColor: "var(--color-beergam-alert-warning-bg)",
+                            color: "var(--color-beergam-alert-warning-icon)",
                           }}
                         />
                       ) : (

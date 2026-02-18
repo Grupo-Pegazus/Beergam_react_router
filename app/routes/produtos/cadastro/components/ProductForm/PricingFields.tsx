@@ -1,4 +1,4 @@
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { Fields } from "~/src/components/utils/_fields";
 import type {
   CreateSimplifiedProduct,
@@ -11,7 +11,7 @@ interface PricingFieldsProps {
 
 export default function PricingFields({ registrationType }: PricingFieldsProps) {
   const {
-    register,
+    control,
     formState: { errors },
   } = useFormContext<CreateSimplifiedProduct | CreateCompleteProduct>();
 
@@ -22,28 +22,42 @@ export default function PricingFields({ registrationType }: PricingFieldsProps) 
       {/* Preço de Venda */}
       <Fields.wrapper>
         <Fields.label text="PREÇO DE VENDA" required />
-        <Fields.input
-          type="number"
-          step="0.01"
-          min="0"
-          placeholder="0.00"
-          {...register("product.price_sale", { valueAsNumber: true })}
-          error={errors.product?.price_sale?.message}
-          dataTooltipId="product-price-sale-input"
+        <Controller
+          name="product.price_sale"
+          control={control}
+          render={({ field }) => (
+            <Fields.numericInput
+              prefix="R$"
+              format="currency"
+              value={field.value}
+              onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+              error={errors.product?.price_sale?.message}
+              dataTooltipId="product-price-sale-input"
+              min={0}
+              placeholder="0,00"
+            />
+          )}
         />
       </Fields.wrapper>
 
       {/* Preço de Compra */}
       <Fields.wrapper>
         <Fields.label text="PREÇO DE COMPRA" required />
-        <Fields.input
-          type="number"
-          step="0.01"
-          min="0"
-          placeholder="0.00"
-          {...register("product.price_cost", { valueAsNumber: true })}
-          error={errors.product?.price_cost?.message}
-          dataTooltipId="product-price-cost-input"
+        <Controller
+          name="product.price_cost"
+          control={control}
+          render={({ field }) => (
+            <Fields.numericInput
+              prefix="R$"
+              format="currency"
+              value={field.value}
+              onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+              error={errors.product?.price_cost?.message}
+              dataTooltipId="product-price-cost-input"
+              min={0}
+              placeholder="0,00"
+            />
+          )}
         />
       </Fields.wrapper>
 
@@ -51,14 +65,21 @@ export default function PricingFields({ registrationType }: PricingFieldsProps) 
       {isComplete && (
         <Fields.wrapper>
           <Fields.label text="CUSTO DE EMBALAGEM" />
-          <Fields.input
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0.00"
-            {...register("product.packaging_cost", { valueAsNumber: true })}
-            error={((errors.product as unknown as CreateCompleteProduct['product'])?.packaging_cost as { message?: string })?.message}
-            dataTooltipId="product-packaging-cost-input"
+          <Controller
+            name="product.packaging_cost"
+            control={control}
+            render={({ field }) => (
+              <Fields.numericInput
+                prefix="R$"
+                format="currency"
+                value={field.value}
+                onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                error={((errors.product as unknown as CreateCompleteProduct['product'])?.packaging_cost as { message?: string })?.message}
+                dataTooltipId="product-packaging-cost-input"
+                min={0}
+                placeholder="0,00"
+              />
+            )}
           />
         </Fields.wrapper>
       )}
@@ -67,14 +88,21 @@ export default function PricingFields({ registrationType }: PricingFieldsProps) 
       {isComplete && (
         <Fields.wrapper>
           <Fields.label text="CUSTO EXTRA" />
-          <Fields.input
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0.00"
-            {...register("product.extra_cost", { valueAsNumber: true })}
-            error={((errors.product as unknown as CreateCompleteProduct['product'])?.extra_cost as { message?: string })?.message}
-            dataTooltipId="product-extra-cost-input"
+          <Controller
+            name="product.extra_cost"
+            control={control}
+            render={({ field }) => (
+              <Fields.numericInput
+                prefix="R$"
+                format="currency"
+                value={field.value}
+                onChange={(v) => field.onChange(typeof v === "number" ? v : undefined)}
+                error={((errors.product as unknown as CreateCompleteProduct['product'])?.extra_cost as { message?: string })?.message}
+                dataTooltipId="product-extra-cost-input"
+                min={0}
+                placeholder="0,00"
+              />
+            )}
           />
         </Fields.wrapper>
       )}

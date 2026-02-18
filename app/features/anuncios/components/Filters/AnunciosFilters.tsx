@@ -59,96 +59,68 @@ export default function AnunciosFilters({
   );
 
   const handlePriceChange = useCallback(
-    (key: "price_min" | "price_max", priceValue: string) => {
+    (key: "price_min" | "price_max", numValue: number | string | undefined) => {
       const updated = { ...value };
-      const trimmedValue = priceValue?.trim();
-      
-      let numValue: number | undefined;
-      if (trimmedValue === "" || trimmedValue === null || trimmedValue === undefined) {
-        numValue = undefined;
-      } else {
-        const parsed = Number(trimmedValue);
-        numValue = isNaN(parsed) ? undefined : parsed;
-      }
-      
-      if (key === "price_min") {
-        updated.price_min = numValue;
-      } else if (key === "price_max") {
-        updated.price_max = numValue;
-      }
-
+      const parsed =
+        numValue === undefined || numValue === ""
+          ? undefined
+          : typeof numValue === "number"
+            ? numValue
+            : Number(numValue);
+      const final = parsed !== undefined && !Number.isNaN(parsed) ? parsed : undefined;
+      if (key === "price_min") updated.price_min = final;
+      else if (key === "price_max") updated.price_max = final;
       onChange(updated);
     },
     [value, onChange],
   );
 
   const handleStockChange = useCallback(
-    (key: "stock_min" | "stock_max", stockValue: string) => {
+    (key: "stock_min" | "stock_max", numValue: number | string | undefined) => {
       const updated = { ...value };
-      const trimmedValue = stockValue?.trim();
-      
-      let numValue: number | undefined;
-      if (trimmedValue === "" || trimmedValue === null || trimmedValue === undefined) {
-        numValue = undefined;
-      } else {
-        const parsed = Number(trimmedValue);
-        numValue = isNaN(parsed) ? undefined : parsed;
-      }
-      
-      if (key === "stock_min") {
-        updated.stock_min = numValue;
-      } else if (key === "stock_max") {
-        updated.stock_max = numValue;
-      }
-
+      const parsed =
+        numValue === undefined || numValue === ""
+          ? undefined
+          : typeof numValue === "number"
+            ? numValue
+            : Number(numValue);
+      const final = parsed !== undefined && !Number.isNaN(parsed) ? parsed : undefined;
+      if (key === "stock_min") updated.stock_min = final;
+      else if (key === "stock_max") updated.stock_max = final;
       onChange(updated);
     },
     [value, onChange],
   );
 
   const handleHealthScoreChange = useCallback(
-    (key: "health_score_min" | "health_score_max", scoreValue: string) => {
+    (key: "health_score_min" | "health_score_max", numValue: number | string | undefined) => {
       const updated = { ...value };
-      const trimmedValue = scoreValue?.trim();
-      
-      let numValue: number | undefined;
-      if (trimmedValue === "" || trimmedValue === null || trimmedValue === undefined) {
-        numValue = undefined;
-      } else {
-        const parsed = Number(trimmedValue);
-        numValue = isNaN(parsed) ? undefined : parsed;
-      }
-      
-      if (key === "health_score_min") {
-        updated.health_score_min = numValue;
-      } else if (key === "health_score_max") {
-        updated.health_score_max = numValue;
-      }
-
+      const parsed =
+        numValue === undefined || numValue === ""
+          ? undefined
+          : typeof numValue === "number"
+            ? numValue
+            : Number(numValue);
+      const final = parsed !== undefined && !Number.isNaN(parsed) ? parsed : undefined;
+      if (key === "health_score_min") updated.health_score_min = final;
+      else if (key === "health_score_max") updated.health_score_max = final;
       onChange(updated);
     },
     [value, onChange],
   );
 
   const handleExperienceScoreChange = useCallback(
-    (key: "experience_score_min" | "experience_score_max", scoreValue: string) => {
+    (key: "experience_score_min" | "experience_score_max", numValue: number | string | undefined) => {
       const updated = { ...value };
-      const trimmedValue = scoreValue?.trim();
-      
-      let numValue: number | undefined;
-      if (trimmedValue === "" || trimmedValue === null || trimmedValue === undefined) {
-        numValue = undefined;
-      } else {
-        const parsed = Number(trimmedValue);
-        numValue = isNaN(parsed) ? undefined : parsed;
-      }
-      
-      if (key === "experience_score_min") {
-        updated.experience_score_min = numValue;
-      } else if (key === "experience_score_max") {
-        updated.experience_score_max = numValue;
-      }
-
+      const parsed =
+        numValue === undefined || numValue === ""
+          ? undefined
+          : typeof numValue === "number"
+            ? numValue
+            : Number(numValue);
+      const final = parsed !== undefined && !Number.isNaN(parsed) ? parsed : undefined;
+      if (key === "experience_score_min") updated.experience_score_min = final;
+      else if (key === "experience_score_max") updated.experience_score_max = final;
       onChange(updated);
     },
     [value, onChange],
@@ -207,45 +179,15 @@ export default function AnunciosFilters({
     [value.onlyCatalog],
   );
 
-  const priceMinValue = useMemo(
-    () => value.price_min?.toString() || "",
-    [value.price_min],
-  );
+  const priceMinValue = value.price_min;
+  const priceMaxValue = value.price_max;
+  const stockMinValue = value.stock_min;
+  const stockMaxValue = value.stock_max;
 
-  const priceMaxValue = useMemo(
-    () => value.price_max?.toString() || "",
-    [value.price_max],
-  );
-
-  const stockMinValue = useMemo(
-    () => value.stock_min?.toString() || "",
-    [value.stock_min],
-  );
-
-  const stockMaxValue = useMemo(
-    () => value.stock_max?.toString() || "",
-    [value.stock_max],
-  );
-
-  const healthScoreMinValue = useMemo(
-    () => value.health_score_min?.toString() || "",
-    [value.health_score_min],
-  );
-
-  const healthScoreMaxValue = useMemo(
-    () => value.health_score_max?.toString() || "",
-    [value.health_score_max],
-  );
-
-  const experienceScoreMinValue = useMemo(
-    () => value.experience_score_min?.toString() || "",
-    [value.experience_score_min],
-  );
-
-  const experienceScoreMaxValue = useMemo(
-    () => value.experience_score_max?.toString() || "",
-    [value.experience_score_max],
-  );
+  const healthScoreMinValue = value.health_score_min;
+  const healthScoreMaxValue = value.health_score_max;
+  const experienceScoreMinValue = value.experience_score_min;
+  const experienceScoreMaxValue = value.experience_score_max;
 
   const flexValue = useMemo(
     () => Boolean(value.flex),
@@ -457,15 +399,15 @@ export default function AnunciosFilters({
             >
               Preço mínimo
             </Typography>
-            <Fields.input
+            <Fields.numericInput
               widthType="full"
-              type="number"
+              prefix="R$"
+              format="currency"
               value={priceMinValue}
-              onChange={(e) => handlePriceChange("price_min", e.target.value)}
-              placeholder="R$ 0,00"
+              onChange={(v) => handlePriceChange("price_min", v)}
+              placeholder="0,00"
               disabled={isSubmitting}
               min={0}
-              step={0.01}
               tailWindClasses="rounded-3xl"
             />
           </div>
@@ -479,15 +421,15 @@ export default function AnunciosFilters({
             >
               Preço máximo
             </Typography>
-            <Fields.input
+            <Fields.numericInput
               widthType="full"
-              type="number"
+              prefix="R$"
+              format="currency"
               value={priceMaxValue}
-              onChange={(e) => handlePriceChange("price_max", e.target.value)}
-              placeholder="R$ 0,00"
+              onChange={(v) => handlePriceChange("price_max", v)}
+              placeholder="0,00"
               disabled={isSubmitting}
               min={0}
-              step={0.01}
               tailWindClasses="rounded-3xl"
             />
           </div>
@@ -501,15 +443,14 @@ export default function AnunciosFilters({
             >
               Estoque mínimo
             </Typography>
-            <Fields.input
+            <Fields.numericInput
               widthType="full"
-              type="number"
+              format="integer"
               value={stockMinValue}
-              onChange={(e) => handleStockChange("stock_min", e.target.value)}
+              onChange={(v) => handleStockChange("stock_min", v)}
               placeholder="0"
               disabled={isSubmitting}
               min={0}
-              step={1}
               tailWindClasses="rounded-3xl"
             />
           </div>
@@ -523,15 +464,14 @@ export default function AnunciosFilters({
             >
               Estoque máximo
             </Typography>
-            <Fields.input
+            <Fields.numericInput
               widthType="full"
-              type="number"
+              format="integer"
               value={stockMaxValue}
-              onChange={(e) => handleStockChange("stock_max", e.target.value)}
+              onChange={(v) => handleStockChange("stock_max", v)}
               placeholder="0"
               disabled={isSubmitting}
               min={0}
-              step={1}
               tailWindClasses="rounded-3xl"
             />
           </div>
@@ -553,16 +493,16 @@ export default function AnunciosFilters({
             >
               Qualidade mínima
             </Typography>
-            <Fields.input
+            <Fields.numericInput
               widthType="full"
-              type="number"
+              format="decimal"
+              decimalScale={2}
               value={healthScoreMinValue}
-              onChange={(e) => handleHealthScoreChange("health_score_min", e.target.value)}
+              onChange={(v) => handleHealthScoreChange("health_score_min", v)}
               placeholder="0"
               disabled={isSubmitting}
               min={0}
               max={100}
-              step={0.01}
               tailWindClasses="rounded-3xl"
             />
           </div>
@@ -576,16 +516,16 @@ export default function AnunciosFilters({
             >
               Qualidade máxima
             </Typography>
-            <Fields.input
+            <Fields.numericInput
               widthType="full"
-              type="number"
+              format="decimal"
+              decimalScale={2}
               value={healthScoreMaxValue}
-              onChange={(e) => handleHealthScoreChange("health_score_max", e.target.value)}
-              placeholder="100"
+              onChange={(v) => handleHealthScoreChange("health_score_max", v)}
+              placeholder="0"
               disabled={isSubmitting}
               min={0}
               max={100}
-              step={0.01}
               tailWindClasses="rounded-3xl"
             />
           </div>
@@ -599,16 +539,16 @@ export default function AnunciosFilters({
             >
               Experiência mínima
             </Typography>
-            <Fields.input
+            <Fields.numericInput
               widthType="full"
-              type="number"
+              format="decimal"
+              decimalScale={2}
               value={experienceScoreMinValue}
-              onChange={(e) => handleExperienceScoreChange("experience_score_min", e.target.value)}
+              onChange={(v) => handleExperienceScoreChange("experience_score_min", v)}
               placeholder="0"
               disabled={isSubmitting}
               min={0}
               max={100}
-              step={0.01}
               tailWindClasses="rounded-3xl"
             />
           </div>
@@ -622,16 +562,16 @@ export default function AnunciosFilters({
             >
               Experiência máxima
             </Typography>
-            <Fields.input
+            <Fields.numericInput
               widthType="full"
-              type="number"
+              format="decimal"
+              decimalScale={2}
               value={experienceScoreMaxValue}
-              onChange={(e) => handleExperienceScoreChange("experience_score_max", e.target.value)}
-              placeholder="100"
+              onChange={(v) => handleExperienceScoreChange("experience_score_max", v)}
+              placeholder="0"
               disabled={isSubmitting}
               min={0}
               max={100}
-              step={0.01}
               tailWindClasses="rounded-3xl"
             />
           </div>

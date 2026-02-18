@@ -9,7 +9,7 @@ export default function PlansSkeleton() {
       {skeletonPlans.map((_, idx) => (
         <div
           key={idx}
-          className="group relative w-full bg-beergam-white rounded-2xl shadow-lg/55 p-6 border-2 border-beergam-blue-light"
+          className="group relative w-full bg-beergam-section-background rounded-2xl shadow-lg/55 p-6 border-2 border-beergam-blue-light"
         >
           {/* Badge "Mais Popular" no meio (simulando o card do meio) */}
           {idx === 1 && (

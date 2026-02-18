@@ -136,8 +136,8 @@ export default function OrdersChart({
             justifyContent: "center",
             height: 320,
             borderRadius: 2,
-            border: "1px dashed rgba(0, 0, 0, 0.12)",
-            bgcolor: "rgba(0, 0, 0, 0.02)",
+            border: "1px dashed var(--color-beergam-typography-secondary)",
+            bgcolor: "var(--color-beergam-section-background)",
             p: 4,
           }}
         >

@@ -326,38 +326,36 @@ export default function SchedulingFormModal({
                               )}
                             </TableCell>
                             <TableCell align="right">
-                              <Fields.input
-                                type="number"
-                                value={item.quantity || ""}
-                                onChange={(e) =>
+                              <Fields.numericInput
+                                format="integer"
+                                value={item.quantity}
+                                onChange={(v) =>
                                   handleItemChange(
                                     index,
                                     "quantity",
-                                    parseInt(e.target.value) || 0
+                                    typeof v === "number" ? v : 0
                                   )
                                 }
                                 error={errors[`item_quantity_${index}`]}
                                 disabled={isLoading}
                                 tailWindClasses="w-20"
+                                min={1}
                               />
                             </TableCell>
                             <TableCell align="right">
-                              <Fields.input
-                                type="number"
-                                step="0.01"
-                                min="0.01"
-                                value={item.unity_price || ""}
-                                onChange={(e) => {
-                                  const value = e.target.value;
-                                  handleItemChange(index, "unity_price", value);
+                              <Fields.numericInput
+                                prefix="R$"
+                                format="currency"
+                                value={
+                                  typeof item.unity_price === "string"
+                                    ? parseFloat(item.unity_price) || undefined
+                                    : item.unity_price || undefined
+                                }
+                                onChange={(v) => {
+                                  const value = typeof v === "number" ? v : 0;
+                                  handleItemChange(index, "unity_price", String(value));
                                   // Validar em tempo real
-                                  const priceValue = parseFloat(value);
-                                  if (
-                                    value &&
-                                    (priceValue === 0 ||
-                                      isNaN(priceValue) ||
-                                      priceValue < 0)
-                                  ) {
+                                  if (value && (value === 0 || value < 0)) {
                                     setErrors({
                                       ...errors,
                                       [`item_price_${index}`]:
@@ -372,6 +370,7 @@ export default function SchedulingFormModal({
                                 error={errors[`item_price_${index}`]}
                                 disabled={isLoading}
                                 tailWindClasses="w-24"
+                                min={0.01}
                               />
                             </TableCell>
                             <TableCell align="right">
