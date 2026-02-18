@@ -453,28 +453,37 @@ export default function AnuncioCard({
 
         {/* Variações */}
         {hasVariations && (
-          <div>
+          <div className="rounded-xl overflow-hidden bg-beergam-section-background border border-beergam-input-border/30">
             <button
               type="button"
               onClick={() => setVariationsExpanded((p) => !p)}
-              className="flex w-full items-center gap-2 rounded-xl border border-beergam-blue/30 bg-beergam-primary-light/50 px-4 py-2.5 text-left hover:bg-beergam-primary-light/70 transition-colors dark:border-beergam-blue/40 dark:bg-beergam-section-background dark:hover:bg-beergam-mui-paper"
+              className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left hover:bg-beergam-hover transition-colors"
             >
+              <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center h-6 w-6 rounded-full bg-beergam-orange/15">
+                  <Svg.square_3_stack_solid tailWindClasses="h-3.5 w-3.5 text-beergam-orange" />
+                </div>
+                <span className="text-sm font-medium text-beergam-typography-primary">
+                  {anuncio.variations?.length} variaç
+                  {anuncio.variations?.length === 1 ? "ão" : "ões"}
+                </span>
+              </div>
               <Svg.chevron
-                tailWindClasses={`h-4 w-4 transition-transform ${variationsExpanded ? "rotate-90" : ""}`}
+                tailWindClasses={`h-4 w-4 text-beergam-typography-secondary transition-transform duration-200 ${variationsExpanded ? "rotate-90" : ""}`}
               />
-              <span className="text-sm font-medium text-beergam-typography-primary!">
-                Ver {anuncio.variations?.length} variaç
-                {anuncio.variations?.length === 1 ? "ão" : "ões"}
-              </span>
             </button>
-            {variationsExpanded && (
-              <div className="mt-3 border-t border-beergam-input-border/30 pt-3">
+            <div
+              className={`overflow-hidden transition-all duration-200 ease-in-out ${
+                variationsExpanded ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+              }`}
+            >
+              <div className="px-4 pb-4">
                 <VariationsList
                   variations={anuncio.variations || []}
                   anuncio={anuncio}
                 />
               </div>
-            )}
+            </div>
           </div>
         )}
       </div>
