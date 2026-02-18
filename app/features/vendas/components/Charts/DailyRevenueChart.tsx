@@ -80,7 +80,7 @@ export default function DailyRevenueChart({
         </div>
       )}
     >
-      <div className="space-y-3 md:space-y-4 bg-beergam-mui-paper p-4 rounded-lg">
+      <div className="space-y-3 md:space-y-4 bg-beergam-section-background! p-4 rounded-lg">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end gap-2 md:gap-4">
           <FilterDatePicker
             label="Período de Provisão"
@@ -91,11 +91,10 @@ export default function DailyRevenueChart({
         </div>
 
         {chartData.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 md:h-80 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+          <div className="flex flex-col items-center justify-center h-64 md:h-80 rounded-lg border border-dashed border-beergam-typography-secondary! bg-beergam-section-background! p-4">
             <Typography
               variant="body2"
-              color="text.secondary"
-              className="text-center text-sm md:text-base"
+              className="text-center text-sm md:text-base text-beergam-typography-secondary!"
             >
               Nenhum dado disponível para o período selecionado.
             </Typography>
@@ -112,21 +111,21 @@ export default function DailyRevenueChart({
                   bottom: 40,
                 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-beergam-typography-secondary)" />
                 <XAxis
                   dataKey="date"
-                  stroke="#64748b"
+                  stroke="var(--color-beergam-typography-secondary)"
                   fontSize={10}
-                  tick={{ fill: "#64748b" }}
+                  tick={{ fill: "var(--color-beergam-typography-secondary)" }}
                   angle={-45}
                   textAnchor="end"
                   height={60}
                   interval="preserveStartEnd"
                 />
                 <YAxis
-                  stroke="#64748b"
+                  stroke="var(--color-beergam-typography-secondary)"
                   fontSize={10}
-                  tick={{ fill: "#64748b" }}
+                  tick={{ fill: "var(--color-beergam-typography-secondary)" }}
                   tickFormatter={formatCurrency}
                   width={60}
                 />
@@ -142,6 +141,7 @@ export default function DailyRevenueChart({
                           borderRadius: "8px",
                           padding: "8px",
                           fontSize: "12px",
+                          color: "var(--color-beergam-typography-primary!)",
                         }}
                       >
                         <p
