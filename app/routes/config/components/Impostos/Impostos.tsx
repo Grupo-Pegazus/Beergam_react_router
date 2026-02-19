@@ -10,7 +10,7 @@ import type {
   MarketplaceType,
 } from "~/features/marketplace/typings";
 import authStore from "~/features/store-zustand";
-import { useUpsertTax, useUserTaxes } from "~/features/taxes/hooks";
+import { useSimulateTaxesByPeriod, useUpsertTax, useUserTaxes } from "~/features/taxes/hooks";
 import { taxesService } from "~/features/taxes/service";
 import {
   MonthKeys,
@@ -45,6 +45,7 @@ function getTaxValue(
 export default function Impostos() {
   const user = useAuthUser();
   const queryClient = useQueryClient();
+  const simulateTaxesByPeriod = useSimulateTaxesByPeriod();
   const recalc = useMutation({
     mutationFn: ({
       year,
@@ -118,7 +119,11 @@ export default function Impostos() {
     return calcTaxChanged || taxPercentFixedChanged;
   }, [user, calcTax, taxPercentFixed]);
 
-  const updateUserTaxSettings = useMutation({
+  const updateUserTaxSettings = useMutation<
+    ApiResponse<IUser>,
+    Error,
+    { calc_tax: string | null; tax_percent_fixed: string | null }
+  >({
     mutationFn: async (data: { calc_tax: string | null; tax_percent_fixed: string | null }) => {
       if (!user || !isMaster(user)) throw new Error("Usuário não encontrado ou não é master");
       // Envia apenas os campos de imposto para evitar erro de validação
@@ -128,7 +133,9 @@ export default function Impostos() {
           tax_percent_fixed: data.tax_percent_fixed,
         },
       };
-      const response = await userService.editUserInformation(payload as unknown as IUser);
+      const response = await userService.editUserInformation(
+        payload as unknown as IUser
+      );
       if (!response.success) {
         throw new Error(response.message || "Erro ao atualizar configurações de imposto");
       }
@@ -136,7 +143,8 @@ export default function Impostos() {
     },
     onSuccess: (data) => {
       if (data.data) {
-        authStore.getState().updateUserDetails(data.data);
+        // Em caso de sucesso a API sempre retorna um usuário válido
+        authStore.getState().updateUserDetails(data.data as unknown as IUser);
         toast.success("Configurações de imposto atualizadas com sucesso");
       }
     },
@@ -364,6 +372,211 @@ export default function Impostos() {
     }
     
     closeModal();
+  };
+
+  type OrderTaxPreview = {
+    old: Record<string, unknown>;
+    new: Record<string, unknown>;
+  };
+
+  const formatCurrency = (value: unknown): string => {
+    if (value === null || value === undefined || value === "") return "-";
+    const num = typeof value === "string" ? parseFloat(value) : Number(value);
+    if (isNaN(num)) return String(value);
+    return num.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+    });
+  };
+
+  const formatDate = (dateStr: unknown): string => {
+    if (!dateStr || typeof dateStr !== "string") return "-";
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return String(dateStr);
+    }
+  };
+
+  const getOrderValue = (order: Record<string, unknown>): number => {
+    const total = order.total_amount as number | string | undefined;
+    const paid = order.paid_amount as number | string | undefined;
+    const liquido = order.valor_liquido as number | string | undefined;
+    
+    if (total !== null && total !== undefined) {
+      return typeof total === "string" ? parseFloat(total) : total;
+    }
+    if (paid !== null && paid !== undefined) {
+      return typeof paid === "string" ? parseFloat(paid) : paid;
+    }
+    if (liquido !== null && liquido !== undefined) {
+      return typeof liquido === "string" ? parseFloat(liquido) : liquido;
+    }
+    return 0;
+  };
+
+  const openOrdersPreviewModal = (title: string, previews: OrderTaxPreview[]) => {
+    openModal(
+      <Alert type="info" onClose={closeModal}>
+        <div className="flex flex-col gap-3 w-full max-h-[60vh] overflow-y-auto">
+          <p className="text-beergam-typography-primary text-center text-sm">
+            {title}
+          </p>
+          {previews.length === 0 ? (
+            <p className="text-center text-beergam-typography-tertiary text-sm py-4">
+              Nenhum pedido encontrado para este período
+            </p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {previews.map((preview, index) => {
+                const orderId =
+                  (preview.new.order_id as string | number | undefined) ??
+                  (preview.old.order_id as string | number | undefined) ??
+                  `#${index + 1}`;
+                const dateClosed =
+                  preview.new.date_closed ?? preview.old.date_closed ?? null;
+                const oldTaxAmount =
+                  (preview.old.tax_amount as number | null | undefined) ?? null;
+                const newTaxAmount =
+                  (preview.new.tax_amount as number | null | undefined) ?? null;
+                const oldTaxPercentRaw = preview.old.tax_percentage;
+                const oldTaxPercentNum =
+                  oldTaxPercentRaw !== null && oldTaxPercentRaw !== undefined
+                    ? typeof oldTaxPercentRaw === "string"
+                      ? parseFloat(oldTaxPercentRaw)
+                      : Number(oldTaxPercentRaw)
+                    : null;
+                const oldTaxPercent =
+                  oldTaxPercentNum !== null && !isNaN(oldTaxPercentNum)
+                    ? oldTaxPercentNum
+                    : null;
+                const newTaxPercentRaw = preview.new.tax_percentage;
+                const newTaxPercentNum =
+                  newTaxPercentRaw !== null && newTaxPercentRaw !== undefined
+                    ? typeof newTaxPercentRaw === "string"
+                      ? parseFloat(newTaxPercentRaw)
+                      : Number(newTaxPercentRaw)
+                    : null;
+                const newTaxPercent =
+                  newTaxPercentNum !== null && !isNaN(newTaxPercentNum)
+                    ? newTaxPercentNum
+                    : null;
+                const oldValue = getOrderValue(preview.old);
+                const newValue = getOrderValue(preview.new);
+                const taxDiff =
+                  oldTaxAmount !== null && newTaxAmount !== null
+                    ? newTaxAmount - oldTaxAmount
+                    : newTaxAmount;
+                const hasChange = taxDiff !== null && taxDiff !== 0;
+
+                return (
+                  <div
+                    key={index}
+                    className="border border-beergam-input-border/20 rounded-md p-3 bg-beergam-section-background! flex flex-col gap-2"
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                      <div>
+                        <p className="font-medium text-beergam-typography-primary text-sm">
+                          Pedido {orderId}
+                        </p>
+                        {dateClosed && (
+                          <p className="text-xs text-beergam-typography-tertiary">
+                            Fechado em {formatDate(dateClosed)}
+                          </p>
+                        )}
+                      </div>
+                      {hasChange && taxDiff !== null && (
+                        <p
+                          className={`text-sm font-medium ${
+                            taxDiff >= 0 ? "text-beergam-primary" : "text-beergam-red-500"
+                          }`}
+                        >
+                          Diferença: {taxDiff >= 0 ? "+" : ""}
+                          {formatCurrency(taxDiff)}
+                        </p>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="border border-beergam-input-border/20 rounded-md p-2">
+                        <p className="text-xs text-beergam-typography-tertiary mb-1">
+                          Antes
+                        </p>
+                        <p>Valor: {formatCurrency(oldValue)}</p>
+                        <p>Imposto: {oldTaxAmount !== null ? formatCurrency(oldTaxAmount) : "-"}</p>
+                        <p>Alíquota: {oldTaxPercent !== null ? `${oldTaxPercent.toFixed(2)}%` : "-"}</p>
+                      </div>
+                      <div className="border border-beergam-input-border/20 rounded-md p-2">
+                        <p className="text-xs text-beergam-typography-tertiary mb-1">
+                          Depois
+                        </p>
+                        <p>Valor: {formatCurrency(newValue)}</p>
+                        <p>
+                          Imposto:{" "}
+                          {newTaxAmount !== null ? formatCurrency(newTaxAmount) : "-"}
+                        </p>
+                        <p>
+                          Alíquota:{" "}
+                          {newTaxPercent !== null ? `${newTaxPercent.toFixed(2)}%` : "-"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </Alert>,
+      {
+        title: "Preview de Impostos",
+      }
+    );
+  };
+
+  const handlePreviewOrdersForPeriod = async (month: string, year: number, taxValue: number) => {
+    if (!selectedAccount?.marketplace_shop_id) return;
+    if (taxValue < 0 || taxValue > 100) {
+      toast.error("A alíquota deve ser um número entre 0 e 100");
+      return;
+    }
+
+    const p = simulateTaxesByPeriod.mutateAsync({
+      year,
+      month: Number(month),
+      marketplace_shop_id: selectedAccount.marketplace_shop_id,
+      marketplace_type: selectedAccount.marketplace_type as MarketplaceType,
+      tax_rate: taxValue,
+    });
+
+    toast.promise(p, {
+      loading: "Gerando preview de pedidos...",
+      success: "Preview de pedidos gerado com sucesso",
+      error: (err: Error | ApiResponse<unknown>) =>
+        (err as Error).message ??
+        (err as ApiResponse<unknown>)?.message ??
+        "Erro ao gerar preview de pedidos",
+    });
+
+    const res = await p;
+    if (!res || !("data" in res) || !res.data) return;
+
+    const previewResponse = res as ApiResponse<{
+      orders: OrderTaxPreview[];
+    }>;
+    const orders = previewResponse.data ?? [];
+
+    openOrdersPreviewModal(
+      `Pedidos de ${TranslatedMonthKeys[month as MonthKey]} de ${year} (${orders.length} pedido${orders.length !== 1 ? "s" : ""})`,
+      orders
+    );
   };
   function ErrorContent({
     title,
@@ -677,6 +890,22 @@ export default function Impostos() {
                                   ) :<div className="flex items-center gap-2">
                                   <Loading size="16px" />
                                   <Hint message="O recálculo foi agendado e os pedidos terão seus impostos processados em breve." anchorSelect={`recalc-scheduled-${month}`} /> </div>}
+                                  <BeergamButton
+                                    animationStyle="slider"
+                                    icon="eye"
+                                    tooltip={{
+                                      id: `preview-${month}`,
+                                      content: "Ver preview de pedidos antes de recalcular",
+                                    }}
+                                    onClick={() => {
+                                      if (taxValue === null) return;
+                                      void handlePreviewOrdersForPeriod(
+                                        month,
+                                        year,
+                                        taxValue
+                                      );
+                                    }}
+                                  />
                                 </>
                               )}
                             </div>
