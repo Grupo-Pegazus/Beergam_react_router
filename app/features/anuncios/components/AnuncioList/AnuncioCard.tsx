@@ -290,7 +290,7 @@ export default function AnuncioCard({
               <p className="text-sm font-medium text-beergam-typography-primary! shrink-0">
                 Desempenho do anúncio
               </p>
-              <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
+              <div className="grid grid-cols-2 gap-4 flex-1 items-stretch min-h-0">
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-beergam-mui-paper border border-beergam-input-border/30 min-h-[100px]">
                   <Speedometer value={healthScore} size={44} />
                   <div className="min-w-0 flex-1">
@@ -308,13 +308,13 @@ export default function AnuncioCard({
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-beergam-mui-paper border border-beergam-input-border/30 min-h-[100px]">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-beergam-mui-paper border border-beergam-input-border/30 min-h-[100px]">
                   <Speedometer value={reputation?.value ?? 0} size={44} className="shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-beergam-typography-primary! mb-1">
+                    <p className="text-xs font-medium text-beergam-typography-primary!">
                       Experiência de compra
                     </p>
-                    <p className="text-sm font-medium text-beergam-typography-secondary! leading-relaxed">
+                    <p className="text-sm font-medium text-beergam-typography-secondary!">
                       {reputation?.text ?? anuncio.experience?.subtitles?.[0]?.text ?? (reputation?.value ?? 0 > 0 ? "Não disponível" : "Não disponível")}
                     </p>
                   </div>
@@ -520,6 +520,15 @@ export default function AnuncioCard({
             Ver no Mercado Livre
           </MenuItem>
         )}
+        <MenuItem
+          component={Link}
+          to={`https://www.mercadolivre.com.br/anuncios/${anuncio.mlb}/modificar`}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => setAnchorEl(null)}
+        >
+          Modificar no Mercado Livre
+        </MenuItem>
       </Menu>
     </MainCards>
   );

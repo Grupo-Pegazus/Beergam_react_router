@@ -31,6 +31,7 @@ export interface DatePickerBaseProps {
   disabled?: boolean;
   widthType?: "fit" | "full";
   className?: string;
+  defaultOpen?: boolean;
 }
 
 /** Props para modo full */

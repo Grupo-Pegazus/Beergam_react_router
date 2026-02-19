@@ -165,20 +165,17 @@ export default function HomeSummary() {
                 value={dateRange}
                 onChange={handleDateRangeChange}
                 widthType="full"
+                defaultOpen
               />
             </div>
           )}
         </div>
 
         {selectedPeriod === "custom" && (!dateRange?.start || !dateRange?.end) ? (
-          <div className="flex flex-col items-center justify-center min-h-[200px] rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              className="text-center text-sm md:text-base"
-            >
+          <div className="flex flex-col items-center justify-center min-h-[200px] rounded-lg border border-dashed border-beergam-typography-secondary! bg-beergam-section-background p-4">
+            <p className="text-center text-sm md:text-base text-beergam-typography-secondary!">
               Selecione o intervalo de datas para visualizar o resumo.
-            </Typography>
+            </p>
           </div>
         ) : (
           summaryData && (
