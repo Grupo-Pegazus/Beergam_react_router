@@ -12,6 +12,7 @@ interface FilterDateRangePickerProps {
   disabled?: boolean;
   placeholder?: string;
   widthType?: "fit" | "full";
+  defaultOpen?: boolean;
 }
 
 /**
@@ -25,6 +26,7 @@ export function FilterDateRangePicker({
   disabled = false,
   placeholder = "Selecione o período",
   widthType = "full",
+  defaultOpen = false,
 }: FilterDateRangePickerProps) {
   return (
     <DatePicker
@@ -35,6 +37,7 @@ export function FilterDateRangePicker({
       disabled={disabled}
       placeholder={placeholder}
       widthType={widthType}
+      defaultOpen={defaultOpen}
     />
   );
 }

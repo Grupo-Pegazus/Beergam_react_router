@@ -1,5 +1,5 @@
 import { Popover } from "@mui/material";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
 import { DatePickerDateRangePopover } from "./DatePickerPopover/DatePickerDateRange";
 import { DatePickerFullPopover } from "./DatePickerPopover/DatePickerFull";
@@ -45,9 +45,15 @@ function formatDisplaySingleMonth(value: string | null): string {
 }
 
 export function DatePicker(props: DatePickerProps) {
-  const { label, placeholder, disabled, widthType, className } = props;
+  const { label, placeholder, disabled, widthType, className, defaultOpen } = props;
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (defaultOpen && buttonRef.current && !disabled) {
+      setAnchorEl(buttonRef.current);
+    }
+  }, [defaultOpen, disabled]);
 
   const handleOpen = () => {
     if (!disabled) {
