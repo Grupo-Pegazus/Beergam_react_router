@@ -105,3 +105,31 @@ export function useRecalculatePeriod() {
     },
   });
 }
+
+export function useSimulateTaxesByPeriod() {
+  return useMutation<
+    ApiResponse<unknown>,
+    Error,
+    {
+      year: number;
+      month: number;
+      marketplace_shop_id: string;
+      marketplace_type: MarketplaceType;
+      tax_rate: number;
+    }
+  >({
+    mutationFn: async (payload) => {
+      const res = await taxesService.simulateTaxesByPeriod({
+        year: payload.year,
+        month: payload.month,
+        marketplace_shop_id: payload.marketplace_shop_id,
+        marketplace_type: payload.marketplace_type,
+        tax_rate: payload.tax_rate,
+      });
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao simular impostos para o período");
+      }
+      return res;
+    },
+  });
+}

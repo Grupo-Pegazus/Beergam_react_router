@@ -162,6 +162,42 @@ class TaxesService {
       } as ApiResponse<null>;
     }
   }
+
+  async simulateTaxesByPeriod(payload: {
+    year: number;
+    month: number;
+    marketplace_shop_id: string;
+    marketplace_type: MarketplaceType;
+    tax_rate: number;
+  }): Promise<ApiResponse<unknown>> {
+    try {
+      const response = await typedApiClient.post<unknown>(
+        "/v1/user_taxes/orders/taxes/by-period/simulator",
+        {
+          year: payload.year,
+          month: payload.month,
+          marketplace_shop_id: payload.marketplace_shop_id,
+          marketplace_type: payload.marketplace_type,
+          tax_rate: payload.tax_rate,
+        }
+      );
+      return response as ApiResponse<unknown>;
+    } catch (error: unknown) {
+      const maybe = error as {
+        response?: { data?: { message?: string; error_code?: number } };
+      };
+      const message =
+        maybe?.response?.data?.message ??
+        "Erro ao simular impostos para o período selecionado";
+      return {
+        success: false,
+        data: null,
+        message,
+        error_code: maybe?.response?.data?.error_code ?? 500,
+        error_fields: {},
+      } as ApiResponse<null>;
+    }
+  }
 }
 
 export const taxesService = new TaxesService();
