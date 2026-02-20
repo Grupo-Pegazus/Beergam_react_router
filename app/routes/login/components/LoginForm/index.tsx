@@ -99,8 +99,6 @@ export default function LoginForm({
     setValue("pin", null);
     setValue("email", null);
     setValue("userRole", userType);
-    setTurnstileToken("");
-    turnstileRef.current?.reset();
   }, [userType]);
 
   const onSubmit = (data: z.infer<typeof LoginFormSchema>) => {
