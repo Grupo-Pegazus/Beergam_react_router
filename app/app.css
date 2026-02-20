@@ -53,7 +53,7 @@
   --color-beergam-menu-background: var(--color-beergam-blue-primary);
   --color-beergam-layout-background: var(--color-beergam-white);
   --color-beergam-section-background: var(--color-beergam-white);
-  --color-beergam-section-border: var(--color-beergam-typography-secondary!/50);
+  --color-beergam-section-border: color-mix(in srgb, var(--color-beergam-typography-secondary) 50%, transparent);
   --color-beergam-input-background: var(--color-beergam-white);
   --color-beergam-input-border: var(--color-beergam-gray);
   --color-beergam-input-disabled-border: var(--color-beergam-gray-light);
@@ -166,7 +166,7 @@
   --color-beergam-secundary: var(--color-beergam-gray-blueish-dark);
   --color-beergam-menu-background: var(--color-beergam-gray-blueish-dark);
   --color-beergam-section-background: var(--color-beergam-gray-blueish-dark);
-  --color-beergam-section-border: var(--color-beergam-typography-secondary!/50);
+  --color-beergam-section-border: color-mix(in srgb, var(--color-beergam-typography-secondary) 50%, transparent);
   --color-beergam-layout-background: var(--color-beergam-gray-blueish);
   --color-beergam-typography-primary: var(--color-beergam-white);
   --color-beergam-typography-secondary: var(--color-beergam-gray-light);
