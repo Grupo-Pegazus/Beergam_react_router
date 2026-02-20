@@ -1,5 +1,6 @@
 ---
 description: Padrões da camada de serviço - classes de serviço e comunicação com API
+globs: **/service.ts, **/services/**/*.ts, **/*Service.ts, **/*service.ts
 alwaysApply: false
 ---
 

@@ -1,5 +1,6 @@
 ---
 description: Padrões para componentes React - estrutura, nomeação e boas práticas
+globs: **/*.tsx
 alwaysApply: false
 ---
 

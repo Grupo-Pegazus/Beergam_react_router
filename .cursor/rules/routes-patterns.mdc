@@ -1,5 +1,6 @@
 ---
 description: Padrões de rotas - React Router v7 file-based routing, loaders e actions
+globs: app/routes/**/route.tsx, app/routes/**/page.tsx, app/routes.ts, app/root.tsx, app/routes/**/layout.tsx
 alwaysApply: false
 ---
 

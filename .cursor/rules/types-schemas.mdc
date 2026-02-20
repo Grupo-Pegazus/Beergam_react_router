@@ -1,5 +1,6 @@
 ---
 description: Padrões de tipagem - interfaces, types e schemas Zod
+globs: **/typings.ts, **/typings/**/*.ts, **/types.ts, **/typing.ts, **/*.d.ts
 alwaysApply: false
 ---
 

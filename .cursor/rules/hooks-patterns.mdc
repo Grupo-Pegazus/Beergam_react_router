@@ -1,5 +1,6 @@
 ---
 description: Padrões de custom hooks - React Query, mutations e hooks de feature
+globs: **/hooks.ts, **/hooks/**/*.ts, **/hooks/**/*.tsx, **/use*.ts, **/use*.tsx
 alwaysApply: false
 ---
 

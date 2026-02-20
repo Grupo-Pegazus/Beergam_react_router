@@ -1,5 +1,6 @@
 ---
 description: Padrões de gerenciamento de estado - Zustand para cliente, TanStack Query para servidor
+globs: **/store-zustand/**/*.ts, **/store-zustand/**/*.tsx, **/context/**/*.tsx, **/*Context.tsx, **/*Provider.tsx, **/*store*.ts
 alwaysApply: false
 ---
 

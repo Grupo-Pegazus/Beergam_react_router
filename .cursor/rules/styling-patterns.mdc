@@ -1,5 +1,6 @@
 ---
 description: Padrões de estilização - Tailwind CSS 4, CSS Modules e MUI
+globs: **/*.css, **/*.module.css, **/theme/**/*.ts, **/*Theme*.ts, **/*Theme*.tsx, app/app.css, *.tsx
 alwaysApply: false
 ---
 

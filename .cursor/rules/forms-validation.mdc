@@ -1,5 +1,6 @@
 ---
 description: Padrões de formulários - React Hook Form + Zod validation
+globs: **/*Form*/**/*.tsx, **/*Form*/**/*.ts, **/*Form*.tsx, **/*form*.ts, **/*validation*.ts, **/*_fields/**/*.tsx
 alwaysApply: false
 ---
 
