@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import {
   Area,
   AreaChart,
@@ -8,13 +9,14 @@ import {
   YAxis,
 } from "recharts";
 import Svg from "~/src/assets/svgs/_index";
-import Grid from "~/src/components/ui/Grid";
 import StatCard from "~/src/components/ui/StatCard";
 import {
   CensorshipWrapper,
   ImageCensored,
 } from "~/src/components/utils/Censorship";
 import type { ClaimsInsights } from "../typings";
+import MainCards from "~/src/components/ui/MainCards";
+import Grid from "~/src/components/ui/Grid";
 
 interface ClaimsMetricsProps {
   insights?: ClaimsInsights;
@@ -39,12 +41,11 @@ export function ClaimsMetrics({ insights, loading }: ClaimsMetricsProps) {
   }));
 
   return (
-    <div className="bg-beergam-mui-paper border border-black/10 dark:border-white/10 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col gap-4 md:gap-6">
-      {/* Grid 2x2 ao invés de 4 em linha - disposição diferente */}
+    <MainCards className="flex flex-col gap-4">
       <Grid cols={{ base: 1, sm: 2 }} gap={4}>
         <CensorshipWrapper censorshipKey="reclamacoes_tempo_medio_resolucao">
           <StatCard
-            icon={<Svg.clock tailWindClasses="w-5 h-5" />}
+            icon={createElement(Svg.clock, { tailWindClasses: "w-5 h-5" })}
             title="Tempo médio de resolução"
             value={formatDays(insights?.avg_resolution_days)}
             loading={loading}
@@ -54,7 +55,7 @@ export function ClaimsMetrics({ insights, loading }: ClaimsMetricsProps) {
         </CensorshipWrapper>
         <CensorshipWrapper censorshipKey="reclamacoes_abertas">
           <StatCard
-            icon={<Svg.alert tailWindClasses="w-5 h-5" />}
+            icon={createElement(Svg.alert, { tailWindClasses: "w-5 h-5" })}
             title="Abertas"
             value={insights?.opened ?? "—"}
             loading={loading}
@@ -64,7 +65,7 @@ export function ClaimsMetrics({ insights, loading }: ClaimsMetricsProps) {
         </CensorshipWrapper>
         <CensorshipWrapper censorshipKey="reclamacoes_fechadas">
           <StatCard
-            icon={<Svg.check_circle tailWindClasses="w-5 h-5" />}
+            icon={createElement(Svg.check_circle, { tailWindClasses: "w-5 h-5" })}
             title="Fechadas"
             value={insights?.closed ?? "—"}
             loading={loading}
@@ -74,7 +75,7 @@ export function ClaimsMetrics({ insights, loading }: ClaimsMetricsProps) {
         </CensorshipWrapper>
         <CensorshipWrapper censorshipKey="reclamacoes_total_periodo">
           <StatCard
-            icon={<Svg.graph tailWindClasses="w-5 h-5" />}
+            icon={createElement(Svg.graph, { tailWindClasses: "w-5 h-5" })}
             title="Total no período"
             value={insights?.total ?? "—"}
             loading={loading}
@@ -83,8 +84,6 @@ export function ClaimsMetrics({ insights, loading }: ClaimsMetricsProps) {
           />
         </CensorshipWrapper>
       </Grid>
-
-      {/* Gráfico com 3 áreas (total, opened, closed) - layout diferente */}
       <div className="h-64 md:h-80 w-full">
         <ImageCensored className="w-full h-full" censorshipKey="reclamacoes_tendencia">
           <ResponsiveContainer width="100%" height="100%">
@@ -141,6 +140,6 @@ export function ClaimsMetrics({ insights, loading }: ClaimsMetricsProps) {
           </ResponsiveContainer>
         </ImageCensored>
       </div>
-    </div>
+    </MainCards>
   );
 }

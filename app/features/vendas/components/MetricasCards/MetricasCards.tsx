@@ -1,13 +1,14 @@
-import { createElement, memo, useCallback, useMemo, useState } from "react";
+import { createElement, useCallback, useMemo, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
-import SecondaryButton from "~/src/components/ui/SecondaryButton";
 import StatCard from "~/src/components/ui/StatCard";
 import { CensorshipWrapper } from "~/src/components/utils/Censorship";
+import { Fields } from "~/src/components/utils/_fields";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import { useOrdersMetrics } from "../../hooks";
 import MetricasCardsSkeleton from "./MetricasCardsSkeleton";
 import type { DeliveryStatusFilter } from "../Filters/types";
+import MainCards from "~/src/components/ui/MainCards";
 
 function createSvgIcon(iconName: keyof typeof Svg, className: string) {
   return createElement(Svg[iconName], {
@@ -17,36 +18,14 @@ function createSvgIcon(iconName: keyof typeof Svg, className: string) {
 
 type PeriodFilter = 0 | 1 | 7 | 15 | 30 | 90;
 
-const PERIOD_OPTIONS: { value: PeriodFilter; label: string }[] = [
-  { value: 0, label: "Hoje" },
-  { value: 1, label: "1 dia" },
-  { value: 7, label: "7 dias" },
-  { value: 15, label: "15 dias" },
-  { value: 30, label: "30 dias" },
-  { value: 90, label: "90 dias" },
+const PERIOD_SELECT_OPTIONS: { value: string; label: string }[] = [
+  { value: "0", label: "Hoje" },
+  { value: "1", label: "1 dia" },
+  { value: "7", label: "7 dias" },
+  { value: "15", label: "15 dias" },
+  { value: "30", label: "30 dias" },
+  { value: "90", label: "90 dias" },
 ];
-
-type PeriodButtonProps = {
-  option: { value: PeriodFilter; label: string };
-  isSelected: boolean;
-  onSelect: (value: PeriodFilter) => void;
-};
-
-const PeriodButton = memo(
-  ({ option, isSelected, onSelect }: PeriodButtonProps) => {
-    const handleClick = useCallback(() => {
-      onSelect(option.value);
-    }, [option.value, onSelect]);
-
-    return (
-      <SecondaryButton isSelected={isSelected} onSelect={handleClick}>
-        {option.label}
-      </SecondaryButton>
-    );
-  }
-);
-
-PeriodButton.displayName = "PeriodButton";
 
 type StatusCensorshipKey =
   | "vendas_resumo_status_prontas_para_enviar"
@@ -142,8 +121,8 @@ export default function MetricasCards({ onStatusCardClick }: MetricasCardsProps 
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodFilter>(90);
   const { data, isLoading, error } = useOrdersMetrics(selectedPeriod);
 
-  const handlePeriodChange = useCallback((period: PeriodFilter) => {
-    setSelectedPeriod(period);
+  const handlePeriodChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedPeriod(Number(event.target.value) as PeriodFilter);
   }, []);
 
   const ordersByStatus = useMemo(() => {
@@ -183,17 +162,18 @@ export default function MetricasCards({ onStatusCardClick }: MetricasCardsProps 
         </div>
       )}
     >
-      <div className="space-y-4 md:space-y-6">
-        {/* Filtros de período */}
-        <div className="flex flex-wrap gap-2">
-          {PERIOD_OPTIONS.map((option) => (
-            <PeriodButton
-              key={option.value}
-              option={option}
-              isSelected={selectedPeriod === option.value}
-              onSelect={handlePeriodChange}
+      <MainCards className="space-y-6 md:space-y-4">
+        {/* Filtro de período */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-start gap-2 md:gap-4">
+          <Fields.wrapper className="w-full sm:w-auto min-w-[200px]">
+            <Fields.label text="Período" />
+            <Fields.select
+              value={String(selectedPeriod)}
+              onChange={handlePeriodChange}
+              widthType="full"
+              options={PERIOD_SELECT_OPTIONS}
             />
-          ))}
+          </Fields.wrapper>
         </div>
 
         <div>
@@ -256,7 +236,7 @@ export default function MetricasCards({ onStatusCardClick }: MetricasCardsProps 
             })}
           </div>
         </div>
-      </div>
+      </MainCards>
     </AsyncBoundary>
   );
 }

@@ -8,6 +8,7 @@ import { CensorshipWrapper } from "~/src/components/utils/Censorship";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import { useOrdersMetrics } from "../../hooks";
 import type { DeliveryStatusFilter } from "../Filters/types";
+import MainCards from "~/src/components/ui/MainCards";
 
 function createSvgIcon(iconName: keyof typeof Svg, className: string) {
   return createElement(Svg[iconName], {
@@ -177,7 +178,7 @@ export default function VendasResumo() {
         </div>
       )}
     >
-      <div className="space-y-4 md:space-y-6">
+      <MainCards className="space-y-6 md:space-y-4">
         {/* Status rápidos */}
         <div>
           <h4 className="text-xs md:text-sm font-semibold text-beergam-typography-secondary mb-2 md:mb-3">
@@ -247,7 +248,7 @@ export default function VendasResumo() {
             })}
           </div>
         </div>
-      </div>
+      </MainCards>
     </AsyncBoundary>
   );
 }

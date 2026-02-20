@@ -15,6 +15,7 @@ import Loading from "~/src/assets/loading";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import Grid from "~/src/components/ui/Grid";
 import Section from "~/src/components/ui/Section";
+import MainCards from "~/src/components/ui/MainCards";
 // import SyncStatsCards from "~/features/produtos/components/StockSyncDashboard/SyncStatsCards";
 // import RecentActivitiesList from "~/features/produtos/components/StockSyncDashboard/RecentActivitiesList";
 // import RecommendationsList from "~/features/produtos/components/StockSyncDashboard/RecommendationsList";
@@ -57,6 +58,7 @@ export default function StockDashboardPage() {
             </div>
           )}
         >
+          <MainCards className="flex flex-col gap-4 justify-center">
           {stockDashboard && (
             <>
               <Grid cols={{ base: 1, lg: 1 }}>
@@ -122,6 +124,7 @@ export default function StockDashboardPage() {
               )}
             </>
           )}
+          </MainCards>
         </AsyncBoundary>
       </Section>
 

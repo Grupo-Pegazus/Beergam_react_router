@@ -3,7 +3,6 @@ import { Link } from "react-router";
 import { Stack, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import type { StockDashboardResponse } from "../../typings";
-import MainCards from "~/src/components/ui/MainCards";
 import ProductImage from "../ProductImage/ProductImage";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import PaginationBar from "~/src/components/ui/PaginationBar";
@@ -82,8 +81,7 @@ export default function LowStockProductsList({
               to={`/interno/produtos/estoque/${product.product_id}`}
               className="block"
             >
-              <MainCards className="hover:bg-beergam-primary-light/50 transition-colors h-full">
-                <div className="flex items-start gap-3 p-4">
+                <div className="flex items-start gap-3 p-4 bg-beergam-section-background! rounded-xl">
                   <ProductImage
                     imageUrl={mainImageUrl}
                     alt={product.title}
@@ -130,7 +128,6 @@ export default function LowStockProductsList({
                     )}
                   </div>
                 </div>
-              </MainCards>
             </Link>
           );
         })}

@@ -12,14 +12,13 @@ import {
 import type { ApiResponse } from "~/features/apiClient/typings";
 import { MarketplaceType } from "~/features/marketplace/typings";
 import authStore from "~/features/store-zustand";
-import Svg from "~/src/assets/svgs/_index";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
-import SecondaryButton from "~/src/components/ui/SecondaryButton";
-import StatCard from "~/src/components/ui/StatCard";
 import { ImageCensored } from "~/src/components/utils/Censorship";
+import { Fields } from "~/src/components/utils/_fields";
 import { metricsAccountService } from "../../service";
 import type { MarketplaceVisitsData } from "../../typings";
 import VisitasSkeleton from "./Skeleton";
+import MainCards from "~/src/components/ui/MainCards";
 
 type VisitsResponse = ApiResponse<MarketplaceVisitsData<MarketplaceType>>;
 
@@ -45,11 +44,11 @@ const formatDateForChart = (dateStr: string): string => {
 
 type PeriodFilter = 7 | 30 | 90 | 150;
 
-const PERIOD_OPTIONS: { value: PeriodFilter; label: string }[] = [
-  { value: 7, label: "7 dias" },
-  { value: 30, label: "30 dias" },
-  { value: 90, label: "90 dias" },
-  { value: 150, label: "150 dias" },
+const PERIOD_SELECT_OPTIONS: { value: string; label: string }[] = [
+  { value: "7", label: "7 dias" },
+  { value: "30", label: "30 dias" },
+  { value: "90", label: "90 dias" },
+  { value: "150", label: "150 dias" },
 ];
 
 // Configurações de estilo do gráfico (extraídas para evitar recriação)
@@ -256,28 +255,6 @@ const VisitsChart = memo(({ data, isMobile }: VisitsChartProps) => {
 
 VisitsChart.displayName = "VisitsChart";
 
-type PeriodButtonProps = {
-  option: { value: PeriodFilter; label: string };
-  isSelected: boolean;
-  onSelect: (value: PeriodFilter) => void;
-};
-
-const PeriodButton = memo(
-  ({ option, isSelected, onSelect }: PeriodButtonProps) => {
-    const handleClick = useCallback(() => {
-      onSelect(option.value);
-    }, [option.value, onSelect]);
-
-    return (
-      <SecondaryButton isSelected={isSelected} onSelect={handleClick}>
-        {option.label}
-      </SecondaryButton>
-    );
-  }
-);
-
-PeriodButton.displayName = "PeriodButton";
-
 const ErrorFallback = memo(() => (
   <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4">
     Não foi possível carregar os dados de visitas.
@@ -329,8 +306,8 @@ export default function Visitas() {
       }));
   }, [payload, selectedPeriod]);
 
-  const handlePeriodChange = useCallback((period: PeriodFilter) => {
-    setSelectedPeriod(period);
+  const handlePeriodChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedPeriod(Number(event.target.value) as PeriodFilter);
   }, []);
 
   const isMeliData = useMemo(() => isMeliVisits(payload), [payload]);
@@ -342,25 +319,20 @@ export default function Visitas() {
       Skeleton={VisitasSkeleton}
       ErrorFallback={ErrorFallback}
     >
-      <StatCard
-        icon={<Svg.graph tailWindClasses="w-5 h-5" />}
-        title="Visitas"
-        variant="soft"
-      >
+      <MainCards className="flex flex-col gap-4 justify-center">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-start gap-2 md:gap-4">
+        <Fields.wrapper className="w-full sm:w-auto min-w-[200px]">
+          <Fields.label text="Período" />
+          <Fields.select
+            value={String(selectedPeriod)}
+            onChange={handlePeriodChange}
+            widthType="full"
+            options={PERIOD_SELECT_OPTIONS}
+          />
+        </Fields.wrapper>
+      </div>
         {isMeliData ? (
-          <div className="mt-3 sm:mt-4 space-y-3 sm:space-y-4">
-            {/* Botões de filtro */}
-            <div className="flex flex-wrap gap-1.5 sm:gap-2 -mx-1 sm:mx-0 px-1 sm:px-0">
-              {PERIOD_OPTIONS.map((option) => (
-                <PeriodButton
-                  key={option.value}
-                  option={option}
-                  isSelected={selectedPeriod === option.value}
-                  onSelect={handlePeriodChange}
-                />
-              ))}
-            </div>
-
+          <>
             {/* Gráfico */}
             <ImageCensored
               className="w-full h-full min-h-56"
@@ -372,13 +344,13 @@ export default function Visitas() {
                 isMobile={isMobile}
               />
             </ImageCensored>
-          </div>
+          </>
         ) : (
           <p className="text-xs sm:text-sm text-[#475569] mt-3">
             Sem dados de visitas disponíveis.
           </p>
         )}
-      </StatCard>
+        </MainCards>
     </AsyncBoundary>
   );
 }

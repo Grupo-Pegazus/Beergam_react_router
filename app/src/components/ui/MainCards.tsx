@@ -9,7 +9,7 @@ interface MainCardsProps {
 
 export default function MainCards({ children, className, onClick }: MainCardsProps) {
     return (
-        <Paper className={`w-full min-w-0 overflow-hidden ${className || ""}`} onClick={onClick}>
+        <Paper className={`w-full min-w-0 overflow-hidden p-4 ${className || ""}`} onClick={onClick}>
             {children}
         </Paper>
     );

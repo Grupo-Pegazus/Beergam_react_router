@@ -205,7 +205,7 @@ export default function VendasPage() {
               className="w-full h-full min-h-56"
               censorshipKey="vendas_faturamento_diario"
             >
-              <DailyRevenueChart days={30} />
+              <DailyRevenueChart />
             </ImageCensored>
           </Grid>
         </Section>
@@ -213,14 +213,12 @@ export default function VendasPage() {
 
       <CensorshipWrapper censorshipKey="vendas_distribuicao_geografica">
         <Section title="Distribuição Geográfica">
-          <Paper className="grid gap-4">
             <ImageCensored
               className="w-max-w-screen h-full min-h-56"
               censorshipKey="vendas_distribuicao_geografica"
             >
               <GeographicMap period="last_90_days" />
             </ImageCensored>
-          </Paper>
         </Section>
       </CensorshipWrapper>
       <CensorshipWrapper censorshipKey="vendas_orders_list" controlChildren>

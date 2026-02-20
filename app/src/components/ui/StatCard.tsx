@@ -159,7 +159,7 @@ export default function StatCard({
   maintainColor = false,
   children,
   censorshipKey,
-  bgColor = "beergam-mui-paper",
+  bgColor = "beergam-section-background",
   input,
 }: StatCardProps) {
   const tokens = colorTokens(color, variant);

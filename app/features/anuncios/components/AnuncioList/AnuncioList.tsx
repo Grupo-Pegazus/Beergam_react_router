@@ -104,7 +104,7 @@ export default function AnunciosList({ filters = {}, syncPageWithUrl = false }: 
         >
           <Stack spacing={2}>
             {anuncios.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-beergam-typography-secondary!/50 bg-beergam-typography-secondary!/10 p-10 text-center">
+              <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-beergam-section-border p-10 text-center text-beergam-typography-secondary!">
                 <span className="text-beergam-typography-secondary!">
                   <Svg.information_circle tailWindClasses="h-10 w-10" />
                 </span>
