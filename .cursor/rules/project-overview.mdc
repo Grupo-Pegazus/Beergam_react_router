@@ -1,0 +1,53 @@
+---
+description: Visão geral do projeto Beergam - arquitetura, stack e convenções fundamentais
+alwaysApply: true
+---
+
+# Beergam - Visão Geral do Projeto
+
+## Stack Tecnológica
+
+- **Framework**: React 19 + React Router 7 (file-based routing, SSR)
+- **Linguagem**: TypeScript 5.8 (strict mode)
+- **Build**: Vite 6
+- **Estado global**: Zustand 5 (client state, persistência encriptada)
+- **Estado servidor**: TanStack Query 5 (cache, refetch, mutations)
+- **UI**: Tailwind CSS 4 + MUI 7 + Emotion
+- **Forms**: React Hook Form 7 + Zod 4
+- **HTTP**: Axios via `TypedApiClient`
+- **Notificações**: react-hot-toast
+- **Deploy**: Vercel
+
+## Arquitetura de Pastas
+
+```
+app/
+├── routes/           # Rotas file-based (React Router v7)
+├── features/         # Módulos de domínio (vendas, produtos, anuncios, auth...)
+│   └── {feature}/
+│       ├── components/   # Componentes da feature
+│       ├── hooks.ts      # React Query hooks
+│       ├── service.ts    # Camada de serviço (classe)
+│       └── typings.ts    # Tipos e schemas Zod
+├── src/
+│   ├── components/   # Componentes compartilhados (ui/, utils/, filters/)
+│   ├── utils/        # Utilitários globais (formatters, toast)
+│   └── theme/        # Configuração MUI Theme
+└── lib/              # Configurações de bibliotecas
+```
+
+## Convenções Fundamentais
+
+- **Path alias**: use `~/` para importar de `app/` (ex: `~/features/vendas/hooks`)
+- **Idioma do código**: inglês para nomes de variáveis, funções, tipos e props
+- **Idioma do usuário**: português para mensagens, labels, textos de UI e toasts
+- **Exports**: `default export` para componentes, `named export` para hooks e utils
+- **Sem testes**: o projeto não possui testes automatizados atualmente
+
+## Princípios de Código
+
+1. **Single Responsibility**: cada arquivo/classe/função tem UMA responsabilidade
+2. **Feature-first**: lógica de domínio vive em `features/`, UI compartilhada em `src/components/`
+3. **Type Safety**: toda API, prop e estado deve ser tipado — nunca use `any`
+4. **Composição sobre herança**: prefira hooks e composição de componentes
+5. **DRY com cautela**: abstraia apenas quando houver 3+ repetições reais

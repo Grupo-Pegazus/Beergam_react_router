@@ -1,0 +1,80 @@
+---
+description: Qualidade de código - anti-patterns, SOLID e boas práticas gerais
+alwaysApply: true
+---
+
+# Qualidade de Código
+
+## Anti-Patterns (NUNCA faça)
+
+```tsx
+// ❌ any
+const data: any = response.data;
+
+// ✅ Tipagem correta
+const data: ApiResponse<Order> = response.data;
+```
+
+```tsx
+// ❌ Lógica de negócio no componente
+export default function OrderList() {
+    const [orders, setOrders] = useState([]);
+    useEffect(() => {
+        axios.get("/v1/orders").then((res) => setOrders(res.data));
+    }, []);
+}
+
+// ✅ Delegue para hooks
+export default function OrderList() {
+    const { data, isLoading } = useOrders();
+}
+```
+
+```tsx
+// ❌ Props drilling profundo (3+ níveis)
+<Parent user={user}>
+    <Child user={user}>
+        <GrandChild user={user} />
+    </Child>
+</Parent>;
+
+// ✅ Use Zustand ou Context
+const user = authStore.use.user();
+```
+
+## Princípios SOLID no React
+
+- **S**: Um componente = uma responsabilidade. Se tem form + lista + filtro, separe.
+- **O**: Componentes extensíveis via props/children, não por modificação interna.
+- **L**: Componentes substituíveis — um `Button` genérico aceita qualquer handler.
+- **I**: Props específicas. Não passe um objeto inteiro se só usa 2 campos.
+- **D**: Componentes dependem de abstrações (hooks), não de implementações (axios).
+
+## Object Calisthenics (Adaptado)
+
+1. **Um nível de indentação por método**: extraia funções auxiliares
+2. **Não use `else`**: retorne early ou use ternários / switch
+3. **Encapsule primitivos**: use tipos semânticos (`OrderId` vs `string`)
+4. **Coleções first-class**: encapsule arrays em tipos nomeados
+5. **Um ponto por linha**: evite chains longos — quebre em variáveis
+6. **Nomes significativos**: `handleOrderStatusChange` > `handleClick`
+7. **Entidades pequenas**: componentes < 150 linhas, funções < 30 linhas
+
+## Imports
+
+```typescript
+// 1. Type imports
+import type { Order } from "~/features/vendas/typings";
+
+// 2. Bibliotecas externas
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+
+// 3. Imports internos (alias ~/)
+import { useOrders } from "~/features/vendas/hooks";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+```
+
+- Use `~/` para imports — nunca use caminhos relativos com mais de 1 nível (`../../`)
+- Separe `import type` de imports de valor
+- Agrupe: tipos → libs externas → internos

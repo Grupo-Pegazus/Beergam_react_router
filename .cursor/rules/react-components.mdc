@@ -1,0 +1,62 @@
+---
+description: Padrões para componentes React - estrutura, nomeação e boas práticas
+alwaysApply: false
+---
+
+# Componentes React
+
+## Estrutura de Arquivo
+
+Cada componente segue esta ordem interna:
+
+1. Imports (tipos primeiro, depois libs, depois internos)
+2. Interface de props (se necessário)
+3. Componente funcional (arrow function com default export)
+4. Sub-componentes internos (se pequenos e acoplados)
+
+```tsx
+import type { Order } from "~/features/vendas/typings";
+import { useState } from "react";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+
+interface OrderCardProps {
+    order: Order;
+    onSelect: (id: string) => void;
+}
+
+export default function OrderCard({ order, onSelect }: OrderCardProps) {
+    // hooks primeiro
+    const [expanded, setExpanded] = useState(false);
+
+    // handlers
+    const handleClick = () => onSelect(order.id);
+
+    // render
+    return <div onClick={handleClick}>...</div>;
+}
+```
+
+## Convenções de Nomeação
+
+- **Componentes**: PascalCase (`OrderCard.tsx`, `ProductForm.tsx`)
+- **Pastas de componente**: PascalCase (`OrderList/`, `AnuncioCard/`)
+- **Barrel exports**: `index.tsx` para export principal da pasta
+- **Skeletons**: sufixo `Skeleton` (`OrderListSkeleton.tsx`)
+- **Props interface**: sufixo `Props` (`OrderCardProps`)
+
+## Organização de Componentes
+
+- **Feature-specific**: `app/features/{feature}/components/{Component}/`
+- **Compartilhados**: `app/src/components/ui/` (primitivos) e `app/src/components/utils/` (utilitários)
+- **Filtros**: `app/src/components/filters/`
+
+## Regras
+
+- Use functional components (nunca class components)
+- Extraia lógica complexa para custom hooks
+- Props com mais de 3 propriedades → interface nomeada (não inline)
+- Componentes com mais de 150 linhas → divida em sub-componentes
+- Use `default export` para o componente principal do arquivo
+- Loading states → crie um componente `*Skeleton.tsx` dedicado
+- Nunca manipule DOM diretamente — use refs quando necessário
+- Atente-se na hora de estilizar, use sempre que possível cores do `app.css` para se encaixar na mudança de tema

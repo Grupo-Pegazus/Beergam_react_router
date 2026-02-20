@@ -1,0 +1,69 @@
+---
+description: Padrões de custom hooks - React Query, mutations e hooks de feature
+alwaysApply: false
+---
+
+# Custom Hooks
+
+## Query Hooks (leitura de dados)
+
+```typescript
+import { useQuery } from "@tanstack/react-query";
+import type { ApiResponse } from "~/features/apiClient/client";
+import { featureService } from "./service";
+import type { ResourceResponse, ResourceFilters } from "./typings";
+
+export function useResource(filters?: Partial<ResourceFilters>) {
+    return useQuery<ApiResponse<ResourceResponse>>({
+        queryKey: ["resource", filters],
+        queryFn: async () => {
+            const res = await featureService.getResource(filters);
+            if (!res.success) {
+                throw new Error(res.message || "Erro ao buscar recurso");
+            }
+            return res;
+        },
+        staleTime: 1000 * 60 * 5,
+    });
+}
+```
+
+## Mutation Hooks (escrita de dados)
+
+```typescript
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+
+export function useUpdateResource() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (payload: UpdatePayload) => {
+            const res = await featureService.updateResource(payload);
+            if (!res.success)
+                throw new Error(res.message || "Erro ao atualizar");
+            return res;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["resource"] });
+            toast.success("Recurso atualizado com sucesso");
+        },
+        onError: (error: unknown) => {
+            const message =
+                error instanceof Error ? error.message : "Erro desconhecido";
+            toast.error(message);
+        },
+    });
+}
+```
+
+## Regras
+
+- Prefixo `use` obrigatório (`useOrders`, `useCreateProduct`)
+- Um arquivo `hooks.ts` por feature — agrupa todos os hooks da feature
+- Query hooks: inclua `queryKey` semântico com filtros como dependência
+- Mutation hooks: sempre invalide queries relacionadas no `onSuccess`
+- Feedback ao usuário: use `toast.success()` e `toast.error()` dentro dos hooks
+- Verifique `res.success` antes de retornar — lance `Error` se falhou
+- Tipagem: use generics `useQuery<ApiResponse<T>>` explicitamente
+- Hooks de UI (estado local, refs) → coloque no componente ou em hook separado
+- Nunca chame services diretamente nos componentes — sempre via hooks

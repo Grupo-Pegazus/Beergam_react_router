@@ -1,0 +1,60 @@
+---
+description: Checklist para criação de novas features - garante consistência na arquitetura
+alwaysApply: true
+---
+
+# Checklist de Nova Feature
+
+Ao criar uma nova feature, siga esta estrutura:
+
+## 1. Criar Estrutura de Pastas
+
+```
+app/features/{nova-feature}/
+├── components/
+│   └── {Component}/
+│       ├── {Component}.tsx
+│       └── {Component}Skeleton.tsx
+├── hooks.ts
+├── service.ts
+└── typings.ts
+```
+
+## 2. Definir Tipos (`typings.ts`)
+
+- Crie interfaces com prefixo `I` para modelos de domínio
+- Crie Zod schemas para validação runtime
+- Crie tipos de filtro (`{Feature}Filters`)
+- Crie tipo de resposta (`{Feature}Response`)
+
+## 3. Implementar Service (`service.ts`)
+
+- Classe com métodos async retornando `ApiResponse<T>`
+- Exporte instância singleton
+- Use `typedApiClient` para chamadas HTTP
+
+## 4. Criar Hooks (`hooks.ts`)
+
+- Query hooks para leitura (com `queryKey` semântico)
+- Mutation hooks para escrita (com invalidação e toast)
+- Hooks de filtro se necessário
+
+## 5. Criar Rota (se aplicável)
+
+```
+app/routes/{rota}/
+├── route.tsx      # Roteamento e params
+├── page.tsx       # Composição da página
+└── components/    # Componentes específicos da rota
+```
+
+## 6. Verificações Finais
+
+- [ ] Todos os tipos estão definidos (sem `any`)
+- [ ] Service usa `typedApiClient`
+- [ ] Hooks verificam `res.success` antes de retornar
+- [ ] Mutations invalidam queries e mostram toasts
+- [ ] Componentes usam Skeletons para loading
+- [ ] Estilização com Tailwind (sem inline styles)
+- [ ] Imports usam alias `~/` (não caminhos relativos longos)
+- [ ] Utilizar coloração baseada no arquivo `app.css`, para o sistema se adaptar aos themas na criação dos componentes

@@ -1,0 +1,52 @@
+---
+description: Padrões de gerenciamento de estado - Zustand para cliente, TanStack Query para servidor
+alwaysApply: false
+---
+
+# Gerenciamento de Estado
+
+## Separação Clara
+
+| Tipo de Estado             | Ferramenta                | Exemplo                               |
+| -------------------------- | ------------------------- | ------------------------------------- |
+| Estado do servidor (API)   | TanStack Query            | Pedidos, produtos, anúncios           |
+| Estado global do cliente   | Zustand                   | Auth, user, subscription, marketplace |
+| Estado local do componente | `useState` / `useReducer` | Toggles, modais, formulários          |
+
+## Zustand Store
+
+```typescript
+import { create } from "zustand";
+import { createSelectors } from "./createSelectors";
+
+interface IFeatureStore {
+    data: Data | null;
+    setData: (data: Data) => void;
+    reset: () => void;
+}
+
+const useFeatureStoreBase = create<IFeatureStore>((set) => ({
+    data: null,
+    setData: (data) => set({ data }),
+    reset: () => set({ data: null }),
+}));
+
+export const featureStore = createSelectors(useFeatureStoreBase);
+```
+
+**Acesso via seletores auto-gerados:**
+
+```typescript
+const user = authStore.use.user();
+const marketplace = authStore.use.marketplace();
+```
+
+## Regras
+
+- Nunca misture estado do servidor em Zustand — use TanStack Query
+- Zustand: apenas para estado que NÃO vem de API (auth, preferências, UI global)
+- TanStack Query: toda data que vem do backend (`queryKey` semântico + `staleTime`)
+- Use `createSelectors` para acesso granular ao Zustand (evita re-renders)
+- Persistência: use `createEncryptedStorage` para dados sensíveis
+- Nunca acesse stores dentro de services — passe dados como parâmetro
+- React Query `invalidateQueries`: invalide ao mutar dados (não force refetch manual)

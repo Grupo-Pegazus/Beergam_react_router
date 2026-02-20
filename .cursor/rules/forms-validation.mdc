@@ -1,0 +1,70 @@
+---
+description: Padrões de formulários - React Hook Form + Zod validation
+alwaysApply: false
+---
+
+# Formulários e Validação
+
+## Setup Base
+
+```tsx
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const FormSchema = z.object({
+    email: z.string().email("Email inválido"),
+    name: z.string().min(3, "Mínimo 3 caracteres"),
+});
+
+type FormData = z.infer<typeof FormSchema>;
+
+export default function MyForm() {
+    const form = useForm<FormData>({
+        resolver: zodResolver(FormSchema),
+        defaultValues: { email: "", name: "" },
+    });
+
+    const onSubmit = (data: FormData) => {
+        mutation.mutate(data);
+    };
+
+    return (
+        <FormProvider {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>{/* campos */}</form>
+        </FormProvider>
+    );
+}
+```
+
+## Validação Multi-step
+
+```typescript
+export function validateStep(
+    stepId: string,
+    data: unknown,
+): { isValid: boolean; errors: Record<string, string> } {
+    const schema = getSchemaForStep(stepId);
+    const result = schema.safeParse(data);
+
+    if (result.success) return { isValid: true, errors: {} };
+
+    const errors: Record<string, string> = {};
+    result.error.issues.forEach((issue) => {
+        const path = issue.path.join(".");
+        if (path && issue.message) errors[path] = issue.message;
+    });
+    return { isValid: false, errors };
+}
+```
+
+## Regras
+
+- Sempre use `zodResolver` com React Hook Form — nunca valide manualmente
+- Schemas de validação: defina próximo ao form ou em `typings.ts` da feature
+- Use `FormProvider` para forms com campos em componentes filhos
+- Mensagens de erro em português brasileiro
+- Multi-step: valide cada step antes de avançar com `safeParse()`
+- Submissão: delegue para mutation hooks — nunca chame services no form
+- `defaultValues`: sempre defina para evitar inputs uncontrolled
+- Campos reutilizáveis: `app/src/components/utils/_fields/`
