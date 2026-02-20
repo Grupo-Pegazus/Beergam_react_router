@@ -24,13 +24,11 @@ export default function CalculatorForm({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-beergam-mui-paper p-5 rounded-lg border border-beergam-section-border shadow-sm">
-        <MarketplaceSelector
-          value={formData.calculatorType}
-          onChange={(value) => updateField("calculatorType", value)}
-        />
-      </div>
+    <>
+      <MarketplaceSelector
+        value={formData.calculatorType}
+        onChange={(value) => updateField("calculatorType", value)}
+      />
 
       {formData.calculatorType === "ml" && (
         <MeliProductLinkSection
@@ -108,6 +106,6 @@ export default function CalculatorForm({
           }
         />
       </div>
-    </div>
+    </>
   );
 }

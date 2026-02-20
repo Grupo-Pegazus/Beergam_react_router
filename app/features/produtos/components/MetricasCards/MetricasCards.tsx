@@ -4,6 +4,7 @@ import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import StatCard from "~/src/components/ui/StatCard";
 import { useProductsMetrics } from "../../hooks";
 import MetricasCardsSkeleton from "./MetricasCardsSkeleton";
+import MainCards from "~/src/components/ui/MainCards";
 
 interface SummaryCardDefinition {
   key: keyof typeof defaultMetrics;
@@ -84,7 +85,7 @@ export default function MetricasCards() {
         </div>
       )}
     >
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <MainCards className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {SUMMARY_CARDS.map((card) => (
           <StatCard
             key={card.key}
@@ -102,7 +103,7 @@ export default function MetricasCards() {
             ].join(" ")}
           />
         ))}
-      </div>
+      </MainCards>
     </AsyncBoundary>
   );
 }

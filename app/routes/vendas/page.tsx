@@ -1,4 +1,6 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
+import dayjs from "dayjs";
 import DailyRevenueChart from "~/features/vendas/components/Charts/DailyRevenueChart";
 import GeographicMap from "~/features/vendas/components/Charts/GeographicMap";
 import MetricasCards from "~/features/vendas/components/MetricasCards/MetricasCards";
@@ -19,6 +21,8 @@ import {
 import { useModal } from "~/src/components/utils/Modal/useModal";
 import toast from "~/src/utils/toast";
 import ExportHistoryModal from "~/features/vendas/components/ExportHistoryModal/ExportHistoryModal";
+import type { DeliveryStatusFilter } from "~/features/vendas/components/Filters/types";
+import { dateStringToISO } from "~/src/utils/date";
 
 type ReprocessOrdersByPeriodModalProps = {
   onConfirm: (params: { date_from: string; date_to: string }) => void;
@@ -81,11 +85,34 @@ function ReprocessOrdersByPeriodModal({
 }
 
 export default function VendasPage() {
+  const [searchParams] = useSearchParams();
   const { filters, setFilters, resetFilters, apiFilters, filtersForExport, applyFilters } =
     useVendasFilters();
   const reprocessByPeriodMutation = useReprocessOrdersByPeriod();
   const createExportMutation = useCreateExport();
   const { openModal, closeModal } = useModal();
+
+  useEffect(() => {
+    const deliveryStatusFilter = searchParams.get("deliveryStatusFilter") as DeliveryStatusFilter | null;
+    if (deliveryStatusFilter) {
+      const filtersFromUrl: VendasFiltersState = {
+        ...filters,
+        deliveryStatusFilter,
+        shipment_status: deliveryStatusFilter,
+      };
+      setFilters(filtersFromUrl);
+      applyFilters(filtersFromUrl);
+
+      const scrollTimer = setTimeout(() => {
+        const pedidosSection = document.getElementById("pedidos-section");
+        if (pedidosSection) {
+          pedidosSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 300);
+
+      return () => clearTimeout(scrollTimer);
+    }
+  }, []);
 
   const handleFiltersChange = useCallback(
     (next: VendasFiltersState) => {
@@ -124,6 +151,40 @@ export default function VendasPage() {
     });
   }, [openModal, closeModal]);
 
+  const handleApplyFilterAndScroll = useCallback(
+    (deliveryStatusFilter: DeliveryStatusFilter, periodDays: number) => {
+      // Calcula as datas baseado no período selecionado
+      const today = dayjs().endOf("day");
+      const dateFrom = periodDays === 0 
+        ? today.startOf("day")
+        : today.subtract(periodDays, "day").startOf("day");
+      
+      const dateFromISO = dateStringToISO(dateFrom.format("YYYY-MM-DD"));
+      const dateToISO = dateStringToISO(today.format("YYYY-MM-DD"));
+
+      const newFilters: VendasFiltersState = {
+        ...filters,
+        deliveryStatusFilter,
+        shipment_status: deliveryStatusFilter,
+        dateCreatedFrom: dateFromISO,
+        date_created_from: dateFromISO,
+        dateCreatedTo: dateToISO,
+        date_created_to: dateToISO,
+      };
+      setFilters(newFilters);
+      applyFilters(newFilters);
+
+      // Scroll suave até a seção de pedidos
+      setTimeout(() => {
+        const pedidosSection = document.getElementById("pedidos-section");
+        if (pedidosSection) {
+          pedidosSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
+    },
+    [filters, setFilters, applyFilters]
+  );
+
   return (
     <>
       <CensorshipWrapper controlChildren censorshipKey="vendas_resumo">
@@ -131,7 +192,7 @@ export default function VendasPage() {
           title="Resumo"
         >
           <Grid cols={{ base: 1 }}>
-            <MetricasCards />
+            <MetricasCards onStatusCardClick={handleApplyFilterAndScroll} />
           </Grid>
         </Section>
       </CensorshipWrapper>
@@ -144,7 +205,7 @@ export default function VendasPage() {
               className="w-full h-full min-h-56"
               censorshipKey="vendas_faturamento_diario"
             >
-              <DailyRevenueChart days={30} />
+              <DailyRevenueChart />
             </ImageCensored>
           </Grid>
         </Section>
@@ -152,19 +213,18 @@ export default function VendasPage() {
 
       <CensorshipWrapper censorshipKey="vendas_distribuicao_geografica">
         <Section title="Distribuição Geográfica">
-          <Paper className="grid gap-4">
             <ImageCensored
               className="w-max-w-screen h-full min-h-56"
               censorshipKey="vendas_distribuicao_geografica"
             >
               <GeographicMap period="last_90_days" />
             </ImageCensored>
-          </Paper>
         </Section>
       </CensorshipWrapper>
       <CensorshipWrapper censorshipKey="vendas_orders_list" controlChildren>
-        <Section title="Pedidos">
-          <div className="flex flex-col md:flex-row justify-end gap-2 mb-4">
+        <div id="pedidos-section">
+          <Section title="Pedidos">
+            <div className="flex flex-col md:flex-row justify-end gap-2 mb-4">
             <BeergamButton
               title="Histórico de Exportações"
               mainColor="beergam-blue"
@@ -195,7 +255,8 @@ export default function VendasPage() {
             onSubmit={() => applyFilters(filters)}
           />
           <OrderList filters={apiFilters} syncPageWithUrl />
-        </Section>
+          </Section>
+        </div>
       </CensorshipWrapper>
     </>
   );

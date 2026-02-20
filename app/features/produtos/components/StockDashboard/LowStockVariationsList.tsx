@@ -39,10 +39,9 @@ export default function LowStockVariationsList({
                 ? `/interno/produtos/estoque/${variation.product_id}?variation=${variation.variation_id}`
                 : "#"
             }
-            className="block"
+            className="block bg-beergam-section-background!"
           >
-            <MainCards className="hover:bg-beergam-primary-light/50 transition-colors h-full">
-              <div className="p-4 space-y-2">
+              <div className="p-4 space-y-2 bg-beergam-section-background!">
                 <div>
                   <p className="text-sm font-semibold text-beergam-typography-primary!">
                     {variation.title}
@@ -97,7 +96,6 @@ export default function LowStockVariationsList({
                     </BeergamAlert>
                 )}
               </div>
-            </MainCards>
           </Link>
         );
       })}

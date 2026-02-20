@@ -142,23 +142,37 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
         </div>
       )}
     >
-      <MainCards className="p-4 md:p-4 bg-transparent!">
+      <MainCards>
         <div className="space-y-3 md:space-y-4">
-          <div className="flex flex-col gap-3 md:gap-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-4">
-              <div className="flex-1 w-full sm:w-auto">
-                {selectedPeriod === "custom" && (
-                  <div className="mt-2 w-full max-w-sm">
-                    <FilterDateRangePicker
-                      label="Período"
-                      value={dateRange}
-                      onChange={handleDateRangeChange}
-                      widthType="full"
-                    />
-                  </div>
-                )}
+          {/* Seletor de período sempre fixo no topo */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-4">
+            <Fields.wrapper className="w-full sm:w-auto min-w-[200px]">
+              <Fields.label text="Período" />
+              <Fields.select
+                value={selectedPeriod}
+                onChange={handlePeriodChange}
+                widthType="full"
+                options={[
+                  { value: "last_day", label: "Hoje" },
+                  { value: "last_7_days", label: "Últimos 7 dias" },
+                  { value: "last_15_days", label: "Últimos 15 dias" },
+                  { value: "last_30_days", label: "Últimos 30 dias" },
+                  { value: "last_90_days", label: "Últimos 90 dias" },
+                  { value: "custom", label: "Período personalizado" },
+                ]}
+              />
+            </Fields.wrapper>
+            {selectedPeriod === "custom" && (
+              <div className="w-full sm:w-auto min-w-[200px]">
+                <FilterDateRangePicker
+                  label="Intervalo de datas"
+                  value={dateRange}
+                  onChange={handleDateRangeChange}
+                  widthType="full"
+                  defaultOpen
+                />
               </div>
-            </div>
+            )}
           </div>
 
           {selectedPeriod === "custom" && (!dateRange?.start || !dateRange?.end) ? (
@@ -227,22 +241,6 @@ export default function GeographicMap({ period = "last_90_days" }: GeographicMap
               {/* Mapa - Mobile primeiro, Desktop à direita */}
               <div className="lg:col-span-2 flex flex-col space-y-3 md:space-y-4 order-1 lg:order-2 w-full">
                 <div className="relative">
-                  <Fields.wrapper className="w-full mb-4">
-                    <Fields.label text="Período" />
-                    <Fields.select
-                      value={selectedPeriod}
-                      onChange={handlePeriodChange}
-                      widthType="full"
-                      options={[
-                        { value: "last_day", label: "Hoje" },
-                        { value: "last_7_days", label: "Últimos 7 dias" },
-                        { value: "last_15_days", label: "Últimos 15 dias" },
-                        { value: "last_30_days", label: "Últimos 30 dias" },
-                        { value: "last_90_days", label: "Últimos 90 dias" },
-                        { value: "custom", label: "Período personalizado" },
-                      ]}
-                    />
-                  </Fields.wrapper>
                   <div
                     className="h-[380px] sm:h-[420px] md:h-[450px] lg:h-[500px] w-full relative overflow-hidden rounded-lg"
                   >

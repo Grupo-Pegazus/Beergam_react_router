@@ -1,64 +1,35 @@
-import { Skeleton, Stack, Typography } from "@mui/material";
+import { Skeleton } from "@mui/material";
 import { memo, useCallback, useMemo, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
 import { FilterDateRangePicker } from "~/src/components/filters";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
-import SecondaryButton from "~/src/components/ui/SecondaryButton";
 import StatCard from "~/src/components/ui/StatCard";
 import {
   CensorshipWrapper,
   TextCensored,
 } from "~/src/components/utils/Censorship";
+import { Fields } from "~/src/components/utils/_fields";
 import { dateStringToISO } from "~/src/utils/date";
 import { formatCurrency } from "~/src/utils/formatters/formatCurrency";
 import { useHomeSummary } from "../../hooks";
+import MainCards from "~/src/components/ui/MainCards";
 
 type PeriodFilter = 0 | 1 | 7 | 15 | 30 | 90 | "custom";
 
-const PERIOD_OPTIONS: { value: PeriodFilter; label: string }[] = [
-  { value: 0, label: "Hoje" },
-  { value: 1, label: "Ontem" },
-  { value: 7, label: "7 dias" },
-  { value: 15, label: "15 dias" },
-  { value: 30, label: "30 dias" },
-  { value: 90, label: "90 dias" },
+const PERIOD_SELECT_OPTIONS: { value: string; label: string }[] = [
+  { value: "0", label: "Hoje" },
+  { value: "1", label: "Ontem" },
+  { value: "7", label: "7 dias" },
+  { value: "15", label: "15 dias" },
+  { value: "30", label: "30 dias" },
+  { value: "90", label: "90 dias" },
   { value: "custom", label: "Personalizado" },
 ];
 
-type PeriodButtonProps = {
-  option: { value: PeriodFilter; label: string };
-  isSelected: boolean;
-  onSelect: (value: PeriodFilter) => void;
-};
-
-const PeriodButton = memo(
-  ({ option, isSelected, onSelect }: PeriodButtonProps) => {
-    const handleClick = useCallback(() => {
-      onSelect(option.value);
-    }, [option.value, onSelect]);
-
-    return (
-      <SecondaryButton isSelected={isSelected} onSelect={handleClick}>
-        {option.label}
-      </SecondaryButton>
-    );
-  }
-);
-
-PeriodButton.displayName = "PeriodButton";
-
 const HomeSummarySkeleton = memo(() => (
   <div className="space-y-4 md:space-y-6">
-    <div className="flex flex-wrap gap-2">
-      {PERIOD_OPTIONS.map((_, i) => (
-        <Skeleton
-          key={i}
-          variant="rectangular"
-          width={80}
-          height={36}
-          className="rounded-lg"
-        />
-      ))}
+    <div className="w-full max-w-[200px]">
+      <Skeleton variant="rectangular" width="100%" height={40} className="rounded-lg" />
     </div>
     <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
       {[...Array(2)].map((_, i) => (
@@ -121,11 +92,14 @@ export default function HomeSummary() {
     return data.data;
   }, [data]);
 
-  const handlePeriodChange = useCallback((period: PeriodFilter) => {
-    setSelectedPeriod(period);
-    if (period !== "custom") {
-      setDateRange(null);
+  const handlePeriodChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value;
+    if (value === "custom") {
+      setSelectedPeriod("custom");
+      return;
     }
+    setSelectedPeriod(Number(value) as Exclude<PeriodFilter, "custom">);
+    setDateRange(null);
   }, []);
 
   const handleDateRangeChange = useCallback((value: { start: string; end: string }) => {
@@ -144,24 +118,22 @@ export default function HomeSummary() {
       Skeleton={HomeSummarySkeleton}
       ErrorFallback={ErrorFallback}
     >
-      <div className="space-y-4 md:space-y-6">
-        {/* Filtros de período */}
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap gap-2">
-            {PERIOD_OPTIONS.map((option) => (
-              <PeriodButton
-                key={option.value}
-                option={option}
-                isSelected={selectedPeriod === option.value}
-                onSelect={handlePeriodChange}
-              />
-            ))}
-          </div>
-
+      <MainCards className="space-y-6 md:space-y-4">
+        {/* Filtro de período */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-4">
+          <Fields.wrapper className="w-full sm:w-auto min-w-[200px]">
+            <Fields.label text="Período" />
+            <Fields.select
+              value={String(selectedPeriod)}
+              onChange={handlePeriodChange}
+              widthType="full"
+              options={PERIOD_SELECT_OPTIONS}
+            />
+          </Fields.wrapper>
           {selectedPeriod === "custom" && (
-            <div className="mt-2 w-full max-w-sm">
+            <div className="w-full sm:w-auto min-w-[200px]">
               <FilterDateRangePicker
-                label="Período"
+                label="Intervalo de datas"
                 value={dateRange}
                 onChange={handleDateRangeChange}
                 widthType="full"
@@ -294,7 +266,7 @@ export default function HomeSummary() {
           </>
         )
         )}
-      </div>
+      </MainCards>
     </AsyncBoundary>
   );
 }

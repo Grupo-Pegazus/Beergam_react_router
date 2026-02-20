@@ -1,0 +1,40 @@
+---
+description: Padrões de estilização - Tailwind CSS 4, CSS Modules e MUI
+globs: **/*.css, **/*.module.css, **/theme/**/*.ts, **/*Theme*.ts, **/*Theme*.tsx, app/app.css, *.tsx
+alwaysApply: false
+---
+
+# Estilização
+
+## Hierarquia de Estilos
+
+1. **Tailwind CSS 4**: estilização principal (classes utilitárias)
+2. **MUI components**: componentes avançados (Stepper, DataGrid, etc.)
+3. **CSS Variables**: tema e cores da marca
+
+## CSS Variables do Projeto
+
+```css
+--color-beergam-orange: #ff8a00;
+--color-beergam-blue: #4679f3;
+--color-beergam-primary: var(--color-beergam-blue-primary);
+```
+
+## Quando Usar Cada Abordagem
+
+| Cenário                                       | Ferramenta    |
+| --------------------------------------------- | ------------- |
+| Layout, spacing, cores, responsivo, animações | Tailwind CSS  |
+| Componentes com estado visual complexo        | MUI           |
+| Tema e cores da marca                         | CSS Variables |
+
+## Regras
+
+- Prefira Tailwind para 90% da estilização — evite inline styles
+- Dark mode via classe `.dark` — use `dark:` prefix do Tailwind
+- Nunca use `!important` — reestruture a especificidade
+- Cores: use as variáveis CSS do tema — nunca hardcode hex
+- Responsivo: use breakpoints do Tailwind (`sm:`, `md:`, `lg:`, `xl:`)
+- Animações simples: GSAP via `@gsap/react` (já configurado)
+- MUI: respeite o tema em `app/src/theme/MuiTheme.ts`
+- Se houver algum componente interno já feito, como input, checkbox, datapicker, priorize eles, use os específicos do MUI de último caso

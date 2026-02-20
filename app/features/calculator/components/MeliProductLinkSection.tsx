@@ -1,4 +1,3 @@
-import { Paper } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Fields } from "~/src/components/utils/_fields";
 import { calculatorService } from "../service";
@@ -7,6 +6,7 @@ import {
   extractMlbFromLink,
   isValidMercadoLivreDomain,
 } from "../utils/extractMlbFromLink";
+import MainCards from "~/src/components/ui/MainCards";
 
 interface MeliProductLinkSectionProps {
   productLink: string;
@@ -260,7 +260,7 @@ export default function MeliProductLinkSection({
   }, []);
 
   return (
-    <div className="bg-beergam-mui-paper p-5 rounded-lg border border-beergam-section-border shadow-sm">
+    <MainCards className="p-5 rounded-lg border border-beergam-section-border shadow-sm">
       <h2 className="text-lg font-semibold text-beergam-typography-primary! mb-4">
         Buscar produto do Mercado Livre
       </h2>
@@ -282,8 +282,8 @@ export default function MeliProductLinkSection({
 
       {/* Informações do produto */}
       {productInfo && !error && (
-        <Paper className="mt-4">
-          <div className="flex gap-4">
+        <div className="mt-4 bg-beergam-section-background!">
+          <div className="flex gap-4 bg-beergam-section-background! rounded-xl">
             {/* Imagem do produto */}
             {productInfo.imageUrl && (
               <div className="shrink-0">
@@ -315,7 +315,7 @@ export default function MeliProductLinkSection({
               </div>
             </div>
           </div>
-        </Paper>
+        </div>
       )}
 
       {/* Mensagem de erro */}
@@ -324,6 +324,6 @@ export default function MeliProductLinkSection({
           <p className="text-sm text-beergam-red">{error}</p>
         </div>
       )}
-    </div>
+    </MainCards>
   );
 }

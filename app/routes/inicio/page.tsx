@@ -9,7 +9,7 @@ import ProdutosMetricasCards from "~/features/produtos/components/MetricasCards/
 import ClaimsOverviewHome from "~/features/reclamacoes/components/ClaimsOverviewHome";
 import HomeSummary from "~/features/summary/components/HomeSummary";
 import VendasResumo from "~/features/vendas/components/VendasResumo/VendasResumo";
-import Grid from "~/src/components/ui/Grid";
+import MainCards from "~/src/components/ui/MainCards";
 import Section from "~/src/components/ui/Section";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import { CensorshipWrapper } from "~/src/components/utils/Censorship";
@@ -23,11 +23,11 @@ export default function InicioPage() {
         </Section>
       </CensorshipWrapper>
       <Section title="Geral da conta">
-        <Grid cols={{ base: 1, sm: 2, md: 3, lg: 4 }}>
-          <Reputacao />
-          <ScheduleTimes />
-          <FlexCutoffTimes />
-        </Grid>
+          <MainCards className="grid md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 sm:grid-cols-2 gap-4">
+            <Reputacao />
+            <ScheduleTimes />
+            <FlexCutoffTimes />
+          </MainCards>
       </Section>
       <CensorshipWrapper controlChildren censorshipKey="vendas_resumo">
         <Section
@@ -87,9 +87,7 @@ export default function InicioPage() {
       </CensorshipWrapper>
       <CensorshipWrapper censorshipKey="visitas_conta">
         <Section title="Visitas na conta">
-          <Grid cols={{ base: 1 }}>
-            <Visitas />
-          </Grid>
+          <Visitas />
         </Section>
       </CensorshipWrapper>
     </>

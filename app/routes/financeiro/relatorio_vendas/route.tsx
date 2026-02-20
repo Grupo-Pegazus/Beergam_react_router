@@ -814,14 +814,14 @@ export default function RelatorioVendasRoute() {
                         </div>
                     )}
                     ErrorFallback={() => (
-                        <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4">
+                        <div className="rounded-2xl border border-beergam-red/20 bg-beergam-red/10 text-beergam-red p-4">
                             Não foi possível carregar os pedidos.
                         </div>
                     )}
                 >
                     <div className="flex flex-col gap-2 w-full min-w-0">
                         {transformedOrders.length === 0 ? (
-                            <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-beergam-section-background p-8 text-center">
+                            <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-beergam-typography-secondary!/50 bg-beergam-typography-secondary!/10 p-8 text-center">
                                 <p className="text-beergam-typography-secondary">
                                     Nenhum pedido encontrado com os filtros atuais.
                                 </p>

@@ -1,0 +1,57 @@
+---
+description: Padrões de rotas - React Router v7 file-based routing, loaders e actions
+globs: app/routes/**/route.tsx, app/routes/**/page.tsx, app/routes.ts, app/root.tsx, app/routes/**/layout.tsx
+alwaysApply: false
+---
+
+# Rotas (React Router v7)
+
+## Estrutura de Rota
+
+Cada rota segue a convenção file-based do React Router v7:
+
+```
+app/routes/{rota}/
+├── route.tsx     # Componente da rota (recebe params, pode ter actions)
+├── page.tsx      # Componente de página (lógica de UI)
+└── components/   # Componentes específicos da rota
+```
+
+## Route Component (`route.tsx`)
+
+```tsx
+import type { Route } from "./+types/route";
+import VendasPage from "./page";
+
+export default function VendasRoute({ params }: Route.ComponentProps) {
+    const { venda_id } = params;
+    return <VendasPage venda_id={venda_id} />;
+}
+```
+
+## Client Actions
+
+```tsx
+export async function clientAction({ request }: { request: Request }) {
+    const formData = await request.formData();
+    const action = formData.get("action") as string;
+
+    switch (action) {
+        case "update":
+            return Response.json(await featureService.update(formData));
+        default:
+            return Response.json({ success: false, message: "Ação inválida" });
+    }
+}
+```
+
+## Regras
+
+- `route.tsx`: apenas roteamento, params e delegação para `page.tsx`
+- `page.tsx`: lógica da página, composição de componentes da feature
+- Segmentos dinâmicos usam colchetes: `[venda_id]`, `[product_id]`
+- Data fetching: use TanStack Query hooks nos componentes (não route loaders)
+- Exceção: `root.tsx` usa `clientLoader` para estado de autenticação
+- Componentes específicos da rota: pasta `components/` dentro da rota
+- Componentes reutilizáveis entre rotas: `app/features/` ou `app/src/components/`
+- Nunca coloque lógica de negócio no `route.tsx` — delegue para hooks e services

@@ -159,7 +159,7 @@ export default function StatCard({
   maintainColor = false,
   children,
   censorshipKey,
-  bgColor = "beergam-mui-paper",
+  bgColor = "beergam-section-background",
   input,
 }: StatCardProps) {
   const tokens = colorTokens(color, variant);
@@ -204,12 +204,35 @@ export default function StatCard({
     <Paper
       role={onClick ? "button" : undefined}
       onClick={onClick}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
       className={[
         "group relative flex flex-col justify-between h-full",
         "p-3 md:p-4 lg:p-5",
-        "hover:-translate-y-px",
+        onClick
+          ? [
+              "cursor-pointer",
+              "transition-all duration-200 ease-in-out",
+              "hover:scale-102",
+              "hover:shadow-md",
+              "active:scale-100",
+              "active:shadow-sm",
+              "focus-visible:outline-none",
+              "focus-visible:ring-2",
+              "focus-visible:ring-offset-2",
+              "focus-visible:" + tokens.ring.replace("ring-", "ring-2 ring-"),
+            ].join(" ")
+          : "",
         "ring-1 ring-transparent hover:" + tokens.ring,
-        onClick ? "cursor-pointer" : "",
         className ?? "",
       ]
         .filter(Boolean)

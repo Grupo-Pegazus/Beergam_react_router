@@ -1,0 +1,48 @@
+---
+description: Padrões da camada de serviço - classes de serviço e comunicação com API
+globs: **/service.ts, **/services/**/*.ts, **/*Service.ts, **/*service.ts
+alwaysApply: false
+---
+
+# Camada de Serviço
+
+## Padrão de Classe
+
+Cada feature tem um `service.ts` com uma classe singleton que encapsula chamadas à API.
+
+```typescript
+import { typedApiClient } from "~/features/apiClient/client";
+import type { ApiResponse } from "~/features/apiClient/client";
+import type { OrdersResponse, OrdersFilters } from "./typings";
+
+class VendasService {
+    async getOrders(
+        filters?: Partial<OrdersFilters>,
+    ): Promise<ApiResponse<OrdersResponse>> {
+        const params = new URLSearchParams();
+        if (filters) {
+            Object.entries(filters).forEach(([key, value]) => {
+                if (value !== undefined && value !== null && value !== "") {
+                    params.append(key, String(value));
+                }
+            });
+        }
+        const queryString = params.toString();
+        const url = `/v1/orders${queryString ? `?${queryString}` : ""}`;
+        return await typedApiClient.get<OrdersResponse>(url);
+    }
+}
+
+export const vendasService = new VendasService();
+```
+
+## Regras
+
+- Uma classe de serviço por feature (Single Responsibility)
+- Exporte uma instância singleton (`export const featureService = new FeatureService()`)
+- Todos os métodos retornam `Promise<ApiResponse<T>>` — nunca retorne `AxiosResponse` diretamente
+- Construa query params com `URLSearchParams` — não concatene strings manualmente
+- Nunca trate erros no service — a tratativa fica nos hooks ou componentes
+- Nunca acesse stores (Zustand) dentro de services — injete dados via parâmetros
+- Use `typedApiClient` para todas as chamadas HTTP — nunca importe `axios` diretamente
+- Prefixe URLs com a versão da API (`/v1/`, `/v2/`)

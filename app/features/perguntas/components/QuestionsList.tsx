@@ -235,7 +235,7 @@ function QuestionCard({
 
       {/* Detalhes expandidos (acordeon) */}
       {showDetails && (
-        <div className="mt-2 pt-3 border-t border-slate-200">
+        <div className="mt-2 pt-3 border-t border-beergam-section-border">
           <div className="grid grid-cols-1 gap-2">
             <Paper className="bg-beergam-section-background! space-y-4!">
               <p className="font-semibold text-beergam-typography-primary! mb-2">
@@ -327,7 +327,7 @@ export function QuestionsList({
       {loading ? <QuestionsListSkeleton /> : null}
 
       {empty ? (
-        <div className="p-6 bg-white border border-dashed border-slate-200 rounded-2xl text-center text-slate-600">
+        <div className="p-6 bg-beergam-section-background! border border-dashed border-beergam-section-border rounded-xl text-center text-beergam-typography-secondary!">
           Nenhuma pergunta encontrada para os filtros atuais.
         </div>
       ) : null}

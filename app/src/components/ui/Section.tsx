@@ -1,5 +1,7 @@
 import type { ReactNode, RefObject } from "react";
 
+type SectionVariant = "card" | "plain";
+
 interface SectionProps {
   children: ReactNode;
   title?: string;
@@ -8,6 +10,8 @@ interface SectionProps {
   className?: string;
   ref?: RefObject<HTMLDivElement | null> | null;
   onClick?: () => void;
+  /** "card" = fundo + borda (padrão). "plain" = só título e conteúdo, sem container visual. */
+  variant?: SectionVariant;
 }
 
 export default function Section({
@@ -18,12 +22,18 @@ export default function Section({
   className,
   ref,
   onClick,
+  variant = "card",
 }: SectionProps) {
+  const isCard = variant === "card";
+  const sectionClassName = isCard
+    ? "w-full max-w-screen! min-w-0 bg-beergam-section-background flex flex-col gap-4 rounded-2xl p-4 mb-4 shadow-sm"
+    : "w-full max-w-screen! min-w-0 flex flex-col gap-4 py-2 mb-4";
+
   return (
     <section
       ref={ref}
       onClick={onClick}
-      className={`w-full max-w-screen! min-w-0 bg-beergam-section-background flex flex-col gap-4 border border-beergam-section-border rounded-2xl p-4 mb-4 shadow-sm  ${className} ${onClick ? "cursor-pointer hover:shadow-transparent hover:translate-y-[2px]" : ""}`}
+      className={`${sectionClassName} ${className ?? ""} ${onClick ? "cursor-pointer hover:shadow-transparent hover:translate-y-[2px]" : ""}`}
     >
       <div
         className={`flex flex-col md:flex-row items-center justify-between min-w-0`}

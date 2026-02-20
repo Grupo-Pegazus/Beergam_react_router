@@ -1,0 +1,63 @@
+---
+description: Padrões de tipagem - interfaces, types e schemas Zod
+globs: **/typings.ts, **/typings/**/*.ts, **/types.ts, **/typing.ts, **/*.d.ts
+alwaysApply: false
+---
+
+# Tipos e Schemas
+
+## Convenções de Nomeação
+
+- **Interfaces de domínio**: prefixo `I` (`IUser`, `IAuthStore`, `IColab`)
+- **Types utilitários/DTOs**: sem prefixo (`OrdersFilters`, `ApiResponse<T>`)
+- **Enums**: PascalCase (`UserRoles`, `SubscriptionStatus`)
+- **Zod schemas**: sufixo `Schema` (`OrderSchema`, `UserSchema`)
+- **Tipo inferido de Zod**: use `z.infer<typeof Schema>`
+
+## Organização
+
+- Tipos da feature: `features/{feature}/typings.ts`
+- Tipos complexos (múltiplos arquivos): `features/{feature}/typings/`
+- Tipos compartilhados: `app/src/types/`
+
+## Zod Schemas com Transforms
+
+```typescript
+import { z } from "zod";
+
+const dateString = z.string().transform((val) => {
+    return dayjs(val).format("DD/MM/YYYY");
+});
+
+const currencyString = z.number().transform((val) => {
+    return val.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+});
+
+export const OrderSchema = z.object({
+    id: z.string(),
+    date_created: dateString,
+    total_amount: currencyString,
+    status: z.enum(["paid", "pending", "cancelled"]),
+});
+
+export type Order = z.infer<typeof OrderSchema>;
+```
+
+## Regras
+
+- Nunca use `any` — prefira `unknown` e faça narrowing com type guards
+- Separe tipos de entrada (payloads) dos de saída (responses)
+- Schemas Zod: use transforms para formatação de dados vindos da API
+- Exporte tipos com `export type` quando for apenas tipo (não valor)
+- ApiResponse wrapper: `ApiResponse<T>` sempre envolve respostas do servidor
+- Validação runtime: use `schema.safeParse()` para dados externos
+
+```typescript
+interface ApiResponse<T> {
+    success: boolean;
+    data: T;
+    message: string;
+    error_code?: number;
+    error_fields?: IErrorField[];
+}
+```

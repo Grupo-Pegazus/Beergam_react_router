@@ -5,6 +5,7 @@ import StatCard from "~/src/components/ui/StatCard";
 import { CensorshipWrapper } from "~/src/components/utils/Censorship";
 import { useAdsMetrics } from "../../hooks";
 import MetricasCardsSkeleton from "./MetricasCardsSkeleton";
+import MainCards from "~/src/components/ui/MainCards";
 
 interface SummaryCardDefinition {
   key: keyof typeof defaultMetrics;
@@ -84,7 +85,7 @@ export default function MetricasCards() {
         </div>
       )}
     >
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <MainCards className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {SUMMARY_CARDS.map((card) => (
           <CensorshipWrapper key={card.key} censorshipKey={card.censorshipKey}>
             <StatCard
@@ -104,7 +105,7 @@ export default function MetricasCards() {
             ></StatCard>
           </CensorshipWrapper>
         ))}
-      </div>
+      </MainCards>
     </AsyncBoundary>
   );
 }

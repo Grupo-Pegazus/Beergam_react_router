@@ -1,5 +1,5 @@
 import { Skeleton, Typography } from "@mui/material";
-import dayjs, { type Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { useCallback, useMemo, useState } from "react";
 import {
   Bar,
@@ -11,8 +11,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { FilterDatePicker } from "~/src/components/filters";
+import { FilterDateRangePicker } from "~/src/components/filters";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
+import { Fields } from "~/src/components/utils/_fields";
+import { dateStringToDayjs } from "~/src/utils/date";
+import MainCards from "~/src/components/ui/MainCards";
 import { useDailyRevenue } from "../../hooks";
 
 const formatCurrency = (value: number): string => {
@@ -28,23 +31,45 @@ const formatDate = (dateStr: string): string => {
   return dayjs(dateStr).format("DD/MM");
 };
 
+type FixedPeriod = 30 | 60 | 90;
+type PeriodMode = FixedPeriod | "custom";
+
+const PERIOD_SELECT_OPTIONS: { value: string; label: string }[] = [
+  { value: "30", label: "30 dias" },
+  { value: "60", label: "60 dias" },
+  { value: "90", label: "90 dias" },
+  { value: "custom", label: "Período personalizado" },
+];
+
 interface DailyRevenueChartProps {
-  days: number;
+  defaultDays?: FixedPeriod;
 }
 
 export default function DailyRevenueChart({
-  days = 30,
+  defaultDays = 30,
 }: DailyRevenueChartProps) {
-  const [selectedMonth, setSelectedMonth] = useState<Dayjs | null>(dayjs());
+  const [periodMode, setPeriodMode] = useState<PeriodMode>(defaultDays);
+  const [dateRange, setDateRange] = useState<{ start: string; end: string } | null>(null);
+
+  const isCustom = periodMode === "custom";
+  const queryEnabled = !isCustom || (!!dateRange?.start && !!dateRange?.end);
+
+  const queryParams = useMemo(() => {
+    if (isCustom && dateRange?.start && dateRange?.end) {
+      return {
+        date_from: dateStringToDayjs(dateRange.start).toISOString(),
+        date_to: dateStringToDayjs(dateRange.end).toISOString(),
+      };
+    }
+    if (!isCustom) {
+      return { days: periodMode as FixedPeriod };
+    }
+    return {};
+  }, [isCustom, periodMode, dateRange]);
 
   const { data, isLoading, error } = useDailyRevenue({
-    days,
-    date_from: selectedMonth
-      ? selectedMonth.startOf("month").toISOString()
-      : undefined,
-    date_to: selectedMonth
-      ? selectedMonth.endOf("month").toISOString()
-      : undefined,
+    ...queryParams,
+    enabled: queryEnabled,
   });
 
   const chartData = useMemo(() => {
@@ -57,8 +82,18 @@ export default function DailyRevenueChart({
     }));
   }, [data]);
 
-  const handleMonthChange = useCallback((newValue: Dayjs | null) => {
-    setSelectedMonth(newValue);
+  const handlePeriodChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value;
+    if (value === "custom") {
+      setPeriodMode("custom");
+      return;
+    }
+    setPeriodMode(Number(value) as FixedPeriod);
+    setDateRange(null);
+  }, []);
+
+  const handleDateRangeChange = useCallback((range: { start: string; end: string }) => {
+    setDateRange(range);
   }, []);
 
   return (
@@ -80,17 +115,42 @@ export default function DailyRevenueChart({
         </div>
       )}
     >
-      <div className="space-y-3 md:space-y-4 bg-beergam-section-background! p-4 rounded-lg">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end gap-2 md:gap-4">
-          <FilterDatePicker
-            label="Período de Provisão"
-            value={selectedMonth?.toISOString() ?? ""}
-            onChange={(value) => handleMonthChange(value ? dayjs(value) : null)}
-            dateType="month"
-          />
+      <MainCards>
+        <div className="space-y-3 md:space-y-4 mb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-start gap-2 md:gap-4">
+            <Fields.wrapper className="w-full sm:w-auto min-w-[200px]">
+              <Fields.label text="Período" />
+              <Fields.select
+                value={String(periodMode)}
+                onChange={handlePeriodChange}
+                widthType="full"
+                options={PERIOD_SELECT_OPTIONS}
+              />
+            </Fields.wrapper>
+          {isCustom && (
+            <div className="w-full sm:w-auto min-w-[200px]">
+              <FilterDateRangePicker
+                label="Intervalo de datas"
+                value={dateRange}
+                onChange={handleDateRangeChange}
+                widthType="full"
+                defaultOpen
+              />
+            </div>
+          )}
+          </div>
         </div>
 
-        {chartData.length === 0 ? (
+        {isCustom && (!dateRange?.start || !dateRange?.end) ? (
+          <div className="flex flex-col items-center justify-center h-64 md:h-80 rounded-lg border border-dashed border-beergam-typography-secondary! bg-beergam-section-background! p-4">
+            <Typography
+              variant="body2"
+              className="text-center text-sm md:text-base text-beergam-typography-secondary!"
+            >
+              Selecione as datas de início e fim para visualizar o faturamento diário.
+            </Typography>
+          </div>
+        ) : chartData.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 md:h-80 rounded-lg border border-dashed border-beergam-typography-secondary! bg-beergam-section-background! p-4">
             <Typography
               variant="body2"
@@ -183,7 +243,7 @@ export default function DailyRevenueChart({
             </ResponsiveContainer>
           </div>
         )}
-      </div>
+      </MainCards>
     </AsyncBoundary>
   );
 }

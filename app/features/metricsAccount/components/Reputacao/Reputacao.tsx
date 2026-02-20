@@ -91,7 +91,6 @@ export default function Reputacao() {
     | "light_green"
     | "green"
     | "slate" = "slate";
-  let iconColor = "text-yellow-500";
 
   let meliLevel: number | null = null;
   let meliColorName: string | null = null;
@@ -100,11 +99,9 @@ export default function Reputacao() {
     const reputation = payload.reputation;
     const levelId = reputation.seller_reputation.level_id;
 
-    // Aplica cores baseadas no level_id do MELI
     cardColor = getMeliReputationColor(levelId);
     meliColorName = getColorName(cardColor);
 
-    // Calcula o nível numérico para a barra de cores
     if (levelId) {
       const level = parseInt(levelId, 10);
       if (!isNaN(level)) {
@@ -112,27 +109,12 @@ export default function Reputacao() {
       }
     }
 
-    // Ajusta cor do ícone para combinar com o card
-    const iconColorMap: Record<
-      "red" | "orange" | "yellow" | "light_green" | "green" | "slate",
-      string
-    > = {
-      red: "text-red-500",
-      orange: "text-orange-500",
-      yellow: "text-yellow-500",
-      light_green: "text-green-500",
-      green: "text-emerald-500",
-      slate: "text-slate-500",
-    };
-    iconColor = iconColorMap[cardColor];
   } else if (isReputationOfType(payload, MarketplaceType.SHOPEE)) {
     description =
       "Estrutura de reputação da Shopee ainda não foi implementada.";
     cardColor = "slate";
   }
 
-  // Mapa de classes de background com opacidade para o Tailwind detectar
-  // IMPORTANTE: Classes completas são necessárias para o Tailwind detectar durante a compilação
   const bgColorMap: Record<
     "red" | "orange" | "yellow" | "light_green" | "green" | "slate",
     string
@@ -145,7 +127,6 @@ export default function Reputacao() {
     slate: "bg-beergam-gray/80",
   };
 
-  // Mapa de classes de texto
   const textColorMap: Record<
     "red" | "orange" | "yellow" | "light_green" | "green" | "slate",
     string
