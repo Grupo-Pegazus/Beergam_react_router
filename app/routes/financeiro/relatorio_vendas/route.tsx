@@ -1,7 +1,7 @@
 import { Popover, useMediaQuery, useTheme } from "@mui/material";
 import type { ColumnDef } from '@tanstack/react-table';
 import dayjs from "dayjs";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router";
 import type { DeliveryStatusFilter, DeliveryTypeFilter, OrderStatusFilter, VendasFiltersState } from "~/features/vendas/components/Filters/types";
@@ -404,10 +404,20 @@ function OrderContextMenu({ data: order, anchorPosition, onClose }: ContextMenuP
         </Popover>
     );
 }
+/** Altura reservada para controles + rodapé da tabela (px) */
+const TABLE_CONTROLS_FOOTER_OFFSET = 100;
+
+/** Altura mínima da área da tabela (px) */
+const MIN_TABLE_HEIGHT = 380;
+
 export default function RelatorioVendasRoute() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const { openModal, closeModal } = useModal();
+    const tableAreaRef = useRef<HTMLDivElement>(null);
+    const [tableHeight, setTableHeight] = useState(() =>
+        typeof window !== "undefined" ? Math.max(MIN_TABLE_HEIGHT, Math.floor(window.innerHeight * 0.65)) : 500
+    );
     const { filters, resetFilters, applyFilters, apiFilters, filtersForExport } =
         useVendasFilters({ per_page: 100 });
     const createExportMutation = useCreateExport();
@@ -440,6 +450,18 @@ export default function RelatorioVendasRoute() {
             icon: "clock",
         });
     }, [openModal, closeModal]);
+
+    // Mede a área da tabela para preencher o espaço disponível
+    useEffect(() => {
+        const el = tableAreaRef.current;
+        if (!el) return;
+        const ro = new ResizeObserver(() => {
+            const h = el.clientHeight;
+            setTableHeight(Math.max(MIN_TABLE_HEIGHT, h - TABLE_CONTROLS_FOOTER_OFFSET));
+        });
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, []);
 
     // Passa os filtros aplicados (apiFilters) para o hook
     const { 
@@ -790,7 +812,7 @@ export default function RelatorioVendasRoute() {
     );
 
     return (
-        <div className="flex flex-col w-full min-w-0">
+        <div className="flex flex-col w-full min-w-0 min-h-[calc(100vh-180px)] h-[calc(100vh-180px)] rounded-xl">
             {/* Badges de filtros aplicados */}
             <AppliedFiltersBadges
                 filters={filters}
@@ -850,20 +872,25 @@ export default function RelatorioVendasRoute() {
                 </AsyncBoundary>
                 </>
             ) : (
-                <TanstackTable
-                    data={transformedOrders}
-                    columns={columns}
-                    controlColumns
-                    exportToExcel
-                    storageKey="orders"
-                    pagination={pagination}
-                    onLoadMore={hasMore ? loadMore : undefined}
-                    isLoadingMore={isLoadingMore}
-                    contextMenuComponent={renderContextMenu}
-                    isLoading={isLoading}
-                    error={error as unknown}
-                    additionalControls={[controlsComponent]}
-                />
+                <div className="flex-1 min-h-0 flex flex-col">
+                    <div ref={tableAreaRef} className="flex-1 min-h-[400px] flex flex-col">
+                        <TanstackTable
+                            data={transformedOrders}
+                            columns={columns}
+                            height={tableHeight}
+                            controlColumns
+                            exportToExcel
+                            storageKey="orders"
+                            pagination={pagination}
+                            onLoadMore={hasMore ? loadMore : undefined}
+                            isLoadingMore={isLoadingMore}
+                            contextMenuComponent={renderContextMenu}
+                            isLoading={isLoading}
+                            error={error as unknown}
+                            additionalControls={[controlsComponent]}
+                        />
+                    </div>
+                </div>
             )}
         </div>
     );
