@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Navigate } from "react-router";
 import type { ApiResponse } from "~/features/apiClient/typings";
-import { marketplaceService } from "~/features/marketplace/service";
 import { useAccountPolling } from "~/features/marketplace/hooks/useAccountPolling";
+import { marketplaceService } from "~/features/marketplace/service";
 import type { IntegrationData } from "~/features/marketplace/typings";
 import {
   type BaseMarketPlace,
@@ -137,7 +137,7 @@ export default function ChoosenAccountRoute() {
     ? (data.data as BaseMarketPlace[])
     : [];
 
-  useAccountPolling(accounts);
+  const progressMap = useAccountPolling(accounts);
 
   if (marketplace) {
     return <Navigate to="/interno" replace />;
@@ -155,10 +155,10 @@ export default function ChoosenAccountRoute() {
     return (
       <ChoosenAccountPage
         marketplacesAccounts={accounts}
+        progressMap={progressMap}
       />
     );
   }
 
-  // fallback seguro caso data exista mas não seja success
   return <ChoosenAccountPage marketplacesAccounts={[]} />;
 }

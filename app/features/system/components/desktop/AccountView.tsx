@@ -16,7 +16,6 @@ import authStore from "~/features/store-zustand";
 import { isMaster } from "~/features/user/utils";
 import DeleteMarketaplceAccount from "~/routes/choosen_account/components/DeleteMarketaplceAccount";
 import UserPhoto from "~/routes/config/components/UserPhoto";
-import Loading from "~/src/assets/loading";
 import Svg from "~/src/assets/svgs/_index";
 import Modal from "~/src/components/utils/Modal";
 import toast from "~/src/utils/toast";
@@ -49,6 +48,7 @@ export default function AccountView({
     current,
     isLoading: accountsLoading,
     selectAccount,
+    progressMap,
   } = useMarketplaceAccounts();
   const user = authStore.use.user();
   const marketplace = authStore.use.marketplace();
@@ -275,22 +275,17 @@ export default function AccountView({
                       const isSelected =
                         current?.marketplace_shop_id ===
                         acc.marketplace_shop_id;
+                      const accProgress = progressMap.get(
+                        acc.marketplace_shop_id
+                      );
+                      const progressPct = accProgress
+                        ? Math.round(accProgress.progress_pct)
+                        : null;
                       return (
                           <div
                             key={acc.marketplace_shop_id}
                             className="relative"
                           >
-                            {/* Overlay de processamento */}
-                            {isProcessing && (
-                              <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center z-10">
-                                <div className="text-white text-center flex flex-col items-center gap-2">
-                                  <Loading color="#ffffff" size="2rem" />
-                                  <p className="text-xs font-medium">
-                                    Processando...
-                                  </p>
-                                </div>
-                              </div>
-                            )}
                             <div
                               role="button"
                               tabIndex={isProcessing ? -1 : 0}
@@ -310,25 +305,34 @@ export default function AccountView({
                                 ? "bg-beergam-primary/10 cursor-default"
                                 : "hover:bg-beergam-primary/10 cursor-pointer"
                                 } ${isProcessing
-                                  ? "opacity-60 cursor-not-allowed pointer-events-none"
+                                  ? "opacity-70 cursor-not-allowed pointer-events-none"
                                   : ""
                                 }`}
                             >
-                              {acc.marketplace_image ? (
-                                <img
-                                  src={acc.marketplace_image}
-                                  alt={acc.marketplace_name}
-                                  className="w-10 h-10 rounded-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-10 h-10 bg-beergam-typography-secondary rounded-full flex items-center justify-center">
-                                  <span className="text-beergam-white font-semibold text-sm">
-                                    {acc.marketplace_name
-                                      .charAt(0)
-                                      .toUpperCase()}
-                                  </span>
-                                </div>
-                              )}
+                              <div className="relative">
+                                {acc.marketplace_image ? (
+                                  <img
+                                    src={acc.marketplace_image}
+                                    alt={acc.marketplace_name}
+                                    className="w-10 h-10 rounded-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 bg-beergam-typography-secondary rounded-full flex items-center justify-center">
+                                    <span className="text-beergam-white font-semibold text-sm">
+                                      {acc.marketplace_name
+                                        .charAt(0)
+                                        .toUpperCase()}
+                                    </span>
+                                  </div>
+                                )}
+                                {isProcessing && (
+                                  <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-beergam-orange rounded-full flex items-center justify-center ring-2 ring-beergam-mui-paper">
+                                    <span className="text-white text-[8px] font-bold">
+                                      {progressPct ?? "…"}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
                               <div className="min-w-0 flex-1">
                                 <p
                                   className={`truncate text-sm font-medium ${isSelected
@@ -339,16 +343,38 @@ export default function AccountView({
                                 >
                                   {acc.marketplace_name}
                                 </p>
-                                {/* Marketplace Type */}
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <p className="text-xs text-beergam-typography-secondary!">
-                                    {
-                                      MarketplaceTypeLabel[
-                                      acc.marketplace_type as MarketplaceType
-                                      ]
-                                    }
+                                {isProcessing && accProgress ? (
+                                  <div className="flex flex-col gap-1 mt-0.5">
+                                    <div className="w-full h-1.5 bg-beergam-section-border rounded-full overflow-hidden">
+                                      <div
+                                        className="h-full bg-beergam-orange rounded-full transition-all duration-700 ease-out"
+                                        style={{
+                                          width: `${progressPct ?? 0}%`,
+                                        }}
+                                      />
+                                    </div>
+                                    <p className="text-[10px] text-beergam-typography-secondary! truncate">
+                                      {accProgress.current_phase ??
+                                        "Importando..."}
+                                      {accProgress.eta_formatted &&
+                                        ` · ${accProgress.eta_formatted}`}
+                                    </p>
+                                  </div>
+                                ) : isProcessing ? (
+                                  <p className="text-[10px] text-beergam-orange! mt-0.5">
+                                    Importando dados...
                                   </p>
-                                </div>
+                                ) : (
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <p className="text-xs text-beergam-typography-secondary!">
+                                      {
+                                        MarketplaceTypeLabel[
+                                        acc.marketplace_type as MarketplaceType
+                                        ]
+                                      }
+                                    </p>
+                                  </div>
+                                )}
                               </div>
                               {!isProcessing && (
                                 <button
