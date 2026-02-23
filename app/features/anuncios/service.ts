@@ -1,5 +1,4 @@
 import { typedApiClient } from "../apiClient/client";
-import type { ApiResponse } from "../apiClient/typings";
 import type {
   AdsResponse,
   AdsFilters,
@@ -11,6 +10,7 @@ import type {
   ReprocessQuota,
 } from "./typings";
 import type { DailyRevenue } from "../vendas/typings";
+import type { ApiResponse } from "../apiClient/typings";
 
 // Tipos para os novos endpoints
 export interface AdsMetrics {
@@ -99,6 +99,20 @@ class AnuncioService {
     return response as ApiResponse<{ success: boolean; message?: string }>;
   }
 
+  async bulkChangeStatus(payload: {
+    mode: "ids" | "filters";
+    status: ChangeAdStatusRequest["status"];
+    ids?: string[];
+    filters?: Partial<AdsFilters>;
+    exclude_ids?: string[];
+  }): Promise<ApiResponse<{ success: boolean; message?: string }>> {
+    const response = await typedApiClient.post<{ success: boolean; message?: string }>(
+      "/v1/ads/status/bulk-change",
+      payload,
+    );
+    return response as ApiResponse<{ success: boolean; message?: string }>;
+  }
+
   async getAdsWithoutSku(): Promise<ApiResponse<WithoutSkuResponse>> {
     const response = await typedApiClient.get<WithoutSkuResponse>("/v1/ads/without-sku");
     return response as ApiResponse<WithoutSkuResponse>;
@@ -155,6 +169,18 @@ class AnuncioService {
   async reprocessAllAds(): Promise<ApiResponse<ReprocessAdsResponse>> {
     const response = await typedApiClient.post<ReprocessAdsResponse>("/v1/ads/reprocess-all");
     return response as ApiResponse<ReprocessAdsResponse>;
+  }
+
+  async relistAd(params: {
+    anuncioId: string;
+    payload?: Record<string, unknown>;
+  }): Promise<ApiResponse<{ success: boolean; message?: string; parent_ad_id?: string; new_ad_id?: string }>> {
+    const { anuncioId, payload } = params;
+    const response = await typedApiClient.post<{ success: boolean; message?: string; parent_ad_id?: string; new_ad_id?: string }>(
+      `/v1/ads/${anuncioId}/relist`,
+      payload ?? {},
+    );
+    return response as ApiResponse<{ success: boolean; message?: string; parent_ad_id?: string; new_ad_id?: string }>;
   }
 }
 
