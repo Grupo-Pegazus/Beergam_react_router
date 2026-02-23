@@ -74,7 +74,7 @@ function MenuDesktopContent() {
           {Object.entries(menu).map(([key, item]) => (
             <MenuItem key={key} item={item} itemKey={key} parentKey="" />
           ))}
-          <ConteudoMenuItem />
+          <ConteudoMenuItem isMenuExpanded={isExpanded} />
         </ul>
         <div className="mt-auto px-3"></div>
       </div>

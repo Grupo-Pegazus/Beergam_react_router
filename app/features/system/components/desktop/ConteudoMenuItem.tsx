@@ -1,12 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Svg from "~/src/assets/svgs/_index";
 import { getIcon } from "~/features/menu/utils";
 
 const WHATSAPP_COMMUNITY_LINK =
   "https://chat.whatsapp.com/FkRg6rgM047C1zdTnekvSF";
 
-export default function ConteudoMenuItem() {
+interface ConteudoMenuItemProps {
+  isMenuExpanded?: boolean;
+}
+
+export default function ConteudoMenuItem({
+  isMenuExpanded = true,
+}: ConteudoMenuItemProps) {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isMenuExpanded) {
+      setOpen(false);
+    }
+  }, [isMenuExpanded]);
 
   const icon = getIcon("megaphone");
 
