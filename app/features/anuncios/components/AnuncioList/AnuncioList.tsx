@@ -9,8 +9,18 @@ import Alert from "~/src/components/utils/Alert";
 import type { ModalOptions } from "~/src/components/utils/Modal/ModalContext";
 import { useModal } from "~/src/components/utils/Modal/useModal";
 import toast from "~/src/utils/toast";
-import { useAnuncios, useChangeAdStatus, useAdsReprocessQuota, useReprocessAds } from "../../hooks";
+import BeergamButton from "~/src/components/utils/BeergamButton";
+import {
+  useAnuncios,
+  useBulkChangeAdsStatus,
+  useChangeAdStatus,
+  useAdsReprocessQuota,
+  useReprocessAds,
+  getProblematicCatalogAds,
+} from "../../hooks";
+import type { BulkAction } from "../../hooks";
 import type { AdsFilters, Anuncio } from "../../typings";
+import { getSelectedCount, isAdSelected, useAdsSelectionStore } from "../../selectionStore";
 import AnuncioCard from "./AnuncioCard";
 import AnuncioListSkeleton from "./AnuncioListSkeleton";
 
@@ -26,6 +36,9 @@ export default function AnunciosList({ filters = {}, syncPageWithUrl = false }: 
   const [mutatingAdId, setMutatingAdId] = useState<string | null>(null);
   const [reprocessingAdId, setReprocessingAdId] = useState<string | null>(null);
   const { openModal, closeModal } = useModal();
+  const selectionState = useAdsSelectionStore();
+  const resetSelection = useAdsSelectionStore((state) => state.reset);
+  const selectAllFiltered = useAdsSelectionStore((state) => state.selectAllFiltered);
 
   useEffect(() => {
     if (!syncPageWithUrl) setPage(filters.page ?? 1);
@@ -47,6 +60,7 @@ export default function AnunciosList({ filters = {}, syncPageWithUrl = false }: 
   const changeStatusMutation = useChangeAdStatus();
   const reprocessMutation = useReprocessAds();
   const { data: quotaData } = useAdsReprocessQuota();
+  const bulkChangeMutation = useBulkChangeAdsStatus();
 
   const anuncios = useMemo<Anuncio[]>(() => {
     if (!data?.success || !data.data?.ads) return [];
@@ -56,6 +70,7 @@ export default function AnunciosList({ filters = {}, syncPageWithUrl = false }: 
   const pagination = data?.success ? data.data?.pagination : null;
   const totalPages = pagination?.total_pages ?? 1;
   const totalCount = pagination?.total_count ?? anuncios.length;
+  const selectedCount = getSelectedCount(selectionState, totalCount);
 
   const [, setSearchParams] = useSearchParams();
   useEffect(() => {
@@ -88,10 +103,177 @@ export default function AnunciosList({ filters = {}, syncPageWithUrl = false }: 
     if (!syncPageWithUrl) setPage(nextPage);
   };
   const remainingQuota = quotaData?.success ? quotaData.data?.remaining ?? 0 : 0;
+
+  const selectedAds = useMemo(
+    () => anuncios.filter((ad) => isAdSelected(selectionState, ad.mlb)),
+    [anuncios, selectionState],
+  );
+
+  const handleCloseStatus = (anuncio: Anuncio) => {
+    if (anuncio.status === "closed") return;
+
+    if (anuncio.is_catalog) {
+      openModal(
+        <Alert
+          type="warning"
+          confirmText="Entendi"
+          disabledBackButton
+          onClose={closeModal}
+          onConfirm={closeModal}
+        >
+          <p className="text-sm text-beergam-typography-secondary">
+            Para encerrar um anúncio de catálogo, é necessário encerrar antes o
+            anúncio tradicional correspondente.
+          </p>
+        </Alert>,
+        { title: "Não é possível encerrar apenas anúncio de catálogo" },
+      );
+      return;
+    }
+
+    const options: ModalOptions = {
+      title: "Confirmar encerramento do anúncio",
+    };
+
+    openModal(
+      <Alert
+        type="warning"
+        confirmText="Encerrar"
+        cancelText="Cancelar"
+        onClose={closeModal}
+        onConfirm={() => {
+          setMutatingAdId(anuncio.mlb);
+          changeStatusMutation.mutate(
+            { adId: anuncio.mlb, status: "closed" },
+            {
+              onSettled: () => {
+                setMutatingAdId(null);
+                closeModal();
+              },
+            },
+          );
+        }}
+      >
+        <p className="text-sm text-beergam-typography-secondary">
+          Deseja encerrar o anúncio <strong>#{anuncio.mlb}</strong>? Esta ação
+          pode ser revertida republicando o anúncio.
+        </p>
+      </Alert>,
+      options,
+    );
+  };
+
+  const handleBulkAction = (action: BulkAction) => {
+    if (action === "close") {
+      const problematic = getProblematicCatalogAds(selectedAds);
+
+      if (problematic.length > 0) {
+        openModal(
+          <Alert
+            type="warning"
+            confirmText="Entendi"
+            disabledBackButton
+            onClose={closeModal}
+            onConfirm={closeModal}
+          >
+            <p className="text-sm text-beergam-typography-secondary">
+              Você selecionou anúncio(s) de catálogo. Para encerrar um anúncio
+              sincronizado de catálogo, é necessário encerrar antes o anúncio
+              tradicional correspondente — ou incluir o tradicional na mesma
+              seleção para prosseguir.
+            </p>
+          </Alert>,
+          { title: "Não é possível encerrar apenas anúncios de catálogo" },
+        );
+        return;
+      }
+    }
+
+    const verb =
+      action === "pause"
+        ? "pausar"
+        : action === "activate"
+          ? "ativar"
+          : "encerrar";
+
+    const options: ModalOptions = {
+      title: `Confirmar ${verb} anúncios em massa`,
+    };
+
+    openModal(
+      <Alert
+        type="warning"
+        confirmText={verb.charAt(0).toUpperCase() + verb.slice(1)}
+        cancelText="Cancelar"
+        onClose={closeModal}
+        onConfirm={() => {
+          bulkChangeMutation.mutate(action, {
+            onSettled: () => {
+              closeModal();
+            },
+          });
+        }}
+      >
+        <p className="text-sm text-beergam-typography-secondary mb-1">
+          Você está prestes a {verb}{" "}
+          <strong>{selectedCount}</strong> anúncio(s) com base nos filtros atuais.
+        </p>
+        <p className="text-xs text-beergam-typography-secondary">
+          Esta ação pode demorar alguns minutos e será processada em segundo plano no servidor.
+        </p>
+      </Alert>,
+      options,
+    );
+  };
+
   return (
     <>
       {/* Container da lista de anúncios (alvo de scroll) */}
       <div id="ads-list">
+        {selectedCount > 0 && (
+          <div className="mb-3 flex items-center justify-between rounded-xl border border-beergam-input-border/40 bg-beergam-section-background/80 px-4 py-2">
+            <Typography variant="body2" className="text-beergam-typography-secondary">
+              <span className="font-semibold text-beergam-typography-primary">{selectedCount}</span>{" "}
+              anúncio(s) selecionado(s)
+            </Typography>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="text-xs text-beergam-typography-secondary hover:underline"
+                onClick={resetSelection}
+              >
+                Limpar seleção
+              </button>
+              <BeergamButton
+                title="Pausar"
+                mainColor="beergam-blue"
+                animationStyle="slider"
+                onClick={() => handleBulkAction("pause")}
+                disabled={bulkChangeMutation.isPending}
+                loading={bulkChangeMutation.isPending}
+                className="hidden sm:inline-flex"
+              />
+              <BeergamButton
+                title="Ativar"
+                mainColor="beergam-green"
+                animationStyle="slider"
+                onClick={() => handleBulkAction("activate")}
+                disabled={bulkChangeMutation.isPending}
+                loading={bulkChangeMutation.isPending}
+                className="hidden sm:inline-flex"
+              />
+              <BeergamButton
+                title="Encerrar"
+                mainColor="beergam-red"
+                animationStyle="slider"
+                onClick={() => handleBulkAction("close")}
+                disabled={bulkChangeMutation.isPending}
+                loading={bulkChangeMutation.isPending}
+                className="hidden sm:inline-flex"
+              />
+            </div>
+          </div>
+        )}
         <AsyncBoundary
           isLoading={isLoading}
           error={error as unknown}
@@ -117,11 +299,35 @@ export default function AnunciosList({ filters = {}, syncPageWithUrl = false }: 
               </div>
             ) : (
               <Stack spacing={2}>
+                {anuncios.length > 0 && (
+                  <div className="flex items-center gap-2 rounded-xl bg-beergam-mui-paper px-3 py-2">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 accent-beergam-primary"
+                      checked={selectionState.mode === "allFiltered"}
+                      onChange={(event) => {
+                        if (event.target.checked) {
+                          selectAllFiltered({
+                            ...filters,
+                            page: undefined,
+                            per_page: undefined,
+                          });
+                        } else {
+                          resetSelection();
+                        }
+                      }}
+                    />
+                    <Typography variant="body2" className="text-beergam-typography-primary">
+                      Selecionar todos os anúncios deste filtro
+                    </Typography>
+                  </div>
+                )}
                 {anuncios.map((anuncio) => (
                   <AnuncioCard
                     key={anuncio.mlb}
                     anuncio={anuncio}
                     onToggleStatus={() => handleToggleStatus(anuncio)}
+                    onCloseStatus={() => handleCloseStatus(anuncio)}
                     onReprocess={() => {
                       if (remainingQuota <= 0) {
                         toast.error("Sua cota mensal de reprocessamento de anúncios acabou.");

@@ -11,10 +11,16 @@ import Svg from "~/src/assets/svgs/_index";
 import Thumbnail from "~/src/components/Thumbnail/Thumbnail";
 import CopyButton from "~/src/components/ui/CopyButton";
 import MainCards from "~/src/components/ui/MainCards";
+import { Fields } from "~/src/components/utils/_fields";
 import { ImageCensored, TextCensored } from "~/src/components/utils/Censorship";
 import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
 import { formatDate } from "~/features/agendamentos/utils";
 import type { Anuncio } from "../../typings";
+import { useRelistAd } from "../../hooks";
+import Alert from "~/src/components/utils/Alert";
+import type { ModalOptions } from "~/src/components/utils/Modal/ModalContext";
+import { useModal } from "~/src/components/utils/Modal/useModal";
+import { isAdSelected, useAdsSelectionStore } from "../../selectionStore";
 import AnuncioStatusToggle from "../AnuncioStatusToggle";
 import Speedometer from "../Speedometer/Speedometer";
 import VariationsList from "./Variations/VariationsList";
@@ -24,6 +30,7 @@ import { formatCurrency, formatNumber } from "./utils";
 interface AnuncioCardProps {
   anuncio: Anuncio;
   onToggleStatus: () => void;
+  onCloseStatus: () => void;
   onReprocess: () => void;
   isMutating: boolean;
   isReprocessing: boolean;
@@ -32,9 +39,75 @@ interface AnuncioCardProps {
 
 const chipBase = "h-6! text-xs! font-medium! rounded-lg!";
 
+interface RelistAdModalContentProps {
+  anuncio: Anuncio;
+  onConfirm: (payload: Record<string, unknown>) => void;
+  onClose: () => void;
+}
+
+function RelistAdModalContent({
+  anuncio,
+  onConfirm,
+  onClose,
+}: RelistAdModalContentProps) {
+  const initialPrice = parseFloat(String(anuncio.price));
+  const [price, setPrice] = useState<number | undefined>(
+    Number.isFinite(initialPrice) ? initialPrice : undefined,
+  );
+  const [quantity, setQuantity] = useState<number | undefined>(
+    anuncio.stock ?? 1,
+  );
+
+  const handleConfirm = () => {
+    const payload: Record<string, unknown> = {};
+    if (price != null && price > 0) payload.price = price;
+    if (quantity != null && quantity > 0) payload.quantity = quantity;
+    onConfirm(payload);
+  };
+
+  return (
+    <Alert
+      type="warning"
+      confirmText="Republicar"
+      cancelText="Cancelar"
+      onClose={onClose}
+      onConfirm={handleConfirm}
+    >
+      <div className="flex flex-col gap-3">
+        <p className="text-sm text-beergam-typography-secondary">
+          Defina os principais dados para republicar este anúncio. Caso não
+          altere, usaremos os valores atuais.
+        </p>
+        <Fields.wrapper>
+          <Fields.label text="Preço" />
+          <Fields.numericInput
+            prefix="R$"
+            format="currency"
+            value={price}
+            onChange={(v) => setPrice(typeof v === "number" ? v : undefined)}
+            min={0}
+            placeholder="0,00"
+          />
+        </Fields.wrapper>
+        <Fields.wrapper>
+          <Fields.label text="Quantidade" />
+          <Fields.numericInput
+            format="integer"
+            value={quantity}
+            onChange={(v) => setQuantity(typeof v === "number" ? v : undefined)}
+            min={0}
+            placeholder="0"
+          />
+        </Fields.wrapper>
+      </div>
+    </Alert>
+  );
+}
+
 export default function AnuncioCard({
   anuncio,
   onToggleStatus,
+  onCloseStatus,
   onReprocess,
   isMutating,
   isReprocessing,
@@ -51,12 +124,25 @@ export default function AnuncioCard({
     ? parseFloat(anuncio.conversion_rate)
     : null;
   const hasVariations = anuncio.variations && anuncio.variations.length > 0;
+  const selectionState = useAdsSelectionStore();
+  const toggleAd = useAdsSelectionStore((state) => state.toggleAd);
+  const isSelected = isAdSelected(selectionState, anuncio.mlb);
+  const relistMutation = useRelistAd();
+  const { openModal, closeModal } = useModal();
 
   return (
     <MainCards className="overflow-hidden rounded-2xl border border-beergam-input-border/30">
       <div className="flex flex-col gap-4 p-4 md:p-5 md:gap-5">
         {/* Hero: Imagem + Nome + Preço — mobile e desktop */}
         <div className="flex gap-4 md:flex-row">
+          <div className="pt-1">
+            <input
+              type="checkbox"
+              className="h-4 w-4 accent-beergam-primary"
+              checked={isSelected}
+              onChange={(event) => toggleAd(anuncio.mlb, event.target.checked)}
+            />
+          </div>
           <Link
             to={`/interno/anuncios/${anuncio.mlb}`}
             className="shrink-0 block"
@@ -445,7 +531,7 @@ export default function AnuncioCard({
             size="small"
             onClick={(e) => setAnchorEl(e.currentTarget)}
             aria-label="Menu de opções"
-            className="!rounded-xl !border !border-beergam-input-border/50"
+            className="rounded-xl! border! border-beergam-input-border/50!"
           >
             <Svg.elipsis_horizontal tailWindClasses="h-5 w-5" />
           </IconButton>
@@ -509,6 +595,48 @@ export default function AnuncioCard({
         >
           {isReprocessing ? "Reprocessando..." : "Reprocessar"}
         </MenuItem>
+        {anuncio.status !== "closed" && (
+          <MenuItem
+            onClick={() => {
+              setAnchorEl(null);
+              onCloseStatus();
+            }}
+            disabled={isMutating}
+          >
+            {isMutating ? "Encerrando..." : "Encerrar"}
+          </MenuItem>
+        )}
+        {anuncio.status === "closed" && (
+          <MenuItem
+            onClick={() => {
+              setAnchorEl(null);
+              const options: ModalOptions = {
+                title: "Republicar anúncio fechado",
+              };
+
+              openModal(
+                <RelistAdModalContent
+                  anuncio={anuncio}
+                  onConfirm={(payload) => {
+                    relistMutation.mutate(
+                      { anuncioId: anuncio.mlb, payload },
+                      {
+                        onSettled: () => {
+                          closeModal();
+                        },
+                      },
+                    );
+                  }}
+                  onClose={closeModal}
+                />,
+                options,
+              );
+            }}
+            disabled={relistMutation.isPending}
+          >
+            {relistMutation.isPending ? "Republicando..." : "Republicar anúncio"}
+          </MenuItem>
+        )}
         {anuncio.link && (
           <MenuItem
             component="a"

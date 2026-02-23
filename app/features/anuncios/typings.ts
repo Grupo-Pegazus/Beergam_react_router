@@ -269,7 +269,7 @@ export type AdsResponse = z.infer<typeof AdsResponseSchema>;
 
 // Schema para mudança de status
 export const ChangeAdStatusRequestSchema = z.object({
-  status: z.enum(["paused", "active"]),
+  status: z.enum(["paused", "active", "closed"]),
 });
 
 export type ChangeAdStatusRequest = z.infer<typeof ChangeAdStatusRequestSchema>;

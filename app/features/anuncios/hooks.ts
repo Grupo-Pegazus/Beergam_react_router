@@ -7,6 +7,7 @@ import type {
   WithoutSkuResponse,
   UpdateSkuRequest,
   AnuncioDetails,
+  Anuncio,
   ReprocessAdsResponse,
   ReprocessQuota,
 } from "./typings";
@@ -15,6 +16,7 @@ import type { AdsMetrics, TopSoldAd } from "./service";
 import type { DailyRevenue } from "../vendas/typings";
 
 import toast from "~/src/utils/toast";
+import { useAdsSelectionStore } from "./selectionStore";
 
 export function useAnuncios(filters?: Partial<AdsFilters>) {
   return useQuery<ApiResponse<AdsResponse>>({
@@ -81,6 +83,62 @@ export function useChangeAdStatus() {
     },
     onError: (error: unknown) => {
       const message = error instanceof Error ? error.message : "Erro ao alterar status do anúncio";
+      toast.error(message);
+    },
+  });
+}
+
+export type BulkAction = "pause" | "activate" | "close";
+
+function mapBulkActionToStatus(action: BulkAction): ChangeAdStatusRequest["status"] {
+  if (action === "pause") return "paused";
+  if (action === "activate") return "active";
+  if (action === "close") return "closed";
+  return "paused"; // default
+}
+
+export function useBulkChangeAdsStatus() {
+  const selection = useAdsSelectionStore();
+  const reset = useAdsSelectionStore((state) => state.reset);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (action: BulkAction) => {
+      const status = mapBulkActionToStatus(action);
+
+      if (selection.mode === "manual") {
+        const ids = Array.from(selection.selectedIds);
+        if (ids.length === 0) return undefined;
+
+        return anuncioService.bulkChangeStatus({
+          mode: "ids",
+          status,
+          ids,
+        });
+      }
+
+      if (selection.mode === "allFiltered" && selection.baseFilter) {
+        return anuncioService.bulkChangeStatus({
+          mode: "filters",
+          status,
+          filters: {
+            ...selection.baseFilter,
+            page: undefined,
+            per_page: undefined,
+          },
+          exclude_ids: Array.from(selection.excludedIdsFromAll),
+        });
+      }
+
+      return undefined;
+    },
+    onSuccess: () => {
+      reset();
+      queryClient.invalidateQueries({ queryKey: ["anuncios"] });
+      toast.success("Ação em massa aplicada com sucesso.");
+    },
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "Erro ao aplicar ação em massa.";
       toast.error(message);
     },
   });
@@ -240,6 +298,30 @@ export function useReprocessAds() {
   });
 }
 
+export function useRelistAd() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (variables: { anuncioId: string; payload?: Record<string, unknown> }) => {
+      const res = await anuncioService.relistAd(variables);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao republicar anúncio");
+      }
+      return res;
+    },
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["anuncios"] });
+      const apiMessage = res.message?.trim();
+      const fallback = "Anúncio republicado com sucesso. O processamento pode levar alguns instantes.";
+      toast.success(apiMessage || fallback);
+    },
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : "Erro ao republicar anúncio";
+      toast.error(message);
+    },
+  });
+}
+
 export function useReprocessAllAds() {
   const queryClient = useQueryClient();
 
@@ -269,3 +351,18 @@ export function useReprocessAllAds() {
 }
 
 export { useAnunciosFilters } from "./hooks/useAnunciosFilters";
+
+export function getProblematicCatalogAds(selectedAds: Anuncio[]): Anuncio[] {
+  return selectedAds.filter((catalogAd) => {
+    if (!catalogAd.is_catalog) return false;
+
+    const hasTraditionalInSelection = selectedAds.some(
+      (other) =>
+        !other.is_catalog &&
+        other.catalog_product_id &&
+        other.catalog_product_id === catalogAd.catalog_product_id,
+    );
+
+    return !hasTraditionalInSelection;
+  });
+}
