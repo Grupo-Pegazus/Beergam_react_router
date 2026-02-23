@@ -1,18 +1,22 @@
 import type React from "react";
-import Svg from "~/src/assets/svgs/_index";
-import { getMarketplaceImageUrl } from "~/src/constants/cdn-images";
+import type { ImportProgress } from "../typings";
 import {
   type BaseMarketPlace,
   MarketplaceStatusParse,
   MarketplaceType,
 } from "../typings";
+import Svg from "~/src/assets/svgs/_index";
+import { getMarketplaceImageUrl } from "~/src/constants/cdn-images";
+import ImportProgressOverlay from "./ImportProgress/ImportProgressOverlay";
 
 function MarketplaceTypeBadge(marketplace_type: MarketplaceType) {
   return getMarketplaceImageUrl(marketplace_type);
 }
 interface MarketplaceCardProps {
   marketplace?: BaseMarketPlace;
+  importProgress?: ImportProgress | null;
   onCardClick?: () => void;
+  onProgressClick?: () => void;
   onDelete?: (marketplace: BaseMarketPlace) => void;
   onEdit?: (marketplace: BaseMarketPlace) => void;
   selected?: boolean;
@@ -20,7 +24,9 @@ interface MarketplaceCardProps {
 }
 export default function MarketplaceCard({
   marketplace,
+  importProgress,
   onCardClick,
+  onProgressClick,
   onDelete,
   onEdit,
   selected = false,
@@ -28,7 +34,7 @@ export default function MarketplaceCard({
 }: MarketplaceCardProps) {
   const isProcessing =
     marketplace?.status_parse === MarketplaceStatusParse.PROCESSING;
-  const isDisabled = isProcessing;
+  const isDisabled = isProcessing && !onProgressClick;
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (marketplace && onDelete && !isDisabled) {
@@ -43,7 +49,11 @@ export default function MarketplaceCard({
   };
 
   const handleCardClick = () => {
-    if (!isDisabled) {
+    if (isProcessing && onProgressClick) {
+      onProgressClick();
+      return;
+    }
+    if (!isProcessing) {
       onCardClick?.();
     }
   };
@@ -111,15 +121,18 @@ export default function MarketplaceCard({
             {marketplace.marketplace_name}
           </h3>
 
-          {/* Overlay de processamento */}
-          {isProcessing && (
-            <div className="absolute inset-0 bg-black bg-opacity-50 rounded-2xl flex items-center justify-center opacity-70 z-10">
-              <div className="text-white text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-                <p className="text-sm font-medium">Processando...</p>
+          {/* Overlay de processamento com progresso */}
+          {isProcessing &&
+            (importProgress ? (
+              <ImportProgressOverlay progress={importProgress} />
+            ) : (
+              <div className="absolute inset-0 bg-black/75 backdrop-blur-sm rounded-2xl flex items-center justify-center z-10">
+                <div className="text-white text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent mx-auto mb-2" />
+                  <p className="text-sm font-medium">Processando...</p>
+                </div>
               </div>
-            </div>
-          )}
+            ))}
         </>
       ) : (
         <>

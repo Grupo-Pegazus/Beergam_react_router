@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { ImportProgress } from "~/features/marketplace/typings";
 import { marketplaceService } from "~/features/marketplace/service";
 import type { BaseMarketPlace } from "~/features/marketplace/typings";
 import authStore from "~/features/store-zustand";
@@ -48,14 +49,15 @@ export function useMarketplaceAccounts() {
     ? (data.data as BaseMarketPlace[])
     : [];
 
-  // Faz polling de contas em processamento
-  useAccountPolling(accounts);
+  const progressMap: Map<string, ImportProgress | null> =
+    useAccountPolling(accounts);
 
   return {
     current,
     accounts,
     isLoading,
     error,
+    progressMap,
     selectAccount: (acc: BaseMarketPlace) => select.mutate(acc),
     selectAccountAsync: (acc: BaseMarketPlace) => select.mutateAsync(acc),
     isSelecting: select.isPending,

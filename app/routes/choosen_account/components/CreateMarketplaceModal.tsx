@@ -1,5 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
+import ImportProgressPanel from "~/features/marketplace/components/ImportProgress/ImportProgressPanel";
+import { useImportProgress } from "~/features/marketplace/hooks/useImportProgress";
 import { marketplaceService } from "~/features/marketplace/service";
 import type {
   BaseMarketPlace,
@@ -7,9 +9,9 @@ import type {
 } from "~/features/marketplace/typings";
 import { getAvailableMarketplaces } from "~/features/marketplace/utils";
 import authStore from "~/features/store-zustand";
+import Svg from "~/src/assets/svgs/_index";
 import MainCards from "~/src/components/ui/MainCards";
 import BeergamButton from "~/src/components/utils/BeergamButton";
-import Svg from "~/src/assets/svgs/_index";
 import toast from "~/src/utils/toast";
 import AvailableMarketplaceCard from "./AvailableMarketplaceCard";
 
@@ -17,6 +19,8 @@ const POLL_INTERVAL_MS = 3000;
 const POLL_TIMEOUT_MS = 600000;
 const WINDOW_CHECK_INTERVAL_MS = 1000;
 const WINDOW_CHECK_MAX_MS = 300000;
+
+type ModalView = "selection" | "importing";
 
 export default function CreateMarketplaceModal({
   marketplacesAccounts,
@@ -41,9 +45,16 @@ export default function CreateMarketplaceModal({
     useState<MarketplaceType | null>(null);
   const [integrationState, setIntegrationState] = useState<string | null>(null);
   const [isPolling, setIsPolling] = useState(false);
+  const [view, setView] = useState<ModalView>("selection");
+  const [importAccountId, setImportAccountId] = useState<string | null>(null);
 
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const { progress: importProgress } = useImportProgress(
+    importAccountId,
+    view === "importing"
+  );
 
   const stopPolling = useCallback(() => {
     if (pollingRef.current) {
@@ -58,12 +69,18 @@ export default function CreateMarketplaceModal({
     setIntegrationState(null);
   }, []);
 
-  useEffect(() => {
+  const resetModal = useCallback(() => {
     setSelectedMarketplace(null);
     setIntegrationState(null);
     setIsPolling(false);
+    setView("selection");
+    setImportAccountId(null);
     stopPolling();
-  }, [modalOpen, stopPolling]);
+  }, [stopPolling]);
+
+  useEffect(() => {
+    resetModal();
+  }, [modalOpen, resetModal]);
 
   const openCenteredWindow = (
     url: string,
@@ -91,23 +108,30 @@ export default function CreateMarketplaceModal({
   const checkIntegrationStatus = useCallback(
     async (state: string): Promise<boolean> => {
       try {
-        const response = await marketplaceService.checkIntegrationStatus(state);
+        const response =
+          await marketplaceService.checkIntegrationStatus(state);
         if (!response.success || !response.data) return false;
 
-        const { status, message } = response.data;
+        const { status, message, marketplace_shop_id } = response.data;
+
         if (status === "success") {
           stopPolling();
           queryClient.invalidateQueries({ refetchType: "active" });
-          toast.success(
-            "Integração realizada com sucesso! Sua conta foi conectada."
-          );
+          toast.success("Conta conectada! Iniciando importação de dados...");
+
+          if (marketplace_shop_id) {
+            setImportAccountId(marketplace_shop_id);
+            setView("importing");
+          }
           return true;
         }
+
         if (status === "error") {
           stopPolling();
           toast.error(`Erro na integração: ${message ?? "Tente novamente."}`);
           return true;
         }
+
         return false;
       } catch {
         stopPolling();
@@ -163,6 +187,10 @@ export default function CreateMarketplaceModal({
       toast.error("Erro ao iniciar integração");
     }
   };
+
+  if (view === "importing") {
+    return <ImportingView progress={importProgress} />;
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4 md:p-6 flex flex-col gap-6">
@@ -296,6 +324,40 @@ export default function CreateMarketplaceModal({
             </div>
           </div>
         </MainCards>
+      )}
+    </div>
+  );
+}
+
+function ImportingView({
+  progress,
+}: {
+  progress: import("~/features/marketplace/typings").ImportProgress | null;
+}) {
+  if (!progress) {
+    return (
+      <div className="w-full max-w-4xl mx-auto p-4 md:p-6 flex flex-col items-center gap-4">
+        <div className="w-12 h-12 rounded-xl bg-beergam-orange-light flex items-center justify-center">
+          <div className="animate-spin rounded-full h-6 w-6 border-2 border-beergam-orange border-t-transparent" />
+        </div>
+        <p className="text-sm text-beergam-typography-secondary text-center">
+          Conectando ao servidor de importação...
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full max-w-4xl mx-auto p-4 md:p-6">
+      <ImportProgressPanel progress={progress} />
+
+      {progress.status !== "completed" && progress.status !== "error" && (
+        <div className="mt-5 p-3 md:p-4 bg-beergam-blue-light/50 border border-beergam-blue-primary/20 rounded-xl">
+          <p className="text-xs text-beergam-typography-secondary text-center">
+            Você pode fechar este modal — a importação continuará em segundo
+            plano. O progresso será exibido no card da sua loja.
+          </p>
+        </div>
       )}
     </div>
   );

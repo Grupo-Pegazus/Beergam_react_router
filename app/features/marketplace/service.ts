@@ -3,6 +3,7 @@ import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
 import type {
   BaseMarketPlace,
+  ImportProgress,
   IntegrationData,
   IntegrationStatus,
 } from "./typings";
@@ -186,6 +187,36 @@ class MarketplaceService {
         data: { processed: false },
         message:
           "Erro ao verificar status de processamento da conta. Tente novamente em alguns instantes.",
+        error_code: 500,
+        error_fields: {},
+      };
+    }
+  }
+
+  async getImportProgress(
+    marketplaceShopId: string
+  ): Promise<ApiResponse<ImportProgress>> {
+    try {
+      const response = await typedApiClient.get<ImportProgress>(
+        `/v1/auth/meli/import_progress?marketplace_shop_id=${marketplaceShopId}`
+      );
+      return response;
+    } catch (error) {
+      console.error("error do getImportProgress", error);
+      return {
+        success: false,
+        data: {
+          status: "error",
+          progress_pct: 0,
+          eta_seconds: null,
+          eta_formatted: null,
+          elapsed_seconds: null,
+          current_phase: null,
+          phases: [],
+          error_message: "Erro ao buscar progresso da importação",
+        },
+        message:
+          "Erro ao buscar progresso da importação. Tente novamente em alguns instantes.",
         error_code: 500,
         error_fields: {},
       };

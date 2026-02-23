@@ -7,7 +7,9 @@ import { useFetcher } from "react-router";
 import { Paper } from "@mui/material";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import MarketplaceCard from "~/features/marketplace/components/MarketplaceCard";
+import ImportProgressPanel from "~/features/marketplace/components/ImportProgress/ImportProgressPanel";
 import { marketplaceService } from "~/features/marketplace/service";
+import type { ImportProgress } from "~/features/marketplace/typings";
 import {
   MarketplaceStatusParse,
   MarketplaceType,
@@ -28,26 +30,33 @@ const CreateMarketplaceModal = lazy(
 );
 interface ChoosenAccountPageProps {
   marketplacesAccounts: BaseMarketPlace[] | null;
+  progressMap?: Map<string, ImportProgress | null>;
   isLoading?: boolean;
 }
 export default function ChoosenAccountPage({
   marketplacesAccounts,
+  progressMap,
   isLoading = false,
 }: ChoosenAccountPageProps) {
   const [abrirModal, setAbrirModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [marketplaceToDelete, setMarketplaceToDelete] =
     useState<BaseMarketPlace | null>(null);
+  const [progressAccount, setProgressAccount] =
+    useState<BaseMarketPlace | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<string | null>("");
   const fetcher = useFetcher();
   const queryClient = useQueryClient();
 
+  const progressForModal = progressAccount
+    ? progressMap?.get(progressAccount.marketplace_shop_id) ?? null
+    : null;
+
   useEffect(() => {
     if (fetcher.data && fetcher.data.success && fetcher.state === "idle") {
       queryClient.invalidateQueries({ queryKey: ["marketplacesAccounts"] });
 
-      // Verifica se precisa limpar o Zustand (quando a conta deletada era a selecionada)
       const responseData = fetcher.data as { shouldCelarStore?: boolean };
       if (responseData.shouldCelarStore) {
         authStore.setState({ marketplace: null });
@@ -64,7 +73,9 @@ export default function ChoosenAccountPage({
       marketplace.status_parse === MarketplaceStatusParse.PROCESSING;
 
     if (isProcessing) {
-      toast.error("Não é possível excluir uma conta enquanto ela está sendo processada");
+      toast.error(
+        "Não é possível excluir uma conta enquanto ela está sendo processada"
+      );
       return;
     }
 
@@ -78,7 +89,9 @@ export default function ChoosenAccountPage({
         marketplaceToDelete.status_parse === MarketplaceStatusParse.PROCESSING;
 
       if (isProcessing) {
-        toast.error("Não é possível excluir uma conta enquanto ela está sendo processada");
+        toast.error(
+          "Não é possível excluir uma conta enquanto ela está sendo processada"
+        );
         setShowDeleteModal(false);
         setMarketplaceToDelete(null);
         return;
@@ -130,6 +143,7 @@ export default function ChoosenAccountPage({
       return matchText && matchType;
     });
   }, [marketplacesAccounts, searchTerm, typeFilter]);
+
   return (
     <PageLayout>
       <div className="flex flex-col items-center w-full p-4">
@@ -221,12 +235,17 @@ export default function ChoosenAccountPage({
                     marketplace_type: item.marketplace_type as MarketplaceType,
                     status_parse: item.status_parse as MarketplaceStatusParse,
                   };
+                  const accountProgress =
+                    progressMap?.get(marketplace.marketplace_shop_id) ??
+                    undefined;
                   return (
                     <MarketplaceCard
                       key={marketplace.marketplace_shop_id}
                       marketplace={marketplace}
+                      importProgress={accountProgress}
                       onDelete={handleDeleteMarketplace}
                       className="border! border-beergam-input-border!"
+                      onProgressClick={() => setProgressAccount(marketplace)}
                       onCardClick={async () => {
                         const res =
                           await marketplaceService.SelectMarketplaceAccount(
@@ -248,12 +267,6 @@ export default function ChoosenAccountPage({
               />
             )}
           </div>
-          {/* <div className="absolute! top-0! right-0! bottom-0! w-[27%] h-full!">
-            <MarketplaceCard
-              className="w-full h-[88%]!"
-              onCardClick={() => handleAbrirModal({ abrir: true })}
-            />
-          </div> */}
         </div>
       </div>
       <Modal
@@ -267,6 +280,33 @@ export default function ChoosenAccountPage({
             modalOpen={abrirModal}
           />
         </Suspense>
+      </Modal>
+
+      {/* Modal de progresso de importação */}
+      <Modal
+        title="Progresso da Importação"
+        isOpen={!!progressAccount}
+        onClose={() => setProgressAccount(null)}
+      >
+        <div className="p-4 md:p-6 max-w-2xl mx-auto">
+          {progressForModal ? (
+            <ImportProgressPanel
+              progress={progressForModal}
+              accountName={progressAccount?.marketplace_name}
+            />
+          ) : (
+            <div className="flex flex-col items-center gap-4 py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-2 border-beergam-orange border-t-transparent" />
+              <p className="text-sm text-beergam-typography-secondary">
+                Carregando progresso...
+              </p>
+            </div>
+          )}
+          <p className="mt-4 text-xs text-beergam-typography-secondary text-center">
+            Você pode fechar este modal — a importação continuará em segundo
+            plano.
+          </p>
+        </div>
       </Modal>
 
       {/* Modal de confirmação de deletar */}

@@ -79,3 +79,31 @@ export interface IntegrationStatus {
   status: "pending" | "success" | "error";
   updated_at: string;
 }
+
+export type ImportProgressStatus =
+  | "pending"
+  | "in_progress"
+  | "completed"
+  | "error"
+  | "unknown";
+
+export type ImportPhaseStatus = "pending" | "in_progress" | "completed";
+
+export interface ImportPhase {
+  name: string;
+  label: string;
+  status: ImportPhaseStatus;
+  detail: string | null;
+  weight: number;
+}
+
+export interface ImportProgress {
+  status: ImportProgressStatus;
+  progress_pct: number;
+  eta_seconds: number | null;
+  eta_formatted: string | null;
+  elapsed_seconds: number | null;
+  current_phase: string | null;
+  phases: ImportPhase[];
+  error_message?: string | null;
+}
