@@ -18,12 +18,14 @@ export default function SubmenuOverlay({
   parentLabel,
   parentKey,
   onClose,
+  onDismiss,
   onBack,
 }: {
   items: IMenuConfig;
   parentLabel: string;
   parentKey?: string;
   onClose: () => void;
+  onDismiss?: () => void;
   onBack?: () => void;
 }) {
   const navigate = useNavigate();
@@ -40,9 +42,13 @@ export default function SubmenuOverlay({
     setSubmenuStack([{ items, parentLabel, parentKey }]);
   }, [items, parentLabel, parentKey]);
 
-  const handleClose = useCallback(() => {
+  const handleCloseAll = useCallback(() => {
     requestClose(onClose);
   }, [requestClose, onClose]);
+
+  const handleDismiss = useCallback(() => {
+    requestClose(onDismiss ?? onClose);
+  }, [requestClose, onDismiss, onClose]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -52,16 +58,16 @@ export default function SubmenuOverlay({
         } else if (onBack) {
           onBack();
         } else {
-          handleClose();
+          handleDismiss();
         }
       }
     };
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
-  }, [submenuStack.length, onBack, handleClose]);
+  }, [submenuStack.length, onBack, handleDismiss]);
 
   function handleGo(path: string) {
-    handleClose();
+    handleCloseAll();
     navigate(path);
   }
 
@@ -72,7 +78,7 @@ export default function SubmenuOverlay({
       const isExternal =
         item.path.startsWith("http://") || item.path.startsWith("https://");
       if (isExternal) {
-        handleClose();
+        handleCloseAll();
         window.open(item.path, item.target || "_blank", "noopener,noreferrer");
         return;
       }
@@ -87,7 +93,7 @@ export default function SubmenuOverlay({
     } else if (onBack) {
       onBack();
     } else {
-      handleClose();
+      handleDismiss();
     }
   }
 
@@ -104,7 +110,7 @@ export default function SubmenuOverlay({
             "absolute inset-0 bg-black/40 transition-opacity duration-300",
             isOpen ? "opacity-100" : "opacity-0",
           ].join(" ")}
-          onClick={handleClose}
+          onClick={handleDismiss}
         />
         <section
           className={[
@@ -130,7 +136,7 @@ export default function SubmenuOverlay({
             <button
               type="button"
               aria-label="Fechar"
-              onClick={handleClose}
+              onClick={handleDismiss}
             >
               <Svg.x width={24} height={24} tailWindClasses="text-white" />
             </button>

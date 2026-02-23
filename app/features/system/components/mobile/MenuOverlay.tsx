@@ -231,6 +231,7 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
             setSubmenuState(null);
             handleClose();
           }}
+          onDismiss={() => setSubmenuState(null)}
           onBack={
             submenuState.parentKey ? () => setSubmenuState(null) : undefined
           }
