@@ -69,6 +69,13 @@ export default function SubmenuOverlay({
     if (item.dropdown) {
       setSubmenuStack((prev) => [...prev, { items: item.dropdown!, parentLabel: item.label, parentKey: key }]);
     } else if (item.path) {
+      const isExternal =
+        item.path.startsWith("http://") || item.path.startsWith("https://");
+      if (isExternal) {
+        handleClose();
+        window.open(item.path, item.target || "_blank", "noopener,noreferrer");
+        return;
+      }
       const fullPath = getRelativePath(key) || DEFAULT_INTERNAL_PATH + item.path;
       handleGo(fullPath);
     }
@@ -156,8 +163,16 @@ export default function SubmenuOverlay({
               })}
               <div aria-hidden>
                 {Object.entries(currentSubmenu.items).map(([key, item]) => {
-                  const path = item.path ? (getRelativePath(key) || DEFAULT_INTERNAL_PATH + item.path) : undefined;
-                  return path ? <PrefetchPageLinks key={`prefetch-sub:${key}`} page={path} /> : null;
+                  if (!item.path) return null;
+                  const isExternal =
+                    item.path.startsWith("http://") ||
+                    item.path.startsWith("https://");
+                  if (isExternal) return null;
+                  const path =
+                    getRelativePath(key) || DEFAULT_INTERNAL_PATH + item.path;
+                  return (
+                    <PrefetchPageLinks key={`prefetch-sub:${key}`} page={path} />
+                  );
                 })}
               </div>
             </div>
