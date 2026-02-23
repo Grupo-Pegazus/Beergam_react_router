@@ -7,7 +7,6 @@ import MetricasCards from "~/features/vendas/components/MetricasCards/MetricasCa
 import Grid from "~/src/components/ui/Grid";
 import Section from "~/src/components/ui/Section";
 
-import { Paper } from "@mui/material";
 import type { VendasFiltersState } from "~/features/vendas/components/Filters";
 import { VendasFilters } from "~/features/vendas/components/Filters";
 import OrderList from "~/features/vendas/components/OrderList/OrderList";
@@ -198,7 +197,7 @@ export default function VendasPage() {
       </CensorshipWrapper>
       <CensorshipWrapper censorshipKey="vendas_faturamento_diario">
         <Section
-          title="Faturamento Diário"
+          title="Faturamento Diário e Logística"
         >
           <Grid cols={{ base: 1 }}>
             <ImageCensored

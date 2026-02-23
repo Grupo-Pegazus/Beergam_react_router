@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import { z } from "zod";
 import { getStatusOrderMeliInfo } from "~/src/constants/status-order-meli";
 import { AD_TYPE_OPTIONS, DELIVERY_OPTIONS } from "../anuncios/components/Filters/AnunciosFilters";
+import { getLogisticTypeMeliInfo } from "~/src/constants/logistic-type-meli";
 // ============================================
 // Schemas reutilizáveis para transformações
 // ============================================
@@ -591,7 +592,6 @@ export const OrdersMetricsSchema = z.object({
 
 export type OrdersMetrics = z.infer<typeof OrdersMetricsSchema>;
 
-// Schema para faturamento diário
 export const DailyRevenueItemSchema = z.object({ 
   date: z.string(),
   faturamento_bruto: z.string(),
@@ -599,12 +599,24 @@ export const DailyRevenueItemSchema = z.object({
   total_pedidos: z.number(),
 });
 
+export type DailyRevenueItem = z.infer<typeof DailyRevenueItemSchema>;
+
+type LogisticTypeMeliInfo = ReturnType<typeof getLogisticTypeMeliInfo>;
+type LogisticTypeMeliLabel = LogisticTypeMeliInfo["label"];
+
+export const DailyRevenueByShipmentTypeSchema = z.record(z.string(), z.number());
+
+export type DailyRevenueByShipmentType = z.infer<
+  typeof DailyRevenueByShipmentTypeSchema
+> &
+  Record<LogisticTypeMeliLabel, number>;
+
 export const DailyRevenueSchema = z.object({
   daily_revenue: z.array(DailyRevenueItemSchema),
+  daily_revenue_by_shipment_type: DailyRevenueByShipmentTypeSchema,
 });
 
 export type DailyRevenue = z.infer<typeof DailyRevenueSchema>;
-export type DailyRevenueItem = z.infer<typeof DailyRevenueItemSchema>;
 
 // Schema para distribuição geográfica
 export const GeographicDistributionItemSchema = z.object({
