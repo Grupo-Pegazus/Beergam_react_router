@@ -85,6 +85,18 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
     navigate(path);
   }
 
+  const CONTEUDO_SUBMENU_ITEMS: IMenuConfig = useMemo(
+    () => ({
+      comunidade_whatsapp: {
+        label: "Comunidade do WhatsApp",
+        path: "https://chat.whatsapp.com/FkRg6rgM047C1zdTnekvSF",
+        target: "_blank",
+        status: "green",
+      },
+    }),
+    []
+  );
+
   function handleItemClick(item: IMenuItem, key: string) {
     if (item.dropdown) {
       setSubmenuState({
@@ -98,6 +110,15 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
       handleGo(fullPath);
     }
   }
+
+  function handleConteudoClick() {
+    setSubmenuState({
+      items: CONTEUDO_SUBMENU_ITEMS,
+      parentLabel: "Conteúdo",
+    });
+  }
+
+  const ConteudoIcon = getIcon("megaphone");
 
   return (
     <>
@@ -165,6 +186,29 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
                 </Paper>
               );
             })}
+          <Paper
+            onClick={handleConteudoClick}
+            className={[
+              "relative aspect-square rounded-xl border border-black/10 bg-beergam-menu-background! shadow-sm p-3 flex flex-col items-center justify-center gap-2 transition-all duration-200",
+              "hover:bg-beergam-blue-light hover:border-beergam-blue/20 active:scale-95 cursor-pointer",
+            ].join(" ")}
+            elevation={1}
+          >
+            <span className="leading-none grid place-items-center text-beergam-menu-mobile-button">
+              {ConteudoIcon ? (
+                <ConteudoIcon tailWindClasses="w-8 h-8 text-beergam-menu-mobile-button" />
+              ) : null}
+            </span>
+            <span className="text-xs font-medium text-beergam-menu-mobile-button text-center leading-tight">
+              Conteúdo
+            </span>
+            <span className="absolute top-1.5 left-1.5 grid place-items-center w-5 h-5">
+              <Svg.list tailWindClasses="w-6 h-6 text-beergam-menu-mobile-button" />
+            </span>
+            <span className="absolute top-1.5 right-1.5 grid place-items-center w-5 h-5">
+              <Svg.check_circle tailWindClasses="w-6 h-6 text-beergam-green" />
+            </span>
+          </Paper>
         </div>
         <div aria-hidden>
           {Object.entries(MenuConfig).map(([key, item]) => {
@@ -187,6 +231,7 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
             setSubmenuState(null);
             handleClose();
           }}
+          onDismiss={() => setSubmenuState(null)}
           onBack={
             submenuState.parentKey ? () => setSubmenuState(null) : undefined
           }
