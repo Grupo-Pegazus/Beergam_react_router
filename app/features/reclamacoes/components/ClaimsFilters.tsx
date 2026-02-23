@@ -44,13 +44,14 @@ export function ClaimsFilters({
     };
 
     const sections = [
-        // Primeira seção: Busca por texto e ID da reclamação
+        // Seção única: Pesquisar, ID, Status e Reputação na mesma linha
         <Stack
-            key="search-section"
-            direction={{ xs: "column", md: "row" }}
+            key="filters-section"
+            direction={{ xs: "column", lg: "row" }}
             spacing={3}
+            sx={{ flexWrap: "wrap" }}
         >
-            <div style={{ flex: 1 }} className="md:w-auto w-full">
+            <div className="flex-1 min-w-0 lg:min-w-[200px] w-full">
                 <FilterSearchInput
                     value={value.text}
                     onChange={(text) => handleChange("text", text)}
@@ -61,7 +62,7 @@ export function ClaimsFilters({
                     onEnterPress={onSubmit}
                 />
             </div>
-            <div style={{ flex: 1 }} className="md:w-auto w-full">
+            <div className="flex-1 min-w-0 lg:min-w-[180px] w-full">
                 <FilterSearchInput
                     label="ID da reclamação"
                     value={value.claim_id}
@@ -72,14 +73,7 @@ export function ClaimsFilters({
                     onEnterPress={onSubmit}
                 />
             </div>
-        </Stack>,
-        // Segunda seção: Status e Reputação
-        <Stack
-            key="filters-section"
-            direction={{ xs: "column", md: "row" }}
-            spacing={3}
-        >
-            <div style={{ flex: 1 }} className="md:w-auto w-full">
+            <div className="flex-1 min-w-0 lg:min-w-[140px] w-full">
                 <FilterSelect
                     value={value.status}
                     onChange={(newValue) => handleChange("status", newValue ?? "")}
@@ -89,7 +83,7 @@ export function ClaimsFilters({
                     widthType="full"
                 />
             </div>
-            <div style={{ flex: 1 }} className="md:w-auto w-full">
+            <div className="flex-1 min-w-0 lg:min-w-[180px] w-full">
                 <FilterSelect
                     value={value.affects_reputation}
                     onChange={(newValue) => handleChange("affects_reputation", newValue ?? "")}
