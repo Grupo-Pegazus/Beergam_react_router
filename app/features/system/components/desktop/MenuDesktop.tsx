@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from "react";
 import authStore from "~/features/store-zustand";
 import { CDN_IMAGES } from "~/src/constants/cdn-images";
+import ConteudoMenuItem from "./ConteudoMenuItem";
 import MenuItem from "../../../menu/components/MenuItem/MenuItem";
 import { useActiveMenu } from "../../../menu/hooks";
 import { useMenuActions } from "../../../menu/hooks/useMenuActions";
@@ -73,6 +74,7 @@ function MenuDesktopContent() {
           {Object.entries(menu).map(([key, item]) => (
             <MenuItem key={key} item={item} itemKey={key} parentKey="" />
           ))}
+          <ConteudoMenuItem isMenuExpanded={isExpanded} />
         </ul>
         <div className="mt-auto px-3"></div>
       </div>
