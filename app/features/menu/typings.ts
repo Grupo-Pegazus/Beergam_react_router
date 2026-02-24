@@ -175,6 +175,12 @@ export const MenuConfig = {
         status: "green",
         path: "/curva_abc",
         launched: true,
+      },
+      pareto: {
+        label: "Pareto",
+        status: "green",
+        path: "/pareto",
+        launched: true,
       }
     }
   }
