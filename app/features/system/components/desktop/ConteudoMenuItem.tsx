@@ -81,7 +81,7 @@ export default function ConteudoMenuItem({
             >
               <div className="w-[10px] h-[10px] rounded-full absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-beergam-green!" />
               <span className="inline-block ml-0 group-hover:ml-3 text-[18px] w-0 opacity-0 overflow-hidden whitespace-nowrap transition-[margin,width,opacity] duration-200 group-hover:w-auto group-hover:opacity-100">
-                Networking WhatsApp
+                Networking
               </span>
             </a>
           </li>
