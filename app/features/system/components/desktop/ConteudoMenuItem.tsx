@@ -5,6 +5,8 @@ import { getIcon } from "~/features/menu/utils";
 const WHATSAPP_COMMUNITY_LINK =
   "https://chat.whatsapp.com/FkRg6rgM047C1zdTnekvSF";
 
+const ACADEMY_LINK = "https://academy.beergam.com.br";
+
 interface ConteudoMenuItemProps {
   isMenuExpanded?: boolean;
 }
@@ -83,6 +85,25 @@ export default function ConteudoMenuItem({
               <span className="inline-block ml-0 group-hover:ml-3 text-[18px] w-0 opacity-0 overflow-hidden whitespace-nowrap transition-[margin,width,opacity] duration-200 group-hover:w-auto group-hover:opacity-100">
                 Networking
               </span>
+              
+            </a>
+            <a
+              href={ACADEMY_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={[
+                "w-full text-left bg-transparent relative flex items-center rounded-[5px]",
+                "text-white/50 border border-transparent hover:text-white hover:border-white/70",
+                "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-8",
+                "transition-[width,padding,color,border-color] duration-200",
+                "after:content-[''] after:absolute after:left-[-10px] after:top-[50%] after:translate-y-[-50%] after:w-[10px] after:h-px after:bg-beergam-white",
+              ].join(" ")}
+            >
+              <div className="w-[10px] h-[10px] rounded-full absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-beergam-green!" />
+              <span className="inline-block ml-0 group-hover:ml-3 text-[18px] w-0 opacity-0 overflow-hidden whitespace-nowrap transition-[margin,width,opacity] duration-200 group-hover:w-auto group-hover:opacity-100">
+                Academy
+              </span>
+              
             </a>
           </li>
         </ul>
