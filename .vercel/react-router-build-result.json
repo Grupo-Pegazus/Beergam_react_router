@@ -37,7 +37,8 @@
       "routes/produtos/estoque/[product_id]/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/calculadora/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/financeiro/relatorio_vendas/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/financeiro/lucratividade/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
+      "routes/financeiro/lucratividade/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/financeiro/curva_abc/route": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
     },
     "routes": {
       "root": {
@@ -310,6 +311,15 @@
         "config": {
           "runtime": "nodejs"
         }
+      },
+      "routes/financeiro/curva_abc/route": {
+        "id": "routes/financeiro/curva_abc/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "app/routes/financeiro/curva_abc/route.tsx",
+        "path": "interno/financeiro/curva_abc",
+        "config": {
+          "runtime": "nodejs"
+        }
       }
     }
   },
@@ -508,6 +518,12 @@
         "parentId": "features/menu/components/layout/MenuLayout",
         "file": "routes/financeiro/lucratividade/route.tsx",
         "path": "interno/financeiro/lucratividade"
+      },
+      "routes/financeiro/curva_abc/route": {
+        "id": "routes/financeiro/curva_abc/route",
+        "parentId": "features/menu/components/layout/MenuLayout",
+        "file": "routes/financeiro/curva_abc/route.tsx",
+        "path": "interno/financeiro/curva_abc"
       }
     },
     "routeDiscovery": {
@@ -641,6 +657,10 @@
                   {
                     "file": "routes/financeiro/lucratividade/route.tsx",
                     "path": "interno/financeiro/lucratividade"
+                  },
+                  {
+                    "file": "routes/financeiro/curva_abc/route.tsx",
+                    "path": "interno/financeiro/curva_abc"
                   }
                 ]
               }
@@ -771,6 +791,10 @@
                   {
                     "file": "routes/financeiro/lucratividade/route.tsx",
                     "path": "interno/financeiro/lucratividade"
+                  },
+                  {
+                    "file": "routes/financeiro/curva_abc/route.tsx",
+                    "path": "interno/financeiro/curva_abc"
                   }
                 ]
               }
