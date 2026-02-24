@@ -169,6 +169,12 @@ export const MenuConfig = {
         status: "green",
         path: "/lucratividade",
         launched: true,
+      },
+      curva_abc: {
+        label: "Curva ABC",
+        status: "green",
+        path: "/curva_abc",
+        launched: true,
       }
     }
   }
