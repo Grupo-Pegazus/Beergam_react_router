@@ -70,13 +70,15 @@ export default function NumericInput({
   const [isInteracting, setIsInteracting] = useState(false);
   const [internalDigits, setInternalDigits] = useState<string>("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const isInteractingRef = useRef(false);
   const isCurrencyBankMode = format === "currency";
 
   const config = format ? getNumericFormat(format, decimalScale) : null;
 
   // Sincroniza dígitos internos quando value muda externamente (apenas para currency)
+  // Ignora atualizações enquanto o usuário está interagindo para evitar reset
   useEffect(() => {
-    if (isCurrencyBankMode) {
+    if (isCurrencyBankMode && !isInteractingRef.current) {
       if (value === undefined || value === "" || value === null) {
         setInternalDigits("");
       } else {
@@ -221,18 +223,21 @@ export default function NumericInput({
 
   const handleBlur = useCallback(
     (e: React.FocusEvent<HTMLInputElement>) => {
+      isInteractingRef.current = false;
       setIsInteracting(false);
-      if (config && isNumber) {
+      const isEmpty = isCurrencyBankMode ? internalDigits === "" : !isNumber;
+      if (!isEmpty && config && isNumber) {
         const clamped = clamp(numericValue as number, min, max);
         if (clamped !== numericValue) onChange?.(clamped);
       }
       onBlur?.(e);
     },
-    [config, isNumber, numericValue, min, max, onChange, onBlur]
+    [isCurrencyBankMode, internalDigits, config, isNumber, numericValue, min, max, onChange, onBlur]
   );
 
   const handleFocus = useCallback(
     (e: React.FocusEvent<HTMLInputElement>) => {
+      isInteractingRef.current = true;
       setIsInteracting(true);
       onFocus?.(e);
     },
