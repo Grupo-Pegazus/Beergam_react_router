@@ -101,8 +101,8 @@ export function ChartTooltipContent({
           
           const itemColor = item.color || configItem?.color || "var(--color-beergam-primary)";
           const itemName = configItem?.label || item.name || dataKey;
-          const itemValue = valueFormatter 
-            ? valueFormatter(item.value as number | string)
+          const itemValue = valueFormatter
+            ? valueFormatter(item.value as number | string, dataKey)
             : item.value;
 
           return (

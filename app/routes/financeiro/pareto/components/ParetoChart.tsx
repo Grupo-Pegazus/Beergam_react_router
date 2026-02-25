@@ -1,5 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
+    Area,
     Bar,
     CartesianGrid,
     ComposedChart,
@@ -8,7 +9,7 @@ import {
     XAxis,
     YAxis,
 } from "recharts";
-import type { ParetoChartResponse } from "~/features/financeiro/pareto/typings";
+import type { ParetoChartResponse, ParetoMetric } from "~/features/financeiro/pareto/typings";
 import MainCards from "~/src/components/ui/MainCards";
 import {
     ChartContainer,
@@ -26,29 +27,73 @@ interface ParetoChartProps {
     data: ParetoChartResponse;
 }
 
-const METRIC_LABELS: Record<string, string> = {
-    revenue: "Faturamento",
-    units: "Unidades",
-    profit: "Lucro",
-};
+type ChartType = "bar" | "area";
 
-function formatMetricValue(metric: string, value: number): string {
+const METRIC_OPTIONS: Array<{ value: ParetoMetric; label: string }> = [
+    { value: "revenue", label: "Faturamento" },
+    { value: "units", label: "Unidades" },
+    { value: "profit", label: "Lucro" },
+];
+
+const CHART_TYPE_OPTIONS: Array<{ value: ChartType; label: string }> = [
+    { value: "bar", label: "Barras" },
+    { value: "area", label: "Área" },
+];
+
+function formatMetricValue(metric: ParetoMetric, value: number): string {
     if (metric === "units") return String(value);
     return formatCurrency(value);
 }
 
+interface SelectorButtonGroupProps<T extends string> {
+    options: Array<{ value: T; label: string }>;
+    selected: T;
+    onSelect: (value: T) => void;
+}
+
+function SelectorButtonGroup<T extends string>({
+    options,
+    selected,
+    onSelect,
+}: SelectorButtonGroupProps<T>) {
+    return (
+        <div className="flex items-center gap-1 rounded-lg bg-beergam-input-background p-1">
+            {options.map((opt) => (
+                <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => onSelect(opt.value)}
+                    className={`
+                        px-3 py-1 rounded-md text-xs font-medium transition-all
+                        ${
+                            selected === opt.value
+                                ? "bg-beergam-primary text-beergam-background shadow-sm"
+                                : "text-beergam-typography-secondary hover:text-beergam-typography-primary"
+                        }
+                    `}
+                >
+                    {opt.label}
+                </button>
+            ))}
+        </div>
+    );
+}
+
 export default function ParetoChart({ data }: ParetoChartProps) {
-    const metricLabel = METRIC_LABELS[data.metric] ?? "Valor";
+    const [metric, setMetric] = useState<ParetoMetric>("revenue");
+    const [chartType, setChartType] = useState<ChartType>("bar");
+
+    const activeData = data.chart_data[metric];
+    const metricLabel = METRIC_OPTIONS.find((o) => o.value === metric)?.label ?? "Valor";
 
     const chartData = useMemo(
         () =>
-            data.chart_data.map((item) => ({
+            activeData.map((item) => ({
                 name: item.sku,
-                title: item.title ?? item.sku,
                 valor: item.value,
                 acumulado: +(item.cumulative_share * 100).toFixed(1),
             })),
-        [data.chart_data],
+        [activeData],
     );
 
     const chartConfig: ChartConfig = useMemo(
@@ -65,9 +110,7 @@ export default function ParetoChart({ data }: ParetoChartProps) {
         [metricLabel],
     );
 
-    const hasData = chartData.length > 0;
-
-    if (!hasData) {
+    if (chartData.length === 0) {
         return (
             <MainCards>
                 <div className="flex items-center justify-center p-8">
@@ -81,12 +124,30 @@ export default function ParetoChart({ data }: ParetoChartProps) {
 
     return (
         <MainCards>
-            <div className="space-y-2">
-                <p className="text-xs text-beergam-typography-secondary">
-                    Top <span className="font-semibold text-beergam-typography-primary">{chartData.length}</span> SKUs
-                    por {metricLabel.toLowerCase()}. A linha azul indica o percentual acumulado
-                    — a linha pontilhada marca o limiar de 80%.
-                </p>
+            <div className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-xs text-beergam-typography-secondary">
+                        Top{" "}
+                        <span className="font-semibold text-beergam-typography-primary">
+                            {chartData.length}
+                        </span>{" "}
+                        SKUs por {metricLabel.toLowerCase()}. A linha azul indica o percentual
+                        acumulado — a linha pontilhada marca o limiar de 80%.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <SelectorButtonGroup
+                            options={METRIC_OPTIONS}
+                            selected={metric}
+                            onSelect={setMetric}
+                        />
+                        <SelectorButtonGroup
+                            options={CHART_TYPE_OPTIONS}
+                            selected={chartType}
+                            onSelect={setChartType}
+                        />
+                    </div>
+                </div>
+
                 <div className="h-[300px] md:h-[400px] w-full overflow-hidden">
                     <ChartContainer config={chartConfig} className="h-full w-full">
                         <ComposedChart data={chartData} accessibilityLayer>
@@ -98,19 +159,22 @@ export default function ParetoChart({ data }: ParetoChartProps) {
                                 textAnchor="end"
                                 height={80}
                                 interval={0}
-                                tick={{ fontSize: 9, fill: "var(--color-beergam-typography-secondary)" }}
+                                tick={{
+                                    fontSize: 9,
+                                    fill: "var(--color-beergam-typography-secondary)",
+                                }}
                             />
                             <YAxis
                                 yAxisId="left"
                                 {...chartAxisStyle}
-                                tickFormatter={(value) => formatMetricValue(data.metric, Number(value))}
+                                tickFormatter={(v) => formatMetricValue(metric, Number(v))}
                             />
                             <YAxis
                                 yAxisId="right"
                                 orientation="right"
                                 {...chartAxisStyle}
                                 domain={[0, 100]}
-                                tickFormatter={(value) => `${value}%`}
+                                tickFormatter={(v) => `${v}%`}
                             />
 
                             <ReferenceLine
@@ -132,22 +196,35 @@ export default function ParetoChart({ data }: ParetoChartProps) {
                                 content={
                                     <ChartTooltipContent
                                         title="Pareto"
-                                        valueFormatter={(value, name) => {
-                                            if (name === "acumulado") return `${value}%`;
-                                            return formatMetricValue(data.metric, Number(value));
+                                        valueFormatter={(value, dataKey) => {
+                                            if (dataKey === "acumulado") return `${value}%`;
+                                            return formatMetricValue(metric, Number(value));
                                         }}
                                     />
                                 }
                             />
                             <ChartLegend content={<ChartLegendContent />} />
 
-                            <Bar
-                                yAxisId="left"
-                                dataKey="valor"
-                                fill="var(--color-valor)"
-                                radius={[4, 4, 0, 0]}
-                                minPointSize={1}
-                            />
+                            {chartType === "bar" ? (
+                                <Bar
+                                    yAxisId="left"
+                                    dataKey="valor"
+                                    fill="var(--color-valor)"
+                                    radius={[4, 4, 0, 0]}
+                                    minPointSize={1}
+                                />
+                            ) : (
+                                <Area
+                                    yAxisId="left"
+                                    dataKey="valor"
+                                    type="monotone"
+                                    fill="var(--color-valor)"
+                                    stroke="var(--color-valor)"
+                                    fillOpacity={0.3}
+                                    strokeWidth={2}
+                                />
+                            )}
+
                             <Line
                                 yAxisId="right"
                                 dataKey="acumulado"
