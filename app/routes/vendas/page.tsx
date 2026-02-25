@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import dayjs from "dayjs";
 import DailyRevenueChart from "~/features/vendas/components/Charts/DailyRevenueChart";
+import DailyShippedChart from "~/features/vendas/components/Charts/DailyShippedChart";
 import GeographicMap from "~/features/vendas/components/Charts/GeographicMap";
 import MetricasCards from "~/features/vendas/components/MetricasCards/MetricasCards";
 import Grid from "~/src/components/ui/Grid";
@@ -192,6 +193,18 @@ export default function VendasPage() {
         >
           <Grid cols={{ base: 1 }}>
             <MetricasCards onStatusCardClick={handleApplyFilterAndScroll} />
+          </Grid>
+        </Section>
+      </CensorshipWrapper>
+      <CensorshipWrapper censorshipKey="vendas_enviadas_diario">
+        <Section title="Vendas Diárias">
+          <Grid cols={{ base: 1 }}>
+            <ImageCensored
+              className="w-full h-full min-h-56"
+              censorshipKey="vendas_enviadas_diario"
+            >
+              <DailyShippedChart />
+            </ImageCensored>
           </Grid>
         </Section>
       </CensorshipWrapper>

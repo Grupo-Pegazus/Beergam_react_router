@@ -618,6 +618,20 @@ export const DailyRevenueSchema = z.object({
 
 export type DailyRevenue = z.infer<typeof DailyRevenueSchema>;
 
+export const DailyShippedItemSchema = z.object({
+  date: z.string(),
+  shipped: z.number(),
+  cancelled: z.number(),
+});
+
+export type DailyShippedItem = z.infer<typeof DailyShippedItemSchema>;
+
+export const DailyShippedSchema = z.object({
+  daily_shipped: z.array(DailyShippedItemSchema),
+});
+
+export type DailyShipped = z.infer<typeof DailyShippedSchema>;
+
 // Schema para distribuição geográfica
 export const GeographicDistributionItemSchema = z.object({
   state: z.string(),

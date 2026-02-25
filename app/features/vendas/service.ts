@@ -5,6 +5,7 @@ import type {
   OrdersFilters,
   OrdersMetrics,
   DailyRevenue,
+  DailyShipped,
   GeographicDistribution,
   TopCategories,
   OrderDetailsResponse,
@@ -65,6 +66,23 @@ class VendasService {
 
     const response = await typedApiClient.get<DailyRevenue>(url);
     return response as ApiResponse<DailyRevenue>;
+  }
+
+  async getDailyShipped(params?: {
+    days?: number;
+    date_from?: string;
+    date_to?: string;
+  }): Promise<ApiResponse<DailyShipped>> {
+    const queryParams = new URLSearchParams();
+    if (params?.days) queryParams.append("days", String(params.days));
+    if (params?.date_from) queryParams.append("date_from", params.date_from);
+    if (params?.date_to) queryParams.append("date_to", params.date_to);
+
+    const queryString = queryParams.toString();
+    const url = `/v1/orders/daily-shipped${queryString ? `?${queryString}` : ""}`;
+
+    const response = await typedApiClient.get<DailyShipped>(url);
+    return response as ApiResponse<DailyShipped>;
   }
 
   async getGeographicDistribution(params?: {
