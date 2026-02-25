@@ -476,6 +476,75 @@ export type StockDashboardResponse = z.infer<
   typeof StockDashboardResponseSchema
 >;
 
+// Schema para tag de recomendação de estoque
+export const StockTagSchema = z.enum([
+  "acelerar_vendas",
+  "manter_vendas",
+  "diminuir_vendas",
+]);
+export type StockTag = z.infer<typeof StockTagSchema>;
+
+// Schema para estoque de uma variação no overview
+const StockOverviewVariationSchema = z.object({
+  variation_id: z.string(),
+  sku: z.string().nullable(),
+  title: z.string(),
+  own_stock: z.number(),
+  full_stock: z.number(),
+  minimum_quantity: z.number(),
+  maximum_quantity: z.number(),
+  daily_avg_sales: z.number(),
+  tag: StockTagSchema,
+});
+
+export type StockOverviewVariation = z.infer<typeof StockOverviewVariationSchema>;
+
+// Schema para produto no panorama de estoque
+export const StockOverviewItemSchema = z.object({
+  product_id: z.string(),
+  sku: z.string().nullable(),
+  title: z.string(),
+  has_variations: z.boolean(),
+  stock: z.object({
+    own: z.number(),
+    full: z.number(),
+    total: z.number(),
+    minimum: z.number(),
+    maximum: z.number(),
+  }),
+  daily_avg_sales: z.number(),
+  coverage_days: z.number().nullable(),
+  tag: StockTagSchema,
+  variations: z.array(StockOverviewVariationSchema),
+});
+
+export type StockOverviewItem = z.infer<typeof StockOverviewItemSchema>;
+
+// Schema para paginação do stock overview
+const StockOverviewPaginationSchema = z.object({
+  page: z.number(),
+  per_page: z.number(),
+  total: z.number(),
+  pages: z.number(),
+});
+
+// Schema para resposta do stock overview
+export const StockOverviewResponseSchema = z.object({
+  items: z.array(StockOverviewItemSchema),
+  pagination: StockOverviewPaginationSchema,
+});
+
+export type StockOverviewResponse = z.infer<typeof StockOverviewResponseSchema>;
+
+// Schema para filtros do stock overview
+export const StockOverviewFiltersSchema = z.object({
+  page: z.number().default(1),
+  per_page: z.number().default(20),
+  search: z.string().optional(),
+});
+
+export type StockOverviewFilters = z.infer<typeof StockOverviewFiltersSchema>;
+
 // Schema para informações da conta no dashboard de sincronização
 const SyncAccountInfoSchema = z.object({
   marketplace_shop_id: z.string(),

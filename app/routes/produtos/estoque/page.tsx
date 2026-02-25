@@ -4,21 +4,15 @@ import LowStockVariationsList from "~/features/produtos/components/StockDashboar
 import ProductsWithoutStockControl from "~/features/produtos/components/StockDashboard/ProductsWithoutStockControl";
 import RecentMovementsList from "~/features/produtos/components/StockDashboard/RecentMovementsList";
 import StockMetricsCards from "~/features/produtos/components/StockDashboard/StockMetricsCards";
+import StockOverviewTable from "~/features/produtos/components/StockDashboard/StockOverviewTable";
 import StockProductsList from "~/features/produtos/components/StockDashboard/StockProductsList";
 import StockSummaryCards from "~/features/produtos/components/StockDashboard/StockSummaryCards";
-import SyncAccountInfo from "~/features/produtos/components/StockSyncDashboard/SyncAccountInfo";
-import {
-  useStockDashboard,
-  useStockSyncDashboard,
-} from "~/features/produtos/hooks";
+import { useStockDashboard } from "~/features/produtos/hooks";
 import Loading from "~/src/assets/loading";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
 import Grid from "~/src/components/ui/Grid";
-import Section from "~/src/components/ui/Section";
 import MainCards from "~/src/components/ui/MainCards";
-// import SyncStatsCards from "~/features/produtos/components/StockSyncDashboard/SyncStatsCards";
-// import RecentActivitiesList from "~/features/produtos/components/StockSyncDashboard/RecentActivitiesList";
-// import RecommendationsList from "~/features/produtos/components/StockSyncDashboard/RecommendationsList";
+import Section from "~/src/components/ui/Section";
 
 export default function StockDashboardPage() {
   const [searchParams] = useSearchParams();
@@ -30,20 +24,19 @@ export default function StockDashboardPage() {
     error: stockError,
   } = useStockDashboard(limit);
 
-  const {
-    data: syncData,
-    isLoading: isLoadingSync,
-    error: syncError,
-  } = useStockSyncDashboard();
-
   const stockDashboard = stockData?.success ? stockData.data : null;
-  const syncDashboard = syncData?.success ? syncData.data : null;
 
   return (
     <>
       <Section title="Produtos com Controle de Estoque">
         <Grid cols={{ base: 1, lg: 1 }}>
-          <StockProductsList syncPageWithUrl pageParamKey="page" />
+          <StockProductsList />
+        </Grid>
+      </Section>
+
+      <Section title="Panorama de Estoque com Tags">
+        <Grid cols={{ base: 1, lg: 1 }}>
+          <StockOverviewTable />
         </Grid>
       </Section>
 
@@ -125,52 +118,6 @@ export default function StockDashboardPage() {
             </>
           )}
           </MainCards>
-        </AsyncBoundary>
-      </Section>
-
-      <Section title="Dashboard de Sincronização">
-        <AsyncBoundary
-          isLoading={isLoadingSync}
-          error={syncError as unknown}
-          Skeleton={Loading}
-          ErrorFallback={() => (
-            <div className="rounded-2xl border border-beergam-red bg-beergam-red/10 text-beergam-red p-4">
-              Não foi possível carregar o dashboard de sincronização.
-            </div>
-          )}
-        >
-          {syncDashboard && (
-            <>
-              <Grid cols={{ base: 1, lg: 1 }}>
-                <SyncAccountInfo accountInfo={syncDashboard.account_info} />
-              </Grid>
-
-              {/* <Grid cols={{ base: 1, lg: 1 }} className="mt-6">
-                <SyncStatsCards syncStats={syncDashboard.sync_stats} />
-              </Grid> */}
-
-              {/* {syncDashboard.recent_activities.length > 0 && (
-                <Grid cols={{ base: 1, lg: 1 }} className="mt-6">
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                      Atividades Recentes
-                    </h3>
-                    <RecentActivitiesList
-                      activities={syncDashboard.recent_activities}
-                    />
-                  </div>
-                </Grid>
-              )} */}
-
-              {/* {syncDashboard.recommendations.length > 0 && (
-                <Grid cols={{ base: 1, lg: 1 }} className="mt-6">
-                  <RecommendationsList
-                    recommendations={syncDashboard.recommendations}
-                  />
-                </Grid>
-              )} */}
-            </>
-          )}
         </AsyncBoundary>
       </Section>
     </>
