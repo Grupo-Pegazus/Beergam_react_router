@@ -67,11 +67,6 @@ function VariationRow({ variation, coverageDays }: VariationRowProps) {
             sx={{ gridTemplateColumns: "subgrid", gridColumn: "1 / -1", backgroundColor: "var(--color-beergam-section-background)" }}
         >
             <div className="flex min-w-0 items-center gap-2 pl-6">
-                {variation.thumbnail ? (
-                    <img src={variation.thumbnail} alt="" className="h-7 w-7 rounded object-cover shrink-0 opacity-80" />
-                ) : (
-                    <div className="h-7 w-7 rounded bg-beergam-primary/10 shrink-0" />
-                )}
                 <div className="min-w-0 flex-1">
                     <TextCensored censorshipKey="full_suggestion_itens">
                         <p className="text-[11px] text-beergam-typography-secondary truncate">{attributeLabel}</p>
