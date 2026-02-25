@@ -34,3 +34,29 @@ export const SelfServiceReturnSchema = z.record(z.enum(AVAILABLE_PERIODS.map(Str
 
 export type SelfServiceReturnSchemaType = z.infer<typeof SelfServiceReturnSchema>;
 
+export const MonthlySeriesEntrySchema = z.object({
+    month: z.string(),
+    quantity: z.number(),
+});
+
+export const SkuMonthlySalesSchema = z.object({
+    sku: z.string(),
+    total_quantity: z.number(),
+    monthly_series: z.array(MonthlySeriesEntrySchema),
+});
+
+export const SalesBySkuMonthlySchema = z.object({
+    months: z.array(z.string()),
+    skus: z.array(SkuMonthlySalesSchema),
+    period: z.object({
+        date_from: z.string(),
+        date_to: z.string(),
+        months_requested: z.number(),
+        months_allowed: z.number(),
+    }),
+});
+
+export type MonthlySeriesEntryType = z.infer<typeof MonthlySeriesEntrySchema>;
+export type SkuMonthlySalesType = z.infer<typeof SkuMonthlySalesSchema>;
+export type SalesBySkuMonthlyType = z.infer<typeof SalesBySkuMonthlySchema>;
+

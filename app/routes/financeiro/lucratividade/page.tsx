@@ -10,9 +10,10 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useIncomingsBySku, useInvoicingMetrics, useInvoicingMetricsByMonths, useSelfServiceReturn } from "~/features/invoicing/hooks";
+import { useIncomingsBySku, useInvoicingMetrics, useInvoicingMetricsByMonths, useSalesBySkuMonthly, useSelfServiceReturn } from "~/features/invoicing/hooks";
 import authStore from "~/features/store-zustand";
 import SkuProfitabilityList from "~/routes/financeiro/components/SkuProfitabilityList";
+import SalesPerformanceTable from "~/routes/financeiro/lucratividade/components/SalesPerformanceTable";
 import Svg from "~/src/assets/svgs/_index";
 import { BeergamAlert } from "~/src/components/ui/BeergamAlert";
 import AsyncBoundary from "~/src/components/ui/AsyncBoundary";
@@ -74,10 +75,8 @@ export default function LucratividadePage() {
 
   const {data: invoicingMetrics, isLoading: isLoadingInvoicingMetrics} = useInvoicingMetrics();
 	const {data: invoicingMetricsByMonths, isLoading: isLoadingInvoicingMetricsByMonths} = useInvoicingMetricsByMonths();
-	const {data: incomingsBySku, isLoading: isLoadingIncomingsBySku} = useIncomingsBySku({
-		start_date: skuDateRange.start,
-		end_date: skuDateRange.end,
-	});
+	const {data: incomingsBySku, isLoading: isLoadingIncomingsBySku} = useIncomingsBySku();
+	const { data: salesBySkuMonthly, isLoading: isLoadingSalesBySkuMonthly } = useSalesBySkuMonthly();
   const subscription = authStore.use.subscription() ?? null;
   const user = authStore.use.user();
   const isBasePlan = subscription?.plan.display_name === 'Operacional';
@@ -212,7 +211,7 @@ export default function LucratividadePage() {
           ))}
         </div>
       )}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:items-baseline">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:items-baseline"> 
                 {contents.map((content, index) => (
                     <SectionContent censorshipKey={censorshipKey} topText={content.topText} index={index} key={content.period} canShowPercentage={content.canShowPercentage} {...content} />
                 ))}
@@ -223,7 +222,7 @@ export default function LucratividadePage() {
     }
    return( <div className="w-full min-w-0 overflow-x-hidden">
     <CensorshipWrapper censorshipKey={"lucratividade_faturamento"}>
-    <Section title="Faturamento" variant="plain">
+    <Section title="Faturamento">
         <MainCards className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <StatCard
                   title="Total Bruto Acumulado"
@@ -257,7 +256,7 @@ export default function LucratividadePage() {
     </Section>
     </CensorshipWrapper>
     <CensorshipWrapper censorshipKey={"lucratividade_flex" as TPREDEFINED_CENSORSHIP_KEYS}>
-      <Section title="Flex" variant="plain">
+      <Section title="Flex">
         <MainCards className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
           <StatCard
                     title="Faturamento Acumulado"
@@ -296,7 +295,7 @@ export default function LucratividadePage() {
         </MainCards>
       </Section>
        </CensorshipWrapper>
-    <Section title="Custos" variant="plain">
+    <Section title="Custos">
         <CensorshipWrapper censorshipKey={"lucratividade_custos" as TPREDEFINED_CENSORSHIP_KEYS}>
         <MainCards className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                   <StatCard
@@ -345,7 +344,7 @@ export default function LucratividadePage() {
         </CensorshipWrapper>
     </Section>
     <CensorshipWrapper canChange={false} censorshipKey={"lucratividade_distribuicao_vendas" as TPREDEFINED_CENSORSHIP_KEYS}>
-      <Section title="Distribuição de Vendas por Faixa de Preço" variant="plain">
+      <Section title="Distribuição de Vendas por Faixa de Preço">
         <MainCards>
         {(() => {
           // Ordem das faixas de preço (conforme definido no enum)
@@ -473,7 +472,7 @@ export default function LucratividadePage() {
       </Section>
      </CensorshipWrapper>
      <CensorshipWrapper censorshipKey={"lucratividade_lucro_sku" as TPREDEFINED_CENSORSHIP_KEYS}>
-    <Section title="Lucro por SKU" variant="plain">
+    <Section title="Lucro por SKU">
         <div className="mb-3 w-full max-w-sm">
           <FilterDateRangePicker
             label="Período"
@@ -495,6 +494,24 @@ export default function LucratividadePage() {
       )}
         
     </Section>
+    </CensorshipWrapper>
+    <CensorshipWrapper censorshipKey={"lucratividade_lucro_sku" as TPREDEFINED_CENSORSHIP_KEYS}>
+      <Section title="Performance de Vendas por SKU">
+        {isLoadingSalesBySkuMonthly ? (
+          <div className="flex items-center justify-center p-8">
+            <p className="text-beergam-typography-secondary">Carregando...</p>
+          </div>
+        ) : salesBySkuMonthly?.data && salesBySkuMonthly.data.skus.length > 0 ? (
+          <SalesPerformanceTable
+            months={salesBySkuMonthly.data.months}
+            skus={salesBySkuMonthly.data.skus}
+          />
+        ) : (
+          <div className="flex items-center justify-center p-8">
+            <p className="text-beergam-typography-secondary">Nenhum dado encontrado para o período.</p>
+          </div>
+        )}
+      </Section>
     </CensorshipWrapper>
     </div>
    )

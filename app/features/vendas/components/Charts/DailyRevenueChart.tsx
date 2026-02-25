@@ -352,7 +352,7 @@ export default function DailyRevenueChart({
                           outerRadius="70%"
                           labelLine={false}
                           label={({ name, percent }) =>
-                            `${name}: ${(percent ?? 0 * 100).toFixed(1)}%`
+                            `${name}: ${((percent ?? 0) * 100).toFixed(1)}%`
                           }
                         >
                           {pieData.map((entry, index) => (

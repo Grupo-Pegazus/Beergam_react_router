@@ -1,6 +1,6 @@
 import { typedApiClient } from "../apiClient/client";
 import type { ApiResponse } from "../apiClient/typings";
-import { type IncomingsBySkuSchemaType, type InvoicingMetricsSchemaType, type SelfServiceReturnSchemaType } from "./typings";
+import { type IncomingsBySkuSchemaType, type InvoicingMetricsSchemaType, type SalesBySkuMonthlyType, type SelfServiceReturnSchemaType } from "./typings";
 
 
 
@@ -36,6 +36,20 @@ class InvoicingService {
     async get_self_service_return(): Promise<ApiResponse<SelfServiceReturnSchemaType>> {
         const response = await typedApiClient.get<SelfServiceReturnSchemaType>(`/v1/invoicing/get_self_services_incomings`);
         return response as ApiResponse<SelfServiceReturnSchemaType>;
+    }
+
+    async getSalesBySkuMonthly(params?: {
+        months?: number;
+        date_from?: string;
+        date_to?: string;
+    }): Promise<ApiResponse<SalesBySkuMonthlyType>> {
+        const queryParams = new URLSearchParams();
+        if (params?.date_from) queryParams.append("date_from", params.date_from);
+        if (params?.date_to) queryParams.append("date_to", params.date_to);
+        const qs = queryParams.toString();
+        const url = `/v1/orders/sales-by-sku-monthly${qs ? `?${qs}` : ""}`;
+        const response = await typedApiClient.get<SalesBySkuMonthlyType>(url);
+        return response as ApiResponse<SalesBySkuMonthlyType>;
     }
 }
 export const invoicingService = new InvoicingService();
