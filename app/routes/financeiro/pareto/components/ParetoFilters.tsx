@@ -1,13 +1,13 @@
 import { useCallback, useMemo } from "react";
 import { Stack } from "@mui/material";
 import dayjs from "dayjs";
-import type { ParetoMetric } from "~/features/financeiro/pareto/typings";
 import {
     FilterActions,
     FilterContainer,
     FilterDateRangePicker,
     FilterSelect,
 } from "~/src/components/filters";
+import type { ParetoFiltersState } from "~/features/financeiro/pareto/hooks";
 
 const DEFAULT_START = dayjs().subtract(90, "day").format("YYYY-MM-DD");
 const DEFAULT_END = dayjs().format("YYYY-MM-DD");
@@ -19,12 +19,6 @@ const PERIOD_OPTIONS: Array<{ label: string; value: string }> = [
     { label: "30 dias", value: "30d" },
     { label: "90 dias", value: "90d" },
     { label: "Personalizado", value: "custom" },
-];
-
-const METRIC_OPTIONS: Array<{ label: string; value: ParetoMetric }> = [
-    { label: "Faturamento", value: "revenue" },
-    { label: "Unidades", value: "units" },
-    { label: "Lucro", value: "profit" },
 ];
 
 const TOP_N_OPTIONS: Array<{ label: string; value: string }> = [
@@ -47,18 +41,6 @@ const SORT_ORDER_OPTIONS = [
     { value: "desc", label: "Decrescente" },
     { value: "asc", label: "Crescente" },
 ];
-
-interface ParetoFiltersState {
-    metric: ParetoMetric;
-    period_alias?: string;
-    date_from?: string;
-    date_to?: string;
-    top_n: number;
-    sort_by?: string;
-    sort_order?: string;
-    page: number;
-    per_page: number;
-}
 
 export interface ParetoFiltersProps {
     value: ParetoFiltersState;
@@ -94,7 +76,7 @@ export default function ParetoFiltersSection({
         (alias: string) => {
             onChange({
                 ...value,
-                period_alias: alias,
+                period_alias: alias as ParetoFiltersState["period_alias"],
                 date_from: alias === "custom" ? value.date_from : undefined,
                 date_to: alias === "custom" ? value.date_to : undefined,
                 page: 1,
@@ -137,24 +119,6 @@ export default function ParetoFiltersSection({
                         />
                     </div>
                 )}
-
-                <div className="w-full md:w-auto">
-                    <FilterSelect
-                        label="Métrica"
-                        value={value.metric}
-                        onChange={(newValue) =>
-                            onChange({
-                                ...value,
-                                metric: newValue as ParetoMetric,
-                                sort_by: newValue as string,
-                                page: 1,
-                            })
-                        }
-                        options={METRIC_OPTIONS}
-                        defaultValue="revenue"
-                        widthType="full"
-                    />
-                </div>
 
                 <div className="w-full md:w-auto">
                     <FilterSelect

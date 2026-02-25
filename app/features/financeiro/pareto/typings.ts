@@ -5,13 +5,16 @@ export const ParetoMetricSchema = z.enum(["revenue", "units", "profit"]);
 export type ParetoMetric = z.infer<typeof ParetoMetricSchema>;
 
 export const ParetoSummarySchema = z.object({
-    metric: z.string(),
     total_skus: z.number(),
-    total_value: z.number(),
-    pareto_line_skus: z.number(),
-    pareto_line_pct: z.number(),
-    period_start: z.string(),
-    period_end: z.string(),
+    total_revenue: z.number(),
+    total_units: z.number(),
+    total_profit: z.number(),
+    pareto_line_skus_revenue: z.number(),
+    pareto_line_skus_units: z.number(),
+    pareto_line_skus_profit: z.number(),
+    pareto_line_pct_revenue: z.number(),
+    pareto_line_pct_units: z.number(),
+    pareto_line_pct_profit: z.number(),
 });
 
 export type ParetoSummary = z.infer<typeof ParetoSummarySchema>;
@@ -27,10 +30,17 @@ export const ParetoChartItemSchema = z.object({
 
 export type ParetoChartItem = z.infer<typeof ParetoChartItemSchema>;
 
+export const ParetoChartDataSchema = z.object({
+    revenue: z.array(ParetoChartItemSchema),
+    units: z.array(ParetoChartItemSchema),
+    profit: z.array(ParetoChartItemSchema),
+});
+
+export type ParetoChartData = z.infer<typeof ParetoChartDataSchema>;
+
 export const ParetoChartResponseSchema = z.object({
-    metric: z.string(),
     summary: ParetoSummarySchema,
-    chart_data: z.array(ParetoChartItemSchema),
+    chart_data: ParetoChartDataSchema,
 });
 
 export type ParetoChartResponse = z.infer<typeof ParetoChartResponseSchema>;
@@ -72,8 +82,6 @@ export const ParetoTableItemSchema = z.object({
 export type ParetoTableItem = z.infer<typeof ParetoTableItemSchema>;
 
 export const ParetoTableResponseSchema = z.object({
-    metric: z.string(),
-    summary: ParetoSummarySchema,
     items: z.array(ParetoTableItemSchema),
     pagination: z.object({
         page: z.number(),
@@ -88,7 +96,6 @@ export const ParetoTableResponseSchema = z.object({
 export type ParetoTableResponse = z.infer<typeof ParetoTableResponseSchema>;
 
 export const ParetoChartFiltersSchema = z.object({
-    metric: ParetoMetricSchema.optional(),
     period_alias: z.enum(["today", "yesterday", "7d", "30d", "90d", "custom"]).optional(),
     date_from: z.string().optional(),
     date_to: z.string().optional(),
@@ -98,7 +105,6 @@ export const ParetoChartFiltersSchema = z.object({
 export type ParetoChartFilters = z.infer<typeof ParetoChartFiltersSchema>;
 
 export const ParetoTableFiltersSchema = z.object({
-    metric: ParetoMetricSchema.optional(),
     period_alias: z.enum(["today", "yesterday", "7d", "30d", "90d", "custom"]).optional(),
     date_from: z.string().optional(),
     date_to: z.string().optional(),
