@@ -52,8 +52,8 @@ export interface ChartTooltipContentProps {
   labelKey?: string;
   /** Chave para usar como nome (se diferente do padrão) */
   nameKey?: string;
-  /** Formatador customizado para o valor */
-  valueFormatter?: (value: number | string) => string;
+  /** Formatador customizado para o valor. Recebe o valor e o dataKey da série */
+  valueFormatter?: (value: number | string, dataKey: string) => string;
   /** Classes CSS adicionais */
   className?: string;
   /** Título do tooltip */

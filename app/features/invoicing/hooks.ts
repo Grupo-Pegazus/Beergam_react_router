@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { ApiResponse } from "../apiClient/typings";
 import type { InvoicingMetricsByMonthsSchemaType } from "./service";
 import { invoicingService } from "./service";
-import type { IncomingsBySkuSchemaType, InvoicingMetricsSchemaType, SelfServiceReturnSchemaType } from "./typings";
+import type { IncomingsBySkuSchemaType, InvoicingMetricsSchemaType, SalesBySkuMonthlyType, SelfServiceReturnSchemaType } from "./typings";
 export function useInvoicingMetrics() {
     return useQuery<ApiResponse<InvoicingMetricsSchemaType>>({
         queryKey: ["invoicing", "metrics"],
@@ -45,6 +45,23 @@ export function useIncomingsBySku(params?: {
             return res;
         },
         staleTime: 1000 * 60 * 5, // 5 minutos
+    });
+}
+
+export function useSalesBySkuMonthly(params?: {
+    date_from?: string;
+    date_to?: string;
+}) {
+    return useQuery<ApiResponse<SalesBySkuMonthlyType>>({
+        queryKey: ["invoicing", "sales_by_sku_monthly", params?.date_from, params?.date_to],
+        queryFn: async () => {
+            const res = await invoicingService.getSalesBySkuMonthly(params);
+            if (!res.success) {
+                throw new Error(res.message || "Erro ao buscar vendas por SKU por mês");
+            }
+            return res;
+        },
+        staleTime: 1000 * 60 * 5,
     });
 }
 

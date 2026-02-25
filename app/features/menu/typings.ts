@@ -142,7 +142,20 @@ export const MenuConfig = {
         path: "/estoque",
         launched: true,
         dinamic_id: "product_id",
-      }
+      },
+      meli: {
+        label: "Mercado Livre",
+        status: "green",
+        launched: true,
+        dropdown: {
+          "full-suggestion": {
+            label: "Sugestão FULL",
+            status: "green",
+            path: "/full-suggestion",
+            launched: true,
+          },
+        },
+      },
     }
   },
   calculadora: {

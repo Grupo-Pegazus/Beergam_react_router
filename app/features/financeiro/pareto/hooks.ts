@@ -5,7 +5,6 @@ import { paretoService } from "./service";
 import type {
     ParetoChartFilters,
     ParetoChartResponse,
-    ParetoMetric,
     ParetoTableFilters,
     ParetoTableResponse,
 } from "./typings";
@@ -38,8 +37,7 @@ export function useParetoTable(filters?: ParetoTableFilters) {
     });
 }
 
-interface ParetoFiltersState {
-    metric: ParetoMetric;
+export interface ParetoFiltersState {
     period_alias: ParetoChartFilters["period_alias"];
     date_from?: string;
     date_to?: string;
@@ -52,7 +50,6 @@ interface ParetoFiltersState {
 
 function buildDefaultFilters(initial?: Partial<ParetoFiltersState>): ParetoFiltersState {
     return {
-        metric: "revenue",
         period_alias: "90d",
         top_n: 20,
         sort_by: "revenue",
@@ -70,7 +67,6 @@ export function useParetoFilters(initial?: Partial<ParetoFiltersState>) {
 
     const chartFilters = useMemo<ParetoChartFilters>(
         () => ({
-            metric: appliedFilters.metric,
             period_alias: appliedFilters.period_alias,
             date_from: appliedFilters.date_from,
             date_to: appliedFilters.date_to,
@@ -81,7 +77,6 @@ export function useParetoFilters(initial?: Partial<ParetoFiltersState>) {
 
     const tableFilters = useMemo<ParetoTableFilters>(
         () => ({
-            metric: appliedFilters.metric,
             period_alias: appliedFilters.period_alias,
             date_from: appliedFilters.date_from,
             date_to: appliedFilters.date_to,

@@ -10,6 +10,7 @@ import Section from "~/src/components/ui/Section";
 
 import type { VendasFiltersState } from "~/features/vendas/components/Filters";
 import { VendasFilters } from "~/features/vendas/components/Filters";
+import { FilterDateRangePicker } from "~/src/components/filters";
 import OrderList from "~/features/vendas/components/OrderList/OrderList";
 import { useReprocessOrdersByPeriod, useVendasFilters, useCreateExport } from "~/features/vendas/hooks";
 import AlertComponent from "~/src/components/utils/Alert";
@@ -60,25 +61,13 @@ function ReprocessOrdersByPeriodModal({
       <p className="text-sm text-gray-600 mb-2">
         Informe o período (data de fechamento) para reprocessar os pedidos.
       </p>
-      <div className="mt-3 flex flex-col gap-3">
-        <label className="text-sm text-beergam-text">
-          Data de fechamento (de)
-          <input
-            type="date"
-            className="mt-1 block w-full rounded border border-beergam-border px-3 py-2 text-sm"
-            value={dateFrom}
-            onChange={(e) => setDateFrom(e.target.value)}
-          />
-        </label>
-        <label className="text-sm text-beergam-text">
-          Data de fechamento (até)
-          <input
-            type="date"
-            className="mt-1 block w-full rounded border border-beergam-border px-3 py-2 text-sm"
-            value={dateTo}
-            onChange={(e) => setDateTo(e.target.value)}
-          />
-        </label>
+      <div className="mt-3">
+        <FilterDateRangePicker
+          label="Período de fechamento"
+          value={dateFrom && dateTo ? { start: dateFrom, end: dateTo } : null}
+          onChange={({ start, end }) => { setDateFrom(start); setDateTo(end); }}
+          widthType="full"
+        />
       </div>
     </AlertComponent>
   );
