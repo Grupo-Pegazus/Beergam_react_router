@@ -76,6 +76,11 @@ const PREDEFINED_PARETO_KEYS = [
   "pareto_skus",
 ] as const;
 
+const PREDEFINED_FULL_SUGGESTION_KEYS = [
+  "full_suggestion_resumo",
+  "full_suggestion_itens",
+] as const;
+
 /**
  * Lista de chaves pré-definidas para inicialização do sistema de censura.
  * Todas as chaves serão criadas com valor padrão `false` se não existirem.
@@ -88,6 +93,7 @@ export const PREDEFINED_CENSORSHIP_KEYS = [
   ...PREDEFINED_RECLAMACOES_KEYS,
   ...PREDEFINED_LUCRATIVIDADE_KEYS,
   ...PREDEFINED_PARETO_KEYS,
+  ...PREDEFINED_FULL_SUGGESTION_KEYS,
 ] as const;
 
 /**
