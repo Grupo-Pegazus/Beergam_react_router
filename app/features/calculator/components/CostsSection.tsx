@@ -154,6 +154,11 @@ export default function CostsSection({
   const getCommissionLabel = () => {
     return isShopee ? "Taxa" : "Comissão";
   };
+
+  const isCommissionFromLink =
+    isMeli &&
+    (classicCommission !== undefined || premiumCommission !== undefined);
+
   return (
     <Paper className="space-y-4">
       <h2 className="text-lg font-semibold text-beergam-typography-primary">
@@ -201,10 +206,13 @@ export default function CostsSection({
                 onChange={(v) => onCommissionPercentageChange(v === undefined ? "" : String(v))}
                 placeholder="0,00"
                 min={0}
+                disabled={isCommissionFromLink}
               />
             </Fields.wrapper>
 
-            <p className="text-xs text-beergam-gray mt-1.5">Opcional</p>
+            <p className="text-xs text-beergam-gray mt-1.5">
+              {isCommissionFromLink ? "Obtido do link do produto" : "Opcional"}
+            </p>
           </div>
           <div className="flex-1">
             <Paper className="bg-beergam-section-background! flex items-center gap-2">

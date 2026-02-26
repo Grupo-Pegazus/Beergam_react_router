@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Tooltip } from "react-tooltip";
 import Svg from "~/src/assets/svgs/_index";
 import { type InputError } from "./typings";
@@ -48,6 +49,8 @@ function Select({
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [isInteracting, setIsInteracting] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const [positionReady, setPositionReady] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const nativeSelectRef = useRef<HTMLSelectElement>(null);
@@ -88,13 +91,13 @@ function Select({
   const selectedOption = options?.find((opt) => opt.value === value);
   const displayValue = selectedOption?.label || "";
 
-  // Fechar dropdown ao clicar fora
+  // Fechar dropdown ao clicar fora (considera dropdown no Portal)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        selectRef.current &&
-        !selectRef.current.contains(event.target as Node)
-      ) {
+      const target = event.target as Node;
+      const isInsideSelect = selectRef.current?.contains(target);
+      const isInsideDropdown = dropdownRef.current?.contains(target);
+      if (!isInsideSelect && !isInsideDropdown) {
         setIsOpen(false);
         setFocusedIndex(null);
       }
@@ -133,6 +136,32 @@ function Select({
       setIsInteracting(false);
     }
   }, [error?.error, hasError]);
+
+  // Calcular posição do dropdown para renderização via Portal (evita overflow dos pais)
+  useLayoutEffect(() => {
+    if (!isOpen || !buttonRef.current) {
+      setPositionReady(false);
+      return;
+    }
+    const updatePosition = () => {
+      if (!buttonRef.current) return;
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+      });
+      setPositionReady(true);
+    };
+    updatePosition();
+    window.addEventListener("scroll", updatePosition, true);
+    window.addEventListener("resize", updatePosition);
+    return () => {
+      setPositionReady(false);
+      window.removeEventListener("scroll", updatePosition, true);
+      window.removeEventListener("resize", updatePosition);
+    };
+  }, [isOpen]);
 
   const handleToggle = () => {
     if (!disabled) {
@@ -421,60 +450,64 @@ function Select({
           </div>
         </div>
 
-        {isOpen && !disabled && (
-          <div
-            ref={dropdownRef}
-            id={`${name || "select"}-dropdown`}
-            className="absolute z-9999 w-full mt-1 bg-beergam-section-background border border-beergam-input-border rounded shadow-lg max-h-60 overflow-auto"
-            role="listbox"
-            aria-label={name || "Opções de seleção"}
-            aria-labelledby={name ? `${name}-label` : undefined}
-            style={{
-              position: "absolute",
-              top: "100%",
-              left: 0,
-              right: 0,
-              zIndex: 9999,
-            }}
-          >
-            {options && options.length > 0 ? (
-              options.map((opt, idx) => {
-                const isSelected = opt.value === value;
-                const isDisabled = opt.disabled;
+        {isOpen &&
+          !disabled &&
+          typeof document !== "undefined" &&
+          createPortal(
+            <div
+              ref={dropdownRef}
+              id={`${name || "select"}-dropdown`}
+              className="fixed z-9999 bg-beergam-section-background border border-beergam-input-border rounded shadow-lg max-h-60 overflow-auto"
+              role="listbox"
+              aria-label={name || "Opções de seleção"}
+              aria-labelledby={name ? `${name}-label` : undefined}
+              style={{
+                top: dropdownPosition.top,
+                left: dropdownPosition.left,
+                width: dropdownPosition.width,
+                opacity: positionReady ? 1 : 0,
+                pointerEvents: positionReady ? "auto" : "none",
+              }}
+            >
+              {options && options.length > 0 ? (
+                options.map((opt, idx) => {
+                  const isSelected = opt.value === value;
+                  const isDisabled = opt.disabled;
 
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    role="option"
-                    aria-selected={isSelected}
-                    className={`
-                      w-full px-3 py-2.5 text-left text-sm text-beergam-typography-tertiary transition-colors duration-150
-                      ${isSelected ? "bg-beergam-primary/40 font-semibold" : ""}
-                      ${isDisabled ? "opacity-50 cursor-not-allowed!" : "hover:bg-beergam-primary/10"}
-                      ${idx === 0 ? "rounded-t" : ""}
-                      ${idx === options.length - 1 ? "rounded-b" : ""}
-                    `}
-                    onClick={() => !isDisabled && handleSelect(opt.value)}
-                    disabled={isDisabled}
-                    onMouseEnter={() => !isDisabled && setFocusedIndex(idx)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span>{opt.label}</span>
-                      {isSelected && (
-                        <Svg.check tailWindClasses="w-4 h-4 text-beergam-primary" />
-                      )}
-                    </div>
-                  </button>
-                );
-              })
-            ) : (
-              <div className="px-3 py-2.5 text-sm text-beergam-typography-secondary text-center">
-                Nenhuma opção disponível
-              </div>
-            )}
-          </div>
-        )}
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      role="option"
+                      aria-selected={isSelected}
+                      className={`
+                        w-full px-3 py-2.5 text-left text-sm text-beergam-typography-tertiary transition-colors duration-150
+                        ${isSelected ? "bg-beergam-primary/40 font-semibold" : ""}
+                        ${isDisabled ? "opacity-50 cursor-not-allowed!" : "hover:bg-beergam-primary/10"}
+                        ${idx === 0 ? "rounded-t" : ""}
+                        ${idx === options.length - 1 ? "rounded-b" : ""}
+                      `}
+                      onClick={() => !isDisabled && handleSelect(opt.value)}
+                      disabled={isDisabled}
+                      onMouseEnter={() => !isDisabled && setFocusedIndex(idx)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span>{opt.label}</span>
+                        {isSelected && (
+                          <Svg.check tailWindClasses="w-4 h-4 text-beergam-primary" />
+                        )}
+                      </div>
+                    </button>
+                  );
+                })
+              ) : (
+                <div className="px-3 py-2.5 text-sm text-beergam-typography-secondary text-center">
+                  Nenhuma opção disponível
+                </div>
+              )}
+            </div>,
+            document.body
+          )}
       </div>
       {dataTooltipId && (
         <Tooltip
