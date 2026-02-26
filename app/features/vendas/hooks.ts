@@ -4,6 +4,7 @@ import type { ApiResponse } from "../apiClient/typings";
 import { vendasService } from "./service";
 import type {
   DailyRevenue,
+  DailyShipped,
   GeographicDistribution,
   Order,
   OrderDetailsResponse,
@@ -196,6 +197,27 @@ export function useDailyRevenue(params?: {
       const res = await vendasService.getDailyRevenue(queryParams);
       if (!res.success) {
         throw new Error(res.message || "Erro ao buscar faturamento diário");
+      }
+      return res;
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutos
+    enabled,
+  });
+}
+
+export function useDailyShipped(params?: {
+  days?: number;
+  date_from?: string;
+  date_to?: string;
+  enabled?: boolean;
+}) {
+  const { enabled = true, ...queryParams } = params ?? {};
+  return useQuery<ApiResponse<DailyShipped>>({
+    queryKey: ["orders", "daily-shipped", queryParams],
+    queryFn: async () => {
+      const res = await vendasService.getDailyShipped(queryParams);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar vendas diárias");
       }
       return res;
     },

@@ -9,6 +9,8 @@ import type {
   ProductsResponse,
   StockDashboardResponse,
   StockMovementApiPayload,
+  StockOverviewFilters,
+  StockOverviewResponse,
   StockSyncDashboardResponse,
   StockTrackingFilters,
   StockTrackingResponse,
@@ -328,6 +330,20 @@ export function useStockDashboard(limit: number = 20) {
       const res = await produtosService.getStockDashboard(limit);
       if (!res.success) {
         throw new Error(res.message || "Erro ao buscar dashboard de estoque");
+      }
+      return res;
+    },
+    staleTime: 1000 * 60 * 2, // 2 minutos
+  });
+}
+
+export function useStockOverview(filters?: Partial<StockOverviewFilters>) {
+  return useQuery<ApiResponse<StockOverviewResponse>>({
+    queryKey: ["stock-overview", filters],
+    queryFn: async () => {
+      const res = await produtosService.getStockOverview(filters);
+      if (!res.success) {
+        throw new Error(res.message || "Erro ao buscar panorama de estoque");
       }
       return res;
     },
