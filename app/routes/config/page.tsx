@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import { useAuthUser } from "~/features/auth/context/AuthStoreContext";
+import { isFree } from "~/features/plans/planUtils";
 import authStore from "~/features/store-zustand";
 import type { IColab } from "~/features/user/typings/Colab";
 import type { IUser } from "~/features/user/typings/User";
@@ -29,18 +30,15 @@ interface IConfigSection {
   icon: keyof typeof Svg;
   emBreve?: boolean;
   colabAccess?: boolean;
+  freePlanLocked?: boolean;
 }
 const CONFIG_SECTIONS: IConfigSection[] = [
   { label: "Visão Geral", icon: "cog_8_tooth", colabAccess: true },
   { label: "Minha Conta", icon: "user", colabAccess: true },
-  { label: "Marketplaces", icon: "globe", colabAccess: true },
-  { label: "Colaboradores", icon: "user_plus", colabAccess: false },
+  { label: "Marketplaces", icon: "globe", colabAccess: true, freePlanLocked: true },
+  { label: "Colaboradores", icon: "user_plus", colabAccess: false, freePlanLocked: true },
   { label: "Minha Assinatura", icon: "card", colabAccess: false },
-  {
-    label: "Impostos",
-    icon: "building_library",
-    colabAccess: true
-  },
+  { label: "Impostos", icon: "building_library", colabAccess: true, freePlanLocked: true },
   { label: "Afiliados", icon: "box", emBreve: true, colabAccess: false },
 ];
 
@@ -49,21 +47,29 @@ function ConfigSection({
   onClick,
   isSelected,
   emBreve = false,
+  isLockedForFree = false,
 }: {
   section: IConfigSection;
   onClick: () => void;
   isSelected: boolean;
   emBreve?: boolean;
+  isLockedForFree?: boolean;
 }) {
   const Icon = Svg[section.icon];
+  const isDisabled = emBreve || isLockedForFree;
   return (
     <button
-      className={`flex relative p-2 w-full rounded-lg text-left gap-2 border border-transparent items-center text-beergam-white ${emBreve ? "text-white/50 cursor-not-allowed!" : "hover:bg-beergam-primary/10"} ${isSelected ? "bg-beergam-primary! border-beergam-white!" : ""}`}
-      onClick={!emBreve ? onClick : undefined}
+      className={`flex relative p-2 w-full rounded-lg text-left gap-2 border border-transparent items-center text-beergam-white ${isDisabled ? "opacity-50 cursor-not-allowed!" : "hover:bg-beergam-primary/10"} ${isSelected ? "bg-beergam-primary! border-beergam-white!" : ""}`}
+      onClick={!isDisabled ? onClick : undefined}
     >
       {emBreve && (
         <span className="absolute top-1/2 right-2 translate-y-[-50%] font-bold text-beergam-white">
           Em breve
+        </span>
+      )}
+      {isLockedForFree && !emBreve && (
+        <span className="absolute top-1/2 right-2 translate-y-[-50%]">
+          <Svg.lock_closed width={16} height={16} />
         </span>
       )}
       <Icon width={26} height={26} />
@@ -102,16 +108,16 @@ export default function ConfigPage() {
     useState<SECTIONS>("Minha Conta");
   const user = useAuthUser();
   const marketplace = authStore.use.marketplace();
+  const subscription = authStore.use.subscription();
+  const isFreePlan = isFree(subscription);
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
-    console.log(selectedSectionUrl);
     if (selectedSectionUrl) {
       if (checkIfUrlIsAValidSession(selectedSectionUrl)) {
         const section = CONFIG_SECTIONS.find(
-          (section) => section.label === selectedSectionUrl
+          (s) => s.label === selectedSectionUrl
         );
 
-        // Verifica se a seção está em breve
         if (section?.emBreve) {
           navigate(`/interno/config?session=Minha Conta`);
           return;
@@ -122,12 +128,19 @@ export default function ConfigPage() {
           navigate(`/interno/config?session=Minha Conta`);
           return;
         }
+
+        if (section?.freePlanLocked && isFreePlan) {
+          toast.error("Esta seção não está disponível no plano Free");
+          navigate(`/interno/config?session=Minha Conta`);
+          return;
+        }
+
         setSelectedSection(selectedSectionUrl as SECTIONS);
       } else {
         navigate(`/interno/config?session=Minha Conta`);
       }
     }
-  }, [selectedSectionUrl, navigate, user]);
+  }, [selectedSectionUrl, navigate, user, isFreePlan]);
   function sendUserToInternal() {
     if (marketplace) {
       navigate(`/interno`);
@@ -170,6 +183,7 @@ export default function ConfigPage() {
                       }}
                       isSelected={selectedSection === section.label}
                       emBreve={section.emBreve}
+                      isLockedForFree={isFreePlan && !!section.freePlanLocked}
                     />
                   );
                 })}
@@ -194,6 +208,7 @@ export default function ConfigPage() {
                     }}
                     isSelected={selectedSection === section.label}
                     emBreve={section.emBreve}
+                    isLockedForFree={isFreePlan && !!section.freePlanLocked}
                   />
                 );
               })}

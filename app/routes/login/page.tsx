@@ -4,6 +4,7 @@ import PageLayout from "~/features/auth/components/PageLayout/PageLayout";
 import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
 import { setLastActivity } from "~/features/auth/utils/sessionActivityStorage";
 import { isSubscriptionError } from "~/features/auth/utils";
+import { isFree } from "~/features/plans/planUtils";
 import { subscriptionService } from "~/features/plans/subscriptionService";
 import { authService } from "~/features/auth/service";
 import authStore from "~/features/store-zustand";
@@ -119,9 +120,13 @@ export default function LoginPage({
         return;
       }
       
-      // Só navega para /interno/choosen_account se a subscription for válida
+      // Navega para o destino correto conforme o tipo de plano
       setLastActivity();
-      navigate("/interno/choosen_account");
+      if (isFree(subscription)) {
+        navigate("/interno", { replace: true });
+      } else {
+        navigate("/interno/choosen_account");
+      }
     } catch (error) {
       // Este catch nunca será executado pois getSubscription não lança exceções
       // Mas mantemos para segurança futura
@@ -129,8 +134,13 @@ export default function LoginPage({
       if (isMountedRef.current) {
         const currentUser = authStore.getState().user;
         if (currentUser) {
+          const currentSub = authStore.getState().subscription;
           setLastActivity();
-          navigate("/interno/choosen_account");
+          if (isFree(currentSub)) {
+            navigate("/interno", { replace: true });
+          } else {
+            navigate("/interno/choosen_account");
+          }
         }
       }
     } finally {

@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { Link, PrefetchPageLinks } from "react-router";
+import { Tooltip } from "react-tooltip";
+import { isFree } from "~/features/plans/planUtils";
+import authStore from "~/features/store-zustand";
 import Svg from "~/src/assets/svgs/_index";
 import { useMenuActions } from "../../hooks/useMenuActions";
 import { useMenuState } from "../../hooks/useMenuState";
@@ -86,6 +89,9 @@ export default function MenuItem({ item, itemKey, parentKey, className = "" }: I
   const currentKey = parentKey ? `${parentKey}.${itemKey}` : itemKey;
   const { toggleOpen } = useMenuActions();
   const { views, open: openMap, currentSelected } = useMenuState();
+  const subscription = authStore.use.subscription();
+  const isFreePlan = isFree(subscription);
+  const isLockedForFree = isFreePlan && item.freePlanLocked === true;
 
   // Verifica acesso: se tem parentKey, verifica o acesso do pai
   // Se não tem parentKey, verifica o acesso direto
@@ -102,6 +108,45 @@ export default function MenuItem({ item, itemKey, parentKey, className = "" }: I
   
   // Não renderiza se não tiver acesso ou se showMenu for false
   if (!isVisible || !showMenu) return null;
+
+  if (isLockedForFree) {
+    const tooltipId = `free-locked-${item.label.replace(/\s+/g, "-").toLowerCase()}`;
+    return (
+      <li className="w-full">
+        <div
+          className={[
+            "w-full text-left bg-transparent relative flex items-center rounded-[5px] cursor-not-allowed",
+            "text-white/30 border border-transparent",
+            "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-2",
+            "transition-[width,padding] duration-200",
+            className,
+          ].join(" ")}
+        >
+          {item.icon && (
+            <div className="w-[26px] h-[26px] shrink-0 flex-none relative">
+              {icon ? React.createElement(icon, {}) : null}
+              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-beergam-orange rounded-full flex items-center justify-center">
+                <Svg.lock_closed
+                  tailWindClasses="text-white"
+                  width="8px"
+                  height="8px"
+                />
+              </div>
+            </div>
+          )}
+          <span
+            data-tooltip-id={tooltipId}
+            data-tooltip-content="Disponível nos planos pagos"
+            data-tooltip-place="right"
+            className="inline-block ml-0 group-hover:ml-3 text-[18px] w-0 opacity-0 overflow-hidden whitespace-nowrap transition-[margin,width,opacity] duration-200 group-hover:w-auto group-hover:opacity-100"
+          >
+            {item.label}
+          </span>
+        </div>
+        <Tooltip id={tooltipId} positionStrategy="fixed" />
+      </li>
+    );
+  }
 
   return (
     <li

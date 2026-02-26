@@ -4,6 +4,8 @@ import AccessDenied from "~/features/auth/components/AccessDenied/AccessDenied";
 import MaintenanceDenied from "~/features/maintenance/components/MaintenanceDenied";
 import { useMaintenanceCheck } from "~/features/maintenance/hooks";
 import { getScreenIdFromRoute } from "~/features/maintenance/utils/getScreenIdFromRoute";
+import FreePlanUpgradeGate from "~/features/plans/components/FreePlanUpgradeGate/FreePlanUpgradeGate";
+import { isFree, isFreeAllowedRoute } from "~/features/plans/planUtils";
 import authStore from "~/features/store-zustand";
 import MenuDesktop from "~/features/system/components/desktop/MenuDesktop";
 import SystemLayout from "~/features/system/components/layout/SystemLayout";
@@ -15,6 +17,8 @@ import { checkRouteAccess } from "../../utils/checkRouteAccess";
 export default function MenuLayout() {
   const location = useLocation();
   const user = authStore.use.user();
+  const subscription = authStore.use.subscription();
+  const isFreePlan = isFree(subscription);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -45,6 +49,28 @@ export default function MenuLayout() {
     screenId &&
     maintenanceData?.success &&
     maintenanceData.data?.is_maintenance;
+
+  const isRouteBlockedForFree = isFreePlan && !isFreeAllowedRoute(location.pathname);
+
+  // Se rota está bloqueada para plano free, mostra upgrade gate
+  if (isRouteBlockedForFree) {
+    return (
+      <MenuProvider>
+        <BreadcrumbProvider>
+          <div className="flex bg-beergam-menu-background">
+            <div className="hidden md:block">
+              <MenuDesktop />
+            </div>
+            <div className="flex-1 ml-0 min-h-screen">
+              <SystemLayout>
+                <FreePlanUpgradeGate />
+              </SystemLayout>
+            </div>
+          </div>
+        </BreadcrumbProvider>
+      </MenuProvider>
+    );
+  }
 
   // Se não tem acesso, mostra acesso negado
   if (!hasAccess) {

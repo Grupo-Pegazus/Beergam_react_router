@@ -12,6 +12,7 @@ import {
   MarketplaceTypeLabel,
   type BaseMarketPlace,
 } from "~/features/marketplace/typings";
+import { isFree } from "~/features/plans/planUtils";
 import authStore from "~/features/store-zustand";
 import { isMaster } from "~/features/user/utils";
 import DeleteMarketaplceAccount from "~/routes/choosen_account/components/DeleteMarketaplceAccount";
@@ -52,6 +53,8 @@ export default function AccountView({
   } = useMarketplaceAccounts();
   const user = authStore.use.user();
   const marketplace = authStore.use.marketplace();
+  const subscription = authStore.use.subscription();
+  const isFreePlan = isFree(subscription);
 
   // Controla animação de abertura/fechamento do dropdown
   useEffect(() => {
@@ -175,7 +178,7 @@ export default function AccountView({
                 : "Menu do usuário"
             }
           >
-            {showMarketplaces ? (
+            {showMarketplaces && !isFreePlan ? (
               <>
                 {expanded && (
                   <div className="hidden md:flex flex-col min-w-0 text-right">
@@ -218,7 +221,10 @@ export default function AccountView({
                       </p>
                     </div>
                   )}
-                  <UserPhoto className="w-12 h-12!" name={user.name} />
+                  <UserPhoto
+                    className={showMarketplaces ? "w-8 h-8!" : "w-12 h-12!"}
+                    name={user.name}
+                  />
                 </>
               )
             )}
@@ -403,7 +409,7 @@ export default function AccountView({
                 className={`${showMarketplaces ? "border-beergam-menu-background" : "border-transparent"} border-t-2 `}
               >
                 <div className="p-2 space-y-1">
-                  {showMarketplaces && (
+                  {showMarketplaces && !isFreePlan && (
                     <button
                       type="button"
                       onClick={() => {
@@ -429,14 +435,14 @@ export default function AccountView({
                       <button
                         type="button"
                         onClick={() => {
-                          if (marketplace) {
+                          if (marketplace || isFreePlan) {
                             navigate("/interno");
                             setOpen(false);
                           }
                         }}
-                        disabled={!marketplace}
+                        disabled={!marketplace && !isFreePlan}
                         data-tooltip-id="acessar-sistema-tooltip"
-                        className={`w-full text-left px-3 py-2.5 flex items-center gap-3 rounded transition-colors group ${marketplace
+                        className={`w-full text-left px-3 py-2.5 flex items-center gap-3 rounded transition-colors group ${marketplace || isFreePlan
                           ? "hover:bg-beergam-primary/10 cursor-pointer"
                           : "opacity-50 cursor-not-allowed"
                           }`}
@@ -445,16 +451,16 @@ export default function AccountView({
                           <Svg.arrow_uturn_right
                             width={20}
                             height={20}
-                            tailWindClasses={`${marketplace ? "text-beergam-primary" : "text-beergam-typography-secondary"}`}
+                            tailWindClasses={`${marketplace || isFreePlan ? "text-beergam-primary" : "text-beergam-typography-secondary"}`}
                           />
                         </div>
                         <span
-                          className={`text-sm font-medium ${marketplace ? "text-beergam-typography-secondary group-hover:text-beergam-primary/80" : "text-beergam-typography-secondary"}`}
+                          className={`text-sm font-medium ${marketplace || isFreePlan ? "text-beergam-typography-secondary group-hover:text-beergam-primary/80" : "text-beergam-typography-secondary"}`}
                         >
                           Acessar Sistema
                         </span>
                       </button>
-                      {!marketplace && (
+                      {!marketplace && !isFreePlan && (
                         <Tooltip
                           id="acessar-sistema-tooltip"
                           place="left"

@@ -15,6 +15,7 @@ export interface IMenuItem {
   denyColabAccess?: boolean; //Se o item é acessível para o colaborador
   launched?: boolean; //Se o item foi lançado para o usuário
   showMenu?: boolean; //Se o item deve aparecer no menu ou não, por padrão é true
+  freePlanLocked?: boolean; //Se o item está bloqueado para o plano free
 }
 
 export type IMenuConfig = {
@@ -28,6 +29,7 @@ export const MenuConfig = {
     icon: "home",
     path: "/",
     launched: true,
+    freePlanLocked: false,
   },
   vendas: {
     label: "Vendas",
@@ -36,6 +38,7 @@ export const MenuConfig = {
     path: "/vendas",
     dinamic_id: "venda_id",
     launched: true,
+    freePlanLocked: true,
   },
   anuncios: {
     label: "Anúncios",
@@ -44,12 +47,14 @@ export const MenuConfig = {
     dinamic_id: "anuncio_id",
     icon: "bag",
     launched: true,
+    freePlanLocked: true,
   },
   atendimento: {
     label: "Atendimento",
     status: "yellow",
     icon: "chat",
     launched: true,
+    freePlanLocked: true,
     dropdown: {
       chat: {
         label: "Chat",
@@ -83,6 +88,7 @@ export const MenuConfig = {
     status: "green",
     icon: "box",
     launched: true,
+    freePlanLocked: true,
     dropdown: {
       gestao: {
         label: "Gestão",
@@ -164,12 +170,14 @@ export const MenuConfig = {
     path: "/calculadora",
     icon: "calculator",
     launched: true,
+    freePlanLocked: false,
   },
   financeiro: {
     label: "Financeiro",
     status: "green",
     icon: "currency_dollar",
     launched: true,
+    freePlanLocked: true,
     dropdown: {
       relatorio_vendas: {
         label: "Relatório de Vendas",
@@ -246,6 +254,7 @@ export class MenuClass {
         denyColabAccess: item.denyColabAccess ?? false,
         launched: item.launched ?? false,
         showMenu: item.showMenu ?? true,
+        freePlanLocked: item.freePlanLocked ?? true,
       };
     };
     return Object.fromEntries(
