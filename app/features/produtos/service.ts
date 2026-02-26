@@ -12,6 +12,8 @@ import type {
   StockMovementResponse,
   StockDashboardResponse,
   StockSyncDashboardResponse,
+  StockOverviewResponse,
+  StockOverviewFilters,
 } from "./typings";
 import type { CreateProduct } from "./typings/createProduct";
 
@@ -150,6 +152,26 @@ class ProdutosService {
       `/v1/products/stock-dashboard?limit=${limit}`
     );
     return response as ApiResponse<StockDashboardResponse>;
+  }
+
+  async getStockOverview(
+    filters?: Partial<StockOverviewFilters>
+  ): Promise<ApiResponse<StockOverviewResponse>> {
+    const params = new URLSearchParams();
+
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          params.append(key, String(value));
+        }
+      });
+    }
+
+    const queryString = params.toString();
+    const url = `/v1/products/stock-overview${queryString ? `?${queryString}` : ""}`;
+
+    const response = await typedApiClient.get<StockOverviewResponse>(url);
+    return response as ApiResponse<StockOverviewResponse>;
   }
 
   async getStockSyncDashboard(): Promise<ApiResponse<StockSyncDashboardResponse>> {
