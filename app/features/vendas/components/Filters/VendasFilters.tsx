@@ -29,7 +29,7 @@ const DELIVERY_STATUS_OPTIONS: Array<{ label: string; value: DeliveryStatusFilte
   { label: "Pronto para enviar", value: "ready_to_ship" },
   { label: "Em processamento", value: "handling" },
   { label: "Pendente", value: "pending" },
-  { label: "Enviado", value: "shipped" },
+  { label: "Enviado - Em Transito", value: "shipped" },
   { label: "Entregue", value: "delivered" },
 ];
 
