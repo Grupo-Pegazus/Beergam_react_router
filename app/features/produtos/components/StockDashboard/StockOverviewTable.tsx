@@ -23,6 +23,14 @@ const TAG_CONFIG: Record<StockTag, { label: string; classes: string }> = {
     label: "Diminuir Vendas",
     classes: "bg-beergam-red/20 text-beergam-red",
   },
+  sem_vendas: {
+    label: "Sem vendas",
+    classes: "bg-beergam-gray/20 text-beergam-gray",
+  },
+  sem_controle_estoque: {
+    label: "Controle de estoque desativado",
+    classes: "bg-beergam-gray/20 text-beergam-gray",
+  }
 };
 
 // ─── Sub-componentes ─────────────────────────────────────────────────────────
@@ -132,7 +140,7 @@ function ItemRow({ item }: { item: StockOverviewItem }) {
     <>
       <Paper
         component="div"
-        className="col-span-6 grid w-full min-w-0 overflow-hidden p-3 md:p-2"
+        className="col-span-7 grid w-full min-w-0 overflow-hidden p-3 md:p-2"
         sx={{ gridTemplateColumns: "subgrid", gridColumn: "1 / -1" }}
       >
         <div className="flex min-w-0 items-center gap-3 pr-2">
@@ -163,6 +171,12 @@ function ItemRow({ item }: { item: StockOverviewItem }) {
               </p>
             )}
           </div>
+        </div>
+
+        <div className="flex items-center">
+          <span className="text-sm font-semibold text-beergam-typography-primary">
+            {item.stock.maximum}/{item.stock.minimum}
+          </span>
         </div>
 
         <div className="flex items-center">
@@ -288,14 +302,15 @@ export default function StockOverviewTable() {
           className="grid w-full min-w-0 overflow-x-auto gap-x-2 gap-y-1"
           style={{
             gridTemplateColumns:
-              "minmax(200px, 2.5fr) repeat(5, minmax(80px, 1fr))",
+              "minmax(200px, 2.5fr) repeat(6, minmax(80px, 1fr))",
           }}
         >
           <div
-            className="col-span-6 grid text-[10px] font-semibold text-beergam-typography-tertiary! uppercase tracking-wide px-3 pb-1"
+            className="col-span-7 grid text-[10px] font-semibold text-beergam-typography-tertiary! uppercase tracking-wide px-3 pb-1"
             style={{ gridTemplateColumns: "subgrid", gridColumn: "1 / -1" }}
           >
             <span>Produto</span>
+            <span>Estoque máximo/mínimo</span>
             <span>Estoque Próprio</span>
             <span>FULL</span>
             <span>Média/dia</span>

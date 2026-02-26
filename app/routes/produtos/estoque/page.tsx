@@ -34,7 +34,7 @@ export default function StockDashboardPage() {
         </Grid>
       </Section>
 
-      <Section title="Panorama de Estoque com Tags">
+      <Section title="Panorama de Estoque">
         <Grid cols={{ base: 1, lg: 1 }}>
           <StockOverviewTable />
         </Grid>
