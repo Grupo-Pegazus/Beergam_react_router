@@ -3,6 +3,8 @@ export type MenuStatus = "green" | "yellow" | "red";
 
 export interface IMenuItem {
   path?: string;
+  href?: string; // Link externo absoluto (abre com <a target="_blank">)
+  redirectTo?: string; // Rota interna absoluta (ex: "/interno/config?session=Impostos")
   label: string;
   status: string;
   dropdown?: Record<string, IMenuItem>;
@@ -202,9 +204,38 @@ export const MenuConfig = {
         status: "green",
         path: "/pareto",
         launched: true,
+      },
+      imposto: {
+        label: "Imposto",
+        status: "green",
+        redirectTo: "/interno/config?session=Impostos",
+        launched: true,
       }
     }
-  }
+  },
+  conteudo: {
+    label: "Conteúdo",
+    status: "green",
+    icon: "megaphone",
+    launched: true,
+    freePlanLocked: false,
+    dropdown: {
+      networking: {
+        label: "Networking",
+        status: "green",
+        href: "https://chat.whatsapp.com/FkRg6rgM047C1zdTnekvSF",
+        target: "_blank",
+        launched: true,
+      },
+      academy: {
+        label: "Academy",
+        status: "green",
+        href: "https://academy.beergam.com.br",
+        target: "_blank",
+        launched: true,
+      },
+    },
+  },
 } satisfies IMenuConfig;
 
 export const MenuViewExtraInfo: Record<
@@ -232,6 +263,9 @@ export const MenuViewExtraInfo: Record<
   financeiro: {
     description: "Área de financeiro do sistema",
   },
+  conteudo: {
+    description: "Conteúdo exclusivo para lojistas Beergam",
+  },
 };
 
 export class MenuClass {
@@ -239,11 +273,12 @@ export class MenuClass {
   constructor(config: IMenuConfig) {
     this.config = this.applyDefaults(config);
   }
-  private applyDefaults(config: IMenuConfig): IMenuConfig {
-    const withDefaults = (item: IMenuItem): IMenuItem => {
+  private applyDefaults(config: IMenuConfig, parentFreePlanLocked = true): IMenuConfig {
+    const withDefaults = (item: IMenuItem, inheritedFreePlanLocked: boolean): IMenuItem => {
+      const resolvedFreePlanLocked = item.freePlanLocked ?? inheritedFreePlanLocked;
       const dropdown = item.dropdown
         ? Object.fromEntries(
-          Object.entries(item.dropdown).map(([k, v]) => [k, withDefaults(v)])
+          Object.entries(item.dropdown).map(([k, v]) => [k, withDefaults(v, resolvedFreePlanLocked)])
         )
         : undefined;
       return {
@@ -254,11 +289,11 @@ export class MenuClass {
         denyColabAccess: item.denyColabAccess ?? false,
         launched: item.launched ?? false,
         showMenu: item.showMenu ?? true,
-        freePlanLocked: item.freePlanLocked ?? true,
+        freePlanLocked: resolvedFreePlanLocked,
       };
     };
     return Object.fromEntries(
-      Object.entries(config).map(([k, v]) => [k, withDefaults(v)])
+      Object.entries(config).map(([k, v]) => [k, withDefaults(v, parentFreePlanLocked)])
     );
   }
   setMenu(views: MenuState) {

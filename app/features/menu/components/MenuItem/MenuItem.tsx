@@ -22,55 +22,62 @@ interface IMenuItemWrapperProps {
   setOpen?: () => void;
   children: React.ReactNode;
   path?: string;
+  href?: string;
   isSelected?: boolean;
   target?: string | null;
   open?: boolean;
   className?: string;
 }
 
+const linkBaseClasses = [
+  "w-full text-left bg-transparent relative flex items-center rounded-[5px]",
+  "text-white/50 border border-transparent hover:text-white hover:border-white/70",
+  "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-8",
+  "transition-[width,padding,color,border-color] duration-200",
+].join(" ");
+
 function MenuItemWrapper({
   isDropDown,
   setOpen,
   children,
   path,
+  href,
   isSelected,
   target,
   open,
   className = "",
 }: IMenuItemWrapperProps) {
   const [prefetchActive, setPrefetchActive] = useState(false);
+  const activeClass = isSelected || open ? "border-white text-beergam-orange! bg-beergam-orange/10!" : "";
+
   if (isDropDown) {
     return (
       <button
-        className={[
-          "w-full text-left bg-transparent relative flex items-center rounded-[5px]",
-          "text-white/50 border border-transparent hover:text-white hover:border-white/70",
-          "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-8",
-          "transition-[width,padding,color,border-color] duration-200",
-          className,
-          isSelected || open
-            ? "border-white text-beergam-orange! bg-beergam-orange/10!"
-            : "",
-        ].join(" ")}
+        className={[linkBaseClasses, className, activeClass].join(" ")}
         onClick={setOpen}
       >
         {children}
       </button>
     );
   }
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        target={target ?? "_blank"}
+        rel="noopener noreferrer"
+        className={[linkBaseClasses, className, activeClass].join(" ")}
+      >
+        {children}
+      </a>
+    );
+  }
+
   return (
     <>
       <Link
-        className={[
-          "w-full text-left bg-transparent relative flex items-center rounded-[5px]",
-          "text-white/50 border border-transparent hover:text-white hover:border-white/70",
-          "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-8",
-          "transition-[width,padding,color,border-color] duration-200",
-          className,
-          isSelected || open
-            ? "border-white text-beergam-orange! bg-beergam-orange/10!"
-            : "",
-        ].join(" ")}
+        className={[linkBaseClasses, className, activeClass].join(" ")}
         to={path || ""}
         target={target ? target : undefined}
         onMouseEnter={() => setPrefetchActive(true)}
@@ -101,9 +108,9 @@ export default function MenuItem({ item, itemKey, parentKey, className = "" }: I
   const open = openMap[currentKey] ?? false;
   const isSelected = currentSelected[currentKey] ?? false;
   const icon = item.icon
-    ? open || isSelected
-      ? getIcon((item.icon + "_solid") as keyof typeof Svg)
-      : getIcon(item.icon)
+    ? (open || isSelected
+        ? getIcon((item.icon + "_solid") as keyof typeof Svg) ?? getIcon(item.icon)
+        : getIcon(item.icon))
     : undefined;
   
   // Não renderiza se não tiver acesso ou se showMenu for false
@@ -159,9 +166,8 @@ export default function MenuItem({ item, itemKey, parentKey, className = "" }: I
       <MenuItemWrapper
         isDropDown={!!item.dropdown}
         setOpen={() => toggleOpen(currentKey)}
-        path={
-          getRelativePath(itemKey) ?? DEFAULT_INTERNAL_PATH + (item.path || "")
-        }
+        path={item.href ? undefined : (item.redirectTo ?? getRelativePath(itemKey) ?? DEFAULT_INTERNAL_PATH + (item.path || ""))}
+        href={item.href}
         isSelected={isSelected}
         target={item.target}
         open={open}
