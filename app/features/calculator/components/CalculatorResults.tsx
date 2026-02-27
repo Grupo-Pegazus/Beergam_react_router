@@ -1,8 +1,9 @@
 import { useState } from "react";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import Hint from "~/src/components/utils/Hint";
-import type { CalculatorRequest, CalculatorResponse, ShopeeDetails } from "../typings";
+import type { CalculatorRequest, CalculatorResponse, ISavedCalculation, ShopeeDetails } from "../typings";
 import SaveCalculationModal from "./SaveCalculationModal";
+import UpdateCalculationModal from "./UpdateCalculationModal/UpdateCalculationModal";
 
 interface CalculatorResultsProps {
   results: CalculatorResponse | null;
@@ -12,6 +13,8 @@ interface CalculatorResultsProps {
   };
   calculatorType: "ml" | "shopee" | "importacao";
   inputPayload?: CalculatorRequest;
+  savedCalculation?: ISavedCalculation;
+  onSavedCalculationUpdate?: (updated: ISavedCalculation) => void;
 }
 
 function formatCurrency(value: number): string {
@@ -133,8 +136,11 @@ export default function CalculatorResults({
   formData,
   calculatorType,
   inputPayload,
+  savedCalculation,
+  onSavedCalculationUpdate,
 }: CalculatorResultsProps) {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const displayResults = results || getDefaultResults(formData);
   const { costs, unit_calculation, weekly_calculation, margins } = displayResults;
   const isShopee = calculatorType === "shopee";
@@ -251,26 +257,44 @@ export default function CalculatorResults({
         <ShopeeDetailsSection details={shopeeDetails} />
       )}
 
-      {/* Botão salvar */}
+      {/* Botão salvar / atualizar */}
       {results && inputPayload && (
         <div className="border-t border-white/10 pt-3">
           <BeergamButton
-            title="Salvar cálculo"
+            title={savedCalculation ? "Atualizar cálculo" : "Salvar cálculo"}
             icon="calculator_solid"
             animationStyle="slider"
             className="w-full"
-            onClick={() => setIsSaveModalOpen(true)}
+            onClick={() =>
+              savedCalculation ? setIsUpdateModalOpen(true) : setIsSaveModalOpen(true)
+            }
           />
         </div>
       )}
 
-      {results && inputPayload && (
+      {results && inputPayload && !savedCalculation && (
         <SaveCalculationModal
           isOpen={isSaveModalOpen}
           onClose={() => setIsSaveModalOpen(false)}
           calculatorType={calculatorType}
           inputPayload={inputPayload}
           outputPayload={results}
+        />
+      )}
+
+      {results && inputPayload && savedCalculation && (
+        <UpdateCalculationModal
+          isOpen={isUpdateModalOpen}
+          onClose={() => setIsUpdateModalOpen(false)}
+          onUpdated={(updated) => {
+            onSavedCalculationUpdate?.(updated);
+            setIsUpdateModalOpen(false);
+          }}
+          savedCalculation={savedCalculation}
+          updatedPayload={{
+            input_payload: inputPayload,
+            output_payload: results,
+          }}
         />
       )}
     </div>

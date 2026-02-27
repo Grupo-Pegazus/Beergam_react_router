@@ -1,4 +1,6 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router";
+import type { ISavedCalculation } from "~/features/calculator/typings";
 import ImportacaoSimplificadaForm from "~/features/importacao_simplificada/components/ImportacaoSimplificadaForm";
 import ImportacaoSimplificadaResults from "~/features/importacao_simplificada/components/ImportacaoSimplificadaResults";
 import { calculateImportacaoSimplificada } from "~/features/importacao_simplificada/utils/calculateImportacao";
@@ -21,8 +23,34 @@ const initialFormData: ImportacaoSimplificadaFormData = {
   declarationCustomPercentage: "50",
 };
 
+function restoreFormData(saved: ISavedCalculation): ImportacaoSimplificadaFormData {
+  const input = saved.input_payload as unknown as ImportacaoSimplificadaFormData;
+  return {
+    products: input.products ?? initialFormData.products,
+    exchangeRate: input.exchangeRate ?? initialFormData.exchangeRate,
+    cargoWeightKg: input.cargoWeightKg ?? initialFormData.cargoWeightKg,
+    freightCostPerKgUsd: input.freightCostPerKgUsd ?? initialFormData.freightCostPerKgUsd,
+    icmsPercentage: input.icmsPercentage ?? initialFormData.icmsPercentage,
+    declarationType: input.declarationType ?? initialFormData.declarationType,
+    declarationCustomPercentage: input.declarationCustomPercentage ?? initialFormData.declarationCustomPercentage,
+  };
+}
+
 export default function ImportacaoSimplificadaPage() {
+  const location = useLocation();
+  const initialSaved = (location.state as { savedCalculation?: ISavedCalculation } | null)
+    ?.savedCalculation;
+
+  const [savedCalculation, setSavedCalculation] = useState<ISavedCalculation | undefined>(undefined);
   const [formData, setFormData] = useState<ImportacaoSimplificadaFormData>(initialFormData);
+
+  // Restaurar dados do cálculo salvo ao montar (dependência vazia intencional: só executa uma vez)
+  useEffect(() => {
+    if (initialSaved) {
+      setSavedCalculation(initialSaved);
+      setFormData(restoreFormData(initialSaved));
+    }
+  }, []);
 
   const handleFormDataChange = useCallback(
     (data: Partial<ImportacaoSimplificadaFormData>) => {
@@ -42,7 +70,12 @@ export default function ImportacaoSimplificadaPage() {
         formData={formData}
         onFormDataChange={handleFormDataChange}
       />
-      <ImportacaoSimplificadaResults result={result} formData={formData} />
+      <ImportacaoSimplificadaResults
+        result={result}
+        formData={formData}
+        savedCalculation={savedCalculation}
+        onSavedCalculationUpdate={setSavedCalculation}
+      />
     </div>
   );
 }

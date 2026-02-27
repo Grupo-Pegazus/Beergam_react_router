@@ -1,12 +1,16 @@
 import { useState } from "react";
 import BeergamButton from "~/src/components/utils/BeergamButton";
 import Hint from "~/src/components/utils/Hint";
+import UpdateCalculationModal from "~/features/calculator/components/UpdateCalculationModal/UpdateCalculationModal";
+import type { ISavedCalculation } from "~/features/calculator/typings";
 import SaveImportacaoModal from "./SaveImportacaoModal/SaveImportacaoModal";
 import type { ImportacaoSimplificadaFormData, ImportacaoSimplificadaResult } from "../typings";
 
 interface ImportacaoSimplificadaResultsProps {
   result: ImportacaoSimplificadaResult | null;
   formData: ImportacaoSimplificadaFormData;
+  savedCalculation?: ISavedCalculation;
+  onSavedCalculationUpdate?: (updated: ISavedCalculation) => void;
 }
 
 function formatUsd(value: number): string {
@@ -66,8 +70,11 @@ function SectionDivider({ title }: { title: string }) {
 export default function ImportacaoSimplificadaResults({
   result,
   formData,
+  savedCalculation,
+  onSavedCalculationUpdate,
 }: ImportacaoSimplificadaResultsProps) {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
   if (!result) {
     return (
@@ -158,23 +165,43 @@ export default function ImportacaoSimplificadaResults({
         </div>
       </div>
 
-      {/* Botão salvar */}
+      {/* Botão salvar / atualizar */}
       <div className="border-t border-white/10 pt-3">
         <BeergamButton
-          title="Salvar cálculo"
+          title={savedCalculation ? "Atualizar cálculo" : "Salvar cálculo"}
           icon="calculator_solid"
           animationStyle="slider"
           className="w-full"
-          onClick={() => setIsSaveModalOpen(true)}
+          onClick={() =>
+            savedCalculation ? setIsUpdateModalOpen(true) : setIsSaveModalOpen(true)
+          }
         />
       </div>
 
-      <SaveImportacaoModal
-        isOpen={isSaveModalOpen}
-        onClose={() => setIsSaveModalOpen(false)}
-        inputPayload={formData}
-        outputPayload={result}
-      />
+      {!savedCalculation && (
+        <SaveImportacaoModal
+          isOpen={isSaveModalOpen}
+          onClose={() => setIsSaveModalOpen(false)}
+          inputPayload={formData}
+          outputPayload={result}
+        />
+      )}
+
+      {savedCalculation && (
+        <UpdateCalculationModal
+          isOpen={isUpdateModalOpen}
+          onClose={() => setIsUpdateModalOpen(false)}
+          onUpdated={(updated) => {
+            onSavedCalculationUpdate?.(updated);
+            setIsUpdateModalOpen(false);
+          }}
+          savedCalculation={savedCalculation}
+          updatedPayload={{
+            input_payload: formData as unknown as Record<string, unknown>,
+            output_payload: result as unknown as Record<string, unknown>,
+          }}
+        />
+      )}
     </div>
   );
 }

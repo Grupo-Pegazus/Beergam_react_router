@@ -185,6 +185,12 @@ export const MenuConfig = {
         path: "/importacao_simplificada",
         launched: true,
       },
+      salvos: {
+        label: "Cálculos Salvos",
+        status: "green",
+        path: "/salvos",
+        launched: true,
+      },
     },
     freePlanLocked: false,
   },
