@@ -140,6 +140,7 @@ export interface IUser extends IBaseUser {
   details: IUserDetails;
   colabs: Record<string, IColab>;
   sub_count: number;
+  onboarding_free_plan_completed?: boolean;
 }
 
 const BeergamCodeSchema = z.string().min(10).max(10);
@@ -256,6 +257,7 @@ export const UserSchema = BaseUserSchema.extend({
   details: UserDetailsSchema,
   colabs: z.record(z.string(), ColabSchema).default({}),
   sub_count: NumberCoerced,
+  onboarding_free_plan_completed: z.boolean().optional().catch(false),
 }) satisfies z.ZodType<IUser>;
 
 export function isAtributeUser(

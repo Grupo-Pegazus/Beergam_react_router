@@ -3,6 +3,8 @@ export type MenuStatus = "green" | "yellow" | "red";
 
 export interface IMenuItem {
   path?: string;
+  href?: string; // Link externo absoluto (abre com <a target="_blank">)
+  redirectTo?: string; // Rota interna absoluta (ex: "/interno/config?session=Impostos")
   label: string;
   status: string;
   dropdown?: Record<string, IMenuItem>;
@@ -15,6 +17,7 @@ export interface IMenuItem {
   denyColabAccess?: boolean; //Se o item é acessível para o colaborador
   launched?: boolean; //Se o item foi lançado para o usuário
   showMenu?: boolean; //Se o item deve aparecer no menu ou não, por padrão é true
+  freePlanLocked?: boolean; //Se o item está bloqueado para o plano free
 }
 
 export type IMenuConfig = {
@@ -28,6 +31,7 @@ export const MenuConfig = {
     icon: "home",
     path: "/",
     launched: true,
+    freePlanLocked: false,
   },
   vendas: {
     label: "Vendas",
@@ -36,6 +40,7 @@ export const MenuConfig = {
     path: "/vendas",
     dinamic_id: "venda_id",
     launched: true,
+    freePlanLocked: true,
   },
   anuncios: {
     label: "Anúncios",
@@ -44,12 +49,14 @@ export const MenuConfig = {
     dinamic_id: "anuncio_id",
     icon: "bag",
     launched: true,
+    freePlanLocked: true,
   },
   atendimento: {
     label: "Atendimento",
     status: "yellow",
     icon: "chat",
     launched: true,
+    freePlanLocked: true,
     dropdown: {
       chat: {
         label: "Chat",
@@ -83,6 +90,7 @@ export const MenuConfig = {
     status: "green",
     icon: "box",
     launched: true,
+    freePlanLocked: true,
     dropdown: {
       gestao: {
         label: "Gestão",
@@ -164,12 +172,14 @@ export const MenuConfig = {
     path: "/calculadora",
     icon: "calculator",
     launched: true,
+    freePlanLocked: false,
   },
   financeiro: {
     label: "Financeiro",
     status: "green",
     icon: "currency_dollar",
     launched: true,
+    freePlanLocked: true,
     dropdown: {
       relatorio_vendas: {
         label: "Relatório de Vendas",
@@ -194,9 +204,38 @@ export const MenuConfig = {
         status: "green",
         path: "/pareto",
         launched: true,
+      },
+      imposto: {
+        label: "Imposto",
+        status: "green",
+        redirectTo: "/interno/config?session=Impostos",
+        launched: true,
       }
     }
-  }
+  },
+  conteudo: {
+    label: "Conteúdo",
+    status: "green",
+    icon: "megaphone",
+    launched: true,
+    freePlanLocked: false,
+    dropdown: {
+      networking: {
+        label: "Networking",
+        status: "green",
+        href: "https://chat.whatsapp.com/FkRg6rgM047C1zdTnekvSF",
+        target: "_blank",
+        launched: true,
+      },
+      academy: {
+        label: "Academy",
+        status: "green",
+        href: "https://academy.beergam.com.br",
+        target: "_blank",
+        launched: true,
+      },
+    },
+  },
 } satisfies IMenuConfig;
 
 export const MenuViewExtraInfo: Record<
@@ -224,6 +263,9 @@ export const MenuViewExtraInfo: Record<
   financeiro: {
     description: "Área de financeiro do sistema",
   },
+  conteudo: {
+    description: "Conteúdo exclusivo para lojistas Beergam",
+  },
 };
 
 export class MenuClass {
@@ -231,11 +273,12 @@ export class MenuClass {
   constructor(config: IMenuConfig) {
     this.config = this.applyDefaults(config);
   }
-  private applyDefaults(config: IMenuConfig): IMenuConfig {
-    const withDefaults = (item: IMenuItem): IMenuItem => {
+  private applyDefaults(config: IMenuConfig, parentFreePlanLocked = true): IMenuConfig {
+    const withDefaults = (item: IMenuItem, inheritedFreePlanLocked: boolean): IMenuItem => {
+      const resolvedFreePlanLocked = item.freePlanLocked ?? inheritedFreePlanLocked;
       const dropdown = item.dropdown
         ? Object.fromEntries(
-          Object.entries(item.dropdown).map(([k, v]) => [k, withDefaults(v)])
+          Object.entries(item.dropdown).map(([k, v]) => [k, withDefaults(v, resolvedFreePlanLocked)])
         )
         : undefined;
       return {
@@ -246,10 +289,11 @@ export class MenuClass {
         denyColabAccess: item.denyColabAccess ?? false,
         launched: item.launched ?? false,
         showMenu: item.showMenu ?? true,
+        freePlanLocked: resolvedFreePlanLocked,
       };
     };
     return Object.fromEntries(
-      Object.entries(config).map(([k, v]) => [k, withDefaults(v)])
+      Object.entries(config).map(([k, v]) => [k, withDefaults(v, parentFreePlanLocked)])
     );
   }
   setMenu(views: MenuState) {
