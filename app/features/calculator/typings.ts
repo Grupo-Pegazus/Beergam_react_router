@@ -8,8 +8,13 @@ export interface CalculatorRequest {
   fiscal_tributes?: number;
   additional_costs_amount?: number;
   additional_costs_percentage?: number;
-  calculator_type?: "ml" | "shopee";
+  calculator_type?: "ml" | "shopee" | "importacao";
   typeAd?: "classico" | "premium" | "sem_frete_gratis" | "com_frete_gratis";
+  seller_type?: "cnpj" | "cpf";
+  payment_method?: "pix" | "outros";
+  orders_last_90_days?: number;
+  highlight_campaign?: boolean;
+  freight_coupon_value?: number;
 }
 
 export interface CalculatorCosts {
@@ -18,6 +23,18 @@ export interface CalculatorCosts {
   shipping_cost: number;
   fiscal_tributes: number;
   additional_costs: number;
+}
+
+export interface ShopeeDetails {
+  gross_commission: number;
+  percent_applied: number;
+  fixed_fee_applied: number;
+  pix_subsidy_amount: number;
+  net_commission: number;
+  cpf_surcharge: number;
+  campaign_surcharge: number;
+  freight_coupon_cost: number;
+  total_commission: number;
 }
 
 export interface UnitCalculation {
@@ -45,6 +62,7 @@ export interface CalculatorResponse {
   unit_calculation: UnitCalculation;
   weekly_calculation: WeeklyCalculation;
   margins: CalculatorMargins;
+  shopee_details?: ShopeeDetails | null;
 }
 
 export interface CalculatorFormData {
@@ -61,10 +79,16 @@ export interface CalculatorFormData {
   taxesPercentage: string;
   additionalCostsAmount: string;
   additionalCostsPercentage: string;
-  calculatorType: "ml" | "shopee";
+  calculatorType: "ml" | "shopee" | "importacao";
 
   classicCommission?: number;
   premiumCommission?: number;
+
+  sellerType: "cnpj" | "cpf";
+  paymentMethod: "pix" | "outros";
+  ordersLast90Days: string;
+  highlightCampaign: boolean;
+  freightCouponValue: string;
 }
 
 
@@ -105,5 +129,25 @@ export interface MeliListingPrice {
   sale_fee_details?: MeliSaleFeeDetails;
 
   [key: string]: unknown;
+}
+
+export interface ISavedCalculation {
+  id: number;
+  name: string;
+  type_calculator: "meli" | "shopee" | "importacao";
+  photo_file_id: string | null;
+  photo_url: string | null;
+  input_payload: CalculatorRequest;
+  output_payload: CalculatorResponse;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface SaveCalculationPayload {
+  name: string;
+  type_calculator: "meli" | "shopee" | "importacao";
+  input_payload: CalculatorRequest | Record<string, unknown>;
+  output_payload: CalculatorResponse | Record<string, unknown>;
+  photo?: File;
 }
 

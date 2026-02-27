@@ -17,7 +17,7 @@ function stripNonNumeric(value: string): string {
   return value.replace(/[^\d,.-]/g, "").replace(".", ",");
 }
 
-/** Normaliza número em pt-BR: "1.234,56" -> 1234.56 */
+/** Normaliza número em pt-BR: "1.234,56" -> 1234.56. Aceita "." e "," como decimal */
 function parsePtBrNumber(value: string): number {
   if (!value || value.trim() === "") return Number.NaN;
   const cleaned = stripNonNumeric(value)
@@ -25,6 +25,13 @@ function parsePtBrNumber(value: string): number {
     .replace(",", ".");
   const parsed = parseFloat(cleaned);
   return Number.isFinite(parsed) ? parsed : Number.NaN;
+}
+
+/** Verifica se a string é um valor parcial (ex: "1." ou "1,") que não deve ser formatado */
+export function isPartialDecimal(value: string): boolean {
+  if (typeof value !== "string" || !value.trim()) return false;
+  const cleaned = value.replace(/[^\d,.]/g, "");
+  return /^\d+[.,]$/.test(cleaned);
 }
 
 /** Formata número para exibição em pt-BR com 2 decimais (moeda) */

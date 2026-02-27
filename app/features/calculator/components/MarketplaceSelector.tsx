@@ -11,7 +11,7 @@ export default function MarketplaceSelector({
   onChange,
 }: MarketplaceSelectorProps) {
   return (
-    <MainCards>
+    <MainCards allowOverflow>
       <Fields.wrapper>
         <Fields.label
           text="Marketplace"

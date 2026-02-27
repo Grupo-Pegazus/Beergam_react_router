@@ -3,8 +3,10 @@ import type { ApiResponse } from "../apiClient/typings";
 import type {
   CalculatorRequest,
   CalculatorResponse,
-  MeliProductResponse,
+  ISavedCalculation,
   MeliListingPrice,
+  MeliProductResponse,
+  SaveCalculationPayload,
 } from "./typings";
 
 class CalculatorService {
@@ -59,6 +61,75 @@ class CalculatorService {
       `/v1/calculator/meli/listing_prices?${params.toString()}`
     );
     return response as ApiResponse<MeliListingPrice[]>;
+  }
+
+  async saveCalculation(
+    payload: SaveCalculationPayload
+  ): Promise<ApiResponse<ISavedCalculation>> {
+    const formData = new FormData();
+    formData.append("name", payload.name);
+    formData.append("type_calculator", payload.type_calculator);
+    formData.append("input_payload", JSON.stringify(payload.input_payload));
+    formData.append("output_payload", JSON.stringify(payload.output_payload));
+    if (payload.photo) {
+      formData.append("photo", payload.photo);
+    }
+
+    const response = await typedApiClient.post<ISavedCalculation>(
+      "/v1/calculator/saved",
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    return response as ApiResponse<ISavedCalculation>;
+  }
+
+  async listSavedCalculations(
+    typeCalculator?: "meli" | "shopee" | "importacao"
+  ): Promise<ApiResponse<ISavedCalculation[]>> {
+    const params = new URLSearchParams();
+    if (typeCalculator) params.set("type_calculator", typeCalculator);
+    const query = params.toString();
+    const response = await typedApiClient.get<ISavedCalculation[]>(
+      `/v1/calculator/saved${query ? `?${query}` : ""}`
+    );
+    return response as ApiResponse<ISavedCalculation[]>;
+  }
+
+  async getSavedCalculation(
+    calculationId: number
+  ): Promise<ApiResponse<ISavedCalculation>> {
+    const response = await typedApiClient.get<ISavedCalculation>(
+      `/v1/calculator/saved/${calculationId}`
+    );
+    return response as ApiResponse<ISavedCalculation>;
+  }
+
+  async updateSavedCalculation(
+    calculationId: number,
+    payload: Partial<SaveCalculationPayload>
+  ): Promise<ApiResponse<ISavedCalculation>> {
+    const formData = new FormData();
+    if (payload.name !== undefined) formData.append("name", payload.name);
+    if (payload.type_calculator !== undefined) formData.append("type_calculator", payload.type_calculator);
+    if (payload.input_payload !== undefined) formData.append("input_payload", JSON.stringify(payload.input_payload));
+    if (payload.output_payload !== undefined) formData.append("output_payload", JSON.stringify(payload.output_payload));
+    if (payload.photo) formData.append("photo", payload.photo);
+
+    const response = await typedApiClient.patch<ISavedCalculation>(
+      `/v1/calculator/saved/${calculationId}`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    return response as ApiResponse<ISavedCalculation>;
+  }
+
+  async deleteSavedCalculation(
+    calculationId: number
+  ): Promise<ApiResponse<null>> {
+    const response = await typedApiClient.delete<null>(
+      `/v1/calculator/saved/${calculationId}`
+    );
+    return response as ApiResponse<null>;
   }
 }
 
