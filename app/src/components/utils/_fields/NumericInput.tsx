@@ -3,6 +3,7 @@ import { Tooltip } from "react-tooltip";
 import Svg from "~/src/assets/svgs/_index";
 import {
   getNumericFormat,
+  isPartialDecimal,
   type NumericFormatType,
 } from "~/src/utils/formatters/numericInputFormat";
 
@@ -115,10 +116,18 @@ export default function NumericInput({
       displayValue = config ? config.format(realValue) : realValue.toString();
     }
   } else {
+    const valueStr = String(value ?? "");
+    const preservePartial =
+      config &&
+      format === "decimal" &&
+      typeof value === "string" &&
+      isPartialDecimal(valueStr);
     displayValue = config
-      ? isNumber
-        ? config.format(numericValue as number)
-        : ""
+      ? preservePartial
+        ? valueStr
+        : isNumber
+          ? config.format(numericValue as number)
+          : ""
       : String(value ?? "");
   }
 
@@ -207,11 +216,17 @@ export default function NumericInput({
       const raw = e.target.value;
 
       if (config) {
-        const parsed = config.parse(raw);
-        if (Number.isNaN(parsed) || raw.trim() === "") {
+        if (raw.trim() === "") {
           onChange?.(undefined);
+        } else if (format === "decimal" && isPartialDecimal(raw)) {
+          onChange?.(raw);
         } else {
-          onChange?.(clamp(parsed, min, max));
+          const parsed = config.parse(raw);
+          if (Number.isNaN(parsed)) {
+            onChange?.(undefined);
+          } else {
+            onChange?.(clamp(parsed, min, max));
+          }
         }
       } else {
         const digitsOnly = raw.replace(/[^\d,.-]/g, "");

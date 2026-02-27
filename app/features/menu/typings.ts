@@ -159,11 +159,25 @@ export const MenuConfig = {
     }
   },
   calculadora: {
-    label: "Calculadora",
+    label: "Calculadoras",
     status: "green",
-    path: "/calculadora",
     icon: "calculator",
+    path: "/calculadora",
     launched: true,
+    dropdown: {
+      calculadora_page: {
+        label: "Precificação",
+        status: "green",
+        path: "", // depois temos que ajeitar isso
+        launched: true,
+      },
+      importacao_simplificada: {
+        label: "Importação Simplificada",
+        status: "green",
+        path: "/importacao_simplificada",
+        launched: true,
+      },
+    }
   },
   financeiro: {
     label: "Financeiro",
