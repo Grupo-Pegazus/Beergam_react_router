@@ -8,7 +8,7 @@ export interface CalculatorRequest {
   fiscal_tributes?: number;
   additional_costs_amount?: number;
   additional_costs_percentage?: number;
-  calculator_type?: "ml" | "shopee";
+  calculator_type?: "ml" | "shopee" | "importacao";
   typeAd?: "classico" | "premium" | "sem_frete_gratis" | "com_frete_gratis";
   seller_type?: "cnpj" | "cpf";
   payment_method?: "pix" | "outros";
@@ -79,7 +79,7 @@ export interface CalculatorFormData {
   taxesPercentage: string;
   additionalCostsAmount: string;
   additionalCostsPercentage: string;
-  calculatorType: "ml" | "shopee";
+  calculatorType: "ml" | "shopee" | "importacao";
 
   classicCommission?: number;
   premiumCommission?: number;
@@ -129,5 +129,25 @@ export interface MeliListingPrice {
   sale_fee_details?: MeliSaleFeeDetails;
 
   [key: string]: unknown;
+}
+
+export interface ISavedCalculation {
+  id: number;
+  name: string;
+  type_calculator: "meli" | "shopee" | "importacao";
+  photo_file_id: string | null;
+  photo_url: string | null;
+  input_payload: CalculatorRequest;
+  output_payload: CalculatorResponse;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface SaveCalculationPayload {
+  name: string;
+  type_calculator: "meli" | "shopee" | "importacao";
+  input_payload: CalculatorRequest;
+  output_payload: CalculatorResponse;
+  photo?: File;
 }
 

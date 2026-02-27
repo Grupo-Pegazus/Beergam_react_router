@@ -1,6 +1,8 @@
 import { useState } from "react";
+import BeergamButton from "~/src/components/utils/BeergamButton";
 import Hint from "~/src/components/utils/Hint";
-import type { CalculatorResponse, ShopeeDetails } from "../typings";
+import type { CalculatorRequest, CalculatorResponse, ShopeeDetails } from "../typings";
+import SaveCalculationModal from "./SaveCalculationModal";
 
 interface CalculatorResultsProps {
   results: CalculatorResponse | null;
@@ -8,7 +10,8 @@ interface CalculatorResultsProps {
     salePrice: string;
     weeklySales: string;
   };
-  calculatorType: "ml" | "shopee";
+  calculatorType: "ml" | "shopee" | "importacao";
+  inputPayload?: CalculatorRequest;
 }
 
 function formatCurrency(value: number): string {
@@ -129,7 +132,9 @@ export default function CalculatorResults({
   results,
   formData,
   calculatorType,
+  inputPayload,
 }: CalculatorResultsProps) {
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const displayResults = results || getDefaultResults(formData);
   const { costs, unit_calculation, weekly_calculation, margins } = displayResults;
   const isShopee = calculatorType === "shopee";
@@ -244,6 +249,29 @@ export default function CalculatorResults({
       {/* Breakdown Shopee */}
       {isShopee && shopeeDetails && (
         <ShopeeDetailsSection details={shopeeDetails} />
+      )}
+
+      {/* Botão salvar */}
+      {results && inputPayload && (
+        <div className="border-t border-white/10 pt-3">
+          <BeergamButton
+            title="Salvar cálculo"
+            icon="calculator_solid"
+            animationStyle="slider"
+            className="w-full"
+            onClick={() => setIsSaveModalOpen(true)}
+          />
+        </div>
+      )}
+
+      {results && inputPayload && (
+        <SaveCalculationModal
+          isOpen={isSaveModalOpen}
+          onClose={() => setIsSaveModalOpen(false)}
+          calculatorType={calculatorType}
+          inputPayload={inputPayload}
+          outputPayload={results}
+        />
       )}
     </div>
   );

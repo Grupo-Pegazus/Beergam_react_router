@@ -172,6 +172,7 @@ export default function CalculadoraPage() {
             weeklySales: formData.weeklySales,
           }}
           calculatorType={formData.calculatorType}
+          inputPayload={calculateMutation.variables ?? undefined}
         />
       </div>
     </>
