@@ -2,10 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import { Navigate, Outlet, useLocation } from "react-router";
 import { useLogoutFlow } from "~/features/auth/hooks/useLogoutFlow";
+import OnboardingModal from "~/features/onboarding/components/OnboardingModal/OnboardingModal";
+import { isFree } from "~/features/plans/planUtils";
 import authStore from "~/features/store-zustand";
 import { UserRoles } from "~/features/user/typings/BaseUser";
 import type { IColab } from "~/features/user/typings/Colab";
-import { isColab } from "~/features/user/utils";
+import type { IUser } from "~/features/user/typings/User";
+import { isColab, isMaster } from "~/features/user/utils";
 import { queryClient } from "~/lib/queryClient";
 import Alert from "~/src/components/utils/Alert";
 import { useModal } from "~/src/components/utils/Modal/useModal";
@@ -21,6 +24,7 @@ import UsageTimeLimitWarning from "../UsageTimeLimitWarning/UsageTimeLimitWarnin
 const ROUTES_WITHOUT_MARKETPLACE = [
   "/interno/choosen_account",
   "/interno/config",
+  "/interno",
 ];
 export default function AuthLayout() {
   useSessionInactivityGuard();
@@ -31,7 +35,23 @@ export default function AuthLayout() {
   const authError = useAuthError();
   const user = useAuthUser();
   const marketplace = useAuthMarketplace();
+  const subscription = authStore.use.subscription();
   const location = useLocation();
+
+  const isFreePlan = isFree(subscription);
+  const needsOnboarding =
+    isFreePlan &&
+    isMaster(user as IUser) &&
+    !(user as IUser)?.onboarding_free_plan_completed;
+
+  const handleOnboardingCompleted = () => {
+    authStore.setState({
+      user: {
+        ...(user as IUser),
+        onboarding_free_plan_completed: true,
+      } as IUser,
+    });
+  };
   const { data } = useQuery({
     queryKey: ["verifyTimeColab", user?.pin, user?.master_pin, user?.role],
     queryFn: () =>
@@ -137,12 +157,25 @@ export default function AuthLayout() {
       }
     }
   }
-  if (ROUTES_WITHOUT_MARKETPLACE.includes(location.pathname)) {
-    return <Outlet />;
-  } else {
-    if (!marketplace) {
-      return <Navigate to="/interno/choosen_account" replace />;
+  if (needsOnboarding) {
+    if (location.pathname !== "/interno") {
+      return <Navigate to="/interno" replace />;
     }
+    return (
+      <>
+        <Outlet />
+        <OnboardingModal onCompleted={handleOnboardingCompleted} />
+      </>
+    );
+  }
+
+  if (isFreePlan || ROUTES_WITHOUT_MARKETPLACE.includes(location.pathname)) {
     return <Outlet />;
   }
+
+  if (!marketplace) {
+    return <Navigate to="/interno/choosen_account" replace />;
+  }
+
+  return <Outlet />;
 }

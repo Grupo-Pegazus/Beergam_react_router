@@ -50,16 +50,17 @@ export interface PlanBenefits {
 export interface Plan {
   display_name: string;
   price: number;
-  benefits: PlanBenefits;
+  benefits: PlanBenefits | null;
   is_current_plan?: boolean;
-  price_id: string;
-  price_id_3_months: string;
-  price_3_months: number;
-  price_id_6_months: string;
-  price_6_months: number;
-  price_id_1_year: string;
-  price_1_year: number;
-  description: string;
+  price_id?: string;
+  price_id_3_months?: string;
+  price_3_months?: number;
+  price_id_6_months?: string;
+  price_6_months?: number;
+  price_id_1_year?: string;
+  price_1_year?: number;
+  description?: string;
+  is_affiliate_plan?: boolean;
 }
 
 export interface SubscriptionPlan {
@@ -72,6 +73,7 @@ export interface Subscription {
   start_date: Date;
   end_date: Date;
   free_trial_until?: Date | null;
+  is_free_plan?: boolean;
   plan: Plan;
   status?: SubscriptionStatus;
 }
@@ -99,17 +101,21 @@ export const PlanBenefitsSchema = z.object({
 
 export const PlanSchema = z.object({
   display_name: z.string(),
-  price: z.number(),
-  benefits: PlanBenefitsSchema,
-  is_current_plan: z.boolean(),
-  price_id: z.string(),
-  price_id_3_months: z.string(),
-  price_3_months: z.number(),
-  price_id_6_months: z.string(),
-  price_6_months: z.number(),
-  price_id_1_year: z.string(),
-  price_1_year: z.number(),
-  description: z.string(),
+  price: z.preprocess((v) => {
+    if (v === null || v === undefined || v === "") return 0;
+    return Number(v);
+  }, z.number()),
+  benefits: PlanBenefitsSchema.nullable().catch(null),
+  is_current_plan: z.boolean().optional().catch(false),
+  price_id: z.string().optional().catch(""),
+  price_id_3_months: z.string().optional().catch(""),
+  price_3_months: z.number().optional().catch(0),
+  price_id_6_months: z.string().optional().catch(""),
+  price_6_months: z.number().optional().catch(0),
+  price_id_1_year: z.string().optional().catch(""),
+  price_1_year: z.number().optional().catch(0),
+  description: z.string().optional().catch(""),
+  is_affiliate_plan: z.boolean().optional().catch(false),
 }) satisfies z.ZodType<Plan>;
 
 const DateCoerced = z.preprocess(
@@ -126,6 +132,7 @@ export const SubscriptionSchema = z.object({
   start_date: DateCoerced,
   end_date: DateCoerced,
   free_trial_until: DateCoerced.optional().nullable(),
+  is_free_plan: z.boolean().optional(),
   plan: PlanSchema,
   status: z.enum(
     Object.keys(SubscriptionStatus) as [

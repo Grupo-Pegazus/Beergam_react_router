@@ -16,6 +16,7 @@ import {
   MarketplaceTypeLabel,
   type BaseMarketPlace,
 } from "~/features/marketplace/typings";
+import { isFree } from "~/features/plans/planUtils";
 import authStore from "~/features/store-zustand";
 import DeleteMarketaplceAccount from "~/routes/choosen_account/components/DeleteMarketaplceAccount";
 import Svg from "~/src/assets/svgs/_index";
@@ -41,6 +42,8 @@ export default function MobileAccountOverlay({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { isOpen, shouldRender, open, requestClose } = useOverlay();
+  const subscription = authStore.use.subscription();
+  const isFreePlan = isFree(subscription);
 
   useEffect(() => {
     open();
@@ -144,6 +147,7 @@ export default function MobileAccountOverlay({
         onAdd={() => setModalOpen(true)}
         onSelected={handleClose}
         onDelete={handleDeleteMarketplace}
+        isFreePlan={isFreePlan}
       />
       <Modal
         title="Adicionar Marketplace"
@@ -184,10 +188,12 @@ function AccountList({
   onSelected,
   onAdd,
   onDelete,
+  isFreePlan = false,
 }: {
   onSelected: () => void;
   onAdd: () => void;
   onDelete: (marketplace: BaseMarketPlace) => void;
+  isFreePlan?: boolean;
 }) {
   const { accounts, current, isLoading, selectAccountAsync, isSelecting } =
     useMarketplaceAccounts();
@@ -247,20 +253,22 @@ function AccountList({
               )}
             </div>
           ))}
-          <button
-            type="button"
-            onClick={onAdd}
-            className="fixed w-[90%] mx-auto bottom-6 left-0 right-0 mt-2 px-3 py-4 rounded-xl border border-black/10 bg-beergam-primary/10 text-center flex items-center justify-center gap-2"
-          >
-            <Svg.globe
-              width={20}
-              height={20}
-              tailWindClasses="text-beergam-primary"
-            />
-            <span className="text-lg font-medium text-beergam-primary">
-              Adicionar Marketplace
-            </span>
-          </button>
+          {!isFreePlan && (
+            <button
+              type="button"
+              onClick={onAdd}
+              className="fixed w-[90%] mx-auto bottom-6 left-0 right-0 mt-2 px-3 py-4 rounded-xl border border-black/10 bg-beergam-primary/10 text-center flex items-center justify-center gap-2"
+            >
+              <Svg.globe
+                width={20}
+                height={20}
+                tailWindClasses="text-beergam-primary"
+              />
+              <span className="text-lg font-medium text-beergam-primary">
+                Adicionar Marketplace
+              </span>
+            </button>
+          )}
         </div>
       )}
     </div>

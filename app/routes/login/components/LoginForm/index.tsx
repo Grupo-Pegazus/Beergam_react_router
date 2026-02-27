@@ -69,6 +69,8 @@ export default function LoginForm({
         navigate("/interno/config?session=Minha Assinatura", {
           viewTransition: true,
         });
+      } else if (data.data.subscription?.is_free_plan) {
+        navigate("/interno", { viewTransition: true });
       } else {
         navigate("/interno/choosen_account", { viewTransition: true });
       }

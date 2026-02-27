@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { Link, PrefetchPageLinks } from "react-router";
+import { Tooltip } from "react-tooltip";
+import { isFree } from "~/features/plans/planUtils";
+import authStore from "~/features/store-zustand";
 import Svg from "~/src/assets/svgs/_index";
 import { useMenuActions } from "../../hooks/useMenuActions";
 import { useMenuState } from "../../hooks/useMenuState";
@@ -19,55 +22,62 @@ interface IMenuItemWrapperProps {
   setOpen?: () => void;
   children: React.ReactNode;
   path?: string;
+  href?: string;
   isSelected?: boolean;
   target?: string | null;
   open?: boolean;
   className?: string;
 }
 
+const linkBaseClasses = [
+  "w-full text-left bg-transparent relative flex items-center rounded-[5px]",
+  "text-white/50 border border-transparent hover:text-white hover:border-white/70",
+  "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-8",
+  "transition-[width,padding,color,border-color] duration-200",
+].join(" ");
+
 function MenuItemWrapper({
   isDropDown,
   setOpen,
   children,
   path,
+  href,
   isSelected,
   target,
   open,
   className = "",
 }: IMenuItemWrapperProps) {
   const [prefetchActive, setPrefetchActive] = useState(false);
+  const activeClass = isSelected || open ? "border-white text-beergam-orange! bg-beergam-orange/10!" : "";
+
   if (isDropDown) {
     return (
       <button
-        className={[
-          "w-full text-left bg-transparent relative flex items-center rounded-[5px]",
-          "text-white/50 border border-transparent hover:text-white hover:border-white/70",
-          "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-8",
-          "transition-[width,padding,color,border-color] duration-200",
-          className,
-          isSelected || open
-            ? "border-white text-beergam-orange! bg-beergam-orange/10!"
-            : "",
-        ].join(" ")}
+        className={[linkBaseClasses, className, activeClass].join(" ")}
         onClick={setOpen}
       >
         {children}
       </button>
     );
   }
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        target={target ?? "_blank"}
+        rel="noopener noreferrer"
+        className={[linkBaseClasses, className, activeClass].join(" ")}
+      >
+        {children}
+      </a>
+    );
+  }
+
   return (
     <>
       <Link
-        className={[
-          "w-full text-left bg-transparent relative flex items-center rounded-[5px]",
-          "text-white/50 border border-transparent hover:text-white hover:border-white/70",
-          "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-8",
-          "transition-[width,padding,color,border-color] duration-200",
-          className,
-          isSelected || open
-            ? "border-white text-beergam-orange! bg-beergam-orange/10!"
-            : "",
-        ].join(" ")}
+        className={[linkBaseClasses, className, activeClass].join(" ")}
         to={path || ""}
         target={target ? target : undefined}
         onMouseEnter={() => setPrefetchActive(true)}
@@ -86,6 +96,9 @@ export default function MenuItem({ item, itemKey, parentKey, className = "" }: I
   const currentKey = parentKey ? `${parentKey}.${itemKey}` : itemKey;
   const { toggleOpen } = useMenuActions();
   const { views, open: openMap, currentSelected } = useMenuState();
+  const subscription = authStore.use.subscription();
+  const isFreePlan = isFree(subscription);
+  const isLockedForFree = isFreePlan && item.freePlanLocked === true;
 
   // Verifica acesso: se tem parentKey, verifica o acesso do pai
   // Se não tem parentKey, verifica o acesso direto
@@ -95,13 +108,52 @@ export default function MenuItem({ item, itemKey, parentKey, className = "" }: I
   const open = openMap[currentKey] ?? false;
   const isSelected = currentSelected[currentKey] ?? false;
   const icon = item.icon
-    ? open || isSelected
-      ? getIcon((item.icon + "_solid") as keyof typeof Svg)
-      : getIcon(item.icon)
+    ? (open || isSelected
+        ? getIcon((item.icon + "_solid") as keyof typeof Svg) ?? getIcon(item.icon)
+        : getIcon(item.icon))
     : undefined;
   
   // Não renderiza se não tiver acesso ou se showMenu for false
   if (!isVisible || !showMenu) return null;
+
+  if (isLockedForFree) {
+    const tooltipId = `free-locked-${item.label.replace(/\s+/g, "-").toLowerCase()}`;
+    return (
+      <li className="w-full">
+        <div
+          className={[
+            "w-full text-left bg-transparent relative flex items-center rounded-[5px] cursor-not-allowed",
+            "text-white/30 border border-transparent",
+            "h-11 w-[30px] group-hover:w-full justify-center group-hover:justify-start pl-0 group-hover:pl-2 pr-0 group-hover:pr-2",
+            "transition-[width,padding] duration-200",
+            className,
+          ].join(" ")}
+        >
+          {item.icon && (
+            <div className="w-[26px] h-[26px] shrink-0 flex-none relative">
+              {icon ? React.createElement(icon, {}) : null}
+              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-beergam-orange rounded-full flex items-center justify-center">
+                <Svg.lock_closed
+                  tailWindClasses="text-white"
+                  width="8px"
+                  height="8px"
+                />
+              </div>
+            </div>
+          )}
+          <span
+            data-tooltip-id={tooltipId}
+            data-tooltip-content="Disponível nos planos pagos"
+            data-tooltip-place="right"
+            className="inline-block ml-0 group-hover:ml-3 text-[18px] w-0 opacity-0 overflow-hidden whitespace-nowrap transition-[margin,width,opacity] duration-200 group-hover:w-auto group-hover:opacity-100"
+          >
+            {item.label}
+          </span>
+        </div>
+        <Tooltip id={tooltipId} positionStrategy="fixed" />
+      </li>
+    );
+  }
 
   return (
     <li
@@ -114,9 +166,8 @@ export default function MenuItem({ item, itemKey, parentKey, className = "" }: I
       <MenuItemWrapper
         isDropDown={!!item.dropdown}
         setOpen={() => toggleOpen(currentKey)}
-        path={
-          getRelativePath(itemKey) ?? DEFAULT_INTERNAL_PATH + (item.path || "")
-        }
+        path={item.href ? undefined : (item.redirectTo ?? getRelativePath(itemKey) ?? DEFAULT_INTERNAL_PATH + (item.path || ""))}
+        href={item.href}
         isSelected={isSelected}
         target={item.target}
         open={open}

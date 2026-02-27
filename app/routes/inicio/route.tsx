@@ -1,4 +1,7 @@
 import type { Route } from ".react-router/types/app/routes/inicio/+types/route";
+import { isFree } from "~/features/plans/planUtils";
+import authStore from "~/features/store-zustand";
+import FreeHomePage from "./FreeHomePage";
 import InicioPage from "./page";
 
 export function meta({}: Route.MetaArgs) {
@@ -9,7 +12,11 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Inicio() {
-  return (
-    <InicioPage />
-  );
+  const subscription = authStore.use.subscription();
+
+  if (isFree(subscription)) {
+    return <FreeHomePage />;
+  }
+
+  return <InicioPage />;
 }
