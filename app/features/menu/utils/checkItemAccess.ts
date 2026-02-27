@@ -1,4 +1,4 @@
-import { type MenuKeys, type MenuState } from "../typings";
+import { MenuConfig, type MenuKeys, type MenuState } from "../typings";
 
 /**
  * Verifica se um item do menu (incluindo itens aninhados) tem acesso
@@ -22,9 +22,14 @@ export function checkItemAccess(
   }
 
   // Se não tem parentKey, é um item principal do menu
-  // Verifica acesso direto no MenuState
   if (!parentKey) {
-    return allowedViews[itemKey as MenuKeys]?.access ?? false;
+    const directAccess = allowedViews[itemKey as MenuKeys]?.access;
+    // Se o backend não retornou essa chave, verifica se está liberado no MenuConfig
+    if (directAccess === undefined) {
+      const configItem = (MenuConfig as Record<string, { freePlanLocked?: boolean }>)[itemKey];
+      return configItem?.freePlanLocked === false;
+    }
+    return directAccess;
   }
 
   // Para itens aninhados, verifica primeiro se a chave existe no MenuState

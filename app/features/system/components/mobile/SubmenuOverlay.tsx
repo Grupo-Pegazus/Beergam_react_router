@@ -74,7 +74,18 @@ export default function SubmenuOverlay({
   function handleItemClick(item: IMenuItem, key: string) {
     if (item.dropdown) {
       setSubmenuStack((prev) => [...prev, { items: item.dropdown!, parentLabel: item.label, parentKey: key }]);
-    } else if (item.path) {
+      return;
+    }
+    if (item.href) {
+      handleCloseAll();
+      window.open(item.href, item.target ?? "_blank", "noopener,noreferrer");
+      return;
+    }
+    if (item.redirectTo) {
+      handleGo(item.redirectTo);
+      return;
+    }
+    if (item.path) {
       const isExternal =
         item.path.startsWith("http://") || item.path.startsWith("https://");
       if (isExternal) {

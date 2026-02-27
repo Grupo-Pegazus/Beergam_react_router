@@ -38,6 +38,35 @@ const mobileNav: BottomNavConfig = {
   ],
 } as const;
 
+export const freeMobileNav: BottomNavConfig = {
+  items: [
+    {
+      key: "home",
+      label: "Início",
+      destination: { pathname: DEFAULT_INTERNAL_PATH },
+      icon: Svg.home as unknown as NavIcon,
+      iconSolid: Svg.home_solid as unknown as NavIcon,
+    },
+    {
+      key: "calculator",
+      label: "Calculadora",
+      destination: { pathname: DEFAULT_INTERNAL_PATH + "/calculadora" },
+      icon: Svg.calculator as unknown as NavIcon,
+      iconSolid: Svg.calculator_solid as unknown as NavIcon,
+    },
+    {
+      key: "complaints",
+      label: "Conteúdo",
+      icon: Svg.megaphone as unknown as NavIcon,
+    },
+    {
+      key: "menu",
+      label: "Menu",
+      icon: Svg.list as unknown as NavIcon,
+    },
+  ],
+} as const;
+
 export default mobileNav;
 
 export const dynamicDefaultParentKey = "atendimento" as const;

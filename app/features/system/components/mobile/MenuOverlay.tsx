@@ -19,6 +19,7 @@ import Svg from "~/src/assets/svgs/_index";
 import { useOverlay } from "../../hooks/useOverlay";
 import OverlayFrame from "../../shared/OverlayFrame";
 import SubmenuOverlay from "./SubmenuOverlay";
+import { isFree } from "~/features/plans/planUtils";
 
 export default function MenuOverlay({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate();
@@ -26,6 +27,8 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
   const firstFocusable = useRef<HTMLButtonElement | null>(null);
   const { isOpen, shouldRender, open, requestClose } = useOverlay();
   const user = authStore.use.user();
+  const subscription = authStore.use.subscription();
+  const isFreePlan = isFree(subscription);
   const [submenuState, setSubmenuState] = useState<{
     items: IMenuConfig;
     parentLabel: string;
@@ -42,16 +45,13 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
 
   const hasAccess = useCallback(
     (key: string): boolean => {
-      // Se for master, sempre tem acesso a tudo
-      if (isUserMaster) {
-        return true;
-      }
-      // Se não há allowedViews definido, mostra todos os itens (fallback)
-      if (!allowedViews) {
-        return true;
-      }
-      // Verifica acesso baseado em allowedViews
-      return allowedViews[key as MenuKeys]?.access ?? false;
+      if (isUserMaster) return true;
+      if (!allowedViews) return true;
+      const directAccess = allowedViews[key as MenuKeys]?.access;
+      if (directAccess !== undefined) return directAccess;
+      // Chave ausente no backend: libera se freePlanLocked: false no MenuConfig
+      const configItem = (MenuConfig as Record<string, { freePlanLocked?: boolean }>)[key];
+      return configItem?.freePlanLocked === false;
     },
     [allowedViews, isUserMaster]
   );
@@ -85,40 +85,25 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
     navigate(path);
   }
 
-  const CONTEUDO_SUBMENU_ITEMS: IMenuConfig = useMemo(
-    () => ({
-      comunidade_whatsapp: {
-        label: "Comunidade do WhatsApp",
-        path: "https://chat.whatsapp.com/FkRg6rgM047C1zdTnekvSF",
-        target: "_blank",
-        status: "green",
-      },
-    }),
-    []
-  );
-
   function handleItemClick(item: IMenuItem, key: string) {
     if (item.dropdown) {
-      setSubmenuState({
-        items: item.dropdown,
-        parentLabel: item.label,
-        parentKey: key,
-      });
-    } else if (item.path) {
-      const fullPath =
-        getRelativePath(key) || DEFAULT_INTERNAL_PATH + item.path;
+      setSubmenuState({ items: item.dropdown, parentLabel: item.label, parentKey: key });
+      return;
+    }
+    if (item.href) {
+      handleClose();
+      window.open(item.href, item.target ?? "_blank", "noopener,noreferrer");
+      return;
+    }
+    if (item.redirectTo) {
+      handleGo(item.redirectTo);
+      return;
+    }
+    if (item.path) {
+      const fullPath = getRelativePath(key) || DEFAULT_INTERNAL_PATH + item.path;
       handleGo(fullPath);
     }
   }
-
-  function handleConteudoClick() {
-    setSubmenuState({
-      items: CONTEUDO_SUBMENU_ITEMS,
-      parentLabel: "Conteúdo",
-    });
-  }
-
-  const ConteudoIcon = getIcon("megaphone");
 
   return (
     <>
@@ -133,6 +118,7 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
             .filter(([key]) => hasAccess(key))
             .map(([key, item]) => {
               const menuItem = item as IMenuItem;
+              const isLockedForFree = isFreePlan && menuItem.freePlanLocked === true;
               const Icon = menuItem.icon ? getIcon(menuItem.icon) : undefined;
               const maybeSolid = menuItem.icon
                 ? (getIcon((menuItem.icon + "_solid") as keyof typeof Svg) as
@@ -144,19 +130,25 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
                 location.pathname
               );
               const isActive = keyChain[0] === key;
-              const ActiveIcon = isActive && maybeSolid ? maybeSolid : Icon;
+              const ActiveIcon = isActive && maybeSolid && !isLockedForFree ? maybeSolid : Icon;
               const hasDropdown = !!menuItem.dropdown;
               return (
                 <Paper
                   key={key}
-                  onClick={() => handleItemClick(menuItem, key)}
+                  onClick={() => !isLockedForFree ? handleItemClick(menuItem, key) : undefined}
                   className={[
                     "relative aspect-square rounded-xl border border-black/10 bg-beergam-menu-background! shadow-sm p-3 flex flex-col items-center justify-center gap-2 transition-all duration-200",
                     "hover:bg-beergam-blue-light hover:border-beergam-blue/20 active:scale-95 cursor-pointer",
-                    isActive ? "border-beergam-orange!" : "",
+                    isActive && !isLockedForFree ? "border-beergam-orange!" : "",
+                    isLockedForFree ? "opacity-50 cursor-not-allowed!" : "",
                   ].join(" ")}
                   elevation={1}
                 >
+                  {isLockedForFree && (
+                    <span className="absolute top-1.5 right-1.5 grid place-items-center w-5 h-5">
+                      <Svg.lock_closed tailWindClasses="w-6 h-6 text-beergam-orange" />
+                    </span>
+                  )}
                   <span className="leading-none grid place-items-center text-beergam-menu-mobile-button">
                     {ActiveIcon ? (
                       <ActiveIcon
@@ -165,7 +157,7 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
                     ) : null}
                   </span>
                   <span
-                    className={`text-xs ${isActive ? "font-bold" : "font-medium"} ${isActive ? "text-beergam-orange" : "text-beergam-menu-mobile-button"} text-center leading-tight`}
+                    className={`text-xs ${isActive && !isLockedForFree ? "font-bold" : "font-medium"} ${isActive && !isLockedForFree ? "text-beergam-orange" : "text-beergam-menu-mobile-button"} text-center leading-tight`}
                   >
                     {menuItem.label}
                   </span>
@@ -174,41 +166,20 @@ export default function MenuOverlay({ onClose }: { onClose: () => void }) {
                       <Svg.list tailWindClasses="w-6 h-6 text-beergam-menu-mobile-button" />
                     </span>
                   )}
-                  <span className="absolute top-1.5 right-1.5 grid place-items-center w-5 h-5">
+                  {menuItem.status && !isLockedForFree && (
+                    <span className="absolute top-1.5 right-1.5 grid place-items-center w-5 h-5">
                     {menuItem.status === "green" ? (
                       <Svg.check_circle tailWindClasses="w-6 h-6 text-beergam-green" />
                     ) : menuItem.status === "yellow" ? (
                       <Svg.warning_circle tailWindClasses="w-6 h-6 text-beergam-yellow" />
-                    ) : menuItem.status === "red" ? (
-                      <Svg.x_circle tailWindClasses="w-6 h-6 text-beergam-red" />
-                    ) : null}
-                  </span>
+                      ) : menuItem.status === "red" ? (
+                        <Svg.x_circle tailWindClasses="w-6 h-6 text-beergam-red" />
+                      ) : null}
+                    </span>
+                  )}
                 </Paper>
               );
             })}
-          <Paper
-            onClick={handleConteudoClick}
-            className={[
-              "relative aspect-square rounded-xl border border-black/10 bg-beergam-menu-background! shadow-sm p-3 flex flex-col items-center justify-center gap-2 transition-all duration-200",
-              "hover:bg-beergam-blue-light hover:border-beergam-blue/20 active:scale-95 cursor-pointer",
-            ].join(" ")}
-            elevation={1}
-          >
-            <span className="leading-none grid place-items-center text-beergam-menu-mobile-button">
-              {ConteudoIcon ? (
-                <ConteudoIcon tailWindClasses="w-8 h-8 text-beergam-menu-mobile-button" />
-              ) : null}
-            </span>
-            <span className="text-xs font-medium text-beergam-menu-mobile-button text-center leading-tight">
-              Conteúdo
-            </span>
-            <span className="absolute top-1.5 left-1.5 grid place-items-center w-5 h-5">
-              <Svg.list tailWindClasses="w-6 h-6 text-beergam-menu-mobile-button" />
-            </span>
-            <span className="absolute top-1.5 right-1.5 grid place-items-center w-5 h-5">
-              <Svg.check_circle tailWindClasses="w-6 h-6 text-beergam-green" />
-            </span>
-          </Paper>
         </div>
         <div aria-hidden>
           {Object.entries(MenuConfig).map(([key, item]) => {

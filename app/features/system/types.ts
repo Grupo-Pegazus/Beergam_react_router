@@ -1,4 +1,4 @@
-export type NavKey = 'home' | 'sales' | 'account' | 'complaints' | 'menu';
+export type NavKey = 'home' | 'sales' | 'account' | 'complaints' | 'menu' | 'calculator';
 
 export type NavDestination = {
   pathname: string;
