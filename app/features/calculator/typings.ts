@@ -146,8 +146,8 @@ export interface ISavedCalculation {
 export interface SaveCalculationPayload {
   name: string;
   type_calculator: "meli" | "shopee" | "importacao";
-  input_payload: CalculatorRequest;
-  output_payload: CalculatorResponse;
+  input_payload: CalculatorRequest | Record<string, unknown>;
+  output_payload: CalculatorResponse | Record<string, unknown>;
   photo?: File;
 }
 

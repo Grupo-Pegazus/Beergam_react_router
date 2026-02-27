@@ -37,20 +37,12 @@ export default function ImportacaoSimplificadaPage() {
   );
 
   return (
-    <>
-
-      <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6">
-        <div>
-          <ImportacaoSimplificadaForm
-            formData={formData}
-            onFormDataChange={handleFormDataChange}
-          />
-        </div>
-
-        <div>
-          <ImportacaoSimplificadaResults result={result} />
-        </div>
-      </div>
-    </>
+    <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6 items-start">
+      <ImportacaoSimplificadaForm
+        formData={formData}
+        onFormDataChange={handleFormDataChange}
+      />
+      <ImportacaoSimplificadaResults result={result} formData={formData} />
+    </div>
   );
 }
