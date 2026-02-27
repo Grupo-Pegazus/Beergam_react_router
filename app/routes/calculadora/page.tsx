@@ -27,6 +27,11 @@ const initialFormData: CalculatorFormData = {
   calculatorType: "ml",
   classicCommission: undefined,
   premiumCommission: undefined,
+  sellerType: "cnpj",
+  paymentMethod: "outros",
+  ordersLast90Days: "",
+  highlightCampaign: false,
+  freightCouponValue: "",
 };
 
 export default function CalculadoraPage() {
@@ -35,13 +40,14 @@ export default function CalculadoraPage() {
   // Ajustar adType quando mudar de ML para Shopee ou vice-versa
   useEffect(() => {
     if (formData.calculatorType === "shopee") {
-      // Se for Shopee e o adType não for válido para Shopee, mudar para "normal"
       if (formData.adType === "classico" || formData.adType === "premium") {
-        setFormData((prev) => ({ ...prev, adType: "normal" }));
+        setFormData((prev) => ({ ...prev, adType: "sem_frete_gratis" }));
       }
     } else {
-      // Se for ML e o adType não for válido para ML, mudar para "classico"
-      if (formData.adType === "normal" || formData.adType === "indicado") {
+      if (
+        formData.adType === "sem_frete_gratis" ||
+        formData.adType === "com_frete_gratis"
+      ) {
         setFormData((prev) => ({ ...prev, adType: "classico" }));
       }
     }
@@ -99,7 +105,9 @@ export default function CalculadoraPage() {
       return;
     }
 
-    if (!mlFeePercentage && !mlFeeAmount) {
+    const isShopee = formData.calculatorType === "shopee";
+
+    if (!isShopee && !mlFeePercentage && !mlFeeAmount) {
       toast.error("Preencha a comissão (porcentagem ou valor)");
       return;
     }
@@ -116,6 +124,13 @@ export default function CalculadoraPage() {
       additional_costs_percentage: additionalCostsPercentage,
       calculator_type: formData.calculatorType,
       typeAd: formData.adType,
+      ...(isShopee && {
+        seller_type: formData.sellerType,
+        payment_method: formData.paymentMethod,
+        orders_last_90_days: parseInt(formData.ordersLast90Days) || 0,
+        highlight_campaign: formData.highlightCampaign,
+        freight_coupon_value: parseFloat(formData.freightCouponValue) || 0,
+      }),
     };
 
     calculateMutation.mutate(requestData);
@@ -128,21 +143,13 @@ export default function CalculadoraPage() {
         aumentar seu lucro em cada venda
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6">
-        <div className="relative">
+      <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6 items-start">
+        <div className="space-y-4">
           <CalculatorForm
             formData={formData}
             onFormDataChange={handleFormDataChange}
           />
-          <div className="sticky bottom-4 mt-6 flex justify-end z-10">
-            {/* <button
-              type="button"
-              onClick={handleCalculate}
-              disabled={calculateMutation.isPending}
-              className="px-8 py-3 md:w-auto w-full bg-beergam-orange text-white rounded-lg hover:bg-beergam-orange-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-lg"
-            >
-              {calculateMutation.isPending ? "Calculando..." : "Calcular"}
-            </button> */}
+          <div className="sticky bottom-0 py-3 flex justify-end bg-beergam-layout-background z-10">
             <BeergamButton
               title={calculateMutation.isPending ? "Calculando..." : "Calcular"}
               animationStyle="slider"
@@ -158,16 +165,14 @@ export default function CalculadoraPage() {
           </div>
         </div>
 
-        <div>
-          <CalculatorResults
-            results={calculateMutation.data?.data || null}
-            formData={{
-              salePrice: formData.salePrice,
-              weeklySales: formData.weeklySales,
-            }}
-            calculatorType={formData.calculatorType}
-          />
-        </div>
+        <CalculatorResults
+          results={calculateMutation.data?.data || null}
+          formData={{
+            salePrice: formData.salePrice,
+            weeklySales: formData.weeklySales,
+          }}
+          calculatorType={formData.calculatorType}
+        />
       </div>
     </>
   );

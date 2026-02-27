@@ -1,6 +1,5 @@
 import { Paper } from "@mui/material";
 import { Fields } from "~/src/components/utils/_fields";
-import RadioGroup from "./RadioGroup";
 
 interface ShippingSectionProps {
   freeShipping: boolean;
@@ -22,18 +21,11 @@ export default function ShippingSection({
       </h2>
 
       <Fields.wrapper>
-        <Fields.label
-          text="Frete grátis"
-          hint="Se o frete será grátis para o comprador"
-        />
-        <RadioGroup
+        <Fields.checkbox
           name="freeShipping"
-          value={freeShipping ? "sim" : "nao"}
-          options={[
-            { value: "nao", label: "Não" },
-            { value: "sim", label: "Sim" },
-          ]}
-          onChange={(value) => onFreeShippingChange(value === "sim")}
+          checked={freeShipping}
+          onChange={(e) => onFreeShippingChange(e.target.checked)}
+          label="Frete grátis"
         />
       </Fields.wrapper>
 
@@ -51,9 +43,7 @@ export default function ShippingSection({
             placeholder="0,00"
             min={0}
           />
-          <p className="text-xs text-beergam-typography-secondary mt-1.5">
-            Opcional
-          </p>
+          <p className="text-xs text-beergam-gray mt-1.5">Opcional</p>
         </Fields.wrapper>
       )}
     </Paper>

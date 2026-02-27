@@ -5,6 +5,7 @@ import MarketplaceSelector from "./MarketplaceSelector";
 import MeliProductLinkSection from "./MeliProductLinkSection";
 import ProductInfoSection from "./ProductInfoSection";
 import ShippingSection from "./ShippingSection";
+import ShopeeSection from "./ShopeeSection";
 import TaxesSection from "./TaxesSection";
 
 interface CalculatorFormProps {
@@ -83,6 +84,30 @@ export default function CalculatorForm({
             onShippingCostChange={(value) => updateField("shippingCost", value)}
           />
         )}
+
+        {formData.calculatorType === "shopee" && (
+          <ShopeeSection
+            sellerType={formData.sellerType}
+            paymentMethod={formData.paymentMethod}
+            ordersLast90Days={formData.ordersLast90Days}
+            highlightCampaign={formData.highlightCampaign}
+            freightCouponValue={formData.freightCouponValue}
+            onSellerTypeChange={(value) => updateField("sellerType", value)}
+            onPaymentMethodChange={(value) =>
+              updateField("paymentMethod", value)
+            }
+            onOrdersLast90DaysChange={(value) =>
+              updateField("ordersLast90Days", value)
+            }
+            onHighlightCampaignChange={(value) =>
+              updateField("highlightCampaign", value)
+            }
+            onFreightCouponValueChange={(value) =>
+              updateField("freightCouponValue", value)
+            }
+          />
+        )}
+
         <TaxesSection
           taxRegime={formData.taxRegime}
           annualRevenue={formData.annualRevenue}

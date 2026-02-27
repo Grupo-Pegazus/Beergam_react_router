@@ -10,6 +10,11 @@ export interface CalculatorRequest {
   additional_costs_percentage?: number;
   calculator_type?: "ml" | "shopee";
   typeAd?: "classico" | "premium" | "sem_frete_gratis" | "com_frete_gratis";
+  seller_type?: "cnpj" | "cpf";
+  payment_method?: "pix" | "outros";
+  orders_last_90_days?: number;
+  highlight_campaign?: boolean;
+  freight_coupon_value?: number;
 }
 
 export interface CalculatorCosts {
@@ -18,6 +23,18 @@ export interface CalculatorCosts {
   shipping_cost: number;
   fiscal_tributes: number;
   additional_costs: number;
+}
+
+export interface ShopeeDetails {
+  gross_commission: number;
+  percent_applied: number;
+  fixed_fee_applied: number;
+  pix_subsidy_amount: number;
+  net_commission: number;
+  cpf_surcharge: number;
+  campaign_surcharge: number;
+  freight_coupon_cost: number;
+  total_commission: number;
 }
 
 export interface UnitCalculation {
@@ -45,6 +62,7 @@ export interface CalculatorResponse {
   unit_calculation: UnitCalculation;
   weekly_calculation: WeeklyCalculation;
   margins: CalculatorMargins;
+  shopee_details?: ShopeeDetails | null;
 }
 
 export interface CalculatorFormData {
@@ -65,6 +83,12 @@ export interface CalculatorFormData {
 
   classicCommission?: number;
   premiumCommission?: number;
+
+  sellerType: "cnpj" | "cpf";
+  paymentMethod: "pix" | "outros";
+  ordersLast90Days: string;
+  highlightCampaign: boolean;
+  freightCouponValue: string;
 }
 
 
